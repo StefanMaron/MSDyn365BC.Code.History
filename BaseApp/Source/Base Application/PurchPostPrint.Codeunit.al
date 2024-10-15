@@ -65,26 +65,15 @@ codeunit 92 "Purch.-Post + Print"
     local procedure ConfirmPost(var PurchHeader: Record "Purchase Header"; DefaultOption: Integer): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
-        Selection: Integer;
     begin
         with PurchHeader do begin
             case "Document Type" of
                 "Document Type"::Order:
-                    begin
-                        Selection := StrMenu(ReceiveInvoiceQst, DefaultOption);
-                        if Selection = 0 then
-                            exit(false);
-                        Receive := Selection in [1, 3];
-                        Invoice := Selection in [2, 3];
-                    end;
+                    if not SelectPostOrderOption(PurchHeader, DefaultOption) then
+                        exit(false);
                 "Document Type"::"Return Order":
-                    begin
-                        Selection := StrMenu(ShipInvoiceQst, DefaultOption);
-                        if Selection = 0 then
-                            exit(false);
-                        Ship := Selection in [1, 3];
-                        Invoice := Selection in [2, 3];
-                    end
+                    if not SelectPostReturnOrderOption(PurchHeader, DefaultOption) then
+                        exit(false);
                 else
                     if not ConfirmManagement.GetResponseOrDefault(
                          StrSubstNo(PostAndPrintQst, "Document Type"), true)
@@ -97,6 +86,48 @@ codeunit 92 "Purch.-Post + Print"
             if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
                 IsCrMemo := true;
         end;
+        exit(true);
+    end;
+
+    local procedure SelectPostOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
+    var
+        Selection: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectPostOrderOption(PurchaseHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with PurchaseHeader do begin
+            Selection := StrMenu(ReceiveInvoiceQst, DefaultOption);
+            if Selection = 0 then
+                exit(false);
+            Receive := Selection in [1, 3];
+            Invoice := Selection in [2, 3];
+        end;
+
+        exit(true);
+    end;
+
+    local procedure SelectPostReturnOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
+    var
+        Selection: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectPostReturnOrderOption(PurchaseHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with PurchaseHeader do begin
+            Selection := StrMenu(ShipInvoiceQst, DefaultOption);
+            if Selection = 0 then
+                exit(false);
+            Ship := Selection in [1, 3];
+            Invoice := Selection in [2, 3];
+        end;
+
         exit(true);
     end;
 
@@ -245,6 +276,16 @@ codeunit 92 "Purch.-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunPurchPost(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectPostOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectPostReturnOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

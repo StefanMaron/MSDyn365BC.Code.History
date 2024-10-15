@@ -20,6 +20,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         Window: Dialog;
         LineCount: Integer;
         DeleteOne: Boolean;
+        IsHandled: Boolean;
     begin
         ReleaseDocument(Rec);
         TransHeader := Rec;
@@ -101,7 +102,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
                     if TransLine."Item No." <> '' then begin
                         Item.Get(TransLine."Item No.");
-                        Item.TestField(Blocked, false);
+                        IsHandled := false;
+                        OnRunOnBeforeCheckItemBlocked(TransLine, Item, TransHeader, Location, WhseReceive, IsHandled);
+                        if not IsHandled then
+                            Item.TestField(Blocked, false);
                     end;
 
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
@@ -493,6 +497,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRcptLine.SetRange("Source Type", DATABASE::"Transfer Line");
                 WhseRcptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseRcptLine.SetRange("Source Line No.", TransLine."Line No.");
+                OnInsertTransRcptLineOnAfterWhseRcptLineSetFilters(TransLine, TransRcptLine, WhseRcptLine);
                 if WhseRcptLine.FindFirst then begin
                     WhseRcptLine.TestField("Qty. to Receive", TransRcptLine.Quantity);
                     WhsePostRcpt.SetItemEntryRelation(PostedWhseRcptHeader, PostedWhseRcptLine, TempItemEntryRelation2);
@@ -782,6 +787,16 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterTransLineSetFiltersForRcptLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransRcptLineOnAfterWhseRcptLineSetFilters(var TransferLine: Record "Transfer Line"; var TransferRcptLine: Record "Transfer Receipt Line"; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckItemBlocked(TransLine: Record "Transfer Line"; Item: Record Item; TransHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

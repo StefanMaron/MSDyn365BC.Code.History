@@ -1155,6 +1155,59 @@ codeunit 141027 "ERM GST On Prepayments II"
           GeneralLedgerSetup."Enable GST (Australia)", GeneralLedgerSetup."GST Report", GeneralLedgerSetup."Full GST on Prepayment");
     end;
 
+    [Test]
+    procedure PurchaseOrder100PercentPrepaymentMultipleLinesWithTheSameGSTProdPostingGroup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        GLAccountNo: array[5] of Code[20];
+        DocumentNo: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Invoice] [Full GST] [Full GST on Prepayment] 
+        // [SCEMARIO 391401] System does not combine VAT Base amounts in VAT Entries when it posts final invoice after 100% prepayment
+
+        Initialize();
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);
+
+        for Index := 1 to ArrayLen(GLAccountNo) do
+            GLAccountNo[Index] := CreateGLAccount();
+
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", GLAccountNo[ArrayLen(GLAccountNo)]);
+        GeneralPostingSetup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", 100);
+        PurchaseHeader.Modify(true);
+
+        for Index := 1 to ArrayLen(GLAccountNo) - 1 do begin
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo[Index], 1);
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+            PurchaseLine.Modify(true);
+        end;
+
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.CalcSums("Direct Unit Cost");
+
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter(Base, '>%1', 0);
+        VATEntry.CalcSums(Base);
+
+        VATEntry.TestField(Base, PurchaseLine."Direct Unit Cost");
+    end;
+
     local procedure Initialize()
     begin
         Clear(NoSeriesManagement);

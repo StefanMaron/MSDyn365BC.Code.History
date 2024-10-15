@@ -7,6 +7,8 @@ codeunit 91 "Purch.-Post (Yes/No)"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        OnBeforeOnRun(Rec);
+
         if not Find then
             Error(NothingToPostErr);
 
@@ -56,7 +58,6 @@ codeunit 91 "Purch.-Post (Yes/No)"
     local procedure ConfirmPost(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
-        Selection: Integer;
     begin
         if DefaultOption > 3 then
             DefaultOption := 3;
@@ -66,21 +67,11 @@ codeunit 91 "Purch.-Post (Yes/No)"
         with PurchaseHeader do begin
             case "Document Type" of
                 "Document Type"::Order:
-                    begin
-                        Selection := StrMenu(ReceiveInvoiceQst, DefaultOption);
-                        if Selection = 0 then
-                            exit(false);
-                        Receive := Selection in [1, 3];
-                        Invoice := Selection in [2, 3];
-                    end;
+                    if not SelectPostOrderOption(PurchaseHeader, DefaultOption) then
+                        exit(false);
                 "Document Type"::"Return Order":
-                    begin
-                        Selection := StrMenu(ShipInvoiceQst, DefaultOption);
-                        if Selection = 0 then
-                            exit(false);
-                        Ship := Selection in [1, 3];
-                        Invoice := Selection in [2, 3];
-                    end
+                    if not SelectPostReturnOrderOption(PurchaseHeader, DefaultOption) then
+                        exit(false);
                 else
                     if not ConfirmManagement.GetResponseOrDefault(
                          StrSubstNo(PostConfirmQst, LowerCase(Format("Document Type"))), true)
@@ -90,6 +81,48 @@ codeunit 91 "Purch.-Post (Yes/No)"
             "Print Posted Documents" := false;
             "Posted Tax Document" := true;
         end;
+        exit(true);
+    end;
+
+    local procedure SelectPostOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
+    var
+        Selection: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectPostOrderOption(PurchaseHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with PurchaseHeader do begin
+            Selection := StrMenu(ReceiveInvoiceQst, DefaultOption);
+            if Selection = 0 then
+                exit(false);
+            Receive := Selection in [1, 3];
+            Invoice := Selection in [2, 3];
+        end;
+
+        exit(true);
+    end;
+
+    local procedure SelectPostReturnOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
+    var
+        Selection: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectPostReturnOrderOption(PurchaseHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with PurchaseHeader do begin
+            Selection := StrMenu(ShipInvoiceQst, DefaultOption);
+            if Selection = 0 then
+                exit(false);
+            Ship := Selection in [1, 3];
+            Invoice := Selection in [2, 3];
+        end;
+
         exit(true);
     end;
 
@@ -135,7 +168,22 @@ codeunit 91 "Purch.-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunPurchPost(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectPostOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectPostReturnOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

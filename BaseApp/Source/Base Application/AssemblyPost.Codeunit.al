@@ -245,6 +245,8 @@ codeunit 900 "Assembly-Post"
 
         if PostingDateExists and (ReplacePostingDate or (AssemblyHeader."Posting Date" = 0D)) then
             AssemblyHeader."Posting Date" := PostingDate;
+
+        OnAfterValidatePostingDate(AssemblyHeader, PostingDateExists, ReplacePostingDate);
     end;
 
     local procedure CheckDim(AssemblyHeader: Record "Assembly Header")
@@ -1517,6 +1519,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostingDate(var AssemblyHeader: Record "Assembly Header"; PostingDateExists: Boolean; ReplacePostingDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUndoInitPost(var PostedAssemblyHeader: Record "Posted Assembly Header")
     begin
     end;
@@ -1556,7 +1563,7 @@ codeunit 900 "Assembly-Post"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnRun(var AssemblyHeader: Record "Assembly Header"; SuppressCommit: Boolean)
     begin
     end;

@@ -132,18 +132,6 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in sales documents.';
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
-                {
-                    Visible = ExtendedPriceEnabled;
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
-                }
-                field("Allow Editing Active Price"; "Allow Editing Active Price")
-                {
-                    Visible = ExtendedPriceEnabled;
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies it the existing active sales price line can be modified or removed, or a new price line can be added to the active price list.';
-                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -209,6 +197,26 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code that will be used by default when you use the Cancel function on a posted sales invoice. Use the Create Corrective Credit Memo function if you want to set reason code manually.';
+                }
+            }
+            group(Prices)
+            {
+                Caption = 'Prices';
+                Visible = ExtendedPriceEnabled;
+                field("Price Calculation Method"; Rec."Price Calculation Method")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
+                }
+                field("Allow Editing Active Price"; Rec."Allow Editing Active Price")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active sales price line can be modified or removed, or a new price line can be added to the active price list.';
+                }
+                field("Default Price List Code"; Rec."Default Price List Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code of the existing sales price list that stores all new price lines created in the price worksheet page.';
                 }
             }
             group(Dimensions)
@@ -454,6 +462,7 @@ page 459 "Sales & Receivables Setup"
             group("Dynamics 365 Sales")
             {
                 Caption = 'Dynamics 365 Sales';
+                Visible = CRMIntegrationEnabled;
                 field("Write-in Product Type"; "Write-in Product Type")
                 {
                     ApplicationArea = Suite;
@@ -598,7 +607,9 @@ page 459 "Sales & Receivables Setup"
 
     trigger OnOpenPage()
     var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Rec.Reset;
         if not Rec.Get then begin
@@ -606,9 +617,12 @@ page 459 "Sales & Receivables Setup"
             Rec.Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        PriceUXManagement.InitSmartListDesigner();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     var
         ExtendedPriceEnabled: Boolean;
+        CRMIntegrationEnabled: Boolean;
 }
 

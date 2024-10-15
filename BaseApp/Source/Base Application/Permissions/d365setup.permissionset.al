@@ -313,6 +313,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Profile Questionnaire Line" = RD,
                   tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
@@ -521,5 +522,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Workflow Step Instance" = RimD,
                   tabledata "Workflow Table Relation Value" = RimD,
                   tabledata "Workflow User Group" = RIMD,
-                  tabledata "Workflow User Group Member" = RIMD;
+                  tabledata "Workflow User Group Member" = RIMD,
+                  tabledata "Report Settings Override" = Rimd;
 }

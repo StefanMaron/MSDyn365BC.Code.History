@@ -425,7 +425,7 @@ page 5380 "CRM Sales Order"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create in Business Central';
-                    Enabled = CRMIntegrationEnabled AND NOT CRMIsCoupledToRecord;
+                    Enabled = CRMIntegrationEnabled and (not CRMIsCoupledToRecord);
                     Image = New;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -457,10 +457,10 @@ page 5380 "CRM Sales Order"
 
     trigger OnOpenPage()
     var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        SetCRMAccountAndContactName;
+        CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
+        SetCRMAccountAndContactName();
     end;
 
     var

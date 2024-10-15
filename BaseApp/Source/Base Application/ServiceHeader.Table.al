@@ -68,7 +68,7 @@
 
                         IsHandled := false;
                         OnValidateCustomerNoOnBeforeDeleteLines(Rec, IsHandled);
-                        if IsHandled then begin
+                        if not IsHandled then begin
                             ServLine.LockTable();
                             ServLine.Reset();
                             ServLine.SetRange("Document Type", "Document Type");
@@ -869,7 +869,13 @@
                 GenJnlLine: Record "Gen. Journal Line";
                 GenJnlApply: Codeunit "Gen. Jnl.-Apply";
                 ApplyCustEntries: Page "Apply Customer Entries";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupAppliesToDocNo(Rec, CustLedgEntry, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Bal. Account No.", '');
                 CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", 0);
 
@@ -890,7 +896,13 @@
             trigger OnValidate()
             var
                 CustLedgEntry: Record "Cust. Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAppliesToDocNo(Rec, CustLedgEntry, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Applies-to Doc. No." <> '' then
                     TestField("Bal. Account No.", '');
 
@@ -3735,6 +3747,7 @@
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnShowDocDimOnBeforeUpdateAllLineDim(Rec, OldDimSetID, CurrFieldNo);
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
             if ServItemLineExists or ServLineExists then
@@ -4464,6 +4477,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServLineOnServLineRecreation(var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary)
     begin
     end;
@@ -4480,6 +4498,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeriesManual(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean);
     begin
     end;
 
@@ -4603,6 +4626,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetServiceMgtSetup(var ServSetup: Record "Service Mgt. Setup"; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDocDimOnBeforeUpdateAllLineDim(var Rec: Record "Service Header"; OldDimSetID: Integer; CurrFieldNo: Integer)
     begin
     end;
 }

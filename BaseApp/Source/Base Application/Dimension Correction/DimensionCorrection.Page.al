@@ -132,7 +132,7 @@ page 2588 "Dimension Correction"
             part(DimensionCorrectionsPage; "Dim Correction Changes Posted")
             {
                 ApplicationArea = All;
-                Caption = 'Dimesion Correction Changes';
+                Caption = 'Dimension Correction Changes';
                 UpdatePropagation = SubPart;
                 Editable = false;
                 SubPageLink = "Dimension Correction Entry No." = field("Entry No.");

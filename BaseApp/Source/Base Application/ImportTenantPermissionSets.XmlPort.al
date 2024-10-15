@@ -83,6 +83,8 @@ xmlport 9174 "Import Tenant Permission Sets"
                             currXMLport.Skip();
                         if TempPermission.Get(TempPermission."Role ID", TempPermission."Object Type", TempPermission."Object ID") then
                             currXMLport.Skip();
+
+                        SystemPermissionsExist := true;
                     end;
                 }
 
@@ -197,6 +199,7 @@ xmlport 9174 "Import Tenant Permission Sets"
     trigger OnPostXmlPort()
     var
         EnvironmentInformation: Codeunit "Environment Information";
+        ServerSettings: Codeunit "Server Setting";
         IsOnPrem: Boolean;
     begin
         IsOnPrem := EnvironmentInformation.IsOnPrem();
@@ -206,10 +209,14 @@ xmlport 9174 "Import Tenant Permission Sets"
                     TempAggregatePermissionSet.Scope::System:
                         if IsOnPrem then
                             ProcessSystemPermissionSet(TempAggregatePermissionSet);
+
                     TempAggregatePermissionSet.Scope::Tenant:
                         ProcessTenantPermissionSet(TempAggregatePermissionSet);
                 end;
             until TempAggregatePermissionSet.Next() = 0;
+
+        if EnvironmentInformation.IsSaaS() and SystemPermissionsExist and ServerSettings.GetUsePermissionSetsFromExtensions() then
+            Message(SystemPermissionSetSaaSErr);
     end;
 
     local procedure ProcessSystemPermissionSet(AggregatePermissionSet: Record "Aggregate Permission Set")
@@ -311,7 +318,9 @@ xmlport 9174 "Import Tenant Permission Sets"
     end;
 
     var
+        SystemPermissionSetSaaSErr: Label 'You cannot modify system permission sets.';
         PermissionSetAlreadyExistsErr: Label 'Permission set %1 already exists.', Comment = '%1 = Role ID';
         UpdatePermissions: Boolean;
+        SystemPermissionsExist: Boolean;
 }
 

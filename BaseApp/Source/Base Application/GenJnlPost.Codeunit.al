@@ -103,15 +103,7 @@ codeunit 231 "Gen. Jnl.-Post"
                 Commit();
                 BatchPostingPrintMgt.PrintOtherDocuments(GenJnlLine, PrintWHT, false);
 
-                if "Line No." = 0 then
-                    Message(Text002)
-                else
-                    if TempJnlBatchName = "Journal Batch Name" then
-                        Message(Text003)
-                    else
-                        Message(
-                        Text004,
-                        "Journal Batch Name");
+                ShowPostResultMessage(GenJnlLine, TempJnlBatchName);
             end;
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") or GeneralLedgerSetup."Post with Job Queue" then begin
@@ -124,6 +116,27 @@ codeunit 231 "Gen. Jnl.-Post"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    local procedure ShowPostResultMessage(var GenJnlLine: Record "Gen. Journal Line"; TempJnlBatchName: Code[10])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowPostResultMessage(GenJnlLine, TempJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GenJnlLine do
+            if "Line No." = 0 then
+                Message(Text002)
+            else
+                if TempJnlBatchName = "Journal Batch Name" then
+                    Message(Text003)
+                else
+                    Message(
+                    Text004,
+                    "Journal Batch Name");
     end;
 
     procedure Preview(var GenJournalLineSource: Record "Gen. Journal Line")
@@ -142,6 +155,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostResultMessage(var GenJnlLine: Record "Gen. Journal Line"; TempJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

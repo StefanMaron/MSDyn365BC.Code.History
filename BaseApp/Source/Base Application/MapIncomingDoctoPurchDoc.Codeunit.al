@@ -105,8 +105,10 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             SetRange("Parent Record No.", ParentRecordNo);
             SetCurrentKey("Record No.");
 
-            if not FindSet then
+            if not FindSet then begin
+                OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader);
                 exit;
+            end;
 
             repeat
                 if CurrRecordNo <> "Record No." then begin // new record
@@ -677,6 +679,11 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         PurchaseLine.Validate("Line No.", LineNo);
 
         PurchaseLine.Insert(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessLinesIntermediateDataImportNotFound(var DataExch: Record "Data Exch."; var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

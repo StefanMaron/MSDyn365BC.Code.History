@@ -30,7 +30,13 @@ codeunit 441 "Prepayment Mgt."
     var
         Cust: Record Customer;
         SalesPrepaymentPct: Record "Sales Prepayment %";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalesPrepaymentPct(SalesLine, Date, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesPrepaymentPct do begin
             if (SalesLine.Type <> SalesLine.Type::Item) or (SalesLine."No." = '') or
                (SalesLine."Document Type" <> SalesLine."Document Type"::Order)
@@ -318,6 +324,11 @@ codeunit 441 "Prepayment Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnTestPurchasePaymentOnBeforeVendLedgerEntrySetFilter(var VendLedgerEntry: Record "Vendor Ledger Entry"; PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesPrepaymentPct(var SalesLine: Record "Sales Line"; Date: Date; var IsHandled: Boolean)
     begin
     end;
 }

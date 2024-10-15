@@ -1,4 +1,4 @@
-table 167 Job
+﻿table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;
@@ -1477,7 +1477,12 @@ table 167 Job
         UsageCost: Decimal;
         ScheduleCost: Decimal;
         NewOverBudget: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateOverBudgetValue(Rec, JobNo, Usage, Cost, IsHandled);
+        if IsHandled then
+            exit;
+
         if "No." <> JobNo then
             if not Get(JobNo) then
                 exit;
@@ -1760,6 +1765,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCust(var Job: Record Job; xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOverBudgetValue(var Job: Record Job; JobNo: Code[20]; Usage: Boolean; Cost: Decimal; var IsHandled: Boolean)
     begin
     end;
 

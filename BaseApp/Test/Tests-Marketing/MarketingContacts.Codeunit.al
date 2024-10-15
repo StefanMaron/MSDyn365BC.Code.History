@@ -52,6 +52,26 @@ codeunit 136201 "Marketing Contacts"
         DuplicateContactsMsg: Label 'There are duplicate contacts.';
 
     [Test]
+    procedure ContactBusinessRelationCompatibility()
+    var
+        ContactBusinessRelation: Enum "Contact Business Relation";
+        ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table";
+        EnumValue: Integer;
+        Index: Integer;
+        ValueExist: Boolean;
+    begin
+        // [SCENARIO] Enum "Contact Business Relation Link To Table" is a subset of Enum "Contact Business Relation"
+        foreach EnumValue in ContactBusinessRelationLinkToTable.Ordinals() do begin
+            Index += 1;
+            ValueExist := ContactBusinessRelation.Ordinals().Get(Index, EnumValue);
+            Assert.IsTrue(ValueExist, StrSubstNo('%1 - %2', Index, EnumValue));
+            Assert.AreEqual(
+                ContactBusinessRelationLinkToTable.Names().Get(Index),
+                ContactBusinessRelation.Names().Get(Index), 'Different enum values');
+        end;
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure AlternativeAddressForContact()
     var
@@ -2116,11 +2136,9 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('ContactHandler')]
-    [Scope('OnPrem')]
     procedure InsertContactWithCompanyFilter()
     var
-        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
         CompanyFilter: Code[20];
     begin
         // [SCENARIO 375315] New Contact for the Company should be of Type Person linked to the Company
@@ -2129,38 +2147,36 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Filter "X" on field "Company No." of Contact Page
         CompanyFilter := LibraryUtility.GenerateGUID;
         CreateCompanyContact(CompanyFilter);
-        Contact.Init();
-        Contact.SetRange("Company No.", CompanyFilter);
+
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("Company No.", CompanyFilter);
 
         // [WHEN] Insert Contact
-        LibraryVariableStorage.Enqueue(Contact."Company Name"); // Enqueue for ContactHandler
-        LibraryVariableStorage.Enqueue('Person');
-        PAGE.Run(PAGE::"Contact Card", Contact);
+        ContactCard.New();
 
         // [THEN] Contact is created where "Company No." is "X", Type = "Person"
-        // Verified in ContactHandler
+        ContactCard."Company No.".AssertEquals(CompanyFilter);
+        ContactCard.Type.AssertEquals("Contact Type"::Person);
     end;
 
     [Test]
-    [HandlerFunctions('ContactHandler')]
-    [Scope('OnPrem')]
     procedure InsertContactWithoutCompanyFilter()
     var
         Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
     begin
         // [SCENARIO 375315] New Contact should be of Type Company not linked to a Company
         Initialize;
 
         // [GIVEN] No filters applied on field "Company No." of Contact Page
-        Contact.Init();
+        ContactCard.OpenView();
 
         // [WHEN] Insert Contact
-        LibraryVariableStorage.Enqueue(''); // Enqueue for ContactHandler
-        LibraryVariableStorage.Enqueue('Company');
-        PAGE.Run(PAGE::"Contact Card", Contact);
+        ContactCard.New();
 
         // [THEN] Contact is created where "Company No." is blank, Type = "Company"
-        // Verified in ContactHandler
+        ContactCard."Company Name".AssertEquals('');
+        ContactCard.Type.AssertEquals("Contact Type"::Company);
     end;
 
     [Test]
@@ -4755,7 +4771,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] "Business Relation" is 'Customer'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::Customer));
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::Customer);
     end;
 
     [Test]
@@ -4775,7 +4791,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] "Business Relation" is 'Vendor'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::Vendor));
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::Vendor);
     end;
 
     [Test]
@@ -4797,7 +4813,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] "Business Relation" is 'Bank Account'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::"Bank Account"));
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::"Bank Account");
     end;
 
     [Test]
@@ -4820,7 +4836,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] "Business Relation" is 'Multiple'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", 'Multiple');
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::Multiple);
     end;
 
     [Test]
@@ -4844,7 +4860,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] "Business Relation" is 'Multiple'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", 'Multiple');
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::Multiple);
     end;
 
     [Test]
@@ -4866,7 +4882,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] "Business Relation" is 'Other'
         ContactCompany.Find();
-        ContactCompany.TestField("Business Relation", 'Other');
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::Other);
     end;
 
     [Test]
@@ -4882,7 +4898,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateCompanyContact(ContactCompany);
 
         // [THEN] "Business Relation" is 'None'
-        ContactCompany.TestField("Business Relation", 'None');
+        ContactCompany.TestField("Contact Business Relation", "Contact Business Relation"::None);
     end;
 
     [Test]
@@ -4911,7 +4927,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Assit edit on "Business Relation"
         CustomerCard.Trap();
-        ContactCard."Business Relation".DrillDown();
+        ContactCard."Contact Business Relation".DrillDown();
         // [THEN] Customer Card is open on customer 'X'
         CustomerCard."No.".AssertEquals(CustomerNo);
         CustomerCard.Close();
@@ -4950,7 +4966,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Assit edit on "Business Relation"
         VendorCard.Trap();
-        ContactCard."Business Relation".DrillDown();
+        ContactCard."Contact Business Relation".DrillDown();
         // [THEN] Vendor Card is open on Vendor 'X'
         VendorCard."No.".AssertEquals(VendorNo);
         VendorCard.Close();
@@ -4989,7 +5005,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Assit edit on "Business Relation"
         BankAccountCard.Trap();
-        ContactCard."Business Relation".DrillDown();
+        ContactCard."Contact Business Relation".DrillDown();
         // [THEN] Bank Account Card is open on Bank Account 'X'
         BankAccountCard."No.".AssertEquals(BankAccountNo);
         BankAccountCard.Close();
@@ -5030,7 +5046,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Assit edit on "Business Relation"
         ContactBusinessRelations.Trap();
-        ContactCard."Business Relation".DrillDown();
+        ContactCard."Contact Business Relation".DrillDown();
         // [THEN] "Contact Business Relations" is open, where are two records: bank 'B' and vendor 'V' 
         ContactBusinessRelations."No.".AssertEquals(BankAccountNo);
         ContactBusinessRelations.Next();
@@ -5069,7 +5085,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Assit edit on "Business Relation"
         ContactBusinessRelations.Trap();
-        ContactCard."Business Relation".DrillDown();
+        ContactCard."Contact Business Relation".DrillDown();
         // [THEN] Empty "Contact Business Relations" is open 
         Assert.IsFalse(ContactBusinessRelations.First(), 'Contact Business Relations is not empty');
     end;
@@ -5094,7 +5110,7 @@ codeunit 136201 "Marketing Contacts"
         ContactPerson.Validate("Company No.", ContactCompany."No.");
 
         // [THEN] Contact 'P', where "Business Relation" is 'Customer' 
-        ContactPerson.TestField("Business Relation", ContactCompany."Business Relation");
+        ContactPerson.TestField("Contact Business Relation", ContactCompany."Contact Business Relation");
     end;
 
     [Test]
@@ -5114,7 +5130,7 @@ codeunit 136201 "Marketing Contacts"
         CreateBusRelationCustomer(ContactCompany);
         // [GIVEN] Contact(person) 'P1', where Business Relation" is 'None'
         LibraryMarketing.CreatePersonContact(ContactPerson[1]);
-        ContactPerson[1].TestField("Business Relation", 'None');
+        ContactPerson[1].TestField("Contact Business Relation", "Contact Business Relation"::None);
         // [GIVEN] Contact(person) 'P2', where Business Relation" is 'Other'
         LibraryMarketing.CreatePersonContact(ContactPerson[2]);
         ContactBusinessRelation."Contact No." := ContactPerson[2]."No.";
@@ -5122,15 +5138,15 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
         ContactBusinessRelation.Insert();
         ContactPerson[2].Find();
-        ContactPerson[2].TestField("Business Relation", 'Other');
+        ContactPerson[2].TestField("Contact Business Relation", "Contact Business Relation"::Other);
         // [GIVEN] Contact 'P1' got "Company No." as 'C', so "Business Relation" is 'Customer'
         ContactPerson[1].Validate("Company No.", ContactCompany."No.");
         ContactPerson[1].Modify();
-        ContactPerson[1].TestField("Business Relation", 'Customer');
+        ContactPerson[1].TestField("Contact Business Relation", "Contact Business Relation"::Customer);
         // [GIVEN] Contact 'P2' got "Company No." as 'C', so "Business Relation" is 'Multiple'
         ContactPerson[2].Validate("Company No.", ContactCompany."No.");
         ContactPerson[2].Modify();
-        ContactPerson[2].TestField("Business Relation", 'Multiple');
+        ContactPerson[2].TestField("Contact Business Relation", "Contact Business Relation"::Multiple);
 
         // [WHEN] Remove business relation for contact 'C'
         ContactBusinessRelation.SetRange("Contact No.", ContactCompany."No.");
@@ -5139,9 +5155,9 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Contact 'P', where "Business Relation" is 'None' and 'Other' in person contacts 
         ContactPerson[1].Find();
-        ContactPerson[1].TestField("Business Relation", 'None');
+        ContactPerson[1].TestField("Contact Business Relation", "Contact Business Relation"::None);
         ContactPerson[2].Find();
-        ContactPerson[2].TestField("Business Relation", 'Other');
+        ContactPerson[2].TestField("Contact Business Relation", "Contact Business Relation"::Other);
     end;
 
     [Test]
@@ -5163,7 +5179,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Contact (person) 'C', where "Business Relation" is 'Customer'
         ContactPerson.SetRange(Name, ContactPerson.Name);
         ContactPerson.FindFirst();
-        ContactPerson.TestField("Business Relation", 'Customer');
+        ContactPerson.TestField("Contact Business Relation", "Contact Business Relation"::Customer);
     end;
 
     [Test]
@@ -5185,7 +5201,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Contact (person) 'C', where "Business Relation" is 'Vendor'
         ContactPerson.SetRange(Name, ContactPerson.Name);
         ContactPerson.FindFirst();
-        ContactPerson.TestField("Business Relation", 'Vendor');
+        ContactPerson.TestField("Contact Business Relation", "Contact Business Relation"::Vendor);
     end;
 
     [Test]
@@ -5198,7 +5214,7 @@ codeunit 136201 "Marketing Contacts"
         // [FEATURE] [Business Relation] [UT]
         // [GIVEN] Contact 'X', where "Business Relation" is <blank>
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact."Business Relation" := '';
+        Contact."Contact Business Relation" := 0;
         Contact.Modify();
         // [GIVEN] ContactBusinessRelation, where "Contact No." is 'X'
         ContactBusinessRelation."Contact No." := Contact."No.";
@@ -5210,7 +5226,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Contact 'X' is not changed, "Business Relation" is 'Other'
         Contact.Find();
-        Contact.TestField("Business Relation", 'Other');
+        Contact.TestField("Contact Business Relation", "Contact Business Relation"::Other);
     end;
 
     [Test]
@@ -5223,7 +5239,7 @@ codeunit 136201 "Marketing Contacts"
         // [FEATURE] [Business Relation] [UT]
         // [GIVEN] Contact 'X', where "Business Relation" is <blank>
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact."Business Relation" := '';
+        Contact."Contact Business Relation" := 0;
         Contact.Modify();
         // [GIVEN] temporary ContactBusinessRelation, where "Contact No." is 'X'
         TempContactBusinessRelation."Contact No." := Contact."No.";
@@ -5235,7 +5251,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Contact 'X' is not changed, "Business Relation" is still <blank>
         Contact.Find();
-        Contact.TestField("Business Relation", '');
+        Contact.TestField("Contact Business Relation", "Contact Business Relation"::" ");
     end;
 
     local procedure Initialize()
@@ -5325,7 +5341,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo();
         ContactBusinessRelation.Modify(true);
         Contact.Find();
-        Contact.TestField("Business Relation", 'Customer');
+        Contact.TestField("Contact Business Relation", "Contact Business Relation"::Customer);
     end;
 
     local procedure CreateContactAsPerson(var Contact: Record Contact)
@@ -6309,15 +6325,6 @@ codeunit 136201 "Marketing Contacts"
     begin
         // Generate Dummy message. Required for executing the test case successfully.
         if Confirm(StrSubstNo(ExpectedMessage)) then;
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure ContactHandler(var Contact: TestPage "Contact Card")
-    begin
-        Contact.New();
-        Contact."Company Name".AssertEquals(LibraryVariableStorage.DequeueText);
-        Contact.Type.AssertEquals(LibraryVariableStorage.DequeueText);
     end;
 
     [RequestPageHandler]
