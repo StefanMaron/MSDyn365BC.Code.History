@@ -28,6 +28,7 @@
         PostcodeMatchPathTxt: Label 'descendant::vat:traderPostcodeMatch', Locked = true;
         CityMatchPathTxt: Label 'descendant::vat:traderCityMatch', Locked = true;
         DetailsNotVerifiedMsg: Label 'The specified VAT registration number is valid.\The VAT VIES validation service did not provide additional details.';
+        DetailsIgnoredMsg: Label 'The specified VAT registration number is valid.\The current configuration of the VAT VIES validation service excludes additional details.';
 
     procedure LogCustomer(Customer: Record Customer)
     var
@@ -386,6 +387,8 @@
                                 DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
                                 VATRegistrationLog.OpenDetailsForRecRef(RecordRef);
                             end;
+                        VATRegistrationLog."Details Status"::Ignored:
+                            Message(DetailsIgnoredMsg);
                     end;
                 VATRegistrationLog.Status::Invalid:
                     Message(InvalidVatRegNoMsg);

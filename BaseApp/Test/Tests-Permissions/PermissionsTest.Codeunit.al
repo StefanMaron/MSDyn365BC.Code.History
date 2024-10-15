@@ -382,6 +382,7 @@ codeunit 139400 "Permissions Test"
         TearDown;
     end;
 
+
     [Test]
     [Scope('OnPrem')]
     procedure D365BusFullAccessShouldHaveAdvancedPermissions()

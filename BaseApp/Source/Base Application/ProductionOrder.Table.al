@@ -254,7 +254,7 @@
                             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                         end;
                         AdjustStartEndingDate;
-                        Modify;
+                        Modify(true);
                     end;
                 end;
             end;
