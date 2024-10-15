@@ -127,6 +127,8 @@ report 5197 "Remove Contacts - Reduce"
     }
 
     trigger OnPreReport()
+    var
+        IsHandled: Boolean;
     begin
         Clear(ReduceRefineSegment);
         ReduceRefineSegment.SetTableView("Segment Header");
@@ -139,7 +141,10 @@ report 5197 "Remove Contacts - Reduce"
         ReduceRefineSegment.SetTableView("Contact Business Relation");
         ReduceRefineSegment.SetTableView("Value Entry");
         ReduceRefineSegment.SetOptions(REPORT::"Remove Contacts - Reduce", EntireCompanies);
-        ReduceRefineSegment.RunModal();
+        IsHandled := false;
+        OnPreReportOnBeforeRunReduceRefineSegment(IsHandled);
+        if not IsHandled then
+            ReduceRefineSegment.RunModal();
     end;
 
     var
@@ -149,6 +154,11 @@ report 5197 "Remove Contacts - Reduce"
     procedure SetOptions(OptionEntireCompanies: Boolean)
     begin
         EntireCompanies := OptionEntireCompanies;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeRunReduceRefineSegment(var IsHandled: Boolean)
+    begin
     end;
 }
 

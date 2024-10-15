@@ -275,7 +275,13 @@ page 914 "Assemble-to-Order Lines"
                 var
                     ATOLink: Record "Assemble-to-Order Link";
                     SalesLine: Record "Sales Line";
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeShowDocument(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     ATOLink.Get("Document Type", "Document No.");
                     SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
                     ATOLink.ShowAsm(SalesLine);
@@ -494,5 +500,10 @@ page 914 "Assemble-to-Order Lines"
         end;
         exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocument(var AssemblyLine: Record "Assembly Line"; var IsHandled: boolean)
+    begin
+    end;    
 }
 

@@ -119,6 +119,7 @@
         UpgradeOptionMapping();
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
+        UpgradeVATSetup();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3234,5 +3235,18 @@
         Clear(PostedGenJournalLineDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag());
+    end;
+
+    local procedure UpgradeVATSetup()
+    var
+        VATSetup: Record "VAT Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATSetupUpgradeTag()) then
+            exit;
+        if not VATSetup.Get() then
+            VATSetup.Insert();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupUpgradeTag());
     end;
 }

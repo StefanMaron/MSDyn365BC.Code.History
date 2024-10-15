@@ -2012,8 +2012,8 @@ Cstr(Fields!GiroNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!BankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
-Cstr(Fields!BankAccountNoCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNo.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!CustNo_IssuedReminderHdrCaption.Value) + Chr(177) + 
 Cstr(Fields!VATNoText.Value) + Chr(177) + 
 Cstr(Fields!ReferenceText.Value) + Chr(177) + 
@@ -5179,7 +5179,7 @@ Cstr(Fields!PageCaption.Value)
       <Width>18cm</Width>
       <Page>
         <PageHeader>
-          <Height>8.90765cm</Height>
+          <Height>9.5cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -5289,7 +5289,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox707</rd:DefaultName>
-              <Top>0.99028in</Top>
+              <Top>1.24028in</Top>
               <Left>0.00004in</Left>
               <Height>11pt</Height>
               <Width>4.40219in</Width>
@@ -5344,7 +5344,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox673</rd:DefaultName>
-              <Top>1.12917in</Top>
+              <Top>1.37917in</Top>
               <Left>0.00004in</Left>
               <Height>11pt</Height>
               <Width>4.40219in</Width>
@@ -5399,7 +5399,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox634</rd:DefaultName>
-              <Top>1.26806in</Top>
+              <Top>1.51806in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>7</ZIndex>
@@ -5453,7 +5453,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox591</rd:DefaultName>
-              <Top>1.40694in</Top>
+              <Top>1.65694in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>9</ZIndex>
@@ -5507,7 +5507,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox548</rd:DefaultName>
-              <Top>1.54583in</Top>
+              <Top>1.79583in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>11</ZIndex>
@@ -5561,7 +5561,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox496</rd:DefaultName>
-              <Top>1.68472in</Top>
+              <Top>1.93472in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>13</ZIndex>
@@ -5615,7 +5615,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox453</rd:DefaultName>
-              <Top>1.82361in</Top>
+              <Top>2.07361in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>15</ZIndex>
@@ -5642,7 +5642,7 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.10139in</Top>
+              <Top>2.22639in</Top>
               <Left>4.40223in</Left>
               <Height>11pt</Height>
               <Width>1.09711in</Width>
@@ -5669,7 +5669,7 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.10139in</Top>
+              <Top>2.22639in</Top>
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.28354in</Width>
@@ -5697,7 +5697,7 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox401</rd:DefaultName>
-              <Top>1.9625in</Top>
+              <Top>2.2125in</Top>
               <Height>11pt</Height>
               <Width>4.40223in</Width>
               <ZIndex>18</ZIndex>
@@ -5724,7 +5724,7 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.24028in</Top>
+              <Top>2.36528in</Top>
               <Left>4.40223in</Left>
               <Height>11pt</Height>
               <Width>1.09711in</Width>
@@ -5751,7 +5751,7 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.2507in</Top>
+              <Top>2.3757in</Top>
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.28354in</Width>
@@ -5779,7 +5779,7 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.5618in</Top>
+              <Top>2.6868in</Top>
               <Left>4.40223in</Left>
               <Height>11pt</Height>
               <Width>1.09711in</Width>
@@ -5806,66 +5806,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.5618in</Top>
+              <Top>2.6868in</Top>
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.28354in</Width>
               <ZIndex>22</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="GiroNoCaption2">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(42,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.74235in</Top>
-              <Left>4.40223in</Left>
-              <Height>11pt</Height>
-              <Width>1.09711in</Width>
-              <ZIndex>23</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo2">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(43,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.74235in</Top>
-              <Left>5.49934in</Left>
-              <Height>11pt</Height>
-              <Width>1.28354in</Width>
-              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5889,11 +5834,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.90902in</Top>
+              <Top>2.83958in</Top>
               <Left>4.40223in</Left>
               <Height>11pt</Height>
               <Width>1.09711in</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5916,16 +5861,16 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.90902in</Top>
+              <Top>2.83958in</Top>
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.28354in</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="BankAccountNoCaption2">
+            <Textbox Name="IBANCaption2">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -5944,16 +5889,16 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.07569in</Top>
+              <Top>3.00625in</Top>
               <Left>4.40223in</Left>
               <Height>11pt</Height>
-              <Width>1.09711in</Width>
-              <ZIndex>27</ZIndex>
+              <Width>0.861in</Width>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNo2">
+            <Textbox Name="CompanyInfoIBAN2">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -5971,11 +5916,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.07569in</Top>
-              <Left>5.49934in</Left>
+              <Top>3.00625in</Top>
+              <Left>5.26323in</Left>
               <Height>11pt</Height>
-              <Width>1.28354in</Width>
-              <ZIndex>28</ZIndex>
+              <Width>1.51965in</Width>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5998,11 +5943,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.24028in</Top>
+              <Top>2.49028in</Top>
               <Left>0.00004in</Left>
               <Height>11pt</Height>
               <Width>1.50294in</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6025,11 +5970,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.24028in</Top>
+              <Top>2.49028in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6053,11 +5998,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.65694in</Top>
+              <Top>2.90694in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6080,10 +6025,10 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.37917in</Top>
+              <Top>2.62917in</Top>
               <Height>11pt</Height>
               <Width>1.50298in</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6106,11 +6051,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.37917in</Top>
+              <Top>2.62917in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6133,10 +6078,10 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.51806in</Top>
+              <Top>2.76806in</Top>
               <Height>11pt</Height>
               <Width>1.50298in</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6159,11 +6104,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.51806in</Top>
+              <Top>2.76806in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6186,10 +6131,10 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.79583in</Top>
+              <Top>3.04583in</Top>
               <Height>11pt</Height>
               <Width>1.50298in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6212,11 +6157,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.79583in</Top>
+              <Top>3.04583in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6239,10 +6184,10 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.93472in</Top>
+              <Top>3.18472in</Top>
               <Height>11pt</Height>
               <Width>1.50298in</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6267,11 +6212,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.93472in</Top>
+              <Top>3.18472in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6294,10 +6239,10 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.07361in</Top>
+              <Top>3.32361in</Top>
               <Height>11pt</Height>
               <Width>1.50298in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6322,11 +6267,11 @@ Cstr(Fields!PageCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.07361in</Top>
+              <Top>3.32361in</Top>
               <Left>1.50298in</Left>
               <Height>11pt</Height>
               <Width>2.89925in</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -6351,11 +6296,11 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox3</rd:DefaultName>
-              <Top>6.04308cm</Top>
+              <Top>6.36058cm</Top>
               <Left>11.18168cm</Left>
               <Height>11pt</Height>
               <Width>1.09711in</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6383,11 +6328,11 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox41</rd:DefaultName>
-              <Top>6.04308cm</Top>
+              <Top>6.36058cm</Top>
               <Left>13.96832cm</Left>
               <Height>11pt</Height>
               <Width>1.28354in</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6413,7 +6358,7 @@ Cstr(Fields!PageCaption.Value)
               <Left>0.0001cm</Left>
               <Height>7pt</Height>
               <Width>0.64286cm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=Code.SetData(ReportItems!HeaderInfo.Value,1)</Hidden>
               </Visibility>
@@ -6447,10 +6392,10 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox141</rd:DefaultName>
-              <Top>6.74864cm</Top>
+              <Top>7.38364cm</Top>
               <Height>11pt</Height>
               <Width>3.81758cm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6476,7 +6421,7 @@ Cstr(Fields!PageCaption.Value)
               <Left>4.40223in</Left>
               <Height>10pt</Height>
               <Width>2.38065in</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>44</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6504,11 +6449,11 @@ Cstr(Fields!PageCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox583</rd:DefaultName>
-              <Top>2.10139in</Top>
+              <Top>2.35139in</Top>
               <Left>0.00004in</Left>
               <Height>10pt</Height>
               <Width>4.40219in</Width>
-              <ZIndex>47</ZIndex>
+              <ZIndex>45</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6526,7 +6471,7 @@ Cstr(Fields!PageCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>46</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo3Picture.Value) = TRUE,true,false)</Hidden>
               </Visibility>
@@ -6544,7 +6489,7 @@ Cstr(Fields!PageCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>49</ZIndex>
+              <ZIndex>47</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo1Picture.Value) = TRUE,true,false)</Hidden>
               </Visibility>
@@ -6562,7 +6507,7 @@ Cstr(Fields!PageCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>50</ZIndex>
+              <ZIndex>48</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo2Picture.Value)= TRUE,true,false)</Hidden>
               </Visibility>
@@ -6590,7 +6535,7 @@ Cstr(Fields!PageCaption.Value)
               <Top>0.55556in</Top>
               <Height>10pt</Height>
               <Width>6.78288in</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>49</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6797,6 +6742,9 @@ Cstr(Fields!PageCaption.Value)
         <Field Name="CompanyInfoBankAccountNo">
           <DataField>CompanyInfoBankAccountNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CompanyInfoBankName">
           <DataField>CompanyInfoBankName</DataField>
         </Field>
@@ -6874,6 +6822,9 @@ Cstr(Fields!PageCaption.Value)
         </Field>
         <Field Name="BankAccountNoCaption">
           <DataField>BankAccountNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="BankNameCaption">
           <DataField>BankNameCaption</DataField>

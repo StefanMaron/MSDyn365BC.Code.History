@@ -70,10 +70,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifySalesPriceConsistency(SalesPrice: Record "Sales Price"): Boolean;
     var
         Currency: Record Currency;
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         ItemUnitofMeasure: Record "Item Unit of Measure";
         UnitofMeasure: Record "Unit of Measure";
     begin
+        if SalesPrice."Item No." = '' then
+            exit(false);
+        Item.SetLoadFields("No.");
+        if not Item.Get(SalesPrice."Item No.") then
+            exit(false);
         if SalesPrice."Variant Code" <> '' then
             if not ItemVariant.Get(SalesPrice."Item No.", SalesPrice."Variant Code") then
                 exit(false);
@@ -142,11 +148,17 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifySalesLineDiscConsistency(SalesLineDiscount: Record "Sales Line Discount"): Boolean;
     var
         Currency: Record Currency;
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         ItemUnitofMeasure: Record "Item Unit of Measure";
         UnitofMeasure: Record "Unit of Measure";
     begin
         if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
+            if SalesLineDiscount.Code = '' then
+                exit(false);
+            Item.SetLoadFields("No.");
+            if not Item.Get(SalesLineDiscount.Code) then
+                exit(false);
             if SalesLineDiscount."Variant Code" <> '' then
                 if not ItemVariant.Get(SalesLineDiscount.Code, SalesLineDiscount."Variant Code") then
                     exit(false);
@@ -345,10 +357,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyJobItemPriceConsistency(JobItemPrice: Record "Job Item Price"): Boolean;
     var
         Currency: Record Currency;
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         ItemUnitofMeasure: Record "Item Unit of Measure";
         UnitofMeasure: Record "Unit of Measure";
     begin
+        if JobItemPrice."Item No." = '' then
+            exit(false);
+        Item.SetLoadFields("No.");
+        if not Item.Get(JobItemPrice."Item No.") then
+            exit(false);
         if JobItemPrice."Variant Code" <> '' then
             if not ItemVariant.Get(JobItemPrice."Item No.", JobItemPrice."Variant Code") then
                 exit(false);
@@ -431,7 +449,13 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyJobGLAccountPriceConsistency(JobGLAccountPrice: Record "Job G/L Account Price"): Boolean;
     var
         Currency: Record Currency;
+        GLAccount: Record "G/L Account";
     begin
+        if JobGLAccountPrice."G/L Account No." = '' then
+            exit(false);
+        GLAccount.SetLoadFields("No.");
+        if not GLAccount.Get(JobGLAccountPrice."G/L Account No.") then
+            exit(false);
         if JobGLAccountPrice."Currency Code" <> '' then
             if not Currency.Get(JobGLAccountPrice."Currency Code") then
                 exit(false);
@@ -498,8 +522,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyJobResourcePriceConsistency(JobResourcePrice: Record "Job Resource Price"): Boolean;
     var
         Currency: Record Currency;
+        Resource: Record Resource;
         WorkType: Record "Work Type";
     begin
+        if JobResourcePrice.Type = JobResourcePrice.Type::Resource then begin
+            if JobResourcePrice.Code = '' then
+                exit(false);
+            Resource.SetLoadFields("No.");
+            if not Resource.Get(JobResourcePrice.Code) then
+                exit(false);
+        end;
         if JobResourcePrice."Currency Code" <> '' then
             if not Currency.Get(JobResourcePrice."Currency Code") then
                 exit(false);
@@ -583,8 +615,16 @@ Codeunit 7009 CopyFromToPriceListLine
 
     local procedure VerifyResourceCostConsistency(ResourceCost: Record "Resource Cost"): Boolean;
     var
+        Resource: Record Resource;
         WorkType: Record "Work Type";
     begin
+        if ResourceCost.Type = ResourceCost.Type::Resource then begin
+            if ResourceCost.Code = '' then
+                exit(false);
+            Resource.SetLoadFields("No.");
+            if not Resource.Get(ResourceCost.Code) then
+                exit(false);
+        end;
         if ResourceCost."Work Type Code" <> '' then
             if not WorkType.Get(ResourceCost."Work Type Code") then
                 exit(false);
@@ -705,8 +745,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyResourcePriceConsistency(ResourcePrice: Record "Resource Price"): Boolean;
     var
         Currency: Record Currency;
+        Resource: Record Resource;
         WorkType: Record "Work Type";
     begin
+        if ResourcePrice.Type = ResourcePrice.Type::Resource then begin
+            if ResourcePrice.Code = '' then
+                exit(false);
+            Resource.SetLoadFields("No.");
+            if not Resource.Get(ResourcePrice.Code) then
+                exit(false);
+        end;
         if ResourcePrice."Currency Code" <> '' then
             if not Currency.Get(ResourcePrice."Currency Code") then
                 exit(false);
@@ -762,10 +810,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyPurchPriceConsistency(PurchasePrice: Record "Purchase Price"): Boolean;
     var
         Currency: Record Currency;
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         ItemUnitofMeasure: Record "Item Unit of Measure";
         UnitofMeasure: Record "Unit of Measure";
     begin
+        if PurchasePrice."Item No." = '' then
+            exit(false);
+        Item.SetLoadFields("No.");
+        if not Item.Get(PurchasePrice."Item No.") then
+            exit(false);
         if PurchasePrice."Variant Code" <> '' then
             if not ItemVariant.Get(PurchasePrice."Item No.", PurchasePrice."Variant Code") then
                 exit(false);
@@ -827,10 +881,16 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure VerifyPurchLineDiscConsistency(PurchaseLineDiscount: Record "Purchase Line Discount"): Boolean;
     var
         Currency: Record Currency;
+        Item: Record Item;
         ItemVariant: Record "Item Variant";
         ItemUnitofMeasure: Record "Item Unit of Measure";
         UnitofMeasure: Record "Unit of Measure";
     begin
+        if PurchaseLineDiscount."Item No." = '' then
+            exit(false);
+        Item.SetLoadFields("No.");
+        if not Item.Get(PurchaseLineDiscount."Item No.") then
+            exit(false);
         if PurchaseLineDiscount."Variant Code" <> '' then
             if not ItemVariant.Get(PurchaseLineDiscount."Item No.", PurchaseLineDiscount."Variant Code") then
                 exit(false);

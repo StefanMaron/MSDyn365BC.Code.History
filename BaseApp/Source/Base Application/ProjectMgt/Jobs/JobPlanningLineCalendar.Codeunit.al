@@ -44,7 +44,7 @@ codeunit 1034 "Job Planning Line - Calendar"
         UpdateJobTask();
         UpdateResource();
 
-        OnAfterSetPlanningLine(NewJobPlanningLine);
+        OnAfterSetPlanningLine(NewJobPlanningLine, ProjectManagerResource);
     end;
 
     [Scope('OnPrem')]
@@ -324,7 +324,7 @@ codeunit 1034 "Job Planning Line - Calendar"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPlanningLine(NewJobPlanningLine: Record "Job Planning Line")
+    local procedure OnAfterSetPlanningLine(NewJobPlanningLine: Record "Job Planning Line"; var ProjectManagerResource: Record Resource)
     begin
     end;
 }
