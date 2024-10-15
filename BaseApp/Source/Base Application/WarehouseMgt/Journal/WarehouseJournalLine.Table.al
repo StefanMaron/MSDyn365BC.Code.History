@@ -603,6 +603,8 @@ table 7311 "Warehouse Journal Line"
             begin
                 if "Lot No." <> '' then
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
+
+                InitExpirationDate();
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -612,6 +614,11 @@ table 7311 "Warehouse Journal Line"
         field(6503; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
+
+            trigger OnValidate()
+            begin
+                CheckLotNoTrackedExpirationDate();
+            end;
         }
         field(6504; "New Serial No."; Code[50])
         {
@@ -734,6 +741,7 @@ table 7311 "Warehouse Journal Line"
         Text003: Label 'Default Journal';
         Text005: Label 'The location %1 of warehouse journal batch %2 is not enabled for user %3.';
         Text006: Label '%1 must be 0 or 1 for an Item tracked by Serial Number.';
+        LotTrackedItemErr: Label '%1 must not change for an Item tracked by Lot Number.', Comment = '%1 = Field Caption';
         OpenFromBatch: Boolean;
         StockProposal: Boolean;
 
@@ -1491,6 +1499,43 @@ table 7311 "Warehouse Journal Line"
         "Whse. Document Type" := DocType;
         "Whse. Document No." := DocNo;
         "Whse. Document Line No." := DocLineNo;
+    end;
+
+    procedure InitExpirationDate()
+    var
+        Location2: Record Location;
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+        ExpDate: Date;
+    begin
+        if (Rec."Lot No." = '') or ("Location Code" = '') then
+            "Expiration Date" := 0D
+        else begin
+            Location2.Get("Location Code");
+            if ItemTrackingManagement.GetWhseExpirationDate("Item No.", "Variant Code", Location2, ItemTrackingSetup, ExpDate) then
+                "Expiration Date" := ExpDate;
+        end;
+    end;
+
+    procedure CheckExpirationDateExists(): Boolean
+    var
+        Location2: Record Location;
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+        ExpDate: Date;
+    begin
+        if (Rec."Lot No." = '') or ("Location Code" = '') then
+            exit;
+
+        Location2.Get("Location Code");
+        if ItemTrackingManagement.GetWhseExpirationDate("Item No.", "Variant Code", Location2, ItemTrackingSetup, ExpDate) then
+            exit(true);
+    end;
+
+    local procedure CheckLotNoTrackedExpirationDate()
+    begin
+        if ("Lot No." <> '') and (CheckExpirationDateExists()) then
+            Error(LotTrackedItemErr, FieldCaption("Expiration Date"));
     end;
 
     local procedure DeleteWhseItemTracking()
