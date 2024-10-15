@@ -2762,78 +2762,84 @@
         TempServDocReg: Record "Service Document Register" temporary;
         ServiceCommentLine: Record "Service Comment Line";
         TempServiceCommentLine: Record "Service Comment Line" temporary;
-        ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
         IsHandled: Boolean;
     begin
-        if ServLineExists() then begin
-            if HideValidationDialog then
-                Confirmed := true
-            else
-                Confirmed :=
-                  ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
+        if not ServLineExists() then
+            exit;
 
-            if Confirmed then begin
-                ServLine.LockTable();
-                ReservEntry.LockTable();
-                Modify();
+        IsHandled := false;
+        OnBeforeRecreateServLines(Rec, xRec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
 
-                IsHandled := false;
-                OnRecreateServLinesOnBeforeUpdateLines(Rec, IsHandled);
-                if IsHandled then
-                    exit;
+        Confirmed := ConfirmRecreateServLines(ChangedFieldName);
 
-                ServLine.Reset();
-                ServLine.SetRange("Document Type", "Document Type");
-                ServLine.SetRange("Document No.", "No.");
-                if ServLine.Find('-') then begin
-                    repeat
-                        ServLine.TestField("Quantity Shipped", 0);
-                        ServLine.TestField("Quantity Invoiced", 0);
-                        ServLine.TestField("Shipment No.", '');
-                        TempServLine := ServLine;
-                        if ServLine.Nonstock then begin
-                            ServLine.Nonstock := false;
-                            ServLine.Modify();
-                        end;
-                        TempServLine.Insert();
-                        CopyReservEntryToTemp(ServLine);
-                    until ServLine.Next() = 0;
+        if Confirmed then begin
+            ServLine.LockTable();
+            ReservEntry.LockTable();
+            Modify();
 
-                    if "Location Code" <> xRec."Location Code" then
-                        if not TempReservEntry.IsEmpty then
-                            Error(Text047, FieldCaption("Location Code"));
+            IsHandled := false;
+            OnRecreateServLinesOnBeforeUpdateLines(Rec, IsHandled);
+            if IsHandled then
+                exit;
 
-                    if "Document Type" = "Document Type"::Invoice then begin
-                        ServDocReg.SetCurrentKey("Destination Document Type", "Destination Document No.");
-                        ServDocReg.SetRange("Destination Document Type", ServDocReg."Destination Document Type"::Invoice);
-                        ServDocReg.SetRange("Destination Document No.", TempServLine."Document No.");
-                        if ServDocReg.Find('-') then
-                            repeat
-                                TempServDocReg := ServDocReg;
-                                TempServDocReg.Insert();
-                            until ServDocReg.Next() = 0;
+            ServLine.Reset();
+            ServLine.SetRange("Document Type", "Document Type");
+            ServLine.SetRange("Document No.", "No.");
+            OnRecreateServLinesOnAfterServLineSetFilters(ServLine);
+            if ServLine.Find('-') then begin
+                repeat
+                    ServLine.TestField("Quantity Shipped", 0);
+                    ServLine.TestField("Quantity Invoiced", 0);
+                    ServLine.TestField("Shipment No.", '');
+                    TempServLine := ServLine;
+                    if ServLine.Nonstock then begin
+                        ServLine.Nonstock := false;
+                        ServLine.Modify();
                     end;
-                    StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                    ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header", "Document Type", "No.");
+                    TempServLine.Insert();
+                    CopyReservEntryToTemp(ServLine);
+                until ServLine.Next() = 0;
+
+                if "Location Code" <> xRec."Location Code" then
+                    if not TempReservEntry.IsEmpty then
+                        Error(Text047, FieldCaption("Location Code"));
+
+                if "Document Type" = "Document Type"::Invoice then begin
+                    ServDocReg.SetCurrentKey("Destination Document Type", "Destination Document No.");
+                    ServDocReg.SetRange("Destination Document Type", ServDocReg."Destination Document Type"::Invoice);
+                    ServDocReg.SetRange("Destination Document No.", TempServLine."Document No.");
+                    if ServDocReg.Find('-') then
+                        repeat
+                            TempServDocReg := ServDocReg;
+                            TempServDocReg.Insert();
+                        until ServDocReg.Next() = 0;
+                end;
+                StoreServiceCommentLineToTemp(TempServiceCommentLine);
+                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header", "Document Type", "No.");
+                IsHandled := false;
+                OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
+                if not IsHandled then
                     ServLine.DeleteAll(true);
 
-                    if "Document Type" = "Document Type"::Invoice then begin
-                        if TempServDocReg.Find('-') then
-                            repeat
-                                ServDocReg := TempServDocReg;
-                                ServDocReg.Insert();
-                            until TempServDocReg.Next() = 0;
-                    end;
-
-                    CreateServiceLines(TempServLine, ExtendedTextAdded);
-                    RestoreServiceCommentLineFromTemp(TempServiceCommentLine);
-                    TempServLine.SetRange(Type);
-                    TempServLine.DeleteAll();
+                if "Document Type" = "Document Type"::Invoice then begin
+                    if TempServDocReg.Find('-') then
+                        repeat
+                            ServDocReg := TempServDocReg;
+                            ServDocReg.Insert();
+                        until TempServDocReg.Next() = 0;
                 end;
-            end else
-                Error('');
-        end;
+
+                CreateServiceLines(TempServLine, ExtendedTextAdded);
+                RestoreServiceCommentLineFromTemp(TempServiceCommentLine);
+                TempServLine.SetRange(Type);
+                TempServLine.DeleteAll();
+                OnRecreateServLinesOnAfterTempServLineDeleteAll(Rec);
+            end;
+        end else
+            Error('');
     end;
 
     local procedure StoreServiceCommentLineToTemp(var TempServiceCommentLine: Record "Service Comment Line" temporary)
@@ -2980,6 +2986,8 @@
     end;
 
     procedure TestMandatoryFields(var PassedServLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeTestMandatoryFields(Rec, PassedServLine);
 
@@ -2989,6 +2997,11 @@
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
+
+        IsHandled := false;
+        OnTestMandatoryFieldsOnBeforePassedServLineFind(Rec, ServLine, PassedServLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if PassedServLine.Find('-') then
             repeat
@@ -3290,7 +3303,13 @@
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCust(ContactNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cont.Get(ContactNo) then begin
             "Contact No." := Cont."No.";
             "Phone No." := Cont."Phone No.";
@@ -4180,6 +4199,22 @@
         Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text055, FieldCaption("Prices Including VAT"), ServLine.FieldCaption("Unit Price")), true);
     end;
 
+    local procedure ConfirmRecreateServLines(ChangedFieldName: Text[100]) Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmRecreateServLines(Rec, xRec, ChangedFieldName, HideValidationDialog, Result, IsHandled);
+        if IsHandled then
+            exit;
+
+        if HideValidationDialog then
+            Result := true
+        else
+            Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -4305,6 +4340,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateCust(ContactNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CurrentFieldNo: Integer)
     begin
@@ -4342,6 +4382,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateServLinesOnAfterServLineSetFilters(var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateServLinesOnBeforeServLineDeleteAll(var ServiceHeader: Record "Service Header"; var ServLine: Record "Service Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateServLinesOnAfterTempServLineDeleteAll(ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestMandatoryFieldsOnBeforePassedServLineFind(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var PassedServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

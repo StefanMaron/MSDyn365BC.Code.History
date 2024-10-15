@@ -24,6 +24,7 @@ page 592 "Change Log Setup"
                     trigger OnValidate()
                     begin
                         ConfirmActivationOfChangeLog;
+                        ChangeLogSettingsUpdated := true;
                     end;
                 }
             }
@@ -67,6 +68,7 @@ page 592 "Change Log Setup"
                     begin
                         ChangeLogSetupList.SetSource;
                         ChangeLogSetupList.RunModal;
+                        ChangeLogSettingsUpdated := ChangeLogSetupList.IsChangeLogSettingsUpdated();
                     end;
                 }
             }
@@ -82,8 +84,17 @@ page 592 "Change Log Setup"
         end;
     end;
 
+    trigger OnClosePage()
+    begin
+        if ChangeLogSettingsUpdated then
+            if Confirm(RestartSessionQst) then
+                RestartSession();
+    end;
+
     var
         ActivateChangeLogQst: Label 'Turning on the Change Log might slow things down, especially if you are monitoring entities that often change. Do you want to log changes?';
+        RestartSessionQst: Label 'Changes are displayed on the Change Log Entries page after the user''s session has restarted. Do you want to restart the session now?';
+        ChangeLogSettingsUpdated: Boolean;
 
     local procedure ConfirmActivationOfChangeLog()
     var
@@ -97,5 +108,14 @@ page 592 "Change Log Setup"
         if not ConfirmManagement.GetResponseOrDefault(ActivateChangeLogQst, true) then
             Error('');
     end;
+
+    local procedure RestartSession()
+    var
+        SessionSetting: SessionSettings;
+    begin
+        SessionSetting.Init();
+        SessionSetting.RequestSessionUpdate(false);
+    end;
+
 }
 

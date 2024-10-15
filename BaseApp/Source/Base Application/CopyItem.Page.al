@@ -228,10 +228,10 @@ page 729 "Copy Item"
             TransferFields(CopyItemParameters)
         else begin
             "Number of Copies" := 1;
-            "Source Item No." := TempItem."No.";
             InventorySetup.Get();
             "Target No. Series" := InventorySetup."Item Nos.";
         end;
+        "Source Item No." := TempItem."No.";
         Insert();
 
         OnAfterInitCopyItemBuffer(Rec);

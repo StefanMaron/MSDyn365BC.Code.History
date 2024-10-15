@@ -61,6 +61,8 @@ codeunit 5403 AddOnIntegrManagement
             "Operation No." := '';
             "Work Center No." := '';
         end;
+
+        OnAfterResetReqLineFields(ReqLine);
     end;
 
     procedure ValidateProdOrderOnReqLine(var ReqLine: Record "Requisition Line")
@@ -149,6 +151,11 @@ codeunit 5403 AddOnIntegrManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(var WordCenter: Record "Work Center"; var OrderDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetReqLineFields(var ReqLine: Record "Requisition Line")
     begin
     end;
 }

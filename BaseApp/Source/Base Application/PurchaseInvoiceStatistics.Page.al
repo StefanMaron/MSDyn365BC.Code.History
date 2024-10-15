@@ -157,6 +157,7 @@ page 400 "Purchase Invoice Statistics"
         Vend.CalcFields("Balance (LCY)");
 
         PurchInvLine.CalcVATAmountLines(Rec, TempVATAmountLine);
+        OnOnAfterGetRecordOnBeforeUpdateSubForm(Rec);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
         CurrPage.SubForm.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %");
     end;
@@ -216,8 +217,12 @@ page 400 "Purchase Invoice Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
-                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
             until PurchInvLine.Next = 0;
+
+        OnAfterCalculateTotals(
+            Rec, VendAmount, AmountInclVAT, InvDiscAmount,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
     end;
 
     [IntegrationEvent(false, false)]
@@ -226,7 +231,17 @@ page 400 "Purchase Invoice Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var VATPercentage: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalculateTotals(PurchInvHeader: Record "Purch. Inv. Header"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnAfterGetRecordOnBeforeUpdateSubForm(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }

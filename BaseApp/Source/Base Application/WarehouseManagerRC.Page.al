@@ -606,7 +606,7 @@ page 8909 "Warehouse Manager Role Center"
                 action("Phys. Invt. Counting Periods")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Physical Invtory Counting Periods';
+                    Caption = 'Physical Inventory Counting Periods';
                     RunObject = page "Phys. Invt. Counting Periods";
                 }
                 action("Item Journal")

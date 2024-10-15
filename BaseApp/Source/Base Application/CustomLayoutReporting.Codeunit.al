@@ -624,6 +624,7 @@ codeunit 8800 "Custom Layout Reporting"
         FileName: Text;
         EndDate: Text;
         ReportParameters: Text;
+        FileBaseName: Text;
     begin
         ReportParameters := GetRequestParametersText(ReportID);
 
@@ -639,18 +640,18 @@ codeunit 8800 "Custom Layout Reporting"
 
         // Construct with the end date, if it exists. Format the object name to adhere to filename size limits
         if OutputFileBaseName = '' then
-            OutputFileBaseName := GetTempLayoutReportCaption(ReportID);
-        if EndDate <> '' then
-            FileName := OutputFileBaseName + GetFileNameForPart(ObjectName) + GetFileNameAsOfPart(EndDate) + Extension
+            FileBaseName := GetTempLayoutReportCaption(ReportID)
         else
-            FileName := OutputFileBaseName + GetFileNameForPart(ObjectName) + Extension;
+            FileBaseName := OutputFileBaseName;
+        if EndDate <> '' then
+            FileName := FileBaseName + GetFileNameForPart(ObjectName) + GetFileNameAsOfPart(EndDate) + Extension
+        else
+            FileName := FileBaseName + GetFileNameForPart(ObjectName) + Extension;
 
         FileName := FileManagement.StripNotsupportChrInFileName(FileName);
 
         if FilePath <> '' then
             FileName := FileManagement.CombinePath(FilePath, FileName);
-
-        Clear(OutputFileBaseName);
 
         exit(FileName);
     end;

@@ -25,7 +25,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         WrongNoOfStartProcessesErr: Label 'Actual number of start processes in route %1 is %2', Comment = '%1 = Routing No., %2 = No. of operations';
         NoLineWithinFilterErr: Label 'There is no Routing Line within the filter';
         isInitialized: Boolean;
-        CannotDeleteCertifiedRoutingExistsErr: Label 'You cannot delete %1 %2 because there is at least one certified %3 associated with it.';
+        CannotDeleteWorkMachineCenterErr: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.';
+        WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
+        BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''  in %1: No.=%2';
 
     [Test]
     [Scope('OnPrem')]
@@ -901,6 +903,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [UT] [Work Center]
         // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing
+        // [SCENARIO 361820] Error "You cannot delete Work Center because there is at least one Routing Line associated with it" is thrown.
 
         // [GIVEN] Work Center "WKC"
         WorkCenter.Init();
@@ -914,8 +917,10 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [WHEN] Delete Work Center "WKC"
         asserterror WorkCenter.Delete(true);
 
-        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one certified routing associated with it"
-        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, WorkCenter."No.", 'routing'));
+        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one Routing Line associated with it"
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]
@@ -929,6 +934,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [UT] [Work Center]
         // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing version
+        // [SCENARIO 361820] Error "You cannot delete Work Center because there is at least one Routing Line associated with it" is thrown.
 
         // [GIVEN] Work Center "WKC"
         WorkCenter.Init();
@@ -947,8 +953,10 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [WHEN] Delete Work Center "WKC"
         asserterror WorkCenter.Delete(true);
 
-        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one certified routing version associated with it"
-        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, WorkCenter."No.", 'routing version'));
+        // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one Routing Line associated with it"
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]
@@ -961,6 +969,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [UT] [Machine Center]
         // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing
+        // [SCENARIO 361820] Error "You cannot delete Machine Center because there is at least one Routing Line associated with it" is thrown.
 
         // [GIVEN] Machine Center "MC"
         MachineCenter.Init();
@@ -974,8 +983,10 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [WHEN] Delete Machine Center "MC"
         asserterror MachineCenter.Delete(true);
 
-        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one certified routing associated with it"
-        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, MachineCenter."No.", 'routing'));
+        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one Routing Line associated with it"
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]
@@ -989,6 +1000,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         // [FEATURE] [UT] [Machine Center]
         // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing version
+        // [SCENARIO 361820] Error "You cannot delete Machine Center because there is at least one Routing Line associated with it" is thrown.
 
         // [GIVEN] Machine Center "MC"
         MachineCenter.Init();
@@ -1007,8 +1019,220 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [WHEN] Delete Machine Center "C"
         asserterror MachineCenter.Delete(true);
 
-        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one certified routing version associated with it"
-        Assert.ExpectedError(StrSubstNo(CannotDeleteCertifiedRoutingExistsErr, RoutingLine.Type, MachineCenter."No.", 'routing version'));
+        // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one Routing Line associated with it"
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkCenter()
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [Work Center] [UT]
+        // [SCENARIO 361820] Delete Work Center that is not associated with any Routing Line.
+        Initialize();
+
+        // [GIVEN] Work Center.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+
+        // [WHEN] Delete Work Center.
+        WorkCenter.Delete(true);
+
+        // [THEN] Work Center was successfully deleted.
+        WorkCenter.SetRecFilter();
+        Assert.RecordIsEmpty(WorkCenter);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWorkCenterForRouting()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Work Center] [UT]
+        // [SCENARIO 361820] Delete Work Center that is associated with Routing Line.
+        Initialize();
+
+        // [GIVEN] Work Center, that is set for Routing Line of Routing with Status New.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::New);
+        MockRoutingLine(RoutingLine, RoutingHeader."No.", '', RoutingLine.Type::"Work Center", WorkCenter."No.");
+
+        // [WHEN] Delete Work Center.
+        asserterror WorkCenter.Delete(true);
+
+        // [THEN] Work Center was not deleted. Error "You cannot delete Work Center because there is at least one Routing Line associated with it" was thrown.
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteMachineCenter()
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+    begin
+        // [FEATURE] [Machine Center] [UT]
+        // [SCENARIO 361820] Delete Machine Center that is not associated with any Routing Line.
+        Initialize();
+
+        // [GIVEN] Machine Center.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDecInRange(1, 5, 2));
+
+        // [WHEN] Delete Machine Center.
+        MachineCenter.Delete(true);
+
+        // [THEN] Machine Center was successfully deleted.
+        MachineCenter.SetRecFilter();
+        Assert.RecordIsEmpty(MachineCenter);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteMachineCenterForRouting()
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Machine Center] [UT]
+        // [SCENARIO 361820] Delete Machine Center that is associated with Routing Line.
+        Initialize();
+
+        // [GIVEN] Machine Center, that is set for Routing Line of Routing with Status New.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDecInRange(1, 5, 2));
+        MockRoutingHeader(RoutingHeader, RoutingHeader.Status::New);
+        MockRoutingLine(RoutingLine, RoutingHeader."No.", '', RoutingLine.Type::"Machine Center", MachineCenter."No.");
+
+        // [WHEN] Delete Machine Center.
+        asserterror MachineCenter.Delete(true);
+
+        // [THEN] Machine Center was not deleted. Error "You cannot delete Machine Center because there is at least one Routing Line associated with it" was thrown.
+        Assert.ExpectedError(
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyRoutingWhenWorkCenterNotExist()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Work Center] [UT]
+        // [SCENARIO 361820] Certify Routing with Routing Line that has associated Work Center that does not exist.
+        Initialize();
+
+        // [GIVEN] Routing with Routing Line that has associated Work Center "WC" that does not exist.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        WorkCenter.Delete(false);
+
+        // [WHEN] Certify Routing.
+        asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [THEN] Routing was not certified. Error "Operation 10 has the Work Center WC that does not exist" was thrown.
+        Assert.ExpectedError(
+          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", WorkCenter.TableCaption, RoutingLine."No."));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyRoutingWhenWorkCenterBlocked()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Work Center] [UT]
+        // [SCENARIO 361820] Certify Routing with Routing Line that has associated blocked Work Center.
+        Initialize();
+
+        // [GIVEN] Routing with Routing Line that has associated Work Center "WC" that is Blocked.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        WorkCenter.Validate(Blocked, true);
+        WorkCenter.Modify(true);
+
+        // [WHEN] Certify Routing.
+        asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Work Center WC" was thrown.
+        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, WorkCenter.TableCaption, WorkCenter."No."));
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyRoutingWhenMachineCenterNotExist()
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Machine Center] [UT]
+        // [SCENARIO 361820] Certify Routing with Routing Line that has associated Machine Center that does not exist.
+        Initialize();
+
+        // [GIVEN] Routing with Routing Line that has associated Machine Center "MC" that does not exist.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDecInRange(1, 5, 2));
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Machine Center", MachineCenter."No.");
+        MachineCenter.Delete(false);
+
+        // [WHEN] Certify Routing.
+        asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [THEN] Routing was not certified. Error "Operation 10 has the Machine Center MC that does not exist" was thrown.
+        Assert.ExpectedError(
+          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", MachineCenter.TableCaption, RoutingLine."No."));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyRoutingWhenMachineCenterBlocked()
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [Machine Center] [UT]
+        // [SCENARIO 361820] Certify Routing with Routing Line that has associated blocked Machine Center.
+        Initialize();
+
+        // [GIVEN] Routing with Routing Line that has associated Machine Center "MC" that is Blocked.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDecInRange(1, 5, 2));
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Machine Center", MachineCenter."No.");
+        MachineCenter.Validate(Blocked, true);
+        MachineCenter.Modify(true);
+
+        // [WHEN] Certify Routing.
+        asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Machine Center MC" was thrown.
+        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, MachineCenter.TableCaption, MachineCenter."No."));
+        Assert.ExpectedErrorCode('TestField');
     end;
 
     local procedure Initialize()

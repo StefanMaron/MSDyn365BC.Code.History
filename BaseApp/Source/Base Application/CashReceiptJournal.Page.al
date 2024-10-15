@@ -1136,6 +1136,7 @@ page 255 "Cash Receipt Journal"
         TotalBalanceVisible := ShowTotalBalance;
         if ShowTotalBalance then
             NumberOfRecords := Count();
+        OnAfterUpdateBalance(Rec, xRec, Balance, TotalBalance);
     end;
 
     local procedure EnableApplyEntriesAction()
@@ -1248,6 +1249,11 @@ page 255 "Cash Receipt Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateBalance(var GenJnlLine: Record "Gen. Journal Line"; var xGenJnlLine: Record "Gen. Journal Line"; var Balance: Decimal; var TotalBalance: Decimal)
     begin
     end;
 }

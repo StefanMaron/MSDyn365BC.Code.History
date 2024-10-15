@@ -2154,36 +2154,48 @@ table 5050 Contact
 
     local procedure ProcessNameChange()
     var
-        ContBusRel: Record "Contact Business Relation";
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
         UpdateSearchName;
 
-        if Type = Type::Company then
-            "Company Name" := Name;
-
-        if Type = Type::Person then begin
-            ContBusRel.Reset();
-            ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-            ContBusRel.SetRange("Contact No.", "Company No.");
-            if ContBusRel.FindFirst then
-                if Cust.Get(ContBusRel."No.") then
-                    if Cust."Primary Contact No." = "No." then begin
-                        Cust.Contact := Name;
-                        Cust.Modify();
-                    end;
-
-            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
-            if ContBusRel.FindFirst then
-                if Vend.Get(ContBusRel."No.") then
-                    if Vend."Primary Contact No." = "No." then begin
-                        Vend.Contact := Name;
-                        Vend.Modify();
-                    end;
+        case Type of
+            Type::Company:
+                "Company Name" := Name;
+            Type::Person:
+                ProcessPersonNameChange(Cust, Vend);
         end;
         OnAfterProcessNameChange(Rec, Cust, Vend);
+    end;
+
+    local procedure ProcessPersonNameChange(var Customer: Record Customer; var Vendor: Record Vendor)
+    var
+        ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessPersonNameChange(IsHandled);
+        if IsHandled then
+            exit;
+
+        ContBusRel.Reset();
+        ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+        ContBusRel.SetRange("Contact No.", "Company No.");
+        if ContBusRel.FindFirst then
+            if Customer.Get(ContBusRel."No.") then
+                if Customer."Primary Contact No." = "No." then begin
+                    Customer.Contact := Name;
+                    Customer.Modify();
+                end;
+
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+        if ContBusRel.FindFirst then
+            if Vendor.Get(ContBusRel."No.") then
+                if Vendor."Primary Contact No." = "No." then begin
+                    Vendor.Contact := Name;
+                    Vendor.Modify();
+                end;
     end;
 
     procedure GetCompNo(ContactText: Text): Text
@@ -2843,6 +2855,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNameBreakdown(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeProcessPersonNameChange(var IsHandled: Boolean)
     begin
     end;
 
