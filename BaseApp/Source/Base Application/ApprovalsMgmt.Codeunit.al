@@ -994,6 +994,7 @@
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         IncomingDocument: Record "Incoming Document";
+        Vendor: Record Vendor;
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
@@ -1062,6 +1063,11 @@
                 begin
                     RecRef.SetTable(IncomingDocument);
                     ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
+                end;
+            DATABASE::Vendor:
+                begin
+                    RecRef.SetTable(Vendor);
+                    ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
                 end;
             else
                 OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);

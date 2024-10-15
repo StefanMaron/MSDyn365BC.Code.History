@@ -25,6 +25,11 @@ page 743 "VAT Report Setup"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the VAT base must be calculated and shown to the user in the VAT reports.';
                 }
+                field("Report VAT Note"; "Report VAT Note")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies if the VAT Note field is available for reporting from the VAT Return card page.';
+                }
             }
             group(Numbering)
             {

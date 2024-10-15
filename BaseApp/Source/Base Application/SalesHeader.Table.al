@@ -2363,9 +2363,10 @@
                         if ("Salesperson Code" = '') and (Cont."Salesperson Code" <> '') then
                             Validate("Salesperson Code", Cont."Salesperson Code");
 
-                UpdateSellToCust("Sell-to Contact No.");
-                UpdateSellToCustTemplateCode;
-                UpdateShipToContact;
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") then
+                    UpdateSellToCust("Sell-to Contact No.");
+                UpdateSellToCustTemplateCode();
+                UpdateShipToContact();
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
@@ -3066,7 +3067,6 @@
     trigger OnInsert()
     var
         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert;
         InsertMode := true;
@@ -3082,7 +3082,7 @@
             SetDefaultSalesperson;
 
         if "Sell-to Customer No." <> '' then
-            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
 
         // Remove view filters so that the cards does not show filtered view notification
         SetView('');
@@ -3164,6 +3164,7 @@
         BASManagement: Codeunit "BAS Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
         Text035: Label 'You cannot Release Quote or Make Order unless you specify a customer on the quote.\\Do you want to create customer(s) now?';
@@ -3353,6 +3354,11 @@
             exit;
 
         "Posting Description" := Format("Document Type") + ' ' + "No.";
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
