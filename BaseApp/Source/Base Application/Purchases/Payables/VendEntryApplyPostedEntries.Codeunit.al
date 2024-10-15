@@ -90,8 +90,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         if ApplyUnapplyParameters."Posting Date" = 0D then
             ApplyUnapplyParameters."Posting Date" := GetApplicationDate(VendLedgEntry)
         else
-            if ApplyUnapplyParameters."Posting Date" < GetApplicationDate(VendLedgEntry) then
-                Error(MustNotBeBeforeErr);
+            if ApplyUnapplyParameters."Posting Date" < GetApplicationDate(VendLedgEntry) then begin
+                IsHandled := false;
+                OnApplyOnBeforePostingDateMustNotBeBeforeError(ApplyUnapplyParameters, VendLedgEntry, PreviewMode, IsHandled);
+                if not IsHandled then
+                    Error(MustNotBeBeforeErr);
+            end;
 
         if ApplyUnapplyParameters."Document No." = '' then
             ApplyUnapplyParameters."Document No." := VendLedgEntry."Document No.";
@@ -344,8 +348,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         OnPostUnApplyVendorOnAfterGetVendLedgEntry(VendLedgEntry);
         if GenJnlBatch.Get(VendLedgEntry."Journal Templ. Name", VendLedgEntry."Journal Batch Name") then;
         CheckPostingDate(ApplyUnapplyParameters, MaxPostingDate);
-        if ApplyUnapplyParameters."Posting Date" < DtldVendLedgEntry2."Posting Date" then
-            Error(MustNotBeBeforeErr);
+        if ApplyUnapplyParameters."Posting Date" < DtldVendLedgEntry2."Posting Date" then begin
+            IsHandled := false;
+            OnPostUnApplyVendorCommitOnBeforePostingDateMustNotBeBeforeError(ApplyUnapplyParameters, DtldVendLedgEntry2, PreviewMode, IsHandled);
+            if not IsHandled then
+                Error(MustNotBeBeforeErr);
+        end;
 
         OnPostUnApplyVendorCommitOnBeforeFilterDtldVendLedgEntry(DtldVendLedgEntry2, ApplyUnapplyParameters);
         if DtldVendLedgEntry2."Transaction No." = 0 then begin
@@ -829,6 +837,16 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyOnBeforeVendPostApplyVendLedgEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforePostingDateMustNotBeBeforeError(var ApplyUnapplyParameters: Record "Apply Unapply Parameters"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyVendorCommitOnBeforePostingDateMustNotBeBeforeError(var ApplyUnapplyParameters: Record "Apply Unapply Parameters"; var DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

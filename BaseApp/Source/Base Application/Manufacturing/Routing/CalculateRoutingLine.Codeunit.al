@@ -414,6 +414,7 @@ codeunit 99000774 "Calculate Routing Line"
         CalendarEntry.SetCapacityFilters(CapType, CapNo);
         CalendarEntry.SetRange("Ending Date-Time", 0DT, CreateDateTime(ProdEndingDate + 1, ProdEndingTime));
         CalendarEntry.SetRange("Starting Date-Time", 0DT, CreateDateTime(ProdEndingDate, ProdEndingTime));
+        OnLoadCapBackOnAfterSetCalendarEntryFilters(CalendarEntry);
 
         CreateLoadBack(TimeType, Write);
 
@@ -1377,6 +1378,7 @@ codeunit 99000774 "Calculate Routing Line"
         CalendarEntry.SetCapacityFilters(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.");
         CalendarEntry.SetFilter("Starting Date-Time", '<= %1', ProdEndingDateTime);
         CalendarEntry.SetFilter("Ending Date-Time", '<= %1', ProdEndingDateTimeAddOneDay);
+        OnFinitelyLoadCapBackOnAfterSetCalendarEntryFilters(CalendarEntry);
         if CalendarEntry.Find('+') then
             repeat
                 if (EndTime > CalendarEntry."Ending Time") or (EndTime < CalendarEntry."Starting Time") or
@@ -1828,6 +1830,7 @@ codeunit 99000774 "Calculate Routing Line"
     begin
         CalendarEntry2 := OldCalendarEntry;
         CalendarEntry2.SetRange(Date, CalendarEntry2.Date);
+        OnReturnNextCalendarEntryOnAfterSetCalendarEntryDateFilter(CalendarEntry);
 
         if Direction = Direction::Backward then begin
             CalendarEntry2.Find('-');           // rewind within the same day
@@ -2307,6 +2310,21 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTimesForward(CalendarEntry: Record "Calendar Entry"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var AvailTime: Decimal; var AvailCap: Decimal; var TimetoProgram: Decimal; var StartTime: Time; EndTime: Time; ConCurrCap: Decimal; Workcenter: Record "Work Center"; var RemainNeedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReturnNextCalendarEntryOnAfterSetCalendarEntryDateFilter(var CalendarEntry: Record "Calendar Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinitelyLoadCapBackOnAfterSetCalendarEntryFilters(var CalendarEntry: Record "Calendar Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadCapBackOnAfterSetCalendarEntryFilters(var CalendarEntry: Record "Calendar Entry")
     begin
     end;
 }

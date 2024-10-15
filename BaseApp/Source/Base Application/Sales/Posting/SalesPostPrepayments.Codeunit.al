@@ -192,7 +192,7 @@ codeunit 442 "Sales-Post Prepayments"
               CopyStr(
                 StrSubstNo(Text012, SelectStr(1 + DocumentType, Text019), SalesHeader."Document Type", SalesHeader."No."),
                 1, MaxStrLen(SalesHeader."Posting Description"));
-        OnCodeOnAfterPostingDescriptionSet(SalesHeader, DocumentType);
+        OnCodeOnAfterPostingDescriptionSet(SalesHeader, DocumentType, PostingDescription);
         // Create posted header
         if SalesSetup."Ext. Doc. No. Mandatory" then
             SalesHeader.TestField("External Document No.");
@@ -2580,7 +2580,7 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterPostingDescriptionSet(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
+    local procedure OnCodeOnAfterPostingDescriptionSet(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var PostingDescription: Text[100])
     begin
     end;
 

@@ -1056,7 +1056,7 @@ codeunit 900 "Assembly-Post"
         TempItemLedgEntry.Reset();
         TempItemLedgEntry.DeleteAll();
 
-        OnAfterUndoInitPost(PostedAsmHeader);
+        OnAfterUndoInitPost(PostedAsmHeader, PostingDate);
     end;
 
     local procedure UndoFinalizePost(var PostedAsmHeader: Record "Posted Assembly Header"; RecreateAsmOrder: Boolean)
@@ -1640,7 +1640,7 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUndoInitPost(var PostedAssemblyHeader: Record "Posted Assembly Header")
+    local procedure OnAfterUndoInitPost(var PostedAssemblyHeader: Record "Posted Assembly Header"; var PostingDate: Date)
     begin
     end;
 

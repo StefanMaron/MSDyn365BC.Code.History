@@ -70,17 +70,26 @@ codeunit 950 "Time Sheet Management"
     end;
 
     procedure FilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer)
+    begin
+        FilterTimeSheets(TimeSheetHeader, FieldNo, false);
+    end;
+
+    procedure FilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer; ApplyToAdmin: Boolean)
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFilterTimeSheets(TimeSheetHeader, FieldNo, IsHandled);
+        OnBeforeFilterTimeSheets(TimeSheetHeader, FieldNo, ApplyToAdmin, IsHandled);
         if IsHandled then
             exit;
 
-        if UserSetup.Get(UserId) then;
-        if not UserSetup."Time Sheet Admin." then begin
+        if not ApplyToAdmin then begin
+            UserSetup.SetLoadFields("Time Sheet Admin.");
+            if UserSetup.Get(UserId) then;
+        end;
+
+        if ApplyToAdmin or (not UserSetup."Time Sheet Admin.") then begin
             TimeSheetHeader.FilterGroup(2);
             case FieldNo of
                 TimeSheetHeader.FieldNo("Owner User ID"):
@@ -1407,7 +1416,7 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer; ApplyToAdmin: Boolean; var IsHandled: Boolean)
     begin
     end;
 

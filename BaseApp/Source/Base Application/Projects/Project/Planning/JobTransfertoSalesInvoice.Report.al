@@ -202,8 +202,14 @@ report 1094 "Job Transfer to Sales Invoice"
     procedure SetCustomer(JobPlanningLine: Record "Job Planning Line")
     var
         JobTask: Record "Job Task";
+        IsHandled: Boolean;
     begin
         Job.Get(JobPlanningLine."Job No.");
+        IsHandled := false;
+        OnBeforeSetCustomer(JobPlanningLine, BillToCustomerNo, SellToCustomerNo, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         BillToCustomerNo := Job."Bill-to Customer No.";
 
         if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
@@ -220,6 +226,11 @@ report 1094 "Job Transfer to Sales Invoice"
     procedure SetPostingDate(PostingDate2: Date)
     begin
         PostingDate := PostingDate2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCustomer(JobPlanningLine: Record "Job Planning Line"; var BillToCustomerNo: Code[20]; var SellToCustomerNo: Code[20]; var CurrencyCode: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 
