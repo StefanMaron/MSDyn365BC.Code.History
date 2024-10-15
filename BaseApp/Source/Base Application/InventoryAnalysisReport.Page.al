@@ -378,21 +378,14 @@ page 7119 "Inventory Analysis Report"
         LastColumn: Text[1024];
         MatrixColumnCaptions: array[32] of Text[1024];
 
-    local procedure FindPeriod(SearchText: Code[10])
+    local procedure FindPeriod(SearchText: Code[3])
     var
-        Calendar: Record Date;
         PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateFilter: Text;
+        InternalDateFilter: Text;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
-            Calendar.SetRange("Period Start");
-        end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
-        SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-        if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-            SetRange("Date Filter", GetRangeMin("Date Filter"));
+        PeriodFormMgt.FindPeriodOnMatrixPage(DateFilter, InternalDateFilter, SearchText, PeriodType, false);
+        SetFilter("Date Filter", InternalDateFilter);
     end;
 
     local procedure ValidateAnalysisTemplateName()

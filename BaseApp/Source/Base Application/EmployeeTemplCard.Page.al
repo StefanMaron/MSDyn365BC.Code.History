@@ -21,6 +21,11 @@ page 1388 "Employee Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the template.';
                 }
+                field("No. Series"; "No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series that will be used to assign numbers to employees.';
+                }
             }
             group(General)
             {

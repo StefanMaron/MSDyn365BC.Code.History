@@ -355,82 +355,104 @@ table 263 "Intrastat Jnl. Line"
         ItemLedgerEntry: Record "Item Ledger Entry";
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ReturnReceiptHeader: Record "Return Receipt Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         ServiceShipmentHeader: Record "Service Shipment Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         Customer: Record Customer;
+        Vendor: Record Vendor;
     begin
         if not ItemLedgerEntry.Get("Source Entry No.") then 
             exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
-                begin
-                    if not SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        SalesInvoiceHeader."Bill-to Country/Region Code", SalesInvoiceHeader."VAT Registration No."));
-                end;
+                        SalesInvoiceHeader."Bill-to Country/Region Code", SalesInvoiceHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(SalesInvoiceHeader."Bill-to Customer No."), SalesInvoiceHeader."EU 3-Party Trade"));
+            ItemLedgerEntry."Document Type"::"Sales Credit Memo":
+                if SalesCrMemoHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                      GetPartnerIDForCountry(
+                        SalesCrMemoHeader."Bill-to Country/Region Code", SalesCrMemoHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(SalesCrMemoHeader."Bill-to Customer No."), SalesCrMemoHeader."EU 3-Party Trade"));
             ItemLedgerEntry."Document Type"::"Sales Shipment":
-                begin
-                    if not SalesShipmentHeader.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if SalesShipmentHeader.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        SalesShipmentHeader."Bill-to Country/Region Code", SalesShipmentHeader."VAT Registration No."));
-                end;
+                        SalesShipmentHeader."Bill-to Country/Region Code", SalesShipmentHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(SalesShipmentHeader."Bill-to Customer No."), SalesShipmentHeader."EU 3-Party Trade"));
             ItemLedgerEntry."Document Type"::"Sales Return Receipt":
-                begin
-                    if not ReturnReceiptHeader.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if ReturnReceiptHeader.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        ReturnReceiptHeader."Bill-to Country/Region Code", ReturnReceiptHeader."VAT Registration No."));
-                end;
+                        ReturnReceiptHeader."Bill-to Country/Region Code", ReturnReceiptHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(ReturnReceiptHeader."Bill-to Customer No."), ReturnReceiptHeader."EU 3-Party Trade"));
             ItemLedgerEntry."Document Type"::"Purchase Credit Memo":
-                begin
-                    if not PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        PurchCrMemoHdr."Pay-to Country/Region Code", PurchCrMemoHdr."VAT Registration No."));
-                end;
+                        PurchCrMemoHdr."Pay-to Country/Region Code", PurchCrMemoHdr."VAT Registration No.",
+                        IsVendorPrivatePerson(PurchCrMemoHdr."Pay-to Vendor No."), false));
             ItemLedgerEntry."Document Type"::"Purchase Return Shipment":
-                begin
-                    if not ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        ReturnShipmentHeader."Pay-to Country/Region Code", ReturnShipmentHeader."VAT Registration No."));
-                end;
+                        ReturnShipmentHeader."Pay-to Country/Region Code", ReturnShipmentHeader."VAT Registration No.",
+                        IsVendorPrivatePerson(ReturnShipmentHeader."Pay-to Vendor No."), false));
             ItemLedgerEntry."Document Type"::"Purchase Receipt":
-                begin
-                    if not PurchRcptHeader.Get(ItemLedgerEntry."Document No.") then
-                        exit('');
+                if PurchRcptHeader.Get(ItemLedgerEntry."Document No.") then
                     exit(
                       GetPartnerIDForCountry(
-                        PurchRcptHeader."Pay-to Country/Region Code", PurchRcptHeader."VAT Registration No."));
-                end;
+                        PurchRcptHeader."Pay-to Country/Region Code", PurchRcptHeader."VAT Registration No.",
+                        IsVendorPrivatePerson(PurchRcptHeader."Pay-to Vendor No."), false));
             ItemLedgerEntry."Document Type"::"Service Shipment":
-                begin
-                    if not ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then 
-                        exit('');
+                if ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then begin
                     Customer.Get(ServiceShipmentHeader."Bill-to Customer No.");
                     exit(
                       GetPartnerIDForCountry(
-                        ServiceShipmentHeader."Bill-to Country/Region Code", ServiceShipmentHeader."VAT Registration No."));
+                        ServiceShipmentHeader."Bill-to Country/Region Code", ServiceShipmentHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(ServiceShipmentHeader."Bill-to Customer No."), ServiceShipmentHeader."EU 3-Party Trade"));
                 end;
             ItemLedgerEntry."Document Type"::"Service Invoice":
-                begin
-                    if not ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then 
-                        exit('');
+                if ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then begin
                     Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
                     exit(
                       GetPartnerIDForCountry(
-                        ServiceInvoiceHeader."Bill-to Country/Region Code", ServiceInvoiceHeader."VAT Registration No."));
+                        ServiceInvoiceHeader."Bill-to Country/Region Code", ServiceInvoiceHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(ServiceInvoiceHeader."Bill-to Customer No."), ServiceInvoiceHeader."EU 3-Party Trade"));
+                end;
+            ItemLedgerEntry."Document Type"::"Service Credit Memo":
+                if ServiceCrMemoHeader.Get(ItemLedgerEntry."Document No.") then begin
+                    Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ServiceCrMemoHeader."Bill-to Country/Region Code", ServiceCrMemoHeader."VAT Registration No.",
+                        IsCustomerPrivatePerson(ServiceCrMemoHeader."Bill-to Customer No."), ServiceCrMemoHeader."EU 3-Party Trade"));
+                end;
+        end;
+
+        case ItemLedgerEntry."Source Type" of
+            ItemLedgerEntry."Source Type"::Customer:
+                begin
+                    Customer.Get(ItemLedgerEntry."Source No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ItemLedgerEntry."Country/Region Code", Customer."VAT Registration No.",
+                        Customer."Partner Type" = Customer."Partner Type"::Person, false));
+                end;
+            ItemLedgerEntry."Source Type"::Vendor:
+                begin
+                    Vendor.Get(ItemLedgerEntry."Source No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ItemLedgerEntry."Country/Region Code", Vendor."VAT Registration No.",
+                        Vendor."Partner Type" = Vendor."Partner Type"::Person, false));
                 end;
         end;
     end;
@@ -448,18 +470,45 @@ table 263 "Intrastat Jnl. Line"
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
         exit(
-          GetPartnerIDForCountry(Customer."Country/Region Code", Customer."VAT Registration No."));
+          GetPartnerIDForCountry(
+            Customer."Country/Region Code", Customer."VAT Registration No.",
+            Customer."Partner Type" = Customer."Partner Type"::Person, false));
     end;
 
-    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]): Text[50]
+    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
     var
         CountryRegion: Record "Country/Region";
     begin
+        if IsPrivatePerson then
+            exit('QV999999999999');
+
+        if IsThirdPartyTrade then
+            exit('QV999999999999');
+
         if (CountryRegionCode <> '') and CountryRegion.Get(CountryRegionCode) then
             if CountryRegion.IsEUCountry(CountryRegionCode) then
                 if VATRegistrationNo <> '' then
                     exit(VATRegistrationNo);
+
         exit('QV999999999999');
+    end;
+
+    local procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get(CustomerNo) then
+            exit(Customer."Partner Type" = Customer."Partner Type"::Person);
+        exit(false);
+    end;
+
+    local procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
+    var
+        Vendor: Record Vendor;
+    begin
+        if Vendor.Get(VendorNo) then
+            exit(Vendor."Partner Type" = Vendor."Partner Type"::Person);
+        exit(false);
     end;
 
     [IntegrationEvent(true, false)]

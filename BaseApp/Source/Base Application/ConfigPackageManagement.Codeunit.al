@@ -86,7 +86,7 @@
             ConfigPackageField.Validate("Table ID", TableID);
             ConfigPackageField.Validate(Dimension, SetDimension);
             ConfigPackageField.Validate("Field ID", FieldID);
-            ConfigPackageField."Field Name" := FieldName;
+            ConfigPackageField.Validate("Field Name", FieldName);
             ConfigPackageField."Field Caption" := FieldCaption;
             ConfigPackageField."Primary Key" := ConfigValidateMgt.IsKeyField(TableID, FieldID);
             ConfigPackageField."Include Field" := SetInclude or ConfigPackageField."Primary Key";

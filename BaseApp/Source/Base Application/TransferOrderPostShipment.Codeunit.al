@@ -272,7 +272,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     local procedure ReserveItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     begin
-        if WhseShip and (WhseShptHeader2."Document Status" = WhseShptHeader2."Document Status"::"Partially Picked") then
+        GetLocation(TransferLine."Transfer-from Code");
+        if WhseShip and (WhseShptHeader2."Document Status" = WhseShptHeader2."Document Status"::"Partially Picked") and
+           Location."Bin Mandatory"
+        then
             ReserveTransLine.TransferWhseShipmentToItemJnlLine(
               TransferLine, ItemJnlLine, WhseShptHeader2, ItemJnlLine."Quantity (Base)")
         else

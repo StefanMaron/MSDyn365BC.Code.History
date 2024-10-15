@@ -37,7 +37,7 @@
         Currency: Record Currency;
         SourceCodeSetup: Record "Source Code Setup";
         GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary;
-        TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary;
+        TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary;
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
         TempGLItemLedgRelation: Record "G/L - Item Ledger Relation" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -1353,7 +1353,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer; var CostToPost: Decimal; var CostToPostACY: Decimal)
+    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer; var CostToPost: Decimal; var CostToPostACY: Decimal)
     begin
     end;
 
@@ -1368,7 +1368,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
+    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
     begin
     end;
 
@@ -1388,7 +1388,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
+    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
     begin
     end;
 

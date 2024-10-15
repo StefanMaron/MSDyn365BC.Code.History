@@ -6249,7 +6249,7 @@ Cstr(Fields!HomePageCaption.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!Amount_AmtInclVATFormat.Value</Format>
+                                                      <Format>=Fields!AmtInclVAT_SalesInvLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
