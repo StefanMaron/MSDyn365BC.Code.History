@@ -5,9 +5,6 @@ using Microsoft.CashFlow.Setup;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN21
-using Microsoft.FixedAssets.Journal;
-#endif
 using Microsoft.Foundation.Company;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Intercompany.Journal;
@@ -15,8 +12,8 @@ using Microsoft.Inventory.Analysis;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Resources.Journal;
-using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Analysis;
@@ -363,10 +360,6 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Cash Receipt Journal");
             GenJournalTemplate.Type::Payments:
                 exit(PAGE::"Payment Journal");
-#if not CLEAN21                
-            GenJournalTemplate.Type::Assets:
-                exit(PAGE::"Fixed Asset G/L Journal");
-#endif
             GenJournalTemplate.Type::Intercompany:
                 exit(PAGE::"IC General Journal");
             GenJournalTemplate.Type::Jobs:

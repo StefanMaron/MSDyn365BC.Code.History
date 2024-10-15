@@ -11,7 +11,7 @@ codeunit 130101 "Library - Payment Format"
     procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; DataHandlingCodeunit: Integer; ValidationCodeunit: Integer; ReadingWritingCodeunit: Integer; ReadingWritingXMLport: Integer; ExternalDataHandlingCodeunit: Integer; UserFeedbackCodeunit: Integer)
     begin
         DataExchDef.InsertRecForExport(
-          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(),
+          LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), DataExchDef.Type::"Payment Export".AsInteger(),
           ReadingWritingXMLport, DataExchDef."File Type"::"Variable Text");
         DataExchDef.Validate("Ext. Data Handling Codeunit", ExternalDataHandlingCodeunit);
         DataExchDef.Validate("Reading/Writing Codeunit", ReadingWritingCodeunit);
@@ -38,7 +38,7 @@ codeunit 130101 "Library - Payment Format"
     procedure CreateDataExchMapping(var DataExchMapping: Record "Data Exch. Mapping"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; PreMappingCodeunit: Integer; MappingCodeunit: Integer; PostMappingCodeunit: Integer)
     begin
         DataExchMapping.InsertRecForExport(DataExchDefCode, DataExchLineDefCode,
-          DATABASE::"Payment Export Data", LibraryUtility.GenerateGUID, MappingCodeunit);
+          DATABASE::"Payment Export Data", LibraryUtility.GenerateGUID(), MappingCodeunit);
         DataExchMapping.Validate("Pre-Mapping Codeunit", PreMappingCodeunit);
         DataExchMapping.Validate("Post-Mapping Codeunit", PostMappingCodeunit);
         DataExchMapping.Modify(true);

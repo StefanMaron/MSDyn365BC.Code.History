@@ -8,7 +8,7 @@ using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Foundation.Period;
@@ -38,7 +38,7 @@ permissionset 9338 "Resources - Periodic"
                   tabledata "Res. Ledger Entry" = Rid,
                   tabledata Resource = RM,
                   tabledata "Resource Group" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Price" = RIMD,
                   tabledata "Resource Price Change" = RIMD,
 #endif

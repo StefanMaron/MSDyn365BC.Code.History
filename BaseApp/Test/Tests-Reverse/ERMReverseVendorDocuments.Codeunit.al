@@ -146,7 +146,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         ReversalEntry: Record "Reversal Entry";
     begin
         // Setup: Create General Journal Line as per the Document Types, new Currency and Post it.
-        CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency);
+        CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency());
         AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 

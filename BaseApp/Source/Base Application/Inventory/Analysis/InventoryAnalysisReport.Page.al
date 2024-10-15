@@ -238,12 +238,12 @@ page 7119 "Inventory Analysis Report"
                     trigger OnAction()
                     var
                         AnalysisReport: Report "Analysis Report";
-                        DateFilter: Text[30];
-                        ItemBudgetFilter: Text[30];
-                        LocationFilter: Text[30];
-                        Dim1Filter: Text[250];
-                        Dim2Filter: Text[250];
-                        Dim3Filter: Text[250];
+                        DateFilter: Text;
+                        ItemBudgetFilter: Text;
+                        LocationFilter: Text;
+                        Dim1Filter: Text;
+                        Dim2Filter: Text;
+                        Dim3Filter: Text;
                     begin
                         CurrentAreaType := Rec.GetRangeMax("Analysis Area");
                         AnalysisReport.SetParameters(CurrentAreaType, CurrentReportName, CurrentLineTemplate, CurrentColumnTemplate);
@@ -372,14 +372,9 @@ page 7119 "Inventory Analysis Report"
     var
         GLSetup: Record "General Ledger Setup";
         TempAnalysisColumn: Record "Analysis Column" temporary;
-        ItemAnalysisView: Record "Item Analysis View";
-        AnalysisLine: Record "Analysis Line";
         AnalysisReportMgt: Codeunit "Analysis Report Management";
         InvtAnalysisMatrix: Page "Inventory Analysis Matrix";
         NewCurrentReportName: Code[10];
-        CurrentAreaType: Enum "Analysis Area Type";
-        CurrentSourceTypeNoFilter: Text;
-        CurrentSourceTypeFilter: Enum "Analysis Source Type";
         PeriodType: Enum "Analysis Period Type";
         Direction: Option Backward,Forward;
         NoOfColumns: Integer;
@@ -390,9 +385,14 @@ page 7119 "Inventory Analysis Report"
         MatrixColumnCaptions: array[32] of Text[1024];
 
     protected var
+        ItemAnalysisView: Record "Item Analysis View";
+        AnalysisLine: Record "Analysis Line";
         CurrentReportName: Code[10];
         CurrentColumnTemplate: Code[10];
         CurrentLineTemplate: Code[10];
+        CurrentAreaType: Enum "Analysis Area Type";
+        CurrentSourceTypeNoFilter: Text;
+        CurrentSourceTypeFilter: Enum "Analysis Source Type";
 
     local procedure FindPeriod(SearchText: Code[3])
     var
@@ -468,7 +468,7 @@ page 7119 "Inventory Analysis Report"
         AnalysisLine.SetRange("Analysis Line Template Name", CurrentLineTemplate);
     end;
 
-    local procedure GetColumnsRangeFilter(): Text[80]
+    local procedure GetColumnsRangeFilter(): Text
     begin
         if FirstColumn = LastColumn then
             exit(FirstColumn);

@@ -34,7 +34,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create and Post an Invoice General Journal Line for a Customer with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
             LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Sale, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -56,7 +56,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create and Post a Credit Memo General Journal Line for a Customer with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
             -LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Sale, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -78,7 +78,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-            GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+            GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
             -LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Purchase, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -100,7 +100,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create and Post a Credit Memo General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-            GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+            GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
             LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Purchase, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -122,7 +122,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create and Post an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting,
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
             LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Sale, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -144,7 +144,7 @@ codeunit 134030 "ERM VAT 2010"
 
         // [WHEN] Create an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting,
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
             LibraryRandom.RandInt(10000), GenJournalLine."Bal. Gen. Posting Type"::Purchase, true);
 
         // [THEN] Verify that VAT Entry has EU Service = Yes. Rollback VAT Posting Setup.
@@ -204,7 +204,7 @@ codeunit 134030 "ERM VAT 2010"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT 2010");
@@ -295,11 +295,11 @@ codeunit 134030 "ERM VAT 2010"
     var
         GLAccount: Record "G/L Account";
         ServiceLine: Record "Service Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PostedDocumentNo: Code[20];
     begin
         // Store Posted Document No. and Create Service Lines of Item and GL Account Type.
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
+        PostedDocumentNo := NoSeries.PeekNextNo(ServiceHeader."Posting No. Series");
         CreateAndUpdateServiceLine(
           ServiceHeader, ServiceLine.Type::Item, LineNo, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::"G/L Account", LineNo,

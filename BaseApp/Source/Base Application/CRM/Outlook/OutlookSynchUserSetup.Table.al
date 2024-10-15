@@ -5,6 +5,7 @@ using System.Security.AccessControl;
 table 5305 "Outlook Synch. User Setup"
 {
     Caption = 'Outlook Synch. User Setup';
+    DataClassification = CustomerContent;
     PasteIsValid = false;
     ReplicateData = false;
     ObsoleteState = Removed;

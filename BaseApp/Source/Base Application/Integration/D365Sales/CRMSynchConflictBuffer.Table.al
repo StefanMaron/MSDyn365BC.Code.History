@@ -11,6 +11,7 @@ using System.Reflection;
 table 5374 "CRM Synch. Conflict Buffer"
 {
     Caption = 'CRM Synch. Conflict Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -70,14 +71,14 @@ table 5374 "CRM Synch. Conflict Buffer"
                             if CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef) then begin
                                 FieldRef := RecRef.Field(CRMSetupDefaults.GetNameFieldNo(RecRef.Number));
                                 "Int. Record ID" := RecRef.RecordId;
-                                "Int. Description" := FieldRef.Value;
+                                "Int. Description" := FieldRef.Value();
                                 "Int. Record Exists" := true;
 
                                 IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
                                 IntegrationTableMapping.SetRange("Table ID", "Table ID");
                                 if IntegrationTableMapping.FindFirst() then begin
                                     FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
-                                    "Int. Modified On" := FieldRef.Value;
+                                    "Int. Modified On" := FieldRef.Value();
                                 end;
                                 RecRef.Close();
                             end;

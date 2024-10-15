@@ -23,18 +23,16 @@ report 1495 "Delete Check Ledger Entries"
             trigger OnAfterGetRecord()
             begin
                 CheckLedgEntry2 := "Check Ledger Entry";
-                with CheckLedgEntry2 do begin
-                    SetCurrentKey("Bank Account No.", "Check Date");
-                    CopyFilters("Check Ledger Entry");
+                CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Check Date");
+                CheckLedgEntry2.CopyFilters("Check Ledger Entry");
 
-                    Window.Update(1, "Bank Account No.");
+                Window.Update(1, CheckLedgEntry2."Bank Account No.");
 
-                    repeat
-                        Delete();
-                        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-                        Window.Update(4, DateComprReg."No. Records Deleted");
-                    until Next() = 0;
-                end;
+                repeat
+                    CheckLedgEntry2.Delete();
+                    DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+                    Window.Update(4, DateComprReg."No. Records Deleted");
+                until CheckLedgEntry2.Next() = 0;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -81,13 +79,17 @@ report 1495 "Delete Check Ledger Entries"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the first date of the period from which the check ledger entries are suggested. The batch job includes all entries from this date to the ending date.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';

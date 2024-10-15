@@ -82,7 +82,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::"Firm Planned", ProductionOrder2."Source Type"::Item, ComponentItem2."No.", Quantity,
-          WorkDate);
+          WorkDate());
         EnqueueForOrderTracking(ProductionOrder2.Quantity, Quantity, 0, ProductionOrder2."Source No.");  // Enqueue values for Order Tracking page handler.
         FindProductionOrderLine(ProdOrderLine, ProductionOrder2.Status, ProductionOrder2."Source No.", '');  // Use blank for Location Code.
 
@@ -725,7 +725,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalBatch."Template Type"::Item);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -733,7 +733,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No, Quantity);
     end;
 
@@ -872,9 +872,9 @@ codeunit 137250 "SCM Inventory Order Tracking"
         PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
     begin
         // Open Order Tracking page for required Posted Purchase Receipt.
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.FILTER.SetFilter("No.", No);
-        PostedPurchaseReceipt.PurchReceiptLines.OrderTracking.Invoke;
+        PostedPurchaseReceipt.PurchReceiptLines.OrderTracking.Invoke();
     end;
 
     local procedure OpenOrderTrkgForSales(SalesLine: Record "Sales Line")
@@ -917,7 +917,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder3, ProductionOrder3.Status::"Firm Planned", ProductionOrder3."Source Type"::Item, ComponentItem2."No.", Quantity,
-          WorkDate);
+          WorkDate());
     end;
 
     local procedure SetupForFirmPlannedProdOrderLine(var ProductionOrder3: Record "Production Order"; IsComponentOrderTracking: Boolean)
@@ -1077,8 +1077,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
 
         CalcRegenPlanAndCarryOutActionMsg(ParentItem, Bin."Location Code");
         FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::"Firm Planned", ParentItem."No.", Bin."Location Code");
-        LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine.Status::"Firm Planned", ProdOrderLine.Status::Released);
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProdOrderLine."Prod. Order No.");
         FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ParentItem."No.", Bin."Location Code");
     end;
 

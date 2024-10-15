@@ -279,7 +279,7 @@ codeunit 18427 "GST Stock Transfer Tests"
     var
         ItemJournalLine: Record "Item Journal Line";
         ReservationEntry: Record "Reservation Entry";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         InputCreditAvailment: Boolean;
     begin
         InputCreditAvailment := StorageBoolean.Get(AvailmentLbl);
@@ -302,7 +302,7 @@ codeunit 18427 "GST Stock Transfer Tests"
             ItemJournalLine, Item."No.",
             (LibraryStorage.Get(FromLocationLbl)),
             '', LibraryRandom.RandInt(100));
-        LotNo := NoSeriesManagement.GetNextNo(Item."Lot Nos.", WorkDate(), true);
+        LotNo := NoSeries.GetNextNo(Item."Lot Nos.");
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
         Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
@@ -451,7 +451,6 @@ codeunit 18427 "GST Stock Transfer Tests"
     end;
 
     local procedure CreateTransferLocations(var FromLocation: Record Location; var ToLocation: Record Location; var InTransitLocation: Record Location)
-    var
     begin
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
         LibraryStorage.Set(FromLocationLbl, FromLocation.Code);

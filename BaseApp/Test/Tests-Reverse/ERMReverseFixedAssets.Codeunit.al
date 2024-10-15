@@ -49,11 +49,11 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         ExpectedDescription := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ExpectedDescription);
 
-        LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
         ReverseFALedgerEntry(GenJournalLine."Document No.", false);
 
-        VerifyGLRegister;
+        VerifyGLRegister();
         VerifyFALedgerEntry(
           GenJournalLine."Document No.", -GenJournalLine."Debit Amount", GenJournalLine."Credit Amount", ExpectedDescription);
     end;
@@ -77,7 +77,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
             GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost", GenJournalLine."FA Posting Type"::Disposal);
 
         // Exercise: Reverse Fixed Asset Ledger Entry.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
@@ -104,7 +104,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
             GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost", GenJournalLine."FA Posting Type"::Depreciation);
 
         // Exercise: Reverse Fixed Asset Ledger Entry.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
@@ -118,7 +118,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         GenJournalBatch: Record "Gen. Journal Batch";
         DepreciationBookCode: Code[10];
     begin
-        DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration;
+        DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration();
         SetupGenJournalBatch(GenJournalBatch);
         CreateAndPostGenJournalLine(
           GenJournalLine, LibraryRandom.RandInt(100), FAPostingType, CreateFixedAssetWithFADepreciationBook(DepreciationBookCode),
@@ -151,7 +151,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         LibraryVariableStorage.Enqueue(ExpectedDescription);
 
         // Exercise: Reverse Maintenance Ledger Entry.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         ReverseMaintenanceLedgerEntry(GenJournalLine."Document No.", false);
 
@@ -175,8 +175,8 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         DocumentNo := CreateAndPostPurchaseInvoice(DepreciationBook);
 
         // Exercise: Reverse Maintenance Ledger Entry.
-        LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
         asserterror ReverseMaintenanceLedgerEntry(DocumentNo, true);
 
         // Verify: Verify error message while Reversing FA Entries.
@@ -204,7 +204,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
           FixedAsset, DepreciationBook.Code, GenJournalBatch);
 
         // Exercise: Post General Journal Line with Random values.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -247,7 +247,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No.");
 
         // [THEN] System throws an error "You cannot reverse G/L Entry No. 2822 because the entry has already been involved in a reversal."
-        VerifyAlreadyReversedTransactionError;
+        VerifyAlreadyReversedTransactionError();
     end;
 
     [Test]
@@ -268,7 +268,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [GIVEN] Post Acquisition Cost using Amount = 0
         // [GIVEN] Post Disposal using Amount = 0, balance G/L Account
         // [GIVEN] Disposal FA Ledger Entry has "Transaction No." = 100
-        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, 0);
+        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), 0);
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 101
         // [GIVEN] Reverse "Transaction No." = 101
@@ -285,7 +285,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No." + 1);
 
         // [THEN] System throws an error "You cannot reverse G/L Entry No. 2822 because the entry has already been involved in a reversal."
-        VerifyAlreadyReversedTransactionError;
+        VerifyAlreadyReversedTransactionError();
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [GIVEN] Post Disposal using Amount = -100, balance G/L Account
         // [GIVEN] Disposal FA Ledger Entry has "Transaction No." = 100
         CreatePostFAAcqCostAndDisposal(
-          FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 101
         // [GIVEN] Reverse "Transaction No." = 101
@@ -315,7 +315,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         CreatePostAndReverseGLAccount(FALedgerEntry."Transaction No." + 1);
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using balance G/L Account
-        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo);
+        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo());
         // [GIVEN] There are 4 FA Error Ledger Entries:
         // [GIVEN] A pair of Acquisition/Disposal with "Transaction No." = 100, a pair of Acquisition/Disposal with "Transaction No." = 103
         VerifyCanceledFALedgerEntry(FANo, FALedgerEntry."Transaction No.", 2);
@@ -325,7 +325,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         asserterror LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No." + 1);
 
         // [THEN] System throws an error "You cannot reverse G/L Entry No. 2822 because the entry has already been involved in a reversal."
-        VerifyAlreadyReversedTransactionError;
+        VerifyAlreadyReversedTransactionError();
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, '', 0);
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 100
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(FALedgerEntry."Transaction No.");
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using blanked balance G/L Account
@@ -385,11 +385,11 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, '', 0);
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 100
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(FALedgerEntry."Transaction No.");
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using balance G/L Account
-        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo);
+        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo());
         // [GIVEN] There are two FA Error Ledger Entries, both has "Transaction No." = 0
         VerifyCanceledFALedgerEntry(FANo, 0, 2);
 
@@ -419,10 +419,10 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [GIVEN] Post Acquisition Cost using Amount = 0
         // [GIVEN] Post Disposal using Amount = 0, balance G/L Account
         // [GIVEN] Disposal FA Ledger Entry has "Transaction No." = 100
-        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, 0);
+        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), 0);
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 101
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(FALedgerEntry."Transaction No." + 1);
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using blanked balance G/L Account
@@ -455,14 +455,14 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [GIVEN] Post Acquisition Cost using Amount = 0
         // [GIVEN] Post Disposal using Amount = 0, balance G/L Account
         // [GIVEN] Disposal FA Ledger Entry has "Transaction No." = 100
-        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, 0);
+        CreatePostFAAcqCostAndDisposal(FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), 0);
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 101
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(FALedgerEntry."Transaction No." + 1);
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using balance G/L Account
-        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo);
+        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo());
         // [GIVEN] There are two FA Error Ledger Entries, both has "Transaction No." = 0
         VerifyCanceledFALedgerEntry(FANo, 0, 2);
 
@@ -492,14 +492,14 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [GIVEN] Post Disposal using Amount = -100, balance G/L Account
         // [GIVEN] Disposal FA Ledger Entry has "Transaction No." = 100
         CreatePostFAAcqCostAndDisposal(
-          FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          FALedgerEntry, FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [GIVEN] Post G/L Account. Posted "Transaction No." = 101
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(FALedgerEntry."Transaction No." + 1);
 
         // [GIVEN] Cancel Disposal FA Ledger Entry using balance G/L Account
-        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo);
+        CancelFALedgerEntry(FALedgerEntry."Entry No.", DepreciationBookCode, LibraryERM.CreateGLAccountNo());
         // [GIVEN] There are 4 FA Error Ledger Entries:
         // [GIVEN] A pair of Acquisition/Disposal with "Transaction No." = 100, a pair of Acquisition/Disposal with "Transaction No." = 102
         VerifyCanceledFALedgerEntry(FANo, FALedgerEntry."Transaction No.", 2);
@@ -535,12 +535,12 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         Initialize();
-        DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration;
+        DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration();
         CreateFAJournalSetup(DepreciationBookCode);
         FANo := CreateFixedAssetWithFADepreciationBook(DepreciationBookCode);
 
         CreatePostFAGLJournal(
-          GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, DepreciationBookCode, LibraryERM.CreateGLAccountNo(), Amount);
         CreatePostFAGLJournal(GenJournalLine."FA Posting Type"::Disposal, FANo, DepreciationBookCode, DisposalBalanceAccNo, -Amount);
         FindFALedgerEntry(FALedgerEntry, FANo, FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
         FALedgerEntry.TestField("Transaction No.");
@@ -622,13 +622,13 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreatePostAndReverseGLAccount(ExpectedTransactionNo: Integer)
     begin
-        CreatePostGLAccount;
+        CreatePostGLAccount();
         VerifyLastGLTransactionNo(ExpectedTransactionNo);
         LibraryERM.ReverseTransaction(ExpectedTransactionNo);
         VerifyLastGLTransactionNo(ExpectedTransactionNo + 1);
@@ -811,13 +811,13 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     var
         NewDescription: Text;
     begin
-        NewDescription := LibraryVariableStorage.DequeueText;
+        NewDescription := LibraryVariableStorage.DequeueText();
 
-        ReverseTransactionEntries.First;
+        ReverseTransactionEntries.First();
         ReverseTransactionEntries.Description.SetValue(NewDescription);
         while ReverseTransactionEntries.Next() do
             ReverseTransactionEntries.Description.SetValue(NewDescription);
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 }
 

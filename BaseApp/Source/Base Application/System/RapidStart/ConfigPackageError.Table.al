@@ -8,6 +8,7 @@ table 8617 "Config. Package Error"
     DrillDownPageID = "Config. Package Errors";
     LookupPageID = "Config. Package Errors";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -40,7 +41,7 @@ table 8617 "Config. Package Error"
         }
         field(5; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field.FieldName where(TableNo = field("Table ID"),
                                                         "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;
@@ -53,7 +54,7 @@ table 8617 "Config. Package Error"
         }
         field(7; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table ID"),
                                                               "No." = field("Field ID")));
             Caption = 'Field Caption';
             Editable = false;
@@ -72,7 +73,7 @@ table 8617 "Config. Package Error"
         }
         field(10; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;

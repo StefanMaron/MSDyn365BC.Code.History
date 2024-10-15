@@ -6,7 +6,7 @@ using System.Utilities;
 
 page 1816 "Job Creation Wizard"
 {
-    Caption = 'Create New Job';
+    Caption = 'Create New Project';
     DelayedInsert = true;
     PageType = NavigatePage;
     SourceTable = Job;
@@ -19,8 +19,10 @@ page 1816 "Job Creation Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -31,8 +33,10 @@ page 1816 "Job Creation Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -45,11 +49,11 @@ page 1816 "Job Creation Wizard"
                 Visible = FirstStepVisible;
                 group("Welcome to Create New Job")
                 {
-                    Caption = 'Welcome to Create New Job';
+                    Caption = 'Welcome to Create New Project';
                     Visible = FirstStepVisible;
                     group(Control23)
                     {
-                        InstructionalText = 'Do you want to create a new job from an existing job?';
+                        InstructionalText = 'Do you want to create a new project from an existing project?';
                         ShowCaption = false;
                         Visible = FirstStepVisible;
                         field(FromExistingJob; FromExistingJob)
@@ -66,11 +70,11 @@ page 1816 "Job Creation Wizard"
                 Visible = CreationStepVisible;
                 group(Control20)
                 {
-                    Caption = 'Welcome to Create New Job';
+                    Caption = 'Welcome to Create New Project';
                     Visible = CreationStepVisible;
                     group(Control18)
                     {
-                        InstructionalText = 'Fill in the following fields for the new job.';
+                        InstructionalText = 'Fill in the following fields for the new project.';
                         ShowCaption = false;
                         Visible = CreationStepVisible;
                         field("No."; Rec."No.")
@@ -107,7 +111,7 @@ page 1816 "Job Creation Wizard"
                     }
                     group(Control9)
                     {
-                        InstructionalText = 'To select the tasks to copy from an existing job, choose Next.';
+                        InstructionalText = 'To select the tasks to copy from an existing project, choose Next.';
                         ShowCaption = false;
                     }
                 }
@@ -121,7 +125,7 @@ page 1816 "Job Creation Wizard"
                     Caption = 'That''s it!';
                     group(Control4)
                     {
-                        InstructionalText = 'To view your new job, choose Finish.';
+                        InstructionalText = 'To view your new project, choose Finish.';
                         ShowCaption = false;
                     }
                 }
@@ -204,8 +208,8 @@ page 1816 "Job Creation Wizard"
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
         FromExistingJob: Boolean;
-        SelectJobNumberMsg: Label 'To continue, specify the job number that you want to copy.';
-        SelectCustomerNumberMsg: Label 'To continue, specify the customer of the new job.';
+        SelectJobNumberMsg: Label 'To continue, specify the project number that you want to copy.';
+        SelectCustomerNumberMsg: Label 'To continue, specify the customer of the new project.';
 
     local procedure FinishAction()
     begin

@@ -3785,11 +3785,44 @@ codeunit 18196 "GST Sales Tests"
         CreateGSTSetup(GSTCustomeType::Unregistered, GSTGroupType::Service, true);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Order, (Storage.Get(CustomerNoLbl)));
         CreateGSTSetup(GSTCustomeType::Registered, GSTGroupType::Goods, true);
+
         // [WHEN] Change Sell-to Customer with registerd Customer
         SalesHeader.Validate("Sell-to Customer No.", (Storage.Get(CustomerNoLbl)));
         SalesHeader.Modify();
+
         // [THEN] Nature of Supply should be B2B
         Assert.Equal(NatureofSupply::B2B, SalesHeader."Nature of Supply");
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostFromSalesInvoiceForSEZCustomerInterStatePIT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GSTCustomeType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO] Wrong GST Calculation if Item Price is Incl of Tax and Customer Type is SEZ Unit.
+        // [FEATURE] [Sales Invoice] [Inter-State GST,Sez Unit Customer]
+
+        // [GIVEN] Created GST Setup and tax rates for SEZ Customer with Interstate Jurisdiction and Price Incusive of Tax Setup
+        CreateGSTSetup(GSTCustomeType::"SEZ Unit", GSTGroupType::Goods, false);
+        InitializeShareStep(false, false);
+        SalesWithPriceInclusiveOfTax(true);
+
+        // [WHEN] Create and Post Sales Invoice with GST and Line Type as Item for Interstate Juridisction
+        PostedDocumentNo := CreateAndPostSalesDocument(
+            SalesHeader,
+            SalesLine,
+            LineType::Item,
+            DocumentType::Invoice);
+
+        // [THEN] Verify GST Ledger Entries and Detailed GST Entries
+        VerifyGSTEntries(PostedDocumentNo, Database::"Sales Invoice Header");
     end;
 
     local procedure CountDetailedGstLedgerEntryLines(var DetailedGSTLedgerEntryCount: Integer; var DetailedGSTLedgerEntryInfoCount: Integer; PostedDocumentNo: code[20])

@@ -12,6 +12,7 @@ table 5349 "CRM Incident"
     Description = 'Service request case associated with a contract.';
     ExternalName = 'incident';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -289,7 +290,7 @@ table 5349 "CRM Incident"
         }
         field(31; AccountIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Account".Name where(AccountId = field(AccountId)));
+            CalcFormula = lookup("CRM Account".Name where(AccountId = field(AccountId)));
             Caption = 'AccountIdName';
             ExternalAccess = Read;
             ExternalName = 'accountidname';
@@ -298,7 +299,7 @@ table 5349 "CRM Incident"
         }
         field(32; ContactIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(ContactId)));
+            CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(ContactId)));
             Caption = 'ContactIdName';
             ExternalAccess = Read;
             ExternalName = 'contactidname';
@@ -307,7 +308,7 @@ table 5349 "CRM Incident"
         }
         field(33; ResponsibleContactIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(ResponsibleContactId)));
+            CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(ResponsibleContactId)));
             Caption = 'ResponsibleContactIdName';
             ExternalAccess = Read;
             ExternalName = 'responsiblecontactidname';
@@ -316,7 +317,7 @@ table 5349 "CRM Incident"
         }
         field(34; ContractIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Contract".Title where(ContractId = field(ContractId)));
+            CalcFormula = lookup("CRM Contract".Title where(ContractId = field(ContractId)));
             Caption = 'ContractIdName';
             ExternalAccess = Read;
             ExternalName = 'contractidname';
@@ -325,7 +326,7 @@ table 5349 "CRM Incident"
         }
         field(35; ProductIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Product".Name where(ProductId = field(ProductId)));
+            CalcFormula = lookup("CRM Product".Name where(ProductId = field(ProductId)));
             Caption = 'ProductIdName';
             ExternalAccess = Read;
             ExternalName = 'productidname';
@@ -334,7 +335,7 @@ table 5349 "CRM Incident"
         }
         field(36; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -343,7 +344,7 @@ table 5349 "CRM Incident"
         }
         field(37; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -429,7 +430,7 @@ table 5349 "CRM Incident"
         }
         field(47; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -447,7 +448,7 @@ table 5349 "CRM Incident"
         }
         field(49; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';
@@ -473,7 +474,7 @@ table 5349 "CRM Incident"
         }
         field(52; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -589,7 +590,7 @@ table 5349 "CRM Incident"
         }
         field(66; MasterIdName; Text[200])
         {
-            CalcFormula = Lookup("CRM Incident".Title where(IncidentId = field(MasterId)));
+            CalcFormula = lookup("CRM Incident".Title where(IncidentId = field(MasterId)));
             Caption = 'MasterIdName';
             ExternalAccess = Read;
             ExternalName = 'masteridname';
@@ -620,7 +621,7 @@ table 5349 "CRM Incident"
         }
         field(70; ParentCaseIdName; Text[200])
         {
-            CalcFormula = Lookup("CRM Incident".Title where(IncidentId = field(ParentCaseId)));
+            CalcFormula = lookup("CRM Incident".Title where(IncidentId = field(ParentCaseId)));
             Caption = 'ParentCaseIdName';
             ExternalAccess = Read;
             ExternalName = 'parentcaseidname';
@@ -706,7 +707,7 @@ table 5349 "CRM Incident"
         }
         field(81; PrimaryContactIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(PrimaryContactId)));
+            CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(PrimaryContactId)));
             Caption = 'PrimaryContactIdName';
             ExternalAccess = Read;
             ExternalName = 'primarycontactidname';

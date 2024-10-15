@@ -12,6 +12,7 @@ table 5361 "CRM Uom"
     Description = 'Unit of measure.';
     ExternalName = 'uom';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -98,7 +99,7 @@ table 5361 "CRM Uom"
         }
         field(11; BaseUoMName; Text[100])
         {
-            CalcFormula = Lookup("CRM Uom".Name where(UoMId = field(BaseUoM)));
+            CalcFormula = lookup("CRM Uom".Name where(UoMId = field(BaseUoM)));
             Caption = 'BaseUoMName';
             Description = 'Name of the base unit for the product, such as a two-liter bottle.';
             ExternalAccess = Read;
@@ -108,7 +109,7 @@ table 5361 "CRM Uom"
         }
         field(12; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -117,7 +118,7 @@ table 5361 "CRM Uom"
         }
         field(13; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -167,7 +168,7 @@ table 5361 "CRM Uom"
         }
         field(19; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -185,7 +186,7 @@ table 5361 "CRM Uom"
         }
         field(21; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

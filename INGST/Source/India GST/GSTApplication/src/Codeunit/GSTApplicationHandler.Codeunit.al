@@ -2104,17 +2104,22 @@ codeunit 18430 "GST Application Handler"
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        IsHandled: Boolean;
     begin
+        OnBeforeUnApplyGSTApplication(GenJournalLine, TransactionType, TransactionNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJournalLine."Document Type" = GenJournalLine."Document Type"::Refund then
             exit;
 
         DetailedGSTLedgerEntry.SetCurrentKey("Transaction No.");
         DetailedGSTLedgerEntry.SetRange("Transaction No.", TransactionNo);
-        DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
         DetailedGSTLedgerEntry.SetRange("Transaction Type", TransactionType);
         DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::Application);
         DetailedGSTLedgerEntry.SetRange(UnApplied, false);
         if DetailedGSTLedgerEntry.FindSet() then begin
+            DocumentNo := DetailedGSTLedgerEntry."Document No.";
             GSTApplicationLibrary.GetDetailedGSTLedgerEntryInfo(DetailedGSTLedgerEntry, DetailedGSTLedgerEntryInfo);
             CreateUnapplicationGSTLedger(GenJournalLine, TransactionType, TransactionNo, DocumentNo, DetailedGSTLedgerEntryInfo."RCM Exempt Transaction");
             GSTPostingBuffer[1].DeleteAll();
@@ -2123,6 +2128,8 @@ codeunit 18430 "GST Application Handler"
                 InsertUnApplicationDetailedGSTLedgerEntry(DetailedGSTLedgerEntry);
             until DetailedGSTLedgerEntry.Next() = 0;
         end;
+
+        OnAfterUnApplyGSTApplication(GenJournalLine, TransactionType, TransactionNo);
     end;
 
     local procedure InsertUnApplicationDetailedGSTLedgerEntry(DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry")
@@ -2527,19 +2534,17 @@ codeunit 18430 "GST Application Handler"
                 UnApplyGSTApplicationCreditMemo(TransactionType::Purchase, VendorLedgerEntry."Document No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterUnapplyVendLedgEntry', '', false, false)]
     local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        var VendorPostingGroup: Record "Vendor Posting Group";
-        GenJournalLine: Record "Gen. Journal Line";
-        var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary)
+        GenJournalLine2: Record "Gen. Journal Line")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         TransactionType: Enum "Detail Ledger Transaction Type";
     begin
         VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
-        UnApplyGSTApplication(GenJournalLine, TransactionType::Purchase, VendorLedgerEntry."Transaction No.", DetailedVendorLedgEntry."Document No.");
+        UnApplyGSTApplication(GenJournalLine2, TransactionType::Purchase, VendorLedgerEntry."Transaction No.", DetailedVendorLedgEntry."Document No.");
         GSTApplSessionMgt.PostApplicationGenJournalLine(GenJnlPostLine);
         GSTApplSessionMgt.ClearAllSessionVariables();
     end;
@@ -3102,6 +3107,16 @@ codeunit 18430 "GST Application Handler"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostGSTWithNormalPaymentOffline(var GenJournalLine: Record "Gen. Journal Line"; var AmountToApply: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnApplyGSTApplication(GenJournalLine: Record "Gen. Journal Line"; TransactionType: Enum "Detail Ledger Transaction Type"; TransactionNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUnApplyGSTApplication(GenJournalLine: Record "Gen. Journal Line"; TransactionType: Enum "Detail Ledger Transaction Type"; TransactionNo: Integer)
     begin
     end;
 }

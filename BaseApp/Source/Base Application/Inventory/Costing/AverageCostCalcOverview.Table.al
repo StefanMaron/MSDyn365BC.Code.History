@@ -11,6 +11,7 @@ using Microsoft.Inventory.Location;
 table 5847 "Average Cost Calc. Overview"
 {
     Caption = 'Average Cost Calc. Overview';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -99,19 +99,17 @@ codeunit 5771 "Whse.-Sales Release"
         if IsHandled then
             exit;
 
-        with SalesHeader do begin
-            IsHandled := false;
-            OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WarehouseRequest2, IsHandled);
+        IsHandled := false;
+        OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WarehouseRequest2, IsHandled);
 
-            WarehouseRequest2.Reset();
-            WarehouseRequest2.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            if IsHandled then
-                WarehouseRequest2.SetRange(Type, WarehouseRequest2.Type);
-            WarehouseRequest2.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
-            WarehouseRequest2.SetRange("Document Status", Status::Released);
-            if not WarehouseRequest2.IsEmpty() then
-                WarehouseRequest2.ModifyAll("Document Status", WarehouseRequest2."Document Status"::Open);
-        end;
+        WarehouseRequest2.Reset();
+        WarehouseRequest2.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        if IsHandled then
+            WarehouseRequest2.SetRange(Type, WarehouseRequest2.Type);
+        WarehouseRequest2.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        WarehouseRequest2.SetRange("Document Status", SalesHeader.Status::Released);
+        if not WarehouseRequest2.IsEmpty() then
+            WarehouseRequest2.ModifyAll("Document Status", WarehouseRequest2."Document Status"::Open);
 
         OnAfterReopen(SalesHeader);
     end;
@@ -119,14 +117,12 @@ codeunit 5771 "Whse.-Sales Release"
     [Scope('OnPrem')]
     procedure UpdateExternalDocNoForReleasedOrder(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            WarehouseRequest.Reset();
-            WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
-            WarehouseRequest.SetRange("Document Status", Status::Released);
-            if not WarehouseRequest.IsEmpty() then
-                WarehouseRequest.ModifyAll("External Document No.", "External Document No.");
-        end;
+        WarehouseRequest.Reset();
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        WarehouseRequest.SetRange("Document Status", SalesHeader.Status::Released);
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.ModifyAll("External Document No.", SalesHeader."External Document No.");
     end;
 
     procedure CreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type"; var WarehouseRequest: Record "Warehouse Request")

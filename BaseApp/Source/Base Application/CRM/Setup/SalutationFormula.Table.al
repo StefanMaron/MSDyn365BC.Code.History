@@ -6,6 +6,7 @@ using System.Globalization;
 table 5069 "Salutation Formula"
 {
     Caption = 'Salutation Formula';
+    DataClassification = CustomerContent;
 
     fields
     {

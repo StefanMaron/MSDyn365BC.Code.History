@@ -33,11 +33,11 @@ report 5692 "Calculate Depreciation"
 
                 CalculateDepr.Calculate(
                     DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays, "No.", DeprBookCode, DeprUntilDate, EntryAmounts, 0D, DaysInPeriod);
-
-                if (DeprAmount <> 0) or (Custom1Amount <> 0) then
-                    Window.Update(1, "No.")
-                else
-                    Window.Update(2, "No.");
+                if GuiAllowed() then
+                    if (DeprAmount <> 0) or (Custom1Amount <> 0) then
+                        Window.Update(1, "No.")
+                    else
+                        Window.Update(2, "No.");
 
                 Custom1Amount := Round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
                 DeprAmount := Round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
@@ -88,94 +88,92 @@ report 5692 "Calculate Depreciation"
             var
                 NeedCommit: Boolean;
             begin
-                with FAJnlLine do begin
-                    if TempFAJnlLine.Find('-') then begin
-                        NeedCommit := true;
-                        LockTable();
-                        FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
-                        NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
-                        if DocumentNo = '' then
-                            if FindLast() then
-                                DocumentNo2 := "Document No."
-                            else
-                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                if TempFAJnlLine.Find('-') then begin
+                    NeedCommit := true;
+                    FAJnlLine.LockTable();
+                    FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
+                    NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
+                    if DocumentNo = '' then
+                        if FAJnlLine.FindLast() then
+                            AutoDocumentNo := FAJnlLine."Document No."
                         else
-                            DocumentNo2 := DocumentNo;
-                    end;
-                    if TempFAJnlLine.Find('-') then
-                        repeat
-                            Init();
-                            "Line No." := 0;
-                            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                            LineNo := LineNo + 1;
-                            Window.Update(3, LineNo);
-                            "Posting Date" := PostingDate;
-                            "FA Posting Date" := DeprUntilDate;
-                            if "Posting Date" = "FA Posting Date" then
-                                "Posting Date" := 0D;
-                            "FA Posting Type" := TempFAJnlLine."FA Posting Type";
-                            Validate("FA No.", TempFAJnlLine."FA No.");
-                            "Document No." := DocumentNo2;
-                            "Posting No. Series" := NoSeries;
-                            Description := PostingDescription;
-                            Validate("Depreciation Book Code", DeprBookCode);
-                            Validate(Amount, TempFAJnlLine.Amount);
-                            "No. of Depreciation Days" := TempFAJnlLine."No. of Depreciation Days";
-                            "FA Error Entry No." := TempFAJnlLine."FA Error Entry No.";
-                            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-                            "Line No." := FAJnlNextLineNo;
-                            OnBeforeFAJnlLineInsert(TempFAJnlLine, FAJnlLine);
-                            Insert(true);
-                            FAJnlLineCreatedCount += 1;
-                        until TempFAJnlLine.Next() = 0;
+                            AutoDocumentNo := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                    else
+                        AutoDocumentNo := DocumentNo;
                 end;
+                if TempFAJnlLine.Find('-') then
+                    repeat
+                        FAJnlLine.Init();
+                        FAJnlLine."Line No." := 0;
+                        FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+                        LineNo := LineNo + 1;
+                        if GuiAllowed() then
+                            Window.Update(3, LineNo);
+                        FAJnlLine."Posting Date" := PostingDate;
+                        FAJnlLine."FA Posting Date" := DeprUntilDate;
+                        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+                            FAJnlLine."Posting Date" := 0D;
+                        FAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type";
+                        FAJnlLine.Validate("FA No.", TempFAJnlLine."FA No.");
+                        FAJnlLine."Document No." := AutoDocumentNo;
+                        FAJnlLine."Posting No. Series" := NoSeries;
+                        FAJnlLine.Description := PostingDescription;
+                        FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                        FAJnlLine.Validate(Amount, TempFAJnlLine.Amount);
+                        FAJnlLine."No. of Depreciation Days" := TempFAJnlLine."No. of Depreciation Days";
+                        FAJnlLine."FA Error Entry No." := TempFAJnlLine."FA Error Entry No.";
+                        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+                        FAJnlLine."Line No." := FAJnlNextLineNo;
+                        OnBeforeFAJnlLineInsert(TempFAJnlLine, FAJnlLine);
+                        FAJnlLine.Insert(true);
+                        FAJnlLineCreatedCount += 1;
+                    until TempFAJnlLine.Next() = 0;
 
-                with GenJnlLine do begin
-                    if TempGenJnlLine.Find('-') then begin
-                        NeedCommit := true;
-                        LockTable();
-                        FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
-                        NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-                        if DocumentNo = '' then
-                            if FindLast() then
-                                DocumentNo2 := "Document No."
-                            else
-                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                if TempGenJnlLine.Find('-') then begin
+                    NeedCommit := true;
+                    GenJnlLine.LockTable();
+                    FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
+                    NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+                    if DocumentNo = '' then
+                        if GenJnlLine.FindLast() then
+                            AutoDocumentNo := GenJnlLine."Document No."
                         else
-                            DocumentNo2 := DocumentNo;
-                    end;
-                    if TempGenJnlLine.Find('-') then
-                        repeat
-                            Init();
-                            OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine);
-                            "Line No." := 0;
-                            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                            LineNo := LineNo + 1;
-                            Window.Update(3, LineNo);
-                            "Posting Date" := PostingDate;
-                            "FA Posting Date" := DeprUntilDate;
-                            if "Posting Date" = "FA Posting Date" then
-                                "FA Posting Date" := 0D;
-                            "FA Posting Type" := TempGenJnlLine."FA Posting Type";
-                            "Account Type" := "Account Type"::"Fixed Asset";
-                            Validate("Account No.", TempGenJnlLine."Account No.");
-                            Description := PostingDescription;
-                            "Document No." := DocumentNo2;
-                            "Posting No. Series" := NoSeries;
-                            Validate("Depreciation Book Code", DeprBookCode);
-                            Validate(Amount, TempGenJnlLine.Amount);
-                            "No. of Depreciation Days" := TempGenJnlLine."No. of Depreciation Days";
-                            "FA Error Entry No." := TempGenJnlLine."FA Error Entry No.";
-                            GenJnlNextLineNo := GenJnlNextLineNo + 1000;
-                            "Line No." := GenJnlNextLineNo;
-                            OnBeforeGenJnlLineInsert(TempGenJnlLine, GenJnlLine);
-                            Insert(true);
-                            GenJnlLineCreatedCount += 1;
-                            if BalAccount then
-                                FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
-                            OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount, TempGenJnlLine);
-                        until TempGenJnlLine.Next() = 0;
+                            AutoDocumentNo := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                    else
+                        AutoDocumentNo := DocumentNo;
                 end;
+                if TempGenJnlLine.Find('-') then
+                    repeat
+                        GenJnlLine.Init();
+                        OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine);
+                        GenJnlLine."Line No." := 0;
+                        FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+                        LineNo := LineNo + 1;
+                        if GuiAllowed() then
+                            Window.Update(3, LineNo);
+                        GenJnlLine."Posting Date" := PostingDate;
+                        GenJnlLine."FA Posting Date" := DeprUntilDate;
+                        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+                            GenJnlLine."FA Posting Date" := 0D;
+                        GenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type";
+                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+                        GenJnlLine.Validate("Account No.", TempGenJnlLine."Account No.");
+                        GenJnlLine.Description := PostingDescription;
+                        GenJnlLine."Document No." := AutoDocumentNo;
+                        GenJnlLine."Posting No. Series" := NoSeries;
+                        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                        GenJnlLine.Validate(Amount, TempGenJnlLine.Amount);
+                        GenJnlLine."No. of Depreciation Days" := TempGenJnlLine."No. of Depreciation Days";
+                        GenJnlLine."FA Error Entry No." := TempGenJnlLine."FA Error Entry No.";
+                        GenJnlNextLineNo := GenJnlNextLineNo + 1000;
+                        GenJnlLine."Line No." := GenJnlNextLineNo;
+                        OnBeforeGenJnlLineInsert(TempGenJnlLine, GenJnlLine);
+                        GenJnlLine.Insert(true);
+                        GenJnlLineCreatedCount += 1;
+                        if BalAccount then
+                            FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
+                        OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount, TempGenJnlLine);
+                    until TempGenJnlLine.Next() = 0;
                 OnAfterPostDataItem();
                 if NeedCommit then
                     Commit();
@@ -315,8 +313,8 @@ report 5692 "Calculate Depreciation"
         if ErrorMessageHandler.HasErrors() then
             if ErrorMessageHandler.ShowErrors() then
                 Error('');
-
-        Window.Close();
+        if GuiAllowed() then
+            Window.Close();
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
             exit;
@@ -371,11 +369,8 @@ report 5692 "Calculate Depreciation"
               DeprBook.TableCaption(),
               DeprBook.FieldCaption(Code),
               DeprBook.Code);
-
-        Window.Open(
-          Text003 +
-          Text004 +
-          Text005);
+        if GuiAllowed() then
+            Window.Open(Text003 + Text004 + Text005);
     end;
 
     var
@@ -397,7 +392,7 @@ report 5692 "Calculate Depreciation"
         Custom1Amount: Decimal;
         NumberOfDays: Integer;
         Custom1NumberOfDays: Integer;
-        DocumentNo2: Code[20];
+        AutoDocumentNo: Code[20];
         NoSeries: Code[20];
         ErrorNo: Integer;
         Custom1ErrorNo: Integer;

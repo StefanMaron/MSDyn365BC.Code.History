@@ -426,7 +426,7 @@ codeunit 9040 "Date Compression"
     begin
         SetSelectedDimensions(3 /*ObjectType::Report*/, Report::"Date Comp. Item Budget Entries", DateComprSettingsBuffer."Retain Dimensions");
 
-        Foreach AnalysisAreaTypeInt in AnalysisAreaType.Ordinals do begin
+        foreach AnalysisAreaTypeInt in AnalysisAreaType.Ordinals do begin
             DateCompItemBudgetEntries.UseRequestPage(false);
             DateCompItemBudgetEntries.InitializeRequest(
                 AnalysisAreaTypeInt,

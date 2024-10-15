@@ -28,7 +28,7 @@ codeunit 5340 "CRM Integration Table Synch."
         MappingName: Code[20];
     begin
         OnBeforeRun(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         ConnectionName := InitConnection();
@@ -208,7 +208,7 @@ codeunit 5340 "CRM Integration Table Synch."
             if FromField.Type <> FieldType::TableFilter then
                 if FromField.Type <> FieldType::Blob then begin
                     ToField := ToRec.Field(FromField.Number);
-                    ToField.Value := FromField.Value;
+                    ToField.Value := FromField.Value();
                 end else
                     if IsFieldMapped(IntegrationTableMapping, FromRec.Number(), FromField.Number()) then begin
                         ToField := ToRec.Field(FromField.Number);
@@ -540,7 +540,7 @@ codeunit 5340 "CRM Integration Table Synch."
             repeat
                 IntegrationTableSynch.Synchronize(RecordsToSynchRecordRef, IntegrationRecordRef, IgnoreChanges, IgnoreSynchOnlyCoupledRecords)
             until RecordsToSynchRecordRef.Next() = 0;
-            IntegrationTableSynch.EndIntegrationSynchJob;
+            IntegrationTableSynch.EndIntegrationSynchJob();
         end;
     end;
 
@@ -1014,15 +1014,13 @@ codeunit 5340 "CRM Integration Table Synch."
         if AllowRemoval then
             exit;
 
-        with CRMIntegrationRecord do begin
-            SetRange(Skipped, true);
-            SetRange("Last Synch. Job ID", IntegrationSynchJob.ID);
-            if IsEmpty() then begin
-                SetRange("Last Synch. Job ID");
-                SetRange("Last Synch. CRM Job ID", IntegrationSynchJob.ID);
-                if IsEmpty() then
-                    AllowRemoval := true;
-            end;
+        CRMIntegrationRecord.SetRange(Skipped, true);
+        CRMIntegrationRecord.SetRange("Last Synch. Job ID", IntegrationSynchJob.ID);
+        if CRMIntegrationRecord.IsEmpty() then begin
+            CRMIntegrationRecord.SetRange("Last Synch. Job ID");
+            CRMIntegrationRecord.SetRange("Last Synch. CRM Job ID", IntegrationSynchJob.ID);
+            if CRMIntegrationRecord.IsEmpty() then
+                AllowRemoval := true;
         end;
     end;
 }

@@ -47,7 +47,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         MemoryStreamWrapper.AddText('TestToText');
 
         // Exercise and verify
-        Assert.AreEqual('TestToText', MemoryStreamWrapper.ToText, 'ToText returned wrong value');
+        Assert.AreEqual('TestToText', MemoryStreamWrapper.ToText(), 'ToText returned wrong value');
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         MemoryStreamWrapper.AddText('LengthTest');
 
         // Exercise and verify
-        Assert.AreEqual(10, MemoryStreamWrapper.Length, 'Length returend wrong value');
+        Assert.AreEqual(10, MemoryStreamWrapper.Length(), 'Length returend wrong value');
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         MemoryStreamWrapper.ReadFrom(InStream);
 
         // Verify
-        Assert.AreNotEqual(0, MemoryStreamWrapper.Length, 'ReadFrom resulted in empty MemoryStream');
+        Assert.AreNotEqual(0, MemoryStreamWrapper.Length(), 'ReadFrom resulted in empty MemoryStream');
     end;
 
     [Test]

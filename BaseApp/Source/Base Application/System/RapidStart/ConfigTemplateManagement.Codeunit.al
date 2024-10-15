@@ -119,7 +119,7 @@ codeunit 8612 "Config. Template Management"
             repeat
                 AssignedFieldRef := BackupRecRef.Field(TempFieldsAssigned."No.");
                 APIFieldRef := TemplateAppliedRecRef.Field(TempFieldsAssigned."No.");
-                APIFieldRef.Value := AssignedFieldRef.Value;
+                APIFieldRef.Value := AssignedFieldRef.Value();
             until TempFieldsAssigned.Next() = 0;
 
         exit(true);
@@ -165,18 +165,17 @@ codeunit 8612 "Config. Template Management"
         TempConfigTemplateLine: Record "Config. Template Line" temporary;
     begin
         GetHierarchicalLines(TempConfigTemplateLine, ConfigTemplateLine);
-        with TempConfigTemplateLine do begin
-            SetFilter("Field ID", '>%1', 0); // exclude config. lines not handled yet
-            if FindSet() then
-                repeat
-                    SetRange("Field ID", "Field ID");
-                    SetRange("Table ID", "Table ID");
-                    if Count > 1 then
-                        Error(HierarchyErr, "Data Template Code");
-                    DeleteAll();
-                    SetFilter("Field ID", '>%1', 0);
-                until Next() = 0;
-        end;
+        TempConfigTemplateLine.SetFilter("Field ID", '>%1', 0);
+        // exclude config. lines not handled yet
+        if TempConfigTemplateLine.FindSet() then
+            repeat
+                TempConfigTemplateLine.SetRange("Field ID", TempConfigTemplateLine."Field ID");
+                TempConfigTemplateLine.SetRange("Table ID", TempConfigTemplateLine."Table ID");
+                if TempConfigTemplateLine.Count > 1 then
+                    Error(HierarchyErr, TempConfigTemplateLine."Data Template Code");
+                TempConfigTemplateLine.DeleteAll();
+                TempConfigTemplateLine.SetFilter("Field ID", '>%1', 0);
+            until TempConfigTemplateLine.Next() = 0;
     end;
 
     local procedure GetHierarchicalLines(var ConfigTemplateLineBuf: Record "Config. Template Line"; ConfigTemplateLine: Record "Config. Template Line")
@@ -184,24 +183,22 @@ codeunit 8612 "Config. Template Management"
         SubConfigTemplateLine: Record "Config. Template Line";
         CurrConfigTemplateLine: Record "Config. Template Line";
     begin
-        with CurrConfigTemplateLine do begin
-            SetRange("Data Template Code", ConfigTemplateLine."Data Template Code");
-            if FindSet() then
-                repeat
-                    // get current version of record because it's may not be in DB yet
-                    if "Line No." = ConfigTemplateLine."Line No." then
-                        CurrConfigTemplateLine := ConfigTemplateLine;
-                    if Type = Type::Field then begin
-                        ConfigTemplateLineBuf := CurrConfigTemplateLine;
-                        if not ConfigTemplateLineBuf.Find() then
-                            ConfigTemplateLineBuf.Insert();
-                    end else begin
-                        SubConfigTemplateLine.Init();
-                        SubConfigTemplateLine."Data Template Code" := "Template Code";
-                        GetHierarchicalLines(ConfigTemplateLineBuf, SubConfigTemplateLine);
-                    end;
-                until Next() = 0;
-        end;
+        CurrConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateLine."Data Template Code");
+        if CurrConfigTemplateLine.FindSet() then
+            repeat
+                // get current version of record because it's may not be in DB yet
+                if CurrConfigTemplateLine."Line No." = ConfigTemplateLine."Line No." then
+                    CurrConfigTemplateLine := ConfigTemplateLine;
+                if CurrConfigTemplateLine.Type = CurrConfigTemplateLine.Type::Field then begin
+                    ConfigTemplateLineBuf := CurrConfigTemplateLine;
+                    if not ConfigTemplateLineBuf.Find() then
+                        ConfigTemplateLineBuf.Insert();
+                end else begin
+                    SubConfigTemplateLine.Init();
+                    SubConfigTemplateLine."Data Template Code" := CurrConfigTemplateLine."Template Code";
+                    GetHierarchicalLines(ConfigTemplateLineBuf, SubConfigTemplateLine);
+                end;
+            until CurrConfigTemplateLine.Next() = 0;
     end;
 
     local procedure InsertRecordWithKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
@@ -404,7 +401,7 @@ codeunit 8612 "Config. Template Management"
         if IsNotInitializedFieldRef(FieldRef) then
             exit;
 
-        DummyConfigTemplateLine."Default Value" := FieldRef.Value;
+        DummyConfigTemplateLine."Default Value" := FieldRef.Value();
         InsertConfigTemplateLine(ConfigTemplateHeaderCode, FieldRef.Number, DummyConfigTemplateLine."Default Value", TableID);
     end;
 

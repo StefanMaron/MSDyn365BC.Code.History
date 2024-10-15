@@ -8,6 +8,7 @@ table 233 "Item Journal Batch"
     Caption = 'Item Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "Item Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -76,14 +77,14 @@ table 233 "Item Journal Batch"
         }
         field(21; "Template Type"; Enum "Item Journal Template Type")
         {
-            CalcFormula = Lookup("Item Journal Template".Type where(Name = field("Journal Template Name")));
+            CalcFormula = lookup("Item Journal Template".Type where(Name = field("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup("Item Journal Template".Recurring where(Name = field("Journal Template Name")));
+            CalcFormula = lookup("Item Journal Template".Recurring where(Name = field("Journal Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;

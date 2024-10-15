@@ -104,36 +104,34 @@ report 493 "Carry Out Action Msg. - Req."
     var
         IsHandled: Boolean;
     begin
-        with ReqLine do begin
-            ReqWkshTmpl.Get("Worksheet Template Name");
-            if ReqWkshTmpl.Recurring and (GetFilter("Order Date") <> '') then
-                FieldError("Order Date", Text000);
-            TempJnlBatchName := "Journal Batch Name";
-            IsHandled := false;
-            OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders, SuppressCommit, IsHandled);
-            if not IsHandled then begin
-                ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
-                ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
-                ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
-            end;
+        ReqWkshTmpl.Get(ReqLine."Worksheet Template Name");
+        if ReqWkshTmpl.Recurring and (ReqLine.GetFilter(ReqLine."Order Date") <> '') then
+            ReqLine.FieldError("Order Date", Text000);
+        TempJnlBatchName := ReqLine."Journal Batch Name";
+        IsHandled := false;
+        OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders, SuppressCommit, IsHandled);
+        if not IsHandled then begin
+            ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
+            ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
+            ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
+        end;
 
-            if "Line No." = 0 then
-                Message(Text001)
-            else
-                if not HideDialog then
-                    if TempJnlBatchName <> "Journal Batch Name" then
-                        Message(
-                          Text003,
-                          "Journal Batch Name");
+        if ReqLine."Line No." = 0 then
+            Message(Text001)
+        else
+            if not HideDialog then
+                if TempJnlBatchName <> ReqLine."Journal Batch Name" then
+                    Message(
+                      Text003,
+                      ReqLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup := 2;
-                SetRange("Worksheet Template Name", "Worksheet Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup := 0;
-                "Line No." := 1;
-            end;
+        if not ReqLine.Find('=><') or (TempJnlBatchName <> ReqLine."Journal Batch Name") then begin
+            ReqLine.Reset();
+            ReqLine.FilterGroup := 2;
+            ReqLine.SetRange(ReqLine."Worksheet Template Name", ReqLine."Worksheet Template Name");
+            ReqLine.SetRange(ReqLine."Journal Batch Name", ReqLine."Journal Batch Name");
+            ReqLine.FilterGroup := 0;
+            ReqLine."Line No." := 1;
         end;
     end;
 
@@ -161,12 +159,12 @@ report 493 "Carry Out Action Msg. - Req."
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport(var PrintOrders: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostReport(var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order")
     begin
     end;

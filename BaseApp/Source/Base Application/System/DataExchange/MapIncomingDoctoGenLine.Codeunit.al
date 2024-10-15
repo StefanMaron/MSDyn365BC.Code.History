@@ -28,7 +28,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         TemplateBatchNameMissingErr: Label 'You must fill the General Journal Template Name and General Journal Batch Name fields in the Incoming Document Setup window. ';
         IncomingDocument: Record "Incoming Document";
         ErrorMessage: Record "Error Message";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         CurrencyDoesNotExistErr: Label 'The currency %1 does not exist. You must add the currency in the Currencies window.', Comment = '%1 referee to a concrete currency';
         CurrencyExchangeDoesNotExistErr: Label 'No exchange rate exists for %1 on %2. You must add the exchange rate in the Currencies window.', Comment = '%1 reference to a concrete currency,%2 to the date for the transaction';
 
@@ -61,8 +61,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
                 LastGenJournalLine.Validate("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
                 LastGenJournalLine.Validate("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
                 LastGenJournalLine."Line No." := LastGenJournalLine."Line No." + 10000;
-                LastGenJournalLine.Validate("Document No.",
-                  NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", IncomingDocument."Document Date", false));
+                LastGenJournalLine.Validate("Document No.", NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series", IncomingDocument."Document Date"));
                 TempGenJournalLineInserted := LastGenJournalLine.Insert();
             end;
 

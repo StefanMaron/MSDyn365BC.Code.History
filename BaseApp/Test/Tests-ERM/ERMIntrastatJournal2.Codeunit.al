@@ -74,7 +74,7 @@ codeunit 134166 "ERM Intrastat Journal 2"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intrastat Journal");
-        UpdateIntrastatCodeInCountryRegion;
+        UpdateIntrastatCodeInCountryRegion();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
@@ -88,10 +88,10 @@ codeunit 134166 "ERM Intrastat Journal 2"
     local procedure OpenIntrastatJournalAndGetEntries(var IntrastatJournalPage: TestPage "Intrastat Journal"; JournalTemplateName: Code[10])
     begin
         LibraryVariableStorage.Enqueue(JournalTemplateName);
-        IntrastatJournalPage.OpenEdit;
+        IntrastatJournalPage.OpenEdit();
         LibraryVariableStorage.Enqueue(false); // Do Not Show Item Charge entries
-        IntrastatJournalPage.GetEntries.Invoke;
-        IntrastatJournalPage.First;
+        IntrastatJournalPage.GetEntries.Invoke();
+        IntrastatJournalPage.First();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -99,7 +99,7 @@ codeunit 134166 "ERM Intrastat Journal 2"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", GetCountryRegionCode);
+        Customer.Validate("Country/Region Code", GetCountryRegionCode());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -118,7 +118,7 @@ codeunit 134166 "ERM Intrastat Journal 2"
     begin
         exit(
           CreateAndPostSalesDocumentMultiLine(
-            SalesLine, SalesHeader."Document Type"::Order, PostingDate, CreateItem, 1));
+            SalesLine, SalesHeader."Document Type"::Order, PostingDate, CreateItem(), 1));
     end;
 
     local procedure CreateAndPostSalesDocumentMultiLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; ItemNo: Code[20]; NoOfSalesLines: Integer): Code[20]
@@ -138,7 +138,7 @@ codeunit 134166 "ERM Intrastat Journal 2"
         i: Integer;
     begin
         // Create Sales Order with Random Quantity and Unit Price.
-        CreateSalesHeader(SalesHeader, CreateCustomer, PostingDate, DocumentType);
+        CreateSalesHeader(SalesHeader, CreateCustomer(), PostingDate, DocumentType);
         for i := 1 to NoOfLines do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -188,15 +188,15 @@ codeunit 134166 "ERM Intrastat Journal 2"
     begin
         LibraryVariableStorage.Dequeue(NameVar);
         IntrastatJnlTemplateList.FILTER.SetFilter(Name, NameVar);
-        IntrastatJnlTemplateList.OK.Invoke;
+        IntrastatJnlTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesReportHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
-        GetItemLedgerEntries.ShowingItemCharges.SetValue(LibraryVariableStorage.DequeueBoolean);
-        GetItemLedgerEntries.OK.Invoke;
+        GetItemLedgerEntries.ShowingItemCharges.SetValue(LibraryVariableStorage.DequeueBoolean());
+        GetItemLedgerEntries.OK().Invoke();
     end;
 }
 #endif

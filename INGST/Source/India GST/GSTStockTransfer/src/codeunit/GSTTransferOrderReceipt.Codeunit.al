@@ -12,7 +12,9 @@ using Microsoft.Finance.GST.Base;
 using Microsoft.Finance.TaxBase;
 using Microsoft.Finance.TaxEngine.TaxTypeHandler;
 using Microsoft.Foundation.AuditCodes;
+#if not CLEAN22
 using Microsoft.Foundation.Enums;
+#endif
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -78,14 +80,14 @@ codeunit 18390 "GST Transfer Order Receipt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', false, false)]
     local procedure GetPostingNoSeries(TransferHeader: Record "Transfer Header"; var TransferReceiptHeader: Record "Transfer Receipt Header")
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         NoSeries: Code[20];
     begin
         NoSeries := GetTransferReceiptPostingNoSeries(TransferHeader);
         if NoSeries <> '' then begin
             TransferReceiptHeader."No. Series" := NoSeries;
             if TransferReceiptHeader."No. Series" <> '' then
-                TransferReceiptHeader."No." := NoSeriesManagement.GetNextNo(TransferReceiptHeader."No. Series", TransferHeader."Posting Date", true);
+                TransferReceiptHeader."No." := NoSeriesCodeunit.GetNextNo(TransferReceiptHeader."No. Series", TransferHeader."Posting Date");
         end;
     end;
 
@@ -416,7 +418,6 @@ codeunit 18390 "GST Transfer Order Receipt"
 
         GSTSetup.TestField("GST Tax Type");
         GSTSetup.TestField("Cess Tax Type");
-
         TransferHeader.Get(DocNo);
 
         TransferLine.Reset();

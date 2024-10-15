@@ -104,17 +104,6 @@ page 9008 "Whse. Basic Role Center"
             {
                 ApplicationArea = Warehouse;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Warehouse;

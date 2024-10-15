@@ -13,6 +13,7 @@ table 99 "Item Vendor"
 {
     Caption = 'Item Vendor';
     LookupPageID = "Item Vendor Catalog";
+    DataClassification = CustomerContent;
 
     fields
     {

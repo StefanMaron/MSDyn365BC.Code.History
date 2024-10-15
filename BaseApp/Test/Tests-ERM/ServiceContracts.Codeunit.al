@@ -265,7 +265,6 @@ codeunit 136102 "Service Contracts"
         ServiceContractLine: Record "Service Contract Line";
         SignServContractDoc: Codeunit SignServContractDoc;
         ServicePeriod: DateFormula;
-        MinDate: Date;
     begin
         // Covers TFS ID 353488.
         // [SCENARIO] The Test Case creates invoice for a service header running for a year with a fixed expiry date.
@@ -634,7 +633,7 @@ codeunit 136102 "Service Contracts"
 
         // 2. Exercise: Create Service Contract Header.
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
 
         // 3. Verify: Verify that error raised on Copy Document when Customer No. not same.
         asserterror CheckErrorOnCopyDocument(ServiceContractHeader);
@@ -650,7 +649,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeaderTo: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
         ServiceContractLineTo: Record "Service Contract Line";
-        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
     begin
         // Covers document number TC0076, CU5940-1 - refer to TFS ID 21730, 172908.
         // [SCENARIO] The Test Case checks Service Contract Line fields are same after Copy Document.
@@ -658,7 +657,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Create Service Contract Header and Service Contract Line.
         Initialize();
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeaderFrom, ServiceContractHeaderFrom."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeaderFrom, ServiceContractHeaderFrom."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeaderFrom);
         ModifyServiceContractHeader(ServiceContractHeaderFrom, ServiceContractHeaderFrom."Service Period");
 
@@ -666,8 +665,9 @@ codeunit 136102 "Service Contracts"
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeaderTo, ServiceContractHeaderTo."Contract Type"::Contract, ServiceContractHeaderFrom."Customer No.");
         ModifyServiceContractHeader(ServiceContractHeaderTo, ServiceContractHeaderTo."Service Period");
-        CopyDocumentMgt.CopyServContractLines(ServiceContractHeaderTo, ServiceContractHeaderFrom."Contract Type".AsInteger(),
-          ServiceContractHeaderFrom."Contract No.", ServiceContractLineTo);
+        CopyServiceContractMgt.CopyServiceContractLines(
+            ServiceContractHeaderTo, ServiceContractHeaderFrom."Contract Type",
+            ServiceContractHeaderFrom."Contract No.", ServiceContractLineTo);
 
         // 3. Verify: Check that Service Contract Line fields are same after Copy Document.
         ServiceContractLineTo.TestField("Service Item No.", ServiceContractLine."Service Item No.");
@@ -812,7 +812,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Find a Customer, create Service Contract Header.
         Initialize();
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
 
         // 2. Exercise: Creating multiple Service Contract Lines, adding the Line Amount.
         CreateMultipleContractLines(ServiceContractHeader);
@@ -831,7 +831,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractHeader3: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
-        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
         SignServContractDoc: Codeunit SignServContractDoc;
         LockOpenServContract: Codeunit "Lock-OpenServContract";
     begin
@@ -841,7 +841,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Create two Service Contract and Sign last Service Contract.
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         CreateAndModifyServiceContract(
           ServiceContractHeader3, ServiceContractHeader."Customer No.", ServiceContractHeader."Contract Type"::Contract);
         SignServContractDoc.SignContract(ServiceContractHeader3);
@@ -850,8 +850,8 @@ codeunit 136102 "Service Contracts"
 
         // 2. Exercise: Copy Document and Lock the Service Contract.
         ServiceContractHeader3.Get(ServiceContractHeader3."Contract Type", ServiceContractHeader3."Contract No.");
-        CopyDocumentMgt.CopyServContractLines(
-            ServiceContractHeader3, ServiceContractHeader."Contract Type".AsInteger(),
+        CopyServiceContractMgt.CopyServiceContractLines(
+            ServiceContractHeader3, ServiceContractHeader."Contract Type",
             ServiceContractHeader."Contract No.", ServiceContractLine);
         ServiceContractHeader3.Get(ServiceContractHeader3."Contract Type", ServiceContractHeader3."Contract No.");
         LockOpenServContract.LockServContract(ServiceContractHeader3);
@@ -881,7 +881,7 @@ codeunit 136102 "Service Contracts"
         FindStandardText(StandardText);
         UpdateContractPeriodTextCode(StandardText.Code);
         LibraryERM.FindCurrency(Currency);
-        CreateServiceContractWithCurrency(ServiceContractHeader, Currency.Code, LibrarySales.CreateCustomerNo);
+        CreateServiceContractWithCurrency(ServiceContractHeader, Currency.Code, LibrarySales.CreateCustomerNo());
 
         // 2. Exercise: Sign Service Contract.
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -981,7 +981,7 @@ codeunit 136102 "Service Contracts"
         FindDifferentStandardText(StandardText2, StandardText.Code);
         UpdateContractInvAndLineText(StandardText.Code, StandardText2.Code);
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Create Service Invoice.
@@ -1013,7 +1013,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Create Service Contract Header, create Service Contract Line and modify the Service Contract Header.
         Initialize();
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         PrepaidFalseInServiceContract(ServiceContractHeader);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1137,7 +1137,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Create Service Contract and update different Bill to Customer No on Service Contract.
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         UpdateBillToCostomerNo(ServiceContractHeader);
 
         // 2. Exercise: Sign Service Contract.
@@ -1168,7 +1168,7 @@ codeunit 136102 "Service Contracts"
         // 1. Setup: Create Service Contract, update different Bill to Customer No on Service Contract and Sign Service Contract.
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         UpdateBillToCostomerNo(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
@@ -1440,15 +1440,15 @@ codeunit 136102 "Service Contracts"
         CreateContractHeader(ServiceContractHeader);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContract.SignContract.Invoke;
+        ServiceContract.SignContract.Invoke();
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
 
         // 2. Exercise: Post the Service Invoice from the handler.
-        ServiceDocumentRegisters.OpenEdit;
+        ServiceDocumentRegisters.OpenEdit();
         ServiceDocumentRegisters.FILTER.SetFilter("Source Document No.", ServiceContract."Contract No.".Value);
-        ServiceDocumentRegisters.Card.Invoke;
+        ServiceDocumentRegisters.Card.Invoke();
         LibraryVariableStorage.Dequeue(LineAmount);
         Evaluate(Amount, Format(LineAmount));
 
@@ -1476,13 +1476,13 @@ codeunit 136102 "Service Contracts"
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         UpdateContractLineCostAndValue(ServiceContractLine);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContract.SignContract.Invoke;
+        ServiceContract.SignContract.Invoke();
         WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', DMY2Date(1, Date2DMY(WorkDate(), 2), Date2DMY(WorkDate(), 3)));
 
         // 2. Exercise: Create a Service Invoice.
-        ServiceContract.CreateServiceInvoice.Invoke;
+        ServiceContract.CreateServiceInvoice.Invoke();
 
         // 3. Verify: Verify Service Invoice created, updated Line Value and Cost Value.
         VerifyServiceInvoice(ServiceContractHeader."Contract No.");
@@ -1509,9 +1509,9 @@ codeunit 136102 "Service Contracts"
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
         // 2. Exercise: Open Contract Line Selection page from Service Contract.
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContract.SelectContractLines.Invoke;
+        ServiceContract.SelectContractLines.Invoke();
 
         // 3. Verify: Verify that the Contract Line Selection page is blank and is closed by clicking Cancel through the handler ContractLineSelectionHandler.
     end;
@@ -1563,7 +1563,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
         Initialize();
-        ServiceInvoiceCount := GetServiceInvoiceCount;  // Store Old Service Invoice Count.
+        ServiceInvoiceCount := GetServiceInvoiceCount();  // Store Old Service Invoice Count.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -1572,7 +1572,7 @@ codeunit 136102 "Service Contracts"
 
         // 3. Verify: Verify that no new Service Invoice is created after signing Contract and declining the message to create Service Invoice for signed Contract.
         Assert.AreEqual(
-          ServiceInvoiceCount, GetServiceInvoiceCount, StrSubstNo(ServiceLedgerEntryErr, ServiceHeader.TableCaption(), ServiceInvoiceCount));
+          ServiceInvoiceCount, GetServiceInvoiceCount(), StrSubstNo(ServiceLedgerEntryErr, ServiceHeader.TableCaption(), ServiceInvoiceCount));
     end;
 
     [Test]
@@ -1596,7 +1596,7 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
 
         // 2. Exercise.
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
 
         // 3. Verify: Verify that Service Order Created after running Create Contract Service Orders batch job.
         Assert.IsTrue(
@@ -1624,7 +1624,7 @@ codeunit 136102 "Service Contracts"
         SignServContractDoc.SignContract(ServiceContractHeader);
         Commit();
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
 
         // 2. Exercise: Post Service Order created from Contract with Ship option.
         CreateServiceLineForServiceOrder(ServiceHeader, ServiceContractHeader."Contract No.");
@@ -1634,7 +1634,7 @@ codeunit 136102 "Service Contracts"
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         Assert.IsTrue(
-          ServiceShipmentHeader.FindFirst,
+          ServiceShipmentHeader.FindFirst(),
           StrSubstNo(EntryMustExistErr, ServiceShipmentHeader.TableCaption(), ServiceContractHeader."Contract No."));
     end;
 
@@ -1653,14 +1653,14 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create Service Contract, sign Contract, run Create Contract Service Order batch report. Find Service Order and Post it as Ship.
         Initialize();
-        ServiceInvoiceCount := GetServiceInvoiceCount;  // Store Old Service Invoice Count.
+        ServiceInvoiceCount := GetServiceInvoiceCount();  // Store Old Service Invoice Count.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
         Commit();
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
         LibraryVariableStorage.Enqueue('');
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
         CreateServiceLineForServiceOrder(ServiceHeader, ServiceContractHeader."Contract No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
@@ -1669,11 +1669,11 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
         LibraryVariableStorage.Enqueue(StrSubstNo(InvoiceCreatedMsg, 0));
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // 3. Verify: Verify message '0 Invoice was created.' and verify that no new Service Invoice Created.
         Assert.AreEqual(
-          ServiceInvoiceCount, GetServiceInvoiceCount, StrSubstNo(ServiceLedgerEntryErr, ServiceHeader.TableCaption(), ServiceInvoiceCount));
+          ServiceInvoiceCount, GetServiceInvoiceCount(), StrSubstNo(ServiceLedgerEntryErr, ServiceHeader.TableCaption(), ServiceInvoiceCount));
     end;
 
     [Test]
@@ -1696,7 +1696,7 @@ codeunit 136102 "Service Contracts"
         Commit();
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
         LibraryVariableStorage.Enqueue('');
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
         CreateServiceLineForServiceOrder(ServiceHeader, ServiceContractHeader."Contract No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
@@ -1705,7 +1705,7 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(CalcDate(ServiceContractHeader."Service Period", WorkDate()));
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
         LibraryVariableStorage.Enqueue(StrSubstNo(InvoiceCreatedMsg, 1));
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // 3. Verify: Verify message '1 Invoice was created.' and created Invoice Contain correct Contract No.
         Assert.IsTrue(
@@ -1871,11 +1871,11 @@ codeunit 136102 "Service Contracts"
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
 
         // 3. Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page through 'SalesAnalysisbyDimMatrixPageHandler'.
-        AnalysisViewList.OpenEdit;
+        AnalysisViewList.OpenEdit();
         AnalysisViewList.FILTER.SetFilter(Code, AnalysisView.Code);
-        AnalysisbyDimensions.Trap;
-        AnalysisViewList."&Update".Invoke;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList."&Update".Invoke();
+        AnalysisViewList.EditAnalysis.Invoke();
 
         Assert.AreEqual(
           -Amount,
@@ -1925,11 +1925,11 @@ codeunit 136102 "Service Contracts"
         PostPrepaidContractEntryWithNextInvoiceDate(ServiceContractHeader);
 
         // 3. Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page through 'SalesAnalysisbyDimMatrixPageHandler'.
-        AnalysisViewList.OpenEdit;
+        AnalysisViewList.OpenEdit();
         AnalysisViewList.FILTER.SetFilter(Code, AnalysisView.Code);
-        AnalysisbyDimensions.Trap;
-        AnalysisViewList."&Update".Invoke;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList."&Update".Invoke();
+        AnalysisViewList.EditAnalysis.Invoke();
 
         Assert.AreEqual(
           -Amount,
@@ -2007,7 +2007,7 @@ codeunit 136102 "Service Contracts"
         // Setup: Create and sign Service Contract with No Invoice.
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         CreateAndModifyServiceContract(
           ServiceContractHeader2, ServiceContractHeader."Customer No.", ServiceContractHeader."Contract Type"::Contract);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -2018,7 +2018,7 @@ codeunit 136102 "Service Contracts"
 
         // Exercise: Run Create Contract Invoices Report.
         Commit(); // Due to limitation in Page Testability Commit is required for this Test Case.
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // Verify: Verify Service Invoice Created.
         VerifyServiceInvoice(ServiceContractHeader."Contract No.");
@@ -2214,7 +2214,7 @@ codeunit 136102 "Service Contracts"
         // Setup: Create and sign Service Contract with Invoice.
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         CreateServiceInvoiceNotApplied(ServiceContractHeader, ServiceLine);
 
         // Exercise: Invoke Line Dimension With Contract No.
@@ -2287,9 +2287,9 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
 
         // Exercise: Open Service Order Page and call contract no field lookup.
-        ServiceOrderPage.OpenEdit;
+        ServiceOrderPage.OpenEdit();
         ServiceOrderPage.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceOrderPage.ServItemLines."Contract No.".Lookup;
+        ServiceOrderPage.ServItemLines."Contract No.".Lookup();
 
         // Verify: Verify has been done in ServContrListServItemListHandler.
     end;
@@ -2352,7 +2352,7 @@ codeunit 136102 "Service Contracts"
         Commit();  // Due to limitation in Request Page Testability Commit is required for this Test Case.
         LibraryVariableStorage.Enqueue(CalcDate('<CM+1M>', WorkDate()));
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // Verify: Verify Invoice created with Contract No. with out any error Message.
         Assert.IsTrue(
@@ -2374,13 +2374,13 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Two signed Service Contracts with different currencies, both were created for Customer = "C1".
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
+        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates(), CustomerNo);
         ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 5));
         ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         Clear(ServiceContractHeader);
-        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
+        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates(), CustomerNo);
         ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 5));
         ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -2455,7 +2455,7 @@ codeunit 136102 "Service Contracts"
 
         // Create a Service Order. Create Service Line and update Qty to Invoice. Post Created Service Order
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
         CreateServiceLineForServiceOrder(ServiceHeader, ServiceContractHeader."Contract No.");
         UpdateServiceLineForQtyToInvoice(ServiceLine, ServiceHeader."No.", ServiceContractHeader."Contract No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Post Ship and Invoice.
@@ -2709,7 +2709,7 @@ codeunit 136102 "Service Contracts"
         // [GIVEN] Service Contract Quote with random Link added
         Initialize();
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Quote);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Quote);
         ServiceContractHeader.AddLink(LibraryUtility.GenerateRandomText(10));
         // [WHEN] Sign Service Contract Quote
         SignServContractDoc.SignContractQuote(ServiceContractHeader);
@@ -2900,7 +2900,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [SCENARIO 372111] Sign Service Contract with Service Item Description of 50 characters
 
-        LightInit;
+        LightInit();
         // [GIVEN] Service Contract with Service Contract Line = "SCL"
         // [GIVEN] LENGTH("SCL".Description) = 50
         CreateServiceContractHeader(ServContractHeader, '');
@@ -2930,7 +2930,7 @@ codeunit 136102 "Service Contracts"
         Initialize();
         // [GIVEN] Service Contract Header with Service Contract Line
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         ServiceContractLine.Init();
         ServiceContractLine."Contract Type" := ServiceContractLine."Contract Type"::Contract;
         ServiceContractLine."Contract No." := ServiceContractHeader."Contract No.";
@@ -2957,7 +2957,7 @@ codeunit 136102 "Service Contracts"
         Initialize();
         // [GIVEN] Service Contract Header with Service Contract Line
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         ServiceContractLine.Init();
         ServiceContractLine."Contract Type" := ServiceContractLine."Contract Type"::Contract;
         ServiceContractLine."Contract No." := ServiceContractHeader."Contract No.";
@@ -3009,12 +3009,12 @@ codeunit 136102 "Service Contracts"
         Commit();
 
         // [WHEN] Run report "Create Contract Service Orders"
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
 
         // [THEN] Message "A service order cannot be created for contract no..." appeared
         Assert.ExpectedMessage(
-          StrSubstNo(CannotCreateServiceOrderMsg, ContracNo, CustomerNo, ShiptoCode), LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ZeroOrderCreatedMsg, LibraryVariableStorage.DequeueText);
+          StrSubstNo(CannotCreateServiceOrderMsg, ContracNo, CustomerNo, ShiptoCode), LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ZeroOrderCreatedMsg, LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -3034,7 +3034,7 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Customer with overdue balance
         CreateCustomerWithCreditLimit(Customer);
-        CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision);
+        CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision());
         // [GIVEN] Open new Service Contract
         ServiceContract.OpenNew();
         // [GIVEN] Validate "Customer No."
@@ -3067,7 +3067,7 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Customer with overdue balance
         CreateCustomerWithCreditLimit(Customer);
-        CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision);
+        CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision());
         // [GIVEN] Open new Service Contract Quote
         ServiceContractQuote.OpenNew();
         // [GIVEN] Validate "Customer No."
@@ -3183,7 +3183,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] Replied NO for Confirmation 'Do you want to create the contract using a contract template?'
         // [THEN] Replied YES for Confirmation 'Do you want to convert the contract quote into a contract?'
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3202,7 +3202,7 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Service Contract with "Bill-to Contact No." = "ContNo" and "Bill-to Contact" = "John Smith"
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         ServiceContractHeader."Bill-to Contact No." :=
           LibraryUtility.GenerateRandomCode(ServiceContractHeader.FieldNo("Bill-to Contact No."), DATABASE::"Service Contract Header");
         ServiceContractHeader."Bill-to Contact" := LibraryUtility.GenerateGUID();
@@ -3289,7 +3289,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] Service Contract is not created
         VerifyContractNotExists(ServiceContractHeader."Contract No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3324,7 +3324,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] Service Contract is not created
         VerifyContractNotExists(ServiceContractHeader."Contract No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3364,7 +3364,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] Service Contract is created
         VerifyContractCreationByQuote(ServiceContractHeader."Contract No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3382,11 +3382,11 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Two Service Contracts with different currencies, both were created for Customer = "C1".
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
+        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates(), CustomerNo);
         ServiceContractHeader.TestField("Combine Invoices", true);
 
         Clear(ServiceContractHeader);
-        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
+        CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates(), CustomerNo);
         ServiceContractHeader.TestField("Combine Invoices", true);
 
         // [WHEN] Run CheckMultipleCurrenciesForCustomers function.
@@ -3413,7 +3413,7 @@ codeunit 136102 "Service Contracts"
 
         // [GIVEN] Two Service Contracts, both were created for Customer = "C1" and both have "Currency Code" = "CUR1".
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         CreateServiceContractWithCurrency(ServiceContractHeader, CurrencyCode, CustomerNo);
         ServiceContractHeader.TestField("Combine Invoices", true);
 
@@ -3437,14 +3437,8 @@ codeunit 136102 "Service Contracts"
         ServiceContractLine: Record "Service Contract Line";
         ServiceContractLine2: Record "Service Contract Line";
         ServiceHeader: Record "Service Header";
-        ServiceItem: Record "Service Item";
-        ServiceContractAccountGroup: Record "Service Contract Account Group";
-        ShipToAddress: Record "Ship-to Address";
         SignServContractDoc: Codeunit SignServContractDoc;
         LockOpenServContract: Codeunit "Lock-OpenServContract";
-        ServContractManagement: Codeunit ServContractManagement;
-        CustomerNo: Code[20];
-        CreditMemoDate: Date;
     begin
         // [SCENARIO 447978] Service Credit Memo created for partial amount for first full month of the Prepaid Contract that was invoiced.
 
@@ -3489,7 +3483,7 @@ codeunit 136102 "Service Contracts"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Contracts");
-        LightInit;
+        LightInit();
 
         LibrarySetupStorage.Restore();
         Clear(LibraryService);
@@ -3504,7 +3498,7 @@ codeunit 136102 "Service Contracts"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
+        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         InitializeServiceContractTemplates();
@@ -3542,7 +3536,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceHour.SetRange("Service Contract Type", ServiceHour."Service Contract Type"::Quote);
         ServiceHour.SetRange("Service Contract No.", ServiceContractNo);
-        ServiceHour.CopyDefaultServiceHours;
+        ServiceHour.CopyDefaultServiceHours();
     end;
 
     local procedure CreateSignedServiceContractWithServicePeriod(var ServiceContractHeader: Record "Service Contract Header"; var ServiceContractLine: Record "Service Contract Line")
@@ -3550,7 +3544,7 @@ codeunit 136102 "Service Contracts"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         ModifyServicePeriodOnServiceContractHeader(ServiceContractHeader);
         UpdateAnnualAmountOnServiceContractHeader(ServiceContractHeader);
@@ -3597,7 +3591,7 @@ codeunit 136102 "Service Contracts"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         SignServContractDoc.SignContract(ServiceContractHeader);
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
         ServiceLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -3691,7 +3685,7 @@ codeunit 136102 "Service Contracts"
     local procedure CreateAndSignServiceContract(var ServiceContractHeader: Record "Service Contract Header")
     begin
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         SignServContractDoc.SignContract(ServiceContractHeader);
         Commit(); // To save the changes.
     end;
@@ -3743,7 +3737,7 @@ codeunit 136102 "Service Contracts"
     local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; StandardTextCode: Code[20])
     begin
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         ServiceContractHeader.Validate("Print Increase Text", true);
         ServiceContractHeader.Validate("Price Inv. Increase Code", StandardTextCode);
         ServiceContractHeader.Modify(true);
@@ -3873,7 +3867,7 @@ codeunit 136102 "Service Contracts"
         LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
 
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ContractType, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ContractType, LibrarySales.CreateCustomerNo());
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
         ServiceContractHeader.Modify(true);
         ItemsCount := LibraryRandom.RandIntInRange(3, 5);
@@ -3918,7 +3912,7 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(ServiceTemplateMsg);
         LibraryVariableStorage.Enqueue(false);
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, LibrarySales.CreateCustomerNo());
         ServiceContractHeader."Invoice Period" := ServiceContractHeader."Invoice Period"::None;
     end;
 
@@ -4000,7 +3994,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractLine.Validate("Contract No.", ServiceContractHeader."Contract No.");
         RecRef.GetTable(ServiceContractLine);
         ServiceContractLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ServiceContractLine.FieldNo("Line No.")));
-        ServiceContractLine.Validate("Item No.", CreateItemWithUnitPrice);
+        ServiceContractLine.Validate("Item No.", CreateItemWithUnitPrice());
         ServiceContractLine.Insert(true);
     end;
 
@@ -4010,7 +4004,7 @@ codeunit 136102 "Service Contracts"
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
         CreateAndModifyServiceContract(
-          ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
+          ServiceContractHeader, LibrarySales.CreateCustomerNo(), ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.Validate("Expiration Date", CalcDate('<CM+1D>', WorkDate()));
         ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -4098,7 +4092,7 @@ codeunit 136102 "Service Contracts"
     begin
         InvoiceNo := ServContractManagement.CreateServHeader(ServiceContractHeader, WorkDate(), false);
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, InvoiceNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItemWithUnitPrice);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItemWithUnitPrice());
     end;
 
     local procedure CreateServiceHeaderWithExpirartionDate(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
@@ -4188,7 +4182,7 @@ codeunit 136102 "Service Contracts"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4256,7 +4250,7 @@ codeunit 136102 "Service Contracts"
     var
         CopyServDoc: Report "Copy Service Document";
     begin
-        CopyServDoc.InitializeRequest(ServiceContractHeader."Contract Type".AsInteger(), ServiceContractHeader."Contract No.");
+        CopyServDoc.SetParameters(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
         CopyServDoc.UseRequestPage(false);
         CopyServDoc.Run();
     end;
@@ -4302,7 +4296,7 @@ codeunit 136102 "Service Contracts"
         ServiceHeader.FindLast();
     end;
 
-    local procedure FindServiceHour(var ServiceHour: Record "Service Hour"; ServiceContractNo: Code[20]; Type: Option)
+    local procedure FindServiceHour(var ServiceHour: Record "Service Hour"; ServiceContractNo: Code[20]; Type: Enum "Service Hour Contract Type")
     begin
         ServiceHour.SetRange("Service Contract No.", ServiceContractNo);
         ServiceHour.SetRange("Service Contract Type", Type);
@@ -4378,8 +4372,8 @@ codeunit 136102 "Service Contracts"
     begin
         LibraryVariableStorage.Enqueue(GLAccount);
         AnalysisbyDimensions.ShowOppositeSign.SetValue(false);
-        AnalysisbyDimensions.ShowMatrix.Invoke;
-        exit(LibraryVariableStorage.DequeueDecimal);
+        AnalysisbyDimensions.ShowMatrix.Invoke();
+        exit(LibraryVariableStorage.DequeueDecimal());
     end;
 
     local procedure GetExpectedAmount(ServiceContractLine: Record "Service Contract Line"; DiscPostingType: Option) Amount: Decimal
@@ -4453,17 +4447,17 @@ codeunit 136102 "Service Contracts"
         Commit();
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
     end;
 
     local procedure OpenServiceContractPage(ContractNo: Code[20])
     var
         ServiceContract: TestPage "Service Contract";
     begin
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ContractNo);
-        ServiceContract.CreateServiceInvoice.Invoke;
-        ServiceContract.OK.Invoke;
+        ServiceContract.CreateServiceInvoice.Invoke();
+        ServiceContract.OK().Invoke();
     end;
 
     local procedure PostPrepaidContractEntryWithNextInvoiceDate(var ServiceContractHeader: Record "Service Contract Header")
@@ -4471,7 +4465,7 @@ codeunit 136102 "Service Contracts"
         PostPrepaidContractEntry(
           ServiceContractHeader."Contract No.",
           CalcDate('<1M>', ServiceContractHeader."Next Invoice Date") - 1,
-          WorkDate);
+          WorkDate());
     end;
 
     local procedure PostPrepaidContractEntry(ContractNo: Code[20]; PostTillDate: Date; PostingDate: Date)
@@ -4591,7 +4585,7 @@ codeunit 136102 "Service Contracts"
 
     local procedure UpdateBillToCostomerNo(var ServiceContractHeader: Record "Service Contract Header")
     begin
-        ServiceContractHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        ServiceContractHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -4688,7 +4682,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceContractHeader.Find();
         ServiceContractHeader.Validate(
-          "Shortcut Dimension 1 Code", CreateDimValueForGlobalDimension1Code);
+          "Shortcut Dimension 1 Code", CreateDimValueForGlobalDimension1Code());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -4813,7 +4807,7 @@ codeunit 136102 "Service Contracts"
     var
         ServContractManagement: Codeunit ServContractManagement;
     begin
-        exit((12 * LibraryERM.GetUnitAmountRoundingPrecision) /
+        exit((12 * LibraryERM.GetUnitAmountRoundingPrecision()) /
           (2 * ServContractManagement.NoOfMonthsAndMPartsInPeriod(StartingDate, CalcDate('<CM>', StartingDate))));
     end;
 
@@ -4852,7 +4846,7 @@ codeunit 136102 "Service Contracts"
     begin
         FindGLEntry(GLEntry, NonPrepaidContractAcc, ContractNo);
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(GLEntryErr, GLEntry.FieldCaption(Amount)));
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(GLEntryErr, GLEntry.FieldCaption(Amount)));
     end;
 
     local procedure VerifyServiceContractLine(ServiceContractLine: Record "Service Contract Line")
@@ -5093,7 +5087,7 @@ codeunit 136102 "Service Contracts"
             repeat
                 GLAmt += GLEntry.Amount;
             until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(GLAmt, Amt, LibraryERM.GetAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(GLAmt, Amt, LibraryERM.GetAmountRoundingPrecision(), '');
     end;
 
     local procedure VerifyCrMemoLinkedToInvServLedgEntries(ContractNo: Code[20])
@@ -5109,7 +5103,7 @@ codeunit 136102 "Service Contracts"
                 InvoiceServiceLedgerEntry.Get("Applies-to Entry No.");
                 Assert.AreEqual(-InvoiceServiceLedgerEntry."Amount (LCY)", "Amount (LCY)", FieldCaption("Amount (LCY)"));
                 Assert.AreEqual(InvoiceServiceLedgerEntry."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -5168,7 +5162,7 @@ codeunit 136102 "Service Contracts"
         ShiptoAddress: Record "Ship-to Address";
         ServContractManagement: Codeunit ServContractManagement;
     begin
-        LibrarySales.CreateShipToAddress(ShiptoAddress, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateShipToAddress(ShiptoAddress, LibrarySales.CreateCustomerNo());
         ServContractManagement.ChangeCustNoOnServContract(ShiptoAddress."Customer No.", ShiptoAddress.Code, ServiceContractHeader);
         exit(ShiptoAddress."Customer No.");
     end;
@@ -5187,7 +5181,7 @@ codeunit 136102 "Service Contracts"
         // Verifying that there is no value on the Contract Line Selection page.
         ContractLineSelection."No.".AssertEquals('');
         ContractLineSelection."Customer No.".AssertEquals('');
-        ContractLineSelection.Cancel.Invoke;  // Using Cancel to close the page as OK button is disabled.
+        ContractLineSelection.Cancel().Invoke();  // Using Cancel to close the page as OK button is disabled.
     end;
 
     [RequestPageHandler]
@@ -5202,7 +5196,7 @@ codeunit 136102 "Service Contracts"
         CreateContractServiceOrders.EndingDate.SetValue(Format(WorkDate()));
         CreateContractServiceOrders.CreateServiceOrders.SetValue(CreateServOrder::"Create Service Order");
         CreateContractServiceOrders."Service Contract Header".SetFilter("Contract No.", ContractNumber);
-        CreateContractServiceOrders.OK.Invoke;
+        CreateContractServiceOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -5219,21 +5213,21 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices.InvoiceToDate.SetValue(InvoiceDate);
         CreateContractInvoices.CreateInvoices.SetValue(CreateInvoices::"Create Invoices");
         CreateContractInvoices."Service Contract Header".SetFilter("Contract No.", ContractNumber);
-        CreateContractInvoices.OK.Invoke;
+        CreateContractInvoices.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetEntriesNotEditablePageHandler(var DimensionSetEntries: TestPage "Dimension Set Entries")
     begin
-        Assert.IsFalse(DimensionSetEntries."Dimension Code".Editable, DimensionNonEditableErr);
+        Assert.IsFalse(DimensionSetEntries."Dimension Code".Editable(), DimensionNonEditableErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetEntriesEditablePageHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        Assert.IsTrue(EditDimensionSetEntries."Dimension Code".Editable, DimensionEditableErr);
+        Assert.IsTrue(EditDimensionSetEntries."Dimension Code".Editable(), DimensionEditableErr);
     end;
 
     [ModalPageHandler]
@@ -5241,7 +5235,7 @@ codeunit 136102 "Service Contracts"
     procedure FormModalHandler(var ServiceContract: Page "Service Contract"; var Response: Action)
     begin
         ServiceContract.SetRecord(ServiceContractHeader2);
-        ServiceContract.CheckRequiredFields;
+        ServiceContract.CheckRequiredFields();
         Response := ACTION::OK;
     end;
 
@@ -5252,7 +5246,7 @@ codeunit 136102 "Service Contracts"
         MessageText: Text[1024];
     begin
         // Verify Invoice creation Message.
-        MessageText := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(MessageText));
+        MessageText := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(MessageText));
         if (StrPos(Message, MessageText) = 0) and (StrPos(Message, OrderCreationMsg) = 0) then
             Error(MessageText);
     end;
@@ -5269,11 +5263,11 @@ codeunit 136102 "Service Contracts"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceLine."Document No.");
         ServiceInvoice.FILTER.SetFilter("Customer No.", ServiceLine."Customer No.");
         ServiceInvoice.ServLines.FILTER.SetFilter("Contract No.", ContractNo);
-        ServiceInvoice.ServLines.Dimensions.Invoke;
+        ServiceInvoice.ServLines.Dimensions.Invoke();
     end;
 
     local procedure PrepareServiceContractsForInvoiceGeneration(var ServiceContractHeader: Record "Service Contract Header"; i: Integer; ContractCount: Integer)
@@ -5329,7 +5323,6 @@ codeunit 136102 "Service Contracts"
 
     local procedure GetPostedServiceInvoiceAmount(ContractNo: Code[20]): Decimal
     var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoiceLine: Record "Service Invoice Line";
         ServiceInvoiceNo: Code[20];
     begin
@@ -5343,25 +5336,13 @@ codeunit 136102 "Service Contracts"
 
     local procedure GetPostedServiceCrMemoAmount(ContractNo: Code[20]): Decimal
     var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         ServiceCreditNo: Code[20];
     begin
         ServiceCreditNo := FindServiceCreditHeader(ContractNo);
-        with ServiceCrMemoLine do begin
-            SetRange("Document No.", ServiceCreditNo);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
-    end;
-
-    local procedure VerifyAmountOnServiceContractHeaderForPostedInvoiceAndCreditMemo(ServiceContractHeader: Record "Service Contract Header"; NoOfPostedInvoices: Integer)
-    begin
-        with ServiceContractHeader do begin
-            CalcFields("No. of Posted Invoices");
-            Assert.AreEqual(
-              NoOfPostedInvoices, "No. of Posted Invoices", StrSubstNo(ServiceContractErr, FieldCaption("No. of Posted Invoices")));
-        end;
+        ServiceCrMemoLine.SetRange("Document No.", ServiceCreditNo);
+        ServiceCrMemoLine.CalcSums(Amount);
+        exit(ServiceCrMemoLine.Amount);
     end;
 
     [PageHandler]
@@ -5372,9 +5353,9 @@ codeunit 136102 "Service Contracts"
     begin
         LibraryVariableStorage.Dequeue(ContractNumber);
         ServiceInvoice.FILTER.SetFilter("Contract No.", ContractNumber);
-        ServiceInvoice.ServLines.Last;
-        LibraryVariableStorage.Enqueue(ServiceInvoice.ServLines."Line Amount".AsDEcimal);
-        ServiceInvoice.Post.Invoke;
+        ServiceInvoice.ServLines.Last();
+        LibraryVariableStorage.Enqueue(ServiceInvoice.ServLines."Line Amount".AsDecimal());
+        ServiceInvoice.Post.Invoke();
     end;
 
     [ModalPageHandler]
@@ -5450,13 +5431,13 @@ codeunit 136102 "Service Contracts"
     begin
         FoundGLAccount := false;
         EndOfRecords := false;
-        GLAccount := LibraryVariableStorage.DequeueText;
+        GLAccount := LibraryVariableStorage.DequeueText();
 
         while not EndOfRecords do begin
             if AnalysisByDimensionMatrix.Code.Value = GLAccount then begin
                 FoundGLAccount := true;
                 EndOfRecords := true;
-                LibraryVariableStorage.Enqueue(AnalysisByDimensionMatrix.TotalAmount.AsDEcimal);
+                LibraryVariableStorage.Enqueue(AnalysisByDimensionMatrix.TotalAmount.AsDecimal());
             end;
             EndOfRecords := not AnalysisByDimensionMatrix.Next();
         end;
@@ -5484,7 +5465,7 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices.PostingDate.SetValue(WorkDate());
         CreateContractInvoices.InvoiceToDate.SetValue(WorkDate());
         CreateContractInvoices.CreateInvoices.SetValue(0);
-        ContractCount := LibraryVariableStorage.DequeueInteger;
+        ContractCount := LibraryVariableStorage.DequeueInteger();
         for i := 1 to ContractCount do
             LibraryVariableStorage.Dequeue(ContractNo[i]);
         case ContractCount of
@@ -5495,7 +5476,7 @@ codeunit 136102 "Service Contracts"
                 CreateContractInvoices."Service Contract Header".SetFilter("Contract No.",
                   StrSubstNo('%1|%2|%3', ContractNo[1], ContractNo[2], ContractNo[3]));
         end;
-        CreateContractInvoices.OK.Invoke;
+        CreateContractInvoices.OK().Invoke();
     end;
 
     local procedure CreateDimValueForGlobalDimension1Code(): Code[20]
@@ -5529,8 +5510,8 @@ codeunit 136102 "Service Contracts"
     [Scope('OnPrem')]
     procedure ServContractConfHandler(ConfirmMessage: Text[1024]; var Result: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, ConfirmMessage);
-        Result := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
+        Result := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

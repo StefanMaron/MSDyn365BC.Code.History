@@ -34,11 +34,11 @@ codeunit 134207 "WF Supported Combinations Test"
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent3."Function Name", WorkflowEvent2."Function Name");
 
         // Exercise
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
 
         // Verify
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
@@ -47,7 +47,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent3.Description, true, false, false);
 
-        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 3 events.');
+        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next(), 'There should only be 3 events.');
     end;
 
     [Test]
@@ -69,9 +69,9 @@ codeunit 134207 "WF Supported Combinations Test"
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent2."Function Name", WorkflowEvent1."Function Name");
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent3."Function Name", WorkflowEvent2."Function Name");
 
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
         // Exercise.
@@ -98,9 +98,9 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyEvent(WorkflowEvent2);
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent2."Function Name", WorkflowEvent1."Function Name");
 
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
         // Exercise.
@@ -109,7 +109,7 @@ codeunit 134207 "WF Supported Combinations Test"
         // Verify
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -129,12 +129,12 @@ codeunit 134207 "WF Supported Combinations Test"
             LibraryWorkflow.CreateEventPredecessor(WorkflowEvent[i]."Function Name", WorkflowEvent[1]."Function Name");
         end;
 
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
 
         // Exercise
-        WorkflowEventHierarchies.NextSet.Invoke;
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.NextSet.Invoke();
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
         UpdateAllEventCells(WorkflowEventHierarchies);
 
@@ -146,8 +146,8 @@ codeunit 134207 "WF Supported Combinations Test"
               WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent[2]."Function Name");
 
         // Exercise
-        WorkflowEventHierarchies.PreviousSet.Invoke;
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.PreviousSet.Invoke();
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
 
         // Verify
         Assert.AreEqual(WorkflowEvent[1].Description, WorkflowEventHierarchies.MatrixEventSubpage.Cell1.Caption, 'Wrong caption');
@@ -171,15 +171,15 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyEvent(WorkflowEvent2);
         CreateAnyEvent(WorkflowEvent3);
 
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
 
         // Exercise
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         WorkflowEventHierarchies.MatrixEventSubpage.Cell3.SetValue(false);
 
         // Verify
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
@@ -188,7 +188,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent3.Description, true, true, true);
 
-        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 3 events.');
+        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next(), 'There should only be 3 events.');
 
         WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent3."Function Name",
           WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent2."Function Name");
@@ -196,7 +196,7 @@ codeunit 134207 "WF Supported Combinations Test"
           WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent3."Function Name");
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent3."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -214,23 +214,23 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyEvent(WorkflowEvent2);
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent2."Function Name", WorkflowEvent1."Function Name");
 
-        WorkflowEventHierarchies.Trap;
+        WorkflowEventHierarchies.Trap();
         PAGE.Run(PAGE::"Workflow Event Hierarchies");
 
         // Exercise
-        WorkflowEventHierarchies.MatrixEventSubpage.Last;
+        WorkflowEventHierarchies.MatrixEventSubpage.Last();
         WorkflowEventHierarchies.MatrixEventSubpage.Cell2.SetValue(true);
 
         // Verify
-        WorkflowEventHierarchies.MatrixEventSubpage.First;
+        WorkflowEventHierarchies.MatrixEventSubpage.First();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
         WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent2.Description, true, true, false);
 
-        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 2 events.');
+        Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next(), 'There should only be 2 events.');
 
-        Assert.IsFalse(WorkflowEvent2.HasPredecessors, 'Event 2 should be independent.');
+        Assert.IsFalse(WorkflowEvent2.HasPredecessors(), 'Event 2 should be independent.');
     end;
 
     [Test]
@@ -255,17 +255,17 @@ codeunit 134207 "WF Supported Combinations Test"
         LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse1."Function Name", WorkflowEvent2."Function Name");
 
         // Exercise
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
 
         // Verify
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, false, true);
 
         WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, false);
 
-        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
+        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next(), 'There should only be 2 events.');
     end;
 
     [Test]
@@ -290,9 +290,9 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyResponse(WorkflowResponse2);
         LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse2."Function Name", WorkflowEvent1."Function Name");
 
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, true);
 
         // Exercise.
@@ -324,9 +324,9 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyResponse(WorkflowResponse2);
         LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse2."Function Name", WorkflowEvent1."Function Name");
 
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, true);
 
         // Exercise.
@@ -335,7 +335,7 @@ codeunit 134207 "WF Supported Combinations Test"
         // Verify
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -361,12 +361,12 @@ codeunit 134207 "WF Supported Combinations Test"
             LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse[i]."Function Name", WorkflowEvent2."Function Name");
         end;
 
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
 
         // Exercise
-        WFEventResponseCombinations.NextSet.Invoke;
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.NextSet.Invoke();
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         UpdateAllResponseCells(WFEventResponseCombinations);
 
         // Verify
@@ -379,8 +379,8 @@ codeunit 134207 "WF Supported Combinations Test"
               WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
 
         // Exercise
-        WFEventResponseCombinations.PreviousSet.Invoke;
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.PreviousSet.Invoke();
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
 
         // Verify
         Assert.AreEqual(WorkflowResponse[1].Description, WFEventResponseCombinations.MatrixResponseSubpage.Cell1.Caption, 'Wrong caption');
@@ -407,27 +407,27 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyResponse(WorkflowResponse1);
         CreateAnyResponse(WorkflowResponse2);
 
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
 
         // Exercise
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         WFEventResponseCombinations.MatrixResponseSubpage.Cell2.SetValue(false);
 
         // Verify
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, false);
 
         WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, true);
 
-        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
+        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next(), 'There should only be 2 events.');
 
         WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse2."Function Name",
           WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent2."Function Name");
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -449,23 +449,23 @@ codeunit 134207 "WF Supported Combinations Test"
         CreateAnyResponse(WorkflowResponse2);
         LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse2."Function Name", WorkflowEvent1."Function Name");
 
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
 
         // Exercise
-        WFEventResponseCombinations.MatrixResponseSubpage.Last;
+        WFEventResponseCombinations.MatrixResponseSubpage.Last();
         WFEventResponseCombinations.MatrixResponseSubpage.Cell2.SetValue(true);
 
         // Verify
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, true);
 
         WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, true);
 
-        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
+        Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next(), 'There should only be 2 events.');
 
-        Assert.IsFalse(WorkflowResponse2.HasPredecessors, 'Response 2 should not have predecessors.');
+        Assert.IsFalse(WorkflowResponse2.HasPredecessors(), 'Response 2 should not have predecessors.');
     end;
 
     [Test]
@@ -497,10 +497,10 @@ codeunit 134207 "WF Supported Combinations Test"
         Commit();
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::"Event", WorkflowEvent2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse2."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent1."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
 
         // Exercise
         WorkflowResponse1.Delete(true);
@@ -508,7 +508,7 @@ codeunit 134207 "WF Supported Combinations Test"
         // Verify
         asserterror WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse1."Function Name",
             WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent2."Function Name");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -521,8 +521,8 @@ codeunit 134207 "WF Supported Combinations Test"
     begin
         // [SCENARIO 414690] CustomerCreditLimit(Not)Exceeded events should allow combinations with certain responces.
         Initialize();
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowResponseHandling.CreateResponsesLibrary();
         // [THEN] SetStatusToPendingApproval is allowed
         WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.SetStatusToPendingApprovalCode(),
           WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
@@ -549,16 +549,16 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         Initialize();
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowResponseHandling.CreateResponsesLibrary;
-        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRCode,
-          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode);
-        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRAsyncCode,
-          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode);
-        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRCode,
-          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
-        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRAsyncCode,
-          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowResponseHandling.CreateResponsesLibrary();
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRAsyncCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode());
+        WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRAsyncCode(),
+          WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode());
     end;
 
     [Test]
@@ -571,29 +571,29 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         Initialize();
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowResponseHandling.CreateResponsesLibrary();
         WorkflowEvent.FindSet();
         repeat
-            if WorkflowEvent."Function Name" <> WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode then begin
+            if WorkflowEvent."Function Name" <> WorkflowEventHandling.RunWorkflowOnAfterSendToOCRIncomingDocCode() then begin
                 asserterror WFEventResponseCombination.Get(
-                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRCode,
+                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRCode(),
                     WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent."Function Name");
-                Assert.AssertRecordNotFound;
+                Assert.AssertRecordNotFound();
                 asserterror WFEventResponseCombination.Get(
-                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRAsyncCode,
+                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetReceiveFromOCRAsyncCode(),
                     WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent."Function Name");
-                Assert.AssertRecordNotFound;
+                Assert.AssertRecordNotFound();
             end;
-            if WorkflowEvent."Function Name" <> WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode then begin
+            if WorkflowEvent."Function Name" <> WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode() then begin
                 asserterror WFEventResponseCombination.Get(
-                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRCode,
+                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRCode(),
                     WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent."Function Name");
-                Assert.AssertRecordNotFound;
+                Assert.AssertRecordNotFound();
                 asserterror WFEventResponseCombination.Get(
-                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRAsyncCode,
+                    WFEventResponseCombination.Type::Response, WorkflowResponseHandling.GetSendToOCRAsyncCode(),
                     WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent."Function Name");
-                Assert.AssertRecordNotFound;
+                Assert.AssertRecordNotFound();
             end;
         until WorkflowEvent.Next() = 0;
     end;
@@ -622,11 +622,11 @@ codeunit 134207 "WF Supported Combinations Test"
         LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse1."Function Name", WorkflowEvent2."Function Name");
 
         // [WHEN] WF Event/Response Combinations page
-        WFEventResponseCombinations.Trap;
+        WFEventResponseCombinations.Trap();
         PAGE.Run(PAGE::"WF Event/Response Combinations");
 
         // [THEN] WF Event/Response Combinations shows full captions
-        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        WFEventResponseCombinations.MatrixResponseSubpage.First();
         Assert.AreEqual(WorkflowResponse1.Description, WFEventResponseCombinations.MatrixResponseSubpage.Cell1.Caption, '');
         Assert.AreEqual(WorkflowResponse2.Description, WFEventResponseCombinations.MatrixResponseSubpage.Cell2.Caption, '');
     end;
@@ -647,7 +647,7 @@ codeunit 134207 "WF Supported Combinations Test"
     begin
         WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);
@@ -657,7 +657,7 @@ codeunit 134207 "WF Supported Combinations Test"
     begin
         WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
-        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+        WorkflowResponse.Description := LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID();
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);
     end;

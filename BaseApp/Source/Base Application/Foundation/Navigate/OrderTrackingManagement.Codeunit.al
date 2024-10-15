@@ -398,26 +398,25 @@ codeunit 99000778 OrderTrackingManagement
         TempOrderTrackingEntry.DeleteAll();
         EntryNo := 1;
 
-        with TempOrderTrackingEntry do begin
-            if not SuppressMessages then
-                Window.Open(Text000);
-            Init();
-            "Entry No." := 0;
-            DrillOrdersUp(ReservEntry, 1);
-            ItemLedgEntry2.SetCurrentKey("Entry No.");
-            ItemLedgEntry2.MarkedOnly(true);
-            if ItemLedgEntry2.Find('-') then
-                repeat
-                    InsertItemLedgTrackEntry(1, ItemLedgEntry2, ItemLedgEntry2."Remaining Quantity", ItemLedgEntry2);
-                until ItemLedgEntry2.Next() = 0;
-            TrackingExists := Find('-');
-            if not TrackingExists and not SuppressMessages then
-                Message(Text008);
-            if DateWarning and not SuppressMessages then
-                Message(Text009);
-            if not SuppressMessages then
-                Window.Close();
-        end;
+        if not SuppressMessages then
+            Window.Open(Text000);
+        TempOrderTrackingEntry.Init();
+        TempOrderTrackingEntry."Entry No." := 0;
+        DrillOrdersUp(ReservEntry, 1);
+        ItemLedgEntry2.SetCurrentKey("Entry No.");
+        ItemLedgEntry2.MarkedOnly(true);
+        if ItemLedgEntry2.Find('-') then
+            repeat
+                InsertItemLedgTrackEntry(1, ItemLedgEntry2, ItemLedgEntry2."Remaining Quantity", ItemLedgEntry2);
+            until ItemLedgEntry2.Next() = 0;
+        TrackingExists := TempOrderTrackingEntry.Find('-');
+        if not TrackingExists and not SuppressMessages then
+            Message(Text008);
+        if DateWarning and not SuppressMessages then
+            Message(Text009);
+        if not SuppressMessages then
+            Window.Close();
+
         exit(TrackingExists);
     end;
 
@@ -468,58 +467,55 @@ codeunit 99000778 OrderTrackingManagement
 
         ReservEntry3.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
         InsertOrderTrackingEntry(ReservEntry, ReservEntry3, Level);
-        with ReservEntry3 do
-            case "Source Type" of
-                DATABASE::"Item Ledger Entry":
-                    begin
-                        ItemLedgEntry3.Get("Source Ref. No.");
-                        DrillItemLedgEntries(Level + 1, ItemLedgEntry3);
-                    end;
-                DATABASE::"Prod. Order Component",
-                DATABASE::"Planning Component":
-                    begin
-                        FiltersForTrackingFromComponents(ReservEntry3, ReservEntry2);
-                        DrillOrdersUp(ReservEntry2, Level + 1);
-                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                            DrillOrdersUp(FilterReservEntry, Level + 1);
-                    end;
-                DATABASE::"Prod. Order Line",
-                DATABASE::"Requisition Line":
-                    begin
-                        FiltersForTrackingFromReqLine(ReservEntry3, ReservEntry2, SearchUp);
-                        DrillOrdersUp(ReservEntry2, Level + 1);
-                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                            DrillOrdersUp(FilterReservEntry, Level + 1);
-                    end;
-                DATABASE::"Transfer Line":
-                    begin
-                        FiltersForTrackingFromTransfer(ReservEntry3, ReservEntry2, SearchUp);
-                        DrillOrdersUp(ReservEntry2, Level + 1);
-                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                            DrillOrdersUp(FilterReservEntry, Level + 1);
-                    end;
-                else begin
-                    OnDrillOrdersUpCaseElse(ReservEntry3, ReservEntry2, SearchUp, ContinueDrillUp, IncludePlanningFilter);
-                    if ContinueDrillUp then
-                        DrillOrdersUp(ReservEntry2, Level + 1);
-                    if IncludePlanningFilter then
-                        if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
-                            DrillOrdersUp(FilterReservEntry, Level + 1);
+        case ReservEntry3."Source Type" of
+            DATABASE::"Item Ledger Entry":
+                begin
+                    ItemLedgEntry3.Get(ReservEntry3."Source Ref. No.");
+                    DrillItemLedgEntries(Level + 1, ItemLedgEntry3);
                 end;
+            DATABASE::"Prod. Order Component",
+            DATABASE::"Planning Component":
+                begin
+                    FiltersForTrackingFromComponents(ReservEntry3, ReservEntry2);
+                    DrillOrdersUp(ReservEntry2, Level + 1);
+                    if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                        DrillOrdersUp(FilterReservEntry, Level + 1);
+                end;
+            DATABASE::"Prod. Order Line",
+            DATABASE::"Requisition Line":
+                begin
+                    FiltersForTrackingFromReqLine(ReservEntry3, ReservEntry2, SearchUp);
+                    DrillOrdersUp(ReservEntry2, Level + 1);
+                    if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                        DrillOrdersUp(FilterReservEntry, Level + 1);
+                end;
+            DATABASE::"Transfer Line":
+                begin
+                    FiltersForTrackingFromTransfer(ReservEntry3, ReservEntry2, SearchUp);
+                    DrillOrdersUp(ReservEntry2, Level + 1);
+                    if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                        DrillOrdersUp(FilterReservEntry, Level + 1);
+                end;
+            else begin
+                OnDrillOrdersUpCaseElse(ReservEntry3, ReservEntry2, SearchUp, ContinueDrillUp, IncludePlanningFilter);
+                if ContinueDrillUp then
+                    DrillOrdersUp(ReservEntry2, Level + 1);
+                if IncludePlanningFilter then
+                    if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
+                        DrillOrdersUp(FilterReservEntry, Level + 1);
             end;
+        end;
     end;
 
     local procedure FiltersForTrackingFromComponents(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry")
     begin
-        with FromReservationEntry do begin
-            ToReservationEntry.Reset();
-            if "Source Type" = DATABASE::"Prod. Order Component" then begin
-                ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Line", "Source Subtype", "Source ID", -1, true);
-                ToReservationEntry.SetSourceFilter("Source Batch Name", "Source Prod. Order Line");
-            end else begin
-                ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, "Source ID", "Source Prod. Order Line", true);
-                ToReservationEntry.SetSourceFilter("Source Batch Name", 0);
-            end;
+        ToReservationEntry.Reset();
+        if FromReservationEntry."Source Type" = DATABASE::"Prod. Order Component" then begin
+            ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Line", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Prod. Order Line");
+        end else begin
+            ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Prod. Order Line", true);
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
         end;
     end;
 
@@ -527,37 +523,33 @@ codeunit 99000778 OrderTrackingManagement
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with FromReservationEntry do begin
-            ToReservationEntry.Reset();
-            if "Source Type" = DATABASE::"Prod. Order Line" then begin
-                ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Component", "Source Subtype", "Source ID", -1, true);
-                ToReservationEntry.SetSourceFilter("Source Batch Name", "Source Ref. No.");
+        ToReservationEntry.Reset();
+        if FromReservationEntry."Source Type" = DATABASE::"Prod. Order Line" then begin
+            ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Component", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
+        end else begin
+            RequisitionLine.Get(FromReservationEntry."Source ID", FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
+            if RequisitionLine."Replenishment System" = RequisitionLine."Replenishment System"::Transfer then begin
+                if IsSearchUp then
+                    ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 1, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true)
+                else
+                    ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true);
+                ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
             end else begin
-                RequisitionLine.Get("Source ID", "Source Batch Name", "Source Ref. No.");
-                if RequisitionLine."Replenishment System" = RequisitionLine."Replenishment System"::Transfer then begin
-                    if IsSearchUp then
-                        ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 1, "Source ID", "Source Ref. No.", true)
-                    else
-                        ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, "Source ID", "Source Ref. No.", true);
-                    ToReservationEntry.SetSourceFilter("Source Batch Name", 0);
-                end else begin
-                    ToReservationEntry.SetSourceFilter(DATABASE::"Planning Component", 0, "Source ID", -1, true);
-                    ToReservationEntry.SetSourceFilter("Source Batch Name", "Source Ref. No.");
-                end;
+                ToReservationEntry.SetSourceFilter(DATABASE::"Planning Component", 0, FromReservationEntry."Source ID", -1, true);
+                ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
             end;
         end;
     end;
 
     local procedure FiltersForTrackingFromTransfer(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; IsSearchUp: Boolean)
     begin
-        with FromReservationEntry do begin
-            ToReservationEntry.Reset();
-            if IsSearchUp then
-                ToReservationEntry.SetSourceFilter("Source Type", 0, "Source ID", "Source Ref. No.", true)
-            else
-                ToReservationEntry.SetSourceFilter("Source Type", 1, "Source ID", "Source Ref. No.", true);
-            ToReservationEntry.SetRange("Source Batch Name", "Source Batch Name");
-        end;
+        ToReservationEntry.Reset();
+        if IsSearchUp then
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Type", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true)
+        else
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Type", 1, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true);
+        ToReservationEntry.SetRange("Source Batch Name", FromReservationEntry."Source Batch Name");
     end;
 
     local procedure DrillItemLedgEntries(Level: Integer; ItemLedgEntry4: Record "Item Ledger Entry")
@@ -887,61 +879,59 @@ codeunit 99000778 OrderTrackingManagement
         FilterReqLine: Record "Requisition Line";
         FilterPlanningComponent: Record "Planning Component";
     begin
-        with ToReservEntry do begin
-            OK := false;
-            SetRange("Source Type", DATABASE::"Planning Component");
-            if FromReservEntry.GetFilter("Source Type") = GetFilter("Source Type") then begin
-                Evaluate(FilterPlanningComponent."Line No.", FromReservEntry.GetFilter("Source Ref. No."));
-                Evaluate(FilterPlanningComponent."Worksheet Line No.", FromReservEntry.GetFilter("Source Prod. Order Line"));
+        OK := false;
+        ToReservEntry.SetRange("Source Type", DATABASE::"Planning Component");
+        if FromReservEntry.GetFilter("Source Type") = ToReservEntry.GetFilter("Source Type") then begin
+            Evaluate(FilterPlanningComponent."Line No.", FromReservEntry.GetFilter("Source Ref. No."));
+            Evaluate(FilterPlanningComponent."Worksheet Line No.", FromReservEntry.GetFilter("Source Prod. Order Line"));
 
-                if not FilterPlanningComponent.Get(
-                     FromReservEntry.GetRangeMin("Source ID"), FromReservEntry.GetRangeMin("Source Batch Name"),
-                     FilterPlanningComponent."Worksheet Line No.", FilterPlanningComponent."Line No.")
+            if not FilterPlanningComponent.Get(
+                    FromReservEntry.GetRangeMin("Source ID"), FromReservEntry.GetRangeMin("Source Batch Name"),
+                    FilterPlanningComponent."Worksheet Line No.", FilterPlanningComponent."Line No.")
+            then
+                exit(false);
+
+            case FilterPlanningComponent."Ref. Order Type" of
+                FilterPlanningComponent."Ref. Order Type"::"Prod. Order":
+                    ToReservEntry.SetSourceFilter(
+                        DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status".AsInteger(),
+                        FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
+                FilterPlanningComponent."Ref. Order Type"::Assembly:
+                    ToReservEntry.SetSourceFilter(
+                        DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
+                        FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
+            end;
+            ToReservEntry.SetRange("Source Prod. Order Line", FilterPlanningComponent."Ref. Order Line No.");
+            OK := ToReservEntry.Find('-');
+        end else begin
+            ToReservEntry.SetRange("Source Type", DATABASE::"Requisition Line");
+            if FromReservEntry.GetFilter("Source Type") = ToReservEntry.GetFilter("Source Type") then begin
+                Evaluate(FilterReqLine."Line No.", FromReservEntry.GetFilter("Source Ref. No."));
+                if not FilterReqLine.Get(FromReservEntry.GetRangeMin("Source ID"),
+                        FromReservEntry.GetRangeMin("Source Batch Name"), FilterReqLine."Line No.")
                 then
                     exit(false);
-
-                case FilterPlanningComponent."Ref. Order Type" of
-                    FilterPlanningComponent."Ref. Order Type"::"Prod. Order":
-                        SetSourceFilter(
-                          DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status".AsInteger(),
-                          FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
-                    FilterPlanningComponent."Ref. Order Type"::Assembly:
-                        SetSourceFilter(
-                          DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
-                          FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
-                end;
-                SetRange("Source Prod. Order Line", FilterPlanningComponent."Ref. Order Line No.");
-                OK := Find('-');
-            end else begin
-                SetRange("Source Type", DATABASE::"Requisition Line");
-                if FromReservEntry.GetFilter("Source Type") = GetFilter("Source Type") then begin
-                    Evaluate(FilterReqLine."Line No.", FromReservEntry.GetFilter("Source Ref. No."));
-                    if not FilterReqLine.Get(FromReservEntry.GetRangeMin("Source ID"),
-                         FromReservEntry.GetRangeMin("Source Batch Name"), FilterReqLine."Line No.")
-                    then
-                        exit(false);
-                    if FilterReqLine."Action Message".AsInteger() > FilterReqLine."Action Message"::New.AsInteger() then
-                        case FilterReqLine."Ref. Order Type" of
-                            FilterReqLine."Ref. Order Type"::Purchase:
-                                begin
-                                    SetSourceFilter(DATABASE::"Purchase Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
-                                    OK := Find('-');
-                                end;
-                            FilterReqLine."Ref. Order Type"::"Prod. Order":
-                                begin
-                                    SetSourceFilter(
-                                      DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status", FilterReqLine."Ref. Order No.", -1, true);
-                                    SetRange("Source Prod. Order Line", FilterReqLine."Ref. Line No.");
-                                    OK := Find('-');
-                                end;
-                            FilterReqLine."Ref. Order Type"::Transfer:
-                                begin
-                                    SetSourceFilter(DATABASE::"Transfer Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
-                                    SetRange("Source Prod. Order Line", 0);
-                                    OK := Find('-');
-                                end;
-                        end;
-                end;
+                if FilterReqLine."Action Message".AsInteger() > FilterReqLine."Action Message"::New.AsInteger() then
+                    case FilterReqLine."Ref. Order Type" of
+                        FilterReqLine."Ref. Order Type"::Purchase:
+                            begin
+                                ToReservEntry.SetSourceFilter(DATABASE::"Purchase Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
+                                OK := ToReservEntry.Find('-');
+                            end;
+                        FilterReqLine."Ref. Order Type"::"Prod. Order":
+                            begin
+                                ToReservEntry.SetSourceFilter(
+                                    DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status", FilterReqLine."Ref. Order No.", -1, true);
+                                ToReservEntry.SetRange("Source Prod. Order Line", FilterReqLine."Ref. Line No.");
+                                OK := ToReservEntry.Find('-');
+                            end;
+                        FilterReqLine."Ref. Order Type"::Transfer:
+                            begin
+                                ToReservEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
+                                ToReservEntry.SetRange("Source Prod. Order Line", 0);
+                                OK := ToReservEntry.Find('-');
+                            end;
+                    end;
             end;
         end;
     end;

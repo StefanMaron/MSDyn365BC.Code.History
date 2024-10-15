@@ -7,6 +7,7 @@ table 245 "Requisition Wksh. Name"
     Caption = 'Requisition Wksh. Name';
     DataCaptionFields = Name, Description;
     LookupPageID = "Req. Wksh. Names";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -27,14 +28,14 @@ table 245 "Requisition Wksh. Name"
         }
         field(21; "Template Type"; Enum "Req. Worksheet Template Type")
         {
-            CalcFormula = Lookup("Req. Wksh. Template".Type where(Name = field("Worksheet Template Name")));
+            CalcFormula = lookup("Req. Wksh. Template".Type where(Name = field("Worksheet Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup("Req. Wksh. Template".Recurring where(Name = field("Worksheet Template Name")));
+            CalcFormula = lookup("Req. Wksh. Template".Recurring where(Name = field("Worksheet Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;

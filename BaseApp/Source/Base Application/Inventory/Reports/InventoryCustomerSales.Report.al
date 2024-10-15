@@ -168,12 +168,10 @@ report 713 "Inventory - Customer Sales"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-            CalcSums("Discount Amount");
-            exit("Discount Amount");
-        end;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
+        ValueEntry.CalcSums("Discount Amount");
+        exit(ValueEntry."Discount Amount");
     end;
 
     local procedure GetLastItemLedgerEntryNo(var ItemLedgerEntry: Record "Item Ledger Entry"): Integer
@@ -191,21 +189,19 @@ report 713 "Inventory - Customer Sales"
         Profit: Decimal;
         DiscountAmount: Decimal;
     begin
-        with CurrItemLedgerEntry do begin
-            CalcFields("Sales Amount (Actual)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
-            Profit := "Sales Amount (Actual)" + "Cost Amount (Actual)" + "Cost Amount (Non-Invtbl.)";
-            DiscountAmount := CalcDiscountAmount("Entry No.");
+        CurrItemLedgerEntry.CalcFields("Sales Amount (Actual)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        Profit := CurrItemLedgerEntry."Sales Amount (Actual)" + CurrItemLedgerEntry."Cost Amount (Actual)" + CurrItemLedgerEntry."Cost Amount (Non-Invtbl.)";
+        DiscountAmount := CalcDiscountAmount(CurrItemLedgerEntry."Entry No.");
 
-            if ValueEntryBuf2."Item No." = '' then begin
-                ValueEntryBuf2.Init();
-                ValueEntryBuf2."Item No." := "Item No.";
-                ValueEntryBuf2."Source No." := "Source No.";
-            end;
-            ValueEntryBuf2."Invoiced Quantity" += "Invoiced Quantity";
-            ValueEntryBuf2."Sales Amount (Actual)" += "Sales Amount (Actual)";
-            ValueEntryBuf2."Sales Amount (Expected)" += Profit;
-            ValueEntryBuf2."Purchase Amount (Expected)" += DiscountAmount;
+        if ValueEntryBuf2."Item No." = '' then begin
+            ValueEntryBuf2.Init();
+            ValueEntryBuf2."Item No." := CurrItemLedgerEntry."Item No.";
+            ValueEntryBuf2."Source No." := CurrItemLedgerEntry."Source No.";
         end;
+        ValueEntryBuf2."Invoiced Quantity" += CurrItemLedgerEntry."Invoiced Quantity";
+        ValueEntryBuf2."Sales Amount (Actual)" += CurrItemLedgerEntry."Sales Amount (Actual)";
+        ValueEntryBuf2."Sales Amount (Expected)" += Profit;
+        ValueEntryBuf2."Purchase Amount (Expected)" += DiscountAmount;
     end;
 
     local procedure AddReportLine(var ValueEntryBuf2: Record "Value Entry")

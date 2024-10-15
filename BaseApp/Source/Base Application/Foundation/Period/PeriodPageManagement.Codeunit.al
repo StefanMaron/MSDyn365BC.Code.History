@@ -68,7 +68,7 @@ codeunit 362 PeriodPageManagement
     begin
         IsHandled := false;
         OnBeforeNextDate(NextStep, Calendar, PeriodType, AccountingPeriod, Result, Ishandled);
-        If IsHandled then
+        if IsHandled then
             exit(Result);
 
         Calendar.SetRange("Period Type", PeriodType);
@@ -234,21 +234,19 @@ codeunit 362 PeriodPageManagement
     var
         Calendar: Record Date;
     begin
-        with Item do begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-                if not FindDate('+', Calendar, PeriodType) then
-                    FindDate('+', Calendar, PeriodType::Day);
-                Calendar.SetRange("Period Start");
-            end;
-            FindDate(SearchText, Calendar, PeriodType);
-            if AmountType = AmountType::"Net Change" then begin
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-                if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                    SetRange("Date Filter", GetRangeMin("Date Filter"));
-            end else
-                SetRange("Date Filter", 0D, Calendar."Period End");
+        if Item.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Item.GetFilter("Date Filter"));
+            if not FindDate('+', Calendar, PeriodType) then
+                FindDate('+', Calendar, PeriodType::Day);
+            Calendar.SetRange("Period Start");
         end;
+        FindDate(SearchText, Calendar, PeriodType);
+        if AmountType = AmountType::"Net Change" then begin
+            Item.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Item.GetRangeMin("Date Filter") = Item.GetRangeMax("Date Filter") then
+                Item.SetRange("Date Filter", Item.GetRangeMin("Date Filter"));
+        end else
+            Item.SetRange("Date Filter", 0D, Calendar."Period End");
     end;
 
     procedure FindPeriodOnMatrixPage(var DateFilter: Text; var InternalDateFilter: Text; SearchText: Text[3]; PeriodType: Enum "Analysis Period Type"; UpdateDateFilter: Boolean)

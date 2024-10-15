@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Registration;
 table 227 "VAT Registration Log Details"
 {
     Caption = 'VAT Registration Log Details';
+    DataClassification = CustomerContent;
 
     fields
     {

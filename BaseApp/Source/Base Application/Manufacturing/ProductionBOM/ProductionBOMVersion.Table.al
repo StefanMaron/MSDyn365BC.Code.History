@@ -11,6 +11,7 @@ table 99000779 "Production BOM Version"
     DataCaptionFields = "Production BOM No.", "Version Code", Description;
     DrillDownPageID = "Prod. BOM Version List";
     LookupPageID = "Prod. BOM Version List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -122,11 +123,34 @@ table 99000779 "Production BOM Version"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
+
     begin
         ProdBOMHeader.Get("Production BOM No.");
         if "Version Code" = '' then begin
             ProdBOMHeader.TestField("Version Nos.");
-            NoSeriesMgt.InitSeries(ProdBOMHeader."Version Nos.", xRec."No. Series", 0D, "Version Code", "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ProdBOMHeader."Version Nos.", xRec."No. Series", 0D, "Version Code", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(ProdBOMHeader."Version Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := ProdBOMHeader."Version Nos.";
+                "Version Code" := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", ProdBOMHeader."Version Nos.", 0D, "Version Code");
+            end;
+#else
+            if NoSeries.AreRelated(ProdBOMHeader."Version Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := ProdBOMHeader."Version Nos.";
+            "Version Code" := NoSeries.GetNextNo("No. Series");
+#endif
         end;
     end;
 
@@ -144,20 +168,19 @@ table 99000779 "Production BOM Version"
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text001: Label 'You cannot rename the %1 when %2 is %3.';
 
     procedure AssistEdit(OldProdBOMVersion: Record "Production BOM Version"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with ProdBOMVersion do begin
-            ProdBOMVersion := Rec;
-            ProdBOMHeader.Get("Production BOM No.");
-            ProdBOMHeader.TestField("Version Nos.");
-            if NoSeriesMgt.SelectSeries(ProdBOMHeader."Version Nos.", OldProdBOMVersion."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("Version Code");
-                Rec := ProdBOMVersion;
-                exit(true);
-            end;
+        ProdBOMVersion := Rec;
+        ProdBOMHeader.Get(ProdBOMVersion."Production BOM No.");
+        ProdBOMHeader.TestField("Version Nos.");
+        if NoSeries.LookupRelatedNoSeries(ProdBOMHeader."Version Nos.", OldProdBOMVersion."No. Series", ProdBOMVersion."No. Series") then begin
+            ProdBOMVersion."Version Code" := NoSeries.GetNextNo(ProdBOMVersion."No. Series");
+            Rec := ProdBOMVersion;
+            exit(true);
         end;
     end;
 

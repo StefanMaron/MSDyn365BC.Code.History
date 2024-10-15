@@ -2,17 +2,22 @@ namespace Microsoft.Service.Item;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
+using Microsoft.Integration.FieldService;
 using Microsoft.Service.History;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Maintenance;
 using Microsoft.Service.Reports;
 using Microsoft.Service.Resources;
+using Microsoft.Utilities;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
 
 page 5980 "Service Item Card"
 {
@@ -32,6 +37,7 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    Visible = NoFieldVisible;
 
                     trigger OnAssistEdit()
                     begin
@@ -178,6 +184,11 @@ page 5980 "Service Item Card"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the resource that the customer prefers for servicing of the item.';
+                }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies that the service item is blocked from being used in service contracts or used and posted in transactions via service documents, except credit memos.';
                 }
             }
             group(Customer)
@@ -450,6 +461,13 @@ page 5980 "Service Item Card"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Item"),
+                              "No." = field("No.");
+            }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
@@ -588,6 +606,23 @@ page 5980 "Service Item Card"
                                   "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(Attachments)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
             }
             group(Documents)
             {
@@ -692,6 +727,111 @@ page 5980 "Service Item Card"
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
             }
+            group(ActionGroupFS)
+            {
+                Caption = 'Dynamics 365 Field Service';
+                Visible = FSIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (Rec.Blocked = Rec.Blocked::" ")) or not BlockedFilterApplied;
+                action(CRMGoToProduct)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Customer Asset';
+                    Image = CoupledItem;
+                    ToolTip = 'Open the coupled Dynamics 365 Field Service customer asset.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
+                    end;
+                }
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Field Service.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.UpdateOneNow(Rec.RecordId);
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Field Service record.';
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Field Service product.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(MatchBasedCouplingFS)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledItem;
+                        ToolTip = 'Couple resources to products in Dynamics 365 Sales based on matching criteria.';
+
+                        trigger OnAction()
+                        var
+                            ServiceItem: Record "Service Item";
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(ServiceItem);
+                            RecRef.GetTable(ServiceItem);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Field Service product.';
+
+                        trigger OnAction()
+                        var
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                        begin
+                            CRMCouplingManagement.RemoveCoupling(Rec.RecordId);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the resource table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
+                    end;
+                }
+            }
         }
         area(processing)
         {
@@ -729,6 +869,9 @@ page 5980 "Service Item Card"
             {
                 Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
 
+                actionref(Attachments_Promoted; Attachments)
+                {
+                }
                 actionref("&Dimensions_Promoted"; "&Dimensions")
                 {
                 }
@@ -787,11 +930,17 @@ page 5980 "Service Item Card"
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        Item: Record Item;
     begin
         if Rec."Item No." = '' then
             if Rec.GetFilter("Item No.") <> '' then
-                if Rec.GetRangeMin("Item No.") = Rec.GetRangeMax("Item No.") then
-                    Rec."Item No." := Rec.GetRangeMin("Item No.");
+                if Rec.GetRangeMin("Item No.") = Rec.GetRangeMax("Item No.") then begin
+                    Item.SetLoadFields(Blocked, "Service Blocked");
+                    if Item.Get(Rec.GetRangeMin("Item No.")) then
+                        if (not Item.Blocked) and (not Item."Service Blocked") then
+                            Rec."Item No." := Item."No.";
+                end;
 
         if Rec."Customer No." = '' then
             if Rec.GetFilter("Customer No.") <> '' then
@@ -800,15 +949,35 @@ page 5980 "Service Item Card"
     end;
 
     trigger OnOpenPage()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        FSConnectionSetup: Record "FS Connection Setup";
     begin
+        if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
+
+        if FSIntegrationEnabled then begin
+            IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+            IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+            IntegrationTableMapping.SetRange("Table ID", Database::"Service Item");
+            IntegrationTableMapping.SetRange("Integration Table ID", Database::"FS Customer Asset");
+            if IntegrationTableMapping.FindFirst() then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field40=1(0)');
+        end;
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+        SetNoFieldVisible();
     end;
 
     var
         ResourceSkill: Record "Resource Skill";
         FormatAddress: Codeunit "Format Address";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SkilledResourceList: Page "Skilled Resource List";
+        FSIntegrationEnabled: Boolean;
+        NoFieldVisible: Boolean;
+        CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         VariantCodeMandatory: Boolean;
@@ -834,6 +1003,13 @@ page 5980 "Service Item Card"
     begin
         if Rec."Customer No." <> xRec."Customer No." then
             UpdateShipToCode();
+    end;
+
+    local procedure SetNoFieldVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+    begin
+        NoFieldVisible := DocumentNoVisibility.ServiceItemNoIsVisible();
     end;
 }
 

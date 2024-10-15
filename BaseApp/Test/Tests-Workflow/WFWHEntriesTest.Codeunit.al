@@ -35,20 +35,20 @@ codeunit 134218 "WFWH Entries Test"
     begin
         // Setup
         Initialize();
-        CreateSubscription;
+        CreateSubscription();
         MockOnPostNotificationRequest.SetReturnType('ErrorReceived');
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         MockOnPostNotificationRequest.SetReturnType('NoErrorReceived');
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        WorkflowWebhookEntries.OpenView;
-        WorkflowWebhookEntries.First;
+        WorkflowWebhookEntries.OpenView();
+        WorkflowWebhookEntries.First();
 
         // Verify
-        Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be enabled.');
+        Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled(), 'Resubmit button must be enabled.');
         WorkflowWebhookEntries.Next();
-        Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be disabled.');
+        Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled(), 'Resubmit button must be disabled.');
 
         // Cleanup
         WorkflowWebhookEntries.Close();
@@ -62,20 +62,20 @@ codeunit 134218 "WFWH Entries Test"
     begin
         // Setup
         Initialize();
-        CreateSubscription;
+        CreateSubscription();
         MockOnPostNotificationRequest.SetReturnType('ErrorReceived');
         CreateSalesOrderAndSendForApproval(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        WorkflowWebhookEntries.OpenView;
-        WorkflowWebhookEntries.First;
-        Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be enabled.');
+        WorkflowWebhookEntries.OpenView();
+        WorkflowWebhookEntries.First();
+        Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled(), 'Resubmit button must be enabled.');
         MockOnPostNotificationRequest.SetReturnType('NoErrorReceived');
-        WorkflowWebhookEntries.Resubmit.Invoke;
+        WorkflowWebhookEntries.Resubmit.Invoke();
         Commit();
 
         // Verify
-        Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be disabled.');
+        Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled(), 'Resubmit button must be disabled.');
 
         // Cleanup
         WorkflowWebhookEntries.Close();
@@ -112,8 +112,8 @@ codeunit 134218 "WFWH Entries Test"
         WorkflowWebhookNotification.Insert();
         Commit();
         // Exercise
-        WorkflowWebhookEntries.OpenView;
-        WorkflowWebhookEntries.First;
+        WorkflowWebhookEntries.OpenView();
+        WorkflowWebhookEntries.First();
         Assert.AreEqual('Sent',
           WorkflowWebhookEntries.NotificationStatusText.Value, 'Notification status must be sent.');
         WorkflowWebhookEntries.Next();
@@ -134,7 +134,7 @@ codeunit 134218 "WFWH Entries Test"
         WorkflowWebhookSubscription.Init();
         WorkflowWebhookSubscription."Client Type" := 'Flow';
         WorkflowWebhookSubscription."Client Id" := CreateGuid();
-        WorkflowWebhookSubscription."Event Code" := WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode;
+        WorkflowWebhookSubscription."Event Code" := WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode();
         WorkflowWebhookSubscription.Insert(true);
         Clear(WorkflowWebhookSubscription.Conditions);
         WorkflowWebhookSubscription.Conditions.CreateOutStream(StreamOutObj);
@@ -155,9 +155,9 @@ codeunit 134218 "WFWH Entries Test"
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         UserSetup.DeleteAll();
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         WorkflowWebhookEntry.DeleteAll();
         WorkflowWebhookNotification.DeleteAll();
         WorkflowWebhookSubscription.DeleteAll();
@@ -173,7 +173,7 @@ codeunit 134218 "WFWH Entries Test"
         BindSubscription(MockOnFindTaskSchedulerAllowed);
         UnbindSubscription(MockOnFetchInitParams);
         BindSubscription(MockOnFetchInitParams);
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WFWH Entries Test");
     end;
 
@@ -197,9 +197,9 @@ codeunit 134218 "WFWH Entries Test"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SendApprovalRequest.Invoke;
+        SalesOrder.SendApprovalRequest.Invoke();
         SalesOrder.Close();
     end;
 }

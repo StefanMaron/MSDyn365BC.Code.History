@@ -10,6 +10,7 @@ using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Worksheet;
+using System.Utilities;
 
 page 6550 "Whse. Item Tracking Lines"
 {
@@ -69,7 +70,9 @@ page 6550 "Whse. Item Tracking Lines"
                             ApplicationArea = ItemTracking;
                             Visible = false;
                         }
+#pragma warning disable AA0100
                         field("TotalWhseItemTrackingLine.""Quantity (Base)"""; TotalWhseItemTrackingLine."Quantity (Base)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = ItemTracking;
                             Caption = 'Quantity';
@@ -123,12 +126,18 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item Tracking Code';
                     Editable = false;
-                    Lookup = true;
                     ToolTip = 'Specifies the code for the warehouse item to be tracked.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
+                    var
+                        ItemTrackingCodeToShow: Record "Item Tracking Code";
+                        ItemTrackingCodeCard: Page "Item Tracking Code Card";
                     begin
-                        PAGE.RunModal(0, ItemTrackingCode);
+                        ItemTrackingCodeToShow.SetRange(Code, ItemTrackingCode.Code);
+
+                        ItemTrackingCodeCard.SetTableView(ItemTrackingCodeToShow);
+                        ItemTrackingCodeCard.Editable := false;
+                        ItemTrackingCodeCard.RunModal();
                     end;
                 }
                 field("ItemTrackingCode.Description"; ItemTrackingCode.Description)
@@ -208,7 +217,6 @@ page 6550 "Whse. Item Tracking Lines"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a new package number that replaces the package number, when you post the warehouse item reclassification journal.';
-                    Visible = PackageTrackingVisible;
                     ExtendedDatatype = Barcode;
 
                     trigger OnAssistEdit()
@@ -241,7 +249,7 @@ page 6550 "Whse. Item Tracking Lines"
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationDateEditable;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
-                    Visible = false;
+                    Visible = ExpirationDateVisible;
                 }
                 field("New Expiration Date"; Rec."New Expiration Date")
                 {
@@ -288,6 +296,8 @@ page 6550 "Whse. Item Tracking Lines"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
+                    BlankZero = true;
+                    ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
@@ -375,7 +385,6 @@ page 6550 "Whse. Item Tracking Lines"
                     Caption = 'Package No. Information Card';
                     Image = LotInfo;
                     ToolTip = 'View or edit detailed information about the package number.';
-                    Visible = PackageTrackingVisible;
 
                     trigger OnAction()
                     var
@@ -426,7 +435,6 @@ page 6550 "Whse. Item Tracking Lines"
                     Image = NewLotProperties;
                     RunPageOnRec = false;
                     ToolTip = 'Create a record with detailed information about the package number.';
-                    Visible = PackageTrackingVisible;
 
                     trigger OnAction()
                     var
@@ -591,15 +599,17 @@ page 6550 "Whse. Item Tracking Lines"
     begin
         UpdateUndefinedQty();
         SaveItemTrkgLine(TempInitialTrkgLine);
-
-        SetPackageTrackingVisibility();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if FormUpdated then
+        if FormUpdated then begin
             if not UpdateUndefinedQty() then
                 exit(Confirm(Text002));
+
+            if CountLinesWithQtyZero() > 0 then
+                exit(ConfirmManagement.GetResponseOrDefault(ConfirmWhenExitingQst, true));
+        end;
     end;
 
     var
@@ -609,12 +619,14 @@ page 6550 "Whse. Item Tracking Lines"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        Text001: Label 'Line';
-        Text002: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
+        ConfirmManagement: Codeunit "Confirm Management";
         FormSourceType: Integer;
         FormUpdated: Boolean;
         Reclass: Boolean;
+        Text001: Label 'Line';
+        Text002: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         Text003: Label 'Placeholder';
+        ConfirmWhenExitingQst: Label 'One or more lines have tracking specified, but Quantity (Base) is zero. If you continue, data on these lines will be lost. Do you want to close the page?';
 
     protected var
         UndefinedQtyArray: array[2] of Decimal;
@@ -624,6 +636,7 @@ page 6550 "Whse. Item Tracking Lines"
         Handle2Visible: Boolean;
         Handle3Visible: Boolean;
         QtyToHandleBaseVisible: Boolean;
+        ExpirationDateVisible: Boolean;
         NewSerialNoVisible: Boolean;
         NewLotNoVisible: Boolean;
         NewPackageNoVisible: Boolean;
@@ -636,7 +649,10 @@ page 6550 "Whse. Item Tracking Lines"
         NewPackageNoEditable: Boolean;
         NewExpirationDateEditable: Boolean;
         ExpirationDateEditable: Boolean;
+#if not CLEAN24
+        [Obsolete('Package Tracking enabled by default.', '24.0')]
         PackageTrackingVisible: Boolean;
+#endif
 
     local procedure GetTextCaption(): Text[30]
     var
@@ -645,9 +661,9 @@ page 6550 "Whse. Item Tracking Lines"
     begin
         case Rec."Source Type" of
             Database::"Posted Whse. Receipt Line":
-                exit(PostedWhseRcptLine.TableCaption());
+                exit(CopyStr(PostedWhseRcptLine.TableCaption(), 1, 30));
             Database::"Warehouse Shipment Line":
-                exit(WhseShipmentLine.TableCaption());
+                exit(CopyStr(WhseShipmentLine.TableCaption(), 1, 30));
             else
                 exit(Text001);
         end;
@@ -676,6 +692,8 @@ page 6550 "Whse. Item Tracking Lines"
     var
         SetAccess: Boolean;
     begin
+        ExpirationDateVisible := ItemTrackingCode."Use Expiration Dates";
+
         SetAccess := FormSourceType <> Database::"Warehouse Journal Line";
         Handle1Visible := SetAccess;
         Handle2Visible := SetAccess;
@@ -686,11 +704,13 @@ page 6550 "Whse. Item Tracking Lines"
 
     local procedure SetControlsAsReclass()
     begin
+        ExpirationDateVisible := ItemTrackingCode."Use Expiration Dates";
+
         NewSerialNoVisible := Reclass;
         NewSerialNoEditable := Reclass;
         NewLotNoVisible := Reclass;
         NewLotNoEditable := Reclass;
-        NewPackageNoVisible := Reclass and PackageTrackingVisible;
+        NewPackageNoVisible := Reclass;
         NewPackageNoEditable := Reclass;
         NewExpirationDateVisible := Reclass;
         NewExpirationDateEditable := Reclass;
@@ -700,42 +720,40 @@ page 6550 "Whse. Item Tracking Lines"
 
     procedure SetFilters(var WhseItemTrackingLine2: Record "Whse. Item Tracking Line"; SourceType: Integer)
     begin
-        with WhseItemTrackingLine2 do begin
-            FilterGroup := 2;
-            SetRange("Source Type", SourceType);
-            SetRange("Location Code", WhseWorksheetLine."Location Code");
-            SetRange("Item No.", WhseWorksheetLine."Item No.");
-            SetRange("Variant Code", WhseWorksheetLine."Variant Code");
-            SetRange("Qty. per Unit of Measure", WhseWorksheetLine."Qty. per Unit of Measure");
+        WhseItemTrackingLine2.FilterGroup := 2;
+        WhseItemTrackingLine2.SetRange("Source Type", SourceType);
+        WhseItemTrackingLine2.SetRange("Location Code", WhseWorksheetLine."Location Code");
+        WhseItemTrackingLine2.SetRange("Item No.", WhseWorksheetLine."Item No.");
+        WhseItemTrackingLine2.SetRange("Variant Code", WhseWorksheetLine."Variant Code");
+        WhseItemTrackingLine2.SetRange("Qty. per Unit of Measure", WhseWorksheetLine."Qty. per Unit of Measure");
 
-            case SourceType of
-                Database::"Posted Whse. Receipt Line",
-                Database::"Warehouse Shipment Line",
-                Database::"Whse. Internal Put-away Line",
-                Database::"Whse. Internal Pick Line",
-                Database::"Assembly Line",
-                Database::"Internal Movement Line":
-                    begin
-                        SetRange("Source ID", WhseWorksheetLine."Whse. Document No.");
-                        SetRange("Source Ref. No.", WhseWorksheetLine."Whse. Document Line No.");
-                    end;
-                Database::"Prod. Order Component":
-                    begin
-                        SetRange("Source Subtype", WhseWorksheetLine."Source Subtype");
-                        SetRange("Source ID", WhseWorksheetLine."Source No.");
-                        SetRange("Source Prod. Order Line", WhseWorksheetLine."Source Line No.");
-                        SetRange("Source Ref. No.", WhseWorksheetLine."Source Subline No.");
-                    end;
-                Database::"Whse. Worksheet Line",
-                Database::"Warehouse Journal Line":
-                    begin
-                        SetRange("Source Batch Name", WhseWorksheetLine."Worksheet Template Name");
-                        SetRange("Source ID", WhseWorksheetLine.Name);
-                        SetRange("Source Ref. No.", WhseWorksheetLine."Line No.");
-                    end;
-            end;
-            FilterGroup := 0;
+        case SourceType of
+            Database::"Posted Whse. Receipt Line",
+            Database::"Warehouse Shipment Line",
+            Database::"Whse. Internal Put-away Line",
+            Database::"Whse. Internal Pick Line",
+            Database::"Assembly Line",
+            Database::"Internal Movement Line":
+                begin
+                    WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine."Whse. Document No.");
+                    WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Whse. Document Line No.");
+                end;
+            Database::"Prod. Order Component":
+                begin
+                    WhseItemTrackingLine2.SetRange("Source Subtype", WhseWorksheetLine."Source Subtype");
+                    WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine."Source No.");
+                    WhseItemTrackingLine2.SetRange("Source Prod. Order Line", WhseWorksheetLine."Source Line No.");
+                    WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Source Subline No.");
+                end;
+            Database::"Whse. Worksheet Line",
+            Database::"Warehouse Journal Line":
+                begin
+                    WhseItemTrackingLine2.SetRange("Source Batch Name", WhseWorksheetLine."Worksheet Template Name");
+                    WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine.Name);
+                    WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Line No.");
+                end;
         end;
+        WhseItemTrackingLine2.FilterGroup := 0;
     end;
 
     local procedure UpdateExpDateColor()
@@ -1002,11 +1020,22 @@ page 6550 "Whse. Item Tracking Lines"
         OnAfterSetSourceSpecification(SourceSpecification, TempSourceWhseItemTrackingLine);
     end;
 
+#if not CLEAN24
+# pragma warning disable AA0228
     local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
     begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
+        PackageTrackingVisible := true;
+    end;
+# pragma warning restore AA0228
+#endif
+
+    local procedure CountLinesWithQtyZero(): Integer
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        WhseItemTrackingLine.Copy(Rec);
+        WhseItemTrackingLine.SetRange("Quantity (Base)", 0);
+        exit(WhseItemTrackingLine.Count());
     end;
 
     [IntegrationEvent(false, false)]

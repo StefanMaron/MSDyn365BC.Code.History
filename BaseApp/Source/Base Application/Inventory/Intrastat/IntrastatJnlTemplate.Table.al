@@ -21,6 +21,7 @@ table 261 "Intrastat Jnl. Template"
     ObsoleteTag = '25.0';
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -57,21 +58,25 @@ table 261 "Intrastat Jnl. Template"
         field(15; "Checklist Report Caption"; Text[250])
         {
 #if not CLEAN22
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Checklist Report ID")));
             Caption = 'Checklist Report Caption';
             Editable = false;
             FieldClass = FlowField;
+#else
+            DataClassification = CustomerContent;
 #endif
         }
         field(16; "Page Caption"; Text[250])
         {
 #if not CLEAN22
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;
+#else
+            DataClassification = CustomerContent;
 #endif
         }
     }

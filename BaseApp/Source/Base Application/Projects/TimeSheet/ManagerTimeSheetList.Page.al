@@ -5,6 +5,7 @@
 namespace Microsoft.Projects.TimeSheet;
 
 using System.Security.User;
+using System.Text;
 
 page 953 "Manager Time Sheet List"
 {
@@ -156,6 +157,16 @@ page 953 "Manager Time Sheet List"
                 }
             }
         }
+        area(factboxes)
+        {
+            part(TimeSheetComments; "Time Sheet Comments FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Time Sheet Comments';
+                SubPageLink = "No." = field("No."), "Time Sheet Line No." = filter(0); //just header comments                
+                Editable = false;
+            }
+        }
     }
 
     actions
@@ -186,9 +197,39 @@ page 953 "Manager Time Sheet List"
                 ApplicationArea = Jobs;
                 Caption = 'Move Time Sheets to Archive';
                 Image = Archive;
-                RunObject = Report "Move Time Sheets to Archive";
                 ToolTip = 'Archive time sheets.';
                 Visible = TimeSheetAdminActionsVisible;
+                Enabled = ArchiveEnabled and TimeSheetAdminActionsVisible;
+
+                trigger OnAction()
+                var
+                    TimeSheetHeader: Record "Time Sheet Header";
+                    MoveTimeSheetstoArchive: Report "Move Time Sheets to Archive";
+                    SelectionFilterManagement: Codeunit SelectionFilterManagement;
+                    RecordRef: RecordRef;
+                    TimeSheetNoFilter: Text;
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetHeader);
+                    RecordRef.GetTable(TimeSheetHeader);
+                    TimeSheetNoFilter := SelectionFilterManagement.GetSelectionFilter(RecordRef, TimeSheetHeader.FieldNo("No."));
+                    TimeSheetHeader.SetFilter("No.", TimeSheetNoFilter);
+                    MoveTimeSheetstoArchive.SetTableView(TimeSheetHeader);
+                    MoveTimeSheetstoArchive.Run();
+                end;
+            }
+            action(RequiresMyApprovalTimeSheets)
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Requires My Approval';
+                Image = FilterLines;
+                ToolTip = 'Show just Time Sheets which requires my approval.';
+                Visible = TimeSheetAdminActionsVisible;
+
+                trigger OnAction()
+                begin
+                    Rec.SetRange("Approver User ID", UserId());
+                    CurrPage.Update(false);
+                end;
             }
         }
         area(navigation)
@@ -238,6 +279,9 @@ page 953 "Manager Time Sheet List"
                 actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)
                 {
                 }
+                actionref(RequiresMyApprovalTimeSheets_Promoted; RequiresMyApprovalTimeSheets)
+                {
+                }
                 actionref(Comments_Promoted; Comments)
                 {
                 }
@@ -263,6 +307,11 @@ page 953 "Manager Time Sheet List"
         OnAfterOnOpenPage(Rec);
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ArchiveEnabled := Rec."Posted Exists";
+    end;
+
     var
         UserSetup: Record "User Setup";
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -270,6 +319,7 @@ page 953 "Manager Time Sheet List"
         TimeSheetV2Enabled: Boolean;
 #endif
         TimeSheetAdminActionsVisible: Boolean;
+        ArchiveEnabled: Boolean;
 
 #if not CLEAN22
     local procedure ReviewTimeSheet()

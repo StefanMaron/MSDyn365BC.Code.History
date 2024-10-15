@@ -27,6 +27,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         APIMockEvents: Codeunit "API Mock Events";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         IsInitialized: Boolean;
+        AllowPostedDocumentDeletionDate: Date;
         ChangeConfirmMsg: Label 'Do you want';
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
@@ -39,8 +40,8 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Purch. Cr. Memo Aggr. UT");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
@@ -52,9 +53,9 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-
+        AllowPostedDocumentDeletionDate := LibraryERM.GetDeletionBlockedAfterDate();
         LibrarySetupStorage.Save(Database::"General Ledger Setup");
-        DisableWarningOnClosingCrMemo;
+        DisableWarningOnClosingCrMemo();
 
         Commit();
 
@@ -126,7 +127,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         Initialize();
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(PurchaseCreditMemo);
         CrMemoDiscountAmount :=
-          LibraryRandom.RandDecInDecimalRange(1, PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal / 2, 1);
+          LibraryRandom.RandDecInDecimalRange(1, PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal() / 2, 1);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
@@ -138,7 +139,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         PurchaseCreditMemo.Close();
 
         // Execute
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // Verify
@@ -157,7 +158,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(PurchaseCreditMemo);
-        CrMemoDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal;
+        CrMemoDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal();
 
         // Execute
         CreateLineThroughTestPage(PurchaseCreditMemo, PurchaseCreditMemo.PurchLines."No.".Value);
@@ -179,7 +180,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageNoDiscount(PurchaseCreditMemo);
 
         // Execute
-        PurchaseCreditMemo.PurchLines.Quantity.SetValue(PurchaseCreditMemo.PurchLines.Quantity.AsDecimal * 2);
+        PurchaseCreditMemo.PurchLines.Quantity.SetValue(PurchaseCreditMemo.PurchLines.Quantity.AsDecimal() * 2);
         PurchaseCreditMemo.PurchLines.Next();
         PurchaseCreditMemo.PurchLines.Previous();
 
@@ -199,7 +200,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(PurchaseCreditMemo);
 
         // Execute
-        PurchaseCreditMemo.PurchLines."Line Amount".SetValue(Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDecimal / 2, 1));
+        PurchaseCreditMemo.PurchLines."Line Amount".SetValue(Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseCreditMemo.PurchLines.Next();
         PurchaseCreditMemo.PurchLines.Previous();
 
@@ -219,7 +220,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(PurchaseCreditMemo);
 
         // Execute
-        PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".AsDecimal * 2);
+        PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".AsDecimal() * 2);
         PurchaseCreditMemo.PurchLines.Next();
         PurchaseCreditMemo.PurchLines.Previous();
 
@@ -240,9 +241,9 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(PurchaseCreditMemo);
 
         // Execute
-        PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".AsDecimal * 2);
+        PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".AsDecimal() * 2);
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         // Verify
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -364,7 +365,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
 
         OpenPurchaseCrMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         PurchaseCreditMemo."Buy-from Vendor No.".SetValue(NewVendor."No.");
@@ -397,7 +398,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor."No.");
 
         // Verify
@@ -424,7 +425,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor);
         OpenPurchaseCrMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor."No.");
@@ -455,7 +456,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         CreateCrMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor);
         OpenPurchaseCrMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         PurchaseCreditMemo."Pay-to Name".SetValue(NewVendor.Name);
@@ -487,7 +488,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         OpenPurchaseCrMemo(PurchaseHeader, PurchaseCreditMemo);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         PurchaseCreditMemo."Pay-to Name".SetValue(NewVendor.Name);
@@ -534,7 +535,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         Assert.IsFalse(PurchCrMemoEntityBuffer.Get(PurchaseHeader."No.", false), 'Draft Aggregated Credit Memo still exists');
 
         Assert.AreEqual(PurchaseHeader.SystemId, PurchCrMemoHdr."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
-        Assert.IsFalse(PurchaseHeader.Find, 'Draft Credit Memo still exists');
+        Assert.IsFalse(PurchaseHeader.Find(), 'Draft Credit Memo still exists');
         PurchCrMemoEntityBuffer.Get(PurchCrMemoHdr."No.", true);
         Assert.IsFalse(IsNullGuid(PurchCrMemoEntityBuffer.Id), 'Id cannot be null');
         Assert.AreEqual(PurchCrMemoHdr."Draft Cr. Memo SystemId", PurchCrMemoEntityBuffer.Id, 'Aggregate Credit Memo ID is incorrect');
@@ -569,7 +570,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
 
         PurchCrMemoHdr.Find();
         Assert.AreEqual(PurchaseHeader.SystemId, PurchCrMemoHdr."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
-        Assert.IsFalse(PurchaseHeader.Find, 'Draft Credit Memo still exists');
+        Assert.IsFalse(PurchaseHeader.Find(), 'Draft Credit Memo still exists');
         PurchCrMemoEntityBuffer.Get(PurchCrMemoHdr."No.", true);
         Assert.IsFalse(IsNullGuid(PurchCrMemoEntityBuffer.Id), 'Id cannot be null');
     end;
@@ -744,7 +745,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         // Setup
         Initialize();
         SetupDataForDiscountTypePct(Item, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateCrMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor);
         OpenPurchaseCrMemo(PurchaseHeader, PurchaseCreditMemo);
@@ -752,7 +753,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         // Execute
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
-        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
+        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke();
 
         // Verify
         VerifyBufferTableIsUpdatedForCrMemo(PurchaseCreditMemo."No.".Value);
@@ -829,7 +830,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         UpdatePurchaseCrMemoAggregate(PurchCrMemoEntityBuffer, TempFieldBuffer);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         GraphMgtPurchCrMemo.PropagateOnModify(PurchCrMemoEntityBuffer, TempFieldBuffer);
 
         // Verify
@@ -860,8 +861,8 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         GraphMgtPurchCrMemo.PropagateOnDelete(PurchCrMemoEntityBuffer);
 
         // Verify
-        Assert.IsFalse(PurchaseHeader.Find, 'Purchase header should be deleted');
-        Assert.IsFalse(PurchCrMemoEntityBuffer.Find, 'Purchase line should be deleted');
+        Assert.IsFalse(PurchaseHeader.Find(), 'Purchase header should be deleted');
+        Assert.IsFalse(PurchCrMemoEntityBuffer.Find(), 'Purchase line should be deleted');
     end;
 
     [Test]
@@ -883,8 +884,8 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         GraphMgtPurchCrMemo.PropagateOnDelete(PurchCrMemoEntityBuffer);
 
         // Verify
-        Assert.IsFalse(PurchCrMemoHdr.Find, 'Purchase header should be deleted');
-        Assert.IsFalse(PurchCrMemoEntityBuffer.Find, 'Purchase line should be deleted');
+        Assert.IsFalse(PurchCrMemoHdr.Find(), 'Purchase header should be deleted');
+        Assert.IsFalse(PurchCrMemoEntityBuffer.Find(), 'Purchase line should be deleted');
     end;
 
     [Test]
@@ -1057,7 +1058,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
     var
         ItemQuantity: Decimal;
     begin
-        PurchaseCreditMemo.PurchLines.Last;
+        PurchaseCreditMemo.PurchLines.Last();
         PurchaseCreditMemo.PurchLines.Next();
         PurchaseCreditMemo.PurchLines."No.".SetValue(ItemNo);
 
@@ -1213,6 +1214,8 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         ItemQuantity := LibraryRandom.RandIntInRange(10, 100);
         UnitCost := LibraryRandom.RandIntInRange(1, 100);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        PurchaseHeader.Validate("Posting Date", AllowPostedDocumentDeletionDate);
+        PurchaseHeader.Modify(true);
 
         for I := 1 to NumberOfLines do
             LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, Item."No.", UnitCost, ItemQuantity);
@@ -1220,7 +1223,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
 
     local procedure OpenPurchaseCrMemo(PurchaseHeader: Record "Purchase Header"; var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
     end;
 
@@ -1260,7 +1263,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ItemUnitPrice: Decimal;
     begin
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
         CreateItem(Item, ItemUnitPrice);
@@ -1326,7 +1329,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure VerifyFieldDefinitionsMatchTableFields(SourceTableID: Integer; var TempField: Record "Field" temporary)
@@ -1533,25 +1536,25 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         case SourceRecordRef.Number of
             Database::"Purchase Header":
                 begin
-                    PurchaseCreditMemo.OpenEdit;
+                    PurchaseCreditMemo.OpenEdit();
                     Assert.IsTrue(PurchaseCreditMemo.GotoRecord(SourceRecord), 'Could not navigate to credit memo');
-                    if PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Visible then
-                        ExpectedCrMemoDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal;
-                    ExpectedTaxAmountAmount := PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal;
-                    ExpectedTotalExclTaxAmount := PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal;
-                    ExpectedTotalInclTaxAmount := PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal;
+                    if PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Visible() then
+                        ExpectedCrMemoDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal();
                     PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
                     PurchaseLine.SetRange("Document No.", PurchCrMemoEntityBuffer."No.");
                     NumberOfLines := PurchaseLine.Count();
                 end;
             Database::"Purch. Cr. Memo Hdr.":
                 begin
-                    PostedPurchaseCreditMemo.OpenEdit;
+                    PostedPurchaseCreditMemo.OpenEdit();
                     Assert.IsTrue(PostedPurchaseCreditMemo.GotoRecord(SourceRecord), 'Could not navigate to invoice');
-                    ExpectedCrMemoDiscountAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Invoice Discount Amount".AsDecimal;
-                    ExpectedTaxAmountAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total VAT Amount".AsDecimal;
-                    ExpectedTotalExclTaxAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Excl. VAT".AsDecimal;
-                    ExpectedTotalInclTaxAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Incl. VAT".AsDecimal;
+                    ExpectedCrMemoDiscountAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Incl. VAT".AsDecimal();
                     PurchCrMemoLine.SetRange("Document No.", PurchCrMemoEntityBuffer."No.");
                     NumberOfLines := PurchCrMemoLine.Count();
                 end;

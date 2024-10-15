@@ -26,14 +26,14 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Standard Sales Code page
         StandardSalesCodeCard.OpenNew();
 
         // [THEN] The Type field is visible and the SaaS type field is not
-        Assert.IsTrue(StandardSalesCodeCard.StdSalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Visible,
+        Assert.IsTrue(StandardSalesCodeCard.StdSalesLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Visible(),
           'SaaS type field should not be visible for OnPrem');
     end;
 
@@ -52,9 +52,9 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         StandardSalesCodeCard.OpenNew();
 
         // [THEN] The SaaS type field is visible and the type field is not
-        asserterror StandardSalesCodeCard.StdSalesLines.Type.Activate;
+        asserterror StandardSalesCodeCard.StdSalesLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Visible,
+        Assert.IsTrue(StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Visible(),
           'SaaS type field should be visible for OnPrem');
     end;
 
@@ -72,9 +72,9 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
         // [GIVEN] A standard Sales code
         StandardSalesCodeCard.OpenNew();
-        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardSalesCode.Code));
+        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardSalesCode.Code));
         StandardSalesCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
@@ -82,7 +82,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
             // [WHEN] Opening the SaaS type lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Lookup;
+            StandardSalesCodeCard.StdSalesLines.FilteredTypeField.Lookup();
 
             // [THEN] The SaaS type is set to service
             StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -102,9 +102,9 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
         // [GIVEN] A standard Sales code
         StandardSalesCodeCard.OpenNew();
-        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardSalesCode.Code));
+        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardSalesCode.Code));
         StandardSalesCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type on the standard Sales Line to ac
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(
@@ -118,7 +118,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(Format(StandardSalesLine.Type::Item));
 
         // [WHEN] Setting the saas type on the standard Sales Line to co
-        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(CopyStr(StandardSalesLine.FormatType, 1, 2));
+        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(CopyStr(StandardSalesLine.FormatType(), 1, 2));
         // [THEN] The SaaS type is set to Comment
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType());
     end;
@@ -136,9 +136,9 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
         // [GIVEN] A standard Sales code
         StandardSalesCodeCard.OpenNew();
-        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardSalesCode.Code));
+        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardSalesCode.Code));
         StandardSalesCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type on the standard Sales Line to ' '
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(' ');
@@ -164,9 +164,9 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
         // [GIVEN] A standard Sales code
         StandardSalesCodeCard.OpenNew();
-        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardSalesCode.Code));
+        StandardSalesCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardSalesCode.Code));
         StandardSalesCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardSalesCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type to Fixed Asset on the standard Sales Line
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(Format(StandardSalesLine.Type::"Fixed Asset"));
@@ -194,7 +194,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         // Called by LibraryApplicationArea.EnableFoundationSetup();
         Initialize();
 
-        StandardSalesCodeValue := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardSalesLine."Standard Sales Code"));
+        StandardSalesCodeValue := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardSalesLine."Standard Sales Code"));
 
         // [GIVEN] Open "Standard Sales Code" card and assign "X" to Code
         StandardSalesCodeCard.OpenNew();
@@ -202,7 +202,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
         // [WHEN] Validate Type with "G/L Account" and "No." with new "G/L Account" = "Y"
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(Format(StandardSalesLine.Type::"G/L Account"));
-        GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup();
         StandardSalesCodeCard.StdSalesLines."No.".SetValue(GLAccNo);
         StandardSalesCodeCard.Close();
 
@@ -237,14 +237,15 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(
+            "Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger()));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next() = 0;
 
-        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
-        OptionLookupList.OK.Invoke;
+        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText());
+        OptionLookupList.OK().Invoke();
     end;
 }
 

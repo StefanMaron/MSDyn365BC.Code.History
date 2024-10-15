@@ -1,6 +1,7 @@
 table 131320 "Watch Vendor"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

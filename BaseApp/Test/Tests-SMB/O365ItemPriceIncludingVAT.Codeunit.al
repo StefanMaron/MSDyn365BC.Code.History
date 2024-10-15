@@ -263,7 +263,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure TestForAllCustomersValidateItemNo()
@@ -362,51 +362,6 @@ codeunit 138014 "O365 Item Price Including VAT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestForCustomerValidateSalesType()
-    var
-        SalesPrice: Record "Sales Price";
-    begin
-        TestForSalesTypeValidateSalesType(SalesPrice."Sales Type"::Customer);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestForCustPriceGrpValidateSalesType()
-    var
-        SalesPrice: Record "Sales Price";
-    begin
-        TestForSalesTypeValidateSalesType(SalesPrice."Sales Type"::"Customer Price Group");
-    end;
-
-    local procedure TestForSalesTypeValidateSalesType(SalesType: Enum "Sales Price Type")
-    var
-        Item: Record Item;
-        SalesPrice: Record "Sales Price";
-        IncorrectSalesType: Integer;
-    begin
-        // Setup
-        Initialize();
-
-        CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
-
-        with SalesPrice do begin
-            Init();
-            "Item No." := Item."No.";
-            IncorrectSalesType := -1;
-            "Sales Type" := IncorrectSalesType; // Make sure that Sales Type is changed on validate
-            Validate("Sales Type", SalesType);
-            TestField("Sales Code", '');
-
-            // Value from Item
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Discount.');
-            // Values from Sales Price Init
-            Assert.AreEqual(false, "Price Includes VAT", 'Wrong Price Incl VAT.');
-            Assert.AreEqual('', "VAT Bus. Posting Gr. (Price)", 'Wrong VAT Post Grp Price.');
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestSalesInvoiceDiscValidateItemNo()
     var
         Item: Record Item;
@@ -453,7 +408,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item."Price Includes VAT" := false;
 
         // [THEN] Item's "Unit Price Excl. VAT" is equal to 1250
-        Assert.AreEqual(Item."Unit Price", Item.CalcUnitPriceExclVAT, WrongUnitPriceExclVATErr);
+        Assert.AreEqual(Item."Unit Price", Item.CalcUnitPriceExclVAT(), WrongUnitPriceExclVATErr);
     end;
 
     [Test]
@@ -484,7 +439,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item."Price Includes VAT" := true;
 
         // [THEN] Item's "Unit Price Excl. VAT" is equal to 1000
-        Assert.AreEqual(ExpectedUnitPriceExclVAT, Item.CalcUnitPriceExclVAT, WrongUnitPriceExclVATErr);
+        Assert.AreEqual(ExpectedUnitPriceExclVAT, Item.CalcUnitPriceExclVAT(), WrongUnitPriceExclVATErr);
     end;
 
     [Test]

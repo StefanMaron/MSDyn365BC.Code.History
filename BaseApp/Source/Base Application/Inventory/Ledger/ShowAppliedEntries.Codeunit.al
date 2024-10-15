@@ -19,30 +19,29 @@ codeunit 5801 "Show Applied Entries"
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
-        with ItemLedgEntry do
-            if Positive then begin
-                ItemApplnEntry.Reset();
-                ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
-                ItemApplnEntry.SetRange("Inbound Item Entry No.", "Entry No.");
-                ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
-                ItemApplnEntry.SetRange("Cost Application", true);
-                OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
-                if ItemApplnEntry.Find('-') then
-                    repeat
-                        InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
-                    until ItemApplnEntry.Next() = 0;
-            end else begin
-                ItemApplnEntry.Reset();
-                ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
-                ItemApplnEntry.SetRange("Outbound Item Entry No.", "Entry No.");
-                ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                ItemApplnEntry.SetRange("Cost Application", true);
-                OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
-                if ItemApplnEntry.Find('-') then
-                    repeat
-                        InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
-                    until ItemApplnEntry.Next() = 0;
-            end;
+        if ItemLedgEntry.Positive then begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
+            ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
+            ItemApplnEntry.SetRange("Cost Application", true);
+            OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end else begin
+            ItemApplnEntry.Reset();
+            ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
+            ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
+            ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+            ItemApplnEntry.SetRange("Cost Application", true);
+            OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
+            if ItemApplnEntry.Find('-') then
+                repeat
+                    InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
+                until ItemApplnEntry.Next() = 0;
+        end;
     end;
 
     local procedure InsertTempEntry(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; EntryNo: Integer; AppliedQty: Decimal)

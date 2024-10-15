@@ -1024,7 +1024,7 @@
         Initialize();
 
         // [GIVEN] Item Journal Line "IJL" with populated Item "I" and some Quantity.
-        CreateItemJournalLine(ItemJournalLine, LibraryInventory.CreateItemNo);
+        CreateItemJournalLine(ItemJournalLine, LibraryInventory.CreateItemNo());
 
         // [WHEN] Save this "IJL" as Standard Item Journal through the report "Save as Standard Item Journal" and doesn't check the checkbox "Save Quantity"
         StandardItemJournalCode := SaveItemJournalLineAsNewStandardJournal(ItemJournalLine, false, false);
@@ -1140,7 +1140,7 @@
         VerifyItemInventoryByLot(Item."No.", LotNo[2], 0);
         VerifyItemInventoryByLot(Item."No.", LotNo[3], 5);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1158,7 +1158,7 @@
 
         // [GIVEN] Two Items: Blocked and Non-Blocked
         NonBlockedItemNo := LibraryInventory.CreateItemNo();
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', CreateBlockedItem, NonBlockedItemNo));
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', CreateBlockedItem(), NonBlockedItemNo));
         LibraryVariableStorage.Enqueue(NonBlockedItemNo);
 
         // [GIVEN] Standard Item Journal
@@ -1169,13 +1169,13 @@
         StandardItemJournalPage.GotoRecord(StandardItemJournal);
 
         // [WHEN] Stan Looks Up "Item No." in Standard Item Journal Subform
-        StandardItemJournalPage.StdItemJnlLines."Item No.".Lookup;
+        StandardItemJournalPage.StdItemJnlLines."Item No.".Lookup();
 
         // [THEN] Page Item List opens
         // [THEN] Stan doesn't see Blocked Item on page Item List
         // [THEN] Stan sees Non-Blocked Item on page Item List
         // Verification is done in ItemListMPH
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1231,7 +1231,7 @@
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandInt(10));
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemJournalLine."Entry Type",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Item "I1" was Blocked
@@ -1273,7 +1273,7 @@
 
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemJournalLine."Entry Type",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] ItemVariant "V1" is Blocked
@@ -1329,20 +1329,20 @@
             ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, Item."No.", Location.Code, Location.Code, '', '', 0);
 
         // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
-        Commit;
+        Commit();
         ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
 
         // [THEN] Item Ledger Entries lookup page shows "positive" and "negative" Item Ledger Entries
-        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger();
         VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, false);
 
-        NextValue := LibraryVariableStorage.DequeueBoolean;
+        NextValue := LibraryVariableStorage.DequeueBoolean();
         Assert.IsTrue(NextValue, MultipleEntriesExpectedErr);
 
-        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger();
         VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1380,17 +1380,17 @@
             Location.Code, Location.Code, '', '', LibraryRandom.RandIntInRange(2, 3));
 
         // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
-        Commit;
+        Commit();
         ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
 
         // [THEN] Item Ledger Entries lookup page shows "positive" Item Ledger Entry only
-        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger();
         VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, true);
 
-        NextValue := LibraryVariableStorage.DequeueBoolean;
+        NextValue := LibraryVariableStorage.DequeueBoolean();
         Assert.IsFalse(NextValue, OneEntryExpectedErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1427,17 +1427,17 @@
             Item."No.", Location.Code, Location.Code, '', '', -LibraryRandom.RandIntInRange(2, 3));
 
         // [WHEN] Lookup on "Applies-to Entry" in Item Reclassification Journal line
-        Commit;
+        Commit();
         ItemReclassJournalPageLookupAtAppliesToEntry(ItemJournalBatch.Name, DocumentNo, Item."No.");
 
         // [THEN] Item Ledger Entries lookup page shows "negative" Item Ledger Entry only
-        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger;
+        ItemLedgerEntryNo := LibraryVariableStorage.DequeueInteger();
         VerifyItemLedgerEntryPositive(ItemLedgerEntryNo, false);
 
-        NextValue := LibraryVariableStorage.DequeueBoolean;
+        NextValue := LibraryVariableStorage.DequeueBoolean();
         Assert.IsFalse(NextValue, OneEntryExpectedErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1602,7 +1602,6 @@
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
         NonBaseQtyPerUOM: Decimal;
-        QtyRoundingPrecision: Decimal;
         QtyToSet: Decimal;
     begin
         // [FEATURE] [Item Journal - Rounding Precision]
@@ -1789,7 +1788,6 @@
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
         NonBaseQtyPerUOM: Decimal;
-        QtyRoundingPrecision: Decimal;
         QtyToSet: Decimal;
         StandardItemJournalCode: Code[10];
     begin
@@ -2297,7 +2295,7 @@
               ItemJournalLine, ItemJournalBatch."Journal Template Name",
               ItemJournalBatch.Name, "Item Ledger Document Type".FromInteger(Count mod 4),
               TempItem."No.", LibraryRandom.RandInt(5));  // Random Item Quantity.
-            TempItem.Next
+            TempItem.Next();
         end;
         CopyItemJournalLinesToTemp(TempItemJournalLine, ItemJournalLine);
         if SaveAsStandard then
@@ -2337,8 +2335,8 @@
         ItemReclassJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
         ItemReclassJournal.FILTER.SetFilter("Document No.", DocumentNo);
         ItemReclassJournal.FILTER.SetFilter("Item No.", ItemNo);
-        ItemReclassJournal.First;
-        ItemReclassJournal."Applies-to Entry".Lookup;
+        ItemReclassJournal.First();
+        ItemReclassJournal."Applies-to Entry".Lookup();
         ItemReclassJournal.Close();
     end;
 
@@ -2461,7 +2459,7 @@
         ItemLedgerEntry."Remaining Quantity" := Qty;
         ItemLedgerEntry.Open := true;
         ItemLedgerEntry.Positive := false;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure RecalcUnitAmountItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
@@ -2511,7 +2509,7 @@
         SelectItemJournalLine(ItemJournalLine, ItemJournalBatch);
         repeat
             Assert.AreEqual(TempItemJournalLine.Amount, ItemJournalLine.Amount, ItemJournalAmountErr);
-            ItemJournalLine.Next
+            ItemJournalLine.Next();
         until TempItemJournalLine.Next() = 0;
     end;
 
@@ -2722,10 +2720,10 @@
         NoOfIterations: Integer;
         i: Integer;
     begin
-        NoOfIterations := LibraryVariableStorage.DequeueInteger;
+        NoOfIterations := LibraryVariableStorage.DequeueInteger();
         for i := 1 to NoOfIterations do begin
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
             ItemTrackingLines.Next();
         end;
     end;
@@ -2744,12 +2742,12 @@
     var
         FirstItemNo: Text;
     begin
-        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ItemList.First;
-        FirstItemNo := ItemList."No.".Value;
-        ItemList.Last;
+        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.First();
+        FirstItemNo := ItemList."No.".Value();
+        ItemList.Last();
         Assert.AreEqual(FirstItemNo, ItemList."No.".Value, '');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ItemList."No.".Value, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ItemList."No.".Value, '');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Batch", 'OnBeforeCode', '', false, false)]
@@ -2765,21 +2763,21 @@
     [Scope('OnPrem')]
     procedure ItemLedgerEntriesLookupSingleModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
     begin
-        ItemLedgerEntries.First;
+        ItemLedgerEntries.First();
         LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
-        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next);
-        ItemLedgerEntries.Cancel.Invoke;
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next());
+        ItemLedgerEntries.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemLedgerEntriesLookupMultipleModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
     begin
-        ItemLedgerEntries.First;
+        ItemLedgerEntries.First();
         LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
-        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntries.Next());
         LibraryVariableStorage.Enqueue(ItemLedgerEntries."Entry No.".Value);
-        ItemLedgerEntries.Cancel.Invoke;
+        ItemLedgerEntries.Cancel().Invoke();
     end;
 }
 

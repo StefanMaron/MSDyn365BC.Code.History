@@ -1,6 +1,6 @@
 namespace System.Security.AccessControl;
 
-using System;
+using System.Integration;
 using System.Visualization;
 
 page 9858 "Security Group Members Chart"
@@ -12,17 +12,17 @@ page 9858 "Security Group Members Chart"
     {
         area(content)
         {
-            usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(BusinessChart; BusinessChart)
             {
                 ApplicationArea = Basic, Suite;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 var
                     SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
                     SecurityGroup: Codeunit "Security Group";
                 begin
                     SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
-                    SecurityGroupMemberBuffer.SetRange("Security Group Code", point.XValueString);
+                    SecurityGroupMemberBuffer.SetRange("Security Group Code", GetSecurityGroupCode(Point));
                     if not SecurityGroupMemberBuffer.FindFirst() then
                         exit;
 
@@ -55,6 +55,17 @@ page 9858 "Security Group Members Chart"
         IsChartAddInReady: Boolean;
         UsersTxt: Label 'Users';
         SecurityGroupTxt: Label 'Security Group';
+        XValueStringLbl: Label 'XValueString';
+
+    local procedure GetSecurityGroupCode(Point: JsonObject): Text[249]
+    var
+        Token: JsonToken;
+        XValueString: Text[249];
+    begin
+        Point.Get(XValueStringLbl, Token);
+        XValueString := CopyStr(Token.AsValue().AsText(), 1, 249);
+        exit(XValueString);
+    end;
 
     local procedure UpdateData()
     begin
@@ -64,7 +75,7 @@ page 9858 "Security Group Members Chart"
         UpdateData(CurrPage.BusinessChart);
     end;
 
-    local procedure UpdateData(DotNetBusinessChartAddIn: DotNet BusinessChartAddIn)
+    local procedure UpdateData(BusinessChartAddIn: ControlAddIn BusinessChart)
     var
         SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
         SecurityGroupBuffer: Record "Security Group Buffer";
@@ -91,7 +102,7 @@ page 9858 "Security Group Members Chart"
             BusinessChart.SetValue(0, Index - 1, ChartValues.Get(Index));
         end;
 
-        BusinessChart.Update(DotNetBusinessChartAddIn);
+        BusinessChart.Update(BusinessChartAddIn);
     end;
 }
 

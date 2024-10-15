@@ -11,6 +11,7 @@ using Microsoft.Sales.Pricing;
 table 459 "Sales Prepayment %"
 {
     Caption = 'Sales Prepayment %';
+    DataClassification = CustomerContent;
 
     fields
     {

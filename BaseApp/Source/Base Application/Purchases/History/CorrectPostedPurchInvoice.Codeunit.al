@@ -458,7 +458,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         GenJournalTemplate: Record "Gen. Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
         PostingNoSeries: Code[20];
         IsHandled: Boolean;
@@ -471,7 +470,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PostingDate := WorkDate();
         PurchasesPayablesSetup.Get();
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
+        if not TryPeekNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) then
             ErrorHelperHeader(Enum::"Correct Purch. Inv. Error Type"::SerieNumCM, PurchInvHeader);
 
         GeneralLedgerSetup.Get();
@@ -480,11 +479,20 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             PostingNoSeries := GenJournalTemplate."Posting No. Series";
         end else
             PostingNoSeries := PurchasesPayablesSetup."Posted Credit Memo Nos.";
-        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
+        if not TryPeekNextNo(PostingNoSeries, PostingDate) then
             ErrorHelperHeader(Enum::"Correct Purch. Inv. Error Type"::SerieNumPostCM, PurchInvHeader);
 
-        if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '') then
+        if (not CancellingOnly) and (not TryPeekNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate)) then
             ErrorHelperHeader(Enum::"Correct Purch. Inv. Error Type"::SerieNumInv, PurchInvHeader);
+    end;
+
+    [TryFunction]
+    local procedure TryPeekNextNo(NoSeriesCode: Code[20]; UsageDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        if NoSeries.PeekNextNo(NoSeriesCode, UsageDate) = '' then
+            Error('');
     end;
 
     local procedure TestExternalDocument(PurchInvHeader: Record "Purch. Inv. Header")
@@ -522,45 +530,39 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        with GenPostingSetup do begin
-            Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
-            if PurchInvLine.Type <> PurchInvLine.Type::"G/L Account" then begin
-                TestField("Purch. Account");
-                TestGLAccount("Purch. Account", PurchInvLine);
-                TestField("Purch. Credit Memo Account");
-                TestGLAccount("Purch. Credit Memo Account", PurchInvLine);
-            end;
-            if IsCheckDirectCostAppliedAccount(PurchInvLine) then begin
-                TestField("Direct Cost Applied Account");
-                TestGLAccount("Direct Cost Applied Account", PurchInvLine);
-            end;
-            if HasLineDiscountSetup(PurchInvLine) then
-                if "Purch. Line Disc. Account" <> '' then
-                    TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
+        GenPostingSetup.Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
+        if PurchInvLine.Type <> PurchInvLine.Type::"G/L Account" then begin
+            GenPostingSetup.TestField("Purch. Account");
+            TestGLAccount(GenPostingSetup."Purch. Account", PurchInvLine);
+            GenPostingSetup.TestField("Purch. Credit Memo Account");
+            TestGLAccount(GenPostingSetup."Purch. Credit Memo Account", PurchInvLine);
         end;
+        if IsCheckDirectCostAppliedAccount(PurchInvLine) then begin
+            GenPostingSetup.TestField("Direct Cost Applied Account");
+            TestGLAccount(GenPostingSetup."Direct Cost Applied Account", PurchInvLine);
+        end;
+        if HasLineDiscountSetup(PurchInvLine) then
+            if GenPostingSetup."Purch. Line Disc. Account" <> '' then
+                TestGLAccount(GenPostingSetup."Purch. Line Disc. Account", PurchInvLine);
     end;
 
     local procedure TestVendorPostingGroup(PurchInvHeader: Record "Purch. Inv. Header")
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        with VendorPostingGroup do begin
-            Get(PurchInvHeader."Vendor Posting Group");
-            TestField("Payables Account");
-            TestGLAccount("Payables Account", PurchInvHeader);
-        end;
+        VendorPostingGroup.Get(PurchInvHeader."Vendor Posting Group");
+        VendorPostingGroup.TestField("Payables Account");
+        TestGLAccount(VendorPostingGroup."Payables Account", PurchInvHeader);
     end;
 
     local procedure TestVATPostingSetup(PurchInvLine: Record "Purch. Inv. Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
-            if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
-                TestField("Purchase VAT Account");
-                TestGLAccount("Purchase VAT Account", PurchInvLine);
-            end;
+        VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
+        if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Sales Tax" then begin
+            VATPostingSetup.TestField("Purchase VAT Account");
+            TestGLAccount(VATPostingSetup."Purchase VAT Account", PurchInvLine);
         end;
     end;
 
@@ -574,11 +576,9 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if IsHandled then
             exit;
 
-        with InventoryPostingSetup do begin
-            Get(PurchInvLine."Location Code", PurchInvLine."Posting Group");
-            TestField("Inventory Account");
-            TestGLAccount("Inventory Account", PurchInvLine);
-        end;
+        InventoryPostingSetup.Get(PurchInvLine."Location Code", PurchInvLine."Posting Group");
+        InventoryPostingSetup.TestField("Inventory Account");
+        TestGLAccount(InventoryPostingSetup."Inventory Account", PurchInvLine);
     end;
 
     local procedure IsCommentLine(PurchInvLine: Record "Purch. Inv. Line"): Boolean
@@ -630,14 +630,12 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", InvNo);
-            SetRange(Type, Type::Item);
-            if FindSet() then
-                repeat
-                    GetItemLedgEntries(ItemLedgEntry, false);
-                until Next() = 0;
-        end;
+        PurchInvLine.SetRange("Document No.", InvNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+        if PurchInvLine.FindSet() then
+            repeat
+                PurchInvLine.GetItemLedgEntries(ItemLedgEntry, false);
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure FindAppliedInbndEntries(var TempItemApplicationEntry: Record "Item Application Entry" temporary; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
@@ -844,10 +842,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure HasLineDiscountSetup(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
     begin
-        with PurchasesPayablesSetup do begin
-            GetRecordOnce();
-            Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
-        end;
+        PurchasesPayablesSetup.GetRecordOnce();
+        Result := PurchasesPayablesSetup."Discount Posting" in [PurchasesPayablesSetup."Discount Posting"::"Line Discounts", PurchasesPayablesSetup."Discount Posting"::"All Discounts"];
         if Result then
             Result := PurchInvLine."Line Discount %" <> 0;
         OnHasLineDiscountSetup(PurchasesPayablesSetup, Result);

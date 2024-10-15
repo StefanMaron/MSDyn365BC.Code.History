@@ -8,6 +8,7 @@ table 1140 "OAuth 2.0 Setup"
 {
     Caption = 'OAuth 2.0 Setup';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -181,8 +182,18 @@ table 1140 "OAuth 2.0 Setup"
                 value := '/' + value;
     end;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Use SetToken with paramaters declared as SecretText instead.', '24.0')]
     procedure SetToken(var TokenKey: Guid; TokenValue: Text)
+    var
+        TokenValueSecretText: SecretText;
+    begin
+        SetToken(TokenKey, TokenValueSecretText);
+    end;
+#endif
+
+    procedure SetToken(var TokenKey: Guid; TokenValue: SecretText)
     begin
         if IsNullGuid(TokenKey) then
             TokenKey := CreateGuid();
@@ -193,11 +204,22 @@ table 1140 "OAuth 2.0 Setup"
             IsolatedStorage.Set(TokenKey, TokenValue, GetTokenDataScope());
     end;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Use GetToken with paramaters declared as SecretText instead.', '24.0')]
     procedure GetToken(TokenKey: Guid) TokenValue: Text
+    var
+        TokenValueSecretText: SecretText;
+    begin
+        TokenValueSecretText := GetTokenAsSecretText(TokenKey);
+        TokenValue := TokenValueSecretText.Unwrap();
+    end;
+#endif
+
+    procedure GetTokenAsSecretText(TokenKey: Guid) TokenValue: SecretText
     begin
         if not HasToken(TokenKey) then
-            exit('');
+            exit(TokenValue);
 
         IsolatedStorage.Get(TokenKey, GetTokenDataScope(), TokenValue);
     end;

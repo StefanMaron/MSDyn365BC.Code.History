@@ -6,6 +6,7 @@ using System.Visualization;
 table 1051 "Sorting Table"
 {
     Caption = 'Sorting Table';
+    DataClassification = CustomerContent;
 
     fields
     {

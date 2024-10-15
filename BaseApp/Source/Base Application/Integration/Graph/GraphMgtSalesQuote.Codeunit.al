@@ -23,14 +23,13 @@ codeunit 5505 "Graph Mgt - Sales Quote"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if SellToAddressJSON <> '' then
-            with SalesQuoteEntityBuffer do begin
-                RecRef.GetTable(SalesQuoteEntityBuffer);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(SellToAddressJSON, RecRef,
-                  FieldNo("Sell-to Address"), FieldNo("Sell-to Address 2"), FieldNo("Sell-to City"), FieldNo("Sell-to County"),
-                  FieldNo("Sell-to Country/Region Code"), FieldNo("Sell-to Post Code"));
-                RecRef.SetTable(SalesQuoteEntityBuffer);
-            end;
+        if SellToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesQuoteEntityBuffer);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(SellToAddressJSON, RecRef,
+              SalesQuoteEntityBuffer.FieldNo("Sell-to Address"), SalesQuoteEntityBuffer.FieldNo("Sell-to Address 2"), SalesQuoteEntityBuffer.FieldNo("Sell-to City"), SalesQuoteEntityBuffer.FieldNo("Sell-to County"),
+              SalesQuoteEntityBuffer.FieldNo("Sell-to Country/Region Code"), SalesQuoteEntityBuffer.FieldNo("Sell-to Post Code"));
+            RecRef.SetTable(SalesQuoteEntityBuffer);
+        end;
     end;
 
     procedure ParseBillToCustomerAddressFromJSON(BillToAddressJSON: Text; var SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer")
@@ -38,14 +37,13 @@ codeunit 5505 "Graph Mgt - Sales Quote"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if BillToAddressJSON <> '' then
-            with SalesQuoteEntityBuffer do begin
-                RecRef.GetTable(SalesQuoteEntityBuffer);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(BillToAddressJSON, RecRef,
-                  FieldNo("Bill-to Address"), FieldNo("Bill-to Address 2"), FieldNo("Bill-to City"), FieldNo("Bill-to County"),
-                  FieldNo("Bill-to Country/Region Code"), FieldNo("Bill-to Post Code"));
-                RecRef.SetTable(SalesQuoteEntityBuffer);
-            end;
+        if BillToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesQuoteEntityBuffer);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(BillToAddressJSON, RecRef,
+              SalesQuoteEntityBuffer.FieldNo("Bill-to Address"), SalesQuoteEntityBuffer.FieldNo("Bill-to Address 2"), SalesQuoteEntityBuffer.FieldNo("Bill-to City"), SalesQuoteEntityBuffer.FieldNo("Bill-to County"),
+              SalesQuoteEntityBuffer.FieldNo("Bill-to Country/Region Code"), SalesQuoteEntityBuffer.FieldNo("Bill-to Post Code"));
+            RecRef.SetTable(SalesQuoteEntityBuffer);
+        end;
     end;
 
     procedure ParseShipToCustomerAddressFromJSON(ShipToAddressJSON: Text; var SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer")
@@ -53,41 +51,37 @@ codeunit 5505 "Graph Mgt - Sales Quote"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if ShipToAddressJSON <> '' then
-            with SalesQuoteEntityBuffer do begin
-                RecRef.GetTable(SalesQuoteEntityBuffer);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ShipToAddressJSON, RecRef,
-                  FieldNo("Ship-to Address"), FieldNo("Ship-to Address 2"), FieldNo("Ship-to City"), FieldNo("Ship-to County"),
-                  FieldNo("Ship-to Country/Region Code"), FieldNo("Ship-to Post Code"));
-                RecRef.SetTable(SalesQuoteEntityBuffer);
-            end;
+        if ShipToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesQuoteEntityBuffer);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ShipToAddressJSON, RecRef,
+              SalesQuoteEntityBuffer.FieldNo("Ship-to Address"), SalesQuoteEntityBuffer.FieldNo("Ship-to Address 2"), SalesQuoteEntityBuffer.FieldNo("Ship-to City"), SalesQuoteEntityBuffer.FieldNo("Ship-to County"),
+              SalesQuoteEntityBuffer.FieldNo("Ship-to Country/Region Code"), SalesQuoteEntityBuffer.FieldNo("Ship-to Post Code"));
+            RecRef.SetTable(SalesQuoteEntityBuffer);
+        end;
     end;
 
     procedure SellToCustomerAddressToJSON(SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesQuoteEntityBuffer do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to County", "Sell-to Country/Region Code", "Sell-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesQuoteEntityBuffer."Sell-to Address", SalesQuoteEntityBuffer."Sell-to Address 2",
+              SalesQuoteEntityBuffer."Sell-to City", SalesQuoteEntityBuffer."Sell-to County", SalesQuoteEntityBuffer."Sell-to Country/Region Code", SalesQuoteEntityBuffer."Sell-to Post Code", JSON);
     end;
 
     procedure BillToCustomerAddressToJSON(SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesQuoteEntityBuffer do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesQuoteEntityBuffer."Bill-to Address", SalesQuoteEntityBuffer."Bill-to Address 2",
+              SalesQuoteEntityBuffer."Bill-to City", SalesQuoteEntityBuffer."Bill-to County", SalesQuoteEntityBuffer."Bill-to Country/Region Code", SalesQuoteEntityBuffer."Bill-to Post Code", JSON);
     end;
 
     procedure ShipToCustomerAddressToJSON(SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesQuoteEntityBuffer do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesQuoteEntityBuffer."Ship-to Address", SalesQuoteEntityBuffer."Ship-to Address 2",
+              SalesQuoteEntityBuffer."Ship-to City", SalesQuoteEntityBuffer."Ship-to County", SalesQuoteEntityBuffer."Ship-to Country/Region Code", SalesQuoteEntityBuffer."Ship-to Post Code", JSON);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]

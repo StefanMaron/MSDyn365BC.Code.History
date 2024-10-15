@@ -11,7 +11,9 @@ codeunit 134462 "ERM Copy Item"
 
     var
         Assert: Codeunit Assert;
+#if not CLEAN23
         LibraryCosting: Codeunit "Library - Costing";
+#endif
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
@@ -401,7 +403,7 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -562,7 +564,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItemOnItemListPage(Item."No.");
 
         // [THEN] Item Card opens on target Item in modal mode
-        Assert.AreEqual(CopyItemBuffer."Target Item No.", LibraryVariableStorage.DequeueText, 'Invalid Item No.');
+        Assert.AreEqual(CopyItemBuffer."Target Item No.", LibraryVariableStorage.DequeueText(), 'Invalid Item No.');
 
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -597,7 +599,7 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] All attributes are copied from "SRC" to "DST"
         VerifyItemAttributes(Item."No.", TargetItemNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -629,7 +631,7 @@ codeunit 134462 "ERM Copy Item"
         ItemAttributeValueMapping.SetRange("No.", TargetItemNo);
         Assert.RecordIsEmpty(ItemAttributeValueMapping);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -730,7 +732,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
 
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryERM.CreateNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryERM.CreateNoSeriesCode());
         InventorySetup.Modify();
 
         // [WHEN] Report "Copy Item" is being run
@@ -738,7 +740,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] "Target Item Nos." = "INOS"
-        Assert.AreEqual(InventorySetup."Item Nos.", LibraryVariableStorage.DequeueText, 'Invalid Target Item Nos.');
+        Assert.AreEqual(InventorySetup."Item Nos.", LibraryVariableStorage.DequeueText(), 'Invalid Target Item Nos.');
     end;
 
     [Test]
@@ -771,7 +773,7 @@ codeunit 134462 "ERM Copy Item"
     procedure CopyItemUsingTargetNumberSeries()
     var
         Item: Record Item;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         TargetItemNo: Code[20];
         NoSeriesCode: Code[10];
     begin
@@ -782,8 +784,8 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Number series "NOS" with next number "ITEM1"
-        NoSeriesCode := CreateUniqItemNoSeries;
-        TargetItemNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NoSeriesCode := CreateUniqItemNoSeries();
+        TargetItemNo := NoSeries.PeekNextNo(NoSeriesCode);
 
         // [WHEN] Run "Item Copy" report for item "I" with parameter "Target No. Series" = "NOS"
         LibraryVariableStorage.Enqueue(NoSeriesCode);
@@ -802,7 +804,7 @@ codeunit 134462 "ERM Copy Item"
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         TargetItemNo: Code[20];
         NumberOfCopies: Integer;
         i: Integer;
@@ -814,7 +816,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
         // Remember next number from InventorySetup."Item Nos."
         InventorySetup.Get();
-        TargetItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate(), false);
+        TargetItemNo := NoSeries.PeekNextNo(InventorySetup."Item Nos.");
 
         // [WHEN] Run "Item Copy" report for item "I" for item "I" with Number Of Copies = 5
         NumberOfCopies := LibraryRandom.RandIntInRange(5, 10);
@@ -869,7 +871,7 @@ codeunit 134462 "ERM Copy Item"
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         FirstItemNo: Code[20];
         LastItemNo: Code[20];
         NumberOfCopies: Integer;
@@ -882,7 +884,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
         // Remember next number from InventorySetup."Item Nos."
         InventorySetup.Get();
-        FirstItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate(), false);
+        FirstItemNo := NoSeries.PeekNextNo(InventorySetup."Item Nos.");
         LastItemNo := FirstItemNo;
 
         // [GIVEN] Run "Item Copy" report for item "I" with Number Of Copies = 5
@@ -897,7 +899,7 @@ codeunit 134462 "ERM Copy Item"
                 LastItemNo := IncStr(LastItemNo);
         Assert.AreEqual(
           StrSubstNo('%1..%2', FirstItemNo, LastItemNo),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid item No. filter');
 
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -922,7 +924,7 @@ codeunit 134462 "ERM Copy Item"
         // [GIVEN] InventorySetup with "Item Nos." = "ITEMNOS" with "Manual Nos." = No
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         InventorySetup.Get();
-        InventorySetup.validate("Item Nos.", NoSeries.Code);
+        InventorySetup.Validate("Item Nos.", NoSeries.Code);
         InventorySetup.Modify(true);
 
         // [WHEN] Run "Copy Item" with default "Target Item No." = "ITEM1"
@@ -1371,7 +1373,7 @@ codeunit 134462 "ERM Copy Item"
         NoSeries: Record "No. Series";
         SavedNoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         TargetItemNo: Code[20];
         NoSeriesCode: Code[20];
     begin
@@ -1394,7 +1396,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         LibraryUtility.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
         NoSeriesCode := NoSeries.Code;
-        TargetItemNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        TargetItemNo := NoSeriesCodeunit.PeekNextNo(NoSeriesCode);
 
         // [WHEN] Run "Item Copy" report for item "I" with parameter "Target No. Series" = "ITEM-X".
         LibraryVariableStorage.Enqueue(NoSeriesCode);
@@ -1438,7 +1440,6 @@ codeunit 134462 "ERM Copy Item"
     [Scope('OnPrem')]
     procedure VerifySalesOrderCreationForCustomerWhenRecurringSalesLinesIsAutoInsert()
     var
-        SalesHeader: Record "Sales Header";
         StandardSalesLine: Record "Standard Sales Line";
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
         Customer: Record Customer;
@@ -1716,13 +1717,13 @@ codeunit 134462 "ERM Copy Item"
         LibraryERM: Codeunit "Library - ERM";
     begin
         Description := LibraryUtility.GenerateGUID();
-        ItemCard.OpenEdit;
-        ItemTranslations.Trap;
+        ItemCard.OpenEdit();
+        ItemTranslations.Trap();
         ItemCard.FILTER.SetFilter("No.", ItemNo);
-        ItemCard.Translations.Invoke;
+        ItemCard.Translations.Invoke();
         ItemTranslations."Language Code".SetValue(LibraryERM.GetAnyLanguageDifferentFromCurrent());
         ItemTranslations.Description.SetValue(Description);
-        ItemTranslations.OK.Invoke;
+        ItemTranslations.OK().Invoke();
     end;
 
     local procedure CreateItemTranslationWithRecord(ItemNo: Code[20]; LanguageCode: Code[10]): Text[50]
@@ -1762,11 +1763,11 @@ codeunit 134462 "ERM Copy Item"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreatePurchasePriceWithLineDiscount(var PurchasePrice: Record "Purchase Price"; var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreatePurchasePrice(
-          PurchasePrice, LibraryPurchase.CreateVendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure",
+          PurchasePrice, LibraryPurchase.CreateVendorNo(), Item."No.", WorkDate(), '', '', Item."Base Unit of Measure",
           LibraryRandom.RandDec(10, 2));
         LibraryERM.CreateLineDiscForVendor(
           PurchaseLineDiscount, Item."No.", PurchasePrice."Vendor No.", WorkDate(), '', '', Item."Base Unit of Measure",
@@ -1776,7 +1777,7 @@ codeunit 134462 "ERM Copy Item"
     local procedure CreateSalesPriceWithLineDiscount(var SalesPrice: Record "Sales Price"; var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, Item."No.", WorkDate(),
+          SalesPrice, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo(), Item."No.", WorkDate(),
           '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer,
@@ -1857,20 +1858,20 @@ codeunit 134462 "ERM Copy Item"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.FILTER.SetFilter("No.", ItemNo);
         Commit();  // COMMIT is required to handle Item Copy  page.
-        ItemCard.CopyItem.Invoke;
+        ItemCard.CopyItem.Invoke();
     end;
 
     local procedure CopyItemOnItemListPage(ItemNo: Code[20])
     var
         ItemList: TestPage "Item List";
     begin
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.FILTER.SetFilter("No.", ItemNo);
         Commit();  // COMMIT is required to handle Item Copy  page.
-        ItemList.CopyItem.Invoke;
+        ItemList.CopyItem.Invoke();
     end;
 
     local procedure EnqueueValuesForCopyItemPageHandler(CopyItemBuffer: Record "Copy Item Buffer")
@@ -1923,7 +1924,7 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";
@@ -2065,40 +2066,40 @@ codeunit 134462 "ERM Copy Item"
     [Scope('OnPrem')]
     procedure CopyItemPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText());
         CopyItem.GeneralItemInformation.SetValue(true);
-        CopyItem.Comments.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.UnitsOfMeasure.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Translations.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Dimensions.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ItemVariants.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ExtendedTexts.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Troubleshooting.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ResourceSkills.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.SalesLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.SalesPrices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.PurchaseLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.PurchasePrices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.BOMComponents.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.OK.Invoke;
+        CopyItem.Comments.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.UnitsOfMeasure.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Translations.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Dimensions.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ItemVariants.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ExtendedTexts.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Troubleshooting.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ResourceSkills.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.SalesLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.SalesPrices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.PurchaseLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.PurchasePrices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.BOMComponents.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CopyItemAttributesPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText());
         CopyItem.GeneralItemInformation.SetValue(true);
-        CopyItem.Attributes.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.OK.Invoke;
+        CopyItem.Attributes.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CopyItemNumberOfEntriesPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.NumberOfCopies.SetValue(LibraryVariableStorage.DequeueInteger);
-        CopyItem.OK.Invoke;
+        CopyItem.NumberOfCopies.SetValue(LibraryVariableStorage.DequeueInteger());
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2106,16 +2107,16 @@ codeunit 134462 "ERM Copy Item"
     procedure CopyItemItemReferencesPageHandler(var CopyItem: TestPage "Copy Item")
     begin
         CopyItem.ItemReferences.SetValue(true);
-        CopyItem.OK.Invoke;
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CopyItemNumberOfEntriesTargetNoPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
-        CopyItem.NumberOfCopies.SetValue(LibraryVariableStorage.DequeueInteger);
-        CopyItem.OK.Invoke;
+        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText());
+        CopyItem.NumberOfCopies.SetValue(LibraryVariableStorage.DequeueInteger());
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2129,8 +2130,8 @@ codeunit 134462 "ERM Copy Item"
     [Scope('OnPrem')]
     procedure CopyItemSetTargetItemNosPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.TargetNoSeries.AssistEdit;
-        CopyItem.OK.Invoke;
+        CopyItem.TargetNoSeries.AssistEdit();
+        CopyItem.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2152,8 +2153,8 @@ codeunit 134462 "ERM Copy Item"
     [Scope('OnPrem')]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
-        NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        NoSeriesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2162,7 +2163,7 @@ codeunit 134462 "ERM Copy Item"
     begin
         LibraryVariableStorage.Enqueue(CopyItem.Comments.AsBoolean());
         LibraryVariableStorage.Enqueue(CopyItem.UnitsOfMeasure.AsBoolean());
-        CopyItem.Cancel.Invoke;
+        CopyItem.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2170,7 +2171,7 @@ codeunit 134462 "ERM Copy Item"
     procedure CopyItemCheckSourceItemNoPageHandler(var CopyItem: TestPage "Copy Item")
     begin
         LibraryVariableStorage.Enqueue(CopyItem.SourceItemNo.Value);
-        CopyItem.Cancel.Invoke;
+        CopyItem.Cancel().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -2186,22 +2187,22 @@ codeunit 134462 "ERM Copy Item"
     [Scope('OnPrem')]
     procedure CopyItemWithoutGeneralInformationPageHandler(var CopyItem: TestPage "Copy Item")
     begin
-        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText());
         CopyItem.GeneralItemInformation.SetValue(false);
-        CopyItem.Comments.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.UnitsOfMeasure.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Translations.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Dimensions.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ItemVariants.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ExtendedTexts.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.Troubleshooting.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.ResourceSkills.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.SalesLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.SalesPrices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.PurchaseLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.PurchasePrices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.BOMComponents.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CopyItem.OK.Invoke;
+        CopyItem.Comments.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.UnitsOfMeasure.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Translations.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Dimensions.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ItemVariants.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ExtendedTexts.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.Troubleshooting.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.ResourceSkills.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.SalesLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.SalesPrices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.PurchaseLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.PurchasePrices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.BOMComponents.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CopyItem.OK().Invoke();
     end;
 }
 

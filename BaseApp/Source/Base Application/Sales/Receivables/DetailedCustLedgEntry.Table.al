@@ -20,6 +20,7 @@ table 379 "Detailed Cust. Ledg. Entry"
     DrillDownPageID = "Detailed Cust. Ledg. Entries";
     LookupPageID = "Detailed Cust. Ledg. Entries";
     Permissions = TableData "Detailed Cust. Ledg. Entry" = m;
+    DataClassification = CustomerContent;
 
     fields
     {

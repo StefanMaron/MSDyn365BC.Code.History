@@ -5,6 +5,7 @@ table 7111 "Analysis Report Name"
     Caption = 'Analysis Report Name';
     DataCaptionFields = Name, Description;
     LookupPageID = "Analysis Report Names";
+    DataClassification = CustomerContent;
 
     fields
     {

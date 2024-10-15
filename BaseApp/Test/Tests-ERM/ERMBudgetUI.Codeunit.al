@@ -33,15 +33,15 @@ codeunit 134927 "ERM Budget UI"
         // [GIVEN] Today is 07.07.2017
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Budget Names" page and selected Budget "X"
-        GLBudgetNames.OpenEdit;
+        GLBudgetNames.OpenEdit();
         GLBudgetNames.Name.SetValue(GLBudgetName.Name);
-        Budget.Trap;
+        Budget.Trap();
 
         // [WHEN] Press "Edit Budget" in "G/L Budget Names" page
-        GLBudgetNames.EditBudget.Invoke;
+        GLBudgetNames.EditBudget.Invoke();
 
         // [THEN] "View By" is "Month" on Budget page
         Budget.PeriodType.AssertEquals('Month');
@@ -66,18 +66,18 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Budget Names" page and selected Budget "X"
-        GLBudgetNames.OpenEdit;
+        GLBudgetNames.OpenEdit();
         GLBudgetNames.Name.SetValue(GLBudgetName.Name);
-        Budget.Trap;
+        Budget.Trap();
 
         // [WHEN] Press "Edit Budget" in "G/L Budget Names" page and set "G/L Account" for "Show as Lines"
-        GLBudgetNames.EditBudget.Invoke;
+        GLBudgetNames.EditBudget.Invoke();
         Budget.LineDimCode.SetValue('G/L Account');
 
         // [THEN] "Income/Balance" is "Income Statement" on Budget page
@@ -106,18 +106,18 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Budget Names" page and selected Budget "X"
-        GLBudgetNames.OpenEdit;
+        GLBudgetNames.OpenEdit();
         GLBudgetNames.Name.SetValue(GLBudgetName.Name);
-        Budget.Trap;
+        Budget.Trap();
 
         // [GIVEN] Budget page opened with "Show as Lines" = "G/L Account"
-        GLBudgetNames.EditBudget.Invoke;
+        GLBudgetNames.EditBudget.Invoke();
         Budget.LineDimCode.SetValue('G/L Account');
 
         // [WHEN] Set "Income Balance G/L Account Filter" = "Balance Sheet" on Budget page
@@ -146,18 +146,18 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Budget Names" page and selected Budget "X"
-        GLBudgetNames.OpenEdit;
+        GLBudgetNames.OpenEdit();
         GLBudgetNames.Name.SetValue(GLBudgetName.Name);
-        Budget.Trap;
+        Budget.Trap();
 
         // [GIVEN] Budget page opened with "Show as Lines" = "G/L Account"
-        GLBudgetNames.EditBudget.Invoke;
+        GLBudgetNames.EditBudget.Invoke();
         Budget.LineDimCode.SetValue('G/L Account');
 
         // [WHEN] Set "G/L Account Category Filter" = "Income" on Budget page
@@ -189,12 +189,12 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened Budget page with "Show as Lines" = ADM (dimension), "Income Balance G/L Account Filter" = "Income Statement", "G/L Account Category Filter" = Income, "Date Filter" = "02.04.2017..27.04.2017"
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(GLBudgetName.Name);
         GeneralLedgerSetup.Get();
         Budget.LineDimCode.SetValue(UpperCase(GeneralLedgerSetup."Global Dimension 1 Code"));
@@ -202,10 +202,10 @@ codeunit 134927 "ERM Budget UI"
         Budget.GLAccCategory.SetValue('Income');
         DateFilter := Format(LibraryRandom.RandDate(-10)) + '..' + Format(LibraryRandom.RandDate(10));
         Budget.DateFilter.SetValue(DateFilter);
-        GLAccountBalanceBudget.Trap;
+        GLAccountBalanceBudget.Trap();
 
         // [WHEN] Open "G/L Account Balance/Budget" page from Budget page
-        Budget.MatrixForm.GLAccBalanceBudget.Invoke;
+        Budget.MatrixForm.GLAccBalanceBudget.Invoke();
 
         // [THEN] G/L account with "Income/Balance" = "Income Statement" and "Account Category" = Income is shown on "G/L Account Balance/Budget" page
         // There is no field for G/L Account No. on page "G/L Account Balance/Budget" page, only caption of the page contains No. and Name of G/L Account
@@ -236,12 +236,12 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened Budget page with "Show as Lines" = ADM (dimension), "Income Balance G/L Account Filter" = "Income Statement", "G/L Account Category Filter" = Income, "Date Filter" = "02.04.2017..30.04.2017"
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(GLBudgetName.Name);
         GeneralLedgerSetup.Get();
         Budget.LineDimCode.SetValue(UpperCase(GeneralLedgerSetup."Global Dimension 1 Code"));
@@ -249,10 +249,10 @@ codeunit 134927 "ERM Budget UI"
         Budget.GLAccCategory.SetValue('Income');
         DateFilter := Format(LibraryRandom.RandDate(-10)) + '..' + Format(LibraryRandom.RandDate(10));
         Budget.DateFilter.SetValue(DateFilter);
-        GLBalanceBudget.Trap;
+        GLBalanceBudget.Trap();
 
         // [WHEN] Open "G/L Balance/Budget" page from Budget page
-        Budget.GLBalanceBudget.Invoke;
+        Budget.GLBalanceBudget.Invoke();
 
         // [THEN] Only G/L accounts with "Income/Balance" = "Income Statement" and "Account Category" = Income is shown on "G/L Balance/Budget" page
         repeat
@@ -302,16 +302,16 @@ codeunit 134927 "ERM Budget UI"
         SetupGLBalBudgetBasedOnFiltersScenario(DimValueCode, DateFilter, ExpectedAmount, GLBudgetName.Name, GLAccount."No.");
 
         // [GIVEN] Opened "G/L Budget" page with Budget "X" and "G/L Account Filter" = "Y"
-        LibraryLowerPermissions.SetFinancialReporting;
-        Budget.OpenEdit;
+        LibraryLowerPermissions.SetFinancialReporting();
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(GLBudgetName.Name);
         Budget.LineDimCode.SetValue('G/L Account');
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.GLAccFilter.SetValue(GLAccount."No.");
 
         // [GIVEN] Opened "G/L Account Balance/Budget" page from "G/L Budget" page
-        GLAccountBalanceBudget.Trap;
-        Budget.MatrixForm.GLAccBalanceBudget.Invoke;
+        GLAccountBalanceBudget.Trap();
+        Budget.MatrixForm.GLAccBalanceBudget.Invoke();
 
         // [WHEN] Set "Date Filter" = "04.04.2017.." and "Global Dimension 1 Code" = "ADM" on "G/L Account Balance/Budget" page
         GLAccountBalanceBudget.PeriodType.SetValue('Day');
@@ -354,16 +354,16 @@ codeunit 134927 "ERM Budget UI"
         SetupGLBalBudgetBasedOnFiltersScenario(DimValueCode, DateFilter, ExpectedAmount, GLBudgetName.Name, GLAccount."No.");
 
         // [GIVEN] Opened "G/L Budget" page with Budget "X" and "G/L Account Filter" = "Y"
-        LibraryLowerPermissions.SetFinancialReporting;
-        Budget.OpenEdit;
+        LibraryLowerPermissions.SetFinancialReporting();
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(GLBudgetName.Name);
         Budget.LineDimCode.SetValue('G/L Account');
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.GLAccFilter.SetValue(GLAccount."No.");
 
         // [GIVEN] Opened "G/L Balance/Budget" page from "G/L Budget" page and focus on G/L Account "Y"
-        GLBalanceBudget.Trap;
-        Budget.GLBalanceBudget.Invoke;
+        GLBalanceBudget.Trap();
+        Budget.GLBalanceBudget.Invoke();
         GLBalanceBudget.FILTER.SetFilter("No.", GLAccount."No.");
 
         // [WHEN] Set "Date Filter" = "04.04.2017.." and "Global Dimension 1 Code" = "ADM" on "G/L Balance/Budget" page
@@ -390,11 +390,11 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
-        LibraryLowerPermissions.SetFinancialReporting;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Balance/Budget" page
-        GLBalanceBudget.OpenEdit;
+        GLBalanceBudget.OpenEdit();
 
         // [WHEN] Set "Income Balance G/L Account Filter" = "Balance Sheet" on "G/L Balance/Budget" page
         GLBalanceBudget.IncomeBalGLAccFilter.SetValue('Balance Sheet');
@@ -403,7 +403,7 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(GLBalanceBudget."No.".Value);
             GLAccount.TestField("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
-        until (not GLBalanceBudget.Next) or (GLBalanceBudget."No.".Value = '');
+        until (not GLBalanceBudget.Next()) or (GLBalanceBudget."No.".Value = '');
 
         GLBalanceBudget.Close();
     end;
@@ -420,11 +420,11 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
-        LibraryLowerPermissions.SetFinancialReporting;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened "G/L Balance/Budget" page
-        GLBalanceBudget.OpenEdit;
+        GLBalanceBudget.OpenEdit();
 
         // [WHEN] Set "G/L Account Category Filter" = "Income" on "G/L Balance/Budget" page
         GLBalanceBudget.GLAccCategory.SetValue('Income');
@@ -433,7 +433,7 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(GLBalanceBudget."No.".Value);
             GLAccount.TestField("Account Category", GLAccount."Account Category"::Income);
-        until (not GLBalanceBudget.Next) or (GLBalanceBudget."No.".Value = '');
+        until (not GLBalanceBudget.Next()) or (GLBalanceBudget."No.".Value = '');
 
         GLBalanceBudget.Close();
     end;
@@ -451,25 +451,25 @@ codeunit 134927 "ERM Budget UI"
 
         Initialize();
 
-        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal;
+        CreateSetOfGLAccountsWithDiffCategoryAndIncomeBal();
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Opened Budget page with "Income Balance G/L Account Filter" = "Income Statement"
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(GLBudgetName.Name);
         Budget.IncomeBalGLAccFilter.SetValue('Income Statement');
-        GLBalanceBudget.Trap;
+        GLBalanceBudget.Trap();
 
         // [GIVEN] Opend "G/L Balance/Budget" page from Budget page with hidden field "Income/Balance"
-        Budget.GLBalanceBudget.Invoke;
-        Assert.IsFalse(GLBalanceBudget."Income/Balance".Visible, 'Income/Balance field is visible on page G/L Balance Budget');
+        Budget.GLBalanceBudget.Invoke();
+        Assert.IsFalse(GLBalanceBudget."Income/Balance".Visible(), 'Income/Balance field is visible on page G/L Balance Budget');
 
         // [WHEN] Blank "Income Balance G/L Account Filter" on "G/L Balance/Budget" page
         GLBalanceBudget.IncomeBalGLAccFilter.SetValue(0);
 
         // [THEN] Field "Income/Balance" is visible on "G/L Balance/Budget" page
-        Assert.IsTrue(GLBalanceBudget."Income/Balance".Visible, 'Income/Balance field is not visible on page G/L Balance Budget');
+        Assert.IsTrue(GLBalanceBudget."Income/Balance".Visible(), 'Income/Balance field is not visible on page G/L Balance Budget');
 
         GLBalanceBudget.Close();
         Budget.Close();
@@ -480,12 +480,12 @@ codeunit 134927 "ERM Budget UI"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Budget UI");
-        ClearPagesSavedValues;
+        ClearPagesSavedValues();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Budget UI");
 
-        LibraryERMCountryData.UpdateCalendarSetup;
+        LibraryERMCountryData.UpdateCalendarSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
@@ -498,12 +498,12 @@ codeunit 134927 "ERM Budget UI"
         Budget: TestPage Budget;
         GLBalanceBudget: TestPage "G/L Balance/Budget";
     begin
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.GLAccCategory.SetValue(0);
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.Close();
 
-        GLBalanceBudget.OpenEdit;
+        GLBalanceBudget.OpenEdit();
         GLBalanceBudget.GLAccCategory.SetValue(0);
         GLBalanceBudget.IncomeBalGLAccFilter.SetValue(0);
         GLBalanceBudget.Close();

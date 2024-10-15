@@ -35,7 +35,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
 
@@ -59,7 +59,7 @@ codeunit 137027 "UT Cancellation"
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
         MockSalesInvoice(NewSalesInvoiceHeader);
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         Clear(CancelledDocument);
         CancelledDocument.InsertSalesCrMemoToInvCancelledDocument(SalesCrMemoHeader."No.", NewSalesInvoiceHeader."No.");
@@ -82,7 +82,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
 
@@ -103,7 +103,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", SalesInvoiceHeader."No.");
 
@@ -124,7 +124,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
 
         CancelledDocument.InsertPurchInvToCrMemoCancelledDocument(PurchInvHeader."No.", PurchCrMemoHdr."No.");
 
@@ -148,7 +148,7 @@ codeunit 137027 "UT Cancellation"
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", PurchCrMemoHdr."No.");
         MockPurchInvoice(NewPurchInvHeader);
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
 
         Clear(CancelledDocument);
         CancelledDocument.InsertPurchCrMemoToInvCancelledDocument(PurchCrMemoHdr."No.", NewPurchInvHeader."No.");
@@ -171,7 +171,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", PurchCrMemoHdr."No.");
 
@@ -192,7 +192,7 @@ codeunit 137027 "UT Cancellation"
 
         Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", PurchInvHeader."No.");
 

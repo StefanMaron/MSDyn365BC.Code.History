@@ -5,6 +5,7 @@ table 1751 "Data Class. Notif. Setup"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

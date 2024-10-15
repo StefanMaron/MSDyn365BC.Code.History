@@ -31,7 +31,7 @@ xmlport 9000 "Export/Import User Groups"
                     LinkTable = "User Group";
                     MinOccurs = Zero;
                     XmlName = 'UserGroupPermissionSet';
-                    SourceTableView = sorting("User Group Code", "Role ID", "App ID") order(Ascending);
+                    SourceTableView = sorting("User Group Code", "Role ID", "App ID") order(ascending);
                     fieldelement(UserGroupCode; "User Group Permission Set"."User Group Code")
                     {
                     }

@@ -46,13 +46,11 @@ codeunit 1411 "Doc. Exch. Links"
     var
         NewStatus: Enum "Sales Document Exchange Status";
     begin
-        with SalesCrMemoHeader do begin
-            NewStatus := MapDocExchStatusToSalesCMStatus(
-                DocExchServiceMgt.GetDocumentStatus(RecordId, "Document Exchange Identifier", "Doc. Exch. Original Identifier"));
-            if NewStatus <> "Document Exchange Status"::"Sent to Document Exchange Service" then begin
-                Validate("Document Exchange Status", NewStatus);
-                Modify(true);
-            end;
+        NewStatus := MapDocExchStatusToSalesCMStatus(
+            DocExchServiceMgt.GetDocumentStatus(SalesCrMemoHeader.RecordId, SalesCrMemoHeader."Document Exchange Identifier", SalesCrMemoHeader."Doc. Exch. Original Identifier"));
+        if NewStatus <> SalesCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service" then begin
+            SalesCrMemoHeader.Validate(SalesCrMemoHeader."Document Exchange Status", NewStatus);
+            SalesCrMemoHeader.Modify(true);
         end;
     end;
 
@@ -61,13 +59,11 @@ codeunit 1411 "Doc. Exch. Links"
     var
         NewStatus: Enum "Sales Document Exchange Status";
     begin
-        with SalesInvoiceHeader do begin
-            NewStatus := MapDocExchStatusToSalesInvStatus(
-                DocExchServiceMgt.GetDocumentStatus(RecordId, "Document Exchange Identifier", "Doc. Exch. Original Identifier"));
-            if NewStatus <> "Document Exchange Status"::"Sent to Document Exchange Service" then begin
-                Validate("Document Exchange Status", NewStatus);
-                Modify(true);
-            end;
+        NewStatus := MapDocExchStatusToSalesInvStatus(
+            DocExchServiceMgt.GetDocumentStatus(SalesInvoiceHeader.RecordId, SalesInvoiceHeader."Document Exchange Identifier", SalesInvoiceHeader."Doc. Exch. Original Identifier"));
+        if NewStatus <> SalesInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service" then begin
+            SalesInvoiceHeader.Validate(SalesInvoiceHeader."Document Exchange Status", NewStatus);
+            SalesInvoiceHeader.Modify(true);
         end;
     end;
 
@@ -76,13 +72,11 @@ codeunit 1411 "Doc. Exch. Links"
     var
         NewStatus: Enum "Service Document Exchange Status";
     begin
-        with ServiceInvoiceHeader do begin
-            NewStatus := MapDocExchStatusToServiceInvStatus(
-                DocExchServiceMgt.GetDocumentStatus(RecordId, "Document Exchange Identifier", "Doc. Exch. Original Identifier"));
-            if NewStatus <> "Document Exchange Status"::"Sent to Document Exchange Service" then begin
-                Validate("Document Exchange Status", NewStatus);
-                Modify(true);
-            end;
+        NewStatus := MapDocExchStatusToServiceInvStatus(
+            DocExchServiceMgt.GetDocumentStatus(ServiceInvoiceHeader.RecordId, ServiceInvoiceHeader."Document Exchange Identifier", ServiceInvoiceHeader."Doc. Exch. Original Identifier"));
+        if NewStatus <> ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service" then begin
+            ServiceInvoiceHeader.Validate(ServiceInvoiceHeader."Document Exchange Status", NewStatus);
+            ServiceInvoiceHeader.Modify(true);
         end;
     end;
 
@@ -91,13 +85,11 @@ codeunit 1411 "Doc. Exch. Links"
     var
         NewStatus: Enum "Service Document Exchange Status";
     begin
-        with ServiceCrMemoHeader do begin
-            NewStatus := MapDocExchStatusToServiceCMStatus(
-                DocExchServiceMgt.GetDocumentStatus(RecordId, "Document Exchange Identifier", "Doc. Exch. Original Identifier"));
-            if NewStatus <> "Document Exchange Status"::"Sent to Document Exchange Service" then begin
-                Validate("Document Exchange Status", NewStatus);
-                Modify(true);
-            end;
+        NewStatus := MapDocExchStatusToServiceCMStatus(
+            DocExchServiceMgt.GetDocumentStatus(ServiceCrMemoHeader.RecordId, ServiceCrMemoHeader."Document Exchange Identifier", ServiceCrMemoHeader."Doc. Exch. Original Identifier"));
+        if NewStatus <> ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service" then begin
+            ServiceCrMemoHeader.Validate(ServiceCrMemoHeader."Document Exchange Status", NewStatus);
+            ServiceCrMemoHeader.Modify(true);
         end;
     end;
 
@@ -106,14 +98,12 @@ codeunit 1411 "Doc. Exch. Links"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         DocRecRef.SetTable(SalesInvoiceHeader);
-        with SalesInvoiceHeader do begin
-            Validate("Document Exchange Identifier",
-              CopyStr(DocIdentifier, 1, MaxStrLen("Document Exchange Identifier")));
-            Validate("Doc. Exch. Original Identifier",
-              CopyStr(DocOriginalIdentifier, 1, MaxStrLen("Doc. Exch. Original Identifier")));
-            Validate("Document Exchange Status", "Document Exchange Status"::"Sent to Document Exchange Service");
-            Modify(true);
-        end;
+        SalesInvoiceHeader.Validate("Document Exchange Identifier",
+          CopyStr(DocIdentifier, 1, MaxStrLen(SalesInvoiceHeader."Document Exchange Identifier")));
+        SalesInvoiceHeader.Validate("Doc. Exch. Original Identifier",
+          CopyStr(DocOriginalIdentifier, 1, MaxStrLen(SalesInvoiceHeader."Doc. Exch. Original Identifier")));
+        SalesInvoiceHeader.Validate("Document Exchange Status", SalesInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+        SalesInvoiceHeader.Modify(true);
     end;
 
     local procedure SetCrMemoDocSent(DocRecRef: RecordRef; DocIdentifier: Text; DocOriginalIdentifier: Text)
@@ -121,14 +111,12 @@ codeunit 1411 "Doc. Exch. Links"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         DocRecRef.SetTable(SalesCrMemoHeader);
-        with SalesCrMemoHeader do begin
-            Validate("Document Exchange Identifier",
-              CopyStr(DocIdentifier, 1, MaxStrLen("Document Exchange Identifier")));
-            Validate("Doc. Exch. Original Identifier",
-              CopyStr(DocOriginalIdentifier, 1, MaxStrLen("Doc. Exch. Original Identifier")));
-            Validate("Document Exchange Status", "Document Exchange Status"::"Sent to Document Exchange Service");
-            Modify(true);
-        end;
+        SalesCrMemoHeader.Validate("Document Exchange Identifier",
+          CopyStr(DocIdentifier, 1, MaxStrLen(SalesCrMemoHeader."Document Exchange Identifier")));
+        SalesCrMemoHeader.Validate("Doc. Exch. Original Identifier",
+          CopyStr(DocOriginalIdentifier, 1, MaxStrLen(SalesCrMemoHeader."Doc. Exch. Original Identifier")));
+        SalesCrMemoHeader.Validate("Document Exchange Status", SalesCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+        SalesCrMemoHeader.Modify(true);
     end;
 
     local procedure SetServiceInvoiceDocSent(DocRecRef: RecordRef; DocIdentifier: Text; DocOriginalIdentifier: Text)
@@ -136,14 +124,12 @@ codeunit 1411 "Doc. Exch. Links"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         DocRecRef.SetTable(ServiceInvoiceHeader);
-        with ServiceInvoiceHeader do begin
-            Validate("Document Exchange Identifier",
-              CopyStr(DocIdentifier, 1, MaxStrLen("Document Exchange Identifier")));
-            Validate("Doc. Exch. Original Identifier",
-              CopyStr(DocOriginalIdentifier, 1, MaxStrLen("Doc. Exch. Original Identifier")));
-            Validate("Document Exchange Status", "Document Exchange Status"::"Sent to Document Exchange Service");
-            Modify(true);
-        end;
+        ServiceInvoiceHeader.Validate("Document Exchange Identifier",
+          CopyStr(DocIdentifier, 1, MaxStrLen(ServiceInvoiceHeader."Document Exchange Identifier")));
+        ServiceInvoiceHeader.Validate("Doc. Exch. Original Identifier",
+          CopyStr(DocOriginalIdentifier, 1, MaxStrLen(ServiceInvoiceHeader."Doc. Exch. Original Identifier")));
+        ServiceInvoiceHeader.Validate("Document Exchange Status", ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+        ServiceInvoiceHeader.Modify(true);
     end;
 
     local procedure SetServiceCrMemoDocSent(DocRecRef: RecordRef; DocIdentifier: Text; DocOriginalIdentifier: Text)
@@ -151,14 +137,12 @@ codeunit 1411 "Doc. Exch. Links"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         DocRecRef.SetTable(ServiceCrMemoHeader);
-        with ServiceCrMemoHeader do begin
-            Validate("Document Exchange Identifier",
-              CopyStr(DocIdentifier, 1, MaxStrLen("Document Exchange Identifier")));
-            Validate("Doc. Exch. Original Identifier",
-              CopyStr(DocOriginalIdentifier, 1, MaxStrLen("Doc. Exch. Original Identifier")));
-            Validate("Document Exchange Status", "Document Exchange Status"::"Sent to Document Exchange Service");
-            Modify(true);
-        end;
+        ServiceCrMemoHeader.Validate("Document Exchange Identifier",
+          CopyStr(DocIdentifier, 1, MaxStrLen(ServiceCrMemoHeader."Document Exchange Identifier")));
+        ServiceCrMemoHeader.Validate("Doc. Exch. Original Identifier",
+          CopyStr(DocOriginalIdentifier, 1, MaxStrLen(ServiceCrMemoHeader."Doc. Exch. Original Identifier")));
+        ServiceCrMemoHeader.Validate("Document Exchange Status", ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
+        ServiceCrMemoHeader.Modify(true);
     end;
 
     local procedure MapDocExchStatusToSalesInvStatus(DocExchStatus: Text): Enum "Sales Document Exchange Status"

@@ -7,6 +7,7 @@ table 341 "Item Discount Group"
 {
     Caption = 'Item Discount Group';
     LookupPageID = "Item Disc. Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

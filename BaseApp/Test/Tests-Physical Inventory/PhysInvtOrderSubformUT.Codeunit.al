@@ -44,6 +44,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         PhysInvtOrderLine.ShowDimensions();  // Invokes EditDimensionSetEntriesPageHandler.
     end;
 
+
+#if not CLEAN24
     [Test]
     [HandlerFunctions('ExpectPhysInvTrackListPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -59,14 +61,47 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
-        UpdateTrackingOnPhysInventoryOrderLine(ExpPhysInvtTracking, PhysInvtOrderLine."Document No.");
+        UpdateExpPhysInvtTrackingOnPhysInventoryOrderLine(ExpPhysInvtTracking, PhysInvtOrderLine."Document No.");
 
         // Enqueue value for use in ExpectPhysInvTrackListPageHandler.
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");
         LibraryVariableStorage.Enqueue(ExpPhysInvtTracking."Lot No.");
 
         // Exercise & Verify: Invoke ShowExpectPhysInvtTrackLines function and verify correct values in ExpectPhysInvTrackListPageHandler.
-        PhysInvtOrderLine.ShowExpectPhysInvtTrackLines;  // Invokes ExpectPhysInvTrackListPageHandler.
+        PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ExpInvtOrderTrackingPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ShowExpInvtOrderTrackingPhysInventoryOrderSubform()
+    var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
+    begin
+        // [SCENARIO] validate the ShowExpectPhysInvtTrackLines function of Page - 5005352, Phys. Inventory Order Subform.
+        // Setup.
+        Initialize();
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(true);
+#endif
+        CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
+        UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
+        UpdateExpInvtOrderTrackingOnPhysInventoryOrderLine(ExpInvtOrderTracking, PhysInvtOrderLine."Document No.");
+
+        // Enqueue value for use in ExpectPhysInvTrackListPageHandler.
+        LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");
+        LibraryVariableStorage.Enqueue(ExpInvtOrderTracking."Lot No.");
+        LibraryVariableStorage.Enqueue(ExpInvtOrderTracking."Package No.");
+
+        // Exercise & Verify: Invoke ShowExpectPhysInvtTrackLines function and verify correct values in ExpectPhysInvTrackListPageHandler.
+        PhysInvtOrderLine.ShowExpectPhysInvtTrackLines();  // Invokes ExpectPhysInvTrackListPageHandler.
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(false);
+#endif
     end;
 
     [Test]
@@ -88,7 +123,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Document No.");  // Enqueue value for use in PhysInventoryRecordingLinesPageHandler.
 
         // Exercise & Verify: Invoke ShowPhysInvtRecordLines function and verify correct values in PhysInventoryRecordingLinesPageHandler
-        PhysInvtOrderLine.ShowPhysInvtRecordingLines;  // Invokes PhysInventoryRecordingLinesPageHandler.
+        PhysInvtOrderLine.ShowPhysInvtRecordingLines();  // Invokes PhysInventoryRecordingLinesPageHandler.
     end;
 
     [Test]
@@ -110,7 +145,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
         // Exercise & Verify: Invoke CalculateQtyExpected function in Phys. Inventory Order Subform and verify correct values in PhysInvtOrderSubformExpectedQtyHandler.
         PhysicalInventoryOrderSubf.SetRecord(PhysInvtOrderLine);
-        PhysicalInventoryOrderSubf.CalculateQtyExpected;
+        PhysicalInventoryOrderSubf.CalculateQtyExpected();
         PhysicalInventoryOrderSubf.Run();  // Invokes PhysInvtOrderSubformExpectedQtyHandler.
     end;
 
@@ -138,7 +173,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Item No.");
 
         // Exercise & Verify: Invoke ShowPhysInvtLedgerEntries function and verify correct values in PhysInventoryLedgerEntriesPageHandler.
-        PhysInvtOrderLine.ShowPhysInvtLedgerEntries;  // Invokes PhysInventoryLedgerEntriesPageHandler.
+        PhysInvtOrderLine.ShowPhysInvtLedgerEntries();  // Invokes PhysInventoryLedgerEntriesPageHandler.
     end;
 
     [Test]
@@ -166,7 +201,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Item No.");
 
         // Exercise & Verify: Invoke ShowItemLedgerEntries function and verify correct values in ItemLedgerEntriesPageHandler.
-        PhysInvtOrderLine.ShowItemLedgerEntries;  // invokes ItemLedgerEntriesPageHandler.
+        PhysInvtOrderLine.ShowItemLedgerEntries();  // invokes ItemLedgerEntriesPageHandler.
     end;
 
     [Test]
@@ -187,7 +222,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Item No.");  // Enqueue value for use in BinContentsListPageHandler.
 
         // Exercise & Verify: Invoke ShowBinContentItem function and verify correct values in BinContentsListPageHandler.
-        PhysInvtOrderLine.ShowBinContentItem;  // Invokes BinContentsListPageHandler.
+        PhysInvtOrderLine.ShowBinContentItem();  // Invokes BinContentsListPageHandler.
     end;
 
     [Test]
@@ -205,11 +240,11 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         Initialize();
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Init();
         if Location.Insert() then;
         PhysInvtOrderLine."Location Code" := Location.Code;
-        PhysInvtOrderLine."Bin Code" := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderLine."Bin Code" := LibraryUTUtility.GetNewCode();
         PhysInvtOrderLine.Modify();
         CreateBinContent(PhysInvtOrderLine);
 
@@ -219,7 +254,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Item No.");
 
         // Exercise & Verify: Invoke ShowBinContentBin function and verify correct values in BinContentsListForBinPageHandler.
-        PhysInvtOrderLine.ShowBinContentBin;  // Invokes BinContentsListForBinPageHandler.
+        PhysInvtOrderLine.ShowBinContentBin();  // Invokes BinContentsListForBinPageHandler.
     end;
 
     [Test]
@@ -297,11 +332,11 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     var
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
+        ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
     begin
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
         UpdatePhysInventoryOrderLine(PhysInvtOrderLine);
-        UpdateTrackingOnPhysInventoryOrderLine(ExpPhysInvtTracking, PhysInvtOrderLine."Document No.");
+        UpdateExpInvtOrderTrackingOnPhysInventoryOrderLine(ExpInvtOrderTracking, PhysInvtOrderLine."Document No.");
 
         // Exercise: Invoke ShowItemTrackingLines(Which) function in Phys. Inventory Order Line.
         asserterror PhysInvtOrderLine.ShowItemTrackingLines(TrackingType);
@@ -333,8 +368,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         CreateLocationWithBin(Bin);
         CreateItemWithLotExpirationTracking(Item);
 
-        LotNos[1] := LibraryUTUtility.GetNewCode;
-        LotNos[2] := LibraryUTUtility.GetNewCode;
+        LotNos[1] := LibraryUTUtility.GetNewCode();
+        LotNos[2] := LibraryUTUtility.GetNewCode();
         Qty[1] := LibraryRandom.RandInt(20);
         Qty[2] := LibraryRandom.RandInt(20);
 
@@ -369,8 +404,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         PostPhysInvtOrder(PhysInvtOrderHeader);
 
         // [THEN] Total quantity of lot "L1" on inventory is "Y1", expiration date is "D1" for all entries. Quantity of "L2" is "Y2", expiration date "D2".
-        VerifyItemPhysicalInventory(Item."No.", LotNos[1], WorkDate + 1);
-        VerifyItemPhysicalInventory(Item."No.", LotNos[2], WorkDate + 2);
+        VerifyItemPhysicalInventory(Item."No.", LotNos[1], WorkDate() + 1);
+        VerifyItemPhysicalInventory(Item."No.", LotNos[2], WorkDate() + 2);
     end;
 
     [Test]
@@ -496,7 +531,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         Initialize();
 
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
-        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo());
         PhysInvtOrderLine."Shelf No." := LibraryUtility.GenerateGUID();
         PhysInvtOrderLine.Modify();
 
@@ -647,14 +682,14 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         Initialize();
 
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
-        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo());
         LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
         LibraryInventory.CreatePhysInvtRecordLine(
           PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", LibraryRandom.RandInt(10));
 
-        PhysInventoryRecording.OpenEdit;
+        PhysInventoryRecording.OpenEdit();
         PhysInventoryRecording.FILTER.SetFilter("Order No.", PhysInvtRecordHeader."Order No.");
-        Assert.IsTrue(PhysInventoryRecording.Lines."Use Item Tracking".Editable, '');
+        Assert.IsTrue(PhysInventoryRecording.Lines."Use Item Tracking".Editable(), '');
     end;
 
     local procedure Initialize()
@@ -672,7 +707,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
     local procedure CreatePhysInventoryLedgerEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; DocumentNo: Code[20])
     begin
-        PhysInventoryLedgerEntry."Entry No." := SelectPhysInventoryLedgerEntryNo;
+        PhysInventoryLedgerEntry."Entry No." := SelectPhysInventoryLedgerEntryNo();
         PhysInventoryLedgerEntry."Document No." := DocumentNo;
         PhysInventoryLedgerEntry."Posting Date" := WorkDate();
         PhysInventoryLedgerEntry.Insert();
@@ -680,7 +715,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
     local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20])
     begin
-        ItemLedgerEntry."Entry No." := SelectItemLedgerEntryNo;
+        ItemLedgerEntry."Entry No." := SelectItemLedgerEntryNo();
         ItemLedgerEntry."Document No." := DocumentNo;
         ItemLedgerEntry."Posting Date" := WorkDate();
         ItemLedgerEntry.Insert();
@@ -688,13 +723,13 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
     local procedure CreatePhysInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader."Posting Date" := WorkDate();
         PhysInvtOrderHeader.Insert();
 
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
         PhysInvtOrderLine."Line No." := 1;
-        PhysInvtOrderLine."Item No." := CreateItem;
+        PhysInvtOrderLine."Item No." := CreateItem();
         PhysInvtOrderLine.Insert();
     end;
 
@@ -718,20 +753,18 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     local procedure CreatePhysInventoryRecordingLineWithLotNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; LotNo: Code[50])
     begin
         LibraryInventory.CreatePhysInvtRecordLine(PhysInvtRecordLine, PhysInvtOrderLine, RecordingNo, 1);
-        with PhysInvtRecordLine do begin
-            Validate("Location Code", LocationCode);
-            Validate("Bin Code", BinCode);
-            Validate("Lot No.", LotNo);
-            Validate("Quantity (Base)", Qty);
-            Modify(true);
-        end;
+        PhysInvtRecordLine.Validate("Location Code", LocationCode);
+        PhysInvtRecordLine.Validate("Bin Code", BinCode);
+        PhysInvtRecordLine.Validate("Lot No.", LotNo);
+        PhysInvtRecordLine.Validate("Quantity (Base)", Qty);
+        PhysInvtRecordLine.Modify(true);
     end;
 
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -767,8 +800,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         DimensionValue: Record "Dimension Value";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
         LibraryVariableStorage.Enqueue(DimensionValue.Code);  // Enqueue value for use in EditDimensionSetEntriesPageHandler.
         DimensionSetEntry2.FindLast();
@@ -783,17 +816,17 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUTUtility.GetNewCode, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUTUtility.GetNewCode(), '', '');
     end;
 
     local procedure CreateReservationEntry(var ReservationEntry: Record "Reservation Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
-        ReservationEntry."Entry No." := SelectReservationEntryNo;
+        ReservationEntry."Entry No." := SelectReservationEntryNo();
         ReservationEntry."Source Type" := DATABASE::"Phys. Invt. Order Line";
         ReservationEntry."Source ID" := PhysInvtOrderLine."Document No.";
         ReservationEntry."Source Ref. No." := PhysInvtOrderLine."Line No.";
         ReservationEntry."Item No." := PhysInvtOrderLine."Item No.";
-        ReservationEntry."Lot No." := LibraryUTUtility.GetNewCode;
+        ReservationEntry."Lot No." := LibraryUTUtility.GetNewCode();
         ReservationEntry.Insert();
     end;
 
@@ -836,7 +869,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         ItemJournalLine.OpenItemTrackingLines(false);
 
         for I := 1 to ArrayLen(LotNos) do
-            UpdateLotExpirationDate(ItemNo, LotNos[I], WorkDate + I);
+            UpdateLotExpirationDate(ItemNo, LotNos[I], WorkDate() + I);
 
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -908,14 +941,27 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         PhysInvtOrderHeader.Modify();
     end;
 
-    local procedure UpdateTrackingOnPhysInventoryOrderLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; OrderNo: Code[20])
+#if not CLEAN24
+    local procedure UpdateExpPhysInvtTrackingOnPhysInventoryOrderLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; OrderNo: Code[20])
     begin
         ExpPhysInvtTracking."Order No" := OrderNo;
         ExpPhysInvtTracking."Order Line No." := 1;
-        ExpPhysInvtTracking."Serial No." := LibraryUTUtility.GetNewCode;
-        ExpPhysInvtTracking."Lot No." := LibraryUTUtility.GetNewCode;
+        ExpPhysInvtTracking."Serial No." := LibraryUTUtility.GetNewCode();
+        ExpPhysInvtTracking."Lot No." := LibraryUTUtility.GetNewCode();
         ExpPhysInvtTracking."Quantity (Base)" := 1;
         ExpPhysInvtTracking.Insert();
+    end;
+#endif
+
+    local procedure UpdateExpInvtOrderTrackingOnPhysInventoryOrderLine(var ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking"; OrderNo: Code[20])
+    begin
+        ExpInvtOrderTracking."Order No" := OrderNo;
+        ExpInvtOrderTracking."Order Line No." := 1;
+        ExpInvtOrderTracking."Serial No." := LibraryUTUtility.GetNewCode();
+        ExpInvtOrderTracking."Lot No." := LibraryUTUtility.GetNewCode();
+        ExpInvtOrderTracking."Package No." := LibraryUTUtility.GetNewCode();
+        ExpInvtOrderTracking."Quantity (Base)" := 1;
+        ExpInvtOrderTracking.Insert();
     end;
 
     local procedure VerifyItemPhysicalInventory(ItemNo: Code[20]; LotNo: Code[50]; ExpirationDate: Date)
@@ -945,9 +991,10 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         LibraryVariableStorage.Dequeue(DimensionValueCode);
         EditDimensionSetEntries.DimensionValueCode.AssertEquals(DimensionValueCode);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
+#if not CLEAN24
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ExpectPhysInvTrackListPageHandler(var ExpectPhysInvTrackList: TestPage "Exp. Phys. Invt. Tracking")
@@ -959,7 +1006,25 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Dequeue(LotNo);
         ExpectPhysInvTrackList."Order No".AssertEquals(OrderNo);
         ExpectPhysInvTrackList."Lot No.".AssertEquals(LotNo);
-        ExpectPhysInvTrackList.OK.Invoke;
+        ExpectPhysInvTrackList.OK().Invoke();
+    end;
+#endif
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ExpInvtOrderTrackingPageHandler(var ExpInvtOrderTracking: TestPage "Exp. Invt. Order Tracking")
+    var
+        OrderNo: Variant;
+        LotNo: Variant;
+        PackageNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(OrderNo);
+        LibraryVariableStorage.Dequeue(LotNo);
+        LibraryVariableStorage.Dequeue(PackageNo);
+        ExpInvtOrderTracking."Order No".AssertEquals(OrderNo);
+        ExpInvtOrderTracking."Lot No.".AssertEquals(LotNo);
+        ExpInvtOrderTracking."Package No.".AssertEquals(PackageNo);
+        ExpInvtOrderTracking.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -971,7 +1036,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Dequeue(OrderNo);
         PhysInvtRecordingLines."Order No.".AssertEquals(OrderNo);
         PhysInvtRecordingLines.Recorded.AssertEquals(true);
-        PhysInvtRecordingLines.OK.Invoke;
+        PhysInvtRecordingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -985,7 +1050,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Dequeue(ItemNo);
         PhysInventoryLedgerEntries."Document No.".AssertEquals(DocumentNo);
         PhysInventoryLedgerEntries."Item No.".AssertEquals(ItemNo);
-        PhysInventoryLedgerEntries.OK.Invoke;
+        PhysInventoryLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
@@ -1010,7 +1075,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Dequeue(ItemNo);
         ItemLedgerEntries."Document No.".AssertEquals(DocumentNo);
         ItemLedgerEntries."Item No.".AssertEquals(ItemNo);
-        ItemLedgerEntries.OK.Invoke;
+        ItemLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1021,7 +1086,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         BinContentsList."Item No.".AssertEquals(ItemNo);
-        BinContentsList.OK.Invoke;
+        BinContentsList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1038,7 +1103,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         BinContentsList."Location Code".AssertEquals(LocationCode);
         BinContentsList."Bin Code".AssertEquals(BinCode);
         BinContentsList."Item No.".AssertEquals(ItemNo);
-        BinContentsList.OK.Invoke;
+        BinContentsList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1052,7 +1117,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         LibraryVariableStorage.Dequeue(LotNo);
         PhysInvtItemTrackList."Item No.".AssertEquals(ItemNo);
         PhysInvtItemTrackList."Lot No.".AssertEquals(LotNo);
-        PhysInvtItemTrackList.OK.Invoke;
+        PhysInvtItemTrackList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1068,10 +1133,10 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     var
         I: Integer;
     begin
-        for I := 1 to LibraryVariableStorage.DequeueInteger do begin
-            ItemTrackingLines.New;
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        for I := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines.New();
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
     end;
 }

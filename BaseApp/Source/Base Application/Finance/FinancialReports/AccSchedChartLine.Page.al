@@ -54,9 +54,9 @@ page 765 "Acc. Sched. Chart Line"
                 {
                     ApplicationArea = All;
                     Caption = 'Show';
-                    Editable = NOT IsMeasure;
+                    Editable = not IsMeasure;
                     ToolTip = 'Specifies if the selected value is shown in the window.';
-                    Visible = NOT IsMeasure;
+                    Visible = not IsMeasure;
 
                     trigger OnValidate()
                     begin

@@ -34,12 +34,12 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"TransfOrder Whse Validate Line");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        DisableWarnings;
+        DisableWarnings();
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         TransferReceivablesSetup.Get();
-        TransferReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        TransferReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         TransferReceivablesSetup.Modify(true);
 
         IsInitialized := true;

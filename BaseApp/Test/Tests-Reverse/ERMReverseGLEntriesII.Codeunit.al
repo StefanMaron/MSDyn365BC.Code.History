@@ -38,7 +38,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         // Setup: Create Additional Currency. Create and post General Journal Line.
         Initialize();
-        UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CreateCurrencyWithAccounts);
+        UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CreateCurrencyWithAccounts());
         CreateAndPostGeneralJournalLineWithGLAccounts(GenJournalLine, '');
 
         // Exercise: Reverse Transaction Entry.
@@ -65,7 +65,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         // Setup: Create Additional Currency. Create and post General Journal Line.
         Initialize();
-        CurrencyACY := CreateCurrencyWithAccounts;
+        CurrencyACY := CreateCurrencyWithAccounts();
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyACY);
         CreateAndPostGeneralJournalLineWithGLAccounts(GenJournalLine, CurrencyACY);
 
@@ -94,8 +94,8 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         // Setup: Create Additional Currency and Foreign Currency. Create and post General Journal Line.
         Initialize();
-        CurrencyACY := CreateCurrencyWithAccounts;
-        CurrencyFCY := CreateCurrencyWithAccounts;
+        CurrencyACY := CreateCurrencyWithAccounts();
+        CurrencyFCY := CreateCurrencyWithAccounts();
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyACY);
         CreateAndPostGeneralJournalLineWithGLAccounts(GenJournalLine, CurrencyFCY);
 
@@ -126,8 +126,8 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         // Setup: Create Additional Currency and Foreign Currency. Create and post General Journal Line.
         Initialize();
-        CurrencyACY := CreateCurrencyWithAccounts;
-        CurrencyFCY := CreateCurrencyWithAccounts;
+        CurrencyACY := CreateCurrencyWithAccounts();
+        CurrencyFCY := CreateCurrencyWithAccounts();
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyACY);
 
         CreateAndPostGeneralJournalLineWithGLAccounts(GenJournalLine, CurrencyFCY);
@@ -136,12 +136,12 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         DocumentNo2 := GenJournalLine."Document No.";   // Set Global Variable for Navigate.
 
         // Exercise: Navigate Posted Entries and reverse Transaction Entry.
-        NoOfGLEntries := NavigateEntries;
+        NoOfGLEntries := NavigateEntries();
         ReverseGLEntries(GenJournalLine."Document No.", GenJournalLine."Account No.");
 
         // Navigate entries after Reversing the Transaction.
         Clear(TempDocumentEntry);
-        NoOfGLEntriesAfterReverse := NavigateEntries;
+        NoOfGLEntriesAfterReverse := NavigateEntries();
 
         // Verify: Verify No. Of entries after Reversing the Transaction.
         Assert.AreEqual(NoOfGLEntries * 2, NoOfGLEntriesAfterReverse, ReverseError);
@@ -167,8 +167,8 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         // Setup: Create Additional Currency and Foreign Currency. Create and post General Journal Line with Residual Rounding Entry.
         Initialize();
-        CurrencyACY := CreateCurrencyWithAccounts;
-        CurrencyFCY := CreateCurrencyWithAccounts;
+        CurrencyACY := CreateCurrencyWithAccounts();
+        CurrencyFCY := CreateCurrencyWithAccounts();
         LCYRoundingAccount := UpdateLCYRounding(CurrencyFCY);
 
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyACY);
@@ -203,7 +203,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         // [GIVEN] Posted "G/L Entry" "G100" with "Description" = "X"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandIntInRange(100, 200));
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -220,7 +220,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         GLEntry.TestField(Description, ExpectedDescription);
 
         // [THEN] Created reversing "G/L Entry" has desciption "Y"
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         Assert.TableIsEmpty(DATABASE::"Reversal Entry");
     end;
 
@@ -240,7 +240,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         // [GIVEN] Posted "G/L Entry"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GLEntry.FindLast();
 
@@ -280,9 +280,9 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         // [THEN] Field "Posting Date" in page ReverseEntries shows closing date of G/L Entry
         Assert.AreEqual(
           Format(GenJournalLine."Posting Date", 0, '<Closing><Month,2>/<Day,2>/<Year4>'),
-          LibraryVariableStorage.DequeueText,
-          LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText(),
+          LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -314,14 +314,14 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     var
         Currency: Record Currency;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
 
     local procedure CreateCurrencyWithAccounts() CurrencyCode: Code[10]
     begin
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAccountsInCurrency(CurrencyCode);
     end;
 
@@ -534,13 +534,13 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     var
         NewDescription: Text;
     begin
-        NewDescription := LibraryVariableStorage.DequeueText;
+        NewDescription := LibraryVariableStorage.DequeueText();
 
-        ReverseTransactionEntries.First;
+        ReverseTransactionEntries.First();
         ReverseTransactionEntries.Description.SetValue(NewDescription);
         while ReverseTransactionEntries.Next() do
             ReverseTransactionEntries.Description.SetValue(NewDescription);
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 
     [ConfirmHandler]
@@ -557,7 +557,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     begin
         Navigate.SetDoc(PostingDate2, DocumentNo2);
         Navigate.UpdateNavigateForm(false);
-        Navigate.FindRecordsOnOpen;
+        Navigate.FindRecordsOnOpen();
 
         TempDocumentEntry.DeleteAll();
         Navigate.ReturnDocumentEntry(TempDocumentEntry);
@@ -574,7 +574,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     [Scope('OnPrem')]
     procedure ReverseEntriesCheckDateModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.First;
+        ReverseTransactionEntries.First();
         LibraryVariableStorage.Enqueue(ReverseTransactionEntries."Posting Date".Value);
         LibraryVariableStorage.Enqueue(ReverseTransactionEntries."Posting Date".Caption);
     end;

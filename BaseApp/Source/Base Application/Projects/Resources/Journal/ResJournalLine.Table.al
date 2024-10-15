@@ -9,7 +9,7 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -25,6 +25,7 @@ using System.Utilities;
 table 207 "Res. Journal Line"
 {
     Caption = 'Res. Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -135,7 +136,7 @@ table 207 "Res. Journal Line"
         }
         field(10; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -388,6 +389,8 @@ table 207 "Res. Journal Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "Resource No.", Description, Quantity, "Document No.", "Document Date")
+        { }
     }
 
     trigger OnInsert()
@@ -407,7 +410,6 @@ table 207 "Res. Journal Line"
         Res: Record Resource;
         WorkType: Record "Work Type";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         GLSetupRead: Boolean;
 
@@ -450,7 +452,7 @@ table 207 "Res. Journal Line"
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterFindResUnitCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -475,6 +477,8 @@ table 207 "Res. Journal Line"
     end;
 
     procedure SetUpNewLine(LastResJnlLine: Record "Res. Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         ResJnlTemplate.Get("Journal Template Name");
         ResJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -487,10 +491,8 @@ table 207 "Res. Journal Line"
         end else begin
             "Posting Date" := WorkDate();
             "Document Date" := WorkDate();
-            if ResJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(ResJnlBatch."No. Series", "Posting Date");
-            end;
+            if ResJnlBatch."No. Series" <> '' then
+                "Document No." := NoSeries.PeekNextNo(ResJnlBatch."No. Series", "Posting Date");
         end;
         "Recurring Method" := LastResJnlLine."Recurring Method";
         "Source Code" := ResJnlTemplate."Source Code";
@@ -797,7 +799,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterInitResourceCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -855,7 +857,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFindResPrice(ResJournalLine: Record "Res. Journal Line"; var ResourcePrice: Record "Resource Price")
@@ -888,7 +890,7 @@ table 207 "Res. Journal Line"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitResourceCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")

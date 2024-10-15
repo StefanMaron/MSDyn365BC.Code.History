@@ -7,6 +7,7 @@ table 1543 "Flow Service Configuration"
     ReplicateData = false;
     InherentEntitlements = r;
     InherentPermissions = r;
+    DataClassification = CustomerContent;
 
     fields
     {

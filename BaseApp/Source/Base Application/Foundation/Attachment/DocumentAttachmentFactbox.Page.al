@@ -16,6 +16,10 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
 
 page 1174 "Document Attachment Factbox"
 {
@@ -34,7 +38,7 @@ page 1174 "Document Attachment Factbox"
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the number of attachments.';
 
                     trigger OnDrillDown()
@@ -53,95 +57,143 @@ page 1174 "Document Attachment Factbox"
                         PurchInvHeader: Record "Purch. Inv. Header";
                         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
                         VATReportHeader: Record "VAT Report Header";
+                        ServiceItem: Record "Service Item";
+                        ServiceHeader: Record "Service Header";
+                        ServiceLine: Record "Service Line";
+                        ServiceInvoiceHeader: Record "Service Invoice Header";
+                        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+                        ServiceContractHeader: Record "Service Contract Header";
                         DocumentAttachmentDetails: Page "Document Attachment Details";
                         RecRef: RecordRef;
                     begin
                         case Rec."Table ID" of
                             0:
                                 exit;
-                            DATABASE::Customer:
+                            Database::Customer:
                                 begin
-                                    RecRef.Open(DATABASE::Customer);
+                                    RecRef.Open(Database::Customer);
                                     if Customer.Get(Rec."No.") then
                                         RecRef.GetTable(Customer);
                                 end;
-                            DATABASE::Vendor:
+                            Database::Vendor:
                                 begin
-                                    RecRef.Open(DATABASE::Vendor);
+                                    RecRef.Open(Database::Vendor);
                                     if Vendor.Get(Rec."No.") then
                                         RecRef.GetTable(Vendor);
                                 end;
-                            DATABASE::Item:
+                            Database::Item:
                                 begin
-                                    RecRef.Open(DATABASE::Item);
+                                    RecRef.Open(Database::Item);
                                     if Item.Get(Rec."No.") then
                                         RecRef.GetTable(Item);
                                 end;
-                            DATABASE::Employee:
+                            Database::Employee:
                                 begin
-                                    RecRef.Open(DATABASE::Employee);
+                                    RecRef.Open(Database::Employee);
                                     if Employee.Get(Rec."No.") then
                                         RecRef.GetTable(Employee);
                                 end;
-                            DATABASE::"Fixed Asset":
+                            Database::"Fixed Asset":
                                 begin
-                                    RecRef.Open(DATABASE::"Fixed Asset");
+                                    RecRef.Open(Database::"Fixed Asset");
                                     if FixedAsset.Get(Rec."No.") then
                                         RecRef.GetTable(FixedAsset);
                                 end;
-                            DATABASE::Resource:
+                            Database::Resource:
                                 begin
-                                    RecRef.Open(DATABASE::Resource);
+                                    RecRef.Open(Database::Resource);
                                     if Resource.Get(Rec."No.") then
                                         RecRef.GetTable(Resource);
                                 end;
-                            DATABASE::Job:
+                            Database::Job:
                                 begin
-                                    RecRef.Open(DATABASE::Job);
+                                    RecRef.Open(Database::Job);
                                     if Job.Get(Rec."No.") then
                                         RecRef.GetTable(Job);
                                 end;
-                            DATABASE::"Sales Header":
+                            Database::"Sales Header":
                                 begin
-                                    RecRef.Open(DATABASE::"Sales Header");
+                                    RecRef.Open(Database::"Sales Header");
                                     if SalesHeader.Get(Rec."Document Type", Rec."No.") then
                                         RecRef.GetTable(SalesHeader);
                                 end;
-                            DATABASE::"Sales Invoice Header":
+                            Database::"Sales Invoice Header":
                                 begin
-                                    RecRef.Open(DATABASE::"Sales Invoice Header");
+                                    RecRef.Open(Database::"Sales Invoice Header");
                                     if SalesInvoiceHeader.Get(Rec."No.") then
                                         RecRef.GetTable(SalesInvoiceHeader);
                                 end;
-                            DATABASE::"Sales Cr.Memo Header":
+                            Database::"Sales Cr.Memo Header":
                                 begin
-                                    RecRef.Open(DATABASE::"Sales Cr.Memo Header");
+                                    RecRef.Open(Database::"Sales Cr.Memo Header");
                                     if SalesCrMemoHeader.Get(Rec."No.") then
                                         RecRef.GetTable(SalesCrMemoHeader);
                                 end;
-                            DATABASE::"Purchase Header":
+                            Database::"Purchase Header":
                                 begin
-                                    RecRef.Open(DATABASE::"Purchase Header");
+                                    RecRef.Open(Database::"Purchase Header");
                                     if PurchaseHeader.Get(Rec."Document Type", Rec."No.") then
                                         RecRef.GetTable(PurchaseHeader);
                                 end;
-                            DATABASE::"Purch. Inv. Header":
+                            Database::"Purch. Inv. Header":
                                 begin
-                                    RecRef.Open(DATABASE::"Purch. Inv. Header");
+                                    RecRef.Open(Database::"Purch. Inv. Header");
                                     if PurchInvHeader.Get(Rec."No.") then
                                         RecRef.GetTable(PurchInvHeader);
                                 end;
-                            DATABASE::"Purch. Cr. Memo Hdr.":
+                            Database::"Purch. Cr. Memo Hdr.":
                                 begin
-                                    RecRef.Open(DATABASE::"Purch. Cr. Memo Hdr.");
+                                    RecRef.Open(Database::"Purch. Cr. Memo Hdr.");
                                     if PurchCrMemoHdr.Get(Rec."No.") then
                                         RecRef.GetTable(PurchCrMemoHdr);
                                 end;
-                            DATABASE::"VAT Report Header":
+                            Database::"VAT Report Header":
                                 begin
-                                    RecRef.Open(DATABASE::"VAT Report Header");
+                                    RecRef.Open(Database::"VAT Report Header");
                                     if VATReportHeader.Get(Rec."VAT Report Config. Code", Rec."No.") then
                                         RecRef.GetTable(VATReportHeader);
+                                end;
+                            Database::"Service Item":
+                                begin
+                                    RecRef.Open(Database::"Service Item");
+                                    if ServiceItem.Get(Rec."No.") then
+                                        RecRef.GetTable(ServiceItem);
+                                end;
+                            Database::"Service Header":
+                                begin
+                                    RecRef.Open(Database::"Service Header");
+                                    if ServiceHeader.Get(Rec."Document Type", Rec."No.") then
+                                        RecRef.GetTable(ServiceHeader);
+                                end;
+                            Database::"Service Line":
+                                begin
+                                    RecRef.Open(Database::"Service Line");
+                                    if ServiceLine.Get(Rec."Document Type", Rec."No.", Rec."Line No.") then
+                                        RecRef.GetTable(ServiceLine);
+                                end;
+                            Database::"Service Invoice Header":
+                                begin
+                                    RecRef.Open(Database::"Service Invoice Header");
+                                    if ServiceInvoiceHeader.Get(Rec."No.") then
+                                        RecRef.GetTable(ServiceInvoiceHeader);
+                                end;
+                            Database::"Service Cr.Memo Header":
+                                begin
+                                    RecRef.Open(Database::"Service Cr.Memo Header");
+                                    if ServiceCrMemoHeader.Get(Rec."No.") then
+                                        RecRef.GetTable(ServiceCrMemoHeader);
+                                end;
+                            Database::"Service Contract Header":
+                                begin
+                                    RecRef.Open(Database::"Service Contract Header");
+                                    case Rec."Document Type" of
+                                        Rec."Document Type"::"Service Contract":
+                                            ServiceContractHeader."Contract Type" := ServiceContractHeader."Contract Type"::Contract;
+                                        Rec."Document Type"::"Service Contract Quote":
+                                            ServiceContractHeader."Contract Type" := ServiceContractHeader."Contract Type"::Quote;
+                                    end;
+                                    if ServiceContractHeader.Get(ServiceContractHeader."Contract Type", Rec."No.") then
+                                        RecRef.GetTable(ServiceContractHeader);
                                 end;
                             else
                                 OnBeforeDrillDown(Rec, RecRef);
@@ -185,7 +237,7 @@ page 1174 "Document Attachment Factbox"
         NumberOfRecords := 0;
         if Rec.GetFilters() <> '' then begin
             if Evaluate(Rec."VAT Report Config. Code", Rec.GetFilter("VAT Report Config. Code")) then;
-            NumberOfRecords := Rec.Count;
+            NumberOfRecords := Rec.Count();
         end;
         Rec.FilterGroup := CurrentFilterGroup;
     end;

@@ -28,11 +28,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        BlanketPurchaseOrder.Trap;
-        VendorCard.NewBlanketPurchaseOrder.Invoke;
+        BlanketPurchaseOrder.Trap();
+        VendorCard.NewBlanketPurchaseOrder.Invoke();
 
         // Verification
         Assert.AreEqual(Vendor.Name, BlanketPurchaseOrder."Buy-from Vendor Name".Value, 'Vendor name is not carried over to the document');
@@ -57,11 +57,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        PurchaseQuote.Trap;
-        VendorCard.NewPurchaseQuote.Invoke;
+        PurchaseQuote.Trap();
+        VendorCard.NewPurchaseQuote.Invoke();
 
         // Verification
         Assert.AreEqual(Vendor.Name, PurchaseQuote."Buy-from Vendor Name".Value, 'Vendor name is not carried over to the document');
@@ -85,11 +85,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -99,8 +99,8 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseInvoice.Close();
 
         // Execute
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -127,11 +127,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        PurchaseOrder.Trap;
-        VendorCard.NewPurchaseOrder.Invoke;
+        PurchaseOrder.Trap();
+        VendorCard.NewPurchaseOrder.Invoke();
 
         // Verification
         Assert.AreEqual(Vendor.Name, PurchaseOrder."Buy-from Vendor Name".Value, 'Vendor name is not carried over to the document');
@@ -154,11 +154,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        PurchaseCreditMemo.Trap;
-        VendorCard.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorCard.NewPurchaseCrMemo.Invoke();
 
         // Verification
         Assert.AreEqual(Vendor.Name, PurchaseCreditMemo."Buy-from Vendor Name".Value, 'Vendor name is not carried over to the document');
@@ -181,11 +181,11 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
-        PurchaseReturnOrder.Trap;
-        VendorCard.NewPurchaseReturnOrder.Invoke;
+        PurchaseReturnOrder.Trap();
+        VendorCard.NewPurchaseReturnOrder.Invoke();
 
         // Verification
         Assert.AreEqual(Vendor.Name, PurchaseReturnOrder."Buy-from Vendor Name".Value, 'Vendor name is not carried over to the document');

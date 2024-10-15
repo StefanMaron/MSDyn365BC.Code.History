@@ -54,48 +54,46 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         GLSetup.TestField("LCY Code");
 
         TempDirectDebitCollectionEntry.FindSet();
-        with PaymentExportData do begin
-            Reset();
-            if FindLast() then;
-            repeat
-                Init();
-                "Entry No." += 1;
-                SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
-                SetBankAsSenderBank(BankAccount);
-                SetCreditorIdentifier(BankAccount);
-                "SEPA Direct Debit Mandate ID" := TempDirectDebitCollectionEntry."Mandate ID";
-                SEPADirectDebitMandate.Get(TempDirectDebitCollectionEntry."Mandate ID");
-                "SEPA DD Mandate Signed Date" := SEPADirectDebitMandate."Date of Signature";
+        PaymentExportData.Reset();
+        if PaymentExportData.FindLast() then;
+        repeat
+            PaymentExportData.Init();
+            PaymentExportData."Entry No." += 1;
+            PaymentExportData.SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
+            PaymentExportData.SetBankAsSenderBank(BankAccount);
+            PaymentExportData.SetCreditorIdentifier(BankAccount);
+            PaymentExportData."SEPA Direct Debit Mandate ID" := TempDirectDebitCollectionEntry."Mandate ID";
+            SEPADirectDebitMandate.Get(TempDirectDebitCollectionEntry."Mandate ID");
+            PaymentExportData."SEPA DD Mandate Signed Date" := SEPADirectDebitMandate."Date of Signature";
 
-                TempDirectDebitCollectionEntry."Sequence Type" :=
-                  UpdateSourceEntrySequenceType(TempDirectDebitCollectionEntry);
+            TempDirectDebitCollectionEntry."Sequence Type" :=
+              UpdateSourceEntrySequenceType(TempDirectDebitCollectionEntry);
 
-                Validate("SEPA Direct Debit Seq. Type", TempDirectDebitCollectionEntry."Sequence Type");
-                "Transfer Date" := TempDirectDebitCollectionEntry."Transfer Date";
-                "Document No." := TempDirectDebitCollectionEntry."Applies-to Entry Document No.";
-                Amount := TempDirectDebitCollectionEntry."Transfer Amount";
-                "Currency Code" := GLSetup.GetCurrencyCode(TempDirectDebitCollectionEntry."Currency Code");
+            PaymentExportData.Validate(PaymentExportData."SEPA Direct Debit Seq. Type", TempDirectDebitCollectionEntry."Sequence Type");
+            PaymentExportData."Transfer Date" := TempDirectDebitCollectionEntry."Transfer Date";
+            PaymentExportData."Document No." := TempDirectDebitCollectionEntry."Applies-to Entry Document No.";
+            PaymentExportData.Amount := TempDirectDebitCollectionEntry."Transfer Amount";
+            PaymentExportData."Currency Code" := GLSetup.GetCurrencyCode(TempDirectDebitCollectionEntry."Currency Code");
 
-                Customer.Get(TempDirectDebitCollectionEntry."Customer No.");
-                CustomerBankAccount.Get(Customer."No.", SEPADirectDebitMandate."Customer Bank Account Code");
-                SetCustomerAsRecipient(Customer, CustomerBankAccount);
+            Customer.Get(TempDirectDebitCollectionEntry."Customer No.");
+            CustomerBankAccount.Get(Customer."No.", SEPADirectDebitMandate."Customer Bank Account Code");
+            PaymentExportData.SetCustomerAsRecipient(Customer, CustomerBankAccount);
 
-                Validate("SEPA Partner Type", Customer."Partner Type");
-                Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
-                Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
-                Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
+            PaymentExportData.Validate(PaymentExportData."SEPA Partner Type", Customer."Partner Type");
+            PaymentExportData.Validate(PaymentExportData."SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::NORMAL);
+            PaymentExportData.Validate(PaymentExportData."SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRF);
+            PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SLEV);
 
-                "SEPA Batch Booking" := false;
-                "Message ID" := DirectDebitCollection."Message ID";
-                "Payment Information ID" := TempDirectDebitCollectionEntry."Transaction ID";
-                "End-to-End ID" := TempDirectDebitCollectionEntry."Transaction ID";
-                "Message to Recipient 1" := TempDirectDebitCollectionEntry."Applies-to Entry Description";
-                "Message to Recipient 2" := TempDirectDebitCollectionEntry."Message to Recipient";
+            PaymentExportData."SEPA Batch Booking" := false;
+            PaymentExportData."Message ID" := DirectDebitCollection."Message ID";
+            PaymentExportData."Payment Information ID" := TempDirectDebitCollectionEntry."Transaction ID";
+            PaymentExportData."End-to-End ID" := TempDirectDebitCollectionEntry."Transaction ID";
+            PaymentExportData."Message to Recipient 1" := TempDirectDebitCollectionEntry."Applies-to Entry Description";
+            PaymentExportData."Message to Recipient 2" := TempDirectDebitCollectionEntry."Message to Recipient";
 
-                OnBeforeInsertPaymentExportData(PaymentExportData, TempDirectDebitCollectionEntry);
-                Insert(true);
-            until TempDirectDebitCollectionEntry.Next() = 0;
-        end;
+            OnBeforeInsertPaymentExportData(PaymentExportData, TempDirectDebitCollectionEntry);
+            PaymentExportData.Insert(true);
+        until TempDirectDebitCollectionEntry.Next() = 0;
     end;
 
     local procedure GetDDExportImportSetup(BankAccount: Record "Bank Account"; var BankExportImportSetup: Record "Bank Export/Import Setup")
@@ -118,18 +116,15 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         if TempDirectDebitCollectionEntry.Status <> TempDirectDebitCollectionEntry.Status::New then
             exit(TempDirectDebitCollectionEntry."Sequence Type");
 
-        with SEPADirectDebitMandate do begin
-            Get(TempDirectDebitCollectionEntry."Mandate ID");
-            SequenceType := GetSequenceType();
-            UpdateCounter();
-        end;
+        SEPADirectDebitMandate.Get(TempDirectDebitCollectionEntry."Mandate ID");
+        SequenceType := SEPADirectDebitMandate.GetSequenceType();
+        SEPADirectDebitMandate.UpdateCounter();
 
         DirectDebitCollectionEntry := TempDirectDebitCollectionEntry;
-        with DirectDebitCollectionEntry do
-            if Find() then begin
-                "Sequence Type" := SequenceType;
-                Modify();
-            end;
+        if DirectDebitCollectionEntry.Find() then begin
+            DirectDebitCollectionEntry."Sequence Type" := SequenceType;
+            DirectDebitCollectionEntry.Modify();
+        end;
     end;
 
     [IntegrationEvent(false, false)]

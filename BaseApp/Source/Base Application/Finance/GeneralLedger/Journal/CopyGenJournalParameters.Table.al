@@ -3,6 +3,7 @@ namespace Microsoft.Finance.GeneralLedger.Journal;
 table 183 "Copy Gen. Journal Parameters"
 {
     Caption = 'Copy Gen. Jnl. Line Parameters';
+    DataClassification = CustomerContent;
 
     fields
     {

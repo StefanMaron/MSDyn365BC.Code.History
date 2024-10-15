@@ -24,7 +24,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
     Permissions = TableData "Item Entry Relation" = ri,
                   TableData "Value Entry Relation" = ri,
                   TableData "Invt. Receipt Header" = rimd,
-                  TableData "Invt. Receipt Line" = rimd;
+                  TableData "Invt. Receipt Line" = rimd,
+                  tabledata "G/L Entry" = r;
     TableNo = "Invt. Document Header";
 
     trigger OnRun()
@@ -34,7 +35,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         SourceCodeSetup: Record "Source Code Setup";
         InvtSetup: Record "Inventory Setup";
         InventoryPostingSetup: Record "Inventory Posting Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
@@ -50,174 +51,170 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         InvtDocHeader := Rec;
         InvtDocHeader.SetHideValidationDialog(HideValidationDialog);
 
-        with InvtDocHeader do begin
-            CheckInvtDocumentHeaderMandatoryFields(InvtDocHeader);
+        CheckInvtDocumentHeaderMandatoryFields(InvtDocHeader);
 
-            CheckDim();
+        CheckDim();
 
-            SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
-            if not InvtDocLine.Find('-') then
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
+        if not InvtDocLine.Find('-') then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
-            OnRunOnAfterCheckLocation(Rec);
+        OnRunOnAfterCheckLocation(Rec);
 
-            if not HideProgressWindow then begin
-                Window.Open('#1#################################\\' + PostingLinesMsg);
+        if not HideProgressWindow then begin
+            Window.Open('#1#################################\\' + PostingLinesMsg);
 
-                Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
-            end;
+            Window.Update(1, StrSubstNo(PostingDocumentTxt, InvtDocHeader."No."));
+        end;
 
-            SourceCodeSetup.Get();
-            SourceCode := SourceCodeSetup."Invt. Receipt";
-            InvtSetup.Get();
-            InvtSetup.TestField("Posted Invt. Receipt Nos.");
-            InventoryPostingSetup.SetRange("Location Code", "Location Code");
-            if InventoryPostingSetup.IsEmpty() then
-                error(InventoryPostingSetupMissingErr, "Location Code");
+        SourceCodeSetup.Get();
+        SourceCode := SourceCodeSetup."Invt. Receipt";
+        InvtSetup.Get();
+        InvtSetup.TestField("Posted Invt. Receipt Nos.");
+        InventoryPostingSetup.SetRange("Location Code", InvtDocHeader."Location Code");
+        if InventoryPostingSetup.IsEmpty() then
+            error(InventoryPostingSetupMissingErr, InvtDocHeader."Location Code");
 
-            if Status = Status::Open then begin
-                CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocHeader);
-                Status := Status::Open;
-                Modify();
-                if not (SuppressCommit or PreviewMode) then
-                    Commit();
-                Status := Status::Released;
-                OnRunOnAfterSetStatusReleased(InvtDocHeader, InvtDocLine, SuppressCommit);
-            end;
-
-            TestField(Status, Status::Released);
-
-            if InvtSetup."Automatic Cost Posting" then begin
-                GLEntry.LockTable();
-                if GLEntry.FindLast() then;
-            end;
-
-            // Insert receipt header
-            InvtRcptHeader.LockTable();
-            InvtRcptHeader.Init();
-            OnRunOnAfterInvtRcptHeaderInit(InvtRcptHeader, InvtDocHeader);
-            InvtRcptHeader."Location Code" := "Location Code";
-            InvtRcptHeader."Document Date" := "Document Date";
-            InvtRcptHeader."Posting Date" := "Posting Date";
-            InvtRcptHeader."Purchaser Code" := "Salesperson/Purchaser Code";
-            InvtRcptHeader."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            InvtRcptHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            InvtRcptHeader."Receipt No." := "No.";
-            InvtRcptHeader."External Document No." := "External Document No.";
-            InvtRcptHeader."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            if "No. Series" = "Posting No. Series" then
-                InvtRcptHeader."No." := "No."
-            else begin
-                if "Posting No." = '' then
-                    "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
-                InvtRcptHeader."No." := "Posting No.";
-            end;
-            InvtRcptHeader."No. Series" := "Posting No. Series";
-            InvtRcptHeader."Posting Description" := "Posting Description";
-            InvtRcptHeader.Correction := Correction;
-            InvtRcptHeader."Dimension Set ID" := "Dimension Set ID";
-            OnRunOnBeforeInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
-            InvtRcptHeader.Insert();
-            OnRunOnAfterInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
-
-            if InvtSetup."Copy Comments to Invt. Doc." then
-                CopyCommentLines(
-                    Enum::"Inventory Comment Document Type"::"Inventory Receipt",
-                    Enum::"Inventory Comment Document Type"::"Posted Inventory Receipt",
-                    "No.", InvtRcptHeader."No.");
-
-            // Insert receipt lines
-            LineCount := 0;
-            InvtRcptLine.LockTable();
-            InvtDocLine.SetRange(Quantity);
-            OnRunOnBeforeInvtDocLineFind(InvtDocLine, InvtDocHeader);
-            if InvtDocLine.Find('-') then
-                repeat
-                    LineCount := LineCount + 1;
-                    if not HideProgressWindow then
-                        Window.Update(2, LineCount);
-
-                    if InvtDocLine."Item No." <> '' then begin
-                        Item.Get(InvtDocLine."Item No.");
-                        Item.TestField(Blocked, false);
-
-                        if InvtDocLine."Variant Code" <> '' then begin
-                            ItemVariant.SetLoadFields(Blocked);
-                            ItemVariant.Get(InvtDocLine."Item No.", InvtDocLine."Variant Code");
-                            ItemVariant.TestField(Blocked, false);
-                        end;
-                    end;
-
-                    InvtRcptLine.Init();
-                    OnRunOnAfterInvtRcptLineInit(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
-                    InvtRcptLine."Document No." := InvtRcptHeader."No.";
-                    InvtRcptLine."Posting Date" := InvtRcptHeader."Posting Date";
-                    InvtRcptLine."Document Date" := InvtRcptHeader."Document Date";
-                    InvtRcptLine."Line No." := InvtDocLine."Line No.";
-                    InvtRcptLine."Item No." := InvtDocLine."Item No.";
-                    InvtRcptLine.Description := InvtDocLine.Description;
-                    InvtRcptLine.Quantity := InvtDocLine.Quantity;
-                    InvtRcptLine."Unit Amount" := InvtDocLine."Unit Amount";
-                    InvtRcptLine."Unit Cost" := InvtDocLine."Unit Cost";
-                    InvtRcptLine.Amount := InvtDocLine.Amount;
-                    InvtRcptLine."Indirect Cost %" := InvtDocLine."Indirect Cost %";
-                    InvtRcptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
-                    InvtRcptLine."Shortcut Dimension 1 Code" := InvtDocLine."Shortcut Dimension 1 Code";
-                    InvtRcptLine."Shortcut Dimension 2 Code" := InvtDocLine."Shortcut Dimension 2 Code";
-                    InvtRcptLine."Gen. Bus. Posting Group" := InvtDocLine."Gen. Bus. Posting Group";
-                    InvtRcptLine."Gen. Prod. Posting Group" := InvtDocLine."Gen. Prod. Posting Group";
-                    InvtRcptLine."Inventory Posting Group" := InvtDocLine."Inventory Posting Group";
-                    InvtRcptLine."Quantity (Base)" := InvtDocLine."Quantity (Base)";
-                    InvtRcptLine."Qty. per Unit of Measure" := InvtDocLine."Qty. per Unit of Measure";
-                    InvtRcptLine."Qty. Rounding Precision" := InvtDocLine."Qty. Rounding Precision";
-                    InvtRcptLine."Qty. Rounding Precision (Base)" := InvtDocLine."Qty. Rounding Precision (Base)";
-                    InvtRcptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
-                    InvtRcptLine."Gross Weight" := InvtDocLine."Gross Weight";
-                    InvtRcptLine."Net Weight" := InvtDocLine."Net Weight";
-                    InvtRcptLine."Unit Volume" := InvtDocLine."Unit Volume";
-                    InvtRcptLine."Variant Code" := InvtDocLine."Variant Code";
-                    InvtRcptLine."Units per Parcel" := InvtDocLine."Units per Parcel";
-                    InvtRcptLine."Receipt No." := InvtDocLine."Document No.";
-                    InvtRcptLine."Document Date" := InvtDocLine."Document Date";
-                    InvtRcptLine."Location Code" := InvtDocLine."Location Code";
-                    InvtRcptLine."Bin Code" := InvtDocLine."Bin Code";
-                    InvtRcptLine."Item Category Code" := InvtDocLine."Item Category Code";
-                    InvtRcptLine."Applies-to Entry" := InvtDocLine."Applies-to Entry";
-                    InvtRcptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
-                    InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
-                    InvtRcptLine."Reason Code" := InvtDocLine."Reason Code";
-                    InvtRcptLine."Item Reference No." := InvtDocLine."Item Reference No.";
-                    InvtRcptLine."Item Reference Unit of Measure" := InvtDocLine."Item Reference Unit of Measure";
-                    InvtRcptLine."Item Reference Type" := InvtDocLine."Item Reference Type";
-                    InvtRcptLine."Item Reference Type No." := InvtDocLine."Item Reference Type No.";
-                    InvtRcptLine."Source Code" := SourceCode;
-                    OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
-                    InvtRcptLine.Insert();
-                    OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
-
-                    PostItemJnlLine(InvtRcptHeader, InvtRcptLine);
-                    ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, InvtRcptLine.RowID1());
-                until InvtDocLine.Next() = 0;
-
-            OnRunOnAfterInvtDocPost(InvtDocHeader, InvtDocLine);
-
-            InvtSetup.Get();
-            if InvtSetup.AutomaticCostAdjmtRequired() then
-                InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
-
-            LockTable();
-
-            if not PreviewMode then
-                Delete(true);
-
-            InsertValueEntryRelation();
-            OnRunOnBeforeCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
+        if InvtDocHeader.Status = InvtDocHeader.Status::Open then begin
+            CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocHeader);
+            InvtDocHeader.Status := InvtDocHeader.Status::Open;
+            InvtDocHeader.Modify();
             if not (SuppressCommit or PreviewMode) then
                 Commit();
-            OnRunOnAfterCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
-            if not HideProgressWindow then
-                Window.Close();
+            InvtDocHeader.Status := InvtDocHeader.Status::Released;
+            OnRunOnAfterSetStatusReleased(InvtDocHeader, InvtDocLine, SuppressCommit);
         end;
+
+        InvtDocHeader.TestField(Status, InvtDocHeader.Status::Released);
+
+        if InvtSetup."Automatic Cost Posting" then begin
+            GLEntry.LockTable();
+            if GLEntry.FindLast() then;
+        end;
+        // Insert receipt header
+        InvtRcptHeader.LockTable();
+        InvtRcptHeader.Init();
+        OnRunOnAfterInvtRcptHeaderInit(InvtRcptHeader, InvtDocHeader);
+        InvtRcptHeader."Location Code" := InvtDocHeader."Location Code";
+        InvtRcptHeader."Document Date" := InvtDocHeader."Document Date";
+        InvtRcptHeader."Posting Date" := InvtDocHeader."Posting Date";
+        InvtRcptHeader."Purchaser Code" := InvtDocHeader."Salesperson/Purchaser Code";
+        InvtRcptHeader."Shortcut Dimension 1 Code" := InvtDocHeader."Shortcut Dimension 1 Code";
+        InvtRcptHeader."Shortcut Dimension 2 Code" := InvtDocHeader."Shortcut Dimension 2 Code";
+        InvtRcptHeader."Receipt No." := InvtDocHeader."No.";
+        InvtRcptHeader."External Document No." := InvtDocHeader."External Document No.";
+        InvtRcptHeader."Gen. Bus. Posting Group" := InvtDocHeader."Gen. Bus. Posting Group";
+        if InvtDocHeader."No. Series" = InvtDocHeader."Posting No. Series" then
+            InvtRcptHeader."No." := InvtDocHeader."No."
+        else begin
+            if InvtDocHeader."Posting No." = '' then
+                InvtDocHeader."Posting No." := NoSeries.GetNextNo(InvtDocHeader."Posting No. Series", InvtDocHeader."Posting Date");
+            InvtRcptHeader."No." := InvtDocHeader."Posting No.";
+        end;
+        InvtRcptHeader."No. Series" := InvtDocHeader."Posting No. Series";
+        InvtRcptHeader."Posting Description" := InvtDocHeader."Posting Description";
+        InvtRcptHeader.Correction := InvtDocHeader.Correction;
+        InvtRcptHeader."Dimension Set ID" := InvtDocHeader."Dimension Set ID";
+        OnRunOnBeforeInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
+        InvtRcptHeader.Insert();
+        OnRunOnAfterInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
+
+        if InvtSetup."Copy Comments to Invt. Doc." then
+            CopyCommentLines(
+                Enum::"Inventory Comment Document Type"::"Inventory Receipt",
+                Enum::"Inventory Comment Document Type"::"Posted Inventory Receipt",
+                InvtDocHeader."No.", InvtRcptHeader."No.");
+        // Insert receipt lines
+        LineCount := 0;
+        InvtRcptLine.LockTable();
+        InvtDocLine.SetRange(Quantity);
+        OnRunOnBeforeInvtDocLineFind(InvtDocLine, InvtDocHeader);
+        if InvtDocLine.Find('-') then
+            repeat
+                LineCount := LineCount + 1;
+                if not HideProgressWindow then
+                    Window.Update(2, LineCount);
+
+                if InvtDocLine."Item No." <> '' then begin
+                    Item.Get(InvtDocLine."Item No.");
+                    Item.TestField(Blocked, false);
+
+                    if InvtDocLine."Variant Code" <> '' then begin
+                        ItemVariant.SetLoadFields(Blocked);
+                        ItemVariant.Get(InvtDocLine."Item No.", InvtDocLine."Variant Code");
+                        ItemVariant.TestField(Blocked, false);
+                    end;
+                end;
+
+                InvtRcptLine.Init();
+                OnRunOnAfterInvtRcptLineInit(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
+                InvtRcptLine."Document No." := InvtRcptHeader."No.";
+                InvtRcptLine."Posting Date" := InvtRcptHeader."Posting Date";
+                InvtRcptLine."Document Date" := InvtRcptHeader."Document Date";
+                InvtRcptLine."Line No." := InvtDocLine."Line No.";
+                InvtRcptLine."Item No." := InvtDocLine."Item No.";
+                InvtRcptLine.Description := InvtDocLine.Description;
+                InvtRcptLine.Quantity := InvtDocLine.Quantity;
+                InvtRcptLine."Unit Amount" := InvtDocLine."Unit Amount";
+                InvtRcptLine."Unit Cost" := InvtDocLine."Unit Cost";
+                InvtRcptLine.Amount := InvtDocLine.Amount;
+                InvtRcptLine."Indirect Cost %" := InvtDocLine."Indirect Cost %";
+                InvtRcptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
+                InvtRcptLine."Shortcut Dimension 1 Code" := InvtDocLine."Shortcut Dimension 1 Code";
+                InvtRcptLine."Shortcut Dimension 2 Code" := InvtDocLine."Shortcut Dimension 2 Code";
+                InvtRcptLine."Gen. Bus. Posting Group" := InvtDocLine."Gen. Bus. Posting Group";
+                InvtRcptLine."Gen. Prod. Posting Group" := InvtDocLine."Gen. Prod. Posting Group";
+                InvtRcptLine."Inventory Posting Group" := InvtDocLine."Inventory Posting Group";
+                InvtRcptLine."Quantity (Base)" := InvtDocLine."Quantity (Base)";
+                InvtRcptLine."Qty. per Unit of Measure" := InvtDocLine."Qty. per Unit of Measure";
+                InvtRcptLine."Qty. Rounding Precision" := InvtDocLine."Qty. Rounding Precision";
+                InvtRcptLine."Qty. Rounding Precision (Base)" := InvtDocLine."Qty. Rounding Precision (Base)";
+                InvtRcptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
+                InvtRcptLine."Gross Weight" := InvtDocLine."Gross Weight";
+                InvtRcptLine."Net Weight" := InvtDocLine."Net Weight";
+                InvtRcptLine."Unit Volume" := InvtDocLine."Unit Volume";
+                InvtRcptLine."Variant Code" := InvtDocLine."Variant Code";
+                InvtRcptLine."Units per Parcel" := InvtDocLine."Units per Parcel";
+                InvtRcptLine."Receipt No." := InvtDocLine."Document No.";
+                InvtRcptLine."Document Date" := InvtDocLine."Document Date";
+                InvtRcptLine."Location Code" := InvtDocLine."Location Code";
+                InvtRcptLine."Bin Code" := InvtDocLine."Bin Code";
+                InvtRcptLine."Item Category Code" := InvtDocLine."Item Category Code";
+                InvtRcptLine."Applies-to Entry" := InvtDocLine."Applies-to Entry";
+                InvtRcptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
+                InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
+                InvtRcptLine."Reason Code" := InvtDocLine."Reason Code";
+                InvtRcptLine."Item Reference No." := InvtDocLine."Item Reference No.";
+                InvtRcptLine."Item Reference Unit of Measure" := InvtDocLine."Item Reference Unit of Measure";
+                InvtRcptLine."Item Reference Type" := InvtDocLine."Item Reference Type";
+                InvtRcptLine."Item Reference Type No." := InvtDocLine."Item Reference Type No.";
+                InvtRcptLine."Source Code" := SourceCode;
+                OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
+                InvtRcptLine.Insert();
+                OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
+
+                PostItemJnlLine(InvtRcptHeader, InvtRcptLine);
+                ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, InvtRcptLine.RowID1());
+            until InvtDocLine.Next() = 0;
+
+        OnRunOnAfterInvtDocPost(InvtDocHeader, InvtDocLine);
+
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+
+        InvtDocHeader.LockTable();
+
+        if not PreviewMode then
+            InvtDocHeader.Delete(true);
+
+        InsertValueEntryRelation();
+        OnRunOnBeforeCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
+        if not (SuppressCommit or PreviewMode) then
+            Commit();
+        OnRunOnAfterCommitPostInvtRcptDoc(InvtDocHeader, InvtDocLine, InvtRcptHeader, InvtRcptLine, ItemJnlLine, SuppressCommit);
+        if not HideProgressWindow then
+            Window.Close();
 
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);

@@ -5,6 +5,7 @@ table 5623 "FA Reclass. Journal Batch"
     Caption = 'FA Reclass. Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "FA Reclass. Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -197,6 +197,8 @@ codeunit 137061 "SCM Purchases & Payables"
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
         PurchaseHeader.Modify(true);
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        // have to reset the posting no. to avoid error in next test.
+        PurchaseHeader."Posting No." := '';
 
         // Verify: verify error msg.
         Assert.IsTrue(
@@ -605,7 +607,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Item with SKU for Location "L", "Last Direct Cost" set to "LDC".
         Initialize(false);
         CreateItem(Item);
-        LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false); // Create per Location
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false); // Create per Location
         Location.FindFirst();
 
         // [GIVEN] Create Drop Shipment Sales-Purchase orders using Location "L".
@@ -916,7 +918,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Post receipt without invoicing
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        // [GIVEN] Change the posting date to workdate + 1 and set quantity to invoice in the purchase line to Y / 2
+        // [GIVEN] Change the posting date to WorkDate() + 1 and set quantity to invoice in the purchase line to Y / 2
         PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
         PurchaseHeader.Modify(true);
 
@@ -924,10 +926,10 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);
         PurchaseLine.Modify(true);
 
-        // [GIVEN] Post the partial invoicing. Posting date in the created value entry is Workdate + 1, valuation date is set to Workdate
+        // [GIVEN] Post the partial invoicing. Posting date in the created value entry is WorkDate() + 1, valuation date is set to Workdate
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
-        // [GIVEN] Change the posting date to Workdate + 2 and invoice the remaining quantity
+        // [GIVEN] Change the posting date to WorkDate() + 2 and invoice the remaining quantity
         PurchaseHeader.Validate("Posting Date", WorkDate() + 2);
         PurchaseHeader.Validate("Vendor Invoice No.", IncStr(PurchaseHeader."Vendor Invoice No."));
         PurchaseHeader.Modify(true);
@@ -940,7 +942,7 @@ codeunit 137061 "SCM Purchases & Payables"
         ValueEntry.SetRange("Expected Cost", false);
         ValueEntry.FindFirst();
 
-        // [WHEN] Call CalculateRemInventoryValue for the purchase item ledger entry on Workdate + 1, including only actual cost
+        // [WHEN] Call CalculateRemInventoryValue for the purchase item ledger entry on WorkDate() + 1, including only actual cost
         // [THEN] Inventory value is X * Y / 2
         Assert.AreEqual(
             ValueEntry."Cost Amount (Actual)",

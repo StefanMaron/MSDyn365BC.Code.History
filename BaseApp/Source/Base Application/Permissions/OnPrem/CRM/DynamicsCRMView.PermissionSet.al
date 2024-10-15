@@ -60,6 +60,8 @@ permissionset 4737 "Dynamics CRM - View"
                   tabledata "CRM Synch. Job Status Cue" = R,
                   tabledata "CRM Systemuser" = R,
                   tabledata "CRM Systemuserroles" = R,
+                  tabledata "CDS Field Security Profile" = R,
+                  tabledata "CDS System User Profiles" = R,
                   tabledata "CRM Team" = R,
                   tabledata "CRM Transactioncurrency" = R,
                   tabledata "CRM Uom" = R,
@@ -67,5 +69,8 @@ permissionset 4737 "Dynamics CRM - View"
                   tabledata "Integration Field Mapping" = R,
                   tabledata "Integration Synch. Job" = R,
                   tabledata "Integration Synch. Job Errors" = R,
+                  tabledata "Man. Integration Field Mapping" = R,
+                  tabledata "Man. Integration Table Mapping" = R,
+                  tabledata "Man. Int. Field Mapping" = R,
                   tabledata "Integration Table Mapping" = R;
 }

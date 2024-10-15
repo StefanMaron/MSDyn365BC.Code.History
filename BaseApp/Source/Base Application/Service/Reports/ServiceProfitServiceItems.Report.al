@@ -16,7 +16,7 @@ report 5938 "Service Profit (Service Items)"
         dataitem("Service Item"; "Service Item")
         {
             DataItemTableView = sorting("Item No.", "Serial No.");
-            RequestFilterFields = "Item No.", "Variant Code", "No.", "Date Filter";
+            RequestFilterFields = "Item No.", "Variant Code", "No.", "Date Filter", Blocked;
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }

@@ -136,33 +136,31 @@ page 5845 "Inventory - G/L Reconciliation"
                     Clear(MatrixRecords);
                     Clear(MATRIX_CaptionSet);
 
-                    with InvtReportHeader do begin
-                        if "Column Option" = "Line Option"::"Balance Sheet" then begin
+                    if InvtReportHeader."Column Option" = InvtReportHeader."Line Option"::"Balance Sheet" then begin
+                        if (ItemFilter = '') and (LocationFilter = '') then begin
+                            if ShowWarning then
+                                ColIntegerLine.SetRange(Number, 1, 7)
+                            else
+                                ColIntegerLine.SetRange(Number, 1, 6)
+                        end else
+                            ColIntegerLine.SetRange(Number, 1, 4)
+                    end else
+                        if InvtReportHeader."Column Option" = InvtReportHeader."Line Option"::"Income Statement" then
                             if (ItemFilter = '') and (LocationFilter = '') then begin
                                 if ShowWarning then
-                                    ColIntegerLine.SetRange(Number, 1, 7)
+                                    ColIntegerLine.SetRange(Number, 1, 18)
                                 else
-                                    ColIntegerLine.SetRange(Number, 1, 6)
+                                    ColIntegerLine.SetRange(Number, 1, 17)
                             end else
-                                ColIntegerLine.SetRange(Number, 1, 4)
-                        end else
-                            if "Column Option" = "Line Option"::"Income Statement" then
-                                if (ItemFilter = '') and (LocationFilter = '') then begin
-                                    if ShowWarning then
-                                        ColIntegerLine.SetRange(Number, 1, 18)
-                                    else
-                                        ColIntegerLine.SetRange(Number, 1, 17)
-                                end else
-                                    ColIntegerLine.SetRange(Number, 1, 15);
-                        i := 1;
+                                ColIntegerLine.SetRange(Number, 1, 15);
+                    i := 1;
 
-                        if FindRec("Column Option", MatrixRecords[i], '-', false) then begin
+                    if FindRec(InvtReportHeader."Column Option", MatrixRecords[i], '-', false) then begin
+                        MATRIX_CaptionSet[i] := MatrixRecords[i].Name;
+                        i := i + 1;
+                        while NextRec(InvtReportHeader."Column Option", MatrixRecords[i], 1, false) <> 0 do begin
                             MATRIX_CaptionSet[i] := MatrixRecords[i].Name;
                             i := i + 1;
-                            while NextRec("Column Option", MatrixRecords[i], 1, false) <> 0 do begin
-                                MATRIX_CaptionSet[i] := MatrixRecords[i].Name;
-                                i := i + 1;
-                            end;
                         end;
                     end;
                     if ShowWarning then
@@ -191,26 +189,24 @@ page 5845 "Inventory - G/L Reconciliation"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        with InvtReportHeader do begin
-            if "Line Option" = "Line Option"::"Balance Sheet" then begin
+        if InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet" then begin
+            if (ItemFilter = '') and (LocationFilter = '') then begin
+                if ShowWarning then
+                    RowIntegerLine.SetRange(Number, 1, 7)
+                else
+                    RowIntegerLine.SetRange(Number, 1, 6)
+            end else
+                RowIntegerLine.SetRange(Number, 1, 4)
+        end else
+            if InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement" then
                 if (ItemFilter = '') and (LocationFilter = '') then begin
                     if ShowWarning then
-                        RowIntegerLine.SetRange(Number, 1, 7)
+                        RowIntegerLine.SetRange(Number, 1, 18)
                     else
-                        RowIntegerLine.SetRange(Number, 1, 6)
+                        RowIntegerLine.SetRange(Number, 1, 17)
                 end else
-                    RowIntegerLine.SetRange(Number, 1, 4)
-            end else
-                if "Line Option" = "Line Option"::"Income Statement" then
-                    if (ItemFilter = '') and (LocationFilter = '') then begin
-                        if ShowWarning then
-                            RowIntegerLine.SetRange(Number, 1, 18)
-                        else
-                            RowIntegerLine.SetRange(Number, 1, 17)
-                    end else
-                        RowIntegerLine.SetRange(Number, 1, 15);
-            exit(FindRec("Line Option", Rec, Which, true));
-        end;
+                    RowIntegerLine.SetRange(Number, 1, 15);
+        exit(FindRec(InvtReportHeader."Line Option", Rec, Which, true));
     end;
 
     trigger OnInit()
@@ -319,78 +315,75 @@ page 5845 "Inventory - G/L Reconciliation"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer"; IsRow: Boolean)
     begin
-        with TempInventoryReportEntry do
-            case true of
-                ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet") and IsRow) or
+        case true of
+            ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Balance Sheet") and not IsRow):
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption(Inventory), 0, false, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("Inventory (Interim)"), 0, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("WIP Inventory"), 0, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption(Total), 0, true, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
-                        6:
-                            InsertRow('6', FieldCaption(Difference), 0, true, TheDimCodeBuf);
-                        7:
-                            InsertRow('7', FieldCaption(Warning), 0, true, TheDimCodeBuf);
-                    end;
-                ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement") and IsRow) or
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Inventory), 0, false, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Inventory (Interim)"), 0, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."WIP Inventory"), 0, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
+                    6:
+                        InsertRow('6', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                    7:
+                        InsertRow('7', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
+                end;
+            ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Income Statement") and not IsRow):
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption("Inventory To WIP"), 0, false, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("WIP To Interim"), 0, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("COGS (Interim)"), 0, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption("Direct Cost Applied"), 0, false, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("Overhead Applied"), 0, false, TheDimCodeBuf);
-                        6:
-                            InsertRow('6', FieldCaption("Inventory Adjmt."), 0, false, TheDimCodeBuf);
-                        7:
-                            InsertRow('7', FieldCaption("Invt. Accrual (Interim)"), 0, false, TheDimCodeBuf);
-                        8:
-                            InsertRow('8', FieldCaption(COGS), 0, false, TheDimCodeBuf);
-                        9:
-                            InsertRow('9', FieldCaption("Purchase Variance"), 0, false, TheDimCodeBuf);
-                        10:
-                            InsertRow('10', FieldCaption("Material Variance"), 0, false, TheDimCodeBuf);
-                        11:
-                            InsertRow('11', FieldCaption("Capacity Variance"), 0, false, TheDimCodeBuf);
-                        12:
-                            InsertRow('12', FieldCaption("Subcontracted Variance"), 0, false, TheDimCodeBuf);
-                        13:
-                            InsertRow('13', FieldCaption("Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
-                        14:
-                            InsertRow('14', FieldCaption("Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
-                        15:
-                            InsertRow('15', FieldCaption(Total), 0, true, TheDimCodeBuf);
-                        16:
-                            InsertRow('16', FieldCaption("G/L Total"), 0, true, TheDimCodeBuf);
-                        17:
-                            InsertRow('17', FieldCaption(Difference), 0, true, TheDimCodeBuf);
-                        18:
-                            InsertRow('18', FieldCaption(Warning), 0, true, TheDimCodeBuf);
-                    end;
-            end
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Inventory To WIP"), 0, false, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."WIP To Interim"), 0, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."COGS (Interim)"), 0, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Direct Cost Applied"), 0, false, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Overhead Applied"), 0, false, TheDimCodeBuf);
+                    6:
+                        InsertRow('6', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Inventory Adjmt."), 0, false, TheDimCodeBuf);
+                    7:
+                        InsertRow('7', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Invt. Accrual (Interim)"), 0, false, TheDimCodeBuf);
+                    8:
+                        InsertRow('8', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.COGS), 0, false, TheDimCodeBuf);
+                    9:
+                        InsertRow('9', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Purchase Variance"), 0, false, TheDimCodeBuf);
+                    10:
+                        InsertRow('10', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Material Variance"), 0, false, TheDimCodeBuf);
+                    11:
+                        InsertRow('11', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"), 0, false, TheDimCodeBuf);
+                    12:
+                        InsertRow('12', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Subcontracted Variance"), 0, false, TheDimCodeBuf);
+                    13:
+                        InsertRow('13', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
+                    14:
+                        InsertRow('14', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
+                    15:
+                        InsertRow('15', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
+                    16:
+                        InsertRow('16', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
+                    17:
+                        InsertRow('17', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                    18:
+                        InsertRow('18', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
+                end;
+        end
     end;
 
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Code1;
-            Name := CopyStr(Name1, 1, MaxStrLen(Name));
-            Indentation := Indentation1;
-            "Show in Bold" := Bold1;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Code1;
+        TheDimCodeBuf.Name := CopyStr(Name1, 1, MaxStrLen(TheDimCodeBuf.Name));
+        TheDimCodeBuf.Indentation := Indentation1;
+        TheDimCodeBuf."Show in Bold" := Bold1;
     end;
 
     local procedure TestWarning()

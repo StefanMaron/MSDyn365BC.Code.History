@@ -15,10 +15,19 @@
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
+      "path": "./sustainability/test/Sustainability Tests"
+    },
+    {
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
       "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Tests"
     },
     {
       "path": "./BankDeposits/Test/_Exclude_Bank Deposits Tests"
@@ -36,10 +45,10 @@
       "path": "./INFADepreciation/Test/Fixed Asset Depreciation Tests"
     },
     {
-      "path": "./system application/test/System Application Test"
+      "path": "./system application/test/System Application Test Library"
     },
     {
-      "path": "./system application/test/System Application Test Library"
+      "path": "./system application/test/System Application Test/DisabledTests"
     },
     {
       "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
@@ -78,7 +87,16 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./saleslinessuggestions/test/Sales Lines Suggestions Tests"
+    },
+    {
       "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
       "path": "./INReports/Test/India Reports Tests"

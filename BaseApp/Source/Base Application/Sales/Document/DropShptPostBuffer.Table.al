@@ -8,6 +8,7 @@ table 223 "Drop Shpt. Post. Buffer"
 {
     Caption = 'Drop Shpt. Post. Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -9,6 +9,7 @@ table 7307 "Put-away Template Header"
     Caption = 'Put-away Template Header';
     LookupPageID = "Put-away Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

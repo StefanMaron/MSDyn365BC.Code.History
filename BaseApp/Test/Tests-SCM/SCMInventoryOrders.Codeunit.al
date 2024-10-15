@@ -24,7 +24,9 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -641,7 +643,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line and "Variant Code", Description = "D1", "Description 2" = "D2".
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
 
         // [GIVEN] Purchase Order associated with Sales Order.
         CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -676,7 +678,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line, "Variant Code" and descriptions.
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
 
         // [GIVEN] Create Purchase Order associated with Sales Order.
         CreatePurchOrder(PurchaseHeader, Vendor, SalesHeader."Sell-to Customer No.");
@@ -716,7 +718,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Sales Order with Drop Shipment Line, "Variant Code" and descriptions.
         CreateItemWithVariant(Item, ItemVariant);
         CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
 
         // [GIVEN] Create Purchase Order associated with Sales Order.
         CreatePurchOrder(PurchaseHeader, Vendor, SalesHeader."Sell-to Customer No.");
@@ -755,8 +757,8 @@ codeunit 137400 "SCM Inventory - Orders"
         Initialize(false);
 
         // [GIVEN] "Default Quantity to Ship" = Blank on "Sales Receivables Setup" and "Default Qty. to Receive" = Blank on "Purchases & Payables Setup".
-        SetDefaultQtyToShipToBlank;
-        SetDefaultQtyToReceiveToBlank;
+        SetDefaultQtyToShipToBlank();
+        SetDefaultQtyToReceiveToBlank();
         // [GIVEN] Sales Order with Drop Shipment Line.
         CreateCustomer(Customer, true, '');
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -802,7 +804,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Initialize(false);
 
         // [GIVEN] Sales Order with Drop Shipment line.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader);
 
         // [GIVEN] Purch. Order is associated with Sales Order and posted with Receive option.
@@ -900,8 +902,8 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // Setup: Create and post two Sales Return order for different Bill To Customer.
         Initialize(false);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         CreateCustomer(Customer, true, '');
         DocumentNo := CreateAndPostSalesReturnOrder(SalesLine, Customer."No.", false);
@@ -1103,7 +1105,6 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesLine: Record "Sales Line";
         LibraryJobQueue: Codeunit "Library - Job Queue";
-        JobQueueEntry: Record "Job Queue Entry";
         SalesHeader: Record "Sales Header";
     begin
         // Test to check functionality of Batch Post Sales Return Order report.
@@ -1125,7 +1126,7 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPostedReturnReceipt(SalesLine);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceFromItemUnitPrice()
@@ -1318,7 +1319,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // Update Shipping Agent Code, Shipping Agent Service Code, Package Tracking Number on Posted Shipment.
 
         // Setup: Create Sales Order and Ship it.
-        DocumentNo := CreateSalesOrderAndPost;
+        DocumentNo := CreateSalesOrderAndPost();
 
         // Exercise: Update Posted Shipment.
         UpdatePostedShipment(ShippingAgentServices, DocumentNo);
@@ -1607,7 +1608,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // Setup: Create and post Sales Order as Invoice after Shipment.
         Initialize(false);
-        CreateAndPostSalesOrderAsInvoiceAfterShipment;
+        CreateAndPostSalesOrderAsInvoiceAfterShipment();
         ItemRegister.FindLast();
 
         // Exercise: Run Delete empty Item Registers report with No option for Confirm dialog.
@@ -1628,7 +1629,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // Setup: Create and post Sales Order as Invoice after Shipment.
         Initialize(false);
-        CreateAndPostSalesOrderAsInvoiceAfterShipment;
+        CreateAndPostSalesOrderAsInvoiceAfterShipment();
         ItemRegister.FindLast();
 
         // Exercise: Run Delete empty Item Registers report with Yes option for Confirm dialog.
@@ -1768,7 +1769,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentSales.Find();
         Assert.AreNearlyEqual(
           ItemChargeAssignmentSales."Qty. to Assign" * SalesLineCharge."Unit Price",
-          ItemChargeAssignmentSales."Amount to Assign", LibraryERM.GetAmountRoundingPrecision,
+          ItemChargeAssignmentSales."Amount to Assign", LibraryERM.GetAmountRoundingPrecision(),
           AmountToAssignItemChargeErr);
     end;
 
@@ -1791,7 +1792,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLineWithPurchasingCode(SalesLine[1], SalesHeader);
         LibrarySales.CreateSalesLine(
-          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         // [GIVEN] Create a purchase order associated with the sales order.
         CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -1843,7 +1844,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // [GIVEN] Create another line in the same purchase order without drop shipment link
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         // [GIVEN] Set "Quantity to Receive" = 0 in the purchase line associated with the sales order
         UpdateQtyToReceiveOnPurchaseLine(PurchaseLine[1], 0);
@@ -1885,7 +1886,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLineWithPurchasingCode(SalesLine[1], SalesHeader);
         LibrarySales.CreateSalesLine(
-          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         // [GIVEN] Create a purchase order associated with the sales order.
         CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -1935,7 +1936,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // [GIVEN] Create another line in the same purchase order without drop shipment link
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         // [GIVEN] Post purchase receipt
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2504,7 +2505,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('GetLastUnitPriceHandler')]
     [Scope('OnPrem')]
@@ -2920,7 +2921,7 @@ codeunit 137400 "SCM Inventory - Orders"
     local procedure CreateAndAssignItemChargeLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Quantity: Decimal; GetShipmentLines2: Boolean)
     begin
         CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, Quantity);
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), Quantity);
         GetShipmentLines := GetShipmentLines2; // Use GetShipmentLines as global for handler.
         SalesLine.ShowItemChargeAssgnt();
     end;
@@ -3066,11 +3067,11 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemCard: TestPage "Item Card";
     begin
         ItemCard.OpenNew();
-        Item."No." := ItemCard."No.".Value;
+        Item."No." := ItemCard."No.".Value();
         ItemCard."Gen. Prod. Posting Group".SetValue(Item."Gen. Prod. Posting Group");
         ItemCard."VAT Prod. Posting Group".SetValue(Item."VAT Prod. Posting Group");
         ItemCard."Inventory Posting Group".SetValue(Item."Inventory Posting Group");
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
     end;
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; VariantCode: Code[10]; UnitofMeasure: Code[10]; ReferenceNo: Code[20])
@@ -3079,7 +3080,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemReference.Validate("Item No.", ItemNo);
         ItemReference.Validate("Variant Code", VariantCode);
         ItemReference.Validate("Unit of Measure", UnitofMeasure);
-        ItemReference.validate("Reference Type", ReferenceType);
+        ItemReference.Validate("Reference Type", ReferenceType);
         ItemReference.Validate("Reference Type No.", ReferenceTypeNo);
         ItemReference.Validate("Reference No.", ReferenceNo);
         ItemReference.Validate(Description, LibraryUtility.GenerateGUID());
@@ -3176,7 +3177,7 @@ codeunit 137400 "SCM Inventory - Orders"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, Item."No.", Quantity);
         CreatePurchaseLine(
           PurchaseHeader, PurchaseLine, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));  // Take random Quantity.
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));  // Take random Quantity.
         exit(Item."No.");
     end;
 
@@ -3233,7 +3234,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         CreateItem(Item);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2)); // Use Random Quantity.
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -3272,14 +3273,14 @@ codeunit 137400 "SCM Inventory - Orders"
         with SalesLine do begin
             CreateSalesLine(SalesLine, SalesHeader, Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
             Validate("Variant Code", ItemVariantCode);
-            Validate("Purchasing Code", FindPurchasingCode);
+            Validate("Purchasing Code", FindPurchasingCode());
             Validate(Description, CopyStr(Desc, 1, MaxStrLen(Description)));
             Validate("Description 2", CopyStr(Desc2, 1, MaxStrLen("Description 2")));
             Modify(true);
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; StartingDate: Date)
     begin
         // Create Sales Price with random Unit Price.
@@ -3312,7 +3313,7 @@ codeunit 137400 "SCM Inventory - Orders"
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDecInRange(10, 20, 2));  // Take random Quantity.
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandDecInRange(10, 20, 2));  // Take random Quantity.
         exit(Item."No.");
     end;
 
@@ -3456,9 +3457,9 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetReceiptLine(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
@@ -3501,14 +3502,14 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure GetSalesPrice(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.GetPrice.Invoke;
+        SalesOrder.SalesLines.GetPrice.Invoke();
     end;
 #endif
 
@@ -3516,17 +3517,17 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesAnalysisbyDimensions: TestPage "Sales Analysis by Dimensions";
     begin
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
         SalesAnalysisbyDimensions.ItemFilter.SetValue(ItemNo);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure InvokeUpdateItemAnalysisViewOnAnalysisViewListSales(var AnalysisViewListSales: TestPage "Analysis View List Sales"; ItemAnalysisViewCode: Code[10])
     begin
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisViewCode);
-        AnalysisViewListSales."&Update".Invoke;
+        AnalysisViewListSales."&Update".Invoke();
     end;
 
     local procedure MoveNegativeLines(No: Code[20])
@@ -3534,9 +3535,9 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         Commit(); // Commit required before invoke Move Negative Lines.
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.MoveNegativeLines.Invoke;
+        SalesReturnOrder.MoveNegativeLines.Invoke();
     end;
 
     local procedure NoSeriesSetup()
@@ -3544,7 +3545,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -3552,9 +3553,9 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
-        SalesOrder.SalesLines.OrderPromising.Invoke;
+        SalesOrder.SalesLines.OrderPromising.Invoke();
     end;
 
     local procedure PostPhysicalInventoryJournal(Quantity: Decimal; ItemNo: Code[20]): Code[20]
@@ -3588,8 +3589,6 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.CreateItemJournalLine(
@@ -3597,7 +3596,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CalculateInventoryValue(
           ItemJournalLine, Item, WorkDate(), ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."),
-          CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ", false);
+          "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ", false);
         exit(ItemJournalLine."Dimension Set ID");
     end;
 
@@ -3609,7 +3608,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
 
         ItemJournalLine.Init();
@@ -3626,7 +3625,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesHeader.SetRange("Sell-to Customer No.", SelltoCustomerNo);
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SelltoCustomerNo);
         LibrarySales.CombineReturnReceipts(SalesHeader, ReturnReceiptHeader, NewPostingDate, NewDocumentDate, false, true);
-        ExecuteUIHandler;  // Need to use Execute UI Handler to prevent failure in ES.
+        ExecuteUIHandler();  // Need to use Execute UI Handler to prevent failure in ES.
     end;
 
     local procedure RunCreateReturnRelatedDocumentsReport(SalesHeaderNo: Code[20])
@@ -3791,7 +3790,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
     local procedure UpdateSalesReceivableSetup(StockoutWarning: Boolean; CalcInvDiscount: Boolean)
     begin
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(StockoutWarning);
         LibrarySales.SetCalcInvDiscount(CalcInvDiscount);
     end;
@@ -3800,10 +3799,10 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder."Shipping Advice".SetValue(SalesHeader."Shipping Advice"::Complete);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure VerifyDimensionOnRevaluationJournal(DefaultDimension: Record "Default Dimension"; DimensionSetID: Integer)
@@ -3883,10 +3882,10 @@ codeunit 137400 "SCM Inventory - Orders"
         ValueEntry.FindFirst();
         ValueEntry.TestField("Item Ledger Entry Quantity", Quantity);
         Assert.AreNearlyEqual(
-          ValueEntry."Cost per Unit", UnitAmount, LibraryERM.GetAmountRoundingPrecision,
+          ValueEntry."Cost per Unit", UnitAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(CostError, ValueEntry.FieldCaption("Cost per Unit"), UnitAmount, ValueEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          ValueEntry."Cost Amount (Actual)", ValueEntry."Cost per Unit" * Quantity, LibraryERM.GetAmountRoundingPrecision,
+          ValueEntry."Cost Amount (Actual)", ValueEntry."Cost per Unit" * Quantity, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             CostError, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry."Cost per Unit" * Quantity, ValueEntry.TableCaption()));
     end;
@@ -3900,11 +3899,11 @@ codeunit 137400 "SCM Inventory - Orders"
         PostedReturnReceipt: Page "Posted Return Receipt";
         PostedSalesCreditMemo: Page "Posted Sales Credit Memo";
     begin
-        Navigate.OpenEdit;
+        Navigate.OpenEdit();
         Navigate.ContactType.SetValue(Customer.TableCaption());
         Navigate.ContactNo.SetValue(SalesHeader."Sell-to Customer No.");
         Navigate.ExtDocNo.SetValue(SalesHeader."External Document No.");
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
         Navigate.FILTER.SetFilter("Table Name", PostedSalesShipment.Caption);
         Navigate."No. of Records".AssertEquals(1);
         Navigate.FILTER.SetFilter("Table Name", PostedSalesInvoice.Caption);
@@ -3917,8 +3916,8 @@ codeunit 137400 "SCM Inventory - Orders"
 
     local procedure VerifyOrderPromisingLine(Quantity: Decimal)
     begin
-        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal, OrderPromisingQtyErr);
-        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal, OrderPromisingUnavailQtyErr);
+        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal(), OrderPromisingQtyErr);
+        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal(), OrderPromisingUnavailQtyErr);
     end;
 
     local procedure VerifyPhysicalInventoryItemLedger(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -4066,7 +4065,7 @@ codeunit 137400 "SCM Inventory - Orders"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader: Record "Sales Header"): Decimal
     var
         SalesOrder: TestPage "Sales Order";
@@ -4112,14 +4111,14 @@ codeunit 137400 "SCM Inventory - Orders"
         if CalculateInvoiceDiscount then
             BatchPostSalesReturnOrders.CalcInvDisc.SetValue(false);
 
-        BatchPostSalesReturnOrders.OK.Invoke;
+        BatchPostSalesReturnOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DeleteEmptyItemRegistersReportHandler(var DeleteEmptyItemRegisters: TestRequestPage "Delete Empty Item Registers")
     begin
-        DeleteEmptyItemRegisters.OK.Invoke;
+        DeleteEmptyItemRegisters.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4130,14 +4129,14 @@ codeunit 137400 "SCM Inventory - Orders"
         CreateRetRelatedDocuments.CreatePurchRetOrder.SetValue(true);
         CreateRetRelatedDocuments.CreatePurchaseOrder.SetValue(true);
         CreateRetRelatedDocuments.CreateSalesOrder.SetValue(true);
-        CreateRetRelatedDocuments.OK.Invoke;
+        CreateRetRelatedDocuments.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4145,19 +4144,19 @@ codeunit 137400 "SCM Inventory - Orders"
     procedure ItemChargeAssignmentSalesHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
         if GetShipmentLines then begin
-            ItemChargeAssignmentSales.GetShipmentLines.Invoke;
-            ItemChargeAssignmentSales.Last;
+            ItemChargeAssignmentSales.GetShipmentLines.Invoke();
+            ItemChargeAssignmentSales.Last();
         end;
-        ItemChargeAssignmentSales."Qty. to Assign".SetValue(ItemChargeAssignmentSales.AssignableQty.AsDEcimal);
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(ItemChargeAssignmentSales.AssignableQty.AsDecimal());
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchaseHandler(var ItemChargeAssignmentPurchase: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurchase.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentPurchase.OK.Invoke;
+        ItemChargeAssignmentPurchase.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurchase.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4172,14 +4171,14 @@ codeunit 137400 "SCM Inventory - Orders"
     [Scope('OnPrem')]
     procedure SalesShipmentLinesHandler(var SalesShipmentLines: TestPage "Sales Shipment Lines")
     begin
-        SalesShipmentLines.OK.Invoke;
+        SalesShipmentLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure MoveNegativeSalesLinesHandler(var MoveNegativeSalesLines: TestRequestPage "Move Negative Sales Lines")
     begin
-        MoveNegativeSalesLines.OK.Invoke;
+        MoveNegativeSalesLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4187,9 +4186,9 @@ codeunit 137400 "SCM Inventory - Orders"
     procedure OrderPromisingHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
         if CapableToPromise then
-            OrderPromisingLines.CapableToPromise.Invoke
+            OrderPromisingLines.CapableToPromise.Invoke()
         else
-            OrderPromisingLines.AvailableToPromise.Invoke;
+            OrderPromisingLines.AvailableToPromise.Invoke();
 
         if RequestedShipmentDate then begin
             OrderPromisingLines."Requested Shipment Date".AssertEquals(RequestedDeliveryDate);
@@ -4200,10 +4199,10 @@ codeunit 137400 "SCM Inventory - Orders"
             OrderPromisingLines."Planned Delivery Date".AssertEquals(RequestedDeliveryDate);
         end;
 
-        LibraryVariableStorage.Enqueue(OrderPromisingLines.Quantity.AsDEcimal);
-        LibraryVariableStorage.Enqueue(OrderPromisingLines."Unavailable Quantity".AsDEcimal);
+        LibraryVariableStorage.Enqueue(OrderPromisingLines.Quantity.AsDecimal());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Unavailable Quantity".AsDecimal());
 
-        OrderPromisingLines.AcceptButton.Invoke;
+        OrderPromisingLines.AcceptButton.Invoke();
     end;
 
     [PageHandler]
@@ -4216,15 +4215,15 @@ codeunit 137400 "SCM Inventory - Orders"
     [Scope('OnPrem')]
     procedure SalesListHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
     begin
-        GetSalesPrice.OK.Invoke;
+        GetSalesPrice.OK().Invoke();
     end;
 #endif
 
@@ -4232,14 +4231,14 @@ codeunit 137400 "SCM Inventory - Orders"
     [Scope('OnPrem')]
     procedure GetPriceLineHandler(var GetPriceLine: TestPage "Get Price Line") // V16
     begin
-        GetPriceLine.OK.Invoke;
+        GetPriceLine.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4256,7 +4255,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         LibraryVariableStorage.Enqueue(NoOfLines);
 
-        PostedSalesShipmentLines.OK.Invoke();
+        PostedSalesShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4273,7 +4272,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
         LibraryVariableStorage.Enqueue(NoOfLines);
 
-        PostedSalesInvoiceLines.OK.Invoke();
+        PostedSalesInvoiceLines.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -4315,7 +4314,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SelectItemTemplList.OK().Invoke();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetLastUnitPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")

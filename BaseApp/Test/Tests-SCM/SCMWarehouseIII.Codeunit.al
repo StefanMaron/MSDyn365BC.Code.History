@@ -225,7 +225,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateItemJournaLine(Item."No.", LocationGreen.Code, Bin.Code, Quantity);
         AssignSerialNoAndPostItemJournal(Item."No.", LocationGreen.Code);
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity, LocationGreen.Code);
-        WarehouseShipmentNo := FindWarehouseShipmentNo;
+        WarehouseShipmentNo := FindWarehouseShipmentNo();
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // Exercise : Create Pick from Warehouse Shipment Header.
@@ -475,7 +475,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // Exercise: Get Source Document for already created Inventory movement.
         OpenInventoryMovement(InventoryMovement, WarehouseActivityHeader."No.", ProductionOrder."No.");
-        asserterror InventoryMovement.GetSourceDocument.Invoke;
+        asserterror InventoryMovement.GetSourceDocument.Invoke();
 
         // Verify: Verify Error Message for Get Source Document.
         Assert.ExpectedError(GetSourceDocumentError);
@@ -943,7 +943,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity := 2 * LibraryRandom.RandInt(10);  // Value required for Test.
         CreateTrackedItem(Item, true, false, false, false, false);
         CreateItemJournaLine(Item."No.", LocationYellow.Code, '', Quantity);
-        AssignLotNoAndPostItemJournal;
+        AssignLotNoAndPostItemJournal();
 
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity, LocationYellow.Code);
         AssignTrackingForSalesOrder(SalesOrder, SalesHeader."No.");
@@ -1478,13 +1478,13 @@ codeunit 137051 "SCM Warehouse - III"
         OpenLocationCard(LocationCard, LocationOrange2.Code);
 
         // Exercise: Update Bin Mandatory false on Location.
-        BinMandatory := LocationCard."Bin Mandatory".AsBoolean;
+        BinMandatory := LocationCard."Bin Mandatory".AsBoolean();
         LocationCard."Bin Mandatory".SetValue(false);
 
         // Verify: Verify Open Shop Floor Bin Code, To Production Bin Code and From Production Bin Code are disabled.
-        Assert.IsFalse(LocationCard."Open Shop Floor Bin Code".Enabled, EditableError);
-        Assert.IsFalse(LocationCard."To-Production Bin Code".Enabled, EditableError);
-        Assert.IsFalse(LocationCard."From-Production Bin Code".Enabled, EditableError);
+        Assert.IsFalse(LocationCard."Open Shop Floor Bin Code".Enabled(), EditableError);
+        Assert.IsFalse(LocationCard."To-Production Bin Code".Enabled(), EditableError);
+        Assert.IsFalse(LocationCard."From-Production Bin Code".Enabled(), EditableError);
         LocationCard."Bin Mandatory".SetValue(BinMandatory);
     end;
 
@@ -1588,7 +1588,7 @@ codeunit 137051 "SCM Warehouse - III"
         SetBinOnMachineCenterCard(MachineCenterCard2, WorkCenter."No.", Bin.Code);
 
         // Verify: Verify Location Code is disabled on Machine Center and Bin on Machine Center.
-        Assert.IsFalse(MachineCenterCard."Location Code".Editable, EditableError);
+        Assert.IsFalse(MachineCenterCard."Location Code".Editable(), EditableError);
         VerifyBinOnMachineCenterCard(WorkCenter."No.", Bin.Code);
     end;
 
@@ -1646,10 +1646,10 @@ codeunit 137051 "SCM Warehouse - III"
 
         // Verify: Location Code is empty and uneditable. Open Shop Floor Bin Code, To Production Bin Code and From Production Bin Code is disabled.
         MachineCenterCard."Location Code".AssertEquals('');
-        Assert.IsFalse(MachineCenterCard."Location Code".Editable, EditableError);
-        Assert.IsFalse(MachineCenterCard."Open Shop Floor Bin Code".Enabled, EnabledError);
-        Assert.IsFalse(MachineCenterCard."To-Production Bin Code".Enabled, EnabledError);
-        Assert.IsFalse(MachineCenterCard."From-Production Bin Code".Enabled, EnabledError);
+        Assert.IsFalse(MachineCenterCard."Location Code".Editable(), EditableError);
+        Assert.IsFalse(MachineCenterCard."Open Shop Floor Bin Code".Enabled(), EnabledError);
+        Assert.IsFalse(MachineCenterCard."To-Production Bin Code".Enabled(), EnabledError);
+        Assert.IsFalse(MachineCenterCard."From-Production Bin Code".Enabled(), EnabledError);
     end;
 
     [Test]
@@ -1767,7 +1767,7 @@ codeunit 137051 "SCM Warehouse - III"
         LocationCard.OpenNew();
 
         // [THEN] Field "Use As In-Transit" on Location Card Page is editable
-        Assert.IsTrue(LocationCard."Use As In-Transit".Editable, UseAsInTransitEditableErr);
+        Assert.IsTrue(LocationCard."Use As In-Transit".Editable(), UseAsInTransitEditableErr);
     end;
 
     [Test]
@@ -1852,7 +1852,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity := LibraryRandom.RandIntInRange(10, 100);
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 1); // Find Bin of Index 1.
         CreateItemJournaLine(Item."No.", LocationSilver3.Code, Bin.Code, 2 * Quantity);
-        AssignLotNoAndPostItemJournal;
+        AssignLotNoAndPostItemJournal();
         LotNo := GetLotNoFromItemEntry(Item."No.");
 
         // [GIVEN] Create and release Sales Order "SO1" of Quantity = "Q" / 2, fully reserve.
@@ -1958,14 +1958,14 @@ codeunit 137051 "SCM Warehouse - III"
               WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Take);
             Validate("Qty. to Handle", SmallQty);
             Modify(true);
-            Next;
+            Next();
             Validate("Qty. to Handle", 0);
             Modify(true);
             FindWhseActivityLine(
               WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Place);
             Validate("Qty. to Handle", SmallQty);
             Modify(true);
-            Next;
+            Next();
             Validate("Qty. to Handle", 0);
             Modify(true);
             RegisterWarehouseActivity(SalesHeaderNo[2], "Activity Type"::Pick);
@@ -1983,7 +1983,7 @@ codeunit 137051 "SCM Warehouse - III"
         with WarehouseActivityLine do begin
             FindWhseActivityLine(
               WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo[2], "Action Type"::Take);
-            Next;
+            Next();
             TestField(Quantity, 2 * PartQty);
             TestField("Lot No.", LotNo);
         end;
@@ -2047,7 +2047,7 @@ codeunit 137051 "SCM Warehouse - III"
         with WarehouseActivityLine do begin
             FindWhseActivityLine(
               WarehouseActivityLine, "Activity Type"::Pick, LocationSilver3.Code, SalesHeaderNo, "Action Type"::Take);
-            Next;
+            Next();
             TestField(Quantity, PartQty);
             TestField("Lot No.", LotNo);
         end;
@@ -2078,12 +2078,12 @@ codeunit 137051 "SCM Warehouse - III"
         Qty := LibraryRandom.RandIntInRange(5, 10);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         CreateLotTrackedItemJournalLine(
-          ItemJournalLine, Item."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID, Qty);
+          ItemJournalLine, Item."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID(), Qty);
 
         CreateItemWithItemTrackingCode(Item2, Item."Item Tracking Code");
         LibraryWarehouse.FindBin(Bin2, LocationSilver.Code, '', 2);  // Find Bin of Index 2.
         CreateLotTrackedItemJournalLine(
-          ItemJournalLine, Item2."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID, Qty);
+          ItemJournalLine, Item2."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID(), Qty);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Create Internal Movement with two items, create Inventoty Movement from Internal Movement.
@@ -2716,7 +2716,7 @@ codeunit 137051 "SCM Warehouse - III"
         Qty := LibraryRandom.RandIntInRange(15, 25);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         CreateLotTrackedItemJournalLine(
-          ItemJournalLine, Item."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID, Qty);
+          ItemJournalLine, Item."No.", '', LocationSilver.Code, Bin.Code, WorkDate(), LibraryUtility.GenerateGUID(), Qty);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Create Internal Movement with Item and Get Bin Content.
@@ -2887,7 +2887,7 @@ codeunit 137051 "SCM Warehouse - III"
         CODEUNIT.Run(CODEUNIT::"Create Inventory Put-away", WarehouseActivityHeader);
 
         // [THEN] "No." of Production Order PO is present in the list of source documents.
-        Assert.AreEqual(ProductionOrder."No.", LibraryVariableStorage.DequeueText, UnexpectedSourceNoErr);
+        Assert.AreEqual(ProductionOrder."No.", LibraryVariableStorage.DequeueText(), UnexpectedSourceNoErr);
     end;
 
     [Test]
@@ -2916,7 +2916,7 @@ codeunit 137051 "SCM Warehouse - III"
         CODEUNIT.Run(CODEUNIT::"Create Inventory Put-away", WarehouseActivityHeader);
 
         // [THEN] "No." of Purchase Order PO isn't present in the list of source documents.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, UnexpectedSourceNoErr);
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), UnexpectedSourceNoErr);
     end;
 
     [Test]
@@ -3001,7 +3001,7 @@ codeunit 137051 "SCM Warehouse - III"
             ReservationEntry.SetRange("Item No.", Item."No.");
             ReservationEntry.SetRange("Lot No.", LotNos[i]);
             ReservationEntry.FindFirst();
-            ReservationEntry.Validate("Expiration Date", WorkDate + i);
+            ReservationEntry.Validate("Expiration Date", WorkDate() + i);
             ReservationEntry.Modify(true);
         end;
         CreateAndPostWhseReceiptAndRegisterPutAwayFromPO(PurchaseHeader);
@@ -3110,7 +3110,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Sales order with item "I" and quantity = "Q". Item tracking is not set on the sales line.
         // [GIVEN] Auto-reserve the sales order against the inventory.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", Qty, LocationSilver.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         LibrarySales.AutoReserveSalesLine(SalesLine);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -3123,7 +3123,7 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.RecordCount(WarehouseActivityLine, 1);
         WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3155,7 +3155,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Purchase return order with item "I" and quantity = "Q". Item tracking is not set on the purchase line.
         // [GIVEN] Auto-reserve the purchase return against the inventory.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo(),
           Item."No.", Qty, LocationSilver.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         PurchaseLine.ShowReservation();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -3168,7 +3168,7 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.RecordCount(WarehouseActivityLine, 1);
         WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3201,7 +3201,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Open item tracking on the sales line and select lot "L1".
         // [GIVEN] Lot "L1" is reserved from the inventory.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", Qty, LocationSilver.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNos[1]);
@@ -3218,7 +3218,7 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.RecordCount(WarehouseActivityLine, 1);
         WarehouseActivityLine.TestField("Lot No.", LotNos[1]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3256,7 +3256,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Sales order with item "I", quantity = "Q" and bin code = "B2". Item tracking is not set on the sales line.
         // [GIVEN] Auto-reserve the sales order against the inventory.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", Qty, LocationSilver.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         SalesLine.Validate("Bin Code", Bin[2].Code);
         SalesLine.Modify(true);
@@ -3275,7 +3275,7 @@ codeunit 137051 "SCM Warehouse - III"
             Assert.RecordCount(WarehouseActivityLine, 1);
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3329,7 +3329,7 @@ codeunit 137051 "SCM Warehouse - III"
             Assert.RecordCount(WarehouseActivityLine, 1);
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3380,7 +3380,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Variant Code", ItemVariant.Code);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3431,7 +3431,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Variant Code", ItemVariant.Code);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3464,7 +3464,7 @@ codeunit 137051 "SCM Warehouse - III"
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
-        // [GIVEN] The expiration date in lot "L1" is earlier than WORKDATE, so the lot is expired.
+        // [GIVEN] The expiration date in lot "L1" is earlier than WorkDate(), so the lot is expired.
         // [GIVEN] Sales order for all purchased quantity.
         // [GIVEN] Create warehouse shipment from the sales order.
         PrepareInventoryWithExpDatesAndSalesShipment(WarehouseShipmentHeader, Location.Code, Item."No.", LotNos, LotQty);
@@ -3485,9 +3485,9 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] The resulting message does not have a warning about excluded expired lots.
         Assert.IsFalse(
-          StrPos(LibraryVariableStorage.DequeueText, ExpiredItemsNotPickedMsg) > 0,
+          StrPos(LibraryVariableStorage.DequeueText(), ExpiredItemsNotPickedMsg) > 0,
           'Redundant warning of expired items in the pick raised.');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3521,7 +3521,7 @@ codeunit 137051 "SCM Warehouse - III"
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
-        // [GIVEN] The expiration date in lot "L1" is earlier than WORKDATE, so the lot is expired.
+        // [GIVEN] The expiration date in lot "L1" is earlier than WorkDate(), so the lot is expired.
         // [GIVEN] Sales order for all purchased quantity.
         // [GIVEN] Create warehouse shipment from the sales order.
         PrepareInventoryWithExpDatesAndSalesShipment(WarehouseShipmentHeader, Location.Code, Item."No.", LotNos, LotQty);
@@ -3543,9 +3543,9 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] The resulting message does not have a warning about excluded expired lots.
         Assert.IsFalse(
-          StrPos(LibraryVariableStorage.DequeueText, ExpiredItemsNotPickedMsg) > 0,
+          StrPos(LibraryVariableStorage.DequeueText(), ExpiredItemsNotPickedMsg) > 0,
           'Redundant warning of expired items in the pick raised.');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3578,7 +3578,7 @@ codeunit 137051 "SCM Warehouse - III"
         LotQty := LibraryRandom.RandIntInRange(20, 40);
 
         // [GIVEN] Purchase three lots "L1", "L2", "L3" of the item.
-        // [GIVEN] The expiration date in lot "L1" is earlier than WORKDATE, so the lot is expired.
+        // [GIVEN] The expiration date in lot "L1" is earlier than WorkDate(), so the lot is expired.
         // [GIVEN] Sales order for all purchased quantity.
         // [GIVEN] Create warehouse shipment from the sales order.
         PrepareInventoryWithExpDatesAndSalesShipment(WarehouseShipmentHeader, Location.Code, Item."No.", LotNos, LotQty);
@@ -3596,9 +3596,9 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] The resulting message has a warning that some of the lots are expired and not included in the pick.
         Assert.IsTrue(
-          StrPos(LibraryVariableStorage.DequeueText, ExpiredItemsNotPickedMsg) > 0,
+          StrPos(LibraryVariableStorage.DequeueText(), ExpiredItemsNotPickedMsg) > 0,
           'Expected warning of expired items in the pick did not raise.');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3634,20 +3634,20 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Create a Sales Order with single line of Item
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", LibraryRandom.RandInt(50), Location.Code, WorkDate());
 
         // [GIVEN] Open created Sales Order on test page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Reservation page
         Commit();
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
 
         // [THEN] Units that are in Open Shop Floor bin are not included in Total Available Quantity
-        EntrySummary."Qty. Alloc. in Warehouse" := LibraryVariableStorage.DequeueDecimal;
-        EntrySummary."Total Available Quantity" := LibraryVariableStorage.DequeueDecimal;
+        EntrySummary."Qty. Alloc. in Warehouse" := LibraryVariableStorage.DequeueDecimal();
+        EntrySummary."Total Available Quantity" := LibraryVariableStorage.DequeueDecimal();
         EntrySummary.TestField("Qty. Alloc. in Warehouse", Quantity);
         EntrySummary.TestField("Total Available Quantity", 0);
     end;
@@ -3685,20 +3685,20 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Create a Sales Order with single line of Item
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", LibraryRandom.RandInt(50), Location.Code, WorkDate());
 
         // [GIVEN] Open created Sales Order on test page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Reservation page
         Commit();
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
 
         // [THEN] Units that are in the To-Production bin are not included in Total Available Quantity
-        EntrySummary."Qty. Alloc. in Warehouse" := LibraryVariableStorage.DequeueDecimal;
-        EntrySummary."Total Available Quantity" := LibraryVariableStorage.DequeueDecimal;
+        EntrySummary."Qty. Alloc. in Warehouse" := LibraryVariableStorage.DequeueDecimal();
+        EntrySummary."Total Available Quantity" := LibraryVariableStorage.DequeueDecimal();
         EntrySummary.TestField("Qty. Alloc. in Warehouse", Quantity);
         EntrySummary.TestField("Total Available Quantity", 0);
     end;
@@ -3805,11 +3805,11 @@ codeunit 137051 "SCM Warehouse - III"
         CreateTrackedItem(Item, true, false, false, false, false);
 
         // [GIVEN] Register two positive adjustments for 10 pcs via Warehouse Item Journal:
-        // [GIVEN] put lot "L1" with expiration date = "WORKDATE" into "NoPick" bin, and lot "L2" with expiration date "WORKDATE + 1 month" to "Pick" bin.
+        // [GIVEN] put lot "L1" with expiration date = "WORKDATE" into "NoPick" bin, and lot "L2" with expiration date "WorkDate() + 1 month" to "Pick" bin.
         // [GIVEN] Note that lot "L1" has earlier expiration date than "L2".
         LibraryWarehouse.WarehouseJournalSetup(Location.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
         CreateWhseJournalLineWithLotTracking(WarehouseJournalBatch, BinNoPick, Item."No.", Qty, LotNo[1], WorkDate());
-        CreateWhseJournalLineWithLotTracking(WarehouseJournalBatch, BinPick, Item."No.", Qty, LotNo[2], WorkDate + 30);
+        CreateWhseJournalLineWithLotTracking(WarehouseJournalBatch, BinPick, Item."No.", Qty, LotNo[2], WorkDate() + 30);
         LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code, false);
         CalcWhseAdjustmentAndPostItemJournal(Item);
 
@@ -3833,7 +3833,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityLine.TestField("Bin Code", BinPick.Code);
         WarehouseActivityLine.TestField("Lot No.", LotNo[2]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3921,7 +3921,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Production Order with 1 PCS of Item "A" with 20 PCS of Item "I" as component
         // [GIVEN] Lot Tracking for Production Order Component had 20 PCS of Lot L1
         CreateProdOrderWithLotTrackedComponentItem(
-          ProductionOrder, ProdOrderComponent, LibraryInventory.CreateItemNo, 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
+          ProductionOrder, ProdOrderComponent, LibraryInventory.CreateItemNo(), 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
 
         // [GIVEN] Pick was created for Production Order with Lot L1 and 20 PCS
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -3944,7 +3944,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Pick is created with 8 PCS of Lot L2
         VerifyWarehouseActivityTakePlaceLinesQtyAndLot(ProductionOrder."No.", Location.Code, SecondPickQty, LotNo[2]);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3980,7 +3980,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Production Order with 1 PCS of Item "A" with 20 PCS of Item "I" as component
         // [GIVEN] Lot Tracking for Production Order Component had 20 PCS of Lot L1
         CreateProdOrderWithLotTrackedComponentItem(
-          ProductionOrder, ProdOrderComponent, LibraryInventory.CreateItemNo, 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
+          ProductionOrder, ProdOrderComponent, LibraryInventory.CreateItemNo(), 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
 
         // [GIVEN] Pick was created for Production Order with Lot L1 and 20 PCS
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -4005,7 +4005,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Pick is created with 8 PCS of Lot L2
         VerifyWarehouseActivityTakePlaceLinesQtyAndLot(ProductionOrder."No.", Location.Code, PickQty[2], LotNo[2]);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4038,7 +4038,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Assembly Order with Assembly Line having 20 PCS of the Item; Lot L1 was assigned in Item Tracking for the Line
         CreateAsmOrderWithLotTrackedItemLine(
-          AssemblyHeader, AssemblyLine, LibraryInventory.CreateItemNo, 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
+          AssemblyHeader, AssemblyLine, LibraryInventory.CreateItemNo(), 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
 
         // [GIVEN] Pick was created for Assembly Order with Lot L1 and 20 PCS
         LibraryAssembly.ReleaseAO(AssemblyHeader);
@@ -4063,7 +4063,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Pick is created with 8 PCS of Lot "L2"
         VerifyWarehouseActivityTakePlaceLinesQtyAndLot(AssemblyLine."Document No.", Location.Code, SecondPickQty, LotNo[2]);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4098,7 +4098,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Assembly Order with Assembly Line having 20 PCS of the Item; Lot L1 was assigned in Item Tracking for the Line
         CreateAsmOrderWithLotTrackedItemLine(
-          AssemblyHeader, AssemblyLine, LibraryInventory.CreateItemNo, 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
+          AssemblyHeader, AssemblyLine, LibraryInventory.CreateItemNo(), 1, Item."No.", ComponentQty, LotNo[1], Location.Code);
 
         // [GIVEN] Pick was created for Assembly Order with Lot L1 and 20 PCS
         LibraryAssembly.ReleaseAO(AssemblyHeader);
@@ -4125,7 +4125,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Pick is created with 8 PCS of Lot "L2"
         VerifyWarehouseActivityTakePlaceLinesQtyAndLot(AssemblyLine."Document No.", Location.Code, PickQty[2], LotNo[2]);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4373,7 +4373,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Lot-tracked item "COMP".
         CreateTrackedItem(Item, true, false, false, false, true);
 
-        // [GIVEN] Lot "L1" with expiration date = WORKDATE + 1 month.
+        // [GIVEN] Lot "L1" with expiration date = WorkDate() + 1 month.
         // [GIVEN] Post 20 pcs of "COMP" item to inventory.
         LotNo := LibraryUtility.GenerateGUID();
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, Qty, LibraryRandom.RandDate(30));
@@ -4455,11 +4455,11 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Lot-tracked item "COMP".
         CreateTrackedItem(Item, true, false, false, false, true);
 
-        // [GIVEN] Post 1 pc of item "COMP", lot "L1", expiration date = WorkDate + 10 to inventory.
+        // [GIVEN] Post 1 pc of item "COMP", lot "L1", expiration date = WorkDate() + 10 to inventory.
         LotNos[1] := LibraryUtility.GenerateGUID();
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNos[1], 1, LibraryRandom.RandDate(10));
 
-        // [GIVEN] Post 10 pcs of item "COMP", lot "L2", expiration date = WorkDate + 20 to inventory.
+        // [GIVEN] Post 10 pcs of item "COMP", lot "L2", expiration date = WorkDate() + 20 to inventory.
         LotNos[2] := LibraryUtility.GenerateGUID();
         PostItemJournalLineWithLotNoExpiration(
           Item."No.", Location.Code, Bin[1].Code, LotNos[2], Qty, LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20));
@@ -4546,7 +4546,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [GIVEN] Item "G".
         LibraryInventory.CreateItem(GoodItem);
 
-        // [GIVEN] Post item "E" to inventory, assign lot number and set "Expiration Date" < WorkDate, so it is expired.
+        // [GIVEN] Post item "E" to inventory, assign lot number and set "Expiration Date" < WorkDate(), so it is expired.
         PostItemJournalLineWithLotNoExpiration(
           ExpiredItem."No.", Location.Code, Bin[1].Code, LibraryUtility.GenerateGUID(), Qty, CalcDate('<-1W>', WorkDate()));
 
@@ -4588,7 +4588,6 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseEmployee: Record "Warehouse Employee";
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
-        AssemblyLine2: Record "Assembly Line";
         ItemJournalLine: Record "Item Journal Line";
         WarehousePickHeader: Record "Warehouse Activity Header";
         WarehousePickLine: Record "Warehouse Activity Line";
@@ -4684,7 +4683,6 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseEmployee: Record "Warehouse Employee";
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
-        AssemblyLine2: Record "Assembly Line";
         ItemJournalLine: Record "Item Journal Line";
         WarehousePickHeader: Record "Warehouse Activity Header";
         WarehousePickLine: Record "Warehouse Activity Line";
@@ -4991,7 +4989,6 @@ codeunit 137051 "SCM Warehouse - III"
     [Test]
     procedure RegisterWhsePickWithBreakbulkForConsumption()
     var
-        Location: Record Location;
         WarehouseEmployee: Record "Warehouse Employee";
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -5451,10 +5448,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateAndRefreshFirmPlannedProdOrder(ProductionOrder, Item2);
 
         // [GIVEN] Change Status of Firm Planned Production Order to Released Production Order.
-        ReleasedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProductionOrder."No.",
-            ProductionOrder.Status::"Firm Planned",
-            ProductionOrder.Status::Released);
+        ReleasedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // [GIVEN] Run Create Inventory PutAway/Pick/Movement to Create Inventory Pick.
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -5491,10 +5485,10 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        CreateLocationSetup;
+        CreateLocationSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
-        OutputJournalSetup;
+        ItemJournalSetup();
+        OutputJournalSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - III");
@@ -5547,8 +5541,8 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseSetup: Record "Warehouse Setup";
     begin
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
-        LibrarySales.SetOrderNoSeriesInSetup;
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
     end;
 
     local procedure ItemJournalSetup()
@@ -5556,7 +5550,7 @@ codeunit 137051 "SCM Warehouse - III"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
@@ -5570,7 +5564,7 @@ codeunit 137051 "SCM Warehouse - III"
         Clear(OutputItemJournalTemplate);
         OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
-        OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
@@ -5619,7 +5613,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
         ItemJournalLine.OpenItemTrackingLines(false);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
@@ -5713,7 +5707,7 @@ codeunit 137051 "SCM Warehouse - III"
         ProductionBOMHeader: Record "Production BOM Header";
         Bin: Record Bin;
     begin
-        UpdateBinOnLocation;
+        UpdateBinOnLocation();
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 2);  // Find Bin Of Index 2.
         CreateItem(Item, '');
         CreateItem(Item2, '');
@@ -5736,7 +5730,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(ChildItemLotNo);
         LibraryVariableStorage.Enqueue(ChildItemQty);
         AssemblyLine.OpenItemTrackingLines();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateProdOrderWithLotTrackedComponentItem(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component"; ParentItemNo: Code[20]; ParentItemQty: Decimal; ChildItemNo: Code[20]; ChildItemQty: Decimal; ChildItemLotNo: Code[50]; LocationCode: Code[10])
@@ -5751,7 +5745,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(ChildItemLotNo);
         LibraryVariableStorage.Enqueue(ProdOrderComponent.Quantity);
         ProdOrderComponent.OpenItemTrackingLines();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -5819,7 +5813,7 @@ codeunit 137051 "SCM Warehouse - III"
             TotalQty += LotQty;
         end;
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, TotalQty, true);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateTrackedItem(var Item: Record Item; Lot: Boolean; Serial: Boolean; StrictExpirationPosting: Boolean; ManExpirDateEntryReqd: Boolean; UseExpirationDates: Boolean)
@@ -5842,7 +5836,7 @@ codeunit 137051 "SCM Warehouse - III"
 
     local procedure OpenInventoryMovement(var InventoryMovement: TestPage "Inventory Movement"; No: Code[20]; SourceNo: Code[20])
     begin
-        InventoryMovement.OpenEdit;
+        InventoryMovement.OpenEdit();
         InventoryMovement.FILTER.SetFilter("No.", No);
         InventoryMovement.FILTER.SetFilter("Source No.", SourceNo);
     end;
@@ -5851,13 +5845,13 @@ codeunit 137051 "SCM Warehouse - III"
     var
         ItemJournal: TestPage "Item Journal";
     begin
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         LibraryVariableStorage.Enqueue(TrackingAction::SerialNo);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
 
         // Update Reservation Entry to differentiate among Expiration Dates.
         UpdateReservationEntry(ItemNo, CalcDate('<' + '-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), LocationCode);  // Value required.
-        ItemJournal.Post.Invoke;
+        ItemJournal.Post.Invoke();
     end;
 
     local procedure AssignNoSeriesForItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
@@ -5871,17 +5865,17 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         OpenSalesOrder(SalesOrder, No);
         LibraryVariableStorage.Enqueue(TrackingAction::SelectEntries);
-        SalesOrder.SalesLines.ItemTrackingLines.Invoke;  // Open Item Tracking Line.
+        SalesOrder.SalesLines.ItemTrackingLines.Invoke();  // Open Item Tracking Line.
     end;
 
     local procedure AssignLotNoAndPostItemJournal()
     var
         ItemJournal: TestPage "Item Journal";
     begin
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         LibraryVariableStorage.Enqueue(TrackingAction::LotNo);
-        ItemJournal.ItemTrackingLines.Invoke;
-        ItemJournal.Post.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
+        ItemJournal.Post.Invoke();
     end;
 
     local procedure AssignLotNoExpirationAndPostItemJournal(ItemNo: Code[20]; ExpirationDate: Date)
@@ -5889,9 +5883,9 @@ codeunit 137051 "SCM Warehouse - III"
         ReservationEntry: Record "Reservation Entry";
         ItemJournal: TestPage "Item Journal";
     begin
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         LibraryVariableStorage.Enqueue(TrackingAction::LotNo);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
 
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
@@ -5899,7 +5893,7 @@ codeunit 137051 "SCM Warehouse - III"
             ModifyAll("Expiration Date", ExpirationDate, true);
         end;
 
-        ItemJournal.Post.Invoke;
+        ItemJournal.Post.Invoke();
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location; BinMandatory: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; PickAccordingToFEFO: Boolean)
@@ -5944,7 +5938,7 @@ codeunit 137051 "SCM Warehouse - III"
         for i := 1 to ArrayLen(AssignedLotNos) do begin
             AssignedLotNos[i] := LibraryUtility.GenerateGUID();
             CreateLotTrackedItemJournalLine(
-              ItemJournalLine, ItemNo, '', LocationCode, BinCode, WorkDate - i, AssignedLotNos[i], Qty);
+              ItemJournalLine, ItemNo, '', LocationCode, BinCode, WorkDate() - i, AssignedLotNos[i], Qty);
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -5955,8 +5949,8 @@ codeunit 137051 "SCM Warehouse - III"
 
         if ItemTrackingCode <> '' then begin
             Item.Validate("Item Tracking Code", ItemTrackingCode);
-            Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Item.Modify(true);
         end else begin
             // Update Inventory.
@@ -6208,9 +6202,9 @@ codeunit 137051 "SCM Warehouse - III"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         CreateAndReleasePurchaseOrderWithReceiptDate(PurchaseHeader, ItemNo, Quantity, LocationCode, ReceiptDate);
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -6243,7 +6237,7 @@ codeunit 137051 "SCM Warehouse - III"
         BinContent: Record "Bin Content";
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, CreateAndModifyLocationCode, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, CreateAndModifyLocationCode(), false);
         LibraryWarehouse.CreateBin(
           Bin, WarehouseEmployee."Location Code",
           CopyStr(
@@ -6375,7 +6369,7 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity := LibraryRandom.RandInt(10);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", Quantity, LocationCode, WorkDate());
+          LibraryPurchase.CreateVendorNo(), Item."No.", Quantity, LocationCode, WorkDate());
     end;
 
     local procedure CreateAndRegisterWhseJournalLine(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Qty: Decimal)
@@ -6410,7 +6404,7 @@ codeunit 137051 "SCM Warehouse - III"
     local procedure CalcWhseAdjustmentAndPostItemJournal(var Item: Record Item)
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        AssignNoSeriesForItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        AssignNoSeriesForItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode());
         LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         AssignNoSeriesForItemJournalBatch(ItemJournalBatch, '');  // Value required.
@@ -6549,10 +6543,10 @@ codeunit 137051 "SCM Warehouse - III"
     local procedure FindWarehouseShipmentNo(): Code[20]
     var
         WarehouseSetup: Record "Warehouse Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(WarehouseSetup."Whse. Ship Nos."));
     end;
 
     local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -6830,25 +6824,25 @@ codeunit 137051 "SCM Warehouse - III"
 
     local procedure OpenSalesOrder(var SalesOrder: TestPage "Sales Order"; No: Code[20])
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenLocationCard(var LocationCard: TestPage "Location Card"; LocationCode: Code[10])
     begin
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard.FILTER.SetFilter(Code, LocationCode);
     end;
 
     local procedure OpenWorkCenterCard(var WorkcenterCard: TestPage "Work Center Card"; LocationCode: Code[20])
     begin
-        WorkcenterCard.OpenEdit;
+        WorkcenterCard.OpenEdit();
         WorkcenterCard.FILTER.SetFilter("Location Code", LocationCode);
     end;
 
     local procedure OpenMachineCenterCard(var MachineCenterCard: TestPage "Machine Center Card"; WorkCenterNo: Code[20])
     begin
-        MachineCenterCard.OpenEdit;
+        MachineCenterCard.OpenEdit();
         MachineCenterCard.FILTER.SetFilter("Work Center No.", WorkCenterNo);
     end;
 
@@ -6883,9 +6877,9 @@ codeunit 137051 "SCM Warehouse - III"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
         SalesOrder.Close();
     end;
 
@@ -7016,7 +7010,7 @@ codeunit 137051 "SCM Warehouse - III"
         LocationCard."Open Shop Floor Bin Code".SetValue(BinCode);
         LocationCard."To-Production Bin Code".SetValue(BinCode);
         LocationCard."From-Production Bin Code".SetValue(BinCode);
-        LocationCard.OK.Invoke;
+        LocationCard.OK().Invoke();
     end;
 
     local procedure SetBinOnWorkCenterCard(var WorkCenterCard: TestPage "Work Center Card"; No: Code[20]; BinCode: Code[20])
@@ -7025,7 +7019,7 @@ codeunit 137051 "SCM Warehouse - III"
         WorkCenterCard."Open Shop Floor Bin Code".SetValue(BinCode);
         WorkCenterCard."To-Production Bin Code".SetValue(BinCode);
         WorkCenterCard."From-Production Bin Code".SetValue(BinCode);
-        WorkCenterCard.OK.Invoke;
+        WorkCenterCard.OK().Invoke();
     end;
 
     local procedure SetBinOnMachineCenterCard(var MachineCenterCard: TestPage "Machine Center Card"; WorkCenterNo: Code[20]; BinCode: Code[20])
@@ -7034,7 +7028,7 @@ codeunit 137051 "SCM Warehouse - III"
         MachineCenterCard."Open Shop Floor Bin Code".SetValue(BinCode);
         MachineCenterCard."To-Production Bin Code".SetValue(BinCode);
         MachineCenterCard."From-Production Bin Code".SetValue(BinCode);
-        MachineCenterCard.OK.Invoke;
+        MachineCenterCard.OK().Invoke();
     end;
 
     local procedure CreateItemWithNonBaseUnitOfMeasure(var Item: Record Item; QtyPerUoM: Decimal): Code[10]
@@ -7053,7 +7047,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, ItemNo, Quantity, LocationCode, WorkDate());
+          LibraryPurchase.CreateVendorNo(), ItemNo, Quantity, LocationCode, WorkDate());
         CreateAndPostWhseReceiptAndRegisterPutAwayFromPO(PurchaseHeader);
     end;
 
@@ -7302,7 +7296,7 @@ codeunit 137051 "SCM Warehouse - III"
             repeat
                 Assert.AreNotEqual('', "Lot No.", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Lot No."), TableCaption));
                 Assert.AreNotEqual(0D, "Expiration Date", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Expiration Date"), TableCaption))
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -7421,7 +7415,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure SelectEntriesHandler(var ItemTrackingSummaryPage: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummaryPage.OK.Invoke;
+        ItemTrackingSummaryPage.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -7451,30 +7445,30 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             TrackingAction::SerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingAction::LotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             TrackingAction::AssignLotNo:
                 begin
-                    ItemTrackingLines.First;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             TrackingAction::UpdateAndAssignNew:
                 begin
-                    ItemTrackingLines.First;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                     ItemTrackingLines.Next();
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -7558,7 +7552,7 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7578,14 +7572,14 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
+        Reservation."Auto Reserve".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7612,12 +7606,12 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Dequeue(Handler);
         Handler2 := Handler;  // Assign Variant to Boolean variable.
         if Handler2 then
-            ItemtrackingLines."Assign Lot No.".Invoke
+            ItemtrackingLines."Assign Lot No.".Invoke()
         else begin
-            ItemtrackingLines."Select Entries".Invoke;
+            ItemtrackingLines."Select Entries".Invoke();
             LibraryVariableStorage.Dequeue(QtyToHandleBase);
             ItemtrackingLines."Qty. to Handle (Base)".SetValue(QtyToHandleBase);
-            ItemtrackingLines.OK.Invoke;
+            ItemtrackingLines.OK().Invoke();
         end;
     end;
 
@@ -7625,9 +7619,9 @@ codeunit 137051 "SCM Warehouse - III"
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7636,19 +7630,19 @@ codeunit 137051 "SCM Warehouse - III"
     var
         Index: Integer;
     begin
-        for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
-            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-            WhseItemTrackingLines.New;
+        for Index := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+            WhseItemTrackingLines.New();
         end;
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseShipmentCreatePickPageRequestHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
     begin
-        WhseShipmentCreatePick.OK.Invoke;
+        WhseShipmentCreatePick.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -7664,10 +7658,10 @@ codeunit 137051 "SCM Warehouse - III"
     var
         I: Integer;
     begin
-        for I := 1 to LibraryVariableStorage.DequeueInteger do begin
-            ItemTrackingLines.New;
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger);
+        for I := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines.New();
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger());
         end;
     end;
 
@@ -7705,7 +7699,7 @@ codeunit 137051 "SCM Warehouse - III"
     var
         "Integer": Integer;
     begin
-        Reservation.First;
+        Reservation.First();
 
         if not Evaluate(Integer, Reservation.QtyAllocatedInWarehouse.Value) then
             Integer := 0;

@@ -33,7 +33,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Add. Cost Sales");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -331,7 +331,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
     begin
         Initialize();
 
-        SetAverageCostCalcTypeItem;
+        SetAverageCostCalcTypeItem();
 
         // Setup: purchase invoice/order with and without variant.
         Day1 := WorkDate();
@@ -499,14 +499,12 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         PurchaseHeader2: Record "Purchase Header";
         StockkeepingUnit: Record "Stockkeeping Unit";
         Item: Record Item;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         Day1: Date;
         Qty: Decimal;
     begin
         Initialize();
 
-        SetAverageCostCalcTypeItem;
+        SetAverageCostCalcTypeItem();
 
         if Confirm('') then; // workaround for ES.
 
@@ -572,7 +570,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         // Revalue inventory.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, Day1 + 2,
-          CalculatePer::Item, false, false, true, CalculationBase::" ");
+          "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();

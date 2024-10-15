@@ -526,7 +526,7 @@ page 296 "Recurring Req. Worksheet"
                     Caption = '&Reserve';
                     Ellipsis = true;
                     Image = Reserve;
-                    ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
+                    ToolTip = 'Reserve one or more units of the item on the project planning line, either from inventory or from incoming supply.';
 
                     trigger OnAction()
                     begin

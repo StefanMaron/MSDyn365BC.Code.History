@@ -58,67 +58,65 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         ProdOrder: Record "Production Order";
         IsHandled: Boolean;
     begin
-        with Item do begin
-            if not PlanThisItem() then
-                exit;
+        if not PlanThisItem() then
+            exit;
 
-            ReqLineExtern.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
-            CopyFilter("Variant Filter", ReqLineExtern."Variant Code");
-            CopyFilter("Location Filter", ReqLineExtern."Location Code");
-            ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
-            ReqLineExtern.SetRange("No.", "No.");
-            OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName);
-            if ReqLineExtern.Find('-') then
-                repeat
-                    ReqLineExtern.Delete(true);
-                until ReqLineExtern.Next() = 0;
+        ReqLineExtern.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
+        Item.CopyFilter("Variant Filter", ReqLineExtern."Variant Code");
+        Item.CopyFilter("Location Filter", ReqLineExtern."Location Code");
+        ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
+        ReqLineExtern.SetRange("No.", Item."No.");
+        OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName);
+        if ReqLineExtern.Find('-') then
+            repeat
+                ReqLineExtern.Delete(true);
+            until ReqLineExtern.Next() = 0;
 
-            PlannedProdOrderLine.SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code");
-            PlannedProdOrderLine.SetRange(Status, PlannedProdOrderLine.Status::Planned);
-            CopyFilter("Variant Filter", PlannedProdOrderLine."Variant Code");
-            CopyFilter("Location Filter", PlannedProdOrderLine."Location Code");
-            PlannedProdOrderLine.SetRange("Item No.", "No.");
-            if PlannedProdOrderLine.Find('-') then
-                repeat
-                    if ProdOrder.Get(PlannedProdOrderLine.Status, PlannedProdOrderLine."Prod. Order No.") then begin
-                        if (ProdOrder."Source Type" = ProdOrder."Source Type"::Item) and
-                           (ProdOrder."Source No." = PlannedProdOrderLine."Item No.")
-                        then
-                            ProdOrder.Delete(true);
-                    end else
-                        PlannedProdOrderLine.Delete(true);
-                until PlannedProdOrderLine.Next() = 0;
+        PlannedProdOrderLine.SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code");
+        PlannedProdOrderLine.SetRange(Status, PlannedProdOrderLine.Status::Planned);
+        Item.CopyFilter("Variant Filter", PlannedProdOrderLine."Variant Code");
+        Item.CopyFilter("Location Filter", PlannedProdOrderLine."Location Code");
+        PlannedProdOrderLine.SetRange("Item No.", Item."No.");
+        if PlannedProdOrderLine.Find('-') then
+            repeat
+                if ProdOrder.Get(PlannedProdOrderLine.Status, PlannedProdOrderLine."Prod. Order No.") then begin
+                    if (ProdOrder."Source Type" = ProdOrder."Source Type"::Item) and
+                       (ProdOrder."Source No." = PlannedProdOrderLine."Item No.")
+                    then
+                        ProdOrder.Delete(true);
+                end else
+                    PlannedProdOrderLine.Delete(true);
+            until PlannedProdOrderLine.Next() = 0;
 
-            Commit();
+        Commit();
 
-            OnCodeOnBeforeInvtProfileOffsettingSetParm(Item);
+        OnCodeOnBeforeInvtProfileOffsettingSetParm(Item);
 
-            CalculateAndGetPlanningCompList();
+        CalculateAndGetPlanningCompList();
 
-            CopyFilter("Variant Filter", PlanningAssignment."Variant Code");
-            CopyFilter("Location Filter", PlanningAssignment."Location Code");
-            PlanningAssignment.SetRange(Inactive, false);
-            PlanningAssignment.SetRange("Net Change Planning", true);
-            PlanningAssignment.SetRange("Item No.", "No.");
-            if PlanningAssignment.Find('-') then
-                repeat
-                    if PlanningAssignment."Latest Date" <= ToDate then begin
-                        PlanningAssignment.Inactive := true;
-                        PlanningAssignment.Modify();
-                    end;
-                until PlanningAssignment.Next() = 0;
+        Item.CopyFilter(Item."Variant Filter", PlanningAssignment."Variant Code");
+        Item.CopyFilter(Item."Location Filter", PlanningAssignment."Location Code");
+        PlanningAssignment.SetRange(Inactive, false);
+        PlanningAssignment.SetRange("Net Change Planning", true);
+        PlanningAssignment.SetRange("Item No.", Item."No.");
+        if PlanningAssignment.Find('-') then
+            repeat
+                if PlanningAssignment."Latest Date" <= ToDate then begin
+                    PlanningAssignment.Inactive := true;
+                    PlanningAssignment.Modify();
+                end;
+            until PlanningAssignment.Next() = 0;
 
-            OnCodeOnAfterGetPlanningComponents(Item);
+        OnCodeOnAfterGetPlanningComponents(Item);
 
-            Commit();
+        Commit();
 
-            TempItemList := Item;
+        TempItemList := Item;
 
-            IsHandled := false;
-            OnCodeOnBeforeTempItemListInsert(TempItemList, IsHandled);
-            if not IsHandled then
-                TempItemList.Insert();
-        end;
+        IsHandled := false;
+        OnCodeOnBeforeTempItemListInsert(TempItemList, IsHandled);
+        if not IsHandled then
+            TempItemList.Insert();
     end;
 
     local procedure CalculateAndGetPlanningCompList()

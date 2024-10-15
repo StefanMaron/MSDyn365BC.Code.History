@@ -402,14 +402,14 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.InitInsert();
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header");
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.InitInsert();
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
     end;
 
     local procedure ArchiveSalesDocuments(SalesHeader: Record "Sales Header")

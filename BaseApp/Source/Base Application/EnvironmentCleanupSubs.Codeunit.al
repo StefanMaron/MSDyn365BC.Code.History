@@ -1,6 +1,7 @@
 namespace System.Environment;
 
 using Microsoft.CRM.Outlook;
+using Microsoft.Integration.SyncEngine;
 #if not CLEAN22
 using Microsoft.CRM.Setup;
 #endif
@@ -9,9 +10,6 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
-#if not CLEAN21
-using Microsoft.Integration.Graph;
-#endif
 using Microsoft.Utilities;
 using System.DataAdministration;
 using System.Threading;
@@ -29,11 +27,6 @@ codeunit 8912 "Environment Cleanup Subs"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup";
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
-#if not CLEAN21
-        GraphMailSetup: Record "Graph Mail Setup";
-#endif
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        CDSConnectionSetup: Record "CDS Connection Setup";
         ServiceConnection: Record "Service Connection";
 #if not CLEAN22
         MarketingSetup: Record "Marketing Setup";
@@ -51,12 +44,8 @@ codeunit 8912 "Environment Cleanup Subs"
         CurrExchRateUpdateSetup.ModifyAll(Enabled, false);
 
         VATRegNoSrvConfig.ModifyAll(Enabled, false);
-#if not CLEAN21
-        GraphMailSetup.ModifyAll(Enabled, false);
-#endif
-        CRMConnectionSetup.ModifyAll("Is Enabled", false);
 
-        CDSConnectionSetup.ModifyAll("Is Enabled", false);
+        CleanCDSIntegration();
 
         ServiceConnection.ModifyAll(Status, ServiceConnection.Status::Disabled);
 #if not CLEAN22
@@ -76,6 +65,24 @@ codeunit 8912 "Environment Cleanup Subs"
 
         // Prod to prod copy cleanup code goes here
 
+    end;
+
+    local procedure CleanCDSIntegration()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSIntegrationRecord: Record "CRM Integration Record";
+        CDSIntegrationSyncJob: Record "Integration Synch. Job";
+        CDSIntegrationsSyncJobErrors: Record "Integration Synch. Job Errors";
+    begin
+        // Here we delete the setup records
+        CDSConnectionSetup.DeleteAll();
+        CRMConnectionSetup.DeleteAll();
+
+        // Here we delete the integration links
+        CDSIntegrationRecord.DeleteAll();
+        CDSIntegrationSyncJob.DeleteAll();
+        CDSIntegrationsSyncJobErrors.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearDatabaseConfig', '', false, false)]

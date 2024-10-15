@@ -20,7 +20,7 @@ page 130415 "Semi-Manual Test Wizard"
             group(StepCodeunit)
             {
                 Caption = '';
-                Visible = NOT TestExecuting;
+                Visible = not TestExecuting;
                 group(Para1)
                 {
                     Caption = 'Codeunit';
@@ -65,7 +65,7 @@ page 130415 "Semi-Manual Test Wizard"
                         Caption = '';
                         Editable = false;
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                 }
                 group(Para2)
@@ -77,7 +77,7 @@ page 130415 "Semi-Manual Test Wizard"
                         ApplicationArea = All;
                         Editable = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies title of this set of manual actions';
                     }
                     field(ManualSteps; ManualSteps)
@@ -141,7 +141,7 @@ page 130415 "Semi-Manual Test Wizard"
             {
                 ApplicationArea = All;
                 Caption = 'Load';
-                Enabled = NOT TestExecuting;
+                Enabled = not TestExecuting;
                 InFooterBar = true;
                 ToolTip = 'Load the selected codeunit.';
 

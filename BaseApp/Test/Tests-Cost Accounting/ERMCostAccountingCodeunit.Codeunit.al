@@ -24,7 +24,6 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
         TypeOfID: Option "Auto Generated",Custom;
         AllocSourceFound: Label 'Cost allocation sources were found.';
@@ -50,7 +49,6 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         ExpectedNoPostingMsg: Label 'Not all journals were posted. The journals that were not successfully posted are now marked.';
         ExpectedPostingMsg: Label 'The journals were successfully posted.';
         UnexpectedMessage: Label 'Actual Message [%1] must be equal to Expected Message [%2].';
-        CostJnlBatchNameLengthError: Label '%1 cannot exceed %2 characters in %3 %4=''%5'',%6=''%7''.', Comment = '%1:Field Caption;%2:Field Value;%3:Table Caption;%4:Field Caption;%5:Field Value;%6:Field Caption;%7:Field Value;';
         CostJournalLineBalanceError: Label 'The lines in Cost Journal are out of balance by %1. Verify that %2 and %3 are correct for each line.', Comment = '%1:Field Value;%2:Field Caption;%3:Field Caption;';
         CostTypeFilterDefinition: Label '%1..%2', Comment = '%1 - Field Value;%2 - Field Value', Locked = true;
         CostCenterObjectFilterDefinition: Label '%1|%2|%3', Comment = '%1 - Field Value;%2 - Field Value;%3 - Field Value';
@@ -446,7 +444,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAllocationSource.DeleteAll();
 
         // Exercise and Verify
-        Assert.AreEqual(0, CostAccountAllocation.CalcAllocationKeys, AllocSourceFound);
+        Assert.AreEqual(0, CostAccountAllocation.CalcAllocationKeys(), AllocSourceFound);
 
         // Cleanup
         asserterror Error(Rollback);
@@ -483,7 +481,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         VerifyAllocTargetShareIsZero(ID, DynamicLineNo);
 
         // Exercise
-        Assert.AreEqual(1, CostAccountAllocation.CalcAllocationKeys, DynamicAllocTargetNotFound);
+        Assert.AreEqual(1, CostAccountAllocation.CalcAllocationKeys(), DynamicAllocTargetNotFound);
 
         // Post-Verify
         VerifyAllocTargetShareIsZero(ID, StaticLineNo);
@@ -517,7 +515,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         VerifyAllocTargetShareIsZero(ID, LineNo);
 
         // Exercise
-        Assert.AreEqual(1, CostAccountAllocation.CalcAllocationKeys, DynamicAllocTargetNotFound);
+        Assert.AreEqual(1, CostAccountAllocation.CalcAllocationKeys(), DynamicAllocTargetNotFound);
 
         // Post-Verify
         VerifyAllocTargetShareIsNonZero(ID, LineNo);
@@ -545,7 +543,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateStaticAllocTarget(CostAllocationTarget, LineNo);
 
         // Exercise and Verify
-        Assert.AreEqual(0, CostAccountAllocation.CalcAllocationKeys, DynamicAllocTargetFound);
+        Assert.AreEqual(0, CostAccountAllocation.CalcAllocationKeys(), DynamicAllocTargetFound);
 
         // Cleanup
         asserterror Error(Rollback);
@@ -598,7 +596,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        asserterror CostAccountMgt.GetCostTypesFromChartOfAccount;
+        asserterror CostAccountMgt.GetCostTypesFromChartOfAccount();
     end;
 
     [Test]
@@ -617,7 +615,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
-        CostAccountMgt.GetCostTypesFromChartOfAccount;
+        CostAccountMgt.GetCostTypesFromChartOfAccount();
         CostType.Get(GLAccount."No.");
         GLAccount.TestField("No.", CostType."No.");
     end;
@@ -1327,7 +1325,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        CostAccountMgt.ConfirmIndentCostTypes;
+        CostAccountMgt.ConfirmIndentCostTypes();
     end;
 
     [Test]
@@ -1340,7 +1338,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        asserterror CostAccountMgt.ConfirmIndentCostTypes;
+        asserterror CostAccountMgt.ConfirmIndentCostTypes();
     end;
 
     [Test]
@@ -1353,7 +1351,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        asserterror CostAccountMgt.LinkCostTypesToGLAccountsYN;
+        asserterror CostAccountMgt.LinkCostTypesToGLAccountsYN();
     end;
 
     [Test]
@@ -1376,7 +1374,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GLAccount.Validate("Cost Type No.", '');
         GLAccount.Modify();
 
-        CostAccountMgt.LinkCostTypesToGLAccountsYN;
+        CostAccountMgt.LinkCostTypesToGLAccountsYN();
 
         CostType.Reset();
         CostType.Get(GLAccount."No.");
@@ -1443,7 +1441,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        CostAccountMgt.IndentCostCentersYN;
+        CostAccountMgt.IndentCostCentersYN();
     end;
 
     [Test]
@@ -1456,7 +1454,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        asserterror CostAccountMgt.IndentCostCentersYN;
+        asserterror CostAccountMgt.IndentCostCentersYN();
     end;
 
     [Test]
@@ -1474,7 +1472,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize();
         SetupCostObjectTestCases(Dimension, DimensionValue, InitialCostObjectDimension);
 
-        CostAccountMgt.CreateCostObjects;
+        CostAccountMgt.CreateCostObjects();
         CostObject.Get(DimensionValue.Code);
 
         CostObject.TestField(Code, DimensionValue.Code);
@@ -1496,7 +1494,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         DimensionValue.DeleteAll();
         CostObject.DeleteAll();
 
-        CostAccountMgt.CreateCostObjects;
+        CostAccountMgt.CreateCostObjects();
 
         Assert.IsTrue(DimensionValue.IsEmpty, StrSubstNo(Text005, true));
 
@@ -1513,7 +1511,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        CostAccountMgt.IndentCostObjectsYN;
+        CostAccountMgt.IndentCostObjectsYN();
     end;
 
     [Test]
@@ -1526,7 +1524,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize();
 
-        asserterror CostAccountMgt.IndentCostObjectsYN;
+        asserterror CostAccountMgt.IndentCostObjectsYN();
     end;
 
     [Test]
@@ -2354,7 +2352,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Run Transfer GL Entries to CA before exercise to avoid local posted data influence
         Initialize();
         Clear(TransferGLEntriesToCA);
-        TransferGLEntriesToCA.TransferGLtoCA;
+        TransferGLEntriesToCA.TransferGLtoCA();
         UpdateCostAccountingSetup(OldAlignmentValue);
         SetupCostCenterTestCases(Dimension, DimensionValue, InitialCostCenterDimension);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
@@ -2364,7 +2362,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateGeneralLineWithDimension(GenJournalLine, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Clear(TransferGLEntriesToCA);
-        TransferGLEntriesToCA.TransferGLtoCA;
+        TransferGLEntriesToCA.TransferGLtoCA();
 
         // Verify: Verify the cost register and cost entries with cost center.
         ValidateCreatedEntries(CostCenter.Code, '');
@@ -2401,7 +2399,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Exercise: Creating and posting the General Journal Line with dimension and then run the batch Transfer GL Entries to CA.
         CreateGeneralLineWithDimension(GenJournalLine, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        TransferGLEntriesToCA.TransferGLtoCA;
+        TransferGLEntriesToCA.TransferGLtoCA();
 
         // Verify: Verify the cost register and cost entries with cost object.
         ValidateCreatedEntries('', CostObject.Code);
@@ -2653,7 +2651,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UpdateCostObject(CostObject[4], CostObject[4]."Line Type"::"End-Total");
 
         // Exercise: Indent cost objects.
-        CostAccMgt.IndentCostObjects;
+        CostAccMgt.IndentCostObjects();
 
         // Verify: To verify the indentation of created Cost Object after invoking Indent Cost Object Action.
         VerifyChartOfCostObjectIndent(CostObject[1].Code, CostObject[4].Code, Totaling);
@@ -2722,7 +2720,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UpdateCostObject(CostObject, CostObject."Line Type"::"End-Total");
 
         // Exercise: Indent cost centers.
-        asserterror CostAccountMgt.IndentCostObjects;
+        asserterror CostAccountMgt.IndentCostObjects();
 
         // Verify: Verify the error message for when there is no corresponding Begin Total for End Total Cost Center.
         Assert.ExpectedError(StrSubstNo(EndTotalError, CostObject.Code));
@@ -2849,7 +2847,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // Setup: Create two Dimensions and two Cost Centers. Create Item.
         Initialize();
-        UpdateCountryData;
+        UpdateCountryData();
         Count := 2;
         Qty := LibraryRandom.RandInt(10);
         DynamicLineNo := LibraryRandom.RandInt(10);
@@ -2896,7 +2894,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Validate("Allow Posting From", WorkDate());
 
         // [WHEN] Setting up Allow Posting To with an earlier value than Allow Posting From
-        asserterror GeneralLedgerSetup.Validate("Allow Posting To", WorkDate - LibraryRandom.RandInt(10));
+        asserterror GeneralLedgerSetup.Validate("Allow Posting To", WorkDate() - LibraryRandom.RandInt(10));
 
         // [THEN] Expected error occurs
         Assert.ExpectedError(AllowedPostingDateErr);
@@ -2920,7 +2918,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Validate("Allow Posting To", WorkDate());
 
         // [WHEN] Setting up Allow Posting From with a greater value than Allow Posting To
-        asserterror GeneralLedgerSetup.Validate("Allow Posting From", WorkDate + LibraryRandom.RandInt(10));
+        asserterror GeneralLedgerSetup.Validate("Allow Posting From", WorkDate() + LibraryRandom.RandInt(10));
 
         // [THEN] Expected error occurs
         Assert.ExpectedError(AllowedPostingDateErr);
@@ -2944,7 +2942,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Validate("Allow Posting From", WorkDate());
 
         // [GIVEN] Setting up Allow Posting To with proper value as well
-        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate + LibraryRandom.RandInt(10));
+        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate() + LibraryRandom.RandInt(10));
 
         // [WHEN] Setting up Allow Posting To with a 0D value
         GeneralLedgerSetup.Validate("Allow Posting To", 0D);
@@ -2970,7 +2968,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Validate("Allow Posting From", WorkDate());
 
         // [WHEN] Setting up Allow Posting To with an earlier value than Allow Posting From
-        asserterror UserSetup.Validate("Allow Posting To", WorkDate - LibraryRandom.RandInt(10));
+        asserterror UserSetup.Validate("Allow Posting To", WorkDate() - LibraryRandom.RandInt(10));
 
         // [THEN] Expected error occurs
         Assert.ExpectedError(AllowedPostingDateErr);
@@ -2994,7 +2992,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Validate("Allow Posting To", WorkDate());
 
         // [WHEN] Setting up Allow Posting From with a greater value than Allow Posting To
-        asserterror UserSetup.Validate("Allow Posting From", WorkDate + LibraryRandom.RandInt(10));
+        asserterror UserSetup.Validate("Allow Posting From", WorkDate() + LibraryRandom.RandInt(10));
 
         // [THEN] Expected error occurs
         Assert.ExpectedError(AllowedPostingDateErr);
@@ -3018,7 +3016,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Validate("Allow Posting From", WorkDate());
 
         // [GIVEN] Setting up Allow Posting To with proper value as well
-        UserSetup.Validate("Allow Posting To", WorkDate + LibraryRandom.RandInt(10));
+        UserSetup.Validate("Allow Posting To", WorkDate() + LibraryRandom.RandInt(10));
 
         // [WHEN] Setting up Allow Posting To with a 0D value
         UserSetup.Validate("Allow Posting To", 0D);
@@ -3042,19 +3040,19 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // [GIVEN] Init GL Setup and set up incorrect allowed posting range
         GeneralLedgerSetup.Init();
         GeneralLedgerSetup."Allow Posting To" := WorkDate();
-        GeneralLedgerSetup."Allow Posting From" := WorkDate + LibraryRandom.RandInt(10);
+        GeneralLedgerSetup."Allow Posting From" := WorkDate() + LibraryRandom.RandInt(10);
         GeneralLedgerSetup.Modify();
 
         // [GIVEN] Create Item Journal Line
         LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
+          ItemJournalLine, LibraryInventory.CreateItemNo(), '', '', LibraryRandom.RandInt(10));
 
         // [WHEN] Post the Item Journal Line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         Assert.ExpectedError('');
 
         // [THEN] Expected Notification about incorrect setup appears
-        Assert.ExpectedMessage(AllowedPostingDateMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(AllowedPostingDateMsg, LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -3091,7 +3089,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // [GIVEN] Post the Gen. Journal Line and run the Allocation Cost report
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // [VERIFY] Verify the cost register created successfully
         VerifyCostRegisterAndEntry(CostRegister);
@@ -3159,15 +3157,15 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     [Scope('OnPrem')]
     procedure CostJournalPageHandler(var CostJournal: TestPage "Cost Journal")
     begin
-        CostJnlBatchName := CostJournal.CostJnlBatchName.Value;
-        CostJournal.OK.Invoke;
+        CostJnlBatchName := CostJournal.CostJnlBatchName.Value();
+        CostJournal.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CostJournalTemplatePageHandler(var CostJournalTemplate: TestPage "Cost Journal Templates")
     begin
-        CostJournalTemplate.OK.Invoke;
+        CostJournalTemplate.OK().Invoke();
     end;
 
     local procedure CreateAllocSource(var CostAllocationSource: Record "Cost Allocation Source")
@@ -3179,7 +3177,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAllocationSource.Insert();
     end;
 
-    local procedure CreateAllocTarget(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Option)
+    local procedure CreateAllocTarget(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Enum "Cost Allocation Target Base")
     begin
         CostAllocationTarget.ID := ID;
         CostAllocationTarget."Line No." := LineNo;
@@ -3249,7 +3247,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostObject.Insert();
     end;
 
-    local procedure CreateDynAllocTargetByAllocSourceID(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Option; DateFilterCode: Option)
+    local procedure CreateDynAllocTargetByAllocSourceID(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Enum "Cost Allocation Target Base"; DateFilterCode: Enum "Cost Allocation Target Period")
     begin
         CreateAllocTarget(CostAllocationTarget, ID, LineNo, Base);
         CostAllocationTarget."Date Filter Code" := DateFilterCode;
@@ -3360,13 +3358,13 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         FieldRef.SetFilter('<>%1', TypeValue);
         RecordRef.FindFirst();
         FieldRef := RecordRef.Field(IndentationFieldNo);
-        FirstLevelIndentation := FieldRef.Value;
+        FirstLevelIndentation := FieldRef.Value();
 
         FieldRef := RecordRef.Field(TypeFieldNo);
         FieldRef.SetRange(TypeValue);
         RecordRef.FindFirst();
         FieldRef := RecordRef.Field(IndentationFieldNo);
-        SecondLevelIndentation := FieldRef.Value;
+        SecondLevelIndentation := FieldRef.Value();
     end;
 
     [MessageHandler]
@@ -3501,7 +3499,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostObject.Modify(true);
     end;
 
-    local procedure UpdateCostType(var CostType: Record "Cost Type"; GLAccountNo: Code[20]; Type: Option)
+    local procedure UpdateCostType(var CostType: Record "Cost Type"; GLAccountNo: Code[20]; Type: Enum "Cost Account Type")
     begin
         CostType.Validate("G/L Account Range", GLAccountNo);
         CostType.Validate(Type, Type);
@@ -3521,7 +3519,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     local procedure UpdateCountryData()
     begin
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
@@ -3571,7 +3569,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAllocationTarget.TestField(Percent, 0);
     end;
 
-    local procedure VerifyBlocked(RecordRef: RecordRef; BlockedFieldNo: Integer; TypeFieldNo: Integer; TypeValue: Option)
+    local procedure VerifyBlocked(RecordRef: RecordRef; BlockedFieldNo: Integer; TypeFieldNo: Integer; TypeValue: Enum "Cost Account Type")
     var
         BlockedFieldRef: FieldRef;
         TypeFieldRef: FieldRef;
@@ -3580,8 +3578,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         repeat
             BlockedFieldRef := RecordRef.Field(BlockedFieldNo);
             TypeFieldRef := RecordRef.Field(TypeFieldNo);
-            Type := TypeFieldRef.Value;
-            BlockedFieldRef.TestField(Type <> TypeValue);
+            Type := TypeFieldRef.Value();
+            BlockedFieldRef.TestField(Type <> TypeValue.AsInteger());
         until RecordRef.Next() = 0;
     end;
 
@@ -3596,7 +3594,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostCenter.FindFirst();
 
         RecordRef.GetTable(CostCenter);
-        VerifyBlocked(RecordRef, CostCenter.FieldNo(Blocked), CostCenter.FieldNo("Line Type"), CostCenter."Line Type"::"Cost Center");
+        VerifyBlocked(RecordRef, CostCenter.FieldNo(Blocked), CostCenter.FieldNo("Line Type"),
+            "COst Account Type".FromInteger(CostCenter."Line Type"::"Cost Center"));
 
         RecordRef.GetTable(CostCenter);
         VerifyTotaling(RecordRef, CostCenter.FieldNo(Totaling), Totaling);
@@ -3621,7 +3620,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostObject.FindFirst();
 
         RecordRef.GetTable(CostObject);
-        VerifyBlocked(RecordRef, CostObject.FieldNo(Blocked), CostObject.FieldNo("Line Type"), CostObject."Line Type"::"Cost Object");
+        VerifyBlocked(RecordRef, CostObject.FieldNo(Blocked), CostObject.FieldNo("Line Type"),
+            "Cost Account Type".FromInteger(CostObject."Line Type"::"Cost Object"));
 
         RecordRef.GetTable(CostObject);
         VerifyTotaling(RecordRef, CostObject.FieldNo(Totaling), Totaling);
@@ -3653,8 +3653,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         RecordRef.GetTable(CostType);
         GetIndentation(
-          FirstLevelIndentation, SecondLevelIndentation, RecordRef, CostType.FieldNo(Type), CostType.Type::"Cost Type",
-          CostType.FieldNo(Indentation));
+          FirstLevelIndentation, SecondLevelIndentation, RecordRef, CostType.FieldNo(Type),
+          CostType.Type::"Cost Type".AsInteger(), CostType.FieldNo(Indentation));
         RecordRef.GetTable(CostType);
         VerifyIndentation(RecordRef, CostType.FieldNo(Indentation), CostType.FieldNo(Type), FirstLevelIndentation, SecondLevelIndentation);
     end;
@@ -3797,7 +3797,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Option)
+    local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Enum "Cost Allocation Target Base")
     var
         CostAllocationTarget: Record "Cost Allocation Target";
         Index: Integer;
@@ -3882,7 +3882,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     begin
         LibraryVariableStorage.Dequeue(Level);
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, Level, Level, WorkDate(), '', '');
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 }
 

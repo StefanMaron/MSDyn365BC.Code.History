@@ -88,7 +88,7 @@ page 5333 "CRM Skipped Records"
                 AccessByPermission = TableData "CRM Integration Record" = IM;
                 ApplicationArea = Suite;
                 Caption = 'Retry';
-                Enabled = AreRecordsExist AND ShowRetryOrSync;
+                Enabled = AreRecordsExist and ShowRetryOrSync;
                 Image = ResetStatus;
                 ToolTip = 'Restore selected records so they can be synchronized.';
 
@@ -129,7 +129,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize';
-                Enabled = AreRecordsExist AND ShowRetryOrSync;
+                Enabled = AreRecordsExist and ShowRetryOrSync;
                 Image = Refresh;
                 ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
 
@@ -256,7 +256,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Restore Records';
-                Enabled = AreRecordsExist AND ShowRestoreOrDelete;
+                Enabled = AreRecordsExist and ShowRestoreOrDelete;
                 Image = CreateMovement;
                 ToolTip = 'Restore the deleted coupled entity in Dynamics 365 Sales. A synchronization job is run to achieve this.';
 
@@ -273,7 +273,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Delete Records';
-                Enabled = AreRecordsExist AND ShowRestoreOrDelete;
+                Enabled = AreRecordsExist and ShowRestoreOrDelete;
                 Image = CancelLine;
                 ToolTip = 'Delete the coupled entity in Dynamics 365 Sales.';
 
@@ -381,7 +381,7 @@ page 5333 "CRM Skipped Records"
 
     trigger OnOpenPage()
     begin
-        LoadData('');
+        LoadData(InitialTableDataFilter);
     end;
 
     var
@@ -400,6 +400,12 @@ page 5333 "CRM Skipped Records"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UserRetriedAllTxt: Label 'User invoked the Retry All function to set the Skipped flag to false on all records.', Locked = true;
         FindMoreQst: Label 'Do you want to find couplings that were broken after one or more entities were deleted in Business Central?';
+        InitialTableDataFilter: Text;
+
+    internal procedure SetInitialTableDataFilter(InputInitialTableDataFilter: Text)
+    begin
+        InitialTableDataFilter := InputInitialTableDataFilter;
+    end;
 
     local procedure LoadData(TableIdFilter: Text);
     begin
@@ -470,7 +476,7 @@ page 5333 "CRM Skipped Records"
         TableIdFilter: Text;
     begin
         if TooManyErrorsNotification.Recall() then;
-        SetOutside := False;
+        SetOutside := false;
 
         CurrView := Rec.GetView();
         TableIdFilter := Rec.GetFilter("Table ID");

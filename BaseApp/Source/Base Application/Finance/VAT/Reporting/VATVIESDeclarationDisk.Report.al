@@ -228,39 +228,38 @@ report 88 "VAT- VIES Declaration Disk"
     begin
         if (Round(Abs(TotalValueofItemSupplies), 1, '<') <> 0) or (Round(Abs(TotalValueofServiceSupplies), 1, '<') <> 0) or
            (Round(Abs(EU3PartyItemTradeAmt), 1, '<') <> 0) or (Round(Abs(EU3PartyServiceTradeAmt), 1, '<') <> 0)
-        then
-            with "VAT Entry" do begin
-                if "VAT Registration No." = '' then begin
-                    Type := Type::Sale;
-                    Error(
-                      Text003,
-                      FieldCaption("VAT Registration No."), FieldCaption(Type), Type);
-                end;
-
-                Cust.Get(GetCustomerNoToCheck("VAT Entry"));
-                Cust.TestField("Country/Region Code");
-                Country.Get(Cust."Country/Region Code");
-                Cust.TestField("VAT Registration No.");
-                Country.Get("Country/Region Code");
-                Country.TestField("EU Country/Region Code");
-                NoOfGrTotal := NoOfGrTotal + 1;
-
-                InternalReferenceNo := IncStr(InternalReferenceNo);
-                ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo, VATDate);
-
-                VATFile.Write(
-                  Format(
-                    '02' + Format(InternalReferenceNo, 10) +
-                    DecimalNumeralZeroFormat(Date2DMY(Period, 3) mod 100, 2) +
-                    DecimalNumeralZeroFormat(Date2DMY(Period, 2), 2) +
-                    DecimalNumeralZeroFormat(Date2DMY(Period, 1), 2) +
-                    Format(VATRegNo, 8) + Format(Country."EU Country/Region Code", 2) + Format("VAT Registration No.", 12) +
-                    DecimalNumeralZeroFormat(TotalValueofItemSupplies, 15) + DecimalNumeralSign(-TotalValueofItemSupplies) + '0' +
-                    DecimalNumeralZeroFormat(TotalValueofServiceSupplies, 15) + DecimalNumeralSign(-TotalValueofServiceSupplies) + '0' +
-                    DecimalNumeralZeroFormat(EU3PartyItemTradeAmt, 15) + DecimalNumeralSign(-EU3PartyItemTradeAmt) + '0' +
-                    DecimalNumeralZeroFormat(EU3PartyServiceTradeAmt, 15) + DecimalNumeralSign(-EU3PartyServiceTradeAmt),
-                    120));
+        then begin
+            if "VAT Entry"."VAT Registration No." = '' then begin
+                "VAT Entry".Type := "VAT Entry".Type::Sale;
+                Error(
+                  Text003,
+                  "VAT Entry".FieldCaption("VAT Registration No."), "VAT Entry".FieldCaption(Type), "VAT Entry".Type);
             end;
+
+            Cust.Get(GetCustomerNoToCheck("VAT Entry"));
+            Cust.TestField("Country/Region Code");
+            Country.Get(Cust."Country/Region Code");
+            Cust.TestField("VAT Registration No.");
+            Country.Get("VAT Entry"."Country/Region Code");
+            Country.TestField("EU Country/Region Code");
+            NoOfGrTotal := NoOfGrTotal + 1;
+
+            InternalReferenceNo := IncStr(InternalReferenceNo);
+            ModifyVATEntryInternalRefNo("VAT Entry"."Country/Region Code", "VAT Entry"."Bill-to/Pay-to No.", InternalReferenceNo, VATDate);
+
+            VATFile.Write(
+              Format(
+                '02' + Format(InternalReferenceNo, 10) +
+                DecimalNumeralZeroFormat(Date2DMY(Period, 3) mod 100, 2) +
+                DecimalNumeralZeroFormat(Date2DMY(Period, 2), 2) +
+                DecimalNumeralZeroFormat(Date2DMY(Period, 1), 2) +
+                Format(VATRegNo, 8) + Format(Country."EU Country/Region Code", 2) + Format("VAT Entry"."VAT Registration No.", 12) +
+                DecimalNumeralZeroFormat(TotalValueofItemSupplies, 15) + DecimalNumeralSign(-TotalValueofItemSupplies) + '0' +
+                DecimalNumeralZeroFormat(TotalValueofServiceSupplies, 15) + DecimalNumeralSign(-TotalValueofServiceSupplies) + '0' +
+                DecimalNumeralZeroFormat(EU3PartyItemTradeAmt, 15) + DecimalNumeralSign(-EU3PartyItemTradeAmt) + '0' +
+                DecimalNumeralZeroFormat(EU3PartyServiceTradeAmt, 15) + DecimalNumeralSign(-EU3PartyServiceTradeAmt),
+                120));
+        end;
     end;
 
     local procedure GetCustomerNoToCheck(VATEntry: Record "VAT Entry"): Code[20]

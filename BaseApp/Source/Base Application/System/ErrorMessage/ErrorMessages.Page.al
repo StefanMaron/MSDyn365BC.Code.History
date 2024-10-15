@@ -14,7 +14,7 @@ page 700 "Error Messages"
     SourceTable = "Error Message";
     SourceTableTemporary = true;
     SourceTableView = sorting("Message Type", ID)
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {

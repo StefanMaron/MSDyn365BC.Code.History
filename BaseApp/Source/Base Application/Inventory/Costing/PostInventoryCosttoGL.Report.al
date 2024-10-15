@@ -231,20 +231,18 @@ report 1002 "Post Inventory Cost to G/L"
                     trigger OnAfterGetRecord()
                     begin
                         GetItemValueEntry("Value Entry No.");
-                        with ItemValueEntry do begin
-                            if "Item Ledger Entry No." = 0 then begin
-                                TempCapValueEntry."Entry No." := "Entry No.";
-                                TempCapValueEntry."Order Type" := "Order Type";
-                                TempCapValueEntry."Order No." := "Order No.";
-                                TempCapValueEntry.Insert();
-                            end;
-
-                            if ("Item Ledger Entry No." = 0) or not Inventoriable or
-                               (("Cost Amount (Actual)" = 0) and ("Cost Amount (Expected)" = 0) and
-                                ("Cost Amount (Actual) (ACY)" = 0) and ("Cost Amount (Expected) (ACY)" = 0))
-                            then
-                                CurrReport.Skip();
+                        if ItemValueEntry."Item Ledger Entry No." = 0 then begin
+                            TempCapValueEntry."Entry No." := ItemValueEntry."Entry No.";
+                            TempCapValueEntry."Order Type" := ItemValueEntry."Order Type";
+                            TempCapValueEntry."Order No." := ItemValueEntry."Order No.";
+                            TempCapValueEntry.Insert();
                         end;
+
+                        if (ItemValueEntry."Item Ledger Entry No." = 0) or not ItemValueEntry.Inventoriable or
+                           ((ItemValueEntry."Cost Amount (Actual)" = 0) and (ItemValueEntry."Cost Amount (Expected)" = 0) and
+                            (ItemValueEntry."Cost Amount (Actual) (ACY)" = 0) and (ItemValueEntry."Cost Amount (Expected) (ACY)" = 0))
+                        then
+                            CurrReport.Skip();
 
                         if not InvtPostToGL.BufferInvtPosting(ItemValueEntry) then begin
                             InsertValueEntryNoBuf(ItemValueEntry);
@@ -689,6 +687,8 @@ report 1002 "Post Inventory Cost to G/L"
     end;
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL, Post);
 
@@ -699,11 +699,10 @@ report 1002 "Post Inventory Cost to G/L"
             if GenJnlLineReq."Journal Batch Name" = '' then
                 Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
-            Clear(NoSeriesMgt);
             Clear(DocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+            DocNo := NoSeries.GetNextNo(GenJnlBatch."No. Series", 0D);
         end;
         OnPreReportOnAfterSetDocNo(DocNo, Post);
 
@@ -728,14 +727,11 @@ report 1002 "Post Inventory Cost to G/L"
         CapValueEntry: Record "Value Entry";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLineReq: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         InvtPostToGL: Codeunit "Inventory Posting To G/L";
         Window: Dialog;
-        DocNo: Code[20];
         GenPostingSetupTxt: Text[250];
         ValueEntryFilter: Text;
         DimText: Text[250];
-        PostMethod: Option "per Posting Group","per Entry";
         COGSAmt: Decimal;
         InvtAdjmtAmt: Decimal;
         DirCostAmt: Decimal;
@@ -755,7 +751,6 @@ report 1002 "Post Inventory Cost to G/L"
         TotalWIPInvtAmt: Decimal;
         TotalInvtAmt: Decimal;
         CostAmt: Decimal;
-        Post: Boolean;
         PostingTypeTxt: Label 'per Posting Group,per Entry';
         PostMethodInt: Integer;
         PageNoCaptionLbl: Label 'Page';
@@ -793,6 +788,11 @@ report 1002 "Post Inventory Cost to G/L"
         StatisticsMsg: Label '%1 value entries have been posted to the general ledger.', Comment = '10 value entries have been posted to the general ledger.';
         NothingToPostMsg: Label 'There is nothing to post to the general ledger.';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting inventory cost to G/L.', Comment = '%1 - field caption';
+
+    protected var
+        DocNo: Code[20];
+        Post: Boolean;
+        PostMethod: Option "per Posting Group","per Entry";
 
     procedure InitializeRequest(NewPostMethod: Option; NewDocNo: Code[20]; NewPost: Boolean)
     begin

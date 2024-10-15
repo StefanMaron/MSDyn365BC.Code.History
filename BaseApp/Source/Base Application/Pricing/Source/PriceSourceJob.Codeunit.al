@@ -11,7 +11,7 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
 {
     var
         Job: Record Job;
-        ParentErr: Label 'Parent Source No. must be blank for Job source type.';
+        ParentErr: Label 'Parent Source No. must be blank for Project source type.';
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin

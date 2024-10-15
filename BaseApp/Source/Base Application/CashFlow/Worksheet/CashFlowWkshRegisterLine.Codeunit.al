@@ -33,52 +33,50 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
 
     local procedure "Code"()
     begin
-        with CFWkshLine do begin
-            if EmptyLine() then
-                exit;
+        if CFWkshLine.EmptyLine() then
+            exit;
 
-            CFWkshCheckLine.RunCheck(CFWkshLine);
+        CFWkshCheckLine.RunCheck(CFWkshLine);
 
-            if NextEntryNo = 0 then begin
-                CFForecastEntry.LockTable();
-                NextEntryNo := CFForecastEntry.GetLastEntryNo() + 1;
-            end;
-
-            CashFlowForecast.Get("Cash Flow Forecast No.");
-            if "Cash Flow Account No." <> '' then begin
-                CFAccount.Get("Cash Flow Account No.");
-                CFAccount.TestField(Blocked, false);
-            end;
-
-            CFForecastEntry.Init();
-            CFForecastEntry."Cash Flow Forecast No." := "Cash Flow Forecast No.";
-            CFForecastEntry."Cash Flow Date" := "Cash Flow Date";
-            CFForecastEntry."Document No." := "Document No.";
-            CFForecastEntry."Document Date" := "Document Date";
-            CFForecastEntry."Cash Flow Account No." := "Cash Flow Account No.";
-            CFForecastEntry."Source Type" := "Source Type";
-            CFForecastEntry."Source No." := "Source No.";
-            CFForecastEntry."G/L Budget Name" := "G/L Budget Name";
-            CFForecastEntry.Description := Description;
-            CFForecastEntry."Payment Discount" := Round("Payment Discount", 0.00001);
-            CFForecastEntry."Associated Entry No." := "Associated Entry No.";
-            CFForecastEntry.Overdue := Overdue;
-            CFForecastEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            CFForecastEntry."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            CFForecastEntry."Dimension Set ID" := "Dimension Set ID";
-            CFForecastEntry."Amount (LCY)" := Round("Amount (LCY)", 0.00001);
-            CFForecastEntry.Positive := CFForecastEntry."Amount (LCY)" > 0;
-
-            if CFForecastEntry.Description = CashFlowForecast.Description then
-                CFForecastEntry.Description := '';
-            CFForecastEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(CFForecastEntry."User ID"));
-            CFForecastEntry."Entry No." := NextEntryNo;
-
-            OnAfterCreateForecastEntry(CFForecastEntry, CFWkshLine);
-            CFForecastEntry.Insert();
-
-            NextEntryNo := NextEntryNo + 1;
+        if NextEntryNo = 0 then begin
+            CFForecastEntry.LockTable();
+            NextEntryNo := CFForecastEntry.GetLastEntryNo() + 1;
         end;
+
+        CashFlowForecast.Get(CFWkshLine."Cash Flow Forecast No.");
+        if CFWkshLine."Cash Flow Account No." <> '' then begin
+            CFAccount.Get(CFWkshLine."Cash Flow Account No.");
+            CFAccount.TestField(Blocked, false);
+        end;
+
+        CFForecastEntry.Init();
+        CFForecastEntry."Cash Flow Forecast No." := CFWkshLine."Cash Flow Forecast No.";
+        CFForecastEntry."Cash Flow Date" := CFWkshLine."Cash Flow Date";
+        CFForecastEntry."Document No." := CFWkshLine."Document No.";
+        CFForecastEntry."Document Date" := CFWkshLine."Document Date";
+        CFForecastEntry."Cash Flow Account No." := CFWkshLine."Cash Flow Account No.";
+        CFForecastEntry."Source Type" := CFWkshLine."Source Type";
+        CFForecastEntry."Source No." := CFWkshLine."Source No.";
+        CFForecastEntry."G/L Budget Name" := CFWkshLine."G/L Budget Name";
+        CFForecastEntry.Description := CFWkshLine.Description;
+        CFForecastEntry."Payment Discount" := Round(CFWkshLine."Payment Discount", 0.00001);
+        CFForecastEntry."Associated Entry No." := CFWkshLine."Associated Entry No.";
+        CFForecastEntry.Overdue := CFWkshLine.Overdue;
+        CFForecastEntry."Global Dimension 2 Code" := CFWkshLine."Shortcut Dimension 2 Code";
+        CFForecastEntry."Global Dimension 1 Code" := CFWkshLine."Shortcut Dimension 1 Code";
+        CFForecastEntry."Dimension Set ID" := CFWkshLine."Dimension Set ID";
+        CFForecastEntry."Amount (LCY)" := Round(CFWkshLine."Amount (LCY)", 0.00001);
+        CFForecastEntry.Positive := CFForecastEntry."Amount (LCY)" > 0;
+
+        if CFForecastEntry.Description = CashFlowForecast.Description then
+            CFForecastEntry.Description := '';
+        CFForecastEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(CFForecastEntry."User ID"));
+        CFForecastEntry."Entry No." := NextEntryNo;
+
+        OnAfterCreateForecastEntry(CFForecastEntry, CFWkshLine);
+        CFForecastEntry.Insert();
+
+        NextEntryNo := NextEntryNo + 1;
     end;
 
     [IntegrationEvent(false, false)]

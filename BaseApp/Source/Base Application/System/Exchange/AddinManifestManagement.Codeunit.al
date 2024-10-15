@@ -86,19 +86,17 @@ codeunit 1652 "Add-in Manifest Management"
     [Scope('OnPrem')]
     procedure UploadDefaultManifestText(var OfficeAddin: Record "Office Add-in"; ManifestText: Text)
     begin
-        with OfficeAddin do begin
-            // Set the AppID from the manifest
-            "Application ID" := GetAppID(ManifestText);
-            if IsNullGuid("Application ID") then
-                "Application ID" := CreateGuid();
-            if Name = '' then
-                Name := GetAppName(ManifestText);
-            if Description = '' then
-                Description := GetAppDescription(ManifestText);
-            Version := GetAppVersion(ManifestText);
+        // Set the AppID from the manifest
+        OfficeAddin."Application ID" := GetAppID(ManifestText);
+        if IsNullGuid(OfficeAddin."Application ID") then
+            OfficeAddin."Application ID" := CreateGuid();
+        if OfficeAddin.Name = '' then
+            OfficeAddin.Name := GetAppName(ManifestText);
+        if OfficeAddin.Description = '' then
+            OfficeAddin.Description := GetAppDescription(ManifestText);
+        OfficeAddin.Version := GetAppVersion(ManifestText);
 
-            SetDefaultManifestText(ManifestText);
-        end;
+        OfficeAddin.SetDefaultManifestText(ManifestText);
     end;
 
     [Scope('OnPrem')]

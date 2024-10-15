@@ -8,6 +8,7 @@ using Microsoft.Sales.Customer;
 table 1626 "Office Contact Details"
 {
     Caption = 'Office Contact Details';
+    DataClassification = CustomerContent;
 
     fields
     {

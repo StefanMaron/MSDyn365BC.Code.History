@@ -17,6 +17,7 @@ table 7302 "Bin Content"
     Caption = 'Bin Content';
     DrillDownPageID = "Bin Contents List";
     LookupPageID = "Bin Contents List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,7 +40,7 @@ table 7302 "Bin Content"
             Caption = 'Zone Code';
             Editable = false;
             NotBlank = true;
-            TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Zone.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
             begin
@@ -51,10 +52,10 @@ table 7302 "Bin Content"
         {
             Caption = 'Bin Code';
             NotBlank = true;
-            TableRelation = IF ("Zone Code" = FILTER('')) Bin.Code WHERE("Location Code" = FIELD("Location Code"))
-            ELSE
-            IF ("Zone Code" = FILTER(<> '')) Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                                                               "Zone Code" = FIELD("Zone Code"));
+            TableRelation = if ("Zone Code" = filter('')) Bin.Code where("Location Code" = field("Location Code"))
+            else
+            if ("Zone Code" = filter(<> '')) Bin.Code where("Location Code" = field("Location Code"),
+                                                                               "Zone Code" = field("Zone Code"));
 
             trigger OnValidate()
             begin
@@ -75,7 +76,7 @@ table 7302 "Bin Content"
         {
             Caption = 'Item No.';
             NotBlank = true;
-            TableRelation = Item WHERE(Type = CONST(Inventory));
+            TableRelation = Item where(Type = const(Inventory));
 
             trigger OnValidate()
             var
@@ -139,14 +140,14 @@ table 7302 "Bin Content"
         }
         field(26; Quantity; Decimal)
         {
-            CalcFormula = Sum("Warehouse Entry".Quantity WHERE("Location Code" = FIELD("Location Code"),
-                                                                "Bin Code" = FIELD("Bin Code"),
-                                                                "Item No." = FIELD("Item No."),
-                                                                "Variant Code" = FIELD("Variant Code"),
-                                                                "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                "Lot No." = FIELD("Lot No. Filter"),
-                                                                "Serial No." = FIELD("Serial No. Filter"),
-                                                                "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Entry".Quantity where("Location Code" = field("Location Code"),
+                                                                "Bin Code" = field("Bin Code"),
+                                                                "Item No." = field("Item No."),
+                                                                "Variant Code" = field("Variant Code"),
+                                                                "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                "Lot No." = field("Lot No. Filter"),
+                                                                "Serial No." = field("Serial No. Filter"),
+                                                                "Package No." = field("Package No. Filter")));
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -154,16 +155,16 @@ table 7302 "Bin Content"
         }
         field(29; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                  "Bin Code" = FIELD("Bin Code"),
-                                                                                  "Item No." = FIELD("Item No."),
-                                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                  "Action Type" = CONST(Take),
-                                                                                  "Lot No." = FIELD("Lot No. Filter"),
-                                                                                  "Serial No." = FIELD("Serial No. Filter"),
-                                                                                  "Package No." = FIELD("Package No. Filter"),
-                                                                                  "Assemble to Order" = CONST(false)));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
+                                                                                  "Bin Code" = field("Bin Code"),
+                                                                                  "Item No." = field("Item No."),
+                                                                                  "Variant Code" = field("Variant Code"),
+                                                                                  "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                  "Action Type" = const(Take),
+                                                                                  "Lot No." = field("Lot No. Filter"),
+                                                                                  "Serial No." = field("Serial No. Filter"),
+                                                                                  "Package No." = field("Package No. Filter"),
+                                                                                  "Assemble to Order" = const(false)));
             Caption = 'Pick Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -171,14 +172,14 @@ table 7302 "Bin Content"
         }
         field(30; "Neg. Adjmt. Qty."; Decimal)
         {
-            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                "From Bin Code" = FIELD("Bin Code"),
-                                                                                "Item No." = FIELD("Item No."),
-                                                                                "Variant Code" = FIELD("Variant Code"),
-                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                "Lot No." = FIELD("Lot No. Filter"),
-                                                                                "Serial No." = FIELD("Serial No. Filter"),
-                                                                                "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute)" where("Location Code" = field("Location Code"),
+                                                                                "From Bin Code" = field("Bin Code"),
+                                                                                "Item No." = field("Item No."),
+                                                                                "Variant Code" = field("Variant Code"),
+                                                                                "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                "Lot No." = field("Lot No. Filter"),
+                                                                                "Serial No." = field("Serial No. Filter"),
+                                                                                "Package No." = field("Package No. Filter")));
             Caption = 'Neg. Adjmt. Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -186,15 +187,15 @@ table 7302 "Bin Content"
         }
         field(31; "Put-away Qty."; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                  "Bin Code" = FIELD("Bin Code"),
-                                                                                  "Item No." = FIELD("Item No."),
-                                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                  "Action Type" = CONST(Place),
-                                                                                  "Lot No." = FIELD("Lot No. Filter"),
-                                                                                  "Serial No." = FIELD("Serial No. Filter"),
-                                                                                  "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
+                                                                                  "Bin Code" = field("Bin Code"),
+                                                                                  "Item No." = field("Item No."),
+                                                                                  "Variant Code" = field("Variant Code"),
+                                                                                  "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                  "Action Type" = const(Place),
+                                                                                  "Lot No." = field("Lot No. Filter"),
+                                                                                  "Serial No." = field("Serial No. Filter"),
+                                                                                  "Package No." = field("Package No. Filter")));
             Caption = 'Put-away Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -202,14 +203,14 @@ table 7302 "Bin Content"
         }
         field(32; "Pos. Adjmt. Qty."; Decimal)
         {
-            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                "To Bin Code" = FIELD("Bin Code"),
-                                                                                "Item No." = FIELD("Item No."),
-                                                                                "Variant Code" = FIELD("Variant Code"),
-                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                "Lot No." = FIELD("Lot No. Filter"),
-                                                                                "Serial No." = FIELD("Serial No. Filter"),
-                                                                                "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute)" where("Location Code" = field("Location Code"),
+                                                                                "To Bin Code" = field("Bin Code"),
+                                                                                "Item No." = field("Item No."),
+                                                                                "Variant Code" = field("Variant Code"),
+                                                                                "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                "Lot No." = field("Lot No. Filter"),
+                                                                                "Serial No." = field("Serial No. Filter"),
+                                                                                "Package No." = field("Package No. Filter")));
             Caption = 'Pos. Adjmt. Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -238,14 +239,14 @@ table 7302 "Bin Content"
         }
         field(50; "Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Entry"."Qty. (Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                     "Bin Code" = FIELD("Bin Code"),
-                                                                     "Item No." = FIELD("Item No."),
-                                                                     "Variant Code" = FIELD("Variant Code"),
-                                                                     "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                     "Lot No." = FIELD("Lot No. Filter"),
-                                                                     "Serial No." = FIELD("Serial No. Filter"),
-                                                                     "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Entry"."Qty. (Base)" where("Location Code" = field("Location Code"),
+                                                                     "Bin Code" = field("Bin Code"),
+                                                                     "Item No." = field("Item No."),
+                                                                     "Variant Code" = field("Variant Code"),
+                                                                     "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                     "Lot No." = field("Lot No. Filter"),
+                                                                     "Serial No." = field("Serial No. Filter"),
+                                                                     "Package No." = field("Package No. Filter")));
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -253,16 +254,16 @@ table 7302 "Bin Content"
         }
         field(51; "Pick Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                         "Bin Code" = FIELD("Bin Code"),
-                                                                                         "Item No." = FIELD("Item No."),
-                                                                                         "Variant Code" = FIELD("Variant Code"),
-                                                                                         "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
-                                                                                         "Action Type" = CONST(Take),
-                                                                                         "Lot No." = FIELD("Lot No. Filter"),
-                                                                                         "Serial No." = FIELD("Serial No. Filter"),
-                                                                                         "Package No." = FIELD("Package No. Filter"),
-                                                                                         "Assemble to Order" = CONST(false)));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
+                                                                                         "Bin Code" = field("Bin Code"),
+                                                                                         "Item No." = field("Item No."),
+                                                                                         "Variant Code" = field("Variant Code"),
+                                                                                         "Unit of Measure Code" = field("Unit of Measure Filter"),
+                                                                                         "Action Type" = const(Take),
+                                                                                         "Lot No." = field("Lot No. Filter"),
+                                                                                         "Serial No." = field("Serial No. Filter"),
+                                                                                         "Package No." = field("Package No. Filter"),
+                                                                                         "Assemble to Order" = const(false)));
             Caption = 'Pick Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -270,14 +271,14 @@ table 7302 "Bin Content"
         }
         field(52; "Negative Adjmt. Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                      "From Bin Code" = FIELD("Bin Code"),
-                                                                                      "Item No." = FIELD("Item No."),
-                                                                                      "Variant Code" = FIELD("Variant Code"),
-                                                                                      "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                      "Lot No." = FIELD("Lot No. Filter"),
-                                                                                      "Serial No." = FIELD("Serial No. Filter"),
-                                                                                      "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute, Base)" where("Location Code" = field("Location Code"),
+                                                                                      "From Bin Code" = field("Bin Code"),
+                                                                                      "Item No." = field("Item No."),
+                                                                                      "Variant Code" = field("Variant Code"),
+                                                                                      "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                      "Lot No." = field("Lot No. Filter"),
+                                                                                      "Serial No." = field("Serial No. Filter"),
+                                                                                      "Package No." = field("Package No. Filter")));
             Caption = 'Negative Adjmt. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -285,15 +286,15 @@ table 7302 "Bin Content"
         }
         field(53; "Put-away Quantity (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                         "Bin Code" = FIELD("Bin Code"),
-                                                                                         "Item No." = FIELD("Item No."),
-                                                                                         "Variant Code" = FIELD("Variant Code"),
-                                                                                         "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                         "Action Type" = CONST(Place),
-                                                                                         "Lot No." = FIELD("Lot No. Filter"),
-                                                                                         "Serial No." = FIELD("Serial No. Filter"),
-                                                                                         "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
+                                                                                         "Bin Code" = field("Bin Code"),
+                                                                                         "Item No." = field("Item No."),
+                                                                                         "Variant Code" = field("Variant Code"),
+                                                                                         "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                         "Action Type" = const(Place),
+                                                                                         "Lot No." = field("Lot No. Filter"),
+                                                                                         "Serial No." = field("Serial No. Filter"),
+                                                                                         "Package No." = field("Package No. Filter")));
             Caption = 'Put-away Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -301,14 +302,14 @@ table 7302 "Bin Content"
         }
         field(54; "Positive Adjmt. Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Journal Line"."Qty. (Absolute, Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                      "To Bin Code" = FIELD("Bin Code"),
-                                                                                      "Item No." = FIELD("Item No."),
-                                                                                      "Variant Code" = FIELD("Variant Code"),
-                                                                                      "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                      "Lot No." = FIELD("Lot No. Filter"),
-                                                                                      "Serial No." = FIELD("Serial No. Filter"),
-                                                                                      "Package No." = FIELD("Package No. Filter")));
+            CalcFormula = sum("Warehouse Journal Line"."Qty. (Absolute, Base)" where("Location Code" = field("Location Code"),
+                                                                                      "To Bin Code" = field("Bin Code"),
+                                                                                      "Item No." = field("Item No."),
+                                                                                      "Variant Code" = field("Variant Code"),
+                                                                                      "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                      "Lot No." = field("Lot No. Filter"),
+                                                                                      "Serial No." = field("Serial No. Filter"),
+                                                                                      "Package No." = field("Package No. Filter")));
             Caption = 'Positive Adjmt. Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -316,17 +317,17 @@ table 7302 "Bin Content"
         }
         field(55; "ATO Components Pick Qty."; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                  "Bin Code" = FIELD("Bin Code"),
-                                                                                  "Item No." = FIELD("Item No."),
-                                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                  "Action Type" = CONST(Take),
-                                                                                  "Lot No." = FIELD("Lot No. Filter"),
-                                                                                  "Serial No." = FIELD("Serial No. Filter"),
-                                                                                  "Package No." = FIELD("Package No. Filter"),
-                                                                                  "Assemble to Order" = CONST(true),
-                                                                                  "ATO Component" = CONST(true)));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding" where("Location Code" = field("Location Code"),
+                                                                                  "Bin Code" = field("Bin Code"),
+                                                                                  "Item No." = field("Item No."),
+                                                                                  "Variant Code" = field("Variant Code"),
+                                                                                  "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                  "Action Type" = const(Take),
+                                                                                  "Lot No." = field("Lot No. Filter"),
+                                                                                  "Serial No." = field("Serial No. Filter"),
+                                                                                  "Package No." = field("Package No. Filter"),
+                                                                                  "Assemble to Order" = const(true),
+                                                                                  "ATO Component" = const(true)));
             Caption = 'ATO Components Pick Qty.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -334,17 +335,17 @@ table 7302 "Bin Content"
         }
         field(56; "ATO Components Pick Qty (Base)"; Decimal)
         {
-            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                         "Bin Code" = FIELD("Bin Code"),
-                                                                                         "Item No." = FIELD("Item No."),
-                                                                                         "Variant Code" = FIELD("Variant Code"),
-                                                                                         "Unit of Measure Code" = FIELD("Unit of Measure Code"),
-                                                                                         "Action Type" = CONST(Take),
-                                                                                         "Lot No." = FIELD("Lot No. Filter"),
-                                                                                         "Serial No." = FIELD("Serial No. Filter"),
-                                                                                         "Package No." = FIELD("Package No. Filter"),
-                                                                                         "Assemble to Order" = CONST(true),
-                                                                                         "ATO Component" = CONST(true)));
+            CalcFormula = sum("Warehouse Activity Line"."Qty. Outstanding (Base)" where("Location Code" = field("Location Code"),
+                                                                                         "Bin Code" = field("Bin Code"),
+                                                                                         "Item No." = field("Item No."),
+                                                                                         "Variant Code" = field("Variant Code"),
+                                                                                         "Unit of Measure Code" = field("Unit of Measure Code"),
+                                                                                         "Action Type" = const(Take),
+                                                                                         "Lot No." = field("Lot No. Filter"),
+                                                                                         "Serial No." = field("Serial No. Filter"),
+                                                                                         "Package No." = field("Package No. Filter"),
+                                                                                         "Assemble to Order" = const(true),
+                                                                                         "ATO Component" = const(true)));
             Caption = 'ATO Components Pick Qty (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -353,7 +354,7 @@ table 7302 "Bin Content"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -372,7 +373,7 @@ table 7302 "Bin Content"
         {
             Caption = 'Unit of Measure Code';
             NotBlank = true;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -409,7 +410,7 @@ table 7302 "Bin Content"
         {
             Caption = 'Unit of Measure Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
     }
 
@@ -445,6 +446,8 @@ table 7302 "Bin Content"
         fieldgroup(DropDown; "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code")
         {
         }
+        fieldgroup(Brick; "Location Code", "Bin Code", "Zone Code", "Item No.", Quantity)
+        { }
     }
 
     trigger OnDelete()

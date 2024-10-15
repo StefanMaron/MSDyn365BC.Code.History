@@ -76,77 +76,7 @@ codeunit 138050 "O365 Test Name Nearness"
         // [THEN] The system returns the correct item no.
         Assert.AreEqual(Item."No.", SalesLine."No.", '');
     end;
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSalesLinePage2310NewLine()
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        Item: Record Item;
-        O365TestNameNearness: Codeunit "O365 Test Name Nearness";
-        BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
-        CorrectName: Text[50];
-        WrongName: Text[50];
-    begin
-        Initialize();
 
-        // [GIVEN] We have item named '<some guid>'
-        LibrarySales.CreateCustomer(Customer);
-        BindSubscription(O365TestNameNearness);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibraryInventory.CreateItem(Item);
-        CreateNames(CorrectName, WrongName);
-        Item.Description := CorrectName;
-        Item.Modify();
-
-        // [WHEN] User enters a slightly wrongly typed name
-        BCO365SalesInvoice.OpenEdit;
-        BCO365SalesInvoice.GotoRecord(SalesHeader);
-        BCO365SalesInvoice.Lines.Description.Value(WrongName);
-
-        UnbindSubscription(O365TestNameNearness);
-
-        // [THEN] The system returns the correct item no.
-        ValidateSalesLine(SalesHeader, CorrectName, Item."No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSalesLinePage2310Correctdescription()
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        Item: Record Item;
-        O365TestNameNearness: Codeunit "O365 Test Name Nearness";
-        BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
-        CorrectName: Text[50];
-        WrongName: Text[50];
-    begin
-        Initialize();
-
-        // [GIVEN] We have item named '<some guid>'
-        LibrarySales.CreateCustomer(Customer);
-        BindSubscription(O365TestNameNearness);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibraryInventory.CreateItem(Item);
-        CreateNames(CorrectName, WrongName);
-        Item.Description := CorrectName;
-        Item.Modify();
-
-        // [WHEN] User enters a slightly wrongly typed name
-        BCO365SalesInvoice.OpenEdit;
-        BCO365SalesInvoice.GotoRecord(SalesHeader);
-        BCO365SalesInvoice.Lines.Description.Value(CorrectName);
-        ValidateSalesLine(SalesHeader, CorrectName, Item."No."); // just to make sure...
-
-        BCO365SalesInvoice.Lines.Description.Value(WrongName);
-        UnbindSubscription(O365TestNameNearness);
-
-        // [THEN] The system returns the correct item no.
-        ValidateSalesLine(SalesHeader, WrongName, Item."No.");
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchaseHeader()

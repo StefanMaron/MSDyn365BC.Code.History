@@ -41,14 +41,14 @@ codeunit 139305 "Data Migration Wizard Tests"
     begin
         DataTypeBuffer.DeleteAll(true);
         AssistedSetupTestLibrary.DeleteAll();
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
         AssistedSetupTestLibrary.CallOnRegister();
         AccountingPeriod.DeleteAll();
 
         if InsertDataForImport then
-            PopulateDataMigrationEntityRecord;
+            PopulateDataMigrationEntityRecord();
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         CostingMethodConfiguration: TestPage "Costing Method Configuration";
     begin
         // [WHEN] Opening Costing Method Configuration Page
-        CostingMethodConfiguration.Trap;
+        CostingMethodConfiguration.Trap();
         PAGE.Run(PAGE::"Costing Method Configuration");
 
         // [WHEN] Changing the costing method to Average
@@ -83,7 +83,7 @@ codeunit 139305 "Data Migration Wizard Tests"
 
         // [WHEN] Reopening the Wizard on the costing method page
         CostingMethodConfiguration.Close();
-        CostingMethodConfiguration.Trap;
+        CostingMethodConfiguration.Trap();
         PAGE.Run(PAGE::"Costing Method Configuration");
 
         // // [THEN] The wizard shows the previously changed value of Average
@@ -114,7 +114,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         Initialize(true);
 
         // [WHEN] The data migration wizard is run with no migrations in progress or pending
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
         // [THEN] the page opens fine
@@ -126,7 +126,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationStatus.Insert();
 
         // [THEN] an error is raised
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         asserterror PAGE.Run(PAGE::"Data Migration Wizard");
 
         // Verify on DataMigrationOverviewHandler
@@ -169,7 +169,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard is exited right away
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
         DataMigrationWizard.Close();
 
@@ -193,7 +193,7 @@ codeunit 139305 "Data Migration Wizard Tests"
 
         // [WHEN] The data migration wizard is completed
         RunWizardToCompletionAndTestEvents(DataMigrationWizard);
-        DataMigrationWizard.ActionFinish.Invoke;
+        DataMigrationWizard.ActionFinish.Invoke();
 
         // [THEN] Status of the setup step is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Data Migration Wizard"), 'Migrate Data status should be completed.');
@@ -214,7 +214,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard is closed but closing is not confirmed
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
         DataMigrationWizard.Close();
 
@@ -241,11 +241,11 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Choose Data Source" page and the Settings button is pressed
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionDataMigrationSettings.Invoke;
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionDataMigrationSettings.Invoke();
 
         // [THEN] The right events are fired
         VerifyDataTypeBuffer(OnHasSettingsTxt, true);
@@ -265,13 +265,13 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Upload Data File page" page and the Download Template button is pressed
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionNext.Invoke; // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
 
-        DataMigrationWizard.ActionDownloadTemplate.Invoke;
+        DataMigrationWizard.ActionDownloadTemplate.Invoke();
 
         // [THEN] The right events are fired
         VerifyDataTypeBuffer(OnHasTemplateTxt, true);
@@ -291,13 +291,13 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Apply" page and the Advaced button is pressed
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionNext.Invoke; // Upload Data File page
-        DataMigrationWizard.ActionNext.Invoke; // Apply Imported Data page
-        DataMigrationWizard.ActionOpenAdvancedApply.Invoke;
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
+        DataMigrationWizard.ActionOpenAdvancedApply.Invoke();
 
         // [THEN] The right events are fired
         VerifyDataTypeBuffer(OnHasAdvancedApplyTxt, true);
@@ -317,14 +317,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Finish" page and the Errors button is pressed
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionNext.Invoke; // Upload Data File page
-        DataMigrationWizard.ActionNext.Invoke; // Apply Imported Data page
-        DataMigrationWizard.ActionApply.Invoke; // That's it page
-        DataMigrationWizard.ActionShowErrors.Invoke;
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
+        DataMigrationWizard.ActionApply.Invoke(); // That's it page
+        DataMigrationWizard.ActionShowErrors.Invoke();
 
         // [THEN] The right events are fired
         VerifyDataTypeBuffer(OnHasErrorsTxt, true);
@@ -344,16 +344,16 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Apply" page
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionNext.Invoke; // Upload Data File page
-        DataMigrationWizard.ActionNext.Invoke; // Apply Imported Data page
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
 
         // [THEN] The next button is disabled, if no records exist
-        Assert.IsFalse(DataMigrationWizard.ActionNext.Visible, 'Next button is enabled even if no records exist');
-        Assert.IsFalse(DataMigrationWizard.ActionApply.Enabled, 'Apply button is enabled even if no records exist');
+        Assert.IsFalse(DataMigrationWizard.ActionNext.Visible(), 'Next button is enabled even if no records exist');
+        Assert.IsFalse(DataMigrationWizard.ActionApply.Enabled(), 'Apply button is enabled even if no records exist');
     end;
 
     [Test]
@@ -369,16 +369,16 @@ codeunit 139305 "Data Migration Wizard Tests"
         BindSubscription(DataMigrationWizardTests);
 
         // [WHEN] The data migration wizard executed to the "Apply" page
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        DataMigrationWizard.ActionNext.Invoke; // Choose Data Source page
-        DataMigrationWizard.Description.Lookup;
-        DataMigrationWizard.ActionNext.Invoke; // Upload Data File page
-        DataMigrationWizard.ActionNext.Invoke; // Apply Imported Data page
+        DataMigrationWizard.ActionNext.Invoke(); // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionNext.Invoke(); // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke(); // Apply Imported Data page
 
         // [THEN] The next button is enabled, if records exist
-        Assert.IsFalse(DataMigrationWizard.ActionNext.Visible, 'Next hidden');
-        Assert.IsTrue(DataMigrationWizard.ActionApply.Enabled, 'Apply button is disabled even if records exist');
+        Assert.IsFalse(DataMigrationWizard.ActionNext.Visible(), 'Next hidden');
+        Assert.IsTrue(DataMigrationWizard.ActionApply.Enabled(), 'Apply button is disabled even if records exist');
     end;
 
     [Test]
@@ -400,7 +400,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToCompletionAndTestEvents(DataMigrationWizard);
 
         // [THEN] Duplicate contact group is visible
-        Assert.IsTrue(DataMigrationWizard.DuplicateContacts.Visible,
+        Assert.IsTrue(DataMigrationWizard.DuplicateContacts.Visible(),
           'Duplicate contacts group was set to visible in event but it is hidden');
     end;
 
@@ -420,7 +420,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToCompletionAndTestEvents(DataMigrationWizard);
 
         // [THEN] Duplicate contact group is visible
-        Assert.IsFalse(DataMigrationWizard.DuplicateContacts.Visible,
+        Assert.IsFalse(DataMigrationWizard.DuplicateContacts.Visible(),
           'Duplicate contacts group must be hidden by default.');
     end;
 
@@ -443,7 +443,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Posting options are not visible
-        Assert.IsFalse(DataMigrationWizard.PostingDate.Visible,
+        Assert.IsFalse(DataMigrationWizard.PostingDate.Visible(),
           'Posting options must be hidden');
     end;
 
@@ -472,7 +472,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.BallancesPostingOption.SetValue('Post balances for me');
 
         // [THEN] Posting options are visible
-        Assert.IsTrue(DataMigrationWizard.PostingDate.Visible,
+        Assert.IsTrue(DataMigrationWizard.PostingDate.Visible(),
           'Posting options must be shown if event set to true');
     end;
 
@@ -554,9 +554,9 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Posting options are hidden
-        Assert.IsFalse(DataMigrationWizard.BallancesPostingOption.Visible,
+        Assert.IsFalse(DataMigrationWizard.BallancesPostingOption.Visible(),
           'Posting options must be hidden by default if there are no event handlers');
-        Assert.IsFalse(DataMigrationWizard.PostingDate.Visible,
+        Assert.IsFalse(DataMigrationWizard.PostingDate.Visible(),
           'Posting options must be hidden by default if there are no event handlers');
     end;
 
@@ -577,7 +577,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [WHEN] The data migration wizard executed to the "Apply" page
-        asserterror DataMigrationWizard.ActionApply.Invoke;
+        asserterror DataMigrationWizard.ActionApply.Invoke();
         // [THEN] Error shown
         Assert.ExpectedError('We need to know what to do with opening balances.');
     end;
@@ -601,7 +601,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Balance column is visible
-        Assert.IsTrue(DataMigrationWizard.DataMigrationEntities.Balance.Visible,
+        Assert.IsTrue(DataMigrationWizard.DataMigrationEntities.Balance.Visible(),
           'Balance column must be visible if set to true in event');
     end;
 
@@ -622,7 +622,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Balance column is hidden
-        Assert.IsFalse(DataMigrationWizard.ThatsItText.Visible,
+        Assert.IsFalse(DataMigrationWizard.ThatsItText.Visible(),
           'That''s it text must be hidden if empty.');
     end;
 
@@ -646,7 +646,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToCompletionAndTestEvents(DataMigrationWizard);
 
         // [THEN] Balance column is hidden
-        Assert.IsTrue(DataMigrationWizard.ThatsItText.Visible,
+        Assert.IsTrue(DataMigrationWizard.ThatsItText.Visible(),
           'That''s it text must be shown if NOT empty.');
     end;
 
@@ -670,7 +670,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToCompletionAndTestEvents(DataMigrationWizard);
 
         // [THEN] Balance column is hidden
-        Assert.IsFalse(DataMigrationWizard.ThatsItText.Visible,
+        Assert.IsFalse(DataMigrationWizard.ThatsItText.Visible(),
           'That''s it text must be hidden if empty.');
     end;
 
@@ -693,7 +693,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Selected column is hidden
-        Assert.IsFalse(DataMigrationWizard.DataMigrationEntities.Selected.Visible,
+        Assert.IsFalse(DataMigrationWizard.DataMigrationEntities.Selected.Visible(),
           'Selected column must be hidden if set to true in event');
     end;
 
@@ -714,56 +714,56 @@ codeunit 139305 "Data Migration Wizard Tests"
         RunWizardToApply(DataMigrationWizard);
 
         // [THEN] Selected column is shown
-        Assert.IsTrue(DataMigrationWizard.DataMigrationEntities.Selected.Visible,
+        Assert.IsTrue(DataMigrationWizard.DataMigrationEntities.Selected.Visible(),
           'Selected column must be shown by default.');
     end;
 
     local procedure RunWizardToCompletionAndTestEvents(var DataMigrationWizard: TestPage "Data Migration Wizard")
     begin
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
         with DataMigrationWizard do begin
             VerifyDataTypeBuffer(OnRegisterDataMigratorTxt, true);
 
-            ActionNext.Invoke; // Choose Data Source page
-            ActionBack.Invoke; // Welcome page
-            ActionNext.Invoke; // Choose Data Source page
-            Description.Lookup;
+            ActionNext.Invoke(); // Choose Data Source page
+            ActionBack.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Choose Data Source page
+            Description.Lookup();
             Assert.AreEqual('Test', Description.Value, 'The Test data migrator was not selected.');
 
-            ActionNext.Invoke; // Upload Data File page
+            ActionNext.Invoke(); // Upload Data File page
             VerifyDataTypeBuffer(OnGetInstructionsTxt, true);
 
-            ActionNext.Invoke; // Apply Imported Data page
+            ActionNext.Invoke(); // Apply Imported Data page
             VerifyDataTypeBuffer(OnDataImportTxt, true);
             VerifyDataTypeBuffer(OnSelectDataToApplyTxt, true);
 
-            ActionApply.Invoke; // That's it page
+            ActionApply.Invoke(); // That's it page
             VerifyDataTypeBuffer(OnApplySelectedDataTxt, true);
 
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 
     local procedure RunWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard")
     begin
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
         with DataMigrationWizard do begin
-            ActionNext.Invoke; // Choose Data Source page
-            ActionBack.Invoke; // Welcome page
-            ActionNext.Invoke; // Choose Data Source page
-            Description.Lookup;
-            ActionNext.Invoke; // Upload Data File page
-            ActionNext.Invoke; // Apply Imported Data page
+            ActionNext.Invoke(); // Choose Data Source page
+            ActionBack.Invoke(); // Welcome page
+            ActionNext.Invoke(); // Choose Data Source page
+            Description.Lookup();
+            ActionNext.Invoke(); // Upload Data File page
+            ActionNext.Invoke(); // Apply Imported Data page
         end;
     end;
 
     local procedure InsertDataMigrationEntityRecord(var DataMigrationEntity: Record "Data Migration Entity")
     begin
-        if not DoInsertDataMigrationEntityRecord then
+        if not DoInsertDataMigrationEntityRecord() then
             exit;
 
         DataMigrationEntity.Init();
@@ -789,8 +789,8 @@ codeunit 139305 "Data Migration Wizard Tests"
     [Scope('OnPrem')]
     procedure DataMigratorsPageHandler(var DataMigrators: TestPage "Data Migrators")
     begin
-        DataMigrators.GotoKey(GetCodeunitNumber);
-        DataMigrators.OK.Invoke;
+        DataMigrators.GotoKey(GetCodeunitNumber());
+        DataMigrators.OK().Invoke();
     end;
 
     local procedure GetCodeunitNumber(): Integer
@@ -801,7 +801,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
     local procedure RegisterDataMigrator(var Sender: Record "Data Migrator Registration")
     begin
-        Sender.RegisterDataMigrator(GetCodeunitNumber, 'Test');
+        Sender.RegisterDataMigrator(GetCodeunitNumber(), 'Test');
 
         InsertDataTypeBuffer(OnRegisterDataMigratorTxt);
     end;
@@ -917,14 +917,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if LibraryVariableStorage.Length < 2 then
+        if LibraryVariableStorage.Length() < 2 then
             exit;
 
         if LibraryVariableStorage.PeekText(1) <> HideSelectedTok then
             exit;
 
-        LibraryVariableStorage.DequeueText;
-        HideSelectedCheckBoxes := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.DequeueText();
+        HideSelectedCheckBoxes := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasErrors', '', false, false)]
@@ -953,14 +953,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if LibraryVariableStorage.Length < 2 then
+        if LibraryVariableStorage.Length() < 2 then
             exit;
 
         if LibraryVariableStorage.PeekText(1) <> DuplicateContacatsTextTok then
             exit;
 
-        LibraryVariableStorage.DequeueText;
-        ShowDuplicateContactText := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.DequeueText();
+        ShowDuplicateContactText := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowPostingOptions', '', false, false)]
@@ -969,14 +969,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if LibraryVariableStorage.Length < 2 then
+        if LibraryVariableStorage.Length() < 2 then
             exit;
 
         if LibraryVariableStorage.PeekText(1) <> PostingOptionsTok then
             exit;
 
-        LibraryVariableStorage.DequeueText;
-        ShowPostingOptions := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.DequeueText();
+        ShowPostingOptions := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowBalance', '', false, false)]
@@ -985,14 +985,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if LibraryVariableStorage.Length < 2 then
+        if LibraryVariableStorage.Length() < 2 then
             exit;
 
         if LibraryVariableStorage.PeekText(1) <> ShowBalanceTok then
             exit;
 
-        LibraryVariableStorage.DequeueText;
-        ShowBalance := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.DequeueText();
+        ShowBalance := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowThatsItMessage', '', false, false)]
@@ -1001,14 +1001,14 @@ codeunit 139305 "Data Migration Wizard Tests"
         if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if LibraryVariableStorage.Length < 2 then
+        if LibraryVariableStorage.Length() < 2 then
             exit;
 
         if LibraryVariableStorage.PeekText(1) <> ThatsItTok then
             exit;
 
-        LibraryVariableStorage.DequeueText;
-        Message := LibraryVariableStorage.DequeueText;
+        LibraryVariableStorage.DequeueText();
+        Message := LibraryVariableStorage.DequeueText();
     end;
 
     local procedure InsertDataTypeBuffer(EventText: Text)

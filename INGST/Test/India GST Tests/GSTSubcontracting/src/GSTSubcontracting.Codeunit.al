@@ -906,7 +906,6 @@ codeunit 18479 "GST Subcontracting"
         GSTVendorType: Enum "GST Vendor Type";
                            GSTGroupType: Enum "GST Group Type";
                            IntraState: Boolean)
-    var
     begin
         // Source Codes
         UpdateSourceCodes();
@@ -1478,7 +1477,7 @@ codeunit 18479 "GST Subcontracting"
         ProdOrderLine: Record "Prod. Order Line";
         ReservationEntry: Record "Reservation Entry";
         MainItem: Record Item;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         SlNo: Code[20];
         i: Integer;
     begin
@@ -1488,7 +1487,7 @@ codeunit 18479 "GST Subcontracting"
         ProdOrderLine.SetRange(ProdOrderLine."Line No.", PurchaseLine."Prod. Order Line No.");
         ProdOrderLine.FindFirst();
         for i := 1 to ProdOrderLine.Quantity do begin
-            SlNo := NoSeriesMgt.GetNextNo(MainItem."Serial Nos.", 0D, true);
+            SlNo := NoSeries.GetNextNo(MainItem."Serial Nos.");
             LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, SlNo, '', 1);
         end;
     end;
@@ -1759,7 +1758,6 @@ codeunit 18479 "GST Subcontracting"
     end;
 
     local procedure CreateDebitNoteRejectVE(var PurchaseLine: Record "Purchase Line")
-    var
     begin
         Report.Run(Report::"Create Vendor Exp. Debit Note", false, true, PurchaseLine);
     end;

@@ -358,140 +358,134 @@ report 5602 "Fixed Asset Journal - Test"
 
     local procedure CheckFAIntegration()
     begin
-        with "FA Journal Line" do begin
-            case "FA Posting Type" of
-                "FA Posting Type"::"Acquisition Cost":
-                    GLIntegration := DeprBook."G/L Integration - Acq. Cost";
-                "FA Posting Type"::Depreciation:
-                    GLIntegration := DeprBook."G/L Integration - Depreciation";
-                "FA Posting Type"::"Write-Down":
-                    GLIntegration := DeprBook."G/L Integration - Write-Down";
-                "FA Posting Type"::Appreciation:
-                    GLIntegration := DeprBook."G/L Integration - Appreciation";
-                "FA Posting Type"::"Custom 1":
-                    GLIntegration := DeprBook."G/L Integration - Custom 1";
-                "FA Posting Type"::"Custom 2":
-                    GLIntegration := DeprBook."G/L Integration - Custom 2";
-                "FA Posting Type"::Disposal:
-                    GLIntegration := DeprBook."G/L Integration - Disposal";
-                "FA Posting Type"::Maintenance:
-                    GLIntegration := DeprBook."G/L Integration - Maintenance";
-                "FA Posting Type"::"Salvage Value":
-                    GLIntegration := false;
-            end;
-            if GLIntegration then
+        case "FA Journal Line"."FA Posting Type" of
+            "FA Journal Line"."FA Posting Type"::"Acquisition Cost":
+                GLIntegration := DeprBook."G/L Integration - Acq. Cost";
+            "FA Journal Line"."FA Posting Type"::Depreciation:
+                GLIntegration := DeprBook."G/L Integration - Depreciation";
+            "FA Journal Line"."FA Posting Type"::"Write-Down":
+                GLIntegration := DeprBook."G/L Integration - Write-Down";
+            "FA Journal Line"."FA Posting Type"::Appreciation:
+                GLIntegration := DeprBook."G/L Integration - Appreciation";
+            "FA Journal Line"."FA Posting Type"::"Custom 1":
+                GLIntegration := DeprBook."G/L Integration - Custom 1";
+            "FA Journal Line"."FA Posting Type"::"Custom 2":
+                GLIntegration := DeprBook."G/L Integration - Custom 2";
+            "FA Journal Line"."FA Posting Type"::Disposal:
+                GLIntegration := DeprBook."G/L Integration - Disposal";
+            "FA Journal Line"."FA Posting Type"::Maintenance:
+                GLIntegration := DeprBook."G/L Integration - Maintenance";
+            "FA Journal Line"."FA Posting Type"::"Salvage Value":
+                GLIntegration := false;
+        end;
+        if GLIntegration then
+            AddError(
+              StrSubstNo(
+                Text008, Format("FA Journal Line"."FA Posting Type")));
+
+        if DeprBook."G/L Integration - Depreciation" then begin
+            if "FA Journal Line"."Depr. until FA Posting Date" then
                 AddError(
                   StrSubstNo(
-                    Text008, Format("FA Posting Type")));
-
-            if DeprBook."G/L Integration - Depreciation" then begin
-                if "Depr. until FA Posting Date" then
-                    AddError(
-                      StrSubstNo(
-                        Text008,
-                        Format(FieldCaption("Depr. until FA Posting Date"))));
-                if "Depr. Acquisition Cost" then
-                    AddError(
-                      StrSubstNo(
-                        Text008,
-                        Format(FieldCaption("Depr. Acquisition Cost"))));
-            end;
+                    Text008,
+                    Format("FA Journal Line".FieldCaption("Depr. until FA Posting Date"))));
+            if "FA Journal Line"."Depr. Acquisition Cost" then
+                AddError(
+                  StrSubstNo(
+                    Text008,
+                    Format("FA Journal Line".FieldCaption("Depr. Acquisition Cost"))));
         end;
     end;
 
     local procedure CheckErrorNo()
     begin
-        with "FA Journal Line" do begin
-            FieldErrorText :=
-              '%1 ' +
-              StrSubstNo(
+        FieldErrorText :=
+            '%1 ' +
+            StrSubstNo(
                 Text009,
-                Format(FieldCaption("FA Error Entry No.")));
-            if "Depr. until FA Posting Date" then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Depr. until FA Posting Date"))));
-            if "Depr. Acquisition Cost" then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Depr. Acquisition Cost"))));
-            if "Duplicate in Depreciation Book" <> '' then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Duplicate in Depreciation Book"))));
-            if "Use Duplication List" then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Use Duplication List"))));
-            if "Salvage Value" <> 0 then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Salvage Value"))));
-            if "Insurance No." <> '' then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Insurance No."))));
-            if "Budgeted FA No." <> '' then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Budgeted FA No."))));
-            if "Recurring Method" > 0 then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Recurring Method"))));
-            if "FA Posting Type" = "FA Posting Type"::Maintenance then
-                AddError(StrSubstNo(FieldErrorText, Format("FA Posting Type")));
-        end;
+                Format("FA Journal Line".FieldCaption("FA Error Entry No.")));
+        if "FA Journal Line"."Depr. until FA Posting Date" then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Depr. until FA Posting Date"))));
+        if "FA Journal Line"."Depr. Acquisition Cost" then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Depr. Acquisition Cost"))));
+        if "FA Journal Line"."Duplicate in Depreciation Book" <> '' then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Duplicate in Depreciation Book"))));
+        if "FA Journal Line"."Use Duplication List" then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Use Duplication List"))));
+        if "FA Journal Line"."Salvage Value" <> 0 then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Salvage Value"))));
+        if "FA Journal Line"."Insurance No." <> '' then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Insurance No."))));
+        if "FA Journal Line"."Budgeted FA No." <> '' then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Budgeted FA No."))));
+        if "FA Journal Line"."Recurring Method" > 0 then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Recurring Method"))));
+        if "FA Journal Line"."FA Posting Type" = "FA Journal Line"."FA Posting Type"::Maintenance then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line"."FA Posting Type")));
     end;
 
     local procedure CheckConsistency()
     begin
-        with "FA Journal Line" do begin
-            FieldErrorText :=
-              '%1 ' +
-              StrSubstNo(
+        FieldErrorText :=
+            '%1 ' +
+            StrSubstNo(
                 Text010,
-                Format(FieldCaption("FA Posting Type")), Format("FA Posting Type"));
-            if "FA Posting Type" <> "FA Posting Type"::"Acquisition Cost" then begin
-                if "Depr. Acquisition Cost" then
-                    AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Depr. Acquisition Cost"))));
-                if "Salvage Value" <> 0 then
-                    AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Salvage Value"))));
-                if (Quantity <> 0) and ("FA Posting Type" <> "FA Posting Type"::Maintenance) then
-                    AddError(StrSubstNo(FieldErrorText, Format(FieldCaption(Quantity))));
-                if "Insurance No." <> '' then
-                    AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Insurance No."))));
-            end;
-
-            if ("FA Posting Type" = "FA Posting Type"::Maintenance) and
-               "Depr. until FA Posting Date"
-            then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Depr. until FA Posting Date"))));
-            if ("FA Posting Type" <> "FA Posting Type"::Maintenance) and ("Maintenance Code" <> '') then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("Maintenance Code"))));
-
-            if ("FA Posting Type" <> "FA Posting Type"::Depreciation) and
-               ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and
-               ("No. of Depreciation Days" <> 0)
-            then
-                AddError(StrSubstNo(FieldErrorText, Format(FieldCaption("No. of Depreciation Days"))));
-            if "FA Posting Type" = "FA Posting Type"::Disposal then begin
-                if "FA Reclassification Entry" then
-                    AddError(
-                      StrSubstNo(FieldErrorText, Format(FieldCaption("FA Reclassification Entry"))));
-                if "Budgeted FA No." <> '' then
-                    AddError(
-                      StrSubstNo(FieldErrorText, Format(FieldCaption("Budgeted FA No."))));
-            end;
-
-            if FA."Budgeted Asset" and ("Budgeted FA No." <> '') then
-                AddError(
-                  StrSubstNo(
-                    Text011,
-                    Format(FieldCaption("Budgeted FA No.")), Format(FieldCaption("FA No.")),
-                    Format(FA.FieldCaption("Budgeted Asset"))));
-
-            FASetup.Get();
-            if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
-               ("Insurance No." <> '') and (DeprBook.Code <> FASetup."Insurance Depr. Book")
-            then
-                AddError(
-                  StrSubstNo(
-                    Text012,
-                    Format(FieldCaption("Depreciation Book Code")), Format("Depreciation Book Code")));
-
-            if DeprBook."Use Same FA+G/L Posting Dates" and
-               ("Posting Date" <> "FA Posting Date") and ("Posting Date" <> 0D)
-            then
-                AddError(
-                  StrSubstNo(
-                    Text013,
-                    Format(FieldCaption("Posting Date")), Format(FieldCaption("FA Posting Date"))));
+                Format("FA Journal Line".FieldCaption("FA Posting Type")), Format("FA Journal Line"."FA Posting Type"));
+        if "FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::"Acquisition Cost" then begin
+            if "FA Journal Line"."Depr. Acquisition Cost" then
+                AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Depr. Acquisition Cost"))));
+            if "FA Journal Line"."Salvage Value" <> 0 then
+                AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Salvage Value"))));
+            if ("FA Journal Line".Quantity <> 0) and ("FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::Maintenance) then
+                AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption(Quantity))));
+            if "FA Journal Line"."Insurance No." <> '' then
+                AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Insurance No."))));
         end;
+
+        if ("FA Journal Line"."FA Posting Type" = "FA Journal Line"."FA Posting Type"::Maintenance) and
+           "FA Journal Line"."Depr. until FA Posting Date"
+        then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Depr. until FA Posting Date"))));
+        if ("FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::Maintenance) and ("FA Journal Line"."Maintenance Code" <> '') then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Maintenance Code"))));
+
+        if ("FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::Depreciation) and
+           ("FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::"Custom 1") and
+           ("FA Journal Line"."No. of Depreciation Days" <> 0)
+        then
+            AddError(StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("No. of Depreciation Days"))));
+        if "FA Journal Line"."FA Posting Type" = "FA Journal Line"."FA Posting Type"::Disposal then begin
+            if "FA Journal Line"."FA Reclassification Entry" then
+                AddError(
+                  StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("FA Reclassification Entry"))));
+            if "FA Journal Line"."Budgeted FA No." <> '' then
+                AddError(
+                  StrSubstNo(FieldErrorText, Format("FA Journal Line".FieldCaption("Budgeted FA No."))));
+        end;
+
+        if FA."Budgeted Asset" and ("FA Journal Line"."Budgeted FA No." <> '') then
+            AddError(
+              StrSubstNo(
+                Text011,
+                Format("FA Journal Line".FieldCaption("Budgeted FA No.")), Format("FA Journal Line".FieldCaption("FA No.")),
+                Format(FA.FieldCaption("Budgeted Asset"))));
+
+        FASetup.Get();
+        if ("FA Journal Line"."FA Posting Type" = "FA Journal Line"."FA Posting Type"::"Acquisition Cost") and
+           ("FA Journal Line"."Insurance No." <> '') and (DeprBook.Code <> FASetup."Insurance Depr. Book")
+        then
+            AddError(
+              StrSubstNo(
+                Text012,
+                Format("FA Journal Line".FieldCaption("Depreciation Book Code")), Format("FA Journal Line"."Depreciation Book Code")));
+
+        if DeprBook."Use Same FA+G/L Posting Dates" and
+           ("FA Journal Line"."Posting Date" <> "FA Journal Line"."FA Posting Date") and ("FA Journal Line"."Posting Date" <> 0D)
+        then
+            AddError(
+              StrSubstNo(
+                Text013,
+                Format("FA Journal Line".FieldCaption("Posting Date")), Format("FA Journal Line".FieldCaption("FA Posting Date"))));
     end;
 
     local procedure CheckFADocNo()
@@ -499,32 +493,31 @@ report 5602 "Fixed Asset Journal - Test"
         OldFALedgEntry: Record "FA Ledger Entry";
         OldMaintenanceLedgEntry: Record "Maintenance Ledger Entry";
     begin
-        with "FA Journal Line" do
-            if "FA Posting Type" <> "FA Posting Type"::Maintenance then begin
-                OldFALedgEntry.SetCurrentKey(
-                  "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Document No.");
-                OldFALedgEntry.SetRange("FA No.", "FA No.");
-                OldFALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-                OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
-                OldFALedgEntry.SetRange("FA Posting Type", ConvertToLedgEntry("FA Journal Line"));
-                OldFALedgEntry.SetRange("Document No.", "Document No.");
-                if OldFALedgEntry.FindFirst() then
-                    AddError(
-                      StrSubstNo(
-                        Text014,
-                        Format(FieldCaption("Document No.")), Format("Document No.")));
-            end else begin
-                OldMaintenanceLedgEntry.SetCurrentKey(
-                  "FA No.", "Depreciation Book Code", "Document No.");
-                OldMaintenanceLedgEntry.SetRange("FA No.", "FA No.");
-                OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-                OldMaintenanceLedgEntry.SetRange("Document No.", "Document No.");
-                if OldMaintenanceLedgEntry.FindFirst() then
-                    AddError(
-                      StrSubstNo(
-                        Text014,
-                        Format(FieldCaption("Document No.")), Format("Document No.")));
-            end;
+        if "FA Journal Line"."FA Posting Type" <> "FA Journal Line"."FA Posting Type"::Maintenance then begin
+            OldFALedgEntry.SetCurrentKey(
+              "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Document No.");
+            OldFALedgEntry.SetRange("FA No.", "FA Journal Line"."FA No.");
+            OldFALedgEntry.SetRange("Depreciation Book Code", "FA Journal Line"."Depreciation Book Code");
+            OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
+            OldFALedgEntry.SetRange("FA Posting Type", "FA Journal Line".ConvertToLedgEntry("FA Journal Line"));
+            OldFALedgEntry.SetRange("Document No.", "FA Journal Line"."Document No.");
+            if OldFALedgEntry.FindFirst() then
+                AddError(
+                  StrSubstNo(
+                    Text014,
+                    Format("FA Journal Line".FieldCaption("Document No.")), Format("FA Journal Line"."Document No.")));
+        end else begin
+            OldMaintenanceLedgEntry.SetCurrentKey(
+              "FA No.", "Depreciation Book Code", "Document No.");
+            OldMaintenanceLedgEntry.SetRange("FA No.", "FA Journal Line"."FA No.");
+            OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "FA Journal Line"."Depreciation Book Code");
+            OldMaintenanceLedgEntry.SetRange("Document No.", "FA Journal Line"."Document No.");
+            if OldMaintenanceLedgEntry.FindFirst() then
+                AddError(
+                  StrSubstNo(
+                    Text014,
+                    Format("FA Journal Line".FieldCaption("Document No.")), Format("FA Journal Line"."Document No.")));
+        end;
     end;
 
     [IntegrationEvent(false, false)]
