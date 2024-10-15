@@ -435,6 +435,31 @@ page 5935 "Service Credit Memo"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the Credit Memo Type.';
+                        trigger OnValidate()
+                        begin
+                            SIIFirstSummaryDocNo := '';
+                            SIILastSummaryDocNo := '';
+                        end;
+                    }
+                    field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                    {
+                        Caption = 'First Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                        end;
+                    }
+                    field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                    {
+                        Caption = 'Last Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                        end;
                     }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
@@ -928,6 +953,8 @@ page 5935 "Service Credit Memo"
         BillToContact.GetOrClear("Bill-to Contact No.");
         UpdateDocHasRegimeCode();
 
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
         OnAfterOnAfterGetRecord(Rec);
     end;
 
@@ -972,6 +999,8 @@ page 5935 "Service Credit Memo"
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         ServiceDocCheckFactboxVisible: Boolean;
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure ActivateFields()
     begin

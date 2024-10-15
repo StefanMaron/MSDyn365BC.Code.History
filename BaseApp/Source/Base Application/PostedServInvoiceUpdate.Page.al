@@ -80,6 +80,12 @@ page 10768 "Posted Serv. Invoice - Update"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the Invoice Type.';
+
+                    trigger OnValidate()
+                    begin
+                        SIIFirstSummaryDocNo := '';
+                        SIILastSummaryDocNo := '';
+                    end;
                 }
                 field("ID Type"; "ID Type")
                 {
@@ -103,6 +109,26 @@ page 10768 "Posted Serv. Invoice - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the invoice was issued by a third party.';
+                }
+                field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                {
+                    Caption = 'First Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                    end;
+                }
+                field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                {
+                    Caption = 'Last Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                    end;
                 }
             }
             group(Shipping)
@@ -137,9 +163,17 @@ page 10768 "Posted Serv. Invoice - Update"
                 CODEUNIT.Run(CODEUNIT::"Service Invoice Header - Edit", Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+    end;
+
     var
         xServiceInvoiceHeader: Record "Service Invoice Header";
         OperationDescription: Text[500];
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure RecordChanged() RecordIsChanged: Boolean
     begin
@@ -154,7 +188,9 @@ page 10768 "Posted Serv. Invoice - Update"
           ("ID Type" <> xServiceInvoiceHeader."ID Type") or
           ("Succeeded Company Name" <> xServiceInvoiceHeader."Succeeded Company Name") or
           ("Succeeded VAT Registration No." <> xServiceInvoiceHeader."Succeeded VAT Registration No.") or
-          ("Issued By Third Party" <> xServiceInvoiceHeader."Issued By Third Party");
+          ("Issued By Third Party" <> xServiceInvoiceHeader."Issued By Third Party") OR
+          (GetSIIFirstSummaryDocNo() <> xServiceInvoiceHeader.GetSIIFirstSummaryDocNo()) OR
+          (GetSIILastSummaryDocNo() <> xServiceInvoiceHeader.GetSIILastSummaryDocNo());
 
         OnAfterRecordIsChanged(Rec, xServiceInvoiceHeader, RecordIsChanged);
     end;

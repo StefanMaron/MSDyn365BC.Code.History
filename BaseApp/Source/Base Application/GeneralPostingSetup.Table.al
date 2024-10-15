@@ -787,10 +787,16 @@ table 252 "General Posting Setup"
         exit("Purch. Pmt. Tol. Credit Acc.");
     end;
 
-    procedure GetPurchPrepmtAccount(): Code[20]
+    procedure GetPurchPrepmtAccount() AccountNo: Code[20]
     var
         GLAccount: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchPrepmtAccount(AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
         if "Purch. Prepayments Account" <> '' then begin
             GLAccount.Get("Purch. Prepayments Account");
             GLAccount.CheckGenProdPostingGroup();
@@ -994,6 +1000,11 @@ table 252 "General Posting Setup"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetSalesPrepmtAccount(var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetPurchPrepmtAccount(var AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -5,6 +5,7 @@ page 5978 "Posted Service Invoice"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Document;
+    PromotedActionCategories = 'New,Process,Report,Posting,Invoice';
     RefreshOnActivate = true;
     SourceTable = "Service Invoice Header";
 
@@ -396,6 +397,20 @@ page 5978 "Posted Service Invoice"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                    }
+                    field("SII First Summary Doc. No."; GetSIIFirstSummaryDocNo())
+                    {
+                        Caption = 'First Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    }
+                    field("SII Last Summary Doc. No."; GetSIILastSummaryDocNo())
+                    {
+                        Caption = 'Last Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
                     }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {

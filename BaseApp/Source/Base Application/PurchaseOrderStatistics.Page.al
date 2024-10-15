@@ -542,7 +542,7 @@
         AllowVATDifference :=
           PurchSetup."Allow VAT Difference" and
           not (Rec."Document Type" in ["Purchase Document Type"::Quote, "Purchase Document Type"::"Blanket Order"]);
-        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
+        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, PurchSetup);
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc;
         CurrPage.Editable := VATLinesFormIsEditable;
     end;
@@ -918,7 +918,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header")
+    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header"; PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 

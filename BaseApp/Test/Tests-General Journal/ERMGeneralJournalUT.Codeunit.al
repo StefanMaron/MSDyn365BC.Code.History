@@ -34,7 +34,7 @@
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
         GenJournalBatchFromGenJournalLineErr: Label 'General Journal must be opened with a Journal Batch that is equal to GenJournalLine."Journal Batch Name"';
         MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection';
-        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted.';
+        GenJournalLineDoesNotExistErr: Label 'There is no Gen. Journal Line within the filter.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5076,7 +5076,7 @@
         asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(GenJournalLine.RecordId);
 
         // [THEN] "GJL2" did NOT pass validation because it replaced the original "GJL"
-        Assert.ExpectedError(RecordDoesNotMatchErr);
+        Assert.ExpectedError(GenJournalLineDoesNotExistErr);
     end;
 
     [Test]

@@ -651,6 +651,7 @@ report 1408 "Bank Acc. Recon. - Test"
     local procedure CreateOutstandingBankTransactions(BankAccountNo: Code[20])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        LedgEntryRemainingAmount: Decimal;
         RemainingAmt: Decimal;
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
@@ -670,8 +671,11 @@ report 1408 "Bank Acc. Recon. - Test"
                         OutstandingPayment.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, OutstandingPayment.Type::"Check Ledger Entry",
                           "Bank Acc. Reconciliation"."Statement Type", "Bank Acc. Reconciliation"."Statement No.", RemainingAmt)
                 end else begin
-                    RemainingAmt := BankAccountLedgerEntry.Amount -
-                      OutstandingBankTransaction.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
+                    LedgEntryRemainingAmount := OutstandingBankTransaction.GetRemainingAmount(BankAccountLedgerEntry."Entry No.");
+                    if LedgEntryRemainingAmount = 0 then
+                        LedgEntryRemainingAmount := BankAccountLedgerEntry.Amount;
+
+                    RemainingAmt := LedgEntryRemainingAmount - OutstandingBankTransaction.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                     if RemainingAmt <> 0 then
                         OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry,
                           OutstandingBankTransaction.Type::"Bank Account Ledger Entry",

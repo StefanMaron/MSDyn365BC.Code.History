@@ -18,6 +18,9 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SalesInvoiceHeader."Succeeded Company Name" := "Succeeded Company Name";
         SalesInvoiceHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         SalesInvoiceHeader."Issued By Third Party" := "Issued By Third Party";
+        SalesInvoiceHeader.SetSIIFirstSummaryDocNo(GetSIIFirstSummaryDocNo());
+        SalesInvoiceHeader.SetSIILastSummaryDocNo(GetSIILastSummaryDocNo());
+
         OnRunOnBeforeSalesInvoiceHeaderModify(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", "No.");
         SalesInvoiceHeader.Modify();
@@ -51,6 +54,8 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SIIDocUploadState."Succeeded Company Name" := SalesInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesInvoiceHeader."Succeeded VAT Registration No.";
         SIIDocUploadState."Issued By Third Party" := SalesInvoiceHeader."Issued By Third Party";
+        SIIDocUploadState."First Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
+        SIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
         SIIDocUploadState.Modify();
     end;
 

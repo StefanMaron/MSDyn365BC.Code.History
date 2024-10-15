@@ -177,7 +177,7 @@ page 161 "Purchase Statistics"
         AllowVATDifference :=
           PurchSetup."Allow VAT Difference" and
           not (Rec."Document Type" in ["Purchase Document Type"::Quote, "Purchase Document Type"::"Blanket Order"]);
-        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
+        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, PurchSetup);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         SetVATSpecification();
     end;
@@ -395,7 +395,7 @@ page 161 "Purchase Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header")
+    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header"; var PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 }

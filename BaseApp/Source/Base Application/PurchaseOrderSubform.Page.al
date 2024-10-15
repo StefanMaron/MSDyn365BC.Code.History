@@ -330,7 +330,7 @@
                 field("Line Amount"; "Line Amount")
                 {
                     ApplicationArea = Suite;
-                    BlankZero = true;
+                    BlankZero = false;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
@@ -1053,7 +1053,7 @@
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 

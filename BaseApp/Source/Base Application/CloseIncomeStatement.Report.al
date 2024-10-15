@@ -74,6 +74,7 @@
                             EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";
                             EntryNoAmountBuf.Insert();
                         end;
+                        OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(EntryNoAmountBuf, "G/L Entry");
                     end;
 
                     if GroupSum then
@@ -127,8 +128,9 @@
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
                                 OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
 
-                                HandleGenJnlLine;
-                                UpdateBalAcc;
+                                HandleGenJnlLine();
+                                UpdateBalAcc();
+                                OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(GenJnlLine, EntryNoAmountBuf);
                             end;
                         until EntryNoAmountBuf.Next() = 0;
 
@@ -775,6 +777,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsBalLinesOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; var BalLineBuffer: Record "Inc. Stmt. Clos. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary; GEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
     begin
     end;
 }

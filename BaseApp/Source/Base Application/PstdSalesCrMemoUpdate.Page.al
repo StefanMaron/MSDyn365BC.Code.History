@@ -100,6 +100,12 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the Credit Memo Type.';
+
+                    trigger OnValidate()
+                    begin
+                        SIIFirstSummaryDocNo := '';
+                        SIILastSummaryDocNo := '';
+                    end;
                 }
                 field("Correction Type"; "Correction Type")
                 {
@@ -112,6 +118,26 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
+                }
+                field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                {
+                    Caption = 'First Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                    end;
+                }
+                field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                {
+                    Caption = 'Last Summary Doc. No.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                    trigger OnValidate()
+                    begin
+                        SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                    end;
                 }
             }
         }
@@ -136,9 +162,17 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                 CODEUNIT.Run(CODEUNIT::"Sales Credit Memo Hdr. - Edit", Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+    end;
+
     var
         xSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         OperationDescription: Text[500];
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
@@ -152,7 +186,9 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Cr. Memo Type" <> xSalesCrMemoHeader."Cr. Memo Type") or
           ("Corrected Invoice No." <> xSalesCrMemoHeader."Corrected Invoice No.") or
           ("Correction Type" <> xSalesCrMemoHeader."Correction Type") or
-          ("Company Bank Account Code" <> xSalesCrMemoHeader."Company Bank Account Code");
+          ("Company Bank Account Code" <> xSalesCrMemoHeader."Company Bank Account Code") or
+          (GetSIIFirstSummaryDocNo() <> xSalesCrMemoHeader.GetSIIFirstSummaryDocNo()) or
+          (GetSIILastSummaryDocNo() <> xSalesCrMemoHeader.GetSIILastSummaryDocNo());
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);
     end;

@@ -49,9 +49,11 @@ codeunit 144080 "ERM PPL"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        FileMgt: Codeunit "File Management";
         ABSAmountCap: Label 'ABS_Amount_';
         AmountMustMatchMsg: Label 'Amount must match.';
         CustomerNoCap: Label 'Customer__No__';
@@ -501,6 +503,282 @@ codeunit 144080 "ERM PPL"
         VerifyCustomerPaymentDueDate(GenJournalLine, SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerOverduePaymentsFileNameRequestPageHandler')]
+    procedure CustomerOverduePaymentsWithinOutsideLegalDueDateShowAll()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        CustomerNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Customer - Overdue Payments with Show Payments All.
+        Initialize();
+
+        // [GIVEN] Customer with Payment Terms with Max. No. of Days till Due Date = 30.
+        CustomerNo := CreateCustomer(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Sales Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Customer,
+                "Gen. Journal Document Type"::Invoice, CustomerNo, Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Sales Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Customer - Overdue Payments report with Show Payments = All on Customer.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::All, CustomerNo);
+        Report.Run(Report::"Customer - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit = A1 + A2; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[1] + Amount[2], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 3);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 3);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerOverduePaymentsFileNameRequestPageHandler')]
+    procedure CustomerOverduePaymentsWithinOutsideLegalDueDateShowOverdue()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        CustomerNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Customer - Overdue Payments with Show Payments Overdue.
+        Initialize();
+
+        // [GIVEN] Customer with Payment Terms with Max. No. of Days till Due Date = 30.
+        CustomerNo := CreateCustomer(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Sales Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Customer,
+                "Gen. Journal Document Type"::Invoice, CustomerNo, Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Sales Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Customer - Overdue Payments report with Show Payments = Overdue on Customer.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::Overdue, CustomerNo);
+        Report.Run(Report::"Customer - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit = A2; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[2], 0, 9), 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerOverduePaymentsFileNameRequestPageHandler')]
+    procedure CustomerOverduePaymentsWithinOutsideLegalDueDateShowLegallyOverdue()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        CustomerNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Customer - Overdue Payments with Show Payments Legally Overdue.
+        Initialize();
+
+        // [GIVEN] Customer with Payment Terms with Max. No. of Days till Due Date = 30.
+        CustomerNo := CreateCustomer(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Sales Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Customer,
+                "Gen. Journal Document Type"::Invoice, CustomerNo, Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Sales Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Customer - Overdue Payments report with Show Payments = Legally Overdue on Customer.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::"Legally Overdue", CustomerNo);
+        Report.Run(Report::"Customer - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit = 0; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(0, 0, 9), 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 0);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorOverduePaymentsFileNameRequestPageHandler')]
+    procedure VendorOverduePaymentsWithinOutsideLegalDueDateShowAll()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        VendorNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Vendor - Overdue Payments with Show Payments All.
+        Initialize();
+
+        // [GIVEN] Vendor with Payment Terms with Max. No. of Days till Due Date = 30.
+        VendorNo := CreateVendor(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Purchase Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Vendor,
+                "Gen. Journal Document Type"::Invoice, VendorNo, -Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Purchase Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Vendor - Overdue Payments report with Show Payments = All on Vendor.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::All, VendorNo);
+        Report.Run(Report::"Vendor - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit = A1 + A2; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[1] + Amount[2], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 3);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 3);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorOverduePaymentsFileNameRequestPageHandler')]
+    procedure VendorOverduePaymentsWithinOutsideLegalDueDateShowOverdue()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        VendorNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Vendor - Overdue Payments with Show Payments Overdue.
+        Initialize();
+
+        // [GIVEN] Vendor with Payment Terms with Max. No. of Days till Due Date = 30.
+        VendorNo := CreateVendor(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Purchase Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Vendor,
+                "Gen. Journal Document Type"::Invoice, VendorNo, -Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Purchase Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Vendor - Overdue Payments report with Show Payments = Overdue on Vendor.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::Overdue, VendorNo);
+        Report.Run(Report::"Vendor - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit = A2; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(Amount[2], 0, 9), 1);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorOverduePaymentsFileNameRequestPageHandler')]
+    procedure VendorOverduePaymentsWithinOutsideLegalDueDateShowLegallyOverdue()
+    var
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        VendorNo: Code[20];
+        XmlFileName: Text;
+        ShowPayment: Option Overdue,"Legally Overdue",All;
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 440275] "Payments within/outside the legal limit" value when run Vendor - Overdue Payments with Show Payments Legally Overdue.
+        Initialize();
+
+        // [GIVEN] Vendor with Payment Terms with Max. No. of Days till Due Date = 30.
+        VendorNo := CreateVendor(CreatePaymentTerms(30));
+
+        // [GIVEN] Three posted Purchase Invoices with Amounts 100, 1000, 10000.
+        for i := 1 to 3 do begin
+            Amount[i] := LibraryRandom.RandDecInRange(10 * Power(10, i), 20 * Power(10, i), 2);
+            CreateGeneralJournalLine(
+                GenJournalLine[i], "Gen. Journal Account Type"::Vendor,
+                "Gen. Journal Document Type"::Invoice, VendorNo, -Amount[i], WorkDate());
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+        end;
+
+        // [GIVEN] Three payments applied to posted Purchase Invoices.
+        // [GIVEN] First invoice is paid before due date, second is paid after due date, but before legal due date, third is paid after legal due date.
+        CreateAndApplyPayment(GenJournalLine[1], WorkDate() + 1);
+        CreateAndApplyPayment(GenJournalLine[2], WorkDate() + 15);
+        CreateAndApplyPayment(GenJournalLine[3], WorkDate() + 45);
+
+        // [WHEN] Run Vendor - Overdue Payments report with Show Payments = Legally Overdue on Vendor.
+        EnqueueValuesForRequestPageHandler(
+            CalcDate('<-CM>', WorkDate()), CalcDate('<CM + 1M>', WorkDate()), ShowPayment::"Legally Overdue", VendorNo);
+        Report.Run(Report::"Vendor - Overdue Payments");
+
+        // [THEN] Footer has Payments within the legal limit =0; Payments outside the legal limit = A3.
+        XmlFileName := LibraryVariableStorage.DequeueText();
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentWithinDueDate', Format(0, 0, 9), 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//DataSet/Result/TotalPaymentOutsideDueDate', Format(Amount[3], 0, 9), 0);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentWithinDueDate', 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//DataSet/Result/TotalPaymentOutsideDueDate', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -563,6 +841,20 @@ codeunit 144080 "ERM PPL"
           SalesHeader."Sell-to Customer No.",
           0,
           SalesHeader."Posting Date");
+    end;
+
+    local procedure CreateAndApplyPayment(CustomerVendorDocGenJnlLine: Record "Gen. Journal Line"; PostingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGeneralJournalLine(
+            GenJournalLine, CustomerVendorDocGenJnlLine."Account Type", "Gen. Journal Document Type"::Payment,
+            CustomerVendorDocGenJnlLine."Account No.", 0, PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", CustomerVendorDocGenJnlLine."Document Type");
+        GenJournalLine.Validate("Applies-to Doc. No.", CustomerVendorDocGenJnlLine."Document No.");
+        GenJournalLine.Validate(Amount, -CustomerVendorDocGenJnlLine.Amount);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateCustomerWithMultipleInstallmentsSetup(): Code[20]
@@ -967,6 +1259,20 @@ codeunit 144080 "ERM PPL"
     end;
 
     [RequestPageHandler]
+    procedure CustomerOverduePaymentsFileNameRequestPageHandler(var CustomerOverduePayments: TestRequestPage "Customer - Overdue Payments")
+    var
+        FileName: Text;
+    begin
+        FileName := FileMgt.ServerTempFileName('xml');
+        CustomerOverduePayments.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CustomerOverduePayments.EndDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CustomerOverduePayments.ShowPayments.SetValue(LibraryVariableStorage.DequeueInteger());
+        CustomerOverduePayments.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerOverduePayments.SaveAsXml(FileMgt.ServerTempFileName('xml'), FileName);
+        LibraryVariableStorage.Enqueue(FileName);
+    end;
+
+    [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorOverduePaymentsRequestPageHandler(var VendorOverduePayments: TestRequestPage "Vendor - Overdue Payments")
     var
@@ -984,6 +1290,20 @@ codeunit 144080 "ERM PPL"
         VendorOverduePayments.ShowPayments.SetValue(ShowPayments);
         VendorOverduePayments.Vendor.SetFilter("No.", No);
         VendorOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure VendorOverduePaymentsFileNameRequestPageHandler(var VendorOverduePayments: TestRequestPage "Vendor - Overdue Payments")
+    var
+        FileName: Text;
+    begin
+        FileName := FileMgt.ServerTempFileName('xml');
+        VendorOverduePayments.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        VendorOverduePayments.EndDate.SetValue(LibraryVariableStorage.DequeueDate());
+        VendorOverduePayments.ShowPayments.SetValue(LibraryVariableStorage.DequeueInteger());
+        VendorOverduePayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        VendorOverduePayments.SaveAsXml(FileMgt.ServerTempFileName('xml'), FileName);
+        LibraryVariableStorage.Enqueue(FileName);
     end;
 
     [ConfirmHandler]

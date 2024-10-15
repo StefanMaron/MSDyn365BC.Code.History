@@ -1,4 +1,4 @@
-﻿table 81 "Gen. Journal Line"
+table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -2981,6 +2981,14 @@
         {
             Caption = 'Issued By Third Party';
         }
+        field(10726; "SII First Summary Doc. No."; Blob)
+        {
+            Caption = 'First Summary Doc. No.';
+        }
+        field(10727; "SII Last Summary Doc. No."; Blob)
+        {
+            Caption = 'Last Summary Doc. No.';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -3224,9 +3232,9 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
-        SpecialSymbolsTok: Label '=|&''@()<>', Locked = true;
         IncorrectAccTypeErr: Label '%1 or %2 must be a %3.', Comment = '%1=Account Type,%2=Balance Account Type,%3=Customer or Vendor';
         OneOrAnotherTok: Label '%1 or %2', Comment = 'Customer or Vendor';
+        SpecialSymbolsTok: Label '=|&@()<>', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3243,6 +3251,46 @@
         exit(
           ("Account No." = '') and (Amount = 0) and
           (("Bal. Account No." = '') or not "System-Created Entry"));
+    end;
+
+    procedure GetSIIFirstSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure GetSIILastSummaryDocNo(): Text
+    var
+        InStreamObj: InStream;
+        SIISummaryDocNoText: Text;
+    begin
+        CalcFields("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
+        InStreamObj.ReadText(SIISummaryDocNoText);
+        exit(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        Clear("SII First Summary Doc. No.");
+        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
+    end;
+
+    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
+    var
+        OutStreamObj: OutStream;
+    begin
+        Clear("SII Last Summary Doc. No.");
+        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
+        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     local procedure BlankJobNo(CurrentFieldNo: Integer)
@@ -3337,16 +3385,16 @@
                     "Document Type" := "Document Type"::Payment;
                 end;
             else begin
-                    "Account Type" := LastGenJnlLine."Account Type";
-                    "Document Type" := LastGenJnlLine."Document Type";
-                end;
+                "Account Type" := LastGenJnlLine."Account Type";
+                "Document Type" := LastGenJnlLine."Document Type";
+            end;
         end;
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
 
         IsHandled := false;
-        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec);
+        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec, CurrFieldNo);
         if not IsHandled then begin
             "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset"]) and
@@ -3737,9 +3785,9 @@
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
-                    "Source Type" := "Source Type"::" ";
-                    "Source No." := '';
-                end;
+                "Source Type" := "Source Type"::" ";
+                "Source No." := '';
+            end;
         end;
 
         OnAfterUpdateSource(Rec, CurrFieldNo);
@@ -4759,7 +4807,7 @@
         else
             TempJobJnlLine.Validate("Posting Date", xRec."Posting Date");
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
-        
+
         "Job Currency Factor" := 0;
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
@@ -6207,6 +6255,9 @@
         "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
         "Issued By Third Party" := SalesHeader."Issued By Third Party";
 
+        SetSIIFirstSummaryDocNo(SalesHeader.GetSIIFirstSummaryDocNo());
+        SetSIILastSummaryDocNo(SalesHeader.GetSIILastSummaryDocNo());
+
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
 
@@ -6303,6 +6354,10 @@
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
         "Issued By Third Party" := ServiceHeader."Issued By Third Party";
+
+        SetSIIFirstSummaryDocNo(ServiceHeader.GetSIIFirstSummaryDocNo());
+        SetSIILastSummaryDocNo(ServiceHeader.GetSIILastSummaryDocNo());
+
         "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
@@ -6618,6 +6673,9 @@
             GenJournalLine.SetRange("Bal. Account No.", '');
             if GenJournalLine.FindFirst() then begin
                 GenJournalLine.CalcSums(Amount);
+                if GenJournalLine.Amount = 0 then
+                    exit;
+
                 "Document No." := GenJournalLine."Document No.";
                 "Posting Date" := GenJournalLine."Posting Date";
                 Validate(Amount, -GenJournalLine.Amount);
@@ -8107,7 +8165,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean; var Rec: Record "Gen. Journal Line")
+    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean; var Rec: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 

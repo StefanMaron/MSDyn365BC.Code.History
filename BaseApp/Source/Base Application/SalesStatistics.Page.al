@@ -252,7 +252,7 @@ page 160 "Sales Statistics"
         AllowVATDifference :=
           SalesSetup."Allow VAT Difference" and
           not (Rec."Document Type" in ["Sales Document Type"::Quote, "Sales Document Type"::"Blanket Order"]);
-        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
+        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec, SalesSetup);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         SetVATSpecification();
     end;
@@ -504,7 +504,7 @@ page 160 "Sales Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; SalesHeader: Record "Sales Header")
+    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; SalesHeader: Record "Sales Header"; SalesSetup: Record "Sales & Receivables Setup")
     begin
     end;
 }

@@ -376,7 +376,6 @@
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.")
             else
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Transaction No.");
-
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";
@@ -1595,7 +1594,7 @@
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
                 InsertPostedGenJnlLine(GenJournalLine);
             end;
-            OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine);
+            OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine, IsPosted, GenJournalLine);
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
                ("IC Direction" = "IC Direction"::Outgoing) and (ICTransactionNo > 0)
             then
@@ -1965,7 +1964,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; IsPosted: Boolean; var PostingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

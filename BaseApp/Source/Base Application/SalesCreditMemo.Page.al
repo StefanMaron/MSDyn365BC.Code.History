@@ -420,6 +420,12 @@
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the Credit Memo Type.';
+
+                        trigger OnValidate()
+                        begin
+                            SIIFirstSummaryDocNo := '';
+                            SIILastSummaryDocNo := '';
+                        end;
                     }
                     field("Correction Type"; "Correction Type")
                     {
@@ -430,6 +436,26 @@
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the ID Type.';
+                    }
+                    field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
+                    {
+                        Caption = 'First Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                        end;
+                    }
+                    field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
+                    {
+                        Caption = 'Last Summary Doc. No.';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
+                        trigger OnValidate()
+                        begin
+                            SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                        end;
                     }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
@@ -1165,6 +1191,8 @@
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action("Move Negative Lines")
@@ -1435,6 +1463,8 @@
         BillToContact.GetOrClear("Bill-to Contact No.");
         UpdateDocHasRegimeCode();
 
+        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
         OnAfterOnAfterGetRecord(Rec);
     end;
 
@@ -1552,6 +1582,8 @@
         OperationDescription: Text[500];
         DocHasMultipleRegimeCode: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
+        SIIFirstSummaryDocNo: Text[35];
+        SIILastSummaryDocNo: Text[35];
 
     local procedure ActivateFields()
     begin

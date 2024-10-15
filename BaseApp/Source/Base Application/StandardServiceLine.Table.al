@@ -401,7 +401,7 @@ table 5997 "Standard Service Line"
     end;
 #endif
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupShortcutDimCode(var StandardServiceLine: Record "Standard Service Line"; var xStandardServiceLine: Record "Standard Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; IsHandled: Boolean)
+    local procedure OnBeforeLookupShortcutDimCode(var StandardServiceLine: Record "Standard Service Line"; var xStandardServiceLine: Record "Standard Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

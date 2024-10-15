@@ -49,16 +49,16 @@ report 10748 "Vendor - Overdue Payments"
             column(ABS__Detailed_Vend__Ledg__Entry___Amount__LCY___; Abs(VendTotalAmount))
             {
             }
-            column(ABS_TotalPaymentWithinDueDate_; Abs(TotalPaymentWithinDueDate))
+            column(ABS_TotalPaymentWithinDueDate_; Abs(TotalPaymentWithinLegalDueDate))
             {
             }
-            column(ABS_TotalPaymentOutsideDueDate_; Abs(TotalPaymentOutsideDueDate))
+            column(ABS_TotalPaymentOutsideDueDate_; Abs(TotalPaymentOutsideLegalDueDate))
             {
             }
-            column(DataItem1100037; FormatRatio(TotalPaymentWithinDueDate, VendTotalAmount))
+            column(DataItem1100037; FormatRatio(TotalPaymentWithinLegalDueDate, VendTotalAmount))
             {
             }
-            column(DataItem1100039; FormatRatio(TotalPaymentOutsideDueDate, VendTotalAmount))
+            column(DataItem1100039; FormatRatio(TotalPaymentOutsideLegalDueDate, VendTotalAmount))
             {
             }
             column(TotalPaymentOutsideDueDate; Abs(AppldVendLedgEntryTmp."Amount (LCY)"))
@@ -77,16 +77,16 @@ report 10748 "Vendor - Overdue Payments"
             column(ABS__Detailed_Vend__Ledg__Entry___Amount__LCY____Control1100031; Abs(TotalAmount))
             {
             }
-            column(ABS_TotalPaymentWithinDueDate__Control1100044; Abs(TotalPaymentWithinDueDate))
+            column(ABS_TotalPaymentWithinDueDate__Control1100044; Abs(TotalPaymentWithinLegalDueDate))
             {
             }
-            column(ABS_TotalPaymentOutsideDueDate__Control1100045; Abs(TotalPaymentOutsideDueDate))
+            column(ABS_TotalPaymentOutsideDueDate__Control1100045; Abs(TotalPaymentOutsideLegalDueDate))
             {
             }
-            column(DataItem1100046; FormatRatio(TotalPaymentWithinDueDate, TotalAmount))
+            column(DataItem1100046; FormatRatio(TotalPaymentWithinLegalDueDate, TotalAmount))
             {
             }
-            column(DataItem1100047; FormatRatio(TotalPaymentOutsideDueDate, TotalAmount))
+            column(DataItem1100047; FormatRatio(TotalPaymentOutsideLegalDueDate, TotalAmount))
             {
             }
             column(WeightedExceededAmount___ABS__Detailed_Vend__Ledg__Entry___Amount__LCY____Control1100057; GetWeightedExceededAmountPerTotal)
@@ -164,25 +164,25 @@ report 10748 "Vendor - Overdue Payments"
             column(CalcTotalAveragePaymentPeriodToVendors_; CalcTotalAveragePaymentPeriodToVendors)
             {
             }
-            column(OpenVendPaymentOutsideDueDate; OpenVendPaymentOutsideDueDate)
+            column(OpenVendPaymentOutsideDueDate; OpenVendPaymentOutsideLegalDueDate)
             {
             }
-            column(TotalOpenPaymentOutsideDueDate; TotalOpenPaymentOutsideDueDate)
+            column(TotalOpenPaymentOutsideDueDate; TotalOpenPaymentOutsideLegalDueDate)
             {
             }
-            column(VendPaymentOutsideDueDate; VendPaymentOutsideDueDate)
+            column(VendPaymentOutsideDueDate; VendPaymentOutsideLegalDueDate)
             {
             }
-            column(VendPaymentWithinDueDate; VendPaymentWithinDueDate)
+            column(VendPaymentWithinDueDate; VendPaymentWithinLegalDueDate)
             {
             }
-            column(TotalPaymentWithinDueDate; TotalPaymentWithinDueDate)
+            column(TotalPaymentWithinDueDate; TotalPaymentWithinLegalDueDate)
             {
             }
-            column(OpenVendPaymentWithinDueDate; OpenVendPaymentWithinDueDate)
+            column(OpenVendPaymentWithinDueDate; OpenVendPaymentWithinLegalDueDate)
             {
             }
-            column(TotalOpenPaymentWithinDueDate; TotalOpenPaymentWithinDueDate)
+            column(TotalOpenPaymentWithinDueDate; TotalOpenPaymentWithinLegalDueDate)
             {
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -271,6 +271,8 @@ report 10748 "Vendor - Overdue Payments"
                     }
 
                     trigger OnAfterGetRecord()
+                    var
+                        LegalDueDate: Date;
                     begin
                         if Number = 1 then begin
                             if not AppldVendLedgEntryTmp.FindSet() then
@@ -278,27 +280,27 @@ report 10748 "Vendor - Overdue Payments"
                         end else
                             if AppldVendLedgEntryTmp.Next() = 0 then
                                 CurrReport.Break();
-                        TempDetailedVendorLedgEntry.Get(AppldVendLedgEntryTmp."Entry No.");
 
-                        DaysOverdue := AppldVendLedgEntryTmp."Posting Date" - TempDetailedVendorLedgEntry."Posting Date";
-                        if (AppldVendLedgEntryTmp."Posting Date" > AppldVendLedgEntryTmp."Initial Entry Due Date")
-                        then
+                        LegalDueDate := DtldEntryNoToLegalDueDateMap.Get(AppldVendLedgEntryTmp."Entry No.");
+                        if AppldVendLedgEntryTmp."Posting Date" > LegalDueDate then
                             if AppldVendLedgEntryTmp."Applied Vend. Ledger Entry No." = 0 then begin
-                                OpenVendPaymentOutsideDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
-                                TotalOpenPaymentOutsideDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                OpenVendPaymentOutsideLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                TotalOpenPaymentOutsideLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
                             end else begin
-                                VendPaymentOutsideDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
-                                TotalPaymentOutsideDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                VendPaymentOutsideLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                TotalPaymentOutsideLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
                             end
                         else
                             if AppldVendLedgEntryTmp."Applied Vend. Ledger Entry No." = 0 then begin
-                                OpenVendPaymentWithinDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
-                                TotalOpenPaymentWithinDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                OpenVendPaymentWithinLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                TotalOpenPaymentWithinLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
                             end else begin
-                                VendPaymentWithinDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
-                                TotalPaymentWithinDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                VendPaymentWithinLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
+                                TotalPaymentWithinLegalDueDate += AppldVendLedgEntryTmp."Amount (LCY)";
                             end;
 
+                        TempDetailedVendorLedgEntry.Get(AppldVendLedgEntryTmp."Entry No.");
+                        DaysOverdue := AppldVendLedgEntryTmp."Posting Date" - TempDetailedVendorLedgEntry."Posting Date";
                         if AppldVendLedgEntryTmp."Entry Type" = AppldVendLedgEntryTmp."Entry Type"::"Initial Entry" then begin
                             VendOpenAmount += Abs(AppldVendLedgEntryTmp."Amount (LCY)");
                             TotalOpenAmount += Abs(AppldVendLedgEntryTmp."Amount (LCY)");
@@ -313,11 +315,14 @@ report 10748 "Vendor - Overdue Payments"
                         end;
 
                         VendDaysOverdue += DaysOverdue;
-                        VendTotalAmount :=
-                          VendPaymentOutsideDueDate + VendPaymentWithinDueDate + OpenVendPaymentOutsideDueDate + OpenVendPaymentWithinDueDate;
                         TotalDaysOverdue += DaysOverdue;
+
+                        VendTotalAmount :=
+                            VendPaymentOutsideLegalDueDate + VendPaymentWithinLegalDueDate +
+                            OpenVendPaymentOutsideLegalDueDate + OpenVendPaymentWithinLegalDueDate;
                         TotalAmount :=
-                          TotalPaymentOutsideDueDate + TotalPaymentWithinDueDate + TotalOpenPaymentOutsideDueDate + TotalOpenPaymentWithinDueDate;
+                            TotalPaymentOutsideLegalDueDate + TotalPaymentWithinLegalDueDate +
+                            TotalOpenPaymentOutsideLegalDueDate + TotalOpenPaymentWithinLegalDueDate;
                     end;
 
                     trigger OnPreDataItem()
@@ -406,11 +411,12 @@ report 10748 "Vendor - Overdue Payments"
     var
         AppldVendLedgEntryTmp: Record "Detailed Vendor Ledg. Entry" temporary;
         TempDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary;
+        DtldEntryNoToLegalDueDateMap: Dictionary of [Integer, Date];
         StartDate: Date;
         EndDate: Date;
         VendFilter: Text[250];
-        TotalPaymentWithinDueDate: Decimal;
-        TotalPaymentOutsideDueDate: Decimal;
+        TotalPaymentWithinLegalDueDate: Decimal;
+        TotalPaymentOutsideLegalDueDate: Decimal;
         DaysOverdue: Decimal;
         WeightedExceededAmount: Decimal;
         Text001: Label 'Max. Allowed Due Date';
@@ -441,15 +447,15 @@ report 10748 "Vendor - Overdue Payments"
         ABS_Amount_CaptionLbl: Label 'Amount';
         ABS__Amount__LCY___CaptionLbl: Label 'Amount(LCY)';
         DaysOverdue_Control1100024CaptionLbl: Label 'Days Overdue';
-        OpenVendPaymentOutsideDueDate: Decimal;
-        TotalOpenPaymentOutsideDueDate: Decimal;
+        OpenVendPaymentOutsideLegalDueDate: Decimal;
+        TotalOpenPaymentOutsideLegalDueDate: Decimal;
         ABS_TotalOpenPaymentOutsideLegalLimit__Control1100046CaptionLbl: Label 'Open Payments outside the legal limit (LCY):';
-        OpenVendPaymentWithinDueDate: Decimal;
-        TotalOpenPaymentWithinDueDate: Decimal;
+        OpenVendPaymentWithinLegalDueDate: Decimal;
+        TotalOpenPaymentWithinLegalDueDate: Decimal;
         VendDaysOverdue: Decimal;
         VendWeightedExceededAmount: Decimal;
-        VendPaymentOutsideDueDate: Decimal;
-        VendPaymentWithinDueDate: Decimal;
+        VendPaymentOutsideLegalDueDate: Decimal;
+        VendPaymentWithinLegalDueDate: Decimal;
         VendApplAmount: Decimal;
         TotalApplAmount: Decimal;
         VendOpenAmount: Decimal;
@@ -488,7 +494,6 @@ report 10748 "Vendor - Overdue Payments"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         PayVendLedgEntry: Record "Vendor Ledger Entry";
-        MaxAllowedDueDate: Date;
     begin
         with DtldVendLedgEntry do begin
             SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
@@ -501,19 +506,17 @@ report 10748 "Vendor - Overdue Payments"
                 repeat
                     if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then begin
                         if IsPaymentEntry("Vendor Ledger Entry No.", PayVendLedgEntry) and
-                           CheckEntry(InvVendLedgEntry, "Posting Date", MaxAllowedDueDate)
+                           PrintEntry(InvVendLedgEntry, "Posting Date")
                         then begin
                             AppldVendLedgEntryTmp := DtldVendLedgEntry;
                             AppldVendLedgEntryTmp."Document No." := PayVendLedgEntry."Document No.";
                             AppldVendLedgEntryTmp."Currency Code" := PayVendLedgEntry."Currency Code";
-                            if ShowPayments = ShowPayments::"Legally Overdue" then
-                                AppldVendLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate
-                            else
-                                AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
+                            AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
                             AppldVendLedgEntryTmp.Amount := -AppldVendLedgEntryTmp.Amount;
                             AppldVendLedgEntryTmp."Amount (LCY)" := -AppldVendLedgEntryTmp."Amount (LCY)";
                             if AppldVendLedgEntryTmp.Insert() then;
                             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
+                            DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
                         end;
                     end;
                 until Next() = 0;
@@ -523,23 +526,23 @@ report 10748 "Vendor - Overdue Payments"
     local procedure FindAppInvToPaym(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; InvVendLedgEntry: Record "Vendor Ledger Entry")
     var
         PayVendLedgEntry: Record "Vendor Ledger Entry";
-        MaxAllowedDueDate: Date;
     begin
         if IsPaymentEntry(DtldVendLedgEntry."Applied Vend. Ledger Entry No.", PayVendLedgEntry) and
-           CheckEntry(InvVendLedgEntry, DtldVendLedgEntry."Posting Date", MaxAllowedDueDate)
+           PrintEntry(InvVendLedgEntry, DtldVendLedgEntry."Posting Date")
         then begin
             AppldVendLedgEntryTmp := DtldVendLedgEntry;
             AppldVendLedgEntryTmp."Vendor Ledger Entry No." := AppldVendLedgEntryTmp."Applied Vend. Ledger Entry No.";
             AppldVendLedgEntryTmp."Document No." := PayVendLedgEntry."Document No.";
             AppldVendLedgEntryTmp."Currency Code" := PayVendLedgEntry."Currency Code";
-            if ShowPayments = ShowPayments::"Legally Overdue" then
-                AppldVendLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate;
             if AppldVendLedgEntryTmp.Insert() then;
             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
+            DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
         end;
     end;
 
-    local procedure CheckEntry(InvVendLedgEntry: Record "Vendor Ledger Entry"; PaymentAppDate: Date; var MaxAllowedDueDate: Date): Boolean
+    local procedure PrintEntry(InvVendLedgEntry: Record "Vendor Ledger Entry"; PaymentAppDate: Date): Boolean
+    var
+        MaxAllowedDueDate: Date;
     begin
         if ShowPayments = ShowPayments::All then
             exit(true);
@@ -592,28 +595,25 @@ report 10748 "Vendor - Overdue Payments"
     var
         InvVendLedgEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        MaxAllowedDueDate: Date;
     begin
         InvVendLedgEntry.Get(VendLedgEntryNo);
         InvVendLedgEntry.SetRange("Date Filter", 0D, EndDate);
         InvVendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         if InvVendLedgEntry."Remaining Amount" <> 0 then
-            if CheckEntry(InvVendLedgEntry, EndDate, MaxAllowedDueDate) then begin
+            if PrintEntry(InvVendLedgEntry, EndDate) then begin
                 DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
                 DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", InvVendLedgEntry."Entry No.");
                 DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Initial Entry");
                 if DtldVendLedgEntry.FindFirst() then begin
                     AppldVendLedgEntryTmp := DtldVendLedgEntry;
-                    if ShowPayments = ShowPayments::"Legally Overdue" then
-                        AppldVendLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate
-                    else
-                        AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
+                    AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
                     AppldVendLedgEntryTmp.Amount := -InvVendLedgEntry."Remaining Amount";
                     AppldVendLedgEntryTmp."Amount (LCY)" := -InvVendLedgEntry."Remaining Amt. (LCY)";
                     AppldVendLedgEntryTmp."Document No." := '';
                     AppldVendLedgEntryTmp."Posting Date" := EndDate;
                     if AppldVendLedgEntryTmp.Insert() then;
                     InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
+                    DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
                 end;
             end;
     end;
@@ -633,10 +633,10 @@ report 10748 "Vendor - Overdue Payments"
         VendTotalAmount := 0;
         VendDaysOverdue := 0;
         VendWeightedExceededAmount := 0;
-        VendPaymentOutsideDueDate := 0;
-        VendPaymentWithinDueDate := 0;
-        OpenVendPaymentOutsideDueDate := 0;
-        OpenVendPaymentWithinDueDate := 0;
+        VendPaymentOutsideLegalDueDate := 0;
+        VendPaymentWithinLegalDueDate := 0;
+        OpenVendPaymentOutsideLegalDueDate := 0;
+        OpenVendPaymentWithinLegalDueDate := 0;
         VendApplAmount := 0;
         VendWeightedOpenPaymentAmount := 0;
         VendOpenAmount := 0;

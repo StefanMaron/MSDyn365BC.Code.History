@@ -1164,6 +1164,8 @@ table 5080 "To-do"
                 end;
         if not CommentLineInserted then
             CreateCommentLines(RMCommentLine, Task2."No.");
+
+        OnAfterInsertTaskAndRelatedData(Task2);
     end;
 
     procedure CreateSubTask(var Attendee: Record Attendee; Task: Record "To-do"): Code[20]
@@ -2468,7 +2470,25 @@ table 5080 "To-do"
                     end;
                 end
             else begin
-                    if Cont.Get(GetFilter("Contact No.")) then begin
+                if Cont.Get(GetFilter("Contact No.")) then begin
+                    if Cont."Salesperson Code" <> '' then begin
+                        TempAttendee.CreateAttendee(
+                          TempAttendee,
+                          "No.", AttendeeLineNo,
+                          TempAttendee."Attendance Type"::"To-do Organizer",
+                          TempAttendee."Attendee Type"::Salesperson,
+                          Cont."Salesperson Code", true);
+                        AttendeeLineNo += 10000
+                    end;
+                    TempAttendee.CreateAttendee(
+                      TempAttendee,
+                      "No.", AttendeeLineNo,
+                      TempAttendee."Attendance Type"::Required,
+                      TempAttendee."Attendee Type"::Contact,
+                      Cont."No.", Cont."E-Mail" <> '');
+                    AttendeeLineNo += 10000;
+                end else
+                    if Cont.Get(GetFilter("Contact Company No.")) then begin
                         if Cont."Salesperson Code" <> '' then begin
                             TempAttendee.CreateAttendee(
                               TempAttendee,
@@ -2485,68 +2505,50 @@ table 5080 "To-do"
                           TempAttendee."Attendee Type"::Contact,
                           Cont."No.", Cont."E-Mail" <> '');
                         AttendeeLineNo += 10000;
-                    end else
-                        if Cont.Get(GetFilter("Contact Company No.")) then begin
-                            if Cont."Salesperson Code" <> '' then begin
-                                TempAttendee.CreateAttendee(
-                                  TempAttendee,
-                                  "No.", AttendeeLineNo,
-                                  TempAttendee."Attendance Type"::"To-do Organizer",
-                                  TempAttendee."Attendee Type"::Salesperson,
-                                  Cont."Salesperson Code", true);
-                                AttendeeLineNo += 10000
-                            end;
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              "No.", AttendeeLineNo,
-                              TempAttendee."Attendance Type"::Required,
-                              TempAttendee."Attendee Type"::Contact,
-                              Cont."No.", Cont."E-Mail" <> '');
-                            AttendeeLineNo += 10000;
-                        end;
+                    end;
 
-                    if Salesperson.Get(GetFilter("Salesperson Code")) then begin
+                if Salesperson.Get(GetFilter("Salesperson Code")) then begin
+                    TempAttendee.CreateAttendee(
+                      TempAttendee,
+                      "No.", AttendeeLineNo,
+                      TempAttendee."Attendance Type"::"To-do Organizer",
+                      TempAttendee."Attendee Type"::Salesperson,
+                      Salesperson.Code, true);
+                    AttendeeLineNo += 10000;
+                end;
+
+                if Campaign.Get(GetFilter("Campaign No.")) then
+                    if Salesperson.Get(Campaign."Salesperson Code") then begin
                         TempAttendee.CreateAttendee(
                           TempAttendee,
                           "No.", AttendeeLineNo,
                           TempAttendee."Attendance Type"::"To-do Organizer",
                           TempAttendee."Attendee Type"::Salesperson,
                           Salesperson.Code, true);
-                        AttendeeLineNo += 10000;
+                        AttendeeLineNo += 10000
                     end;
 
-                    if Campaign.Get(GetFilter("Campaign No.")) then
-                        if Salesperson.Get(Campaign."Salesperson Code") then begin
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              "No.", AttendeeLineNo,
-                              TempAttendee."Attendance Type"::"To-do Organizer",
-                              TempAttendee."Attendee Type"::Salesperson,
-                              Salesperson.Code, true);
-                            AttendeeLineNo += 10000
-                        end;
-
-                    if Opp.Get(GetFilter("Opportunity No.")) then begin
-                        if Salesperson.Get(Opp."Salesperson Code") then begin
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              "No.", AttendeeLineNo,
-                              TempAttendee."Attendance Type"::"To-do Organizer",
-                              TempAttendee."Attendee Type"::Salesperson,
-                              Salesperson.Code, true);
-                            AttendeeLineNo += 10000
-                        end;
-                        if Cont.Get(Opp."Contact No.") then begin
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              "No.", AttendeeLineNo,
-                              TempAttendee."Attendance Type"::Required,
-                              TempAttendee."Attendee Type"::Contact,
-                              Cont."No.", Cont."E-Mail" <> '');
-                            AttendeeLineNo += 10000
-                        end;
+                if Opp.Get(GetFilter("Opportunity No.")) then begin
+                    if Salesperson.Get(Opp."Salesperson Code") then begin
+                        TempAttendee.CreateAttendee(
+                          TempAttendee,
+                          "No.", AttendeeLineNo,
+                          TempAttendee."Attendance Type"::"To-do Organizer",
+                          TempAttendee."Attendee Type"::Salesperson,
+                          Salesperson.Code, true);
+                        AttendeeLineNo += 10000
+                    end;
+                    if Cont.Get(Opp."Contact No.") then begin
+                        TempAttendee.CreateAttendee(
+                          TempAttendee,
+                          "No.", AttendeeLineNo,
+                          TempAttendee."Attendance Type"::Required,
+                          TempAttendee."Attendee Type"::Contact,
+                          Cont."No.", Cont."E-Mail" <> '');
+                        AttendeeLineNo += 10000
                     end;
                 end;
+            end;
         end;
 
         if SegHeader.Get(GetFilter("Segment No.")) then begin
@@ -3135,6 +3137,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartWizardOnBeforeInsert(var Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTaskAndRelatedData(var Task2: Record "To-do")
     begin
     end;
 }

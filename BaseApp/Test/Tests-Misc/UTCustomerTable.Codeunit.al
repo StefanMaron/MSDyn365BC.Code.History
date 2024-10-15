@@ -51,6 +51,7 @@ codeunit 134825 "UT Customer Table"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SelectionFirstCustomerFromCustomerListModalPageHandler')]
     procedure TestGetCustNoGetCustomerByStartNo()
     var
         Customer1: Record Customer;
@@ -117,6 +118,7 @@ codeunit 134825 "UT Customer Table"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SelectionFirstCustomerFromCustomerListModalPageHandler')]
     procedure TestGetCustNoGetCustomerByStartOfName()
     var
         Customer1: Record Customer;

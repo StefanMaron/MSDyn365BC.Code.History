@@ -163,7 +163,7 @@ codeunit 60 "Sales-Calc. Discount"
                           (SalesLine2."Prepayment %" = 0)
                         then
                             SalesLine2.Validate("Inv. Discount Amount");
-                        if SalesLine2."Allow Invoice Disc." then begin
+                        if (SalesLine2."Allow Invoice Disc.") and (SalesLine2."Line Discount %" < 100) then begin
                             case GLSetup."Discount Calculation" of
                                 GLSetup."Discount Calculation"::" ",
                                 GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.",

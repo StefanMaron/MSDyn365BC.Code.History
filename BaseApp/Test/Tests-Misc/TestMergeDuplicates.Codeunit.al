@@ -35,6 +35,7 @@ codeunit 134399 "Test Merge Duplicates"
         CurrentDoesNotExistErr: Label '%1 %2 does not exist.';
         NotFoundLocationErr: Label 'that cannot be found in the related table (Location).';
         RemoveDefaultDimMsg: Label 'you want to remove record Default Dimension: 18,';
+        BussRelationErr: Label 'Contact Business Relation should be Multiple';
 
     [Test]
     [Scope('OnPrem')]
@@ -2275,6 +2276,50 @@ codeunit 134399 "Test Merge Duplicates"
         DefaultDimension.TestField(ParentId, Customer[2].SystemId);
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure MergeContactsAndVerifyBussRelation()
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContDuplicateSearchString: Record "Cont. Duplicate Search String";
+        Contact: array[2] of Record Contact;
+        Customer: array[2] of Record Customer;
+        Vendor: Record Vendor;
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
+        ContactNo: Code[20];
+        BlankRecordId: RecordId;
+    begin
+        // [SCENARIO 441147] To ensure that after "Contact Business Relation" is updated after MergeContact function 
+        Initialize();
+
+        // [GIVEN] Customer 'A' with Contact 'CA' ("Integration ID" = 'AAA')
+        LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
+        Contact[1].UpdateBusinessRelation();
+        Contact[1].Modify();
+        ContactNo := Contact[1]."No.";
+
+        // [GIVEN] Vendor 'B' with Contact 'CB' ("Integration ID" = 'BBB')
+        LibraryMarketing.CreateContactWithVendor(Contact[2], Vendor);
+        Contact[2].UpdateBusinessRelation();
+        Contact[2].Modify();
+
+        // [GIVEN] Remove conflicting records in ContDuplicateSearchString
+        ContDuplicateSearchString.SetRange("Contact Company No.", Contact[1]."No.");
+        ContDuplicateSearchString.DeleteAll();
+
+        // [WHEN] Merge Contact 'CA' to 'CB'
+        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Contact;
+        TempMergeDuplicatesBuffer.Duplicate := Contact[2]."No.";
+        TempMergeDuplicatesBuffer.Current := Contact[1]."No.";
+        TempMergeDuplicatesBuffer.Insert();
+        TempMergeDuplicatesBuffer.Merge;
+
+        // [THEN] Contact Business Relation should be "Multiple"
+        Contact[1].Get(ContactNo);
+        Assert.AreEqual(Contact[1]."Contact Business Relation", "Contact Business Relation"::Multiple, BussRelationErr);
     end;
 
     local procedure Initialize()

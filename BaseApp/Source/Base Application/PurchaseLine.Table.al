@@ -230,7 +230,10 @@
 
                 if HasTypeToFillMandatoryFields() then begin
                     PlanPriceCalcByField(FieldNo("No."));
-                    Quantity := xRec.Quantity;
+                    IsHandled := false;
+                    OnValidateNoOnBeforeAssignQtyFromXRec(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        Quantity := xRec.Quantity;
                     OnValidateNoOnAfterAssignQtyFromXRec(Rec, TempPurchLine);
                     Validate("Unit of Measure Code");
                     InitOutstandingAndQtyToShipReceive(TempPurchLine);
@@ -1351,42 +1354,47 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
-                CheckPrepmtAmtInvEmpty();
-                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
-                "VAT Difference" := 0;
-                "EC Difference" := 0;
-                GetPurchHeader();
-                "VAT %" := VATPostingSetup."VAT %";
-                "EC %" := VATPostingSetup."EC %";
-                "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
-                    Validate("Allow Invoice Disc.", false);
-                "VAT Identifier" := VATPostingSetup."VAT Identifier";
 
                 IsHandled := false;
-                OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(Rec, VATPostingSetup, IsHandled);
-                if not IsHandled then
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Reverse Charge VAT",
-                  	"VAT Calculation Type"::"Sales Tax":
-                            begin
-                                "VAT %" := 0;
-                                "EC %" := 0
-                            end;
-                        "VAT Calculation Type"::"Full VAT":
-                            begin
-                                TestField(Type, Type::"G/L Account");
-                                TestField("No.", VATPostingSetup.GetPurchAccount(false));
-                            end;
-                    end;
+                OnValidateVATProdPostingGroupOnAfterTestStatusOpen(Rec, IsHandled);
+                if not IsHandled then begin
+                    CheckPrepmtAmtInvEmpty();
+                    VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                    OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
+                    "VAT Difference" := 0;
+                    "EC Difference" := 0;
+                    GetPurchHeader();
+                    "VAT %" := VATPostingSetup."VAT %";
+                    "EC %" := VATPostingSetup."EC %";
+                    "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                    if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+                        Validate("Allow Invoice Disc.", false);
+                    "VAT Identifier" := VATPostingSetup."VAT Identifier";
 
-                if PurchHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                    Validate("Direct Unit Cost",
-                      Round(
-                        "Direct Unit Cost" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
-                        Currency."Unit-Amount Rounding Precision"));
-                UpdateAmounts();
+                    IsHandled := false;
+                    OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(Rec, VATPostingSetup, IsHandled);
+                    if not IsHandled then
+                        case "VAT Calculation Type" of
+                            "VAT Calculation Type"::"Reverse Charge VAT",
+                            "VAT Calculation Type"::"Sales Tax":
+                                begin
+                                    "VAT %" := 0;
+                                    "EC %" := 0
+                                end;
+                            "VAT Calculation Type"::"Full VAT":
+                                begin
+                                    TestField(Type, Type::"G/L Account");
+                                    TestField("No.", VATPostingSetup.GetPurchAccount(false));
+                                end;
+                        end;
+
+                    if PurchHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
+                        Validate("Direct Unit Cost",
+                        Round(
+                            "Direct Unit Cost" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
+                            Currency."Unit-Amount Rounding Precision"));
+                    UpdateAmounts();
+                end;
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3580,10 +3588,10 @@
             IsHandled := false;
             OnDeleteOnBeforeCheckQtyNotInvoiced(Rec, IsHandled);
             if not IsHandled then begin
-            if "Receipt No." = '' then
-                TestField("Qty. Rcd. Not Invoiced", 0);
-            if "Return Shipment No." = '' then
-                TestField("Return Qty. Shipped Not Invd.", 0);
+                if "Receipt No." = '' then
+                    TestField("Qty. Rcd. Not Invoiced", 0);
+                if "Return Shipment No." = '' then
+                    TestField("Return Qty. Shipped Not Invd.", 0);
             end;
 
             IsHandled := false;
@@ -3972,7 +3980,10 @@
         "Pay-to Vendor No." := PurchHeader."Pay-to Vendor No.";
         "Price Calculation Method" := PurchHeader."Price Calculation Method";
         "Gen. Bus. Posting Group" := PurchHeader."Gen. Bus. Posting Group";
-        "VAT Bus. Posting Group" := PurchHeader."VAT Bus. Posting Group";
+        IsHandled := false;
+        OnInitHeaderDefaultsOnBeforeSetVATBusPostingGroup(Rec, IsHandled);
+        if not IsHandled then
+            "VAT Bus. Posting Group" := PurchHeader."VAT Bus. Posting Group";
         "Entry Point" := PurchHeader."Entry Point";
         Area := PurchHeader.Area;
         "Transaction Specification" := PurchHeader."Transaction Specification";
@@ -5229,6 +5240,7 @@
         PurchLine."Line No." += 10000;
         PurchLine.Validate(Type, Type::Item);
         PurchLine.Validate("No.", ItemNo);
+        OnAddItemOnBeforeInsert(PurchLine);
         PurchLine.Insert(true);
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
             TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
@@ -6034,9 +6046,7 @@
             LockTable();
             if FindSet() then
                 repeat
-                    if not ZeroAmountLine(QtyType) and
-                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
-                    then begin
+                    if not ZeroAmountLine(QtyType) then begin
                         OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0);
@@ -9322,7 +9332,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var Currency: record Currency; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewVATBaseAmount: decimal; VATAmount: decimal; IsHandled: Boolean)
+    local procedure OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var Currency: record Currency; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewVATBaseAmount: decimal; VATAmount: decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -9752,5 +9762,25 @@
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitHeaderDefaultsOnBeforeSetVATBusPostingGroup(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeAssignQtyFromXRec(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddItemOnBeforeInsert(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

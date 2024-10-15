@@ -49,16 +49,16 @@ report 10747 "Customer - Overdue Payments"
             column(ABS__Detailed_Cust__Ledg__Entry___Amount__LCY___; Abs(CustTotalAmount))
             {
             }
-            column(ABS_TotalPaymentWithinDueDate_; Abs(TotalPaymentWithinDueDate))
+            column(ABS_TotalPaymentWithinDueDate_; Abs(TotalPaymentWithinLegalDueDate))
             {
             }
-            column(ABS_TotalPaymentOutsideDueDate_; Abs(TotalPaymentOutsideDueDate))
+            column(ABS_TotalPaymentOutsideDueDate_; Abs(TotalPaymentOutsideLegalDueDate))
             {
             }
-            column(DataItem1100037; FormatRatio(TotalPaymentWithinDueDate, CustTotalAmount))
+            column(DataItem1100037; FormatRatio(TotalPaymentWithinLegalDueDate, CustTotalAmount))
             {
             }
-            column(DataItem1100039; FormatRatio(TotalPaymentOutsideDueDate, CustTotalAmount))
+            column(DataItem1100039; FormatRatio(TotalPaymentOutsideLegalDueDate, CustTotalAmount))
             {
             }
             column(WeightedExceededAmount___ABS__Detailed_Cust__Ledg__Entry___Amount__LCY___; GetWeightedExceededAmountPerCustomer)
@@ -74,16 +74,16 @@ report 10747 "Customer - Overdue Payments"
             column(ABS__Detailed_Cust__Ledg__Entry___Amount__LCY____Control1100031; Abs(TotalAmount))
             {
             }
-            column(ABS_TotalPaymentWithinDueDate__Control1100044; Abs(TotalPaymentWithinDueDate))
+            column(ABS_TotalPaymentWithinDueDate__Control1100044; Abs(TotalPaymentWithinLegalDueDate))
             {
             }
-            column(ABS_TotalPaymentOutsideDueDate__Control1100045; Abs(TotalPaymentOutsideDueDate))
+            column(ABS_TotalPaymentOutsideDueDate__Control1100045; Abs(TotalPaymentOutsideLegalDueDate))
             {
             }
-            column(DataItem1100046; FormatRatio(TotalPaymentWithinDueDate, TotalAmount))
+            column(DataItem1100046; FormatRatio(TotalPaymentWithinLegalDueDate, TotalAmount))
             {
             }
-            column(DataItem1100047; FormatRatio(TotalPaymentOutsideDueDate, TotalAmount))
+            column(DataItem1100047; FormatRatio(TotalPaymentOutsideLegalDueDate, TotalAmount))
             {
             }
             column(WeightedExceededAmount___ABS__Detailed_Cust__Ledg__Entry___Amount__LCY____Control1100057; GetWeightedExceededAmountPerTotal)
@@ -137,16 +137,16 @@ report 10747 "Customer - Overdue Payments"
             column(CalcTotalWeightedExceededAmt; CalcTotalWeightedExceededAmt)
             {
             }
-            column(CustPaymentOutsideDueDate; Abs(CustPaymentOutsideDueDate))
+            column(CustPaymentOutsideDueDate; Abs(CustPaymentOutsideLegalDueDate))
             {
             }
-            column(CustPaymentWithinDueDate; Abs(CustPaymentWithinDueDate))
+            column(CustPaymentWithinDueDate; Abs(CustPaymentWithinLegalDueDate))
             {
             }
-            column(TotalPaymentOutsideDueDate; Abs(TotalPaymentOutsideDueDate))
+            column(TotalPaymentOutsideDueDate; Abs(TotalPaymentOutsideLegalDueDate))
             {
             }
-            column(TotalPaymentWithinDueDate; Abs(TotalPaymentWithinDueDate))
+            column(TotalPaymentWithinDueDate; Abs(TotalPaymentWithinLegalDueDate))
             {
             }
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
@@ -235,6 +235,9 @@ report 10747 "Customer - Overdue Payments"
                     }
 
                     trigger OnAfterGetRecord()
+                    var
+                        DueDate: Date;
+                        LegalDueDate: Date;
                     begin
                         if Number = 1 then begin
                             if not AppldCustLedgEntryTmp.FindSet() then
@@ -243,15 +246,22 @@ report 10747 "Customer - Overdue Payments"
                             if AppldCustLedgEntryTmp.Next() = 0 then
                                 CurrReport.Break();
 
-                        if AppldCustLedgEntryTmp."Posting Date" > AppldCustLedgEntryTmp."Initial Entry Due Date" then begin
-                            DaysOverdue := AppldCustLedgEntryTmp."Posting Date" - AppldCustLedgEntryTmp."Initial Entry Due Date";
-                            CustPaymentOutsideDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
-                            TotalPaymentOutsideDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
+                        LegalDueDate := DtldEntryNoToLegalDueDateMap.Get(AppldCustLedgEntryTmp."Entry No.");
+                        if AppldCustLedgEntryTmp."Posting Date" > LegalDueDate then begin
+                            CustPaymentOutsideLegalDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
+                            TotalPaymentOutsideLegalDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
                         end else begin
-                            DaysOverdue := 0;
-                            CustPaymentWithinDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
-                            TotalPaymentWithinDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
+                            CustPaymentWithinLegalDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
+                            TotalPaymentWithinLegalDueDate += AppldCustLedgEntryTmp."Amount (LCY)";
                         end;
+
+                        DueDate := AppldCustLedgEntryTmp."Initial Entry Due Date";
+                        if ShowPayments = ShowPayments::"Legally Overdue" then
+                            DueDate := LegalDueDate;
+
+                        DaysOverdue := AppldCustLedgEntryTmp."Posting Date" - DueDate;
+                        if DaysOverdue < 0 then
+                            DaysOverdue := 0;
 
                         if AppldCustLedgEntryTmp."Entry Type" = AppldCustLedgEntryTmp."Entry Type"::"Initial Entry" then
                             AppldCustLedgEntryTmp."Posting Date" := 0D
@@ -263,9 +273,10 @@ report 10747 "Customer - Overdue Payments"
                         end;
 
                         CustDaysOverdue += DaysOverdue;
-                        CustTotalAmount := CustPaymentOutsideDueDate + CustPaymentWithinDueDate;
                         TotalDaysOverdue += DaysOverdue;
-                        TotalAmount := TotalPaymentOutsideDueDate + TotalPaymentWithinDueDate;
+
+                        CustTotalAmount := CustPaymentOutsideLegalDueDate + CustPaymentWithinLegalDueDate;
+                        TotalAmount := TotalPaymentOutsideLegalDueDate + TotalPaymentWithinLegalDueDate;
                     end;
                 }
 
@@ -342,6 +353,7 @@ report 10747 "Customer - Overdue Payments"
 
     var
         AppldCustLedgEntryTmp: Record "Detailed Cust. Ledg. Entry" temporary;
+        DtldEntryNoToLegalDueDateMap: Dictionary of [Integer, Date];
         StartDate: Date;
         EndDate: Date;
         CustFilter: Text[250];
@@ -368,8 +380,8 @@ report 10747 "Customer - Overdue Payments"
         ABS_Amount_CaptionLbl: Label 'Amount';
         ABS__Amount__LCY___CaptionLbl: Label 'Amount(LCY)';
         DaysOverdue_Control1100024CaptionLbl: Label 'Days Overdue';
-        TotalPaymentWithinDueDate: Decimal;
-        TotalPaymentOutsideDueDate: Decimal;
+        TotalPaymentWithinLegalDueDate: Decimal;
+        TotalPaymentOutsideLegalDueDate: Decimal;
         DaysOverdue: Decimal;
         CustWeightedExceededAmount: Decimal;
         WeightedExceededAmount: Decimal;
@@ -377,8 +389,8 @@ report 10747 "Customer - Overdue Payments"
         TotalApplAmount: Decimal;
         CustTotalAmount: Decimal;
         TotalAmount: Decimal;
-        CustPaymentOutsideDueDate: Decimal;
-        CustPaymentWithinDueDate: Decimal;
+        CustPaymentOutsideLegalDueDate: Decimal;
+        CustPaymentWithinLegalDueDate: Decimal;
         CustDaysOverdue: Decimal;
         TotalDaysOverdue: Decimal;
         TotalWeightedExceededAmount: Decimal;
@@ -411,7 +423,6 @@ report 10747 "Customer - Overdue Payments"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         PayCustLedgEntry: Record "Cust. Ledger Entry";
-        MaxAllowedDueDate: Date;
     begin
         with DtldCustLedgEntry do begin
             SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
@@ -424,18 +435,16 @@ report 10747 "Customer - Overdue Payments"
                 repeat
                     if "Cust. Ledger Entry No." <> "Applied Cust. Ledger Entry No." then begin
                         if IsPaymentEntry("Cust. Ledger Entry No.", PayCustLedgEntry) and
-                           CheckEntry(InvCustLedgEntry, "Posting Date", MaxAllowedDueDate)
+                           PrintEntry(InvCustLedgEntry, "Posting Date")
                         then begin
                             AppldCustLedgEntryTmp := DtldCustLedgEntry;
                             AppldCustLedgEntryTmp."Document No." := PayCustLedgEntry."Document No.";
                             AppldCustLedgEntryTmp."Currency Code" := PayCustLedgEntry."Currency Code";
-                            if ShowPayments = ShowPayments::"Legally Overdue" then
-                                AppldCustLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate
-                            else
-                                AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
+                            AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
                             AppldCustLedgEntryTmp.Amount := -AppldCustLedgEntryTmp.Amount;
                             AppldCustLedgEntryTmp."Amount (LCY)" := -AppldCustLedgEntryTmp."Amount (LCY)";
                             if AppldCustLedgEntryTmp.Insert() then;
+                            DtldEntryNoToLegalDueDateMap.Add(AppldCustLedgEntryTmp."Entry No.", CalcMaxDueDate(InvCustLedgEntry));
                         end;
                     end;
                 until Next() = 0;
@@ -445,22 +454,22 @@ report 10747 "Customer - Overdue Payments"
     local procedure FindAppInvToPaym(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; InvCustLedgEntry: Record "Cust. Ledger Entry")
     var
         PayCustLedgEntry: Record "Cust. Ledger Entry";
-        MaxAllowedDueDate: Date;
     begin
         if IsPaymentEntry(DtldCustLedgEntry."Applied Cust. Ledger Entry No.", PayCustLedgEntry) and
-           CheckEntry(InvCustLedgEntry, DtldCustLedgEntry."Posting Date", MaxAllowedDueDate)
+           PrintEntry(InvCustLedgEntry, DtldCustLedgEntry."Posting Date")
         then begin
             AppldCustLedgEntryTmp := DtldCustLedgEntry;
             AppldCustLedgEntryTmp."Cust. Ledger Entry No." := AppldCustLedgEntryTmp."Applied Cust. Ledger Entry No.";
             AppldCustLedgEntryTmp."Document No." := PayCustLedgEntry."Document No.";
             AppldCustLedgEntryTmp."Currency Code" := PayCustLedgEntry."Currency Code";
-            if ShowPayments = ShowPayments::"Legally Overdue" then
-                AppldCustLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate;
             if AppldCustLedgEntryTmp.Insert() then;
+            DtldEntryNoToLegalDueDateMap.Add(AppldCustLedgEntryTmp."Entry No.", CalcMaxDueDate(InvCustLedgEntry));
         end;
     end;
 
-    local procedure CheckEntry(InvCustLedgEntry: Record "Cust. Ledger Entry"; PaymentAppDate: Date; var MaxAllowedDueDate: Date): Boolean
+    local procedure PrintEntry(InvCustLedgEntry: Record "Cust. Ledger Entry"; PaymentAppDate: Date): Boolean
+    var
+        MaxAllowedDueDate: Date;
     begin
         if ShowPayments = ShowPayments::All then
             exit(true);
@@ -513,27 +522,24 @@ report 10747 "Customer - Overdue Payments"
     var
         InvCustLedgEntry: Record "Cust. Ledger Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        MaxAllowedDueDate: Date;
     begin
         InvCustLedgEntry.Get(CustLedgEntryNo);
         InvCustLedgEntry.SetRange("Date Filter", 0D, EndDate);
         InvCustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
         if InvCustLedgEntry."Remaining Amount" <> 0 then
-            if CheckEntry(InvCustLedgEntry, EndDate, MaxAllowedDueDate) then begin
+            if PrintEntry(InvCustLedgEntry, EndDate) then begin
                 DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
                 DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", InvCustLedgEntry."Entry No.");
                 DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::"Initial Entry");
                 if DtldCustLedgEntry.FindFirst() then begin
                     AppldCustLedgEntryTmp := DtldCustLedgEntry;
-                    if ShowPayments = ShowPayments::"Legally Overdue" then
-                        AppldCustLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate
-                    else
-                        AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
+                    AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
                     AppldCustLedgEntryTmp.Amount := -InvCustLedgEntry."Remaining Amount";
                     AppldCustLedgEntryTmp."Amount (LCY)" := -InvCustLedgEntry."Remaining Amt. (LCY)";
                     AppldCustLedgEntryTmp."Document No." := '';
                     AppldCustLedgEntryTmp."Posting Date" := EndDate;
                     if AppldCustLedgEntryTmp.Insert() then;
+                    DtldEntryNoToLegalDueDateMap.Add(AppldCustLedgEntryTmp."Entry No.", CalcMaxDueDate(InvCustLedgEntry));
                 end;
             end;
     end;
@@ -553,8 +559,8 @@ report 10747 "Customer - Overdue Payments"
         CustTotalAmount := 0;
         CustDaysOverdue := 0;
         CustWeightedExceededAmount := 0;
-        CustPaymentOutsideDueDate := 0;
-        CustPaymentWithinDueDate := 0;
+        CustPaymentOutsideLegalDueDate := 0;
+        CustPaymentWithinLegalDueDate := 0;
         CustApplAmount := 0;
     end;
 

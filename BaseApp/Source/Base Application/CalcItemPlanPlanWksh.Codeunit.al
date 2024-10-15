@@ -37,6 +37,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         PlannedProdOrderLine: Record "Prod. Order Line";
         PlanningAssignment: Record "Planning Assignment";
         ProdOrder: Record "Production Order";
+        IsHandled: Boolean;
     begin
         with Item do begin
             if not PlanThisItem then
@@ -93,7 +94,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
             Commit();
 
             TempItemList := Item;
-            TempItemList.Insert();
+
+            IsHandled := false;
+            OnCodeOnBeforeTempItemListInsert(TempItemList, IsHandled);
+            if not IsHandled then
+                TempItemList.Insert();
         end;
     end;
 
@@ -103,7 +108,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalculateAndGetPlanningCompList(Item, CurrTemplateName, CurrWorksheetName, ToDate, FromDate, UseForecast, ExcludeForecastBefore, MfgSetup, MRP, RespectPlanningParm, TempPlanningCompList, IsHandled);
+        OnBeforeCalculateAndGetPlanningCompList(Item, CurrTemplateName, CurrWorksheetName, ToDate, FromDate, UseForecast, ExcludeForecastBefore, MfgSetup, MRP, RespectPlanningParm, TempPlanningCompList, IsHandled, InvtProfileOffsetting);
         if IsHandled then
             exit;
 
@@ -299,7 +304,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateAndGetPlanningCompList(var Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; ToDate: Date; FromDate: Date; UseForecast: Code[10]; ExcludeForecastBefore: Date; MfgSetup: Record "Manufacturing Setup"; MRP: Boolean; RespectPlanningParm: Boolean; var TempPlanningCompList: Record "Planning Component" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateAndGetPlanningCompList(var Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; ToDate: Date; FromDate: Date; UseForecast: Code[10]; ExcludeForecastBefore: Date; MfgSetup: Record "Manufacturing Setup"; MRP: Boolean; RespectPlanningParm: Boolean; var TempPlanningCompList: Record "Planning Component" temporary; var IsHandled: Boolean; var InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting")
     begin
     end;
 
@@ -320,6 +325,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeInvtProfileOffsettingSetParm(Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeTempItemListInsert(TempItemList: Record Item temporary; var IsHandled: Boolean)
     begin
     end;
 }

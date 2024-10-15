@@ -169,7 +169,7 @@ codeunit 70 "Purch.-Calc.Discount"
                            (PurchLine2."Prepayment %" = 0)
                         then
                             PurchLine2.Validate("Inv. Discount Amount");
-                        if PurchLine2."Allow Invoice Disc." then begin
+                        if (PurchLine2."Allow Invoice Disc.") and (PurchLine2."Line Discount %" < 100) then begin
                             case GLSetup."Discount Calculation" of
                                 GLSetup."Discount Calculation"::" ",
                                 GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.",

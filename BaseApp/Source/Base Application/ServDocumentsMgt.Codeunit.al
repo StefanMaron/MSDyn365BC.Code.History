@@ -941,8 +941,8 @@
 
         // finalize posted documents
         FinalizeShipmentDocument();
-        FinalizeInvoiceDocument();
-        FinalizeCrMemoDocument();
+        FinalizeInvoiceDocument(PassedServHeader);
+        FinalizeCrMemoDocument(PassedServHeader);
         FinalizeWarrantyLedgerEntries(PassedServHeader, CloseCondition);
 
         IsHandled := false;
@@ -1108,7 +1108,7 @@
         OnAfterFinalizeShipmentDocument(ServShptHeader, ServHeader, PServShptHeader);
     end;
 
-    local procedure FinalizeInvoiceDocument()
+    local procedure FinalizeInvoiceDocument(var PassedServHeader: Record "Service Header")
     var
         PServInvHeader: Record "Service Invoice Header";
         PServInvLine: Record "Service Invoice Line";
@@ -1121,6 +1121,8 @@
             if ServInvHeader.FindFirst() then begin
                 PServInvHeader.Init();
                 PServInvHeader.Copy(ServInvHeader);
+                PServInvHeader.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
+                PServInvHeader.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
                 PServInvHeader.Insert();
             end;
             ServInvHeader.DeleteAll();
@@ -1138,7 +1140,7 @@
         OnAfterFinalizeInvoiceDocument(ServInvHeader, ServHeader, PServInvHeader);
     end;
 
-    local procedure FinalizeCrMemoDocument()
+    local procedure FinalizeCrMemoDocument(var PassedServHeader: Record "Service Header")
     var
         PServCrMemoHeader: Record "Service Cr.Memo Header";
         PServCrMemoLine: Record "Service Cr.Memo Line";
@@ -1151,6 +1153,8 @@
             if ServCrMemoHeader.FindFirst() then begin
                 PServCrMemoHeader.Init();
                 PServCrMemoHeader.Copy(ServCrMemoHeader);
+                PServCrMemoHeader.SetSIIFirstSummaryDocNo(PassedServHeader.GetSIIFirstSummaryDocNo());
+                PServCrMemoHeader.SetSIILastSummaryDocNo(PassedServHeader.GetSIILastSummaryDocNo());
                 PServCrMemoHeader.Insert();
             end;
             ServCrMemoHeader.DeleteAll();

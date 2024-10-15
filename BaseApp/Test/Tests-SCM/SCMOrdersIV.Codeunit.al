@@ -517,6 +517,7 @@ codeunit 137156 "SCM Orders IV"
         // [FEATURE] [Sales Order] [Rounding]
         // [SCENARIO 379798] "Shipment date XX is before work date YY" message should not be displayed on going from one sales line to another.
         Initialize();
+        ClearLastError();
 
         // [GIVEN] Set Inventory Rounding Precision > 1.
         LibraryERM.SetInvRoundingPrecisionLCY(LibraryUtility.GenerateRandomFraction + 1);

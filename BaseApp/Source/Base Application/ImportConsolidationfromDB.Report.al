@@ -269,6 +269,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -323,9 +325,9 @@
           3, REPORT::"Import Consolidation from DB", '', ColumnDim, Text020);
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
-                Error(Text11300Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
-                Error(Text11301Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
             Clear(NoSeriesMgt);
             Clear(GLDocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
@@ -372,8 +374,7 @@
         GLEntryNo: Integer;
         ConsPeriodSubsidiaryQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year of one or more of the subsidiaries.\Do you want to proceed with the consolidation?', Comment = '%1 and %2 - request page values';
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
-        Text11300Err: Label 'Please enter a Journal Template Name.';
-        Text11301Err: Label 'Please enter a Journal Batch Name.';
+        PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     local procedure CheckClosingPostings(GLAccNo: Code[20]; StartDate: Date; EndDate: Date)
     var

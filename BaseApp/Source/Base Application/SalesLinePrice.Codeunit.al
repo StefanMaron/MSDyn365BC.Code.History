@@ -1,4 +1,4 @@
-codeunit 7020 "Sales Line - Price" implements "Line With Price"
+﻿codeunit 7020 "Sales Line - Price" implements "Line With Price"
 {
     var
         SalesHeader: Record "Sales Header";
@@ -56,6 +56,8 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
             Result :=
                 Result or
                 not (CalledByFieldNo in [SalesLine.FieldNo(Quantity), SalesLine.FieldNo("Variant Code")]);
+
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, Result);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -359,6 +361,11 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePrice(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; var Result: Boolean)
     begin
     end;
 }

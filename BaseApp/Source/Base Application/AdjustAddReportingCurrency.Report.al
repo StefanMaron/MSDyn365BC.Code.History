@@ -31,12 +31,12 @@
                 "Add.-Currency Unrealized Base" := ExchangeAmtLCYToFCY("Posting Date", "Unrealized Base", false);
                 "Add.-Curr. Rem. Unreal. Amount" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Amount", false);
                 "Add.-Curr. Rem. Unreal. Base" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Base", false);
-                Modify;
+                Modify();
             end;
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -72,7 +72,7 @@
                     "Add.-Currency Debit Amount" := 0;
                     "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
                 end;
-                Modify;
+                Modify();
 
                 TotalAddCurrAmount := TotalAddCurrAmount + "Additional-Currency Amount";
                 TotalAmount := TotalAmount + Amount;
@@ -92,39 +92,39 @@
                     CurrReport.Break();
 
                 if "Posting Date" = ClosingDate("Posting Date") then begin
-                    TmpCloseIncomeStatementBuffer."Closing Date" := "Posting Date";
-                    TmpCloseIncomeStatementBuffer."G/L Account No." := "G/L Account No.";
-                    if TmpCloseIncomeStatementBuffer.Insert() then;
+                    TempCloseIncomeStatementBuffer."Closing Date" := "Posting Date";
+                    TempCloseIncomeStatementBuffer."G/L Account No." := "G/L Account No.";
+                    if TempCloseIncomeStatementBuffer.Insert() then;
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
-                if TmpCloseIncomeStatementBuffer.Find('-') then
+                if TempCloseIncomeStatementBuffer.Find('-') then
                     repeat
                         if IsAccountingPeriodClosingDate(
-                             TmpCloseIncomeStatementBuffer."Closing Date")
+                             TempCloseIncomeStatementBuffer."Closing Date")
                         then begin
-                            CheckCombination(TmpCloseIncomeStatementBuffer);
+                            CheckCombination(TempCloseIncomeStatementBuffer);
 
-                            Clear(TmpCloseIncomeStatementBuffer3);
-                            TmpCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
-                            TmpCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Gains Account";
-                            if TmpCloseIncomeStatementBuffer3.Insert() then;
-                            TmpCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
-                            TmpCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
-                            if TmpCloseIncomeStatementBuffer3.Insert() then;
+                            Clear(TempCloseIncomeStatementBuffer3);
+                            TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
+                            TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Gains Account";
+                            if TempCloseIncomeStatementBuffer3.Insert() then;
+                            TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
+                            TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
+                            if TempCloseIncomeStatementBuffer3.Insert() then;
                         end;
-                    until TmpCloseIncomeStatementBuffer.Next() = 0;
+                    until TempCloseIncomeStatementBuffer.Next() = 0;
 
-                if TmpCloseIncomeStatementBuffer3.Find('-') then
+                if TempCloseIncomeStatementBuffer3.Find('-') then
                     repeat
-                        CheckCombination(TmpCloseIncomeStatementBuffer3);
-                    until TmpCloseIncomeStatementBuffer3.Next() = 0;
+                        CheckCombination(TempCloseIncomeStatementBuffer3);
+                    until TempCloseIncomeStatementBuffer3.Next() = 0;
 
                 if GLReg."To Entry No." <> 0 then
                     GLReg.Insert();
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -158,12 +158,12 @@
                 "Cost Amount (Non-Invtbl.)(ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Non-Invtbl.)", false);
                 "Cost Posted to G/L (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Posted to G/L", false);
 
-                Modify;
+                Modify();
             end;
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -184,7 +184,7 @@
 
                 "Additional-Currency Total Cost" := ExchangeAmtLCYToFCY("Posting Date", "Total Cost (LCY)", false);
                 "Add.-Currency Total Price" := ExchangeAmtLCYToFCY("Posting Date", "Total Price (LCY)", false);
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -203,9 +203,9 @@
                     OldProdOrderLine := "Prod. Order Line";
                 end;
 
-                "Cost Amount (ACY)" := ExchangeAmtLCYToFCY(WorkDate, "Cost Amount", false);
-                "Unit Cost (ACY)" := ExchangeAmtLCYToFCY(WorkDate, "Unit Cost", true);
-                Modify;
+                "Cost Amount (ACY)" := ExchangeAmtLCYToFCY(WorkDate(), "Cost Amount", false);
+                "Unit Cost (ACY)" := ExchangeAmtLCYToFCY(WorkDate(), "Unit Cost", true);
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -231,7 +231,7 @@
                     "Add.-Currency Debit Amount" := 0;
                     "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
                 end;
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -252,12 +252,12 @@
 
                 "Base (ACY)" := ExchangeAmtLCYToFCY("Posting Date", "Base (LCY)", false);
                 "Amount (ACY)" := ExchangeAmtLCYToFCY("Posting Date", "Amount (LCY)", false);
-                Modify;
+                Modify();
             end;
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -287,9 +287,9 @@
 
                         trigger OnAssistEdit()
                         begin
-                            ChangeExchangeRate.SetParameter(GLSetup."Additional Reporting Currency", CurrencyFactor, WorkDate);
-                            if ChangeExchangeRate.RunModal = ACTION::OK then
-                                CurrencyFactor := ChangeExchangeRate.GetParameter;
+                            ChangeExchangeRate.SetParameter(GLSetup."Additional Reporting Currency", CurrencyFactor, WorkDate());
+                            if ChangeExchangeRate.RunModal() = ACTION::OK then
+                                CurrencyFactor := ChangeExchangeRate.GetParameter();
                             Clear(ChangeExchangeRate);
                         end;
 
@@ -331,6 +331,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -351,8 +353,8 @@
                         trigger OnValidate()
                         begin
                             if RetainedEarningsGLAcc."No." <> '' then begin
-                                RetainedEarningsGLAcc.Find;
-                                RetainedEarningsGLAcc.CheckGLAcc;
+                                RetainedEarningsGLAcc.Find();
+                                RetainedEarningsGLAcc.CheckGLAcc();
                             end;
                         end;
                     }
@@ -368,7 +370,8 @@
         begin
             GLSetup.TestField("Additional Reporting Currency");
             GLSetup2 := GLSetup;
-            CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency");
+            CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate(), GLSetup."Additional Reporting Currency");
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         end;
     }
 
@@ -405,9 +408,9 @@
 
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
-                Error(Text11300Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
-                Error(Text11301Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
             Clear(NoSeriesMgt);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
@@ -423,21 +426,6 @@
     end;
 
     var
-        Text000Err: Label 'Enter a %1.', Comment = '%1 - Document No.';
-        Text001Err: Label 'Enter Retained Earnings Account No.';
-        Text002Txt: Label 'Processing VAT Entries @1@@@@@@@@@@\';
-        Text003Txt: Label 'Processing G/L Entries...\\';
-        Text004Txt: Label 'Posting Date #1##########\';
-        Text006Txt: Label 'Item No. #1##########\';
-        Text007Txt: Label 'Processing Job Ledger Entries...\\';
-        Text008Txt: Label 'Job No. #1##########\';
-        Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
-        Text011Txt: Label 'Processing Value Entries...\\';
-        Text012Txt: Label 'Processing Cost Entries...\\';
-        Text99000002Txt: Label 'Prod. Order No. #1##########\';
-        Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
-        Text11300Err: Label 'Please enter a Journal Template Name.';
-        Text11301Err: Label 'Please enter a Journal Batch Name.';
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
@@ -452,8 +440,8 @@
         Currency: Record Currency;
         GLEntry2: Record "G/L Entry";
         GLReg: Record "G/L Register";
-        TmpCloseIncomeStatementBuffer: Record "Close Income Statement Buffer" temporary;
-        TmpCloseIncomeStatementBuffer3: Record "Close Income Statement Buffer" temporary;
+        TempCloseIncomeStatementBuffer: Record "Close Income Statement Buffer" temporary;
+        TempCloseIncomeStatementBuffer3: Record "Close Income Statement Buffer" temporary;
         GLEntry3: Record "G/L Entry";
         RetainedEarningsGLAcc: Record "G/L Account";
         ResidualGLAcc: Record "G/L Account";
@@ -480,6 +468,21 @@
         IsJournalTemplNameVisible: Boolean;
         DocumentNo: Code[20];
         EntryTotal: Integer;
+
+        Text000Err: Label 'Enter a %1.', Comment = '%1 - Document No.';
+        Text001Err: Label 'Enter Retained Earnings Account No.';
+        Text002Txt: Label 'Processing VAT Entries @1@@@@@@@@@@\';
+        Text003Txt: Label 'Processing G/L Entries...\\';
+        Text004Txt: Label 'Posting Date #1##########\';
+        Text006Txt: Label 'Item No. #1##########\';
+        Text007Txt: Label 'Processing Job Ledger Entries...\\';
+        Text008Txt: Label 'Job No. #1##########\';
+        Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
+        Text011Txt: Label 'Processing Value Entries...\\';
+        Text012Txt: Label 'Processing Cost Entries...\\';
+        Text99000002Txt: Label 'Prod. Order No. #1##########\';
+        Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
+        PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     procedure SetAddCurr(AddCurr: Code[10])
     begin
@@ -576,7 +579,7 @@
             NextEntryNo := LastEntryNo + 1;
             NextTransactionNo += 1;
 
-            FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate;
+            FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate();
 
             GLReg.LockTable();
             if GLReg.FindLast() then;
@@ -633,7 +636,7 @@
         DocumentNo := NewDocumentNo;
         RetainedEarningsGLAcc."No." := NewRetainedEarningsGLAccNo;
         GLSetup2 := GLSetup;
-        CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency");
+        CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate(), GLSetup."Additional Reporting Currency");
     end;
 
     procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
