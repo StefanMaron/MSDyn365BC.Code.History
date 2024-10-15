@@ -4401,6 +4401,21 @@
             OnCheckExpirationDateOnBeforeTestFieldExpirationDate(TempTrackingSpecification, EntriesExist, ExistingExpirationDate);
             if EntriesExist then
                 TempTrackingSpecification.TestField("Expiration Date", ExistingExpirationDate);
+
+            if (ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) then begin
+                ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
+                ItemTrackingMgt.ExistingExpirationDateAndQty(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", ItemTrackingSetup, SumOfEntries);
+
+                if TempTrackingSpecification."New Serial No." <> '' then
+                    SumLot := SignFactor * ItemTrackingMgt.SumNewLotOnTrackingSpec(TempTrackingSpecification)
+                else
+                    SumLot := SignFactor * TempTrackingSpecification."Quantity (Base)";
+
+                if (SumOfEntries > 0) and
+                   ((SumOfEntries <> SumLot) or (TempTrackingSpecification."New Lot No." <> TempTrackingSpecification."Lot No."))
+                then
+                    TempTrackingSpecification.TestField("New Expiration Date", ExistingExpirationDate);
+            end;
         end else   // Demand
             if ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer then begin
                 ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);

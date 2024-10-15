@@ -61,6 +61,9 @@ codeunit 2012 "Entity Text Impl."
             Error(NoHandlerErr);
 
         Prompt := BuildPrompt(Facts, Tone, TextFormat, TextEmphasis);
+
+        Session.LogMessage('0000JVG', TelemetryGenerationRequestedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
+
         Suggestion := GenerateAndReviewCompletion(Prompt, TextFormat, Facts, CallerModuleInfo);
 
         exit(Suggestion);
@@ -200,7 +203,6 @@ codeunit 2012 "Entity Text Impl."
             end;
         end;
 
-        Session.LogMessage('0000JVG', StrSubstNo(TelemetryPromptSummaryTxt, Format(Facts.Count()), Format(Tone), Format(TextFormat), Format(TextEmphasis), LanguageName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
         exit(Prompt);
     end;
 
@@ -430,7 +432,7 @@ codeunit 2012 "Entity Text Impl."
         TelemetryMissingFeatureKeyTxt: Label 'Feature key is not defined, Entity Text is enabled.', Locked = true;
         TelemetryFeatureKeyEnabledTxt: Label 'Feature key is enabled, Entity Text is enabled.', Locked = true;
         TelemetryFeatureKeyDisabledTxt: Label 'Feature key is disabled, Entity Text is disabled.', Locked = true;
-        TelemetryPromptSummaryTxt: Label 'Prompt has %1 facts, tone: %2, format: %3, emphasis: %4, language: %5.', Locked = true;
+        TelemetryGenerationRequestedTxt: Label 'New suggestion requested.', Locked = true;
         TelemetrySuggestionCreatedTxt: Label 'A new suggestion was generated for table %1, scenario %2', Locked = true;
         TelemetryCompletionEmptyTxt: Label 'The returned completion was empty.', Locked = true;
         TelemetryLowQualityCompletionTxt: Label 'Failed to generate a good quality completion, returning a low quality one.', Locked = true;

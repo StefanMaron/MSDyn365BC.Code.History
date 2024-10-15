@@ -3513,6 +3513,8 @@
                 UpdateCalcInterest(OldCVLedgEntryBuf, NewCVLedgEntryBuf);
             end;
 
+            if (OldCVLedgEntryBuf."Currency Code" = NewCVLedgEntryBuf."Currency Code") and (OldCVLedgEntryBuf."Applies-to ID" = '') then
+                OldCVLedgEntryBuf."Amount to Apply" := 0;
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldCustLedgEntry := TempOldCustLedgEntry;
             if GenJnlLine."On Hold" = OldCustLedgEntry."On Hold" then
