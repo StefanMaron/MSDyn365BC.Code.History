@@ -1,8 +1,8 @@
-page 30 "Item Card"
+﻿page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Item,History,Special Sales Prices & Discounts,Approve,Request Approval';
+    PromotedActionCategories = 'New,Process,Report,Item,History,Prices & Discounts,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = Item;
 
@@ -36,7 +36,7 @@ page 30 "Item Card"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
+                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
                 }
                 field(Type; Type)
                 {
@@ -347,10 +347,10 @@ page 30 "Item Card"
                     field(SpecialPurchPriceListTxt; PurchPriceListsText)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Special Purch. Prices & Discounts';
+                        Caption = 'Purchase Prices & Discounts';
                         Editable = false;
                         Visible = ExtendedPriceEnabled;
-                        ToolTip = 'Specifies special purchase price lists for the item.';
+                        ToolTip = 'Specifies purchase price lists for the item.';
 
                         trigger OnDrillDown()
                         var
@@ -367,10 +367,10 @@ page 30 "Item Card"
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Special Purch. Prices & Discounts';
+                        Caption = 'Purchase Prices & Discounts';
                         Editable = false;
                         Visible = not ExtendedPriceEnabled;
-                        ToolTip = 'Specifies special purchase prices and line discounts for the item.';
+                        ToolTip = 'Specifies purchase prices and line discounts for the item.';
                         ObsoleteState = Pending;
                         ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                         ObsoleteTag = '17.0';
@@ -508,10 +508,10 @@ page 30 "Item Card"
                 field(SpecialSalesPriceListTxt; SalesPriceListsText)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Special Sales Prices & Discounts';
+                    Caption = 'Sales Prices & Discounts';
                     Editable = false;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'Specifies special sales price lists for the item.';
+                    ToolTip = 'Specifies sales price lists for the item.';
 
                     trigger OnDrillDown()
                     var
@@ -528,10 +528,10 @@ page 30 "Item Card"
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Special Sales Prices & Discounts';
+                    Caption = 'Sales Prices & Discounts';
                     Editable = false;
                     Visible = not ExtendedPriceEnabled;
-                    ToolTip = 'Specifies special prices and line discounts for the item.';
+                    ToolTip = 'Specifies sales prices and line discounts for the item.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '16.0';
@@ -1137,17 +1137,16 @@ page 30 "Item Card"
             }
             group(PricesandDiscounts)
             {
-                Caption = 'Special Sales Prices & Discounts';
+                Caption = 'Sales Prices & Discounts';
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Set Special Prices';
+                    Caption = 'Sales Prices';
                     Image = Price;
-                    Visible = not ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = not ExtendedPriceEnabled;
+                    ToolTip = 'Set up sales prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1163,13 +1162,12 @@ page 30 "Item Card"
                 action("Set Special Discounts")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Set Special Discounts';
+                    Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Visible = not ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = not ExtendedPriceEnabled;
+                    ToolTip = 'Set up sales discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1187,13 +1185,12 @@ page 30 "Item Card"
                 action(PricesDiscountsOverview)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Special Prices & Discounts Overview';
+                    Caption = 'Sales Prices & Discounts Overview';
                     Image = PriceWorksheet;
-                    Visible = not ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    ToolTip = 'View the special prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
+                    Visible = not ExtendedPriceEnabled;
+                    ToolTip = 'View the sales prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1209,14 +1206,14 @@ page 30 "Item Card"
                 }
                 action(SalesPriceLists)
                 {
+                    AccessByPermission = TableData "Sales Price Access" = R;
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Sales Price Lists (Prices)';
+                    Caption = 'Sales Prices';
                     Image = Price;
-                    Visible = ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Set up sales prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
@@ -1229,14 +1226,14 @@ page 30 "Item Card"
                 }
                 action(SalesPriceListsDiscounts)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Sales Price Lists (Discounts)';
+                    Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Set up sales discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
@@ -1245,6 +1242,103 @@ page 30 "Item Card"
                     begin
                         Rec.ShowPriceListLines(PriceType::Sale, AmountType::Discount);
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
+                    end;
+                }
+            }
+            group(PurchPricesandDiscounts)
+            {
+                Caption = 'Purchase Prices & Discounts';
+                action(Action86)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = not ExtendedPriceEnabled;
+                    RunObject = Page "Purchase Prices";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    RunPageView = SORTING("Item No.");
+                    ToolTip = 'Set up purchase prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(Action85)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = not ExtendedPriceEnabled;
+                    RunObject = Page "Purchase Line Discounts";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    ToolTip = 'Set up purchase discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(PurchPricesDiscountsOverview)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Prices & Discounts Overview';
+                    Image = PriceWorksheet;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = not ExtendedPriceEnabled;
+                    ToolTip = 'View the purchase prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+
+                    trigger OnAction()
+                    var
+                        PurchasesPriceAndLineDisc: Page "Purchases Price and Line Disc.";
+                    begin
+                        PurchasesPriceAndLineDisc.LoadItem(Rec);
+                        PurchasesPriceAndLineDisc.RunModal;
+                    end;
+                }
+                action(PurchPriceLists)
+                {
+                    AccessByPermission = TableData "Purchase Price Access" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Set up purchase prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Price);
+                        UpdateSpecialPriceListsTxt(PriceType::Purchase);
+                    end;
+                }
+                action(PurchPriceListsDiscounts)
+                {
+                    AccessByPermission = TableData "Purchase Discount Access" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Set up purchase discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Discount);
+                        UpdateSpecialPriceListsTxt(PriceType::Purchase);
                     end;
                 }
             }
@@ -1506,9 +1600,9 @@ page 30 "Item Card"
 
                     trigger OnAction()
                     var
-                        ItemTemplate: Record "Item Template";
+                        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
-                        ItemTemplate.UpdateItemFromTemplate(Rec);
+                        ItemTemplMgt.UpdateItemFromTemplate(Rec);
                     end;
                 }
                 action(SaveAsTemplate)
@@ -1790,6 +1884,7 @@ page 30 "Item Card"
             {
                 Caption = 'Dynamics 365 Sales';
                 Visible = CRMIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (not Blocked)) or not BlockedFilterApplied;
                 action(CRMGoToProduct)
                 {
                     ApplicationArea = Suite;
@@ -2069,91 +2164,6 @@ page 30 "Item Card"
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
                     ToolTip = 'Open the list of ongoing return orders for the item.';
-                }
-            }
-            group(PurchPricesandDiscounts)
-            {
-                Caption = 'Special Purchase Prices & Discounts';
-                action(Action86)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Set Special Prices';
-                    Image = Price;
-                    Visible = not ExtendedPriceEnabled;
-                    RunObject = Page "Purchase Prices";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    RunPageView = SORTING("Item No.");
-                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
-                }
-                action(Action85)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Set Special Discounts';
-                    Image = LineDiscount;
-                    Visible = not ExtendedPriceEnabled;
-                    RunObject = Page "Purchase Line Discounts";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
-                }
-                action(PurchPricesDiscountsOverview)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Special Prices & Discounts Overview';
-                    Image = PriceWorksheet;
-                    Visible = not ExtendedPriceEnabled;
-                    ToolTip = 'View the special prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    var
-                        PurchasesPriceAndLineDisc: Page "Purchases Price and Line Disc.";
-                    begin
-                        PurchasesPriceAndLineDisc.LoadItem(Rec);
-                        PurchasesPriceAndLineDisc.RunModal;
-                    end;
-                }
-                action(PurchPriceLists)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Purchase Price Lists (Prices)';
-                    Image = Price;
-                    Visible = ExtendedPriceEnabled;
-                    ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-
-                    trigger OnAction()
-                    var
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
-                    begin
-
-                        ShowPriceListLines(PriceType::Purchase, AmountType::Price);
-                        UpdateSpecialPriceListsTxt(PriceType::Purchase);
-                    end;
-                }
-                action(PurchPriceListsDiscounts)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Purchase Price Lists (Discounts)';
-                    Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
-                    ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-
-                    trigger OnAction()
-                    var
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
-                    begin
-                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Discount);
-                        UpdateSpecialPriceListsTxt(PriceType::Purchase);
-                    end;
                 }
             }
             group(Sales)
@@ -2471,6 +2481,7 @@ page 30 "Item Card"
 
     trigger OnOpenPage()
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
@@ -2481,7 +2492,14 @@ page 30 "Item Card"
         SetOverReceiptControlsVisibility();
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        if CRMIntegrationEnabled then
+            if IntegrationTableMapping.Get('ITEM-PRODUCT') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field54=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+
+        EnableShowStockOutWarning;
+
+        EnableShowShowEnforcePositivInventory;
 
         OnAfterOnOpenPage();
     end;
@@ -2504,6 +2522,7 @@ page 30 "Item Card"
         SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         OpenApprovalEntriesExistCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;
         ShowWorkflowStatus: Boolean;
@@ -2581,6 +2600,9 @@ page 30 "Item Card"
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
 
+        if IsNonInventoriable then
+            "Stockout Warning" := "Stockout Warning"::No;
+
         if Type = Type::Inventory then begin
             ItemLedgerEntry.SetRange("Item No.", "No.");
             UnitCostEditable := ItemLedgerEntry.IsEmpty;
@@ -2593,10 +2615,7 @@ page 30 "Item Card"
         EnablePlanningControls();
         EnableCostingControls();
 
-        EnableShowStockOutWarning;
-
         SetSocialListeningFactboxVisibility;
-        EnableShowShowEnforcePositivInventory;
 
         if ExtendedPriceEnabled then
             UpdateSpecialPriceListsTxt(PriceType::Any)
@@ -2620,9 +2639,6 @@ page 30 "Item Card"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        if IsNonInventoriableType then
-            "Stockout Warning" := "Stockout Warning"::No;
-
         SalesSetup.Get();
         ShowStockoutWarningDefaultYes := SalesSetup."Stockout Warning";
         ShowStockoutWarningDefaultNo := not ShowStockoutWarningDefaultYes;
@@ -2789,6 +2805,7 @@ page 30 "Item Card"
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
             CurrPage.Update;
+            OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else
             if ItemTemplMgt.TemplatesAreNotEmpty() then begin
                 CurrPage.Close;
@@ -2842,5 +2859,9 @@ page 30 "Item Card"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromTemplateOnAfterCurrPageUpdate(var Item: Record Item)
+    begin
+    end;
 }
 

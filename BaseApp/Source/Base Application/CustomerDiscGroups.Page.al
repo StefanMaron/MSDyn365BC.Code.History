@@ -3,6 +3,7 @@ page 512 "Customer Disc. Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Disc. Groups';
     PageType = List;
+    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Customer Discount Group";
     UsageCategory = Administration;
 
@@ -54,7 +55,7 @@ page 512 "Customer Disc. Groups"
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
@@ -73,13 +74,14 @@ page 512 "Customer Disc. Groups"
                 }
                 action(PriceLists)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists';
+                    Caption = 'Sales Price Lists';
                     Image = SalesLineDisc;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different discounts for products that you sell to customers that belong to the customer discount group.';
+                    ToolTip = 'View or set up sales price lists with discounts for products that you sell to customers that belong to the customer discount group.';
 
                     trigger OnAction()
                     var

@@ -104,9 +104,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not ProdOrderLineReserve.FindReservEntry(ProdOrderLine, ReservEntry) then
             exit;
 
-        if DateConflict(ProdOrderLine."Due Date", ForceRequest, ReservEntry) then
-            if ForceRequest then
-                IssueError(ProdOrderLine."Due Date");
+        CheckProdOrderLineDateConflict(ProdOrderLine, ForceRequest);
 
         IsHandled := false;
         OnProdOrderLineCheckOnBeforeUpdateDate(ReservEntry, ProdOrderLine, IsHandled);
@@ -116,6 +114,20 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReservMgt.SetReservSource(ProdOrderLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ProdOrderLine."Remaining Qty. (Base)");
+    end;
+
+    local procedure CheckProdOrderLineDateConflict(ProdOrderLine: Record "Prod. Order Line"; ForceRequest: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderLineDateConflict(ProdOrderLine."Due Date", ForceRequest, ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DateConflict(ProdOrderLine."Due Date", ForceRequest, ReservEntry) then
+            if ForceRequest then
+                IssueError(ProdOrderLine."Due Date");
     end;
 
     procedure ProdOrderComponentCheck(ProdOrderComp: Record "Prod. Order Component"; ForceRequest: Boolean; IsCritical: Boolean): Boolean
@@ -422,6 +434,11 @@ codeunit 99000815 "Reservation-Check Date Confl."
         with ReservationEntry do
             ProdOrderComponent.Get("Source Subtype", "Source ID", "Source Prod. Order Line", "Source Ref. No.");
         exit(ProdOrderComponent."Supplied-by Line No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderLineDateConflict(DueDate: Date; var ForceRequest: Boolean; var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

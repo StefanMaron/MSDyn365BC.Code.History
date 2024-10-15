@@ -52,8 +52,12 @@ table 7200 "CDS Connection Setup"
             DataClassification = SystemMetadata;
 
             trigger OnValidate()
+            var
+                CRMIntegrationManagement: Codeunit "CRM Integration Management";
             begin
                 if not "Is Enabled" then begin
+                    if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+                        Error(CannotDisableCDSErr);
                     Session.LogMessage('0000CDG', CDSConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     exit;
                 end;
@@ -555,6 +559,7 @@ table 7200 "CDS Connection Setup"
         CDSConnEnabledTxt: Label 'CDS connection has been enabled.', Locked = true;
         CRMConnEnabledErr: Label 'To set up the connection with Common Data Service, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
         CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Common Data Service, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
+        CannotDisableCDSErr: Label 'To disable the connection with Common Data Service, you must first disable the existing connection with Dynamics 365 Sales.';
         TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to CDS connection setup', Locked = true;
         TestServerAddressTok: Label '@@test@@', Locked = true;
 }

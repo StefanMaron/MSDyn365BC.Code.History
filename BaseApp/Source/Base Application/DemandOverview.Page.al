@@ -1,4 +1,4 @@
-page 5830 "Demand Overview"
+﻿page 5830 "Demand Overview"
 {
     AccessByPermission = TableData "Service Header" = R;
     AdditionalSearchTerms = 'supply planning,availability overview';
@@ -63,7 +63,7 @@ page 5830 "Demand Overview"
                     Enabled = DemandNoCtrlEnable;
                     ToolTip = 'Specifies the number of the item for which the demand calculation was initiated.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnLookup(var Text: Text) Result: Boolean
                     var
                         SalesHeader: Record "Sales Header";
                         ProdOrder: Record "Production Order";
@@ -75,7 +75,13 @@ page 5830 "Demand Overview"
                         JobList: Page "Job List";
                         ServiceOrders: Page "Service Orders";
                         AsmOrders: Page "Assembly Orders";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeLookupDemandNo(Rec, DemandType, Result, IsHandled);
+                        if IsHandled then
+                            exit(Result);
+
                         case DemandType of
                             DemandType::Sales:
                                 begin
@@ -672,6 +678,11 @@ page 5830 "Demand Overview"
     procedure SetCalculationParameter(CalculateDemandParam: Boolean)
     begin
         CalculationOfDemand := CalculateDemandParam;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Option; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

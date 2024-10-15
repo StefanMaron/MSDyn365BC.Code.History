@@ -111,7 +111,7 @@ codeunit 212 "Res. Jnl.-Post Line"
             NextEntryNo := NextEntryNo + 1;
         end;
 
-        OnAfterPostResJnlLine(ResJnlLine);
+        OnAfterPostResJnlLine(ResJnlLine, ResLedgEntry);
     end;
 
     local procedure GetGLSetup()
@@ -163,7 +163,7 @@ codeunit 212 "Res. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostResJnlLine(var ResJournalLine: Record "Res. Journal Line")
+    local procedure OnAfterPostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var ResLedgEntry: Record "Res. Ledger Entry")
     begin
     end;
 

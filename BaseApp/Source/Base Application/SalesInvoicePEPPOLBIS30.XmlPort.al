@@ -1,4 +1,4 @@
-xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
+﻿xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
 {
     Caption = 'Sales Invoice - PEPPOL BIS 3.0';
     Direction = Export;
@@ -205,11 +205,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 trigger OnAfterGetRecord()
                 begin
                     PEPPOLMgt.GetAdditionalDocRefInfo(
-                      AdditionalDocumentReferenceID,
-                      AdditionalDocRefDocumentType,
-                      URI,
-                      mimeCode,
-                      EmbeddedDocumentBinaryObject);
+                        SalesHeader,
+                        AdditionalDocumentReferenceID,
+                        AdditionalDocRefDocumentType,
+                        URI,
+                        mimeCode,
+                        EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip;

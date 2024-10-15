@@ -212,11 +212,11 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Validate "Asset Type"
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
-        // [THEN] Line where,  "Source Type" is 'Customer', "Source No." is 'C'
-        PriceListLine.TestField("Source Type", "Price Source Type"::Customer);
-        PriceListLine.TestField("Source No.", CustomerNo);
-        // [GIVEN] "Amount Type" is 'Price', "Price Type" is 'Sale'
-        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        // [THEN] Line where,  "Source Type" is 'All', "Source No." is ''
+        PriceListLine.TestField("Source Type", "Price Source Type"::All);
+        PriceListLine.TestField("Source No.", '');
+        // [GIVEN] "Amount Type" is 'Price', "Price Type" is 'Any'
+        PriceListLine.TestField("Price Type", "Price Type"::Any);
         PriceListLine.TestField("Amount Type", PriceListLine."Amount Type"::Price);
         // [THEN] Other fields are copied from the header
         PriceListLine.TestField("Starting Date", PriceListHeader."Starting Date");
@@ -387,12 +387,8 @@ codeunit 134123 "Price List Line UT"
         MockPriceListLine."Source No.".Lookup();
 
         // [THEN] "Source No." is 'C', "Source ID" is 'X'
-        asserterror
-        begin // Fails in AL test but OK in manual test
-            MockPriceListLine."Source No.".AssertEquals(Customer."No.");
-            MockPriceListLine."Source ID".AssertEquals(Customer.SystemId);
-        end;
-        Assert.KnownFailure('AssertEquals for Field: Source No.', 352195);
+        MockPriceListLine."Source No.".AssertEquals(Customer."No.");
+        MockPriceListLine."Source ID".AssertEquals(Customer.SystemId);
     end;
 
     [Test]
@@ -415,9 +411,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Lookup "Source No."
         LibraryVariableStorage.Enqueue(JobTask."Job No."); // for LookupJobModalHandler
         LibraryVariableStorage.Enqueue(JobTask."Job Task No."); // for LookupJobTaskModalHandler
-        asserterror // Fails in AL test but OK in manual test
-            MockPriceListLine."Source No.".Lookup();
-        Assert.KnownFailure('The built-in action = OK is not found', 352195);
+        MockPriceListLine."Source No.".Lookup();
 
         // [THEN] "Source No." is 'JT',"Parent Source No." is 'J'
         MockPriceListLine."Parent Source No.".AssertEquals(JobTask."Job No.");
@@ -443,9 +437,7 @@ codeunit 134123 "Price List Line UT"
         MockPriceListLine."Asset No.".Lookup();
 
         // [THEN] "Asset No." is 'I'
-        asserterror // Fails in AL test but OK in manual test
-            MockPriceListLine."Asset No.".AssertEquals(Item."No.");
-        Assert.KnownFailure('AssertEquals for Field: Asset No.', 352195);
+        MockPriceListLine."Asset No.".AssertEquals(Item."No.");
     end;
 
     [Test]
@@ -844,7 +836,7 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
     begin
-        // [SCENARIO] Price LIst should be editable only if Status is Draft.
+        // [SCENARIO] Price List should be editable only if Status is Draft.
         Initialize();
 
         PriceListLine.Status := PriceListLine.Status::Draft;
@@ -855,6 +847,142 @@ codeunit 134123 "Price List Line UT"
 
         PriceListLine.Status := PriceListLine.Status::Inactive;
         Assert.IsFalse(PriceListLine.IsEditable(), 'Inactive')
+    end;
+
+    [Test]
+    procedure T060_CopyCustomerHeaderToAllCustomersLine()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Header, where "Price Source Type" is "Customer" 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Line, where "Price Source Type" is "All Customers"
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Copy Header to Line
+        PriceListLine.CopyFrom(PriceListHeader);
+
+        // [THEN] Line, where "Price Source Type" is "Customer" 'X'
+        PriceListLine.TestField("Source Type", PriceListHeader."Source Type");
+        PriceListLine.TestField("Source No.", PriceListHeader."Source No.");
+    end;
+
+    [Test]
+    procedure T061_CopyAllVendorsHeaderToCustomerLine()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Header, where "Price Source Type" is "All Vendors"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+
+        // [GIVEN] Line, where "Price Source Type" is "Customer" 'X'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Copy Header to Line
+        PriceListLine.CopyFrom(PriceListHeader);
+
+        // [THEN] Line, where "Price Source Type" is "All Vendors", "Price Type" is 'Purchase'
+        PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
+        PriceListLine.TestField("Source Type", PriceListHeader."Source Type");
+        PriceListLine.TestField("Source No.", PriceListHeader."Source No.");
+    end;
+
+    [Test]
+    procedure T062_CopyPriceHeaderToDiscountLine()
+    var
+        ItemDiscountGroup: Record "Item Discount Group";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Header, where "Amount Type" is "Price"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Line, where "Amount Type" is "Discount", "Asset Type" is 'Item Discount Group'
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Copy Header to Line
+        PriceListLine.CopyFrom(PriceListHeader);
+
+        // [THEN] Line, where "Amount Type" is 'Price', "Line Discount %" is 0.
+        PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
+        PriceListLine.TestField("Amount Type", PriceListHeader."Amount Type");
+        PriceListLine.TestField("Line Discount %", 0);
+    end;
+
+    [Test]
+    procedure T063_CopyPriceHeaderToItemDiscGroupLine()
+    var
+        ItemDiscountGroup: Record "Item Discount Group";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Header, where "Amount Type" is "Price"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Line, where "Amount Type" is "Discount", "Asset Type" is 'Item Discount Group'
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
+            "Price Asset Type"::"Item Discount Group", ItemDiscountGroup.Code);
+
+        // [WHEN] Copy Header to Line
+        asserterror PriceListLine.CopyFrom(PriceListHeader);
+
+        // [THEN] Error: 'Defines must be equal to 'Discount''
+        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+    end;
+
+    [Test]
+    procedure T064_CopyDiscountHeaderToPriceLine()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Header, where "Amount Type" is "Discount"
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Discount;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Line, where "Amount Type" is "Price", "Asset Type" is 'Item'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Copy Header to Line
+        PriceListLine.CopyFrom(PriceListHeader);
+
+        // [THEN] Line, where "Amount Type" is 'Discount', "Unit Price" is 0.
+        PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
+        PriceListLine.TestField("Amount Type", PriceListHeader."Amount Type");
+        PriceListLine.TestField("Unit Price", 0);
     end;
 
     [Test]
@@ -871,10 +999,9 @@ codeunit 134123 "Price List Line UT"
         CreateItem(Item);
         // [GIVEN] Customer 'C', where "VAT Bus. Posting Group" is 'CVAT'
         LibrarySales.CreateCustomer(Customer);
-        // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item
         PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         PriceListLine.Validate("Source No.", Customer."No.");
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -883,7 +1010,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT'
-        VerifyLine(PriceListLine, Item."Sales Unit of Measure", true, false, Customer."VAT Bus. Posting Group", '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, false, Customer."VAT Bus. Posting Group", '', '');
     end;
 
     [Test]
@@ -897,9 +1024,8 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
-        // [GIVEN] Price List Line, where "Source Type" is 'All Customers', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Source Type" is 'All Customers', "Asset Type" is Item
         PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -908,7 +1034,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLine(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
     end;
 
     [Test]
@@ -925,10 +1051,9 @@ codeunit 134123 "Price List Line UT"
         CreateItem(Item);
         // [GIVEN] CustomerPriceGroup 'CPG', where "Allow Invoice Disc." is No, "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'CPGVAT'
         CreateCustomerPriceGroup(CustomerPriceGroup);
-        // [GIVEN] Price List Line, where "Allow Invoice Disc." is No, "Source Type" is 'Customer Price Group', "Asset Type" is 'Item', "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Allow Invoice Disc." is No, "Source Type" is 'Customer Price Group', "Asset Type" is 'Item'
         PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
         PriceListLine.Validate("Source No.", CustomerPriceGroup.Code);
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -937,9 +1062,9 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'CPGVAT'
-        VerifyLine(
+        VerifyLineVariant(
             PriceListLine, Item."Sales Unit of Measure", Item."Allow Invoice Disc.",
-            CustomerPriceGroup."Price Includes VAT", CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", '');
+            CustomerPriceGroup."Price Includes VAT", CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", '', '');
     end;
 
     [Test]
@@ -970,7 +1095,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT'
-        VerifyLine(PriceListLine, '', false, false, Customer."VAT Bus. Posting Group", '');
+        VerifyLineVariant(PriceListLine, '', false, false, Customer."VAT Bus. Posting Group", '', '');
     end;
 
     [Test]
@@ -984,10 +1109,9 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Purch. Unit of Measure" - 'PUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
-        // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is Item
         PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
         PriceListLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -996,7 +1120,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLine(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '');
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '');
     end;
 
     [Test]
@@ -1011,12 +1135,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
-        // [GIVEN] Price List Line, where "Price Type" is 'Sale', "Source Type" is 'Job', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Price Type" is 'Sale', "Source Type" is 'Job', "Asset Type" is Item
         PriceListLine."Price Type" := "Price Type"::Sale;
         PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -1025,9 +1148,9 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLine(
+        VerifyLineVariant(
             PriceListLine, Item."Sales Unit of Measure", Item."Allow Invoice Disc.",
-            Item."Price Includes VAT", item."VAT Bus. Posting Gr. (Price)", '');
+            Item."Price Includes VAT", item."VAT Bus. Posting Gr. (Price)", '', '');
     end;
 
     [Test]
@@ -1042,12 +1165,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Purch. Unit of Measure" - 'PUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
-        // [GIVEN] Price List Line, where "Price Type" is 'Purchase', "Source Type" is 'Job', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Price Type" is 'Purchase', "Source Type" is 'Job', "Asset Type" is Item
         PriceListLine."Price Type" := "Price Type"::Purchase;
         PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -1056,7 +1178,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLine(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '');
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '');
     end;
 
     [Test]
@@ -1085,7 +1207,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, Description is 'Descr'
-        VerifyLine(PriceListLine, '', false, false, '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
         PriceListLine.TestField(Description, GLAccount.Name);
     end;
 
@@ -1117,7 +1239,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLine(PriceListLine, Resource."Base Unit of Measure", false, false, '', '');
+        VerifyLineVariant(PriceListLine, Resource."Base Unit of Measure", false, false, '', '', '');
     end;
 
     [Test]
@@ -1148,7 +1270,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLine(PriceListLine, '', false, false, '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
     end;
 
     [Test]
@@ -1181,7 +1303,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT', "Work Type Code" is <blank>
-        VerifyLine(PriceListLine, Resource."Base Unit of Measure", false, false, Customer."VAT Bus. Posting Group", '');
+        VerifyLineVariant(PriceListLine, Resource."Base Unit of Measure", false, false, Customer."VAT Bus. Posting Group", '', '');
     end;
 
     [Test]
@@ -1211,13 +1333,14 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLine(PriceListLine, '', false, false, '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
     end;
 
     [Test]
     procedure T112_ValidateSourceTypeForItem()
     var
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Customer] [Item]
@@ -1225,19 +1348,20 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item, "Variant Code" is 'V'
         PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
+        PriceListLine."Variant Code" := ItemVariant.Code;
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
 
         // [WHEN] Set "Source Type " as 'Customer'
         PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
 
-        // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
+        // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is 'V', "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLine(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", ItemVariant.Code, '');
     end;
 
     [Test]
@@ -1375,7 +1499,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLine(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
     end;
 
     [Test]
@@ -1395,12 +1519,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
-        // [GIVEN] Price List Line, where "Price Type"::Sale, "Source Type" is 'Contact', "Asset Type" is Item, "Variant Code" is 'V'
+        // [GIVEN] Price List Line, where "Price Type"::Sale, "Source Type" is 'Contact', "Asset Type" is Item
         PriceListLine."Price Type" := "Price Type"::Sale;
         PriceListLine.Validate("Source Type", "Price Source Type"::Contact);
         PriceListLine.Validate("Source No.", Contact."No.");
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
-        PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
 
         // [WHEN] Set "Source No." as 'X'
@@ -1408,7 +1531,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLine(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
     end;
 
     [Test]
@@ -2084,10 +2207,10 @@ codeunit 134123 "Price List Line UT"
         CustomerPriceGroup.Modify(true);
     end;
 
-    local procedure VerifyLine(PriceListLine: Record "Price List Line"; UoM: Code[10]; AllowInvoiceDisc: Boolean; PriceIncludesVAT: Boolean; VATBusPostingGr: Code[20]; WorkTypeCode: Code[10])
+    local procedure VerifyLineVariant(PriceListLine: Record "Price List Line"; UoM: Code[10]; AllowInvoiceDisc: Boolean; PriceIncludesVAT: Boolean; VATBusPostingGr: Code[20]; VariantCode: Code[10]; WorkTypeCode: Code[10])
     begin
         PriceListLine.TestField("Unit of Measure Code", UoM);
-        PriceListLine.TestField("Variant Code", '');
+        PriceListLine.TestField("Variant Code", VariantCode);
         PriceListLine.TestField("Allow Invoice Disc.", AllowInvoiceDisc);
         PriceListLine.TestField("Price Includes VAT", PriceIncludesVAT);
         PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", VATBusPostingGr);

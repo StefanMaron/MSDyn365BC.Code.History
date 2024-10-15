@@ -168,34 +168,33 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
-        case SalesLine.Type of
-            SalesLine.Type::Item:
-                begin
-                    PriceSourceList.Add(SourceType::"All Customers");
-                    PriceSourceList.Add(SourceType::Customer, SalesHeader."Bill-to Customer No.");
-                    PriceSourceList.Add(SourceType::Contact, SalesHeader."Bill-to Contact No.");
-                    PriceSourceList.Add(SourceType::Campaign, SalesHeader."Campaign No.");
-                    AddActivatedCampaignsAsSource();
-                    PriceSourceList.Add(SourceType::"Customer Price Group", SalesLine."Customer Price Group");
-                    PriceSourceList.Add(SourceType::"Customer Disc. Group", SalesLine."Customer Disc. Group");
-                end;
-            SalesLine.Type::Resource:
-                PriceSourceList.Add(SourceType::"All Jobs");
-        end;
+        PriceSourceList.Add(SourceType::"All Customers");
+        PriceSourceList.Add(SourceType::Customer, SalesHeader."Bill-to Customer No.");
+        PriceSourceList.Add(SourceType::Contact, SalesHeader."Bill-to Contact No.");
+        PriceSourceList.Add(SourceType::Campaign, SalesHeader."Campaign No.");
+        AddActivatedCampaignsAsSource();
+        PriceSourceList.Add(SourceType::"Customer Price Group", SalesLine."Customer Price Group");
+        PriceSourceList.Add(SourceType::"Customer Disc. Group", SalesLine."Customer Disc. Group");
+        if SalesLine.Type = SalesLine.Type::Resource then
+            PriceSourceList.Add(SourceType::"All Jobs");
+
         OnAfterAddSources(SalesHeader, SalesLine, CurrPriceType, PriceSourceList);
     end;
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        if SalesHeader."Document Type" in
-            [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"]
-        then
-            DocumentDate := SalesHeader."Posting Date"
+        if SalesHeader."No." = '' then
+            DocumentDate := SalesLine."Posting Date"
         else
-            DocumentDate := SalesHeader."Order Date";
+            if SalesHeader."Document Type" in
+                [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"]
+            then
+                DocumentDate := SalesHeader."Posting Date"
+            else
+                DocumentDate := SalesHeader."Order Date";
         if DocumentDate = 0D then
             DocumentDate := WorkDate();
-        OnAfterGetDocumentDate(DocumentDate, SalesHeader);
+        OnAfterGetDocumentDate(DocumentDate, SalesHeader, SalesLine);
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -304,7 +303,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetDocumentDate(var DocumentDate: Date; SalesHeader: Record "Sales Header")
+    local procedure OnAfterGetDocumentDate(var DocumentDate: Date; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 

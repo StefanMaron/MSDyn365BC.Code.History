@@ -30,7 +30,13 @@ codeunit 363 "PostSales-Delete"
         ReturnRcptLine: Record "Return Receipt Line";
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteHeader(SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesHeader do begin
             SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
@@ -264,6 +270,11 @@ codeunit 363 "PostSales-Delete"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDeleteHeader(SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var SalesInvoiceHeaderPrepmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrepmt: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteHeader(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var SalesInvoiceHeaderPrepmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrepmt: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 

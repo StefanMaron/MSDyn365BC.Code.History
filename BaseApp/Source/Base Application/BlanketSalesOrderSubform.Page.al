@@ -808,6 +808,7 @@ page 508 "Blanket Sales Order Subform"
                 }
                 action(GetPrice)
                 {
+                    AccessByPermission = TableData "Sales Price Access" = R;
                     ApplicationArea = Suite;
                     Caption = 'Get &Price';
                     Ellipsis = true;
@@ -822,6 +823,7 @@ page 508 "Blanket Sales Order Subform"
                 }
                 action(GetLineDiscount)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Suite;
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;

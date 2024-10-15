@@ -1,4 +1,4 @@
-codeunit 5878 "Phys. Invt. Rec.-Reopen"
+﻿codeunit 5878 "Phys. Invt. Rec.-Reopen"
 {
     TableNo = "Phys. Invt. Record Header";
 
@@ -23,6 +23,8 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
     begin
+        OnBeforeCode(PhysInvtRecordHeader);
+
         with PhysInvtRecordHeader do begin
             TestField("Order No.");
             TestField("Recording No.");
@@ -48,7 +50,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
                         PhysInvtOrderLine."Qty. Recorded (Base)" -= PhysInvtRecordLine."Quantity (Base)";
                         PhysInvtOrderLine."No. Finished Rec.-Lines" -= 1;
                         PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
-                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine);
+                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine, PhysInvtRecordHeader);
                         PhysInvtOrderLine.Modify();
 
                         PhysInvtRecordLine."Order Line No." := 0;
@@ -68,7 +70,12 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
     begin
     end;
 }
