@@ -2,6 +2,8 @@ table 27011 "SAT Relationship Type"
 {
     Caption = 'SAT Relationship Type';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Relationship Types";
+    LookupPageID = "SAT Relationship Types";
 
     fields
     {

@@ -848,10 +848,7 @@ table 5405 "Production Order"
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", Status.AsInteger(), "No.", HideValidationDialog);
 
-        ProdOrderLine.LockTable();
-        ProdOrderLine.SetRange(Status, Status);
-        ProdOrderLine.SetRange("Prod. Order No.", "No.");
-        ProdOrderLine.DeleteAll(true);
+        DeleteProdOrderLines();
 
         WhseRequest.SetRange("Document Type", WhseRequest."Document Type"::Production);
         WhseRequest.SetRange("Document Subtype", Status);
@@ -860,6 +857,16 @@ table 5405 "Production Order"
             WhseRequest.DeleteAll(true);
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Prod. Order Component", Status.AsInteger(), "No.", '', 0, 0, '', false);
+    end;
+
+    local procedure DeleteProdOrderLines()
+    begin
+        OnBeforeDeleteProdOrderLines(Rec, ProdOrderLine);
+
+        ProdOrderLine.LockTable();
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Prod. Order No.", "No.");
+        ProdOrderLine.DeleteAll(true);
     end;
 
     procedure DeleteFinishedProdOrderRelations()
@@ -1411,6 +1418,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteFnshdProdOrderRelations(var ProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteProdOrderLines(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

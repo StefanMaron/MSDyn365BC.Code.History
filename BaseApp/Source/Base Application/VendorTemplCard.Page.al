@@ -398,6 +398,7 @@ page 1386 "Vendor Templ. Card"
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
                 field("Base Calendar Code"; "Base Calendar Code")

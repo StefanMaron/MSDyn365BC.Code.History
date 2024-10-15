@@ -482,6 +482,16 @@ page 132 "Posted Sales Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the relation of the CFDI document. ';
                     }
+                    field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the reason for the cancellation as a code.';
+                    }
+                    field("Substitution Document No."; "Substitution Document No.")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                    }
                     field("Package Tracking No."; "Package Tracking No.")
                     {
                         ApplicationArea = Suite;

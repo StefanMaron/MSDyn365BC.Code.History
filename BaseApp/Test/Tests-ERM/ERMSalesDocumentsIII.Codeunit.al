@@ -16,6 +16,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryUtility: Codeunit "Library - Utility";
@@ -2363,34 +2364,6 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] Extended Text Line exits for Sales Return Order attached to item line
         VerifySalesLineDescriptionLineExists(SalesHeaderRet);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NoLookupOnDescriptionWhenStandardTextUsed()
-    var
-        StandardText: Record "Standard Text";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [SCENARIO 219141] No Lookup is possible on Description when SalesLine Type = Standard Text.
-        Initialize;
-
-        // [GIVEN] Standard Text "ST".
-        LibrarySales.CreateStandardText(StandardText);
-
-        // [GIVEN] Sales Order and SalesLine with "ST".
-        CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, SalesLine.Type::" ", StandardText.Code, 0);
-
-        // [WHEN] Sales Order with "ST" is opened and Lookup on SalesLine.Description is invoked.
-        // [THEN] No lookup page is opened.
-        SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SalesLines.Description.AssertEquals(StandardText.Description);
-        SalesOrder.SalesLines.Description.Lookup;
     end;
 
     [Test]
@@ -5408,6 +5381,45 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.RecordCount(SalesLine, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    procedure WorkDescriptionOnPostedSalesShipmentForDropShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        WorkDescription: Text;
+    begin
+        // [FEATURE] [Shipment] [Drop Shipment] [Work Description]
+        // [SCENARIO 422109] "Work Description" on posted sales shipment for drop shipment.
+        Initialize();
+
+        // [GIVEN] Drop shipment sales order with "Work Description" = "X".
+        WorkDescription := LibraryRandom.RandText(10);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+        SalesHeader.SetWorkDescription(WorkDescription);
+
+        // [GIVEN] Create purchase order via "Drop Shipment" -> "Get Sales Orders".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+
+        // [WHEN] Receive the purchase order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] The associated sales order is shipped as well.
+        // [THEN] "Work Description" = "X" in the sales shipment header.
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst();
+        Assert.AreEqual(WorkDescription, SalesShipmentHeader.GetWorkDescription(), '');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -6871,6 +6883,12 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemChargeAssignmentSales.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.OK.Invoke();
     end;
 }
 

@@ -488,6 +488,7 @@ page 26 "Vendor Card"
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
                 field("Lead Time Calculation"; "Lead Time Calculation")

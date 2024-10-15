@@ -1058,6 +1058,7 @@
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
+            OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(Rec);
             SalesLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
@@ -1458,9 +1459,13 @@
     begin
     end;
 #endif
-
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(var SalesLine: Record "Sales Line")
     begin
     end;
 

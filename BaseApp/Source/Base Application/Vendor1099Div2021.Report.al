@@ -184,9 +184,7 @@ report 10118 "Vendor 1099 Div 2021"
                 VendorNo := 0;
                 PageGroupNo := 0;
 
-                // Create date range which covers the entire calendar year
-                PeriodDate[1] := DMY2Date(1, 1, YearValue);
-                PeriodDate[2] := DMY2Date(31, 12, YearValue);
+                UpdatePeriodDateArray();
 
                 // Fill in the Codes used on this particular 1099 form
                 Clear(Codes);
@@ -243,6 +241,7 @@ report 10118 "Vendor 1099 Div 2021"
                         begin
                             if (YearValue < 1980) or (YearValue > 2060) then
                                 Error(YearNotCorrectErr);
+                            UpdatePeriodDateArray();
                         end;
                     }
                     field(TestPrint; TestPrintSwitch)
@@ -259,7 +258,7 @@ report 10118 "Vendor 1099 Div 2021"
         {
         }
 
-        trigger OnOpenPage()
+        trigger OnInit()
         begin
             TestPrintSwitch := false;
             YearValue := Date2DMY(WorkDate(), 3);
@@ -333,6 +332,12 @@ report 10118 "Vendor 1099 Div 2021"
                 end;
             CompressArray(CompanyAddress);
         end;
+    end;
+
+    local procedure UpdatePeriodDateArray()
+    begin
+        PeriodDate[1] := DMY2Date(1, 1, YearValue);
+        PeriodDate[2] := DMY2Date(31, 12, YearValue);
     end;
 }
 

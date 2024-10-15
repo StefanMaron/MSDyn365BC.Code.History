@@ -893,6 +893,7 @@
                                   DateSeparator,
                                   CheckLanguage,
                                   CheckStyle);
+                                OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(Vend, GenJnlLine);
                             end;
                         BalancingType::"Bank Account":
                             begin
@@ -1297,6 +1298,8 @@
                 ExchangeAmt(CurrencyCode2, GenJnlLine."Currency Code", LineAmount2), Currency."Amount Rounding Precision");
             LineDiscount := 0;
         end;
+
+        OnAfterVendUpdateAmounts(VendLedgEntry2, DocDate);
     end;
 
     procedure InitializeRequest(BankAcc: Code[20]; LastCheckNo: Code[20]; NewOneCheckPrVend: Boolean; NewReprintChecks: Boolean; NewTestPrint: Boolean; NewPreprintedStub: Boolean)
@@ -1518,6 +1521,16 @@
           DateSeparator,
           CheckLanguage,
           CheckStyle);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVendUpdateAmounts(var VendLedgEntry2: Record "Vendor Ledger Entry"; var DocDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(var Vendor: Record Vendor; var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

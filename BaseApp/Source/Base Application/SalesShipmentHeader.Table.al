@@ -678,6 +678,16 @@
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
         }
+        field(27002; "CFDI Cancellation Reason Code"; Code[10])
+        {
+            Caption = 'CFDI Cancellation Reason';
+            TableRelation = "CFDI Cancellation Reason";
+        }
+        field(27003; "Substitution Document No."; Code[20])
+        {
+            Caption = 'Substitution Document No.';
+            TableRelation = "Sales Shipment Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+        }
     }
 
     keys

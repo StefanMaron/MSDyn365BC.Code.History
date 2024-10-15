@@ -2,6 +2,8 @@ table 27012 "SAT Use Code"
 {
     Caption = 'SAT Use Code';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Use Codes";
+    LookupPageID = "SAT Use Codes";
 
     fields
     {

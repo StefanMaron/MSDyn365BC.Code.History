@@ -594,7 +594,8 @@ report 7305 "Whse.-Source - Create Document"
             if PrintDoc then
                 PrintWarehouseDocument(WhseActivHeader);
         end else
-            Error(Text003);
+            if not HideNothingToHandleErr then
+                Error(Text003);
 
         OnAfterPostReport(FirstActivityNo, LastActivityNo);
     end;

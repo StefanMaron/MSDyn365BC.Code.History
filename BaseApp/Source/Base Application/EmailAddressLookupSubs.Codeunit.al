@@ -120,7 +120,7 @@ codeunit 8899 "Email Address Lookup Subs"
 
     local procedure InsertContactEmailAddress(var Contact: Record Contact; var Address: Record "Email Address Lookup")
     begin
-        if not Address.Get(Contact."E-Mail", Contact.Name, Enum::"Email Address Entity"::Contact) then begin
+        if ((Contact."E-Mail" <> '') and not Address.Get(Contact."E-Mail", Contact.Name, Enum::"Email Address Entity"::Contact)) then begin
             Address.Name := Contact.Name;
             Address."E-Mail Address" := Contact."E-Mail";
             Address.Company := Contact."Company Name";

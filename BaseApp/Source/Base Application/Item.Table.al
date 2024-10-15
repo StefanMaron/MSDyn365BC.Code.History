@@ -1943,10 +1943,11 @@
                                 then
                                     Error(Text7381);
 
-                    if "Last Counting Period Update" = 0D then
-                        PhysInvtCountPeriodMgt.CalcPeriod(
-                          "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
-                          PhysInvtCountPeriod."Count Frequency per Year");
+                    if "Last Counting Period Update" <> 0D then
+                        "Last Counting Period Update" := WorkDate();
+                    PhysInvtCountPeriodMgt.CalcPeriod(
+                      "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
+                      PhysInvtCountPeriod."Count Frequency per Year");
                 end else begin
                     if CurrFieldNo <> 0 then
                         if not Confirm(Text003, false, FieldCaption("Phys Invt Counting Period Code")) then
@@ -2241,7 +2242,6 @@
         }
         field(99000757; "Overhead Rate"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             AutoFormatType = 2;
             Caption = 'Overhead Rate';
 

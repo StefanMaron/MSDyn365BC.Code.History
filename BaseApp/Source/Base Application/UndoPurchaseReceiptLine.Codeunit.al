@@ -267,7 +267,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
               DATABASE::"Purchase Line",
               PurchLine."Document Type"::Order.AsInteger(),
               "Order No.",
-              "Line No.",
+              "Order Line No.",
               TempWhseJnlLine."Reference Document"::"Posted Rcpt.",
               TempWhseJnlLine,
               NextLineNo);
