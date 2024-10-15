@@ -4042,6 +4042,194 @@
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckIfPrpmtCrMemoPostingIsNotUpdatingInvoiceNo()
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: array[2] of Record "Gen. Product Posting Group";
+        GeneralPostingSetup: array[2] of Record "General Posting Setup";
+        GLAccount: array[2] of Record "G/L Account";
+        ExpectedNo: Code[20];
+        DocumentNo: Code[20];
+        SalesPrepaymentsAccount: Code[20];
+    begin
+        // [SCENARIO 443795] To ensure that prepayment no. series for invoice is not getting changed when a credit memo is posted.
+        Initialize();
+
+        // [GIVEN] Create a prepayment sales document.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetup);
+        CreateSalesOrder_426793(SalesHeader, true, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetup);
+        DocumentNo := SalesHeader."No.";
+
+        // [GIVEN] Post Prepayment Invoice.
+        SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
+        ExpectedNo := SalesHeader."Prepayment No. Series";
+
+        // [WHEN] Prepayment Cr. memo is posted.
+        LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
+
+        // [WHEN] Prepayment No. series of Invoice should not be changed.
+        Assert.AreEqual(ExpectedNo, SalesHeader."Prepayment No. Series", ExpectedNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPurchPrepAmountToDeductToSmallErrorIfInvoiceMultipleReceipts()
+    var
+        OrderPurchaseHeader: Record "Purchase Header";
+        InvoicePurchaseHeader: Record "Purchase Header";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PrepmtInvoiceNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 439684] "The total Prepmt Amt to Deduct Incl. VAT must be at least..." error at an attempt to post the final invoice for a prepayment order
+        Initialize();
+
+        // [GIVEN] Purchase order with 41.66667% prepayment
+        CreatePurchasePrepmtOrderWithTwoLines(OrderPurchaseHeader, 41.66667);
+
+        // [GIVEN] Post first prepayment invoice and apply payment 
+        OrderPurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        OrderPurchaseHeader.Modify();
+        PrepmtInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(OrderPurchaseHeader);
+        PostPaymentToInvoice(
+            "Gen. Journal Account Type"::Vendor, OrderPurchaseHeader."Buy-from Vendor No.",
+            PrepmtInvoiceNo[1], GetPurchaseInvAmount(PrepmtInvoiceNo[1]));
+
+        // [GIVEN] Receipt receipt with 4000 pcs and then 1000 pcs for each line
+        PostPurchaseOrderReceipt(OrderPurchaseHeader, 4000);
+        PostPurchaseOrderReceipt(OrderPurchaseHeader, 1000);
+
+        // [GIVEN] Invoice two receipts for 5000 pcs for each line and apply payment
+        LibraryPurchase.CreatePurchHeader(InvoicePurchaseHeader, "Purchase Document Type"::Invoice, OrderPurchaseHeader."Buy-from Vendor No.");
+        InvoicePurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        InvoicePurchaseHeader.Validate("Prices Including VAT", true);
+        InvoicePurchaseHeader.Modify();
+        GetPurchaseReceiptLines(InvoicePurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(InvoicePurchaseHeader, true, true);
+
+        // [GIVEN] Reopen the order and change prepayment to 74.66667%
+        OrderPurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(OrderPurchaseHeader);
+        OrderPurchaseHeader.Validate("Prepayment %", 74.66667);
+        OrderPurchaseHeader.Modify(true);
+
+        // [GIVEN] Post second prepayment invoice and apply payment 
+        OrderPurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        OrderPurchaseHeader.Modify();
+        PrepmtInvoiceNo[2] := LibraryPurchase.PostPurchasePrepaymentInvoice(OrderPurchaseHeader);
+        PostPaymentToInvoice(
+            "Gen. Journal Account Type"::Vendor, OrderPurchaseHeader."Buy-from Vendor No.",
+            PrepmtInvoiceNo[2], GetPurchaseInvAmount(PrepmtInvoiceNo[2]));
+
+        // [GIVEN] Receipt and invoice with 4000 pcs for each line
+        PostPurchaseOrderReceipt(OrderPurchaseHeader, 4000);
+        LibraryPurchase.CreatePurchHeader(InvoicePurchaseHeader, "Purchase Document Type"::Invoice, OrderPurchaseHeader."Buy-from Vendor No.");
+        InvoicePurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        InvoicePurchaseHeader.Validate("Prices Including VAT", true);
+        InvoicePurchaseHeader.Modify();
+        GetPurchaseReceiptLines(InvoicePurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(InvoicePurchaseHeader, true, true);
+
+        // [GIVEN] Final receipt and invoice with 3000 pcs for each line
+        PostPurchaseOrderReceipt(OrderPurchaseHeader, 3000);
+        LibraryPurchase.CreatePurchHeader(InvoicePurchaseHeader, "Purchase Document Type"::Invoice, InvoicePurchaseHeader."Buy-from Vendor No.");
+        InvoicePurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        InvoicePurchaseHeader.Validate("Prices Including VAT", true);
+        InvoicePurchaseHeader.Modify();
+        GetPurchaseReceiptLines(InvoicePurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(InvoicePurchaseHeader, true, true);
+
+        // [WHEN] Check that all posted succesfully and there are 4 receipts and 5 posted invoices
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", OrderPurchaseHeader."Buy-from Vendor No.");
+        Assert.RecordCount(PurchRcptHeader, 4);
+        PurchInvHeader.SetRange("Buy-from Vendor No.", OrderPurchaseHeader."Buy-from Vendor No.");
+        Assert.RecordCount(PurchInvHeader, 5);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckSalesPrepAmountToDeductToSmallErrorIfInvoiceMultipleShipments()
+    var
+        Item: Record Item;
+        OrderSalesHeader: Record "Sales Header";
+        InvoiceSalesHeader: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        PrepmtInvoiceNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 439684] "The total Prepmt Amt to Deduct Incl. VAT must be at least..." error at an attempt to post the final invoice for a prepayment order
+        Initialize();
+
+        // [GIVEN] Sales order with 41.66667% prepayment
+        CreateSalesPrepmtOrderWithTwoLines(OrderSalesHeader, 41.66667);
+
+        // [GIVEN] Post first prepayment invoice and apply payment 
+        PrepmtInvoiceNo[1] := LibrarySales.PostSalesPrepaymentInvoice(OrderSalesHeader);
+        PostPaymentToInvoice(
+            "Gen. Journal Account Type"::Customer, OrderSalesHeader."Sell-to Customer No.",
+            PrepmtInvoiceNo[1], GetSalesInvAmount(PrepmtInvoiceNo[1]));
+
+        // [GIVEN] Receipt receipt with 4000 pcs and then 1000 pcs for each line
+        PostSalesOrderShipment(OrderSalesHeader, 4000);
+        PostSalesOrderShipment(OrderSalesHeader, 1000);
+
+        // [GIVEN] Invoice two receipts for 5000 pcs for each line and apply payment
+        LibrarySales.CreateSalesHeader(InvoiceSalesHeader, "Sales Document Type"::Invoice, OrderSalesHeader."Sell-to Customer No.");
+        InvoiceSalesHeader.Validate("Prices Including VAT", true);
+        InvoiceSalesHeader.Modify();
+        GetSalesShipmentLines(InvoiceSalesHeader);
+        LibrarySales.PostSalesDocument(InvoiceSalesHeader, true, true);
+
+        // [GIVEN] Reopen the order and change prepayment to 74.66667%
+        OrderSalesHeader.Find();
+        LibrarySales.ReopenSalesDocument(OrderSalesHeader);
+        OrderSalesHeader.Validate("Prepayment %", 74.66667);
+        OrderSalesHeader.Modify(true);
+
+        // [GIVEN] Post second prepayment invoice and apply payment 
+        PrepmtInvoiceNo[2] := LibrarySales.PostSalesPrepaymentInvoice(OrderSalesHeader);
+        PostPaymentToInvoice(
+            "Gen. Journal Account Type"::Customer, OrderSalesHeader."Sell-to Customer No.",
+            PrepmtInvoiceNo[2], GetSalesInvAmount(PrepmtInvoiceNo[2]));
+
+        // [GIVEN] Receipt and invoice with 4000 pcs for each line
+        PostSalesOrderShipment(OrderSalesHeader, 4000);
+        LibrarySales.CreateSalesHeader(InvoiceSalesHeader, "Sales Document Type"::Invoice, OrderSalesHeader."Sell-to Customer No.");
+        InvoiceSalesHeader.Validate("Prices Including VAT", true);
+        InvoiceSalesHeader.Modify();
+        GetSalesShipmentLines(InvoiceSalesHeader);
+        LibrarySales.PostSalesDocument(InvoiceSalesHeader, true, true);
+
+        // [GIVEN] Final receipt and invoice with 3000 pcs for each line
+        PostSalesOrderShipment(OrderSalesHeader, 3000);
+        LibrarySales.CreateSalesHeader(InvoiceSalesHeader, "Sales Document Type"::Invoice, InvoiceSalesHeader."Sell-to Customer No.");
+        InvoiceSalesHeader.Validate("Prices Including VAT", true);
+        InvoiceSalesHeader.Modify();
+        GetSalesShipmentLines(InvoiceSalesHeader);
+        LibrarySales.PostSalesDocument(InvoiceSalesHeader, true, true);
+
+        // [WHEN] Check that all posted succesfully and there are 4 receipts and 5 posted invoices
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", OrderSalesHeader."Sell-to Customer No.");
+        Assert.RecordCount(SalesShipmentHeader, 4);
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", OrderSalesHeader."Sell-to Customer No.");
+        Assert.RecordCount(SalesInvoiceHeader, 5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4604,6 +4792,100 @@
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo, 1, LibraryRandom.RandDecInRange(10, 100, 2));
+    end;
+
+    local procedure CreatePurchasePrepmtOrderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Validate("Prepayment %", PrepmtPercent);
+        PurchaseHeader.Modify();
+        LibraryInventory.CreateItem(Item);
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 12000, 12.995); // first line
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 12000, 12.995); // second line
+    end;
+
+    local procedure CreateSalesPrepmtOrderWithTwoLines(var SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Validate("Prepayment %", PrepmtPercent);
+        SalesHeader.Modify();
+        LibraryInventory.CreateItem(Item);
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, Item."No.", 12000, 12.995); // first line
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, Item."No.", 12000, 12.995); // second line
+    end;
+
+    local procedure PostPurchaseOrderReceipt(var PurchaseHeader: Record "Purchase Header"; QtyToReceiveBase: Decimal): Code[20]
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindSet() then
+            repeat
+                PurchaseLine.Validate("Qty. to Receive (Base)", QtyToReceiveBase);
+                PurchaseLine.Modify();
+            until PurchaseLine.Next() = 0;
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
+    end;
+
+    local procedure PostSalesOrderShipment(var SalesHeader: Record "Sales Header"; QtyToShipBase: Decimal): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                SalesLine.Validate("Qty. to Ship (Base)", QtyToShipBase);
+                SalesLine.Modify();
+            until SalesLine.Next() = 0;
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
+    end;
+
+    local procedure PostPaymentToInvoice(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure GetPurchaseInvAmount(DocumentNo: Code[20]): Decimal
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        exit(-VendorLedgerEntry."Amount (LCY)");
+    end;
+
+    local procedure GetSalesInvAmount(DocumentNo: Code[20]): Decimal
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        exit(-CustLedgerEntry."Amount (LCY)");
     end;
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
