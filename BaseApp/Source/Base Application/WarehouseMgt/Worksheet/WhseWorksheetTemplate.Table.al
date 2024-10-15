@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Worksheet;
+
+using System.Reflection;
+
 table 7328 "Whse. Worksheet Template"
 {
     Caption = 'Whse. Worksheet Template';
@@ -34,7 +38,7 @@ table 7328 "Whse. Worksheet Template"
         field(4; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -44,8 +48,8 @@ table 7328 "Whse. Worksheet Template"
         }
         field(5; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;

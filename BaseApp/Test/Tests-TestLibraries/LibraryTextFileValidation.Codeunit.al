@@ -131,12 +131,12 @@ codeunit 131003 "Library - Text File Validation"
         Erase(FilePath);
     end;
 
-    procedure ReadLineFromStream(FileInStream : InStream; LineNumber : Integer) Line : Text
+    procedure ReadLineFromStream(FileInStream: InStream; LineNumber: Integer) Line: Text
     var
-      i : Integer;
+        i: Integer;
     begin
-      for i := 1 to LineNumber do
-        FileInStream.ReadText(Line);
+        for i := 1 to LineNumber do
+            FileInStream.ReadText(Line);
     end;
 
 
@@ -191,7 +191,7 @@ codeunit 131003 "Library - Text File Validation"
             LastField := Pos = 0;
             if LastField then begin
                 if FieldPosition <> CurrFieldPos then
-                    Error(StrSubstNo(NoSuchFieldPositionErr, FieldPosition));
+                    Error(NoSuchFieldPositionErr, FieldPosition);
                 FieldValue := Line;
             end else
                 FieldValue := CopyStr(Line, 1, Pos - 1);

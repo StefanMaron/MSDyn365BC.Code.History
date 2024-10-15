@@ -24,12 +24,12 @@ codeunit 135416 "Premium Plans Activ Plan-based"
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
 
         if not ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(PremiumIsNotEnabledErr, 'Premium User Plan'));
+            Error(PremiumIsNotEnabledErr, 'Premium User Plan');
 
         LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
 
         if not ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(PremiumIsNotEnabledErr, 'Premium ISV Embedded User Plan'));
+            Error(PremiumIsNotEnabledErr, 'Premium ISV Embedded User Plan');
     end;
 
     [Test]
@@ -43,27 +43,27 @@ codeunit 135416 "Premium Plans Activ Plan-based"
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
         if ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(NonPremiumAsPremiumErr, 'Essential Plan'));
+            Error(NonPremiumAsPremiumErr, 'Essential Plan');
 
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
         if ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(NonPremiumAsPremiumErr, 'External Accountant Plan'));
+            Error(NonPremiumAsPremiumErr, 'External Accountant Plan');
 
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         if ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(NonPremiumAsPremiumErr, 'Team Member Plan'));
+            Error(NonPremiumAsPremiumErr, 'Team Member Plan');
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         if ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(NonPremiumAsPremiumErr, 'Essential ISV Embedded Plan'));
+            Error(NonPremiumAsPremiumErr, 'Essential ISV Embedded Plan');
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
         if ApplicationAreaMgmt.IsPremiumEnabled then
-            Error(StrSubstNo(NonPremiumAsPremiumErr, 'Team Member ISV Embedded Plan'));
+            Error(NonPremiumAsPremiumErr, 'Team Member ISV Embedded Plan');
     end;
 }
 

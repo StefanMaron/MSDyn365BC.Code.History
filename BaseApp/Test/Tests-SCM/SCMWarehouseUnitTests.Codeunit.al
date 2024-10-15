@@ -266,37 +266,37 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckIfFromServiceLine2ShptLin_BlankQtyToConsume()
+    procedure CheckIfFromServiceLine2ShptLine_BlankQtyToConsume()
     var
         ServiceLine: Record "Service Line";
-        WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
+        ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
     begin
         // [FEATURE] [Service]
-        // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLin() returns TRUE in case of "Qty. to Consume" = 0
+        // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLine() returns TRUE in case of "Qty. to Consume" = 0
         Initialize();
 
         MockServiceLine(ServiceLine);
         Assert.IsTrue(
-          WhseCreateSourceDocument.CheckIfFromServiceLine2ShptLin(ServiceLine),
-          'Service Line to Shipment Line should be possible');
+            ServiceWarehouseMgt.CheckIfFromServiceLine2ShptLine(ServiceLine),
+            'Service Line to Shipment Line should be possible');
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckIfFromServiceLine2ShptLin_QtyToConsume()
+    procedure CheckIfFromServiceLine2ShptLine_QtyToConsume()
     var
         ServiceLine: Record "Service Line";
-        WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
+        ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
     begin
         // [FEATURE] [Service]
-        // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLin() returns FALSE in case of "Qty. to Consume" <> 0
+        // [SCENARIO 380057] COD 5750 "Whse.-Create Source Document".CheckIfFromServiceLine2ShptLine() returns FALSE in case of "Qty. to Consume" <> 0
         Initialize();
 
         MockServiceLine(ServiceLine);
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity / 2);
         Assert.IsFalse(
-          WhseCreateSourceDocument.CheckIfFromServiceLine2ShptLin(ServiceLine),
-          'Service Line to Shipment Line should not be possible');
+            ServiceWarehouseMgt.CheckIfFromServiceLine2ShptLine(ServiceLine),
+            'Service Line to Shipment Line should not be possible');
     end;
 
     [Test]
@@ -1471,7 +1471,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
-        WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
+        SalesWarehouseMgt: Codeunit "Sales Warehouse Mgt.";
         ItemNo: Code[20];
         LocationCode: Code[10];
         Qty: Decimal;
@@ -1504,7 +1504,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseShipmentHeader.Insert();
 
         // EXERCISE : Create shipment from sales line
-        WhseCreateSourceDocument.FromSalesLine2ShptLine(WarehouseShipmentHeader, SalesLine);
+        SalesWarehouseMgt.FromSalesLine2ShptLine(WarehouseShipmentHeader, SalesLine);
 
         // VERIFY : No rounding errors on Quantity
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
@@ -3088,6 +3088,15 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Require Shipment" := NewRequireShipment;
             "Bin Mandatory" := NewBinMandatory;
             "Directed Put-away and Pick" := NewDirectedPutAwayAndPick;
+            if "Require Pick" then
+                if "Require Shipment" then
+                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+                else
+                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+
+            if "Require Put-away" then
+                "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"Inventory Put-away";
+
             Insert();
             exit(Code);
         end;

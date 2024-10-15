@@ -1,3 +1,5 @@
+namespace System.Environment;
+
 codeunit 6061 "Hybrid Deployment Handler"
 {
     Permissions = TableData "Hybrid Deployment Setup" = rimd;

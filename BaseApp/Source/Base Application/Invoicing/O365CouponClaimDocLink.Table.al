@@ -26,7 +26,7 @@ table 2116 "O365 Coupon Claim Doc. Link"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            TableRelation = "Sales Header"."No." WHERE("Document Type" = FIELD("Document Type"));
+            TableRelation = "Sales Header"."No." where("Document Type" = field("Document Type"));
         }
         field(4; "Graph Contact ID"; Text[250])
         {

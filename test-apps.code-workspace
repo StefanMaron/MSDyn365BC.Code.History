@@ -40,6 +40,12 @@
       "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
+      "path": "./EDocument/Test/E-Document Core Tests"
+    },
+    {
+      "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
+    },
+    {
       "path": "./testframework/TestLibraries"
     },
     {
@@ -187,10 +193,16 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
+    },
+    {
       "path": "./onprem permissions/test/OnPrem Permissions Tests"
     },
     {
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./SECore/Test/SE Core Tests"
     },
     {
       "path": "./MasterDataManagement/Test Library/_Exclude_Master_Data_Management_Test_Library"

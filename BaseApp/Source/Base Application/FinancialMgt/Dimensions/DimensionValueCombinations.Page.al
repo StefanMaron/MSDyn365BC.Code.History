@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 539 "Dimension Value Combinations"
 {
     Caption = 'Dimension Value Combinations';

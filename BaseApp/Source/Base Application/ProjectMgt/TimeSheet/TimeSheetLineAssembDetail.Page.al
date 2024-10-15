@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
 page 968 "Time Sheet Line Assemb. Detail"
 {
     Caption = 'Time Sheet Line Assemb. Detail';
@@ -23,7 +29,7 @@ page 968 "Time Sheet Line Assemb. Detail"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the time sheet line.';
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if the usage that you are posting is chargeable.';
@@ -39,7 +45,7 @@ page 968 "Time Sheet Line Assemb. Detail"
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line")
     begin
         Rec := TimeSheetLine;
-        Insert();
+        Rec.Insert();
     end;
 }
 

@@ -828,7 +828,7 @@ codeunit 131902 "Library - Service"
         repeat
             LoopCounter += 1;
             if LoopCounter > MaxLoops then
-                Error(StrSubstNo(NonWorkDayWorkDaySequenceNotFound, MaxLoops));
+                Error(NonWorkDayWorkDaySequenceNotFound, MaxLoops);
             WorkingDate := CalcDate('<1D>', WorkingDate);
         until
               not (IsWorking(WorkingDate) or IsValidOnHolidays(WorkingDate)) and
@@ -854,6 +854,13 @@ codeunit 131902 "Library - Service"
     begin
         CustInvDisc.Get(ServiceLine."Customer No.", ServiceLine."Currency Code", 0);
         exit(ServiceLine."Amount Including VAT" - (ServiceLine."Amount Including VAT" * CustInvDisc."Discount %" / 100));
+    end;
+
+    procedure GetShipmentLines(var ServiceLine: Record "Service Line")
+    var
+        ServiceGetShipment: Codeunit "Service-Get Shipment";
+    begin
+        ServiceGetShipment.Run(ServiceLine);
     end;
 
     procedure IsWorking(DateToCheck: Date): Boolean

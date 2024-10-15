@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Analysis;
+
+#if not CLEAN23
+using Microsoft.Purchases.Vendor;
+#endif
+
 page 532 "Company Sizes"
 {
     PageType = List;
@@ -31,6 +41,8 @@ page 532 "Company Sizes"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Import Company Sizes file.';
+                Enabled = false;
+                Visible = false;
                 Image = Import;
                 ToolTip = 'Import Company Size Codes from the standard CSV file.';
                 ObsoleteReason = 'Moved to the SE Core app';

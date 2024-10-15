@@ -1007,7 +1007,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
         if BOMBuffer.IsEmpty() then
-            Error(StrSubstNo(ItemErr, ItemNo));
+            Error(ItemErr, ItemNo);
     end;
 
     local procedure VerifyItemNotInBomBuffer(ItemNo: Code[20])

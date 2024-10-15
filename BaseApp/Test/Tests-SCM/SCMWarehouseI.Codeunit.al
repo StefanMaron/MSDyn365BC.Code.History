@@ -2227,6 +2227,41 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure GetBinContent()
+    var
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        BinCode: Code[20];
+        Quantity: Decimal;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Get Bin Content] [Item Journal]
+        // [SCENARIO] Get Bin Content in the item journal creates item journal line with the bin content
+        Initialize();
+
+        // [GIVEN] Item "I".
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] WMS location with bin "B".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        BinCode := AddBin(Location.Code);
+
+        // [GIVEN] Gets a quantity "X"
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Post positive inventory adjustment of item "I" of "X" pieces into bin "B".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, BinCode, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Open the new batch in the item journal and run "Get Bin Content" filtered by bin "B".
+        // [WHEN] This will create a negative adjustment item journal line with "X" pieces of item "I".
+        GetBinContentFromItemJournalLine(ItemJournalBatch, Location.Code, BinCode, ItemNo);
+
+        // [THEN] Verifies that the negative adjustment journal line with "X" pieces of item "I" has been created.
+        VerifyGetBinContentInItemJournal(ItemJournalBatch, ItemNo, Location.Code, BinCode, Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2244,6 +2279,14 @@ codeunit 137047 "SCM Warehouse I"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
+    end;
+
+    local procedure AddBin(LocationCode: Code[10]): Code[20]
+    var
+        Bin: Record Bin;
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, CopyStr(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), 1, LibraryUtility.GetFieldLength(Database::Bin, Bin.FieldNo(Code))), '', '');
+        exit(Bin.Code);
     end;
 
     local procedure AssignLotNoToItemJournalLine(ItemJournalLine: Record "Item Journal Line"; LotNo: Code[50]; Qty: Decimal)
@@ -2774,6 +2817,21 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
+    local procedure GetBinContentFromItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
+    var
+        BinContent: Record "Bin Content";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Bin Code", BinCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
+    end;
+
     local procedure PostPositiveAdjustmentOnWarehouse(Location: Record Location; Item: Record Item; Quantity: Decimal)
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
@@ -3120,6 +3178,20 @@ codeunit 137047 "SCM Warehouse I"
             TestField("Reservation Status", "Reservation Status"::Surplus);
             TestField("Lot No.", LotNo);
         end;
+    end;
+
+    local procedure VerifyGetBinContentInItemJournal(ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.SetRange("Bin Code", BinCode);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField("Entry Type", ItemJournalLine."Entry Type"::"Negative Adjmt.");
+        ItemJournalLine.TestField(Quantity, Quantity);
     end;
 
     local procedure VerifyWhseShipmentLineSorting(ItemNo: Code[20]; DocCount: Integer)

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 479 "Dimension Set Entries"
 {
     Caption = 'Dimension Set Entries';
@@ -23,7 +25,7 @@ page 479 "Dimension Set Entries"
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
                     Visible = false;
                 }
-                field(DimensionValueCode; "Dimension Value Code")
+                field(DimensionValueCode; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';

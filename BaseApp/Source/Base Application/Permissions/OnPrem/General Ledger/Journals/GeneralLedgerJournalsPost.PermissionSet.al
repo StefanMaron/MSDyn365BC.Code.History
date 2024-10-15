@@ -1,3 +1,33 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Check;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using System.Environment.Configuration;
+using System.Automation;
+using Microsoft.Finance.GeneralLedger.Reversal;
+using Microsoft.Finance.SalesTax;
+using System.Security.User;
+using Microsoft.Foundation.Period;
+using Microsoft.Integration.Graph;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 2118 "General Ledger Journals - Post"
 {
     Access = Public;
@@ -7,6 +37,10 @@ permissionset 2118 "General Ledger Journals - Post"
     Permissions = tabledata "Acc. Sched. KPI Web Srv. Line" = RIMD,
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = RIMD,
                   tabledata "Accounting Period" = r,
+                  tabledata "Alloc. Acc. Manual Override" = RIMD,
+                  tabledata "Alloc. Account Distribution" = R,
+                  tabledata "Allocation Account" = R,
+                  tabledata "Allocation Line" = RIMD,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
@@ -40,9 +74,6 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Incoming Document Approver" = RIMD,
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = RIMD,
-#endif
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Restricted Record" = Rimd,

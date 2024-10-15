@@ -806,7 +806,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
             if ActualText = AnnotationText then
                 exit;
         until RecordLink.Next() = 0;
-        Error(StrSubstNo(SalesQuotenoteNotFoundErr, SalesHeader."No.", AnnotationText));
+        Error(SalesQuotenoteNotFoundErr, SalesHeader."No.", AnnotationText);
     end;
 
     [Scope('OnPrem')]

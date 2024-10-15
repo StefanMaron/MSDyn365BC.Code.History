@@ -84,21 +84,6 @@ codeunit 144022 "UT Intrastat SE"
           GetCountryCode, GetTransactionType, IntrastatLineValues, 0, IntrastatLineValues, GetTariffNo);  // Using 0 for Quantity.
     end;
 
-    [Test]
-    [HandlerFunctions('IntrastatMakeDiskTaxAuthRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordMakeDisketteZeroAmountError()
-    var
-        IntrastatLineValues: Decimal;
-    begin
-        // Purpose of the test to validate  OnAfterGetRecord - Intrastat Jnl. Line trigger of Report ID - 593 "Intrastat - Make Disk Tax Auth".
-        // Actual error Stastical Value must have a value in Intrastat Jnl. Line: Journal Template Name=XXXXX, Journal Batch Name=XXXXX, Line No.=XXXX. It cannot be zero or empty.
-        Initialize();
-        IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Net Weight and Quantity.
-        MakeDisketteWithEmptyFieldsOnIntrastatJournalError
-        (
-          GetCountryCode, GetTransactionType, IntrastatLineValues, IntrastatLineValues, 0, GetTariffNo);  // Using 0 for Amount.
-    end;
 
     [Test]
     [HandlerFunctions('CreateFileMessageHandler')]

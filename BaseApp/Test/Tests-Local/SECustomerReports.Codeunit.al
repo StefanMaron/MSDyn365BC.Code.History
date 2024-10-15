@@ -76,7 +76,9 @@ codeunit 144026 "SE Customer Reports"
           StrSubstNo(BalanceReportErr, Customer."Balance (LCY)"));
     end;
 
+#if not CLEAN23
     [Test]
+    [Obsolete('SE Balance Sheet tests are moved to SE Core extension', '23.0')]
     [HandlerFunctions('BalanceSheetReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CheckValueOnBalanceSheetReport()
@@ -101,6 +103,7 @@ codeunit 144026 "SE Customer Reports"
     end;
 
     [Test]
+    [Obsolete('SE Balance Sheet tests are moved to SE Core extension', '23.0')]
     [HandlerFunctions('BalanceSheetReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CheckValueOnBalanceSheetReportPrintAll()
@@ -127,6 +130,7 @@ codeunit 144026 "SE Customer Reports"
     end;
 
     [Test]
+    [Obsolete('SE Income Statement tests are moved to SE Core extension', '23.0')]
     [Scope('OnPrem')]
     procedure CheckValueOnIncomeStatementReport()
     var
@@ -145,6 +149,7 @@ codeunit 144026 "SE Customer Reports"
         // Verify: Verify record does not exist on Report when period balance is zero.
         VerifyValueOnReport(GLAccount, false);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ReminderRequestPageHandler')]
@@ -221,6 +226,7 @@ codeunit 144026 "SE Customer Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+#if not CLEAN23
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; GLAccountType: Option)
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -238,6 +244,7 @@ codeunit 144026 "SE Customer Reports"
         GLAccount.Validate("Income/Balance", GLAccountType);
         GLAccount.Modify(true);
     end;
+
 
     local procedure CreateAndPostSalesOrderwithGL(GLAccountNo: Code[20])
     var
@@ -267,6 +274,7 @@ codeunit 144026 "SE Customer Reports"
         Commit();
         BalanceSheet.Run();
     end;
+#endif
 
     local procedure SaveCustomerStatement(CustomerNo: Code[20])
     var
@@ -282,7 +290,7 @@ codeunit 144026 "SE Customer Reports"
         Statement.InitializeRequest(false, false, true, false, false, false, '1M+CM', DateChoice::"Due Date", true, WorkDate(), WorkDate());
         Statement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
-
+#if not CLEAN23
     local procedure SaveIncomeStatementReport(GLAccountNo: Code[20])
     var
         GLAccount: Record "G/L Account";
@@ -306,14 +314,14 @@ codeunit 144026 "SE Customer Reports"
         else
             Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(Format(GLAccount.Name)), ValueNotExistErr);
     end;
-
+#endif
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
         Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
-
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BalanceSheetReportRequestPageHandler(var BalanceSheet: TestRequestPage "Balance sheet")
@@ -324,5 +332,6 @@ codeunit 144026 "SE Customer Reports"
         BalanceSheet.ShowAllAccounts.SetValue(ShowAllVariable);
         BalanceSheet.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
+#endif
 }
 

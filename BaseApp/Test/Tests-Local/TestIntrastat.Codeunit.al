@@ -1,4 +1,4 @@
-#if not CLEAN22
+﻿#if not CLEAN22
 codeunit 134153 "Test Intrastat"
 {
     Subtype = Test;
@@ -411,4 +411,5 @@ codeunit 134153 "Test Intrastat"
         IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
+
 #endif

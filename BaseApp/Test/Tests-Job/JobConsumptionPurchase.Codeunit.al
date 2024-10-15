@@ -3303,9 +3303,9 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Purchase Invoice with G/L Account "X", Job ("Job Planning Line No." is defined to make link to Job)
         CreatePurchaseDocumentWithGLAccountLinkToJobPlanningLine(
-            PurchLine, 
-            JobPlanningLine, 
-            PurchHeader."Document Type"::Invoice, 
+            PurchLine,
+            JobPlanningLine,
+            PurchHeader."Document Type"::Invoice,
             JobPlanningLine."No.");
 
         // [WHEN] Post Purchase Order 

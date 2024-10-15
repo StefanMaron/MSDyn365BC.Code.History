@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 table 5310 "Outlook Synch. Setup Detail"
 {
     Caption = 'Outlook Synch. Setup Detail';

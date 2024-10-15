@@ -233,7 +233,7 @@
         ModifyExchangeRateAmount(CurrencyCode, IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN20
+#if not CLEAN23
             LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -454,7 +454,7 @@
         ModifyExchangeRateAmount(CurrencyCode, not IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN20
+#if not CLEAN23
             LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());

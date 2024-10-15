@@ -28,7 +28,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         isInitialized: Boolean;
         ChangeBillToCustomerNo: Label 'Do you want to change';
         EndingDateError: Label 'Enter the ending date';
-        LocationFilter: Label '%1|%2';
+        LocationFilter: Label '%1|%2', Locked = true;
         PeriodLengthError: Label 'The minimum permitted value is 1D';
         UndoSalesShptMessage: Label 'Do you really want to undo the selected Shipment lines?';
         UndoSalesRetRcptMessage: Label 'Do you really want to undo the selected Return Receipt lines?';

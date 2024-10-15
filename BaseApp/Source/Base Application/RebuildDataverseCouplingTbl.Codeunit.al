@@ -1,5 +1,12 @@
+#if not CLEAN23
+namespace Microsoft.Integration.Dataverse;
+
 codeunit 5362 "Rebuild Dataverse Coupling Tbl"
 {
+    ObsoleteReason = 'After the deprecation of Integration Record table, this codeunit can no longer be used. To rebuild the coupling table, install the extension that is uploaded here https://go.microsoft.com/fwlink/?linkid=2245902';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
+
     trigger OnRun()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -43,3 +50,4 @@ codeunit 5362 "Rebuild Dataverse Coupling Tbl"
         RecRef.Open(TableId);
     end;
 }
+#endif

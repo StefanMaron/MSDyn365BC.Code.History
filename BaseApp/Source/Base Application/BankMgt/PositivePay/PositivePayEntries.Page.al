@@ -1,3 +1,5 @@
+namespace Microsoft.Bank.PositivePay;
+
 page 1231 "Positive Pay Entries"
 {
     Caption = 'Positive Pay Entries';
@@ -19,14 +21,14 @@ page 1231 "Positive Pay Entries"
                     Editable = false;
                     ToolTip = 'Specifies the bank account number. If you select Balance at Date, the balance as of the last day in the relevant time interval is displayed.';
                 }
-                field("Upload Date"; DT2Date("Upload Date-Time"))
+                field("Upload Date"; DT2Date(Rec."Upload Date-Time"))
                 {
                     ApplicationArea = Suite;
                     Caption = 'Upload Date';
                     Editable = false;
                     ToolTip = 'Specifies the date when the Positive Pay file was uploaded.';
                 }
-                field("Upload Time"; DT2Time("Upload Date-Time"))
+                field("Upload Time"; DT2Time(Rec."Upload Date-Time"))
                 {
                     ApplicationArea = Suite;
                     Caption = 'Upload Time';
@@ -104,8 +106,8 @@ page 1231 "Positive Pay Entries"
                     Caption = 'Positive Pay Entry Details';
                     Image = CheckLedger;
                     RunObject = Page "Positive Pay Entry Details";
-                    RunPageLink = "Bank Account No." = FIELD(FILTER("Bank Account No.")),
-                                  "Upload Date-Time" = FIELD("Upload Date-Time");
+                    RunPageLink = "Bank Account No." = field(FILTER("Bank Account No.")),
+                                  "Upload Date-Time" = field("Upload Date-Time");
                     ToolTip = 'Specifies the positive pay entries. If you select Net Change, the net change in the balance is displayed for the relevant time interval.';
                 }
                 action(ReexportPositivePay)
@@ -117,7 +119,7 @@ page 1231 "Positive Pay Entries"
 
                     trigger OnAction()
                     begin
-                        Reexport();
+                        Rec.Reexport();
                     end;
                 }
             }

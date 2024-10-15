@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Inventory.Location;
+using Microsoft.Sales.Customer;
+using System.Security.AccessControl;
+
 table 5969 "Contract Gain/Loss Entry"
 {
     Caption = 'Contract Gain/Loss Entry';
@@ -14,7 +21,7 @@ table 5969 "Contract Gain/Loss Entry"
         field(2; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
         }
         field(3; "Contract Group Code"; Code[10])
         {
@@ -47,15 +54,13 @@ table 5969 "Contract Gain/Loss Entry"
         field(10; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(11; "User ID"; Code[50])
         {
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(12; Amount; Decimal)
         {

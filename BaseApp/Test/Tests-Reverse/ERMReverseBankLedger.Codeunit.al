@@ -135,7 +135,7 @@
               GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
               "Bank Payment Type"::" ", CreateCurrency, CreateBankAccount, LibraryRandom.RandDec(100, 2), '');
             ModifyCurrencyAndExchangeRate("Currency Code");
-#if not CLEAN20
+#if not CLEAN23
             LibraryERM.RunAdjustExchangeRatesSimple("Currency Code", WorkDate(), WorkDate());
 #else
             LibraryERM.RunExchRateAdjustmentSimple("Currency Code", WorkDate(), WorkDate());
@@ -1321,7 +1321,9 @@
         SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
         SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
+#if not CLEAN23
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
+#endif
         SuggestVendorPayments.OK.Invoke;
     end;
 

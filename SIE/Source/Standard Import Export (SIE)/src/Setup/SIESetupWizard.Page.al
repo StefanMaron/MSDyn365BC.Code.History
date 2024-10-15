@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AuditFileExport;
+
+using System.Environment;
+using System.Telemetry;
+using System.Utilities;
+
 page 5314 "SIE Setup Wizard"
 {
     Caption = 'SIE Audit File Export Setup Guide';
@@ -509,9 +519,12 @@ page 5314 "SIE Setup Wizard"
         GLAccountsMapped := AuditMappingHelper.GetGLAccountsMappedInfo(Rec.Code);
     end;
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     procedure SetRunFromFeatureMgt()
     begin
         IsRunFromFeatureMgt := true;
     end;
+#pragma warning restore AS0072
 #endif
 }

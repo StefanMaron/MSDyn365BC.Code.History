@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 query 763 "Colm. Layt. Colm. Header Count"
 {
     Caption = 'Colm. Layt. Colm. Header Count';
@@ -14,7 +16,7 @@ query 763 "Colm. Layt. Colm. Header Count"
             }
             column(Count_)
             {
-                ColumnFilter = Count_ = FILTER(> 1);
+                ColumnFilter = Count_ = filter(> 1);
                 Method = Count;
             }
         }

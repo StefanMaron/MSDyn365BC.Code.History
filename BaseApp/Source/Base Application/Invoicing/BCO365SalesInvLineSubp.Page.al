@@ -62,7 +62,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
                     trigger OnValidate()
                     begin
-                        Validate(Quantity, LineQuantity);
+                        Rec.Validate(Quantity, LineQuantity);
                         RedistributeTotalsOnAfterValidate();
                         ShowInvoiceDiscountNotification();
                     end;
@@ -99,9 +99,9 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                         if UnitOfMeasure = xRec."Unit of Measure" then
                             exit;
 
-                        "Unit of Measure" := UnitOfMeasure;
+                        Rec."Unit of Measure" := UnitOfMeasure;
                         O365SalesInvoiceMgmt.ValidateItemUnitOfMeasure(Rec);
-                        UnitOfMeasure := CopyStr("Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
+                        UnitOfMeasure := CopyStr(Rec."Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
                     end;
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -133,7 +133,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                         VATProductPostingGroup: Record "VAT Product Posting Group";
                     begin
                         if PAGE.RunModal(PAGE::"O365 VAT Product Posting Gr.", VATProductPostingGroup) = ACTION::LookupOK then begin
-                            Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+                            Rec.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
                             O365SalesInvoiceMgmt.ValidateVATRate(Rec);
                             RedistributeTotalsOnAfterValidate();
@@ -184,9 +184,9 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                 var
                     Item: Record Item;
                 begin
-                    if "No." = '' then
+                    if Rec."No." = '' then
                         exit;
-                    if Item.Get("No.") then
+                    if Item.Get(Rec."No.") then
                         PAGE.RunModal(PAGE::"BC O365 Item Card", Item);
                 end;
             }
@@ -205,12 +205,12 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
                 trigger OnAction()
                 begin
-                    if "No." = '' then
+                    if Rec."No." = '' then
                         exit;
 
                     if not Confirm(DeleteQst, true) then
                         exit;
-                    Delete(true);
+                    Rec.Delete(true);
                 end;
             }
         }
@@ -218,16 +218,16 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
     trigger OnAfterGetCurrRecord()
     begin
-        DescriptionSelected := Description <> '';
+        DescriptionSelected := Rec.Description <> '';
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdatePriceDescription();
-        UnitOfMeasure := CopyStr("Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
+        Rec.UpdatePriceDescription();
+        UnitOfMeasure := CopyStr(Rec."Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
-        CalcFields("Posting Date");
-        LineQuantity := Quantity;
+        Rec.CalcFields("Posting Date");
+        LineQuantity := Rec.Quantity;
         UpdateVATPostingGroupDescription();
         ShowOnlyOnBrick := false;
     end;
@@ -247,8 +247,8 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
     trigger OnModifyRecord(): Boolean
     begin
-        UpdatePriceDescription();
-        Modify(true);
+        Rec.UpdatePriceDescription();
+        Rec.Modify(true);
         CalculateTotals();
     end;
 
@@ -256,11 +256,11 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     var
         SalesLine: Record "Sales Line";
     begin
-        Type := Type::Item;
-        SalesLine.SetRange("Document Type", "Document Type");
-        SalesLine.SetRange("Document No.", "Document No.");
+        Rec.Type := Rec.Type::Item;
+        SalesLine.SetRange("Document Type", Rec."Document Type");
+        SalesLine.SetRange("Document No.", Rec."Document No.");
         if SalesLine.FindLast() then;
-        "Line No." := SalesLine."Line No." + 10000;
+        Rec."Line No." := SalesLine."Line No." + 10000;
         LineQuantity := 1;
         Clear(VATProductPostingGroupDescription);
     end;
@@ -290,7 +290,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     local procedure CalculateTotals()
     begin
         GetTotalSalesHeader();
-        if SalesSetup."Calc. Inv. Discount" and ("Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
+        if SalesSetup."Calc. Inv. Discount" and (Rec."Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", Rec);
 
         DocumentTotals.CalculateSalesTotals(TotalSalesLine, VATAmount, Rec);
@@ -300,14 +300,14 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     begin
         CurrPage.SaveRecord();
 
-        TotalSalesHeader.Get("Document Type", "Document No.");
+        TotalSalesHeader.Get(Rec."Document Type", Rec."Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
         CurrPage.Update();
     end;
 
     local procedure GetTotalSalesHeader()
     begin
-        if not TotalSalesHeader.Get("Document Type", "Document No.") then
+        if not TotalSalesHeader.Get(Rec."Document Type", Rec."Document No.") then
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
@@ -318,9 +318,9 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     begin
         if HasShownInvoiceDiscountNotification then
             exit;
-        if "Line Discount %" = xRec."Line Discount %" then
+        if Rec."Line Discount %" = xRec."Line Discount %" then
             exit;
-        O365SalesInvoiceMgmt.ShowInvoiceDiscountNotification(InvoiceDiscountNotification, RecordId);
+        O365SalesInvoiceMgmt.ShowInvoiceDiscountNotification(InvoiceDiscountNotification, Rec.RecordId);
         HasShownInvoiceDiscountNotification := true;
     end;
 
@@ -328,7 +328,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
         else
             Clear(VATProductPostingGroup);

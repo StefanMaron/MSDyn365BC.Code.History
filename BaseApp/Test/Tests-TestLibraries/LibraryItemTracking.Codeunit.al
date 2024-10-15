@@ -181,6 +181,16 @@ codeunit 130502 "Library - Item Tracking"
         ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
     end;
 
+    procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page Microsoft.Inventory.Tracking."Item Tracking Lines")
+    var
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
+        ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
+        ItemTrackingLines.RunModal();
+    end;
+
     procedure CreateItemTrackingCodeWithExpirationDate(var ItemTrackingCode: Record "Item Tracking Code"; SNSpecific: Boolean; LNSpecific: Boolean)
     begin
         CreateItemTrackingCode(ItemTrackingCode, SNSpecific, LNSpecific);

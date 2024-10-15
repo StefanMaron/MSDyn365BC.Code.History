@@ -1,3 +1,29 @@
+﻿namespace Microsoft.Service.Contract;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
+using System.Email;
+using System.Globalization;
+using System.Security.User;
+using System.Utilities;
+
 table 5965 "Service Contract Header"
 {
     Caption = 'Service Contract Header';
@@ -67,87 +93,40 @@ table 5965 "Service Contract Header"
                 if IsHandled then
                     exit;
 
-                Cust.Get("Customer No.");
-                if "Customer No." <> xRec."Customer No." then begin
-                    if ContractLinesExist() then
-                        case "Contract Type" of
-                            "Contract Type"::Contract:
-                                Error(Text011 + Text012, FieldCaption("Customer No."));
-                            "Contract Type"::Quote:
-                                Error(Text011, FieldCaption("Customer No."));
-                        end;
-                    Validate("Ship-to Code", '');
-                end;
-
-                "Responsibility Center" := UserMgt.GetRespCenter(2, Cust."Responsibility Center");
-
-                if "Customer No." <> '' then begin
-                    if Cust."Bill-to Customer No." = '' then begin
-                        if "Bill-to Customer No." = "Customer No." then
-                            SkipBillToContact := true;
-                        Validate("Bill-to Customer No.", "Customer No.");
-                        SkipBillToContact := false;
-                    end else
-                        Validate("Bill-to Customer No.", Cust."Bill-to Customer No.");
-                    if not SkipContact then begin
-                        "Contact Name" := Cust.Contact;
-                        "Phone No." := Cust."Phone No.";
-                        "E-Mail" := Cust."E-Mail";
-                    end;
-                    "Fax No." := Cust."Fax No.";
-                end else begin
-                    "Contact Name" := '';
-                    "Phone No." := '';
-                    "Fax No." := '';
-                    "E-Mail" := '';
-                    "Service Zone Code" := '';
-                end;
-
-                if "Customer No." <> xRec."Customer No." then begin
-                    CalcFields(
-                      Name, "Name 2", Address, "Address 2",
-                      "Post Code", City, County, "Country/Region Code");
-                    CalcFields(
-                      "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
-                      "Bill-to Post Code", "Bill-to City", "Bill-to County", "Bill-to Country/Region Code");
-                    UpdateShiptoCode();
-                end;
-
-                if not SkipContact then
-                    UpdateCont("Customer No.");
+                ChangeCustomerNo();
             end;
         }
         field(8; Name; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(9; Address; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Customer No.")));
             Caption = 'Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; City; Text[30])
         {
-            CalcFormula = Lookup(Customer.City WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
             Editable = false;
             FieldClass = FlowField;
@@ -204,7 +183,7 @@ table 5965 "Service Contract Header"
                         Confirmed := true;
 
                 if Confirmed then begin
-                    if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                    if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
                         if "Bill-to Customer No." <> '' then begin
                             Cust.Get("Bill-to Customer No.");
                             IsHandled := false;
@@ -232,6 +211,7 @@ table 5965 "Service Contract Header"
                         "Payment Terms Code" := Cust."Payment Terms Code";
                         Validate("Payment Method Code", Cust."Payment Method Code");
                         "Language Code" := Cust."Language Code";
+                        "Format Region" := Cust."Format Region";
                         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
                         if not SkipBillToContact then
                             "Bill-to Contact" := Cust.Contact;
@@ -255,35 +235,35 @@ table 5965 "Service Contract Header"
         }
         field(17; "Bill-to Name"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.Name where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(18; "Bill-to Address"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.Address where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(19; "Bill-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(20; "Bill-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Bill-to City"; Text[30])
         {
-            CalcFormula = Lookup(Customer.City WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.City where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to City';
             Editable = false;
             FieldClass = FlowField;
@@ -291,7 +271,7 @@ table 5965 "Service Contract Header"
         field(22; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
 
             trigger OnValidate()
             var
@@ -302,9 +282,9 @@ table 5965 "Service Contract Header"
                 if IsHandled then
                     exit;
 
-                if ("Customer No." <> xRec."Customer No.") or
-                   ("Ship-to Code" <> xRec."Ship-to Code")
-                then begin
+                if ("Customer No." <> xRec."Customer No.") or ("Ship-to Code" <> xRec."Ship-to Code") then begin
+                    IsHandled := false;
+                    OnValidateShipToCodeOnBeforeContractLinesExist(Rec, IsHandled);
                     if ContractLinesExist() then
                         Error(Text011, FieldCaption("Ship-to Code"));
                     UpdateServZone();
@@ -313,40 +293,40 @@ table 5965 "Service Contract Header"
         }
         field(23; "Ship-to Name"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Name WHERE("Customer No." = FIELD("Customer No."),
-                                                               Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
+                                                               Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(24; "Ship-to Address"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Address WHERE("Customer No." = FIELD("Customer No."),
-                                                                  Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
+                                                                  Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(25; "Ship-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Address 2" WHERE("Customer No." = FIELD("Customer No."),
-                                                                      Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
+                                                                      Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(26; "Ship-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup("Ship-to Address"."Post Code" WHERE("Customer No." = FIELD("Customer No."),
-                                                                      Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
+                                                                      Code = field("Ship-to Code")));
             Caption = 'Ship-to Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(27; "Ship-to City"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".City WHERE("Customer No." = FIELD("Customer No."),
-                                                               Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
+                                                               Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
             Editable = false;
             FieldClass = FlowField;
@@ -614,47 +594,10 @@ table 5965 "Service Contract Header"
             Caption = 'Expiration Date';
 
             trigger OnValidate()
-            var
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
-                CheckChangeStatus();
-
                 if "Expiration Date" <> xRec."Expiration Date" then begin
                     CheckExpirationDate();
-
-                    ServContractLine.Reset();
-                    ServContractLine.SetRange("Contract Type", "Contract Type");
-                    ServContractLine.SetRange("Contract No.", "Contract No.");
-                    ServContractLine.SetRange(Credited, false);
-
-                    if ("Expiration Date" <> 0D) or
-                       ("Contract Type" = "Contract Type"::Quote)
-                    then begin
-                        if "Contract Type" = "Contract Type"::Contract then begin
-                            ServContractLine.SetFilter("Contract Expiration Date", '>%1', "Expiration Date");
-                            if ServContractLine.Find('-') then begin
-                                if HideValidationDialog then
-                                    Confirmed := true
-                                else
-                                    Confirmed :=
-                                        ConfirmManagement.GetResponseOrDefault(
-                                            StrSubstNo(Text056, FieldCaption("Expiration Date"), TableCaption(), "Expiration Date"), true);
-                                if not Confirmed then
-                                    Error('');
-                            end;
-                            ServContractLine.SetFilter("Contract Expiration Date", '>%1 | %2', "Expiration Date", 0D);
-                        end;
-
-                        if ServContractLine.Find('-') then begin
-                            repeat
-                                ServContractLine."Contract Expiration Date" := "Expiration Date";
-                                ServContractLine."Credit Memo Date" := "Expiration Date";
-                                ServContractLine.Modify();
-                            until ServContractLine.Next() = 0;
-                            Modify(true);
-                        end;
-                    end;
-                    Validate("Invoice Period");
+                    ChangeExpirationDate();
                 end;
             end;
         }
@@ -688,7 +631,7 @@ table 5965 "Service Contract Header"
         }
         field(39; "Max. Labor Unit Price"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Max. Labor Unit Price';
@@ -696,8 +639,8 @@ table 5965 "Service Contract Header"
         field(40; "Calcd. Annual Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Contract Line"."Line Amount" WHERE("Contract Type" = FIELD("Contract Type"),
-                                                                           "Contract No." = FIELD("Contract No.")));
+            CalcFormula = sum("Service Contract Line"."Line Amount" where("Contract Type" = field("Contract Type"),
+                                                                           "Contract No." = field("Contract No.")));
             Caption = 'Calcd. Annual Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -786,6 +729,11 @@ table 5965 "Service Contract Header"
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(49; "Format Region"; Text[80])
+        {
+            Caption = 'Format Region';
+            TableRelation = "Language Selection"."Language Tag";
+        }
         field(50; "Cancel Reason Code"; Code[10])
         {
             Caption = 'Cancel Reason Code';
@@ -843,18 +791,18 @@ table 5965 "Service Contract Header"
         }
         field(57; "No. of Posted Invoices"; Integer)
         {
-            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
-                                                                   "Source Document No." = FIELD("Contract No."),
-                                                                   "Destination Document Type" = CONST("Posted Invoice")));
+            CalcFormula = count("Service Document Register" where("Source Document Type" = const(Contract),
+                                                                   "Source Document No." = field("Contract No."),
+                                                                   "Destination Document Type" = const("Posted Invoice")));
             Caption = 'No. of Posted Invoices';
             Editable = false;
             FieldClass = FlowField;
         }
         field(58; "No. of Unposted Invoices"; Integer)
         {
-            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
-                                                                   "Source Document No." = FIELD("Contract No."),
-                                                                   "Destination Document Type" = CONST(Invoice)));
+            CalcFormula = count("Service Document Register" where("Source Document Type" = const(Contract),
+                                                                   "Source Document No." = field("Contract No."),
+                                                                   "Destination Document Type" = const(Invoice)));
             Caption = 'No. of Unposted Invoices';
             Editable = false;
             FieldClass = FlowField;
@@ -954,13 +902,13 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
                 CheckChangeStatus();
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
                 Modify();
             end;
         }
@@ -968,13 +916,13 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
                 CheckChangeStatus();
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
                 Modify();
             end;
         }
@@ -1032,8 +980,13 @@ table 5965 "Service Contract Header"
             TableRelation = Currency;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                Message(Text042, FieldCaption("Currency Code"));
+                IsHandled := false;
+                OnBeforeValidateCurrencyCode(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    Message(Text042, FieldCaption("Currency Code"));
             end;
         }
         field(82; "No. Series"; Code[20])
@@ -1050,10 +1003,10 @@ table 5965 "Service Contract Header"
         }
         field(84; Comment; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Contract"),
-                                                              "Table Subtype" = FIELD("Contract Type"),
-                                                              "No." = FIELD("Contract No."),
-                                                              "Table Line No." = FILTER(0)));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Contract"),
+                                                              "Table Subtype" = field("Contract Type"),
+                                                              "No." = field("Contract No."),
+                                                              "Table Line No." = filter(0)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -1096,7 +1049,7 @@ table 5965 "Service Contract Header"
         }
         field(89; "Bill-to County"; Text[30])
         {
-            CalcFormula = Lookup(Customer.County WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.County where("No." = field("Bill-to Customer No.")));
             CaptionClass = '5,1,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
             Editable = false;
@@ -1104,7 +1057,7 @@ table 5965 "Service Contract Header"
         }
         field(90; County; Text[30])
         {
-            CalcFormula = Lookup(Customer.County WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             Editable = false;
@@ -1112,8 +1065,8 @@ table 5965 "Service Contract Header"
         }
         field(91; "Ship-to County"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".County WHERE("Customer No." = FIELD("Customer No."),
-                                                                 Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
+                                                                 Code = field("Ship-to Code")));
             CaptionClass = '5,1,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
             Editable = false;
@@ -1121,44 +1074,44 @@ table 5965 "Service Contract Header"
         }
         field(92; "Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
             Caption = 'Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(93; "Bill-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(94; "Ship-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
+                                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(95; "Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(96; "Bill-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(97; "Ship-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Name 2" WHERE("Customer No." = FIELD("Customer No."),
-                                                                   Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
+                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
             Editable = false;
             FieldClass = FlowField;
@@ -1176,12 +1129,12 @@ table 5965 "Service Contract Header"
         field(100; "Contract Invoice Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
-                                                                            "Entry Type" = CONST(Sale),
-                                                                            "Moved from Prepaid Acc." = CONST(true),
-                                                                            Type = FIELD("Type Filter"),
-                                                                            "Posting Date" = FIELD("Date Filter"),
-                                                                            Open = CONST(false)));
+            CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Service Contract No." = field("Contract No."),
+                                                                            "Entry Type" = const(Sale),
+                                                                            "Moved from Prepaid Acc." = const(true),
+                                                                            Type = field("Type Filter"),
+                                                                            "Posting Date" = field("Date Filter"),
+                                                                            Open = const(false)));
             Caption = 'Contract Invoice Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -1189,13 +1142,13 @@ table 5965 "Service Contract Header"
         field(101; "Contract Prepaid Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
-                                                                            "Entry Type" = CONST(Sale),
-                                                                            "Moved from Prepaid Acc." = CONST(false),
-                                                                            Type = CONST("Service Contract"),
-                                                                            "Posting Date" = FIELD("Date Filter"),
-                                                                            Open = CONST(false),
-                                                                            Prepaid = CONST(true)));
+            CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Service Contract No." = field("Contract No."),
+                                                                            "Entry Type" = const(Sale),
+                                                                            "Moved from Prepaid Acc." = const(false),
+                                                                            Type = const("Service Contract"),
+                                                                            "Posting Date" = field("Date Filter"),
+                                                                            Open = const(false),
+                                                                            Prepaid = const(true)));
             Caption = 'Contract Prepaid Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -1203,12 +1156,12 @@ table 5965 "Service Contract Header"
         field(102; "Contract Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Ledger Entry"."Contract Disc. Amount" WHERE("Service Contract No." = FIELD("Contract No."),
-                                                                                    "Entry Type" = CONST(Sale),
-                                                                                    "Moved from Prepaid Acc." = CONST(true),
-                                                                                    Type = FIELD("Type Filter"),
-                                                                                    "Posting Date" = FIELD("Date Filter"),
-                                                                                    Open = CONST(false)));
+            CalcFormula = sum("Service Ledger Entry"."Contract Disc. Amount" where("Service Contract No." = field("Contract No."),
+                                                                                    "Entry Type" = const(Sale),
+                                                                                    "Moved from Prepaid Acc." = const(true),
+                                                                                    Type = field("Type Filter"),
+                                                                                    "Posting Date" = field("Date Filter"),
+                                                                                    Open = const(false)));
             Caption = 'Contract Discount Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -1216,12 +1169,12 @@ table 5965 "Service Contract Header"
         field(103; "Contract Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Ledger Entry"."Cost Amount" WHERE("Service Contract No." = FIELD("Contract No."),
-                                                                          "Entry Type" = CONST(Usage),
-                                                                          "Moved from Prepaid Acc." = CONST(true),
-                                                                          Type = FIELD("Type Filter"),
-                                                                          "Posting Date" = FIELD("Date Filter"),
-                                                                          Open = CONST(false)));
+            CalcFormula = sum("Service Ledger Entry"."Cost Amount" where("Service Contract No." = field("Contract No."),
+                                                                          "Entry Type" = const(Usage),
+                                                                          "Moved from Prepaid Acc." = const(true),
+                                                                          Type = field("Type Filter"),
+                                                                          "Posting Date" = field("Date Filter"),
+                                                                          Open = const(false)));
             Caption = 'Contract Cost Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -1229,27 +1182,27 @@ table 5965 "Service Contract Header"
         field(104; "Contract Gain/Loss Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Contract Gain/Loss Entry".Amount WHERE("Contract No." = FIELD("Contract No."),
-                                                                       "Reason Code" = FIELD("Reason Code Filter"),
-                                                                       "Change Date" = FIELD("Date Filter")));
+            CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Contract No." = field("Contract No."),
+                                                                       "Reason Code" = field("Reason Code Filter"),
+                                                                       "Change Date" = field("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(106; "No. of Posted Credit Memos"; Integer)
         {
-            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
-                                                                   "Source Document No." = FIELD("Contract No."),
-                                                                   "Destination Document Type" = CONST("Posted Credit Memo")));
+            CalcFormula = count("Service Document Register" where("Source Document Type" = const(Contract),
+                                                                   "Source Document No." = field("Contract No."),
+                                                                   "Destination Document Type" = const("Posted Credit Memo")));
             Caption = 'No. of Posted Credit Memos';
             Editable = false;
             FieldClass = FlowField;
         }
         field(107; "No. of Unposted Credit Memos"; Integer)
         {
-            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
-                                                                   "Source Document No." = FIELD("Contract No."),
-                                                                   "Destination Document Type" = CONST("Credit Memo")));
+            CalcFormula = count("Service Document Register" where("Source Document Type" = const(Contract),
+                                                                   "Source Document No." = field("Contract No."),
+                                                                   "Destination Document Type" = const("Credit Memo")));
             Caption = 'No. of Unposted Credit Memos';
             Editable = false;
             FieldClass = FlowField;
@@ -1310,7 +1263,7 @@ table 5965 "Service Contract Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim();
+                Rec.ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -1321,9 +1274,9 @@ table 5965 "Service Contract Header"
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
-            TableRelation = "SEPA Direct Debit Mandate" WHERE("Customer No." = FIELD("Bill-to Customer No."),
-                                                               Closed = CONST(false),
-                                                               Blocked = CONST(false));
+            TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Bill-to Customer No."),
+                                                               Closed = const(false),
+                                                               Blocked = const(false));
             DataClassification = SystemMetadata;
         }
         field(5050; "Contact No."; Code[20])
@@ -1358,14 +1311,17 @@ table 5965 "Service Contract Header"
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
-                if ("Contact No." <> xRec."Contact No.") and (xRec."Contact No." <> '') then
-                    if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text014, FieldCaption("Contact No.")), true)
-                    then begin
-                        "Contact No." := xRec."Contact No.";
-                        exit;
-                    end;
+                if ("Contact No." <> xRec."Contact No.") and (xRec."Contact No." <> '') then begin
+                    IsHandled := false;
+                    OnBeforeConfirmChangeContactNo(Rec, IsHandled);
+                    if not IsHandled then
+                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text014, FieldCaption("Contact No.")), true) then begin
+                            "Contact No." := xRec."Contact No.";
+                            exit;
+                        end;
+                end;
 
                 if ("Customer No." <> '') and ("Contact No." <> '') then begin
                     Cont.Get("Contact No.");
@@ -1409,16 +1365,17 @@ table 5965 "Service Contract Header"
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
-                if ("Bill-to Contact No." <> xRec."Bill-to Contact No.") and
-                   (xRec."Bill-to Contact No." <> '')
-                then
-                    if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text014, FieldCaption("Bill-to Contact No.")), true)
-                    then begin
-                        "Bill-to Contact No." := xRec."Bill-to Contact No.";
-                        exit;
-                    end;
+                if ("Bill-to Contact No." <> xRec."Bill-to Contact No.") and (xRec."Bill-to Contact No." <> '') then begin
+                    IsHandled := false;
+                    OnBeforeConfirmChangeBillToContactNo(Rec, IsHandled);
+                    if not IsHandled then
+                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text014, FieldCaption("Bill-to Contact No.")), true) then begin
+                            "Bill-to Contact No." := xRec."Bill-to Contact No.";
+                            exit;
+                        end;
+                end;
 
                 if ("Bill-to Customer No." <> '') and ("Bill-to Contact No." <> '') then begin
                     Cont.Get("Bill-to Contact No.");
@@ -2022,6 +1979,7 @@ table 5965 "Service Contract Header"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeCheckExpirationDate(IsHandled, Rec);
         if IsHandled then
             exit;
@@ -2047,6 +2005,8 @@ table 5965 "Service Contract Header"
                 "Service Zone Code" := Cust."Service Zone Code";
             end else
                 "Service Zone Code" := '';
+
+        OnAfterUpdateZone(Rec);
     end;
 
     local procedure ContractLinesExist() Result: Boolean
@@ -2140,53 +2100,20 @@ table 5965 "Service Contract Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        if "Change Status" <> "Change Status"::Open then
-            exit;
-
-        SourceCodeSetup.Get();
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        TableID[4] := Type4;
-        No[4] := No4;
-        TableID[5] := Type5;
-        No[5] := No5;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-
-        OnAfterCreateDim(Rec, CurrFieldNo);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
     begin
         if "Change Status" <> "Change Status"::Open then
             exit;
 
-        SourceCodeSetup.Get();
-#if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
-#endif
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
+        SourceCodeSetup.Get();
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
@@ -2487,6 +2414,8 @@ table 5965 "Service Contract Header"
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Contract Type", "Contract No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDocDim(Rec);
     end;
 
     local procedure CalcInvPeriodDuration()
@@ -2623,6 +2552,110 @@ table 5965 "Service Contract Header"
                 TestField("Change Status", "Change Status"::Open);
     end;
 
+    local procedure ChangeCustomerNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeChangeCustomerNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cust.Get("Customer No.");
+        if "Customer No." <> xRec."Customer No." then begin
+            if ContractLinesExist() then
+                case "Contract Type" of
+                    "Contract Type"::Contract:
+                        Error(Text011 + Text012, FieldCaption("Customer No."));
+                    "Contract Type"::Quote:
+                        Error(Text011, FieldCaption("Customer No."));
+                end;
+            Rec.Validate("Ship-to Code", '');
+        end;
+
+        Rec."Responsibility Center" := UserMgt.GetRespCenter(2, Cust."Responsibility Center");
+
+        if "Customer No." <> '' then begin
+            if Cust."Bill-to Customer No." = '' then begin
+                if "Bill-to Customer No." = "Customer No." then
+                    SkipBillToContact := true;
+                Validate("Bill-to Customer No.", "Customer No.");
+                SkipBillToContact := false;
+            end else
+                Validate("Bill-to Customer No.", Cust."Bill-to Customer No.");
+            if not SkipContact then begin
+                "Contact Name" := Cust.Contact;
+                "Phone No." := Cust."Phone No.";
+                "E-Mail" := Cust."E-Mail";
+            end;
+            "Fax No." := Cust."Fax No.";
+        end else begin
+            "Contact Name" := '';
+            "Phone No." := '';
+            "Fax No." := '';
+            "E-Mail" := '';
+            "Service Zone Code" := '';
+        end;
+
+        if "Customer No." <> xRec."Customer No." then begin
+            CalcFields(
+                Name, "Name 2", Address, "Address 2",
+                "Post Code", City, County, "Country/Region Code");
+            CalcFields(
+                "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
+                "Bill-to Post Code", "Bill-to City", "Bill-to County", "Bill-to Country/Region Code");
+            UpdateShiptoCode();
+        end;
+
+        if not SkipContact then
+            UpdateCont("Customer No.");
+    end;
+
+    local procedure ChangeExpirationDate()
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeChangeExpirationDate(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServContractLine.Reset();
+        ServContractLine.SetRange("Contract Type", "Contract Type");
+        ServContractLine.SetRange("Contract No.", "Contract No.");
+        ServContractLine.SetRange(Credited, false);
+
+        if ("Expiration Date" <> 0D) or
+            ("Contract Type" = "Contract Type"::Quote)
+        then begin
+            if "Contract Type" = "Contract Type"::Contract then begin
+                ServContractLine.SetFilter("Contract Expiration Date", '>%1', "Expiration Date");
+                if ServContractLine.Find('-') then begin
+                    if HideValidationDialog then
+                        Confirmed := true
+                    else
+                        Confirmed :=
+                            ConfirmManagement.GetResponseOrDefault(
+                                StrSubstNo(Text056, FieldCaption("Expiration Date"), TableCaption(), "Expiration Date"), true);
+                    if not Confirmed then
+                        Error('');
+                end;
+                ServContractLine.SetFilter("Contract Expiration Date", '>%1 | %2', "Expiration Date", 0D);
+            end;
+
+            if ServContractLine.Find('-') then begin
+                repeat
+                    ServContractLine."Contract Expiration Date" := "Expiration Date";
+                    ServContractLine."Credit Memo Date" := "Expiration Date";
+                    ServContractLine.Modify();
+                until ServContractLine.Next() = 0;
+                Modify(true);
+            end;
+        end;
+        Validate("Invoice Period");
+    end;
+
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         IsHandled: Boolean;
@@ -2704,36 +2737,6 @@ table 5965 "Service Contract Header"
         end;
     end;
 
-#if not CLEAN20
-    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Contract Header", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Contract Header", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Contract Header") then
-            exit;
-
-        CreateDimTableIDs(DefaultDimSource, TableID, No);
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceContractHeader: Record "Service Contract Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -2744,13 +2747,6 @@ table 5965 "Service Contract Header"
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var ServiceContractHeader: Record "Service Contract Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterReturnNoOfPer(InvoicePeriod: Enum "Service Contract Header Invoice Period"; var RetPer: Integer)
     begin
@@ -2913,6 +2909,51 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeContractStatus(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCurrencyCode(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeCustomerNo(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeExpirationDate(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeContractLinesExist(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateZone(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmChangeContactNo(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmChangeBillToContactNo(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDocDim(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

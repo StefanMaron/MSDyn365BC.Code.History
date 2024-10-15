@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 484 "Edit Reclas. Dimensions"
 {
     Caption = 'Edit Reclas. Dimensions';
@@ -62,35 +64,35 @@ page 484 "Edit Reclas. Dimensions"
 
     procedure GetDimensionIDs(var DimSetID: Integer; var NewDimSetId: Integer)
     begin
-        DimSetID := GetDimSetID(Rec);
-        NewDimSetId := GetNewDimSetID(Rec);
+        DimSetID := Rec.GetDimSetID(Rec);
+        NewDimSetId := Rec.GetNewDimSetID(Rec);
     end;
 
     procedure SetDimensionIDs(DimSetID: Integer; NewDimSetId: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        DeleteAll();
+        Rec.DeleteAll();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         if DimSetEntry.FindSet() then
             repeat
-                "Dimension Code" := DimSetEntry."Dimension Code";
-                "Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                "Dimension Value ID" := DimSetEntry."Dimension Value ID";
-                Insert();
+                Rec."Dimension Code" := DimSetEntry."Dimension Code";
+                Rec."Dimension Value Code" := DimSetEntry."Dimension Value Code";
+                Rec."Dimension Value ID" := DimSetEntry."Dimension Value ID";
+                Rec.Insert();
             until DimSetEntry.Next() = 0;
         DimSetEntry.SetRange("Dimension Set ID", NewDimSetId);
         if DimSetEntry.FindSet() then
             repeat
-                if not Get(DimSetEntry."Dimension Code") then begin
-                    "Dimension Code" := DimSetEntry."Dimension Code";
-                    "Dimension Value Code" := '';
-                    "Dimension Value ID" := 0;
-                    Insert();
+                if not Rec.Get(DimSetEntry."Dimension Code") then begin
+                    Rec."Dimension Code" := DimSetEntry."Dimension Code";
+                    Rec."Dimension Value Code" := '';
+                    Rec."Dimension Value ID" := 0;
+                    Rec.Insert();
                 end;
-                "New Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                "New Dimension Value ID" := DimSetEntry."Dimension Value ID";
-                Modify();
+                Rec."New Dimension Value Code" := DimSetEntry."Dimension Value Code";
+                Rec."New Dimension Value ID" := DimSetEntry."Dimension Value ID";
+                Rec.Modify();
             until DimSetEntry.Next() = 0;
     end;
 

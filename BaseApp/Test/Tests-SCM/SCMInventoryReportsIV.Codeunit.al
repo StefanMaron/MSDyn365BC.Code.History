@@ -3304,7 +3304,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap));
+            Error(RowNotFoundErr, 'InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             FindFirst();

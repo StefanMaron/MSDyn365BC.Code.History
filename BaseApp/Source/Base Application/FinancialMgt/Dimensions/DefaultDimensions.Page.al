@@ -1,7 +1,9 @@
+namespace Microsoft.Finance.Dimension;
+
 page 540 "Default Dimensions"
 {
     Caption = 'Default Dimensions';
-    DataCaptionExpression = GetCaption();
+    DataCaptionExpression = Rec.GetCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Default Dimension";
@@ -34,7 +36,7 @@ page 540 "Default Dimensions"
                     AboutTitle = 'Control value selection';
                     AboutText = 'You can require a dimension, but let people choose a value when they create documents. For example, this allows for exceptions to default values. For mandatory dimensions, you can provide specific values or ranges of values.';
                 }
-                field(AllowedValuesFilter; "Allowed Values Filter")
+                field(AllowedValuesFilter; Rec."Allowed Values Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension values that can be used for the selected account.';
@@ -46,7 +48,7 @@ page 540 "Default Dimensions"
                     var
                         DimMgt: Codeunit DimensionManagement;
                     begin
-                        if "Value Posting" = "Default Dimension Value Posting Type"::"Code Mandatory" then begin
+                        if Rec."Value Posting" = Enum::"Default Dimension Value Posting Type"::"Code Mandatory" then begin
                             CurrPage.SaveRecord();
                             DimMgt.OpenAllowedDimValuesPerAccount(Rec);
                             CurrPage.Update();
@@ -76,11 +78,10 @@ page 540 "Default Dimensions"
 
     trigger OnAfterGetCurrRecord()
     begin
-        IsAllowedValuesFilterEditable := "Value Posting" = "Default Dimension Value Posting Type"::"Code Mandatory";
+        IsAllowedValuesFilterEditable := Rec."Value Posting" = Enum::"Default Dimension Value Posting Type"::"Code Mandatory";
     end;
 
     var
-        [InDataSet]
         IsAllowedValuesFilterEditable: Boolean;
 }
 

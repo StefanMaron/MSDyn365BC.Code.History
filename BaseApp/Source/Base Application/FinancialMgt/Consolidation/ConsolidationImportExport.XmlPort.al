@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+
 xmlport 1 "Consolidation Import/Export"
 {
     Caption = 'Consolidation Import/Export';
@@ -72,7 +79,7 @@ xmlport 1 "Consolidation Import/Export"
                 {
                     MinOccurs = Zero;
                     XmlName = 'exchRate';
-                    SourceTableView = SORTING("Currency Code", "Starting Date");
+                    SourceTableView = sorting("Currency Code", "Starting Date");
                     UseTemporary = true;
                     fieldattribute(currencyCode; "Currency Exchange Rate"."Currency Code")
                     {
@@ -100,7 +107,7 @@ xmlport 1 "Consolidation Import/Export"
                 tableelement("G/L Account"; "G/L Account")
                 {
                     XmlName = 'glAccount';
-                    SourceTableView = SORTING("No.");
+                    SourceTableView = sorting("No.");
                     UseTemporary = true;
                     fieldattribute(no; "G/L Account"."No.")
                     {
@@ -118,11 +125,11 @@ xmlport 1 "Consolidation Import/Export"
                     }
                     tableelement("G/L Entry"; "G/L Entry")
                     {
-                        LinkFields = "G/L Account No." = FIELD("No.");
+                        LinkFields = "G/L Account No." = field("No.");
                         LinkTable = "G/L Account";
                         MinOccurs = Zero;
                         XmlName = 'glEntry';
-                        SourceTableView = SORTING("G/L Account No.", "Posting Date");
+                        SourceTableView = sorting("G/L Account No.", "Posting Date");
                         UseTemporary = true;
                         fieldattribute(postingDate; "G/L Entry"."Posting Date")
                         {
@@ -149,11 +156,11 @@ xmlport 1 "Consolidation Import/Export"
                         }
                         tableelement("Dimension Buffer"; "Dimension Buffer")
                         {
-                            LinkFields = "Entry No." = FIELD("Entry No.");
+                            LinkFields = "Entry No." = field("Entry No.");
                             LinkTable = "G/L Entry";
                             MinOccurs = Zero;
                             XmlName = 'dimension';
-                            SourceTableView = WHERE("Table ID" = CONST(17));
+                            SourceTableView = where("Table ID" = const(17));
                             UseTemporary = true;
                             fieldattribute(code; "Dimension Buffer"."Dimension Code")
                             {

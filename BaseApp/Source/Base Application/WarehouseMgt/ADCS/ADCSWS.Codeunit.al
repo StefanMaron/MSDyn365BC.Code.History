@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+using System.Xml;
+
 codeunit 7714 "ADCS WS"
 {
 

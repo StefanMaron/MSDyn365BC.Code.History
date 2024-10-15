@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+
 page 511 "Change Exchange Rate"
 {
     Caption = 'Change Exchange Rate';
@@ -178,23 +182,14 @@ page 511 "Change Exchange Rate"
         Date2: Date;
         Date3: Date;
         FAUsed: Boolean;
-        [InDataSet]
         CurrentExchRateEditable: Boolean;
-        [InDataSet]
         RefExchRateEditable: Boolean;
-        [InDataSet]
         CurrentExchRate2Editable: Boolean;
-        [InDataSet]
         RefExchRate2Editable: Boolean;
-        [InDataSet]
         UseExchRateEditable: Boolean;
-        [InDataSet]
         CurrencyCodeEditable: Boolean;
-        [InDataSet]
         RefCurrencyCodeEditable: Boolean;
-        [InDataSet]
         CurrencyCode2Editable: Boolean;
-        [InDataSet]
         RefCurrencyCode2Editable: Boolean;
 
         Text000: Label 'The value must be greater than 0.';

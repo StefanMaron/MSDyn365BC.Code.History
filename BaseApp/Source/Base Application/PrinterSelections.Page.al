@@ -1,3 +1,8 @@
+﻿namespace System.Device;
+
+using System.Reflection;
+using System.Security.User;
+
 page 64 "Printer Selections"
 {
     ApplicationArea = Suite;

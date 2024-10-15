@@ -1,3 +1,9 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+using System.IO;
+
 codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
 {
     Permissions = TableData "Positive Pay Detail" = rimd;
@@ -11,14 +17,14 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
     begin
         OnGetFiltersBeforePreparingPosPayDetails(CheckLedgerEntryView);
         CheckLedgerEntry.SetView(CheckLedgerEntryView);
-        CheckLedgerEntry.SetRange("Data Exch. Entry No.", "Entry No.");
-        PreparePosPayDetails(CheckLedgerEntry, "Entry No.", LineNo);
+        CheckLedgerEntry.SetRange("Data Exch. Entry No.", Rec."Entry No.");
+        PreparePosPayDetails(CheckLedgerEntry, Rec."Entry No.", LineNo);
 
         // Reset filters and set it on the Data Exch. Voided Entry No.
         CheckLedgerEntry.Reset();
         CheckLedgerEntry.SetView(CheckLedgerEntryView);
-        CheckLedgerEntry.SetRange("Data Exch. Voided Entry No.", "Entry No.");
-        PreparePosPayDetails(CheckLedgerEntry, "Entry No.", LineNo);
+        CheckLedgerEntry.SetRange("Data Exch. Voided Entry No.", Rec."Entry No.");
+        PreparePosPayDetails(CheckLedgerEntry, Rec."Entry No.", LineNo);
     end;
 
     var

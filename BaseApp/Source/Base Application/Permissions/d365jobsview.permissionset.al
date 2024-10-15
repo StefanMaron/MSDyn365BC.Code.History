@@ -1,3 +1,17 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Projects.RoleCenters;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+#if not CLEAN21
+using Microsoft.Projects.Project.Pricing;
+#endif
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Posting;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Project.Setup;
+
 permissionset 448 "D365 JOBS, VIEW"
 {
     Assignable = true;

@@ -1,3 +1,16 @@
+﻿namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Setup;
+using System.Utilities;
+
 codeunit 225 "Gen. Jnl.-Apply"
 {
     TableNo = "Gen. Journal Line";
@@ -61,7 +74,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         Text007: Label 'All entries in one application must be in the same currency or one or more of the EMU currencies. ';
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date. Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 = Applying document type, %2 = Applying document number, %3 = Entry document type, %4 = Entry document number';
 
-    local procedure SelectCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
+    local procedure SelectCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var CustomAppliesToId: Code[50]) Selected: Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         ApplyCustEntries: Page "Apply Customer Entries";
@@ -88,13 +101,14 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyCustEntries.SetTableView(CustLedgEntry);
             ApplyCustEntries.LookupMode(true);
             Selected := ApplyCustEntries.RunModal() = ACTION::LookupOK;
+            CustomAppliesToId := ApplyCustEntries.GetCustomAppliesToID();
             Clear(ApplyCustEntries);
         end;
 
         OnAfterSelectCustLedgEntry(GenJnlLine, AccNo, Selected);
     end;
 
-    local procedure SelectVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
+    local procedure SelectVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var CustomAppliesToId: Code[50]) Selected: Boolean
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         ApplyVendEntries: Page "Apply Vendor Entries";
@@ -121,13 +135,14 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyVendEntries.SetTableView(VendLedgEntry);
             ApplyVendEntries.LookupMode(true);
             Selected := ApplyVendEntries.RunModal() = ACTION::LookupOK;
+            CustomAppliesToId := ApplyVendEntries.GetCustomAppliesToID();
             Clear(ApplyVendEntries);
         end;
 
         OnAfterSelectVendLedgEntry(GenJnlLine, AccNo, Selected);
     end;
 
-    local procedure SelectEmplLedgEntry(var GenJnlLine: Record "Gen. Journal Line") Selected: Boolean
+    local procedure SelectEmplLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var CustomAppliesToId: Code[50]) Selected: Boolean
     var
         EmplLedgEntry: Record "Employee Ledger Entry";
         ApplyEmplEntries: Page "Apply Employee Entries";
@@ -154,6 +169,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             ApplyEmplEntries.SetTableView(EmplLedgEntry);
             ApplyEmplEntries.LookupMode(true);
             Selected := ApplyEmplEntries.RunModal() = ACTION::LookupOK;
+            CustomAppliesToId := ApplyEmplEntries.GetCustomAppliesToID();
             Clear(ApplyEmplEntries);
         end;
 
@@ -290,11 +306,12 @@ codeunit 225 "Gen. Jnl.-Apply"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         AppliedAmount: Decimal;
+        CustomAppliesToId: Code[50];
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
             GetAppliedCustomerEntries(TempCustLedgEntry, GenJnlLine);
-            EntrySelected := SelectCustLedgEntry(GenJnlLine);
+            EntrySelected := SelectCustLedgEntry(GenJnlLine, CustomAppliesToId);
             if not EntrySelected then
                 exit;
 
@@ -318,9 +335,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                             if not IsHandled then
                                 if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(GenJnlLine, CustLedgEntry, 0, false) and
                                    (Abs(CustLedgEntry."Amount to Apply") >=
-                                    Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible"))
+                                    Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry.GetRemainingPmtDiscPossible(GenJnlLine."Posting Date")))
                                 then
-                                    Amount := Amount - (CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+                                    Amount := Amount - (CustLedgEntry."Amount to Apply" - CustLedgEntry.GetRemainingPmtDiscPossible(GenJnlLine."Posting Date"))
                                 else
                                     Amount := Amount - CustLedgEntry."Amount to Apply";
                         end else
@@ -355,6 +372,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            if (GenJnlLine."Applies-to ID" = '') and (CustomAppliesToId <> '') then
+                GenJnlLine."Applies-to ID" := CustomAppliesToId;
 
             SetJournalLineFieldsFromApplication();
 
@@ -441,7 +461,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                         UpdateVendLedgEntry(VendorLedgerEntry);
                         if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendorLedgerEntry, 0, false) and
                            (Abs(VendorLedgerEntry."Amount to Apply") >=
-                            Abs(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible"))
+                            Abs(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry.GetRemainingPmtDiscPossible(GenJnlLine."Posting Date")))
                         then
                             GenJnlLine.Amount := GenJnlLine.Amount - (VendorLedgerEntry."Amount to Apply" - VendorLedgerEntry."Remaining Pmt. Disc. Possible")
                         else
@@ -481,11 +501,12 @@ codeunit 225 "Gen. Jnl.-Apply"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        CustomAppliesToId: Code[50];
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
             GetAppliedVendorEntries(TempVendorLedgerEntry, GenJnlLine);
-            EntrySelected := SelectVendLedgEntry(GenJnlLine);
+            EntrySelected := SelectVendLedgEntry(GenJnlLine, CustomAppliesToId);
             if not EntrySelected then
                 exit;
 
@@ -509,9 +530,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                             if not IsHandled then
                                 if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) and
                                    (Abs(VendLedgEntry."Amount to Apply") >=
-                                    Abs(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible"))
+                                    Abs(VendLedgEntry."Remaining Amount" - VendLedgEntry.GetRemainingPmtDiscPossible(GenJnlLine."Posting Date")))
                                 then
-                                    Amount := Amount - (VendLedgEntry."Amount to Apply" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+                                    Amount := Amount - (VendLedgEntry."Amount to Apply" - VendLedgEntry.GetRemainingPmtDiscPossible(GenJnlLine."Posting Date"))
                                 else
                                     Amount := Amount - VendLedgEntry."Amount to Apply";
                             "Remit-to Code" := VendLedgEntry."Remit-to Code";
@@ -543,6 +564,9 @@ codeunit 225 "Gen. Jnl.-Apply"
             end else
                 "Applies-to ID" := '';
 
+            if (GenJnlLine."Applies-to ID" = '') and (CustomAppliesToId <> '') then
+                GenJnlLine."Applies-to ID" := CustomAppliesToId;
+
             SetJournalLineFieldsFromApplication();
 
             OnApplyVendorLedgerEntryOnBeforeModify(GenJnlLine, TempVendorLedgerEntry, VendLedgEntry);
@@ -556,9 +580,10 @@ codeunit 225 "Gen. Jnl.-Apply"
     local procedure ApplyEmployeeLedgerEntry(var GenJnlLine: Record "Gen. Journal Line")
     var
         EmplLedgEntry: Record "Employee Ledger Entry";
+        CustomAppliesToId: Code[50];
     begin
         with GenJnlLine do begin
-            EntrySelected := SelectEmplLedgEntry(GenJnlLine);
+            EntrySelected := SelectEmplLedgEntry(GenJnlLine, CustomAppliesToId);
             if not EntrySelected then
                 exit;
 
@@ -584,6 +609,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            if (GenJnlLine."Applies-to ID" = '') and (CustomAppliesToId <> '') then
+                GenJnlLine."Applies-to ID" := CustomAppliesToId;
 
             SetJournalLineFieldsFromApplication();
 

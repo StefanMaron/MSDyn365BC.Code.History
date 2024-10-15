@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 table 5311 "Outlook Synch. Dependency"
 {
     Caption = 'Outlook Synch. Dependency';

@@ -23,7 +23,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        CalcFormulaTok: Label '%1 %2';
+        CalcFormulaTok: Label '%1 %2', Locked = true;
         ExistErr: Label 'The %1 does not exist.';
         ExpectedErr: Label 'AssertEquals for Field: ColumnValues1 Expected = ''%1'', Actual = ''%2''';
         DivisionByZeroErr: Label '* ERROR *';
@@ -45,7 +45,7 @@ codeunit 134902 "ERM Account Schedule"
         CalcFormulaTxt: Label '%1* (%2+%1)/(-%1)';
         DecimalSeparatorTok: Label '%1*%2+%3';
         ConsecutiveOperatorsTok: Label '%1*-10';
-        RangeFormulaTok: Label '%1..%2';
+        RangeFormulaTok: Label '%1..%2', Locked = true;
         ConsecutiveOperatorsErr: Label 'You cannot have two consecutive operators. The error occurred at position';
         ParenthesisTok: Label '{)}{)}';
         ParenthesisErr: Label 'The parenthesis at position 2 is misplaced.';
@@ -55,7 +55,7 @@ codeunit 134902 "ERM Account Schedule"
         CircularRefErr: Label 'Because of circular references, the program cannot calculate a formula.';
         IsInitialized: Boolean;
         RowVisibleErr: Label 'Row no %1 with property Show = No is visible in Account Schedule Overview.';
-        DivisionFormulaTok: Label '%1/%2';
+        DivisionFormulaTok: Label '%1/%2', Locked = true;
         ResponseRef: Option "None",OK,Cancel,LookupOK,LookupCancel,Yes,No,RunObject,RunSystem;
         LookupCostCenterFilterErr: Label 'Function LookupCostCenterFilter returned wrong value.';
         LookupCostObjectFilterErr: Label 'Function LookupCostObjectFilter returned wrong value.';

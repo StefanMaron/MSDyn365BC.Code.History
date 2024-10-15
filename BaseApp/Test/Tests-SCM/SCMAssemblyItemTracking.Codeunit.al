@@ -832,6 +832,26 @@ codeunit 137926 "SCM Assembly Item Tracking"
             Location.Modify(true);
         end;
 
+        if Location."Require Pick" then
+            if Location."Require Shipment" then begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            end else begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            end
+        else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        end;
+
+        if Location."Require Put-away" and not Location."Require Receive" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+        Location.Modify(true);
+
         // create 4 bins - 2 for Picking and 2 for put-awaying
         LibraryWarehouse.CreateBin(Bin, Location.Code, 'BIN1', Zone.Code, BinTypePick.Code);
         LibraryWarehouse.CreateBin(Bin, Location.Code, 'BIN2', Zone.Code, BinTypePick.Code);

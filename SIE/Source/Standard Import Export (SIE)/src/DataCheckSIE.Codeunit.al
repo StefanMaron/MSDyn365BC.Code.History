@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AuditFileExport;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Period;
+
 codeunit 5317 "Data Check SIE" implements "Audit File Export Data Check"
 {
     var
@@ -25,6 +34,6 @@ codeunit 5317 "Data Check SIE" implements "Audit File Export Data Check"
         if AccPeriodEnd = 0D then
             Error(NextAccPeriodForStartingDateNotFoundErr, AccPeriodStart);
 
-        exit("Audit Data Check Status"::Passed);
+        exit(Enum::"Audit Data Check Status"::Passed);
     end;
 }

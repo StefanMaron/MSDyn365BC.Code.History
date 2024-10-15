@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144017 "ERM VIP"
 {
     // 1. Test to verify Suggest Vendor Payments report not create lines when Include Credit Memo is false.
@@ -16,6 +17,9 @@ codeunit 144017 "ERM VIP"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Include Credit Memo option is obsoleted';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -189,4 +193,4 @@ codeunit 144017 "ERM VIP"
         SuggestVendorPayments.OK.Invoke;
     end;
 }
-
+#endif

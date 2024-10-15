@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Service.Contract;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Service.Posting;
+
 permissionset 6850 "D365PREM SMG, EDIT"
 {
     Assignable = true;

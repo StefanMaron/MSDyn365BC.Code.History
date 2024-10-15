@@ -1,3 +1,15 @@
+namespace Microsoft.Manufacturing.Setup;
+
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.ProductionBOM;
+
 table 99000765 "Manufacturing Setup"
 {
     Caption = 'Manufacturing Setup';
@@ -109,7 +121,7 @@ table 99000765 "Manufacturing Setup"
         field(39; "Components at Location"; Code[10])
         {
             Caption = 'Components at Location';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(40; "Default Dampener Period"; DateFormula)
         {
@@ -146,9 +158,9 @@ table 99000765 "Manufacturing Setup"
         field(3687; "Optimize low-level code calc."; Boolean)
         {
             Caption = 'Optimize low-level code calculation';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Codeunit Calc. Low-level code is obsolete. Use Codeunit Low-Level Code Calculator instead.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '23.0';
         }
         field(5500; "Preset Output Quantity"; Option)
         {

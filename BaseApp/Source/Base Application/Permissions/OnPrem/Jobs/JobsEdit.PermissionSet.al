@@ -1,3 +1,42 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Foundation.Comment;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Archive;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Sales.History;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Projects.Project.Job;
+#if not CLEAN21
+using Microsoft.Projects.Project.Pricing;
+#endif
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Utilities;
+
 permissionset 6719 "Jobs - Edit"
 {
     Access = Public;
@@ -34,9 +73,6 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Job WIP G/L Entry" = rimd,
                   tabledata "Job WIP Total" = RIMD,
                   tabledata "Job WIP Warning" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = r,
-#endif
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
                   tabledata "Price Calculation Setup" = RIMD,

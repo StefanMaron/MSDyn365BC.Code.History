@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144050 "ERM Regoff SE"
 {
     //  1..4 Check that Registered Office field on Company Information exists and can accept any value (so is editable).
@@ -19,6 +20,9 @@ codeunit 144050 "ERM Regoff SE"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Tests are moved to SE Core';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -46,27 +50,6 @@ codeunit 144050 "ERM Regoff SE"
         CompanyLegalOfficeLbl: Label 'CompanyLegalOffice_Lbl';
         CompanyAddressFullLbl: Label 'CompanyAddress4';
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure RegisteredOfficeInfoOnCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        CompanyInformationPage: TestPage "Company Information";
-    begin
-        // Check that Registered Office fields on Company Information exists.
-
-        // Setup.
-        Initialize();
-        CompanyInformation.Get();
-
-        // Exercise.
-        CompanyInformationPage.OpenView;
-
-        // Verify: Verify Registered Office fields and values are available on Company Information Page.
-        CompanyInformationPage."Registration No.".AssertEquals(CompanyInformation."Registration No.");
-        CompanyInformationPage."Registered Office".AssertEquals(CompanyInformation."Registered Office");
-        CompanyInformationPage."Plus Giro No.".AssertEquals(CompanyInformation."Plus Giro No.");
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -128,6 +111,7 @@ codeunit 144050 "ERM Regoff SE"
 
     [Test]
     [HandlerFunctions('SalesQuoteReportHandler')]
+    [Obsolete('Test is moved to SECore', '23.0')]
     [Scope('OnPrem')]
     procedure RegisteredOfficeInfoOnSalesQuoteReport()
     var
@@ -161,6 +145,7 @@ codeunit 144050 "ERM Regoff SE"
 
     [Test]
     [HandlerFunctions('SalesQuoteReportHandler')]
+    [Obsolete('Test is moved to SECore', '23.0')]
     [Scope('OnPrem')]
     procedure ChangeRegisteredOfficeInfoOnSalesQuoteReport()
     var
@@ -234,6 +219,7 @@ codeunit 144050 "ERM Regoff SE"
           CompanyBoardDirectorCap, Format(CompanyBoardDirectorValue2),
           CompanyAddressCap, Format(CompanyInformation."Post Code" + ' ' + CompanyInformation.City));
     end;
+
 #if not CLEAN22
     [Test]
     [Scope('OnPrem')]
@@ -397,4 +383,4 @@ codeunit 144050 "ERM Regoff SE"
         StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

@@ -244,6 +244,101 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RescheduleOnLoginWithStatusReadyWithNoScheduledTask()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Guid;
+    begin
+        // [SCENARIO] Reschedule Job Queue on login with for Jobs with status Ready and no scheduled task
+        Initialize();
+        LibraryCRMIntegration.UnbindLibraryJobQueue();
+
+        // [GIVEN] Active recurring job 'X' is executed
+        CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
+        ScheduledTask := JobQueueEntry."System Task ID";
+
+        // [WHEN] Open company (run codeunit "Job Queue User Handler")
+        CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
+
+        // [THEN] Job is still status Ready and Scheduled Task ID has changed
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField(Status, JobQueueEntry.Status::"Ready");
+        Assert.AreNotEqual(ScheduledTask, JobQueueEntry."System Task ID", 'Scheduled Task ID was not updated.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RescheduleOnLoginWithStatusInProcessWithNoScheduledTask()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Guid;
+    begin
+        // [SCENARIO] Reschedule Job Queue on login with for Jobs with status In Process and no scheduled task
+        Initialize();
+        LibraryCRMIntegration.UnbindLibraryJobQueue();
+
+        // [GIVEN] Active recurring job 'X' is executed
+        CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::"In Process");
+        ScheduledTask := JobQueueEntry."System Task ID";
+
+        // [WHEN] Open company (run codeunit "Job Queue User Handler")
+        CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
+
+        // [THEN] Job status is Ready and Scheduled Task ID has changed
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField(Status, JobQueueEntry.Status::"Ready");
+        Assert.AreNotEqual(ScheduledTask, JobQueueEntry."System Task ID", 'Scheduled Task ID was not updated.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RescheduleOnLoginWithStatusOnHoldWithInactivityTimeoutWithNoScheduledTask()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Guid;
+    begin
+        // [SCENARIO] Reschedule Job Queue on login with for Jobs with status On Hold with Inactivity Timeout and no scheduled task
+        Initialize();
+        LibraryCRMIntegration.UnbindLibraryJobQueue();
+
+        // [GIVEN] Active recurring job 'X' is executed
+        CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
+        ScheduledTask := JobQueueEntry."System Task ID";
+
+        // [WHEN] Open company (run codeunit "Job Queue User Handler")
+        CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
+
+        // [THEN] Job status is Ready and Scheduled Task ID has changed
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField(Status, JobQueueEntry.Status::"Ready");
+        Assert.AreNotEqual(ScheduledTask, JobQueueEntry."System Task ID", 'Scheduled Task ID was not updated.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotRescheduledOnLoginWithStatusOnHoldWithNoScheduledTask()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Guid;
+    begin
+        // [SCENARIO] Reschedule Job Queue on login with for Jobs with status On Hold and no scheduled task
+        Initialize();
+
+        // [GIVEN] Active recurring job 'X' is executed
+        CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::"On Hold");
+        ScheduledTask := JobQueueEntry."System Task ID";
+
+        // [WHEN] Open company (run codeunit "Job Queue User Handler")
+        CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
+
+        // [THEN] Job is still status On Hold and Scheduled Task ID has not changed
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold");
+        Assert.AreEqual(ScheduledTask, JobQueueEntry."System Task ID", 'Scheduled Task ID was not updated.');
+    end;
+
     local procedure Initialize()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -280,7 +375,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
             "Run on Sundays" := true;
             "Inactivity Timeout Period" := 10;
             "System Task ID" := CreateGuid();
-            Insert();
+            Insert(true);
         end;
     end;
 

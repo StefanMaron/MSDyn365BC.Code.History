@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AuditFileExport;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
+using System.Environment.Configuration;
+
 codeunit 5316 "SIE Management"
 {
     var
@@ -10,7 +20,7 @@ codeunit 5316 "SIE Management"
     var
         StandardAccountSIE: Codeunit "Standard Account SIE";
     begin
-        if StandardAccountType = "Standard Account Type"::"Four Digit Standard Account (SRU)" then
+        if StandardAccountType = Enum::"Standard Account Type"::"Four Digit Standard Account (SRU)" then
             CSVDocContent := StandardAccountSIE.GetStandardAccountsCSV();
     end;
 
@@ -46,10 +56,12 @@ codeunit 5316 "SIE Management"
     var
         AuditFileExportFormatSetup: Record "Audit File Export Format Setup";
     begin
-        exit(AuditFileExportFormatSetup.Get("Audit File Export Format"::SIE));
+        exit(AuditFileExportFormatSetup.Get(Enum::"Audit File Export Format"::SIE));
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     procedure IsFeatureEnabled() IsEnabled: Boolean
     var
         FeatureMgtFacade: Codeunit "Feature Management Facade";
@@ -58,16 +70,19 @@ codeunit 5316 "SIE Management"
         OnAfterCheckFeatureEnabled(IsEnabled);
     end;
 
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     procedure GetSIEAuditFileExportFeatureKeyId(): Text[50]
     begin
         exit('SIEAuditFileExport');
     end;
 
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     procedure ShowNotEnabledMessage(PageCaption: Text)
     begin
         Message(FeatureNotEnabledMsg, PageCaption);
     end;
 
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     local procedure UpgradeDimensionSIE()
     var
         Company: Record Company;
@@ -88,6 +103,7 @@ codeunit 5316 "SIE Management"
             until Company.Next() = 0;
     end;
 
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', true, true)]
     local procedure OnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
     var
@@ -103,10 +119,12 @@ codeunit 5316 "SIE Management"
         end;
     end;
 
+    [Obsolete('Feature will be enabled by default.', '22.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterCheckFeatureEnabled(var IsEnabled: Boolean)
     begin
     end;
+#pragma warning restore AS0072
 #endif
 
     [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterUpdateDimValueGlobalDimNo', '', true, true)]

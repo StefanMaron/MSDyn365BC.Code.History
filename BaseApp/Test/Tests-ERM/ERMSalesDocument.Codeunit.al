@@ -4039,6 +4039,90 @@
         Assert.AreEqual(SalesQuote."Sell-to Contact No.".Value, Contact."No.", '');
     end;
 
+    [Test]
+    procedure PostingDateModifiesDocumentDate()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesOrder: Record "Sales Header";
+        SalesReturnOrder: Record "Sales Header";
+        SalesInvoice: Record "Sales Header";
+        SalesCreditMemo: Record "Sales Header";
+        DocDate, PostingDate : Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true
+
+        // [GIVEN] Change the setting to true
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create sales documents and set the document date
+        DocDate := 20000101D;
+        LibrarySales.CreateSalesHeader(SalesOrder, "Sales Document Type"::"Order", '');
+        SalesOrder.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesReturnOrder, "Sales Document Type"::"Return Order", '');
+        SalesReturnOrder.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesInvoice, "Sales Document Type"::"Invoice", '');
+        SalesInvoice.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesCreditMemo, "Sales Document Type"::"Credit Memo", '');
+        SalesCreditMemo.Validate("Document Date", DocDate);
+
+        // [WHEN] The posting date is modified
+        PostingDate := 30000101D;
+        SalesOrder.Validate("Posting Date", PostingDate);
+        SalesReturnOrder.Validate("Posting Date", PostingDate);
+        SalesInvoice.Validate("Posting Date", PostingDate);
+        SalesCreditMemo.Validate("Posting Date", PostingDate);
+
+        // [THEN] The document date should be modified
+        SalesOrder.TestField("Document Date", PostingDate);
+        SalesReturnOrder.TestField("Document Date", PostingDate);
+        SalesInvoice.TestField("Document Date", PostingDate);
+        SalesCreditMemo.TestField("Document Date", PostingDate);
+    end;
+
+    [Test]
+    procedure PostingDateDoesNotModifiesDocumentDate()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesOrder: Record "Sales Header";
+        SalesReturnOrder: Record "Sales Header";
+        SalesInvoice: Record "Sales Header";
+        SalesCreditMemo: Record "Sales Header";
+        DocDate, PostingDate : Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to false
+
+        // [GIVEN] Change the setting to false
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", false);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create sales documents and set the document date
+        DocDate := 20000101D;
+        LibrarySales.CreateSalesHeader(SalesOrder, "Sales Document Type"::"Order", '');
+        SalesOrder.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesReturnOrder, "Sales Document Type"::"Return Order", '');
+        SalesReturnOrder.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesInvoice, "Sales Document Type"::"Invoice", '');
+        SalesInvoice.Validate("Document Date", DocDate);
+        LibrarySales.CreateSalesHeader(SalesCreditMemo, "Sales Document Type"::"Credit Memo", '');
+        SalesCreditMemo.Validate("Document Date", DocDate);
+
+        // [WHEN] The posting date is modified
+        PostingDate := 30000101D;
+        SalesOrder.Validate("Posting Date", PostingDate);
+        SalesReturnOrder.Validate("Posting Date", PostingDate);
+        SalesInvoice.Validate("Posting Date", PostingDate);
+        SalesCreditMemo.Validate("Posting Date", PostingDate);
+
+        // [THEN] The document date should not be modified
+        SalesOrder.TestField("Document Date", DocDate);
+        SalesReturnOrder.TestField("Document Date", DocDate);
+        SalesInvoice.TestField("Document Date", DocDate);
+        SalesCreditMemo.TestField("Document Date", DocDate);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5161,7 +5245,7 @@
         SalesLine.Type := SalesLine.GetDefaultLineType();
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -5829,7 +5913,7 @@
         ItemTrackingLines.OK.Invoke;
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
     begin

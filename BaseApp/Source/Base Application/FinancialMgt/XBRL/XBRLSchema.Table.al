@@ -1,14 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.XBRL;
+
 table 399 "XBRL Schema"
 {
     Caption = 'XBRL Schema';
     ObsoleteReason = 'XBRL feature will be discontinued';
-#if not CLEAN20
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif
     ReplicateData = false;
 
     fields
