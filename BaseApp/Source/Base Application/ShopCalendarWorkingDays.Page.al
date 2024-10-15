@@ -1,0 +1,56 @@
+page 99000752 "Shop Calendar Working Days"
+{
+    Caption = 'Shop Calendar Working Days';
+    DataCaptionFields = "Shop Calendar Code";
+    PageType = List;
+    SourceTable = "Shop Calendar Working Days";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field(Day; Day)
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies your working days of the week.';
+                }
+                field("Starting Time"; "Starting Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the starting time of the shift for this working day.';
+                }
+                field("Ending Time"; "Ending Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the ending time of the shift for this working day.';
+                }
+                field("Work Shift Code"; "Work Shift Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the work shift that this working day refers to.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+

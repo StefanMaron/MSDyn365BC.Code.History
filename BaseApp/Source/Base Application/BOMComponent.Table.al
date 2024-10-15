@@ -1,0 +1,327 @@
+table 90 "BOM Component"
+{
+    Caption = 'BOM Component';
+    DrillDownPageID = "Assembly BOM";
+    LookupPageID = "Assembly BOM";
+
+    fields
+    {
+        field(1; "Parent Item No."; Code[20])
+        {
+            Caption = 'Parent Item No.';
+            NotBlank = true;
+            TableRelation = Item WHERE(Type = CONST(Inventory));
+        }
+        field(2; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+        }
+        field(3; Type; Option)
+        {
+            Caption = 'Type';
+            OptionCaption = ' ,Item,Resource';
+            OptionMembers = " ",Item,Resource;
+
+            trigger OnValidate()
+            begin
+                "No." := '';
+                "Variant Code" := '';
+            end;
+        }
+        field(4; "No."; Code[20])
+        {
+            Caption = 'No.';
+            TableRelation = IF (Type = CONST(Item)) Item WHERE(Type = FILTER(Inventory | "Non-Inventory"))
+            ELSE
+            IF (Type = CONST(Resource)) Resource;
+
+            trigger OnValidate()
+            begin
+                TestField(Type);
+                "Variant Code" := '';
+                if "No." = '' then
+                    exit;
+
+                case Type of
+                    Type::Item:
+                        CopyFromItem;
+                    Type::Resource:
+                        CopyFromResource;
+                end;
+            end;
+        }
+        field(5; "Assembly BOM"; Boolean)
+        {
+            CalcFormula = Exist ("BOM Component" WHERE("Parent Item No." = FIELD("No.")));
+            Caption = 'Assembly BOM';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(6; Description; Text[100])
+        {
+            Caption = 'Description';
+        }
+        field(7; "Unit of Measure Code"; Code[10])
+        {
+            Caption = 'Unit of Measure Code';
+            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
+            ELSE
+            IF (Type = CONST(Resource)) "Resource Unit of Measure".Code WHERE("Resource No." = FIELD("No."));
+        }
+        field(8; "Quantity per"; Decimal)
+        {
+            Caption = 'Quantity per';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(9; Position; Code[10])
+        {
+            Caption = 'Position';
+        }
+        field(10; "Position 2"; Code[10])
+        {
+            Caption = 'Position 2';
+        }
+        field(11; "Position 3"; Code[10])
+        {
+            Caption = 'Position 3';
+        }
+        field(12; "Machine No."; Code[10])
+        {
+            Caption = 'Machine No.';
+        }
+        field(13; "Lead-Time Offset"; DateFormula)
+        {
+            Caption = 'Lead-Time Offset';
+        }
+        field(14; "BOM Description"; Text[100])
+        {
+            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Parent Item No.")));
+            Caption = 'BOM Description';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(20; "Resource Usage Type"; Option)
+        {
+            Caption = 'Resource Usage Type';
+            OptionCaption = 'Direct,Fixed';
+            OptionMembers = Direct,"Fixed";
+
+            trigger OnValidate()
+            begin
+                if "Resource Usage Type" = xRec."Resource Usage Type" then
+                    exit;
+
+                TestField(Type, Type::Resource);
+            end;
+        }
+        field(5402; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+
+            trigger OnValidate()
+            begin
+                if "Variant Code" = '' then
+                    exit;
+                TestField(Type, Type::Item);
+                TestField("No.");
+                ItemVariant.Get("No.", "Variant Code");
+                Description := ItemVariant.Description;
+            end;
+        }
+        field(5900; "Installed in Line No."; Integer)
+        {
+            Caption = 'Installed in Line No.';
+
+            trigger OnLookup()
+            begin
+                BOMComp.Reset;
+                BOMComp.SetRange("Parent Item No.", "Parent Item No.");
+                BOMComp.SetRange(Type, BOMComp.Type::Item);
+                BOMComp.SetFilter("Line No.", '<>%1', "Line No.");
+                Clear(AssemblyBOM);
+                AssemblyBOM.SetTableView(BOMComp);
+                AssemblyBOM.Editable(false);
+                AssemblyBOM.LookupMode(true);
+                if AssemblyBOM.RunModal = ACTION::LookupOK then begin
+                    AssemblyBOM.GetRecord(BOMComp);
+                    Validate("Installed in Line No.", BOMComp."Line No.");
+                end;
+            end;
+
+            trigger OnValidate()
+            begin
+                if "Installed in Line No." <> 0 then begin
+                    if "Installed in Line No." = "Line No." then
+                        Error(Text000, FieldCaption("Installed in Line No."));
+                    BOMComp.Reset;
+                    BOMComp.SetRange("Parent Item No.", "Parent Item No.");
+                    BOMComp.SetRange(Type, BOMComp.Type::Item);
+                    BOMComp.SetRange("Line No.", "Installed in Line No.");
+                    BOMComp.FindFirst;
+                    BOMComp.TestField("Quantity per", 1);
+                    "Installed in Item No." := BOMComp."No.";
+                end else
+                    "Installed in Item No." := '';
+            end;
+        }
+        field(5901; "Installed in Item No."; Code[20])
+        {
+            Caption = 'Installed in Item No.';
+            TableRelation = IF (Type = CONST(Item)) Item;
+
+            trigger OnLookup()
+            begin
+                BOMComp.Reset;
+                BOMComp.SetRange("Parent Item No.", "Parent Item No.");
+                BOMComp.SetRange(Type, BOMComp.Type::Item);
+                BOMComp."No." := "Installed in Item No.";
+                BOMComp.SetFilter("Line No.", '<>%1', "Line No.");
+                Clear(AssemblyBOM);
+                AssemblyBOM.SetTableView(BOMComp);
+                AssemblyBOM.Editable(false);
+                AssemblyBOM.LookupMode(true);
+                if AssemblyBOM.RunModal = ACTION::LookupOK then begin
+                    AssemblyBOM.GetRecord(BOMComp);
+                    Validate("Installed in Line No.", BOMComp."Line No.");
+                end;
+            end;
+
+            trigger OnValidate()
+            begin
+                if "Installed in Item No." <> '' then begin
+                    BOMComp.Reset;
+                    BOMComp.SetRange("Parent Item No.", "Parent Item No.");
+                    BOMComp.SetRange(Type, BOMComp.Type::Item);
+                    BOMComp.SetRange("No.", "Installed in Item No.");
+                    BOMComp.FindFirst;
+                end;
+
+                Validate("Installed in Line No.", BOMComp."Line No.");
+            end;
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Parent Item No.", "Line No.")
+        {
+            Clustered = true;
+        }
+        key(Key2; Type, "No.")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnInsert()
+    begin
+        Item.Get("Parent Item No.");
+        if Type = Type::Item then
+            ValidateAgainstRecursion("No.")
+    end;
+
+    trigger OnModify()
+    begin
+        Item.Get("Parent Item No.");
+        if Type = Type::Item then
+            ValidateAgainstRecursion("No.")
+    end;
+
+    trigger OnRename()
+    begin
+        Item.Get("Parent Item No.");
+        if Type = Type::Item then
+            ValidateAgainstRecursion("No.")
+    end;
+
+    var
+        Text000: Label '%1 cannot be component of itself.';
+        Text001: Label 'You cannot insert item %1 as an assembly component of itself.';
+        Item: Record Item;
+        ParentItem: Record Item;
+        Res: Record Resource;
+        ItemVariant: Record "Item Variant";
+        BOMComp: Record "BOM Component";
+        CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
+        AssemblyBOM: Page "Assembly BOM";
+
+    procedure ValidateAgainstRecursion(ItemNo: Code[20])
+    var
+        BOMComp: Record "BOM Component";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateAgainstRecursion(ItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Parent Item No." = ItemNo then
+            Error(Text001, ItemNo);
+
+        if Type = Type::Item then begin
+            BOMComp.SetCurrentKey(Type, "No.");
+            BOMComp.SetRange(Type, Type::Item);
+            BOMComp.SetRange("No.", "Parent Item No.");
+            if BOMComp.FindSet then
+                repeat
+                    BOMComp.ValidateAgainstRecursion(ItemNo);
+                until BOMComp.Next = 0
+        end
+    end;
+
+    local procedure CopyFromItem()
+    begin
+        Item.Get("No.");
+        ValidateAgainstRecursion("No.");
+        OnBeforeCopyFromItem(Rec, xRec, Item, CurrFieldNo);
+
+        Item.CalcFields("Assembly BOM");
+        "Assembly BOM" := Item."Assembly BOM";
+        Description := Item.Description;
+        "Unit of Measure Code" := Item."Base Unit of Measure";
+        ParentItem.Get("Parent Item No.");
+        CalcLowLevelCode.SetRecursiveLevelsOnItem(Item, ParentItem."Low-Level Code" + 1, true);
+        Item.Find;
+        ParentItem.Find;
+        if ParentItem."Low-Level Code" >= Item."Low-Level Code" then
+            Error(Text001, "No.");
+
+        OnAfterCopyFromItem(Rec, Item);
+    end;
+
+    local procedure CopyFromResource()
+    begin
+        Res.Get("No.");
+        "Assembly BOM" := false;
+        Description := Res.Name;
+        "Unit of Measure Code" := Res."Base Unit of Measure";
+
+        OnAfterCopyFromResource(Rec, Res);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromItem(var BOMComponent: Record "BOM Component"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromResource(var BOMComponent: Record "BOM Component"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromItem(var BOMComponent: Record "BOM Component"; xBOMComponent: Record "BOM Component"; Item: Record Item; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAgainstRecursion(ItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+}
+

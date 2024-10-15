@@ -1,0 +1,146 @@
+report 99000767 "Prod. Order - Calculation"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './ProdOrderCalculation.rdlc';
+    ApplicationArea = Manufacturing;
+    Caption = 'Prod. Order - Calculation';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem("Production Order"; "Production Order")
+        {
+            DataItemTableView = SORTING(Status, "No.");
+            RequestFilterFields = Status, "No.", "Source Type", "Source No.";
+            column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
+            {
+            }
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            {
+            }
+            column(Production_Order__TABLECAPTION_________ProdOrderFilter; TableCaption + ':' + ProdOrderFilter)
+            {
+            }
+            column(ProdOrderFilter; ProdOrderFilter)
+            {
+            }
+            column(Prod__Order_Line___Expected_Operation_Cost_Amt__; "Prod. Order Line"."Expected Operation Cost Amt.")
+            {
+            }
+            column(Prod__Order_Line___Expected_Component_Cost_Amt__; "Prod. Order Line"."Expected Component Cost Amt.")
+            {
+            }
+            column(TotalCost; TotalCost)
+            {
+                AutoFormatType = 1;
+            }
+            column(Production_Order_No_; "No.")
+            {
+            }
+            column(Prod__Order___CalculationCaption; Prod__Order___CalculationCaptionLbl)
+            {
+            }
+            column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
+            {
+            }
+            column(Prod__Order_No_Caption; Prod__Order_No_CaptionLbl)
+            {
+            }
+            column(DescriptionCaption; DescriptionCaptionLbl)
+            {
+            }
+            column(Item_No_Caption; Item_No_CaptionLbl)
+            {
+            }
+            column(QuantityCaption; QuantityCaptionLbl)
+            {
+            }
+            column(Expected_Operation_Cost_Amt_Caption; Expected_Operation_Cost_Amt_CaptionLbl)
+            {
+            }
+            column(Expected_Component_Cost_Amt_Caption; Expected_Component_Cost_Amt_CaptionLbl)
+            {
+            }
+            column(Total_CostCaption; Total_CostCaptionLbl)
+            {
+            }
+            column(Total_CostsCaption; Total_CostsCaptionLbl)
+            {
+            }
+            dataitem("Prod. Order Line"; "Prod. Order Line")
+            {
+                DataItemLink = Status = FIELD(Status), "Prod. Order No." = FIELD("No.");
+                DataItemTableView = SORTING(Status, "Prod. Order No.", "Line No.") WHERE("Planning Level Code" = CONST(0));
+                column(Prod__Order_Line__Prod__Order_No__; "Prod. Order No.")
+                {
+                }
+                column(Prod__Order_Line_Description; Description)
+                {
+                }
+                column(Prod__Order_Line__Item_No__; "Item No.")
+                {
+                }
+                column(Prod__Order_Line_Quantity; Quantity)
+                {
+                }
+                column(Prod__Order_Line__Expected_Operation_Cost_Amt__; "Expected Operation Cost Amt.")
+                {
+                }
+                column(Prod__Order_Line__Expected_Component_Cost_Amt__; "Expected Component Cost Amt.")
+                {
+                }
+                column(TotalCost_Control29; TotalCost)
+                {
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    CalcFields(
+                      "Expected Operation Cost Amt.",
+                      "Expected Component Cost Amt.");
+
+                    TotalCost :=
+                      "Expected Operation Cost Amt." +
+                      "Expected Component Cost Amt.";
+                end;
+            }
+
+            trigger OnPreDataItem()
+            begin
+                ProdOrderFilter := GetFilters;
+                Clear(TotalCost);
+            end;
+        }
+    }
+
+    requestpage
+    {
+
+        layout
+        {
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    var
+        ProdOrderFilter: Text;
+        TotalCost: Decimal;
+        Prod__Order___CalculationCaptionLbl: Label 'Prod. Order - Calculation';
+        CurrReport_PAGENOCaptionLbl: Label 'Page';
+        Prod__Order_No_CaptionLbl: Label 'Prod. Order No.';
+        DescriptionCaptionLbl: Label 'Description';
+        Item_No_CaptionLbl: Label 'Item No.';
+        QuantityCaptionLbl: Label 'Quantity';
+        Expected_Operation_Cost_Amt_CaptionLbl: Label 'Expected Operation Cost Amt.';
+        Expected_Component_Cost_Amt_CaptionLbl: Label 'Expected Component Cost Amt.';
+        Total_CostCaptionLbl: Label 'Total Cost';
+        Total_CostsCaptionLbl: Label 'Total Costs';
+}
+

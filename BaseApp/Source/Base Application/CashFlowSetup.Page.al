@@ -1,0 +1,215 @@
+page 846 "Cash Flow Setup"
+{
+    // HYPERLINK('https://go.microsoft.com/fwlink/?linkid=828352');
+
+    ApplicationArea = Basic, Suite;
+    Caption = 'Cash Flow Setup';
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    PageType = Card;
+    SourceTable = "Cash Flow Setup";
+    UsageCategory = Administration;
+
+    layout
+    {
+        area(content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+                field("Automatic Update Frequency"; "Automatic Update Frequency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the automatic update frequency of the cash flow forecast. The Cash Flow Forecast with "Show in Chart on Role Center" set will be used for the automatic update.';
+                }
+            }
+            group(Accounts)
+            {
+                Caption = 'Accounts';
+                field("Receivables CF Account No."; "Receivables CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the receivables account number that is used in cash flow forecasts.';
+                }
+                field("Payables CF Account No."; "Payables CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the payables account number that is used in cash flow forecasts.';
+                }
+                field("Sales Order CF Account No."; "Sales Order CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the sales order account number that is used in cash flow forecasts.';
+                }
+                field("Service CF Account No."; "Service CF Account No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the service account number that is used in cash flow forecasts.';
+                }
+                field("Purch. Order CF Account No."; "Purch. Order CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the purchase order account number that is used in cash flow forecasts.';
+                }
+                field("FA Budget CF Account No."; "FA Budget CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the fixed asset budget account number that is used in cash flow forecasts.';
+                }
+                field("FA Disposal CF Account No."; "FA Disposal CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the fixed asset disposal account number that is used in cash flow forecasts.';
+                }
+                field("Job CF Account No."; "Job CF Account No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job account number that is used in cash flow forecasts.';
+                }
+                field("Tax CF Account No."; "Tax CF Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the tax account number that is used in cash flow forecasts.';
+                }
+            }
+            group(Numbering)
+            {
+                Caption = 'Numbering';
+                field("Cash Flow Forecast No. Series"; "Cash Flow Forecast No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series that is used in cash flow forecasts.';
+                }
+            }
+            group(Tax)
+            {
+                Caption = 'Tax';
+                field("Taxable Period"; "Taxable Period")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how often tax payment is registered.';
+                }
+                field("Tax Payment Window"; "Tax Payment Window")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a date formula for calculating how soon after the previous tax period finished, the tax payment is registered.';
+                }
+                field("Tax Bal. Account Type"; "Tax Bal. Account Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of the balancing account that your taxes are paid to.';
+
+                    trigger OnValidate()
+                    begin
+                        TaxAccountTypeValid := HasValidTaxAccountInfo;
+                        CurrPage.Update;
+                    end;
+                }
+                field("Tax Bal. Account No."; "Tax Bal. Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = TaxAccountTypeValid;
+                    ToolTip = 'Specifies the balancing account that your taxes are paid to.';
+                }
+            }
+            group("Azure AI")
+            {
+                Caption = 'Azure AI';
+                field("Period Type"; "Period Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of period that you want to see the forecast by.';
+                }
+                field("Historical Periods"; "Historical Periods")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of historical periods to include in the forecast.';
+                }
+                field(Horizon; Horizon)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how many periods you want the forecast to cover.';
+                }
+                field("API URL"; "API URL")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the API URI to the AzureML instance.';
+                }
+                field("API Key"; "API Key")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = Masked;
+                    ToolTip = 'Specifies the API Key to the AzureML time series experiment.';
+                }
+                field("Time Series Model"; "Time Series Model")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the time series model to be used for the cash flow forecast.';
+                }
+                field("Variance %"; "Variance %")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the range of deviation, plus or minus, that you''ll accept in the forecast. Lower percentages represent more accurate forecasts, and are typically between 20 and 40. Forecasts outside the range are considered inaccurate, and do not display.';
+                }
+                field(Enabled; "Azure AI Enabled")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies status of Azure AI forecast.';
+                }
+                field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIUsage.Service::"Machine Learning")))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Total Processing Time';
+                    ToolTip = 'Specifies total processing time of the Azure Machine Learning Service.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            group("Chart Options")
+            {
+                Caption = 'Chart Options';
+                action("Open Azure AI Gallery")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Open Azure AI Gallery';
+                    Gesture = None;
+                    Image = LinkWeb;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
+                    ToolTip = 'Explore models for Azure Machine Learning, and use Azure Machine Learning Studio to build, test, and deploy the Forecasting Model for Dynamics 365 Business Central.';
+
+                    trigger OnAction()
+                    begin
+                        HyperLink('https://go.microsoft.com/fwlink/?linkid=828352');
+                    end;
+                }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        TaxAccountTypeValid := HasValidTaxAccountInfo;
+        "API Key" := GetUserDefinedAPIKey;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        Reset;
+        if not Get then begin
+            Init;
+            Insert;
+        end;
+    end;
+
+    var
+        AzureAIUsage: Record "Azure AI Usage";
+        TaxAccountTypeValid: Boolean;
+}
+
