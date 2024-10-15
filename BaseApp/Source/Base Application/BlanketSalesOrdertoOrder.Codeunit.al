@@ -87,12 +87,14 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesOrderLine."Allow Line Disc." := BlanketOrderSalesLine."Allow Line Disc.";
                         SalesOrderLine.Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
                         if SalesOrderLine.Quantity <> 0 then
-                            SalesOrderLine.Validate("Inv. Discount Amount", BlanketOrderSalesLine."Inv. Discount Amount");
+                            if (SalesOrderLine.Quantity <> 0) and (BlanketOrderSalesLine."Inv. Discount Amount" <> 0) then
+                                SalesOrderLine.Validate(
+                                    "Inv. Discount Amount",
+                                    round(BlanketOrderSalesLine."Inv. Discount Amount" * (BlanketOrderSalesLine."Qty. to Ship" / BlanketOrderSalesLine.Quantity)));
                         OnRunOnBeforeSalesLineReserveTransferSaleLineToSalesLine(BlanketOrderSalesLine, SalesOrderLine);
                         SalesLineReserve.TransferSaleLineToSalesLine(
-                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
+                            BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
                     end;
-
                     if Cust."Prepayment %" <> 0 then
                         SalesOrderLine."Prepayment %" := Cust."Prepayment %";
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");

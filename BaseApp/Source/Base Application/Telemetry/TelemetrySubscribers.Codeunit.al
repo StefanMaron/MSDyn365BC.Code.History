@@ -42,7 +42,7 @@ codeunit 1351 "Telemetry Subscribers"
         UserSettingUpEmailLoggingTxt: Label 'User is attempting to set up email logging via %1 page.', Locked = true;
         UserCompletedSettingUpEmailLoggingTxt: Label 'User completed the setting up of email logging via %1 page.', Locked = true;
         UserCreatingInteractionLogEntryBasedOnEmailTxt: Label 'User created an interaction log entry from an email message.', Locked = true;
-#if not CLEAN20
+#if not CLEAN21
         PostedDepositLinesLbl: Label 'Posted deposit line information', Locked = true;
 #endif
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
@@ -592,7 +592,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000089Z', UserCreatingInteractionLogEntryBasedOnEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-#if not CLEAN20
+#if not CLEAN21
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Deposit-Post", 'OnAfterDepositPost', '', true, true)]
     local procedure LogNumberOfPostedDepositLines(DepositHeader: Record "Deposit Header"; PostedDepositHeader: Record "Posted Deposit Header")
     var

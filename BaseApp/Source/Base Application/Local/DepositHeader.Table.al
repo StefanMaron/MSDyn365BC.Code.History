@@ -2,17 +2,19 @@
 {
     Caption = 'Deposit Header';
     DataCaptionFields = "No.";
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
     LookupPageID = "Deposit List";
 #endif
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
-#if not CLEAN20
+#if not CLEAN21
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '23.0';
+    ObsoleteTag = '24.0';
 #endif
+#pragma warning restore AS0074
 
     fields
     {

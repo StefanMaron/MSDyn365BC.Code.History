@@ -868,8 +868,10 @@
                 VATAmountLine.DeleteAll();
                 Line.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
+                OnBeforeCalcVATAmountLines(Header, Line);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
+                OnLineOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line);
                 Line.CalcSalesTaxLines(Header, Line);
                 OnBeforeCalculateSalesTax(Header, Line, VATAmountLine);
 
@@ -1186,6 +1188,8 @@
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
             FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+
+            OnAfterFormatDocumentFields(SalesHeader);
         end;
     end;
 
@@ -1262,6 +1266,23 @@
     local procedure SetLanguage(LanguageCode: Code[10])
     begin
         CurrReport.Language := Language.GetLanguageIdOrDefault(LanguageCode);
+
+        OnAfterSetLanguage();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLanguage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcVATAmountLines(var Header: Record "Sales Header"; var Line: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -1271,6 +1292,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

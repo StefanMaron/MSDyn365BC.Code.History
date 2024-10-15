@@ -211,6 +211,7 @@ report 513 "Move IC Trans. to Partner Comp"
         if TempICInboxTransaction.Find('-') then
             repeat
                 PartnerInboxTransaction := TempICInboxTransaction;
+                OnTransferToPartnerOnBeforePartnerInboxTransactionInsert(PartnerInboxTransaction, CurrentPartner);
                 if not PartnerInboxTransaction.Insert() then
                     Error(
                       Text002, TempICInboxTransaction.FieldCaption("Transaction No."),
@@ -464,9 +465,14 @@ report 513 "Move IC Trans. to Partner Comp"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnICInboxTransactionCreated(var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferToPartnerOnBeforePartnerInboxTransactionInsert(var PartnerInboxTransaction: Record "IC Inbox Transaction"; CurrentICPartner: Record "IC Partner")
     begin
     end;
 }

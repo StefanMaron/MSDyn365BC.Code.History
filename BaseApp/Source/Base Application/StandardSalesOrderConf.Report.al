@@ -925,6 +925,7 @@
                 VATAmountLine.DeleteAll();
                 Line.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
+                OnLineOnAfterGetRecordOnBeforeCalcVATAmountLines(Header, Line);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 Line.CalcSalesTaxLines(Header, Line);
@@ -1240,6 +1241,8 @@
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
             FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
         end;
+
+        OnAfterFormatDocumentFields(SalesHeader);
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]
@@ -1334,7 +1337,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnBeforeCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

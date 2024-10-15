@@ -1,4 +1,4 @@
-codeunit 144000 "MX CFDI Unit Test"
+﻿codeunit 144000 "MX CFDI Unit Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -252,6 +252,71 @@ codeunit 144000 "MX CFDI Unit Test"
 
         TestEInvoiceMgmtforEdocStatus(EDocAction::"Request Stamp", EDocStatus::Canceled);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetUUIDFromOriginalPrepaymentForBlankOrderNo()
+    var
+        PostedSalesInvoiceFirst: Record "Sales Invoice Header";
+        PostedSalesInvoice: Record "Sales Invoice Header";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        RelatedSalesInvoiceNo: Code[20];
+        RelatedUUID: Text[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 450722] GetUUIDFromOriginalPrepayment returns blank related values when Order No of the document is blank
+
+        // [GIVEN] First posted sales invoice in the system has blank 'Prepayment Order No.' and 'Fiscal Invoice Number PAC' = 'ASDFGH12345'
+        PostedSalesInvoiceFirst.SetRange("Prepayment Order No.", '');
+        if not PostedSalesInvoiceFirst.FindFirst() then begin
+            PostedSalesInvoiceFirst.Init();
+            PostedSalesInvoiceFirst."No." := LibraryUtility.GenerateGUID();
+            PostedSalesInvoiceFirst."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+            PostedSalesInvoiceFirst.Insert();
+        end;
+        // [GIVEN] Posted sales invoice has blank 'Order No.' field
+        PostedSalesInvoice.Init();
+        PostedSalesInvoice."No." := LibraryUtility.GenerateGUID();
+        PostedSalesInvoice.Insert();
+        // [WHEN] Run GetUUIDFromOriginalPrepaymentForBlankOrderNo for the invoice
+        RelatedUUID := EInvoiceMgt.GetUUIDFromOriginalPrepayment(PostedSalesInvoice, RelatedSalesInvoiceNo);
+        // [THEN] The function returns blank values for related SalesInvoiceNumber abd FiscalInvoiceNumberPAC
+        assert.AreEqual('', RelatedUUID, 'Value must be blank');
+        assert.AreEqual('', RelatedSalesInvoiceNo, 'Value must be blank');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetUUIDFromOriginalPrepaymentForExistingOrderNo()
+    var
+        PostedSalesInvoicePrepmt: Record "Sales Invoice Header";
+        PostedSalesInvoice: Record "Sales Invoice Header";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        RelatedSalesInvoiceNo: Code[20];
+        RelatedUUID: Text[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 450722] GetUUIDFromOriginalPrepayment returns related data of the document for specified Order No. 
+
+        // [GIVEN] Prepayment sales invoice 'Prepayment Order No.' = '012345' and 'Fiscal Invoice Number PAC' = 'ASDFGH12345'
+        PostedSalesInvoicePrepmt.SetRange("Prepayment Order No.", '');
+        PostedSalesInvoicePrepmt.Init();
+        PostedSalesInvoicePrepmt."No." := LibraryUtility.GenerateGUID();
+        PostedSalesInvoicePrepmt."Prepayment Order No." := LibraryUtility.GenerateGUID();
+        PostedSalesInvoicePrepmt."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        PostedSalesInvoicePrepmt.Insert();
+        // [GIVEN] Posted sales invoice has 'Order No.' = '012345'
+        PostedSalesInvoice.Init();
+        PostedSalesInvoice."No." := LibraryUtility.GenerateGUID();
+        PostedSalesInvoice."Order No." := PostedSalesInvoicePrepmt."Prepayment Order No.";
+        PostedSalesInvoice.Insert();
+        // [WHEN] Run GetUUIDFromOriginalPrepaymentForBlankOrderNo for the invoice
+        RelatedUUID := EInvoiceMgt.GetUUIDFromOriginalPrepayment(PostedSalesInvoice, RelatedSalesInvoiceNo);
+        // [THEN] The function returns  SalesInvoiceNumber abd FiscalInvoiceNumberPAC from prepayment invoice
+        assert.AreEqual(PostedSalesInvoicePrepmt."Fiscal Invoice Number PAC", RelatedUUID, 'Value must be blank');
+        assert.AreEqual(PostedSalesInvoicePrepmt."No.", RelatedSalesInvoiceNo, 'Value must be blank');
+    end;
+
 
     local procedure TestEInvoiceMgmtforEdocStatus("Action": Option "Request Stamp",Send,Cancel; Status: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error")
     var

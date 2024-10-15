@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 36728 "Bank Rec Worksheet FactBox"
 {
     Caption = 'Bank Rec Worksheet';
@@ -6,8 +7,8 @@ page 36728 "Bank Rec Worksheet FactBox"
     SourceTable = "Bank Rec. Header";
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
     layout
     {
         area(content)

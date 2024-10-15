@@ -1,10 +1,11 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 10142 "Deposit-Post + Print"
 {
     TableNo = "Deposit Header";
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -48,3 +49,4 @@ codeunit 10142 "Deposit-Post + Print"
 }
 
 #endif
+#pragma warning restore AS0074

@@ -1,4 +1,4 @@
-codeunit 144001 "MX CFDI"
+﻿codeunit 144001 "MX CFDI"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -58,9 +58,7 @@ codeunit 144001 "MX CFDI"
         WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.';
         NoElectronicStampErr: Label 'There is no electronic stamp';
         NoElectronicDocumentSentErr: Label 'There is no electronic Document sent yet';
-        NamespaceCFD3Txt: Label 'http://www.sat.gob.mx/cfd/3';
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
-        SchemaLocationCFD3Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv30.xsd';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
 
     [Test]
@@ -301,28 +299,6 @@ codeunit 144001 "MX CFDI"
         Initialize();
 
         PostServiceDocBlankPaymentMethodCode(ServiceHeader."Document Type"::"Credit Memo");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostSalesInvoiceBlankUnitOfMeasureCodeError()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Initialize();
-
-        PostSalesDocBlankUnitOfMeasureCode(SalesHeader."Document Type"::Invoice);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostSalesCreditMemoBlankUnitOfMeasureCodeError()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Initialize();
-
-        PostSalesDocBlankUnitOfMeasureCode(SalesHeader."Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -947,45 +923,33 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'MXN'
         // [THEN] Invoice's amount is exported to attribute 'ImpSaldoAnt' = 1000
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', 'MXN');
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'MonedaP', 'MXN');
         // [THEN] 'Concepto' node has attributes 'ValorUnitario' = 0, 'Importe' = 0 (TFS 329513)
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ValorUnitario', '0');
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'Importe', '0');
         // [THEN] 'DoctoRelacionado' node has attribute 'NumParcialidad' (partial payment number) = '1' (TFS 363806)
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'NumParcialidad', '1');
-        // [THEN] 'DoctoRelacionado' node has attribute 'MetodoDePagoDR' = "PT" (TFS 362812)
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MetodoDePagoDR',
-          SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"));
-
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad', '1');
         // [THEN] 'Complemento' node has attribute 'FormaDePagoP' = '03' (TFS 375439)          
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'FormaDePagoP',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'FormaDePagoP',
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"));
 
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
-        // [THEN] String for digital stamp has 'MetodoDePagoDR' = "PT" (TFS 362812)	
         // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)          
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
-        Assert.AreEqual('0', SelectStr(21, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitario', OriginalStr));
-        Assert.AreEqual('0', SelectStr(22, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
-        Assert.AreEqual('1', SelectStr(31, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
-        Assert.AreEqual(
-          SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"),
-          SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MetodoDePagoDR', OriginalStr));
+        Assert.AreEqual('0', SelectStr(23, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitario', OriginalStr));
+        Assert.AreEqual('0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
+        Assert.AreEqual('1', SelectStr(36, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
         Assert.AreEqual(
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"),
-          SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
+          SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
 
         // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
         VerifyIsNearlyEqualDateTime(
@@ -1035,23 +999,20 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'MXN'
         // [THEN] Invoice's amount is exported to attribute 'ImpSaldoAnt' = 700
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'ImpSaldoAnt',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpSaldoAnt',
           FormatDecimal(SalesInvoiceHeader."Amount Including VAT" - Round(SalesInvoiceHeader."Amount Including VAT" / 2), 2));
         // [THEN] 'DoctoRelacionado' node has attribute 'NumParcialidad' (partial payment number) = '2' (363806)
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'NumParcialidad', '2');
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad', '2');
 
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '2' (363806)
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
-        Assert.AreEqual('2', SelectStr(31, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
+        Assert.AreEqual('2', SelectStr(36, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
     end;
 
     [Test]
@@ -1089,27 +1050,16 @@ codeunit 144001 "MX CFDI"
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
         // [THEN] 'DoctoRelacionado' node has attribute 'NumParcialidad' (partial payment number) = '1' (TFS 363806)
-        // [THEN] 'DoctoRelacionado' node has attribute 'MetodoDePagoDR' = "PT" (TFS 362812)
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'NumParcialidad', '1');
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MetodoDePagoDR',
-          SATUtilities.GetSATPaymentTerm(ServiceInvoiceHeader."Payment Terms Code"));
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad', '1');
 
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
-        // [THEN] String for digital stamp has 'MetodoDePagoDR' = "PT" (TFS 362812)	
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
-        Assert.AreEqual('1', SelectStr(31, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
-        Assert.AreEqual(
-          SATUtilities.GetSATPaymentTerm(ServiceInvoiceHeader."Payment Terms Code"),
-          SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MetodoDePagoDR', OriginalStr));
+        Assert.AreEqual('1', SelectStr(38, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
     end;
 
     [Test]
@@ -1121,13 +1071,14 @@ codeunit 144001 "MX CFDI"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         InStream: InStream;
         OriginalStr: Text;
         FileName: Text;
         PaymentNo: Code[20];
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 366659] Request stamp for LCY payment applied to FCY invoice
+        // [SCENARIO 449448] Request stamp for LCY payment applied to FCY invoice
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD"
@@ -1135,11 +1086,15 @@ codeunit 144001 "MX CFDI"
         Customer.Validate("Currency Code",
           LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
         Customer.Modify(true);
+        UpdateCustomerSATPaymentFields(Customer."No.");
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
-          CreateSalesDocForCustomer(SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT()));
+          CreateSalesDocForCustomerWithVAT(
+            SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT(), 16, false, false));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
 
         // [GIVEN] Payment with amount of -12345.67 in local currency is applied to the invoice
         PaymentNo :=
@@ -1149,33 +1104,23 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request stamp for the payment
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        GetPaymentApplicationAmount(DetailedCustLedgEntry, CustLedgerEntry."Entry No.");
 
-        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'MXN'
-        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' = '12.345670', 'MonedaDR' = 'USD'
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', 'MXN');
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR',
-          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6));
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MonedaDR', Customer."Currency Code");
-
-        // [THEN] String for digital stamp has 'MonedaP' = 'MXN', 'TipoCambioDR' = '12.345670', 'MonedaDR' = 'USD'
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 12345.67
+        // [THEN] 'Pagos/Pago' node created with attribute 'MonedaP' = 'MXN', 'TipoCambioP' = 1
+        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 1000.00, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 12.345670
+        InitXMLReaderForPagos20(FileName);
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
-        Assert.AreEqual(
-          'MXN', SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaP', OriginalStr));
-        Assert.AreEqual(
-          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6),
-          SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioDR', OriginalStr));
-        Assert.AreEqual(
-          Customer."Currency Code", SelectStr(28, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaDR', OriginalStr));
+
+        VerifyComplementoPagoAmountWithCurrency(
+            OriginalStr,
+            DetailedCustLedgEntry."Amount (LCY)", 'MXN', '1',
+            DetailedCustLedgEntry.Amount, Customer."Currency Code",
+            FormatDecimal(SalesInvoiceHeader."Amount Including VAT" / DetailedCustLedgEntry.Amount, 6),
+            SalesInvoiceHeader."Amount Including VAT", 29);
     end;
 
     [Test]
@@ -1193,19 +1138,23 @@ codeunit 144001 "MX CFDI"
         PaymentNo: Code[20];
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 425045] Request stamp for FCY payment applied to FCY invoice
+        // [SCENARIO 449448] Request stamp for FCY payment applied to FCY invoice
         Initialize();
 
-        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD"
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD" with Exch. Rate = 20
         Customer.Get(CreateCustomer);
         Customer.Validate("Currency Code",
           LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
         Customer.Modify(true);
+        UpdateCustomerSATPaymentFields(Customer."No.");
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
-          CreateSalesDocForCustomer(SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT()));
+          CreateSalesDocForCustomerWithVAT(
+            SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT(), 16, false, false));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
 
         // [GIVEN] Payment with amount of -1000 in "USD" currency is applied to the invoice
         PaymentNo :=
@@ -1217,33 +1166,20 @@ codeunit 144001 "MX CFDI"
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
-        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD'
-        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' is not exported from the invoice, 'MonedaDR' = 'USD'
-        CustLedgerEntry.CalcFields(Amount);
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', Customer."Currency Code");
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'Monto', FormatDecimal(abs(CustLedgerEntry.Amount), 2));
-        LibraryXPathXMLReader.VerifyAttributeAbsence(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR');
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MonedaDR', Customer."Currency Code");
-
-        // [THEN] String for digital stamp has 'TipoCambioDR' is not exported, 'MonedaP' = 'USD', 'MonedaDR' = 'USD'
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 20000.00
+        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 20.000000
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 1000.00 , 'MonedaDR' = 'USD', 'EquivalenciaDR' = 1
+        InitXMLReaderForPagos20(FileName);
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
-        Assert.AreEqual(
-          Customer."Currency Code", SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaP', OriginalStr));
-        Assert.AreEqual(
-          FormatDecimal(abs(CustLedgerEntry.Amount), 2), SelectStr(27, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Monto', OriginalStr));
-        Assert.AreEqual(
-          Customer."Currency Code", SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaDR', OriginalStr));
+
+        VerifyComplementoPagoAmountWithCurrency(
+            OriginalStr,
+            CustLedgerEntry."Amount (LCY)", Customer."Currency Code",
+            FormatDecimal(Round(1 / CustLedgerEntry."Original Currency Factor", 0.000001, '<'), 6),
+            CustLedgerEntry.Amount, Customer."Currency Code", '1', CustLedgerEntry.Amount, 29);
     end;
 
     [Test]
@@ -1291,10 +1227,7 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] ImpSaldoAnt = 100, 200, 300,  for each invoice respectively, ImpSaldoInsoluto = 0.
         // [THEN] IdDocumento = "Fiscal Invoice Number PAC" for each invoice.
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
 
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
@@ -1356,10 +1289,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] ImpSaldoAnt = 100, 200, 150, for each invoice respectively,
         // [THEN] ImpSaldoInsoluto = 0 for 1st and 2nd invoice, ImpSaldoInsoluto = 150 for 3rd invoice.
         // [THEN] IdDocumento = "Fiscal Invoice Number PAC" for each invoice.
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
 
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
@@ -1436,10 +1366,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] ImpSaldoAnt = 100, 200, 150, for each invoice respectively,
         // [THEN] ImpSaldoInsoluto = 0 for 1st and 2nd invoice, ImpSaldoInsoluto = 150 for 3rd invoice.
         // [THEN] IdDocumento = "Fiscal Invoice Number PAC" for each invoice.
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
 
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
@@ -1517,10 +1444,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] First invoice line has NumParcialidad='2' ImpSaldoAnt='50' ImpPagado='50' ImpSaldoInsoluto='0.00'
         // [THEN] Second invoice line has NumParcialidad='1' ImpSaldoAnt='200' ImpPagado='200' ImpSaldoInsoluto='0.00'
         // [THEN] Third invoice line has NumParcialidad='1' ImpSaldoAnt='300' ImpPagado='150' ImpSaldoInsoluto='150'
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
 
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
@@ -1530,7 +1454,9 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceHeader.Get(CustLedgerEntryInv[1]."Document No.");
         VerifyComplementoPago(
           OriginalStr,
-          CustLedgerEntryInv[1].Amount / 2, CustLedgerEntryInv[1].Amount / 2, 0,
+          //CustLedgerEntryInv[1].Amount / 2, 
+          CustLedgerEntryInv[1].Amount - Round(CustLedgerEntryInv[1].Amount / 2),
+          CustLedgerEntryInv[1].Amount - Round(CustLedgerEntryInv[1].Amount / 2), 0,
           SalesInvoiceHeader."Fiscal Invoice Number PAC", '2', 0);
 
         SalesInvoiceHeader.Get(CustLedgerEntryInv[2]."Document No.");
@@ -1587,14 +1513,400 @@ codeunit 144001 "MX CFDI"
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
         // [THEN] XML document is created for LCY payment with UUID of related invoice
-        LibraryXPathXMLReader.Initialize(FileName, '');
-        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
-        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        InitXMLReaderForPagos20(FileName);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', 'MXN');
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'MonedaP', 'MXN');
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'IdDocumento', SalesInvoiceHeader."Fiscal Invoice Number PAC");
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'IdDocumento', SalesInvoiceHeader."Fiscal Invoice Number PAC");
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentWithGainLosses()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Sales] [Currency]
+        // [SCENARIO 449448] Request stamp for FCY payment applied to FCY invoice
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 407.51 "USD" / 8150.20 MXN with Exch. Rate = 20
+        Customer.Get(CreateCustomer);
+        Customer.Validate("Currency Code",
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate - 1, 1 / 20, 1 / 20));
+        Customer.Modify(true);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 351.3);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+
+        // [GIVEN] Payment with amount of -407.51 USD/ 8476.21 MXN with Exch. Rate = 20.8 is applied to the invoice
+        LibraryERM.CreateExchangeRate(Customer."Currency Code", WorkDate, 1 / 20.8, 1 / 20.8);
+        PaymentNo :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.",
+            -SalesInvoiceHeader."Amount Including VAT", Customer."Currency Code");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 8150.20
+        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 20.800005
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 407.51 , 'MonedaDR' = 'USD', 'EquivalenciaDR' = 1
+        // [THEN] TrasladoP nose has attributes BaseP = 351.300000, ImporteP = 56.210000
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          8476.21, Customer."Currency Code", '20.800005',
+          407.51, Customer."Currency Code", '1', 407.51, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 351.3, 56.21, 0.16, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentRoundingFCYPaymentToLCYInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Rounding]
+        // [SCENARIO 441226] Request stamp for payment FCY applied to the invoice with normal VAT and VAT exempt
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice in LCY has line 1 of Amount = 4000 and VAT Amount = 640 and line 2 of Amount = 900 with VAT exempt
+        Customer.Get(CreateCustomer);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(
+          SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(4000), 1, 0, 16, false, false);
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(900), 1, 0, 0, true, false);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+
+        // [GIVEN] Payment with 615.62 USD / 5540.00 MXN is applied to the invoice
+        PaymentNo :=
+          CreatePostPaymentFCY(
+            SalesInvoiceHeader."Sell-to Customer No.", -615.62, -5540.0,
+            LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 8.999058, 1 / 8.999058));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice,
+          PaymentNo, SalesInvoiceHeader."No.");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 5540.00
+        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 8.999058
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 407.51 , 'MonedaDR' = 'MXN', 'EquivalenciaDR' = 8.999058
+        // [THEN] TrasladoP nose has attributes BaseP = 444.490967, ImporteP = 71.118554
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          5540.0, CustLedgerEntry."Currency Code", '8.999058',
+          615.62, 'MXN', '8.999058', 5540.0, 30);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 53, 444.490967, 71.118554, 0.16, 0);
+        VerifyComplementoPagoTrasladoPExempt(OriginalStr, 58, 100.010467, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentRoundingFCYPaymentToFCYInvoiceExchRate20()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Sales] [Rounding]
+        // [SCENARIO 447293] Request stamp for FCY payment applied to FCY invoice
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 407.51 in foreign currency "USD" with Exch. Rate = 20
+        Customer.Get(CreateCustomer);
+        Customer.Validate("Currency Code",
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 20, 1 / 20));
+        Customer.Modify(true);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 351.3);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+
+        // [GIVEN] Payment with amount of -407.51 in "USD" currency is applied to the invoice
+        PaymentNo :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.",
+            -SalesInvoiceHeader."Amount Including VAT", Customer."Currency Code");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 8150.20
+        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 20.000000
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 407.51 , 'MonedaDR' = 'USD', 'EquivalenciaDR' = 1
+        // [THEN] TrasladoP nose has attributes BaseP = 351.300000, ImporteP = 56.210000
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          8150.2, Customer."Currency Code", '20.000000',
+          407.51, Customer."Currency Code", '1', 407.51, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 351.3, 56.21, 0.16, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentRoundingFCYPaymentToFCYInvoiceExchRateWithDec()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Sales] [Rounding]
+        // [SCENARIO 447293] Request stamp for FCY payment applied to FCY invoice wuth exchange rate having decimals
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 205.80 in USD / 1852.01 MXN with Exch. Rate = 20
+        Customer.Get(CreateCustomer);
+        Customer.Validate("Currency Code",
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 8.999077, 1 / 8.999077));
+        Customer.Modify(true);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 177.41);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+
+        // [GIVEN] Payment with amount of -205.80 in "USD" currency is applied to the invoice
+        PaymentNo :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.",
+            -SalesInvoiceHeader."Amount Including VAT", Customer."Currency Code");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 1852.01
+        // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD', 'TipoCambioP' = 8.999077
+        // [THEN] 'DoctoRelacionado' node has attribute 'Monto' = 205.80 , 'MonedaDR' = 'USD', 'EquivalenciaDR' = 1
+        // [THEN] TrasladoP nose has attributes BaseP = 177.410000, ImporteP = 28.390000
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          1852.01, Customer."Currency Code", '8.999077',
+          205.8, Customer."Currency Code", '1', 205.8, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 177.41, 28.39, 0.16, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentRoundingMultipleLCYInvoices()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        VATProdPostingGroup: Code[20];
+        OriginalStr: Text;
+        FileName: Text;
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding]
+        // [SCENARIO 444797] Request stamp for payment of four invoices
+        Initialize();
+
+        // [GIVEN] Four posted Sales Invoices with "Amount Including VAT" = 14112.63, 48678.02, 11895.48, 125064.24, VAT% = 16
+        Customer.Get(CreateCustomer);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+
+        PaymentNo := CreatePostPayment(Customer."No.", '', -199750.37, '');
+
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(12166.06), VATProdPostingGroup, 1, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
+
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(41963.81), VATProdPostingGroup, 1, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
+
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(10254.72), VATProdPostingGroup, 1, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
+
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItemWithVATSetup(SalesLine, SalesHeader, CreateItemWithPrice(107814.0), VATProdPostingGroup, 1, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice, PaymentNo, SalesInvoiceHeader."No.");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] MontoTotalPagos = 199750.37
+        // [THEN] TrasladoP nose has attributes BaseP = 172198.590000, ImpuestoP = 27551.780000
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          199750.37, 'MXN', '1',
+          199750.37, 'MXN', '1', 14112.63, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 91, 172198.59, 27551.78, 0.16, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SendPaymentRoundingLCYPaymentToFCYInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Sales] [Rounding] 
+        // [SCENARIO 451338] Request stamp for LCY payment applied to FCY invoice
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 325.14 in foreign currency "USD"
+        Customer.Get(CreateCustomer);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate(
+          "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 8.9991, 1 / 8.9991));
+        SalesHeader.Modify(true);
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 280.288);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+
+        // [GIVEN] Payment with amount of -2925.97 in local currency is applied to the invoice
+        PaymentNo :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", '', -2925.97, '');
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Invoice,
+          PaymentNo, SalesInvoiceHeader."No.");
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] 'Pagos/Totales' node has attribute 'MontoTotalPagos' = 2925.97
+        // [THEN] 'Pagos/Pago' node created with attribute 'MonedaP' = 'MXN', 'TipoCambioP' = 1
+        // [THEN] 'Pagos/Pago/DoctoRelacionado' node has attributes 'Monto' = 2925.97, 'MonedaDR' = 'USD', 'EquivalenciaDR' = 0.111122
+        // [THEN] TrasladoP nose has attributes BaseP = 2522.362808, ImpuestoP = 403.610446
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        VerifyComplementoPagoAmountWithCurrency(
+          OriginalStr,
+          2925.97, 'MXN', '1',
+          2925.97, SalesInvoiceHeader."Currency Code", '0.111122', 325.14, 29);
+        VerifyComplementoPagoTrasladoP(OriginalStr, 49, 2522.362808, 403.610446, 0.16, 0);
     end;
 
     [Test]
@@ -1654,15 +1966,15 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          SalesInvoiceHeader."CFDI Relation", SelectStr(14, OriginalStr),
+          SalesInvoiceHeader."CFDI Relation", SelectStr(15, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader.FieldCaption("CFDI Relation"), OriginalStr));
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             Assert.AreEqual(
-              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(14 + i, OriginalStr),
+              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
               StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationDocument[i]."Fiscal Invoice Number PAC", OriginalStr));
         // [THEN] String for digital stamp contains Descrition with encoded special characters (TFS327477)
         Assert.AreEqual(
-          EncodedDescr, SelectStr(30, OriginalStr),
+          EncodedDescr, SelectStr(31, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceLine.FieldCaption(Description), OriginalStr));
         // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
         VerifyIsNearlyEqualDateTime(
@@ -1708,7 +2020,7 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:CfdiRelacionados', 'TipoRelacion', SalesCrMemoHeader."CFDI Relation");
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:CfdiRelacionados', 'TipoRelacion', SalesInvoiceHeader."CFDI Relation");
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader."Fiscal Invoice Number PAC");
 
@@ -1717,10 +2029,10 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          SalesCrMemoHeader."CFDI Relation", SelectStr(14, OriginalStr),
+          SalesInvoiceHeader."CFDI Relation", SelectStr(15, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesCrMemoHeader.FieldCaption("CFDI Relation"), OriginalStr));
         Assert.AreEqual(
-          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
         // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
         VerifyIsNearlyEqualDateTime(
@@ -1785,11 +2097,11 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             Assert.AreEqual(
-              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
+              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(17 + i, OriginalStr),
               StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationDocument[i]."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -1850,7 +2162,7 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          SalesInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          SalesInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader2."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -1917,11 +2229,11 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             Assert.AreEqual(
-              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
+              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(16 + i, OriginalStr),
               StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationDocument[i]."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -1973,9 +2285,9 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-              'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', CFDIRelationDocument[i]."Fiscal Invoice Number PAC", i - 1);
+              'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', CFDIRelationDocument[i]."Fiscal Invoice Number PAC", i);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', ServiceInvoiceHeader."Fiscal Invoice Number PAC", i);
+          'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', ServiceInvoiceHeader."Fiscal Invoice Number PAC", 0);
 
         // [THEN] String for digital stamp has Fiscal Invoices Numbers "UUID-Inv", "UUID1", "UUID2", "UUID3"
         ServiceCrMemoHeader."Original String".CreateInStream(InStream);
@@ -1983,10 +2295,10 @@ codeunit 144001 "MX CFDI"
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             Assert.AreEqual(
-              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(14 + i, OriginalStr),
+              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(17 + i, OriginalStr),
               StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationDocument[i]."Fiscal Invoice Number PAC", OriginalStr));
         Assert.AreEqual(
-          ServiceInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
+          ServiceInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, ServiceInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -2054,10 +2366,10 @@ codeunit 144001 "MX CFDI"
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             Assert.AreEqual(
-              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(14 + i, OriginalStr),
+              CFDIRelationDocument[i]."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
               StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationDocument[i]."Fiscal Invoice Number PAC", OriginalStr));
         Assert.AreEqual(
-          ServiceInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
+          ServiceInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16 + i, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, ServiceInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -2119,7 +2431,7 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          ServiceInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          ServiceInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, ServiceInvoiceHeader2."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
@@ -2956,7 +3268,7 @@ codeunit 144001 "MX CFDI"
           SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, SalesInvoiceLine."VAT %",
           GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1, 0);
         VerifyTotalImpuestos(
-          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 38);
+          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 42);
     end;
 
     [Test]
@@ -3006,7 +3318,7 @@ codeunit 144001 "MX CFDI"
         VerifyVATTotalLine(
           OriginalStr, 0, 0, '002', 0, 1, 0);
         VerifyTotalImpuestos(
-          OriginalStr, 'TotalImpuestosTrasladados', 0, 38);
+          OriginalStr, 'TotalImpuestosTrasladados', 0, 42);
     end;
 
     [Test]
@@ -3050,8 +3362,8 @@ codeunit 144001 "MX CFDI"
         VerifyVATAmountLinesExempt(
           OriginalStr, SalesInvoiceHeader.Amount, '002');
 
-        // [THEN] 'cfdi:Comprobante/cfdi:Impuestos' node is not exported
-        LibraryXPathXMLReader.VerifyNodeAbsence('cfdi:Comprobante/cfdi:Impuestos');
+        // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 38);
     end;
 
     [Test]
@@ -3154,13 +3466,13 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceLine.FindLast();
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 1, 1);
+          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1);
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
           GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 1, 2, 0);
         VerifyTotalImpuestos(
-          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 57);
+          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 62);
     end;
 
     [Test]
@@ -3579,8 +3891,8 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
 
-        // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
-        // [THEN] String for digital stamp has 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
+        // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
+        // [THEN] String for digital stamp has 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
         VerifyCFDIFixedAssetFields(OriginalStr, FANo);
     end;
 
@@ -3672,7 +3984,7 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         Assert.AreEqual(
-          NameValueBuffer.Name, SelectStr(35, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumeroPedimento', OriginalStr));
+          NameValueBuffer.Name, SelectStr(37, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumeroPedimento', OriginalStr));
 
         NameValueBuffer.Delete();
     end;
@@ -3840,17 +4152,17 @@ codeunit 144001 "MX CFDI"
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT",
-          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 39, 0);
+          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 41, 0);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
         VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
         VerifyRetentionTotalLine(
-          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 40, 0);
+          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 42, 0);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 41);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 49);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 44);
     end;
 
     [Test]
@@ -3909,17 +4221,17 @@ codeunit 144001 "MX CFDI"
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT",
-          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."VAT %"), 39, 0);
+          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."VAT %"), 41, 0);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
         VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
         VerifyRetentionTotalLine(
-          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."VAT %"), 40, 0);
+          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."VAT %"), 42, 0);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 41);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 49);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 44);
     end;
 
     [Test]
@@ -3986,12 +4298,12 @@ codeunit 144001 "MX CFDI"
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine.Amount, SalesLineRetention1.Amount, SalesLineRetention1."Retention VAT %",
-          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 39, 0);
+          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 41, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine.Amount,
           SalesLineRetention2."Unit Price" * SalesLineRetention2.Quantity, SalesLineRetention2."Retention VAT %",
-          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 44, 1);
+          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 46, 1);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 12480, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] Line 1 of 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 7800, 'Impuesto' = '001'.
@@ -4000,14 +4312,13 @@ codeunit 144001 "MX CFDI"
           OriginalStr, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %",
           GetTaxCodeTraslado(SalesLine."VAT %"), 0, 1, 15);
         VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention1."Amount Including VAT",
-          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 45, 0);
+          GetTaxCodeRetention(SalesLineRetention1."Retention VAT %"), 47, 0);
         VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention2."Amount Including VAT",
-          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 47, 1);
+          GetTaxCodeRetention(SalesLineRetention2."Retention VAT %"), 49, 1);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 12480, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 16119.95
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', SalesLine."Amount Including VAT" - SalesLine.Amount, 54);
-        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos',
-          SalesLineRetention1.Amount + SalesLineRetention2.Amount, 49);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', SalesLine."Amount Including VAT" - SalesLine.Amount, 56);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', SalesLineRetention1.Amount + SalesLineRetention2.Amount, 51);
     end;
 
     [Test]
@@ -4088,10 +4399,13 @@ codeunit 144001 "MX CFDI"
     [Scope('OnPrem')]
     procedure SalesShipmentCartaPorteRequestStamp()
     var
+        Customer: Record Customer;
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        Location: record Location;
+        CompanyInformation: record "Company Information";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
         OriginalStr: Text;
@@ -4101,13 +4415,16 @@ codeunit 144001 "MX CFDI"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+        Customer.get(CreateCustomer());
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT);
         CreateSalesLineItem(
           SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesShipmentHeader.FindFirst();
         UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+        Location.get(SalesShipmentHeader."Location Code");
+        CompanyInformation.Get();
 
         // [WHEN] Request Stamp for the Sales Shipment
         RequestStamp(
@@ -4126,6 +4443,12 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] Carta Porte XML is created for the document
         VerifyCartaPorteXMLValues(OriginalStr, SalesShipmentHeader."Transit Distance");
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', Customer."RFC No.");
+        Assert.AreEqual(Customer."RFC No.", SelectStr(15, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', Location.GetSATPostalCode());
+        Assert.AreEqual(Location.GetSATPostalCode(), SelectStr(16, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', CompanyInformation."SAT Tax Regime Classification");
+        Assert.AreEqual(CompanyInformation."SAT Tax Regime Classification", SelectStr(17, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenFiscalReceptor', OriginalStr));
     end;
 
     [Test]
@@ -4136,6 +4459,8 @@ codeunit 144001 "MX CFDI"
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
+        Location: Record Location;
+        CompanyInformation: Record "Company Information";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
         OriginalStr: Text;
@@ -4148,6 +4473,8 @@ codeunit 144001 "MX CFDI"
         CreateTransferItem(LocationFrom, LocationTo, Item);
         CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
         UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+        Location.get(TransferShipmentHeader."Transfer-to Code");
+        CompanyInformation.Get();
 
         // [WHEN] Request Stamp for the Transfer Shipment
         RequestStamp(
@@ -4166,6 +4493,12 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] Carta Porte XML is created for the document
         VerifyCartaPorteXMLValues(OriginalStr, TransferShipmentHeader."Transit Distance");
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', CompanyInformation."RFC No.");
+        Assert.AreEqual(CompanyInformation."RFC No.", SelectStr(14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', Location.GetSATPostalCode());
+        Assert.AreEqual(Location.GetSATPostalCode(), SelectStr(16, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', CompanyInformation."SAT Tax Regime Classification");
+        Assert.AreEqual(CompanyInformation."SAT Tax Regime Classification", SelectStr(17, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenFiscalReceptor', OriginalStr));
     end;
 
     [Test]
@@ -4455,10 +4788,17 @@ codeunit 144001 "MX CFDI"
 
     local procedure CreateSalesLineItem(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LineDiscountPct: Decimal; VATPct: Decimal; IsVATExempt: Boolean; IsNoTaxable: Boolean)
     begin
+        CreateSalesLineItemWithVATSetup(
+          SalesLine, SalesHeader, ItemNo,
+          CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", VATPct, IsVATExempt, IsNoTaxable),
+          Quantity, LineDiscountPct);
+    end;
+
+    local procedure CreateSalesLineItemWithVATSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; VATProdPostingGroup: Code[20]; Quantity: Decimal; LineDiscountPct: Decimal)
+    begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        SalesLine.Validate(
-          "VAT Prod. Posting Group", CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", VATPct, IsVATExempt, IsNoTaxable));
+        SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.Validate(Description, SalesLine."No.");
         SalesLine.Validate("Line Discount %", LineDiscountPct);
         SalesLine.Modify(true);
@@ -4586,6 +4926,7 @@ codeunit 144001 "MX CFDI"
     var
         Customer: Record Customer;
         CountryRegion: Record "Country/Region";
+        CFDIExportCode: Record "CFDI Export Code";
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
@@ -4594,7 +4935,12 @@ codeunit 144001 "MX CFDI"
         CountryRegion."SAT Country Code" := CountryRegion.Code;
         CountryRegion.Modify();
         Customer.Validate("Country/Region Code", CountryRegion.Code);
-        Customer."Location Code" := CreateLocation();
+        Customer."SAT Tax Regime Classification" :=
+          LibraryUtility.GenerateRandomCode(Customer.FieldNo("SAT Tax Regime Classification"), DATABASE::Customer);
+        CFDIExportCode.Code := '01';
+
+        if CFDIExportCode.Insert() then;
+        Customer.Validate("CFDI Export Code", CFDIExportCode.Code);
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -4618,6 +4964,7 @@ codeunit 144001 "MX CFDI"
         Item."SAT Item Classification" := LibraryUtility.GenerateRandomCode(Item.FieldNo("SAT Item Classification"), DATABASE::Item);
         Item.Modify(true);
         SATClassification."SAT Classification" := Item."SAT Item Classification";
+        SATClassification."Hazardous Material Mandatory" := true;
         SATClassification.Insert();
         UnitOfMeasure.Get(Item."Base Unit of Measure");
         SATUnitOfMeasure.Next(LibraryRandom.RandInt(SATUnitOfMeasure.Count));
@@ -4625,18 +4972,6 @@ codeunit 144001 "MX CFDI"
         UnitOfMeasure.Modify();
         exit(Item."No.");
     end;
-
-    local procedure CreateLocation(): code[10];
-    var
-        Location: Record Location;
-        SATSuburb: Record "SAT Suburb";
-    begin
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        SATSuburb.Next(LibraryRandom.RandInt(SATSuburb.Count()));
-        Location."SAT Suburb ID" := SATSuburb.ID;
-        Location.Modify();
-    end;
-
 
     local procedure CreateTransferItem(var LocationFrom: Record Location; var LocationTo: Record Location; var Item: Record Item)
     var
@@ -4687,6 +5022,7 @@ codeunit 144001 "MX CFDI"
         FixedAsset: Record "Fixed Asset";
         FAPostingGroup: Record "FA Posting Group";
         DepreciationBook: Record "Depreciation Book";
+        SATClassification: Record "SAT Classification";
     begin
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
@@ -4698,6 +5034,10 @@ codeunit 144001 "MX CFDI"
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Acquisition Date", WorkDate());
         FADepreciationBook.Modify(true);
+        FixedAsset."SAT Classification Code" := LibraryUtility.GenerateRandomCode(FixedAsset.FieldNo("SAT Classification Code"), DATABASE::"Fixed Asset");
+        FixedAsset.Modify(true);
+        SATClassification."SAT Classification" := FixedAsset."SAT Classification Code";
+        SATClassification.Insert();
     end;
 
     local procedure CreatePostPayment(CustomerNo: Code[20]; ApplToDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]): Code[20]
@@ -4711,6 +5051,22 @@ codeunit 144001 "MX CFDI"
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Document Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", ApplToDocNo);
         GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
+    end;
+
+    local procedure CreatePostPaymentFCY(CustomerNo: Code[20]; Amount: Decimal; AmountLCY: Decimal; CurrencyCode: Code[10]): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        if AmountLCY <> 0 then
+            GenJournalLine.Validate("Amount (LCY)", AmountLCY);
+        GenJournalLine.Modify(true);
+
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -4802,6 +5158,8 @@ codeunit 144001 "MX CFDI"
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("VAT %", VATPct);
         VATPostingSetup.Validate("CFDI VAT Exemption", IsVATExempt);
+        if IsVATExempt then
+            VATPostingSetup."CFDI Subject to Tax" := '02';
         VATPostingSetup.Validate("CFDI Non-Taxable", IsNoTaxable);
         VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID();
         VATPostingSetup.Modify(true);
@@ -4991,10 +5349,7 @@ codeunit 144001 "MX CFDI"
         TempBlob: Codeunit "Temp Blob";
         RecordRef: RecordRef;
     begin
-        if TableNo = DATABASE::"Cust. Ledger Entry" then
-            MockRequestStamp(Response, TempBlob, NamespaceCFD3Txt, SchemaLocationCFD3Txt)
-        else
-            MockRequestStamp(Response, TempBlob, NamespaceCFD4Txt, SchemaLocationCFD4Txt);
+        MockRequestStamp(Response, TempBlob, NamespaceCFD4Txt, SchemaLocationCFD4Txt);
         LibraryVariableStorage.Enqueue(Action);
         case TableNo of
             DATABASE::"Sales Invoice Header":
@@ -5670,7 +6025,7 @@ codeunit 144001 "MX CFDI"
         FileManagement: Codeunit "File Management";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
-        CustLedgerEntry.CalcFields(Amount, "Original Document XML");
+        CustLedgerEntry.CalcFields(Amount, "Amount (LCY)", "Original Document XML");
         TempBlob.FromRecord(CustLedgerEntry, CustLedgerEntry.FieldNo("Original Document XML"));
         FileName := FileManagement.ServerTempFileName('.xml');
         FileManagement.BLOBExportToServerFile(TempBlob, FileName);
@@ -5728,6 +6083,19 @@ codeunit 144001 "MX CFDI"
     begin
         exit(
           Format(Abs(InAmount), 0, '<Precision,' + Format(DecimalPlacesFrom) + ':' + Format(DecimalPlacesTo) + '><Standard Format,1>'));
+    end;
+
+    local procedure GetPaymentApplicationAmount(var DetailedCustLedgEntryPmt: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
+    begin
+        DetailedCustLedgEntryPmt.SetFilter(
+            "Entry Type", '%1|%2|%3',
+            DetailedCustLedgEntryPmt."Entry Type"::Application,
+            DetailedCustLedgEntryPmt."Entry Type"::"Realized Gain",
+            DetailedCustLedgEntryPmt."Entry Type"::"Realized Loss");
+        DetailedCustLedgEntryPmt.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DetailedCustLedgEntryPmt.SetRange("Initial Document Type", DetailedCustLedgEntryPmt."Initial Document Type"::Payment);
+        DetailedCustLedgEntryPmt.CalcSums(Amount);
+        DetailedCustLedgEntryPmt.CalcSums("Amount (LCY)");
     end;
 
     local procedure GetHeaderFieldValue(TableNo: Integer; DocumentNo: Code[20]; DocumentNoFieldNo: Integer; FieldNo: Integer): Code[10]
@@ -5808,11 +6176,6 @@ codeunit 144001 "MX CFDI"
         end;
     end;
 
-    local procedure GetSATItemClassificationDefault(): Code[10]
-    begin
-        exit('01010101');
-    end;
-
     local procedure GetTaxCodeTraslado(VATPct: Decimal): Text
     begin
         if VATPct in [0, 16] then
@@ -5829,6 +6192,14 @@ codeunit 144001 "MX CFDI"
             exit('002');
 
         exit('001');
+    end;
+
+    local procedure InitXMLReaderForPagos20(var FileName: Text)
+    begin
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        LibraryXPathXMLReader.AddAdditionalNamespace('pago20', 'http://www.sat.gob.mx/Pagos20');
     end;
 
     local procedure OriginalStringMandatoryFields(HeaderTableNo: Integer; LineTableNo: Integer; DocumentNoFieldNo: Integer; CustomerFieldNo: Integer; CFDIPurposeFieldNo: Integer; CFDIRelationFieldNo: Integer; PaymentMethodCodeFieldNo: Integer; PaymentTermsCodeFieldNo: Integer; UnitOfMeasureCodeFieldNo: Integer; RelationIdx: Integer)
@@ -6006,20 +6377,20 @@ codeunit 144001 "MX CFDI"
 
         Assert.AreEqual(
           CompanyInformation."RFC No.",
-          SelectStr(12 + RelationIdx, OriginalString),
+          SelectStr(13 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, RFCNoFieldTxt, OriginalString));
         Assert.AreEqual(
           CompanyInformation."SAT Tax Regime Classification",
-          SelectStr(14 + RelationIdx, OriginalString),
+          SelectStr(15 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, RegimenFieldTxt, OriginalString));
 
         Assert.AreEqual(
           RFCNo,
-          SelectStr(15 + RelationIdx, OriginalString),
+          SelectStr(16 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, RFCNoFieldTxt, OriginalString));
         Assert.AreEqual(
           CFDIPurpose,
-          SelectStr(18 + RelationIdx, OriginalString),
+          SelectStr(19 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, CFDIPurposeFieldTxt, OriginalString));
         VerifyCFDIRelation(OriginalString, CFDIRelation, RelationIdx);
 
@@ -6029,11 +6400,11 @@ codeunit 144001 "MX CFDI"
           StrSubstNo(IncorrectOriginalStrValueErr, FormaDePagoFieldTxt, OriginalString));
         Assert.AreEqual(
           PaymentTermsCode,
-          SelectStr(10, OriginalString),
+          SelectStr(11, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, MetodoDePagoFieldTxt, OriginalString));
         Assert.AreEqual(
           UpperCase(UnitOfMeasureCode),
-          SelectStr(22 + RelationIdx, OriginalString),
+          SelectStr(23 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, ConceptoUnidadFieldTxt, OriginalString));
     end;
 
@@ -6044,7 +6415,7 @@ codeunit 144001 "MX CFDI"
 
         Assert.AreEqual(
           CFDIRelation,
-          SelectStr(10 + RelationIdx, OriginalString),
+          SelectStr(11 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, CFDIRelationFieldTxt, OriginalString));
     end;
 
@@ -6061,57 +6432,134 @@ codeunit 144001 "MX CFDI"
     begin
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', GetSATItemClassificationDefault);
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', SATUtilities.GetSATItemClassification(4, FANo));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'NoIdentificacion', FANo);
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveUnidad', SATUtilities.GetSATUnitOfMeasureFixedAsset());
 
         Assert.AreEqual(
-          GetSATItemClassificationDefault, SelectStr(21, OriginalStr),
+          SATUtilities.GetSATItemClassification(4, FANo), SelectStr(22, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Item Classification', OriginalStr));
         Assert.AreEqual(
-          FANo, SelectStr(22, OriginalStr),
+          FANo, SelectStr(23, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'NoIdentificacion', OriginalStr));
         Assert.AreEqual(
-          SATUtilities.GetSATUnitOfMeasureFixedAsset(), SelectStr(24, OriginalStr),
+          SATUtilities.GetSATUnitOfMeasureFixedAsset(), SelectStr(25, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Unit of Measure', OriginalStr));
+    end;
+
+    local procedure VerifyComplementoPagoAmountWithCurrency(OriginalStr: Text; PaymentAmountLCY: Decimal; CurrencyPmt: Text; CurrencyFactorPmt: Text; PaymentAmountFCY: Decimal; CurrencyInv: Text; CurrencyFactorDR: Text; ImpPagado: Decimal; StartPosition: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Totales', 'MontoTotalPagos', FormatDecimal(abs(PaymentAmountLCY), 2));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'MonedaP', CurrencyPmt);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'TipoCambioP', CurrencyFactorPmt);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'Monto', FormatDecimal(abs(PaymentAmountFCY), 2));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'MonedaDR', CurrencyInv);
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpPagado', FormatDecimal(Abs(ImpPagado), 2));
+
+        Assert.AreEqual(
+          FormatDecimal(PaymentAmountLCY, 2), SelectStr(StartPosition, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'MontoTotalPagos', OriginalStr));
+        Assert.AreEqual(
+          CurrencyPmt, SelectStr(StartPosition + 3, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaP', OriginalStr));
+        Assert.AreEqual(
+          CurrencyFactorPmt, SelectStr(StartPosition + 4, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioP', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(PaymentAmountFCY, 2), SelectStr(StartPosition + 5, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Monto', OriginalStr));
+        Assert.AreEqual(
+          CurrencyInv, SelectStr(StartPosition + 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaDR', OriginalStr));
+        Assert.AreEqual(
+          CurrencyFactorDR, SelectStr(StartPosition + 9, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'EquivalenciaDR', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(Abs(ImpPagado), 2), SelectStr(StartPosition + 12, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'ImpPagado', OriginalStr));
     end;
 
     local procedure VerifyComplementoPago(OriginalStr: Text; ImpSaldoAnt: Decimal; ImpPagado: Decimal; ImpSaldoInsoluto: Decimal; IdDocumento: Text; NumParcialidad: Text; Index: Integer)
     begin
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'ImpSaldoAnt',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpSaldoAnt',
           FormatDecimal(ImpSaldoAnt, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpSaldoAnt, 2),
-          SelectStr(33 + Index * 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoAnt', OriginalStr));
+          SelectStr(38 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoAnt', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'ImpPagado',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpPagado',
           FormatDecimal(ImpPagado, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpPagado, 2),
-          SelectStr(34 + Index * 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpPagado', OriginalStr));
+          SelectStr(39 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpPagado', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'ImpSaldoInsoluto',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'ImpSaldoInsoluto',
           FormatDecimal(ImpSaldoInsoluto, 2), Index);
         Assert.AreEqual(
           FormatDecimal(ImpSaldoInsoluto, 2),
-          SelectStr(35 + Index * 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoInsoluto', OriginalStr));
+          SelectStr(40 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImpSaldoInsoluto', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'IdDocumento',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'IdDocumento',
           IdDocumento, Index);
         Assert.AreEqual(
           IdDocumento,
-          SelectStr(28 + Index * 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdDocumento', OriginalStr));
+          SelectStr(33 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdDocumento', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'NumParcialidad',
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:DoctoRelacionado', 'NumParcialidad',
           NumParcialidad, Index);
         Assert.AreEqual(
           NumParcialidad,
-          SelectStr(32 + Index * 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
+          SelectStr(37 + Index * 14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumParcialidad', OriginalStr));
+    end;
+
+    local procedure VerifyComplementoPagoTrasladoP(OriginalStr: Text; StartPosition: Integer; BaseP: Decimal; ImporteP: Decimal; TasaOCuotaP: Decimal; Index: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:ImpuestosP/pago20:TrasladosP/pago20:TrasladoP', 'BaseP',
+          FormatDecimal(BaseP, 6), Index);
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:ImpuestosP/pago20:TrasladosP/pago20:TrasladoP', 'TasaOCuotaP',
+          FormatDecimal(TasaOCuotaP, 6), Index);
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:ImpuestosP/pago20:TrasladosP/pago20:TrasladoP', 'ImporteP',
+          FormatDecimal(ImporteP, 6), Index);
+
+        Assert.AreEqual(
+          FormatDecimal(BaseP, 6),
+          SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'BaseP', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(TasaOCuotaP, 6),
+          SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TasaOCuotaP', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(ImporteP, 6),
+          SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ImporteP', OriginalStr));
+    end;
+
+    local procedure VerifyComplementoPagoTrasladoPExempt(OriginalStr: Text; StartPosition: Integer; BaseP: Decimal; Index: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:ImpuestosP/pago20:TrasladosP/pago20:TrasladoP', 'BaseP',
+          FormatDecimal(BaseP, 6), Index);
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Complemento/pago20:Pagos/pago20:Pago/pago20:ImpuestosP/pago20:TrasladosP/pago20:TrasladoP', 'TipoFactorP',
+          'Exento', Index);
+
+        Assert.AreEqual(
+          FormatDecimal(BaseP, 6),
+          SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
+        Assert.AreEqual(
+          'Exento',
+          SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFactorP', OriginalStr));
     end;
 
     local procedure VerifyIsNearlyEqualDateTime(ActualDateTime: DateTime; ExpectedDateTime: DateTime)
@@ -6142,35 +6590,35 @@ codeunit 144001 "MX CFDI"
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'Importe', FormatDecimal(VATAmount, 6), index);
         Assert.AreEqual(
-          FormatDecimal(VATAmount, 6), SelectStr(34 + index * 13 + Offset, OriginalStr),
+          FormatDecimal(VATAmount, 6), SelectStr(36 + index * 15 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'TasaOCuota', FormatDecimal(VATPct / 100, 6), index);
         Assert.AreEqual(
-          FormatDecimal(VATPct / 100, 6), SelectStr(33 + index * 13 + Offset, OriginalStr),
+          FormatDecimal(VATPct / 100, 6), SelectStr(35 + index * 15 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TasaOCuota', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'TipoFactor', 'Tasa', index);
         Assert.AreEqual(
-          'Tasa', SelectStr(32 + index * 13 + Offset, OriginalStr),
+          'Tasa', SelectStr(34 + index * 15 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Tasa', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'Impuesto', Impuesto, index);
         Assert.AreEqual(
-          Impuesto, SelectStr(31 + index * 13 + Offset, OriginalStr),
+          Impuesto, SelectStr(33 + index * 15 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'Base', FormatDecimal(Amount, 6), index);
         Assert.AreEqual(
-          FormatDecimal(Amount, 6), SelectStr(30 + index * 13 + Offset, OriginalStr),
+          FormatDecimal(Amount, 6), SelectStr(32 + index * 15 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
     end;
 
@@ -6180,19 +6628,19 @@ codeunit 144001 "MX CFDI"
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'TipoFactor', 'Exento');
         Assert.AreEqual(
-          'Exento', SelectStr(32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Exento', OriginalStr));
+          'Exento', SelectStr(34, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Exento', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'Impuesto', Impuesto);
         Assert.AreEqual(
-          Impuesto, SelectStr(31, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
+          Impuesto, SelectStr(33, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
           'Base', FormatDecimal(Amount, 6));
         Assert.AreEqual(
-          FormatDecimal(Amount, 6), SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
+          FormatDecimal(Amount, 6), SelectStr(32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeAbsence(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
@@ -6245,30 +6693,30 @@ codeunit 144001 "MX CFDI"
     var
         TotalOffset: Integer;
     begin
-        TotalOffset := (LineQty - 1) * 14;
+        TotalOffset := (LineQty - 1) * 15;
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'Importe', FormatDecimal(VATAmount, 2), index);
         Assert.AreEqual(
-          FormatDecimal(VATAmount, 2), SelectStr(38 + TotalOffset + index * 4 + Offset, OriginalStr),
+          FormatDecimal(VATAmount, 2), SelectStr(41 + TotalOffset + index * 5 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'TasaOCuota', FormatDecimal(VATPct / 100, 6), index);
         Assert.AreEqual(
-          FormatDecimal(VATPct / 100, 6), SelectStr(37 + TotalOffset + index * 4 + Offset, OriginalStr),
+          FormatDecimal(VATPct / 100, 6), SelectStr(40 + TotalOffset + index * 5 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TasaOCuota', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'TipoFactor', 'Tasa', index);
         Assert.AreEqual(
-          'Tasa', SelectStr(36 + TotalOffset + index * 4 + Offset, OriginalStr),
+          'Tasa', SelectStr(39 + TotalOffset + index * 5 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFactor', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'Impuesto', Impuesto, index);
         Assert.AreEqual(
-          Impuesto, SelectStr(35 + TotalOffset + index * 4 + Offset, OriginalStr),
+          Impuesto, SelectStr(38 + TotalOffset + index * 5 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
     end;
 
@@ -6332,41 +6780,44 @@ codeunit 144001 "MX CFDI"
         CompanyInformation: Record "Company Information";
     begin
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'Version', '2.0');
-        Assert.AreEqual('2.0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        Assert.AreEqual('2.0', SelectStr(28, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6));
         Assert.AreEqual(
-          FormatDecimal(TransitDistance, 6), SelectStr(26, OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(30, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TotalDistRec', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'TranspInternac', 'No');
-        Assert.AreEqual('No', SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
+        Assert.AreEqual('No', SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
         CompanyInformation.Get;
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
           'RFCRemitenteDestinatario', CompanyInformation."RFC No.");
         Assert.AreEqual(
-          CompanyInformation."RFC No.", SelectStr(28, OriginalStr),
+          CompanyInformation."RFC No.", SelectStr(32, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
           'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1);
         Assert.AreEqual(
-          FormatDecimal(TransitDistance, 6), SelectStr(26, OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(44, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'DistanciaRecorrida', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'NumTotalMercancias', '1');
-        Assert.AreEqual('1', SelectStr(50, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
+        Assert.AreEqual('1', SelectStr(54, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'UnidadPeso', 'XAG');
-        Assert.AreEqual('XAG', SelectStr(49, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
+        Assert.AreEqual('XAG', SelectStr(53, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Mercancia', 'MaterialPeligroso', 'No');
+        Assert.AreEqual('No', SelectStr(59, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:FiguraTransporte/cartaporte:TiposFigura', 'TipoFigura', '01');
-        Assert.AreEqual('01', SelectStr(67, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+        Assert.AreEqual('01', SelectStr(72, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
     end;
 
     local procedure VerfifyCartaPorteDataset(DocumentNo: Code[20]; FiscalInvoiceNumber: Text; DateTimeStamped: Text; ItemNo: Code[20])
@@ -6444,7 +6895,6 @@ codeunit 144001 "MX CFDI"
 
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Validate("Payment Method Code", PaymentMethod.Code);
-        Customer."Location Code" := CreateLocation();
         Customer.Modify(true);
     end;
 
@@ -6527,4 +6977,3 @@ codeunit 144001 "MX CFDI"
         IsHandled := true;
     end;
 }
-

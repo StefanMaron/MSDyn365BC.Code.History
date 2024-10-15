@@ -88,7 +88,10 @@
                     }
                     field("Buy-from County"; Rec."Buy-from County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
+                        Importance = Additional;
+                        QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }
                     field("Buy-from Post Code"; Rec."Buy-from Post Code")
@@ -421,7 +424,10 @@
                     }
                     field("Ship-to County"; Rec."Ship-to County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
+                        Importance = Additional;
+                        QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -491,9 +497,11 @@
                     }
                     field("Pay-to County"; Rec."Pay-to County")
                     {
+                        ApplicationArea = Suite;
                         Caption = 'State';
                         Editable = "Buy-from Vendor No." <> "Pay-to Vendor No.";
                         Enabled = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                        Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the state where the vendor sending the invoice is located.';
                     }

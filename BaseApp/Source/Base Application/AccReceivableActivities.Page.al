@@ -70,7 +70,8 @@
             {
                 Caption = 'Deposits';
                 Visible = not BankDepositFeatureEnabled;
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
                 field("Deposits to Post"; Rec."Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
@@ -79,9 +80,10 @@
                     ToolTip = 'Specifies the deposits that will be posted.';
                     ObsoleteReason = 'Use the page "Bank Deposits List" instead.';
                     ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
+                    ObsoleteTag = '21.0';
                 }
 #endif
+#pragma warning restore AS0074
                 actions
                 {
                     action("New Deposit")

@@ -49,17 +49,6 @@
                 AccessByPermission = TableData "G/L Entry" = R;
                 ApplicationArea = Basic, Suite;
             }
-#if not CLEAN21
-            part(Control98; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI User Configuration" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
@@ -75,6 +64,17 @@
                 AccessByPermission = TableData "Report Inbox" = IMD;
                 ApplicationArea = Suite;
             }
+#if not CLEAN21
+            part(Control98; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -648,7 +648,8 @@
                     RunObject = Page "Posted General Journal";
                     ToolTip = 'Open the list of posted general journal lines.';
                 }
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
                 action(Deposits)
                 {
                     ApplicationArea = Basic, Suite;
@@ -659,9 +660,10 @@
                     ToolTip = 'Manage bank deposits to your bank accounts.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'The action is already available in the Cash Management group.';
-                    ObsoleteTag = '20.0';
+                    ObsoleteTag = '21.0';
                 }
 #endif
+#pragma warning restore AS0074
             }
             group("Cash Management")
             {

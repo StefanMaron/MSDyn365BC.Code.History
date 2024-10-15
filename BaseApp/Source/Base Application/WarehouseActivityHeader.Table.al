@@ -536,8 +536,16 @@ table 5766 "Warehouse Activity Header"
     local procedure GetRegisteringNoSeriesCode(): Code[20]
     var
         InventorySetup: Record "Inventory Setup";
+        IsHandled: Boolean;
+        Result: Code[20];
     begin
         WhseSetup.Get();
+
+        IsHandled := false;
+        OnBeforeGetRegisteringNoSeriesCode(Rec, WhseSetup, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case Type of
             Type::"Put-away":
                 exit(WhseSetup."Registered Whse. Put-away Nos.");
@@ -1010,6 +1018,11 @@ table 5766 "Warehouse Activity Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCaseSortWhseDoc(WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var SequenceNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRegisteringNoSeriesCode(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseSetup: Record "Warehouse Setup"; var Result: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

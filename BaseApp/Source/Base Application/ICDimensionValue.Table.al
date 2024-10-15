@@ -50,7 +50,7 @@ table 412 "IC Dimension Value"
         field(7; "Map-to Dimension Value Code"; Code[20])
         {
             Caption = 'Map-to Dimension Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Map-to Dimension Code"),Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Map-to Dimension Code"), Blocked = CONST(false));
         }
         field(8; Indentation; Integer)
         {
@@ -71,9 +71,13 @@ table 412 "IC Dimension Value"
     }
 
     trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
         ICDimension.Get("Dimension Code");
         "Map-to Dimension Code" := ICDimension."Map-to Dimension Code";
+        FeatureTelemetry.LogUptake('0000ILB', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");        
     end;
 
     var

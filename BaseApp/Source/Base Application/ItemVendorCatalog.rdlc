@@ -2391,6 +2391,30 @@ End Function</Code>
         <Field Name="ExtendedPriceFeatureEnabled">
           <DataField>ExtendedPriceFeatureEnabled</DataField>
         </Field>
+        <Field Name="Purchase_Price__Vendor_No__">
+          <DataField>Purchase_Price__Vendor_No__</DataField>
+        </Field>
+        <Field Name="Vend_Name">
+          <DataField>Vend_Name</DataField>
+        </Field>
+        <Field Name="Purchase_Price__Starting_Date_">
+          <DataField>Purchase_Price__Starting_Date_</DataField>
+        </Field>
+        <Field Name="Purchase_Price__Direct_Unit_Cost_">
+          <DataField>Purchase_Price__Direct_Unit_Cost_</DataField>
+        </Field>
+        <Field Name="Purchase_Price__Direct_Unit_Cost_Format">
+          <DataField>Purchase_Price__Direct_Unit_Cost_Format</DataField>
+        </Field>
+        <Field Name="Purchase_Price__Currency_Code_">
+          <DataField>Purchase_Price__Currency_Code_</DataField>
+        </Field>
+        <Field Name="ItemVend__Lead_Time_Calculation_">
+          <DataField>ItemVend__Lead_Time_Calculation_</DataField>
+        </Field>
+        <Field Name="ItemVend__Vendor_Item_No__">
+          <DataField>ItemVend__Vendor_Item_No__</DataField>
+        </Field>
         <Field Name="Price_Vendor_No">
           <DataField>Price_Vendor_No</DataField>
         </Field>

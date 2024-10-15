@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 36723 "Bank Rec. Adj. Lines"
 {
     AutoSplitKey = true;
@@ -9,7 +10,8 @@ page 36723 "Bank Rec. Adj. Lines"
                       WHERE("Record Type" = CONST(Adjustment));
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
 
     layout
     {

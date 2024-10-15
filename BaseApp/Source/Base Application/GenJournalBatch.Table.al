@@ -244,7 +244,7 @@ table 232 "Gen. Journal Batch"
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Name);
         GenJnlLine.DeleteAll(true);
-#if not CLEAN20
+#if not CLEAN21
         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
         DepositHeader.SetRange("Journal Template Name", "Journal Template Name");
         DepositHeader.SetRange("Journal Batch Name", Name);
@@ -279,7 +279,7 @@ table 232 "Gen. Journal Batch"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
-#if not CLEAN20
+#if not CLEAN21
         DepositHeader: Record "Deposit Header";
 #endif
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";

@@ -67,7 +67,7 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingLine.SetRange("Version Code", ProdOrderLine."Routing Version Code");
         if RoutingLine.Find('-') then
             repeat
-                    RoutingLine.TestField(Recalculate, false);
+                RoutingLine.TestField(Recalculate, false);
                 InitProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine);
                 TransferTaskInfo(ProdOrderRoutingLine, ProdOrderLine."Routing Version Code");
             until RoutingLine.Next() = 0;
@@ -172,49 +172,49 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ProdOrderLine."Starting Date");
         OnTransferBOMOnAfterSetFiltersProdBOMLine(ProdBOMLine[Level], ProdOrderLine);
         if ProdBOMLine[Level].Find('-') then
-                repeat
-                    IsHandled := false;
-                    OnBeforeTransferBOMComponent(ProdOrder, ProdOrderLine, ProdBOMLine[Level], ErrorOccured, IsHandled);
-                    if not IsHandled then begin
-                        if ProdBOMLine[Level]."Routing Link Code" <> '' then begin
-                            ProdOrderRoutingLine2.SetRange(Status, ProdOrderLine.Status);
-                            ProdOrderRoutingLine2.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-                            ProdOrderRoutingLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
-                            ProdOrderRoutingLine2.FindFirst();
-                            ReqQty :=
-                              ProdBOMLine[Level].Quantity * (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                              (1 + ProdOrderRoutingLine2."Scrap Factor % (Accumulated)") * LineQtyPerUOM / ItemQtyPerUOM +
-                              ProdOrderRoutingLine2."Fixed Scrap Qty. (Accum.)";
-                        end else
-                            ReqQty :=
-                              ProdBOMLine[Level].Quantity * (1 + ProdBOMLine[Level]."Scrap %" / 100) * LineQtyPerUOM / ItemQtyPerUOM;
+            repeat
+                IsHandled := false;
+                OnBeforeTransferBOMComponent(ProdOrder, ProdOrderLine, ProdBOMLine[Level], ErrorOccured, IsHandled);
+                if not IsHandled then begin
+                    if ProdBOMLine[Level]."Routing Link Code" <> '' then begin
+                        ProdOrderRoutingLine2.SetRange(Status, ProdOrderLine.Status);
+                        ProdOrderRoutingLine2.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+                        ProdOrderRoutingLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
+                        ProdOrderRoutingLine2.FindFirst();
+                        ReqQty :=
+                          ProdBOMLine[Level].Quantity * (1 + ProdBOMLine[Level]."Scrap %" / 100) *
+                          (1 + ProdOrderRoutingLine2."Scrap Factor % (Accumulated)") * LineQtyPerUOM / ItemQtyPerUOM +
+                          ProdOrderRoutingLine2."Fixed Scrap Qty. (Accum.)";
+                    end else
+                        ReqQty :=
+                          ProdBOMLine[Level].Quantity * (1 + ProdBOMLine[Level]."Scrap %" / 100) * LineQtyPerUOM / ItemQtyPerUOM;
 
-                        OnTransferBOMOnAfterCalcReqQty(
-                          ProdBOMLine[Level], ProdOrderRoutingLine2, ProdOrderLine, ReqQty, LineQtyPerUOM, ItemQtyPerUOM);
+                    OnTransferBOMOnAfterCalcReqQty(
+                      ProdBOMLine[Level], ProdOrderRoutingLine2, ProdOrderLine, ReqQty, LineQtyPerUOM, ItemQtyPerUOM);
 
-                        case ProdBOMLine[Level].Type of
-                            ProdBOMLine[Level].Type::Item:
-                                begin
-                                    SkipTransfer := false;
-                                    OnTransferBOMOnBeforeProcessItem(ProdBOMLine[Level], ReqQty, SkipTransfer);
-                                    if not SkipTransfer then
-                                        TransferBOMProcessItem(Level, LineQtyPerUOM, ItemQtyPerUOM, ErrorOccured);
-                                end;
-                            ProdBOMLine[Level].Type::"Production BOM":
-                                begin
-                                    OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqQty);
-                                    TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
-                                    ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
-                                    if Level > 1 then
-                                        ProdBOMLine[Level].SetRange("Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ProdOrderLine."Starting Date", true))
-                                    else
-                                        ProdBOMLine[Level].SetRange("Version Code", ProdOrderLine."Production BOM Version Code");
-                                    ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ProdOrderLine."Starting Date");
-                                    ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ProdOrderLine."Starting Date");
-                                end;
-                        end;
+                    case ProdBOMLine[Level].Type of
+                        ProdBOMLine[Level].Type::Item:
+                            begin
+                                SkipTransfer := false;
+                                OnTransferBOMOnBeforeProcessItem(ProdBOMLine[Level], ReqQty, SkipTransfer);
+                                if not SkipTransfer then
+                                    TransferBOMProcessItem(Level, LineQtyPerUOM, ItemQtyPerUOM, ErrorOccured);
+                            end;
+                        ProdBOMLine[Level].Type::"Production BOM":
+                            begin
+                                OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqQty);
+                                TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
+                                ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
+                                if Level > 1 then
+                                    ProdBOMLine[Level].SetRange("Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ProdOrderLine."Starting Date", true))
+                                else
+                                    ProdBOMLine[Level].SetRange("Version Code", ProdOrderLine."Production BOM Version Code");
+                                ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ProdOrderLine."Starting Date");
+                                ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ProdOrderLine."Starting Date");
+                            end;
                     end;
-                until ProdBOMLine[Level].Next() = 0;
+                end;
+            until ProdBOMLine[Level].Next() = 0;
 
         OnAfterTransferBOM(ProdOrder, ProdOrderLine, ProdBOMNo, Level, LineQtyPerUOM, ItemQtyPerUOM, Blocked, ErrorOccured);
 
@@ -282,10 +282,7 @@ codeunit 99000773 "Calculate Prod. Order"
             if not IsHandled then
                 ProdOrderComp."Flushing Method" := ComponentSKU."Flushing Method";
 
-            if (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
-               (ComponentSKU."Manufacturing Policy" = ComponentSKU."Manufacturing Policy"::"Make-to-Order") and
-               (ComponentSKU."Replenishment System" = ComponentSKU."Replenishment System"::"Prod. Order")
-            then begin
+            if SetPlanningLevelCode(ProdOrderComp, ProdBOMLine[Level], SKU, ComponentSKU) then begin
                 if ProdOrderComp."Quantity per" = 0 then
                     exit;
                 ProdOrderComp."Planning Level Code" := ProdOrderLine."Planning Level Code" + 1;
@@ -313,6 +310,16 @@ codeunit 99000773 "Calculate Prod. Order"
         CopyProdBOMComments(ProdBOMLine[Level]);
     end;
 
+    local procedure SetPlanningLevelCode(var ProdOrderComponent: Record "Prod. Order Component"; var ProductionBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit") Result: Boolean
+    begin
+        Result :=
+            (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
+            (ComponentSKU."Manufacturing Policy" = ComponentSKU."Manufacturing Policy"::"Make-to-Order") and
+            (ComponentSKU."Replenishment System" = ComponentSKU."Replenishment System"::"Prod. Order");
+
+        OnAfterSetPlanningLevelCode(ProdOrderComponent, ProductionBOMLine, SKU, ComponentSKU, Result);
+    end;
+
     procedure CalculateComponents()
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -322,16 +329,16 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
         if ProdOrderComp.Find('-') then begin
-                                            repeat
-                                                ProdOrderComp.BlockDynamicTracking(Blocked);
-                                                IsHandled := false;
-                                                OnCalculateComponentsOnBeforeUpdateRoutingLinkCode(ProdOrderComp, ProdOrderLine, IsHandled);
-                                                if not IsHandled then begin
-                                                    ProdOrderComp.Validate("Routing Link Code");
-                                                    ProdOrderComp.Modify();
-                                                    ProdOrderComp.AutoReserve();
-                                                end;
-                                            until ProdOrderComp.Next() = 0;
+            repeat
+                ProdOrderComp.BlockDynamicTracking(Blocked);
+                IsHandled := false;
+                OnCalculateComponentsOnBeforeUpdateRoutingLinkCode(ProdOrderComp, ProdOrderLine, IsHandled);
+                if not IsHandled then begin
+                    ProdOrderComp.Validate("Routing Link Code");
+                    ProdOrderComp.Modify();
+                    ProdOrderComp.AutoReserve();
+                end;
+            until ProdOrderComp.Next() = 0;
             OnAfterCalculateComponents(ProdOrderLine);
         end;
     end;
@@ -565,26 +572,26 @@ codeunit 99000773 "Calculate Prod. Order"
                     ProdOrderRoutingLine3.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine3."Routing Status"::Finished);
                     ProdOrderRoutingLine4.CopyFilters(ProdOrderRoutingLine3);
                     if ProdOrderRoutingLine3.Find('-') then
-                            repeat
-                                if ProdOrderRoutingLine3."Next Operation No." <> '' then begin
-                                    ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Next Operation No.");
-                                    if ProdOrderRoutingLine4.IsEmpty() then begin
-                                        IsHandled := false;
-                                        OnCalculateOnBeforeCheckNextOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
-                                        if not IsHandled then
-                                            Error(OperationCannotFollowErr, ProdOrderRoutingLine3."Next Operation No.");
-                                    end;
+                        repeat
+                            if ProdOrderRoutingLine3."Next Operation No." <> '' then begin
+                                ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Next Operation No.");
+                                if ProdOrderRoutingLine4.IsEmpty() then begin
+                                    IsHandled := false;
+                                    OnCalculateOnBeforeCheckNextOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
+                                    if not IsHandled then
+                                        Error(OperationCannotFollowErr, ProdOrderRoutingLine3."Next Operation No.");
                                 end;
-                                if ProdOrderRoutingLine3."Previous Operation No." <> '' then begin
-                                    ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Previous Operation No.");
-                                    if ProdOrderRoutingLine4.IsEmpty() then begin
-                                        IsHandled := false;
-                                        OnCalculateOnBeforeCheckPrevOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
-                                        if not IsHandled then
-                                            Error(OperationCannotPrecedeErr, ProdOrderRoutingLine3."Previous Operation No.");
-                                    end;
+                            end;
+                            if ProdOrderRoutingLine3."Previous Operation No." <> '' then begin
+                                ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Previous Operation No.");
+                                if ProdOrderRoutingLine4.IsEmpty() then begin
+                                    IsHandled := false;
+                                    OnCalculateOnBeforeCheckPrevOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
+                                    if not IsHandled then
+                                        Error(OperationCannotPrecedeErr, ProdOrderRoutingLine3."Previous Operation No.");
                                 end;
-                            until ProdOrderRoutingLine3.Next() = 0;
+                            end;
+                        until ProdOrderRoutingLine3.Next() = 0;
                 end;
 
         if CalcComponents then
@@ -633,24 +640,30 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdBOMCommentLine.SetRange("BOM Line No.", ProdBOMLine."Line No.");
         ProdBOMCommentLine.SetRange("Version Code", ProdBOMLine."Version Code");
         if ProdBOMCommentLine.FindSet() then
-                repeat
-                    ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProdBOMCommentLine, ProdOrderComp);
-                    if not ProdOrderCompCmtLine.Insert() then
-                        ProdOrderCompCmtLine.Modify();
-                until ProdBOMCommentLine.Next() = 0;
+            repeat
+                ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProdBOMCommentLine, ProdOrderComp);
+                if not ProdOrderCompCmtLine.Insert() then
+                    ProdOrderCompCmtLine.Modify();
+            until ProdBOMCommentLine.Next() = 0;
     end;
 
     local procedure CopyRoutingComments(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
     var
         RoutingCommentLine: Record "Routing Comment Line";
         ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyRoutingComments(RoutingCommentLine, ProdOrderRoutingLine, VersionCode, IsHandled);
+        if IsHandled then
+            exit;
+
         RoutingCommentLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         RoutingCommentLine.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
         RoutingCommentLine.SetRange("Version Code", VersionCode);
         if RoutingCommentLine.Find('-') then
             repeat
-                    ProdOrderRtngCommentLine.TransferFields(RoutingCommentLine);
+                ProdOrderRtngCommentLine.TransferFields(RoutingCommentLine);
                 ProdOrderRtngCommentLine.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRtngCommentLine."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngCommentLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
@@ -667,13 +680,13 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingPersonnel.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
         RoutingPersonnel.SetRange("Version Code", VersionCode);
         if RoutingPersonnel.Find('-') then
-                repeat
-                    ProdOrderRoutingPersonnel.TransferFields(RoutingPersonnel);
-                    ProdOrderRoutingPersonnel.Status := ProdOrderRoutingLine.Status;
-                    ProdOrderRoutingPersonnel."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
-                    ProdOrderRoutingPersonnel."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                    ProdOrderRoutingPersonnel.Insert();
-                until RoutingPersonnel.Next() = 0;
+            repeat
+                ProdOrderRoutingPersonnel.TransferFields(RoutingPersonnel);
+                ProdOrderRoutingPersonnel.Status := ProdOrderRoutingLine.Status;
+                ProdOrderRoutingPersonnel."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
+                ProdOrderRoutingPersonnel."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+                ProdOrderRoutingPersonnel.Insert();
+            until RoutingPersonnel.Next() = 0;
     end;
 
     local procedure CopyRoutingQualityMeasures(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -686,7 +699,7 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingQualityMeasure.SetRange("Version Code", VersionCode);
         if RoutingQualityMeasure.Find('-') then
             repeat
-                    ProdOrderRtngQltyMeas.TransferFields(RoutingQualityMeasure);
+                ProdOrderRtngQltyMeas.TransferFields(RoutingQualityMeasure);
                 ProdOrderRtngQltyMeas.Status := ProdOrderRoutingLine.Status;
                 ProdOrderRtngQltyMeas."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngQltyMeas."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
@@ -704,13 +717,13 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingTool.SetRange("Version Code", VersionCode);
         OnCopyRoutingToolsOnAfterRoutingToolSetFilters(RoutingTool, ProdOrderRoutingLine, VersionCode);
         if RoutingTool.Find('-') then
-                repeat
-                    ProdOrderRoutingTool.TransferFields(RoutingTool);
-                    ProdOrderRoutingTool.Status := ProdOrderRoutingLine.Status;
-                    ProdOrderRoutingTool."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
-                    ProdOrderRoutingTool."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-                    ProdOrderRoutingTool.Insert();
-                until RoutingTool.Next() = 0;
+            repeat
+                ProdOrderRoutingTool.TransferFields(RoutingTool);
+                ProdOrderRoutingTool.Status := ProdOrderRoutingLine.Status;
+                ProdOrderRoutingTool."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
+                ProdOrderRoutingTool."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+                ProdOrderRoutingTool.Insert();
+            until RoutingTool.Next() = 0;
     end;
 
     local procedure Recalculate(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option; LetDueDateDecrease: Boolean; CalcRouting: Boolean; CalcComponents: Boolean)
@@ -841,7 +854,13 @@ codeunit 99000773 "Calculate Prod. Order"
     procedure AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     var
         MachineCenter: Record "Machine Center";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(ProdOrderRoutingLine, MachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         MachineCenter.SetRange("Work Center No.", ProdOrderRoutingLine."Work Center No.");
         if PAGE.RunModal(PAGE::"Machine Center List", MachineCenter) = ACTION::LookupOK then
             if (ProdOrderRoutingLine."No." <> MachineCenter."No.") or
@@ -924,6 +943,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProdOrderCompInsert(var ProdOrderComponent: Record "Prod. Order Component"; ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1087,7 +1111,6 @@ codeunit 99000773 "Calculate Prod. Order"
     begin
     end;
 
-
     [IntegrationEvent(false, false)]
     procedure OnRecalculateOnBeforeCalculateRouting(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
@@ -1095,6 +1118,16 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferBOMProcessItemOnBeforeSetFlushingMethod(var ProdOrderLine: Record "Prod. Order Line"; var ComponentSKU: Record "Stockkeeping Unit"; var ProdOrderComp: Record "Prod. Order Component"; ProdBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPlanningLevelCode(var ProdOrderComponent: Record "Prod. Order Component"; var ProductionBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyRoutingComments(var RoutingCommentLine: Record "Routing Comment Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }
