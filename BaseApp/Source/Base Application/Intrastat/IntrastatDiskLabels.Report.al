@@ -1,7 +1,7 @@
 report 11000 "Intrastat  Disk (Labels)"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatDiskLabels.rdlc';
+    RDLCLayout = './Intrastat/IntrastatDiskLabels.rdlc';
     Caption = 'Intrastat  Disk (Labels)';
 
     dataset

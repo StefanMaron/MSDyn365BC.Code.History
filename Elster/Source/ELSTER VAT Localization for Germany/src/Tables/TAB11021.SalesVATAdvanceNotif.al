@@ -254,6 +254,11 @@ table 11021 "Sales VAT Advance Notif."
         CheckEditable();
     end;
 
+    trigger OnDelete()
+    begin
+        CheckEditable();
+    end;
+
     var
         ElecVATDeclSetup: Record "Elec. VAT Decl. Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;

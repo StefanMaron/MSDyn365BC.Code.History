@@ -595,11 +595,17 @@ table 79 "Company Information"
         {
             Caption = 'Check Transport Method';
             InitValue = true;
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
         field(11018; "Check Transaction Specific."; Boolean)
         {
             Caption = 'Check Transaction Specific.';
             InitValue = true;
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
         field(11019; "VAT Representative"; Text[45])
         {
@@ -613,11 +619,17 @@ table 79 "Company Information"
         {
             Caption = 'Check for Partner VAT ID';
             InitValue = true;
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
         field(11052; "Check for Country of Origin"; Boolean)
         {
             Caption = 'Check for Country of Origin';
             InitValue = true;
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
         }
         field(11100; "Statistic No."; Code[20])
         {

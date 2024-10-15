@@ -31,19 +31,25 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     if LinePeriod <> Period then
                         Error(InvalideDateErr, Date, "Line No.", Period);
 
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth AT", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        if CompanyInfo."Check Transport Method" then
+                            TestField("Transport Method");
+                        if CompanyInfo."Check Transaction Specific." then
+                            TestField("Transaction Specification");
+                        TestField("Total Weight");
+                        if "Supplementary Units" then
+                            TestField(Quantity);
+                    end;
+
                     // Check Tariff
                     IntrastatJnlLineBuf."Tariff No." := DelChr("Tariff No.");
-                    IntrastatJnlLineBuf.TestField("Tariff No.");
                     if StrLen(IntrastatJnlLineBuf."Tariff No.") <> 8 then
                         Error(Text008, IntrastatJnlLineBuf."Line No.");
-
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    if CompanyInfo."Check Transport Method" then
-                        TestField("Transport Method");
-                    if CompanyInfo."Check Transaction Specific." then
-                        TestField("Transaction Specification");
-                    TestField("Total Weight");
 
                     if "Transport Method" <> '' then
                         if StrLen("Transport Method") <> 1 then
@@ -56,8 +62,6 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     if (Type = Type::Receipt) and ("Country/Region of Origin Code" = '') then
                         IntrastatJnlLineBuf."Country/Region of Origin Code" := "Country/Region Code";
 
-                    if "Supplementary Units" then
-                        TestField(Quantity);
                     AddField :=
                       Format("Country/Region Code", 5) + Format("Tariff No.", 10) +
                       Format("Transaction Type", 10) + Format("Transport Method", 10) +
@@ -578,6 +582,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             begin
                 TestField(Reported, false);
                 IntraRefNo := "Statistics Period" + '000000';
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPreDataItem()
@@ -700,6 +705,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Sales Authorized No.");
         CompanyInfo.TestField("Purch. Authorized No.");
+        if IntrastatSetup.Get() then;
     end;
 
     var
@@ -765,6 +771,8 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         IntraJnlLineTest: Record "Intrastat Jnl. Line";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLineBuf: Record "Intrastat Jnl. Line" temporary;
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         FileManagement: Codeunit "File Management";
         DiskStatus: Dialog;
         IntraFile: File;

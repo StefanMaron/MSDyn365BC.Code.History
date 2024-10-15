@@ -1,7 +1,7 @@
 report 11104 "Intrastat - Form AT"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatFormAT.rdlc';
+    RDLCLayout = './Intrastat/IntrastatFormAT.rdlc';
     Caption = 'Intrastat - Form AT';
 
     dataset
@@ -130,20 +130,25 @@ report 11104 "Intrastat - Form AT"
                     then
                         CurrReport.Skip();
 
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    if Companyinfo."Check Transaction Specific." then begin
-                        TestField("Transaction Specification");
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form AT", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        TestField("Total Weight");
+                        if Companyinfo."Check Transport Method" then
+                            TestField("Transport Method");
+                        if Companyinfo."Check Transaction Specific." then
+                            TestField("Transaction Specification");
+                        if "Supplementary Units" then
+                            TestField(Quantity)
+                    end;
+
+                    if Companyinfo."Check Transaction Specific." then
                         if StrLen("Transaction Specification") <> 5 then
                             Error(Text002, "Transaction Specification");
-                    end;
-                    if Companyinfo."Check Transport Method" then
-                        TestField("Transport Method");
-                    TestField("Total Weight");
-                    if "Supplementary Units" then
-                        TestField(Quantity)
-                    else
+                    if not "Supplementary Units" then
                         Quantity := 0;
 
                     if Amount <> 0 then
@@ -175,6 +180,7 @@ report 11104 "Intrastat - Form AT"
             trigger OnAfterGetRecord()
             begin
                 IntraReferenceNo := "Statistics Period" + '000000';
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
         }
     }
@@ -202,6 +208,7 @@ report 11104 "Intrastat - Form AT"
 
         Companyinfo.Get();
         Companyinfo."VAT Registration No." := ConvertStr(Companyinfo."VAT Registration No.", Text001, '    ');
+        if IntrastatSetup.Get() then;
     end;
 
     var
@@ -211,6 +218,8 @@ report 11104 "Intrastat - Form AT"
         Companyinfo: Record "Company Information";
         Country: Record "Country/Region";
         CountryOfOrigin: Record "Country/Region";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         CountryOfOriginCode: Code[2];
         RecCount: Integer;
         CurrentNoSaved: Integer;
