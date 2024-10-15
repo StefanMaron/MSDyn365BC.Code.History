@@ -30,6 +30,7 @@ report 499 "Delete Invoiced Purch. Orders"
                 IsHandled: Boolean;
                 ItemChargeComplete: Boolean;
                 ShouldDeleteLinks: Boolean;
+                SuppressCommit: Boolean;
             begin
                 IsHandled := false;
                 OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
@@ -48,6 +49,7 @@ report 499 "Delete Invoiced Purch. Orders"
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Quantity Invoiced", '<>0');
+                OnAfterGetRecordPurchaseHeaderOnBeforeCheckInvoicedPurchaseLineIsEmpty(PurchLine, "Purchase Header");
                 if PurchLine.IsEmpty() then
                     exit;
 
@@ -134,9 +136,10 @@ report 499 "Delete Invoiced Purch. Orders"
                 OnBeforeDeletePurchaseHeader("Purchase Header", IsHandled);
                 if not IsHandled then
                     Delete();
-                OnAfterDeletePurchaseHeader("Purchase Header");
+                OnAfterDeletePurchaseHeader("Purchase Header", SuppressCommit);
 
-                Commit();
+                if not SuppressCommit then
+                    Commit();
             end;
 
             trigger OnPreDataItem()
@@ -194,7 +197,7 @@ report 499 "Delete Invoiced Purch. Orders"
         exit(false);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -205,7 +208,7 @@ report 499 "Delete Invoiced Purch. Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -236,6 +239,11 @@ report 499 "Delete Invoiced Purch. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchaseHeaderOnAfterGetRecordOnBeforeDeleteLinks(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRecordPurchaseHeaderOnBeforeCheckInvoicedPurchaseLineIsEmpty(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

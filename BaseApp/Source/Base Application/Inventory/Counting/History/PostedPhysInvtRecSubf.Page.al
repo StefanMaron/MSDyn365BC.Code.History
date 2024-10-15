@@ -63,7 +63,7 @@ page 5889 "Posted Phys. Invt. Rec. Subf."
                 field("Package No."; Rec."Package No.")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the Lot No. of the table physical inventory recording line.';
+                    ToolTip = 'Specifies the Package No. of the table physical inventory recording line.';
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {

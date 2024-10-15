@@ -8078,6 +8078,53 @@
         Assert.AreEqual(PurchaseLine."Qty. Received (Base)", 80, QtyReceivedBaseErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentHandler,ConfirmHandler,PurchaseOrderTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostPurchaseOrderandInvoiceWithItemChargeAssignmentandReverseThroughCorrectAction()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PostedPurchaseInv: TestPage "Posted Purchase Invoice";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 497023] Reverse the Charge Item Quantity Assigned in Purchase Order and Delete the Order.
+        Initialize();
+
+        // [GIVEN] Setup: Create Purchase Order with charge (Item).
+        CreatePurchaseOrderChargeItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        // [GIVEN] Assign the Item Charge.
+        PurchaseLine.UpdateItemChargeAssgnt();
+
+        // [GIVEN] Post Purchase Order For Receipt
+        DocumentNo2 := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create Purchase Invoice and Get Receipt Lines for Invoice.
+        InvoicePostedPurchaseOrder(PurchaseHeader2, PurchaseHeader);
+
+        // [GIVEN] Assign Item Charge In Purchase Line
+        PurchaseLine.SetRange("Document No.", PurchaseHeader2."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        PurchaseLine.ShowItemChargeAssgnt();
+
+        // [GIVEN] Post Purchase Invoice.
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
+
+        //[WHEN] Invoke Posted Purchase Invoice Correct Action for Reversing the Posted Transaction
+        PostedPurchaseInv.OpenEdit();
+        PostedPurchaseInv.FILTER.SetFilter("No.", PostedInvoiceNo);
+        PostedPurchaseInv.CorrectInvoice.Invoke();
+
+        // [VERIFY] Validate Item Charge Assignment Purch.
+        VerifyItemChargeAssignmentQtyAssigned(PurchaseHeader."No.");
+
+        // [THEN] Delete Purchase Order
+        PurchaseHeader.Delete(true);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11410,6 +11457,29 @@
         Bitmap.Dispose();
     end;
 
+    local procedure VerifyItemChargeAssignmentQtyAssigned(DocumentNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+
+        ItemChargeAssignmentPurch.SetRange("Document Type", ItemChargeAssignmentPurch."Document Type"::Order);
+        ItemChargeAssignmentPurch.SetRange("Document No.", DocumentNo);
+        ItemChargeAssignmentPurch.SetRange("Applies-to Doc. No.", DocumentNo);
+        ItemChargeAssignmentPurch.FindFirst();
+        ItemChargeAssignmentPurch.TestField("Item No.", PurchaseLine."No.");
+
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        ItemChargeAssignmentPurch.TestField("Applies-to Doc. No.", DocumentNo);
+        ItemChargeAssignmentPurch.TestField("Item Charge No.", PurchaseLine."No.");
+        ItemChargeAssignmentPurch.TestField("Qty. Assigned", ItemChargeAssignmentPurch."Qty. Assigned");
+    end;
+
 #if not CLEAN23
     local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
     var
@@ -11787,6 +11857,13 @@
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
         // Close handler
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderTestRequestPageHandler(var PurchaseOrder: TestPage "Purchase Order")
+    begin
+        PurchaseOrder.OK().Invoke();
     end;
 
     [RequestPageHandler]

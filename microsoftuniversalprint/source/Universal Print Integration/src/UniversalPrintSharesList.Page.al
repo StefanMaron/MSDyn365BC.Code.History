@@ -13,8 +13,8 @@ page 2753 "Universal Print Shares List"
     PageType = List;
     SourceTable = "Universal Print Share Buffer";
     SourceTableTemporary = true;
-    SourceTableView = SORTING("Name")
-                      ORDER(Ascending);
+    SourceTableView = sorting("Name")
+                      order(ascending);
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

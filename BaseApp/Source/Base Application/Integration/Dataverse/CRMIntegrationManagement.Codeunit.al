@@ -4491,7 +4491,7 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetIntegrationTableMappingFromCRMIDOnBeforeFindTableID(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer; CRMID: Guid; var IsHandled: Boolean)
+    local procedure OnGetIntegrationTableMappingFromCRMIDOnBeforeFindTableID(var IntegrationTableMapping: Record "Integration Table Mapping"; var TableID: Integer; CRMID: Guid; var IsHandled: Boolean)
     begin
     end;
 

@@ -481,11 +481,13 @@ table 297 "Issued Reminder Header"
     var
         IssuedReminderLine: Record "Issued Reminder Line";
         ReminderInterestAmount: Decimal;
-        NNC_InterestAmountTotal: Decimal;
-        NNC_VATAmountTotal: Decimal;
-        NNC_RemainingAmountTotal: Decimal;
+        InterestAmountTotal: Decimal;
+        VATAmountTotal: Decimal;
+        RemainingAmountTotal: Decimal;
     begin
         IssuedReminderLine.SetRange("Reminder No.", Rec."No.");
+
+        IssuedReminderLine.ReadIsolation := IsolationLevel::ReadCommitted;
         if IssuedReminderLine.IsEmpty() then
             exit(0);
 
@@ -501,11 +503,11 @@ table 297 "Issued Reminder Header"
                     ReminderInterestAmount := IssuedReminderLine.Amount;
             end;
 
-            NNC_InterestAmountTotal += ReminderInterestAmount;
-            NNC_RemainingAmountTotal += IssuedReminderLine."Remaining Amount";
-            NNC_VATAmountTotal += IssuedReminderLine."VAT Amount";
+            InterestAmountTotal += ReminderInterestAmount;
+            RemainingAmountTotal += IssuedReminderLine."Remaining Amount";
+            VATAmountTotal += IssuedReminderLine."VAT Amount";
         until IssuedReminderLine.Next() = 0;
-        exit(NNC_RemainingAmountTotal + NNC_InterestAmountTotal + NNC_VATAmountTotal);
+        exit(RemainingAmountTotal + InterestAmountTotal + VATAmountTotal);
     end;
 
     [IntegrationEvent(false, false)]

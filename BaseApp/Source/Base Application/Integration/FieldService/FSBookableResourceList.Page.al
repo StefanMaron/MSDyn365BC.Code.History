@@ -57,6 +57,22 @@ page 6423 "FS Bookable Resource List"
     {
         area(processing)
         {
+            action(CreateFromFS)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Create in Business Central';
+                Image = NewResource;
+                ToolTip = 'Generate the entity from the Field Service bookable resource.';
+
+                trigger OnAction()
+                var
+                    FSBookableResource: Record "FS Bookable Resource";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                begin
+                    CurrPage.SetSelectionFilter(FSBookableResource);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(FSBookableResource);
+                end;
+            }
             action(ShowOnlyUncoupled)
             {
                 ApplicationArea = Suite;
@@ -88,6 +104,9 @@ page 6423 "FS Bookable Resource List"
             {
                 Caption = 'Process';
 
+                actionref(CreateFromFS_Promoted; CreateFromFS)
+                {
+                }
                 actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
                 {
                 }

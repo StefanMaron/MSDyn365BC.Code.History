@@ -9,6 +9,7 @@ using Microsoft.Utilities;
 
 codeunit 1315 "Chart Management"
 {
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -448,6 +449,12 @@ codeunit 1315 "Chart Management"
                 exit(true);
         end;
         exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Chart Management", 'OnUpdateChartSafe', '', false, false)]
+    local procedure HandleUpdateChartSafe(var ChartDefinition: Record "Chart Definition"; var BusinessChartBuffer: Record "Business Chart Buffer"; Period: Option)
+    begin
+        UpdateChart(ChartDefinition, BusinessChartBuffer, Period);
     end;
 
     [IntegrationEvent(false, false)]
