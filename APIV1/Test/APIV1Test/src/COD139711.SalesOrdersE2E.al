@@ -724,7 +724,7 @@ codeunit 139711 "APIV1 - Sales Orders E2E"
         SalesInvoiceHeader.SetRange("Order No. Series", OrderNoSeries);
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
         Assert.IsTrue(SalesInvoiceHeader.FindFirst(), CannotFindInvoiceErr);
-        SalesInvoiceEntityAggregate.SetRange(Id, SalesInvoiceHeader."Draft Invoice SystemId");
+        SalesInvoiceEntityAggregate.SetRange(Id, SalesInvoiceHeader.Id);
         Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst(), CannotFindInvoiceErr);
         Assert.AreEqual(SalesInvoiceEntityAggregate.Status::Open, SalesInvoiceEntityAggregate.Status, InvoiceStatusErr);
     end;
