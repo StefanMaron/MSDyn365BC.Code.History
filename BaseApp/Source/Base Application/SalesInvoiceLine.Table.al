@@ -1024,7 +1024,7 @@ table 113 "Sales Invoice Line"
 
     procedure IsCancellationSupported(): Boolean
     begin
-        exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)"]);
+        exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource]);
     end;
 
     [IntegrationEvent(false, false)]

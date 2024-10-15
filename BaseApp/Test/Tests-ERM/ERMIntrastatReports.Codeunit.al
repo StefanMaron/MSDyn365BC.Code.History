@@ -460,6 +460,8 @@ codeunit 134063 "ERM Intrastat Reports"
     begin
         // Create Sales Document with Random Quantity and Unit Price.
         CreateSalesDocument(SalesHeader, SalesLine, DocumentType, ItemNo, TransactionType, TransportMethod);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
+        SalesHeader.Modify(true);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
 

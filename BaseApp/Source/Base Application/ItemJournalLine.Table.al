@@ -3669,6 +3669,7 @@
         ProdOrderLine."Prod. Order No." := "Order No.";
         ProdOrderLine."Line No." := "Order Line No.";
         ProdOrderLine."Item No." := "Item No.";
+        ProdOrderLine."Variant Code" := "Variant Code";
 
         ProdOrderLineList.LookupMode(true);
         ProdOrderLineList.SetTableView(ProdOrderLine);
@@ -3677,6 +3678,8 @@
         if ProdOrderLineList.RunModal = ACTION::LookupOK then begin
             ProdOrderLineList.GetRecord(ProdOrderLine);
             Validate("Item No.", ProdOrderLine."Item No.");
+            if ProdOrderLine."Variant Code" <> '' then
+                Validate("Variant Code", ProdOrderLine."Variant Code");
             if "Order Line No." <> ProdOrderLine."Line No." then
                 Validate("Order Line No.", ProdOrderLine."Line No.");
         end;
