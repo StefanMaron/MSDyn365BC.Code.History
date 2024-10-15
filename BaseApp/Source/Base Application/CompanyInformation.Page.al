@@ -398,6 +398,11 @@ Page 1 "Company Information"
                     Caption = 'Tax Period';
                     ToolTip = 'Specifies how often you issue a BAS to the ATO.';
                 }
+                field("IRD No."; Rec."IRD No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Australian Company Number for Australia or the Inland Revenue Department Number for New Zealand.';
+                }
             }
             group("System Indicator")
             {

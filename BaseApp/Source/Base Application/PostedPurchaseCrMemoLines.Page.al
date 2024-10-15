@@ -249,7 +249,7 @@ page 530 "Posted Purchase Cr. Memo Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -280,5 +280,10 @@ page 530 "Posted Purchase Cr. Memo Lines"
 
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 }
 

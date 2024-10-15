@@ -57,13 +57,13 @@
         ServiceLineACY: Record "Service Line";
         GenPostingSetup: Record "General Posting Setup";
         InvoicePostingBuffer: Record "Invoice Posting Buffer";
-        ServCost: Record "Service Cost";
         TotalVAT: Decimal;
         TotalVATACY: Decimal;
         TotalAmount: Decimal;
         TotalAmountACY: Decimal;
         TotalVATBase: Decimal;
         TotalVATBaseACY: Decimal;
+        SalesAccountNo: Code[20];
         IsHandled: Boolean;
     begin
         ServiceHeader := DocumentHeaderVar;
@@ -123,30 +123,49 @@
             end;
         end;
 
-        InvoicePostingBuffer.SetAmounts(
-          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, ServiceLine."VAT Difference", TotalVATBase, TotalVATBaseACY);
+        IsHandled := false;
+        ServicePostInvoiceEvents.RunOnPrepareLineOnBeforeSetAmounts(
+            ServiceLine, ServiceLineACY, InvoicePostingBuffer,
+            TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, IsHandled);
+        if not IsHandled then
+            InvoicePostingBuffer.SetAmounts(
+              TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, ServiceLine."VAT Difference", TotalVATBase, TotalVATBaseACY);
+        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterSetAmounts(InvoicePostingBuffer, ServiceLine);
 
-        case ServiceLine.Type of
-            ServiceLine.Type::"G/L Account":
-                InvoicePostingBuffer.SetAccount(ServiceLine."No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
-            ServiceLine.Type::Cost:
-                begin
-                    ServCost.Get(ServiceLine."No.");
-                    InvoicePostingBuffer.SetAccount(ServCost."Account No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
-                end
-            else
-                if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                    InvoicePostingBuffer.SetAccount(
-                      GenPostingSetup.GetSalesCrMemoAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY)
-                else
-                    InvoicePostingBuffer.SetAccount(
-                      GenPostingSetup.GetSalesAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
-        end;
+        SalesAccountNo := GetSalesAccount(ServiceLine, GenPostingSetup);
+        ServicePostInvoiceEvents.RunOnPrepareLineOnBeforeSetAccount(ServiceHeader, ServiceLine, SalesAccountNo);
+        InvoicePostingBuffer.SetAccount(SalesAccountNo, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
         ServicePostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine, ServiceLineACY, SuppressCommit);
 
         UpdateInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine);
+    end;
+
+    local procedure GetSalesAccount(ServiceLine: Record "Service Line"; GenPostingSetup: Record "General Posting Setup") SalesAccountNo: Code[20]
+    var
+        ServCost: Record "Service Cost";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        ServicePostInvoiceEvents.RunOnBeforeGetSalesAccount(ServiceLine, GenPostingSetup, SalesAccountNo, IsHandled);
+        if not IsHandled then
+            case ServiceLine.Type of
+                ServiceLine.Type::"G/L Account":
+                    SalesAccountNo := ServiceLine."No.";
+                ServiceLine.Type::Cost:
+                    begin
+                        ServCost.Get(ServiceLine."No.");
+                        SalesAccountNo := ServCost."Account No.";
+                    end;
+                else
+                    if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
+                        SalesAccountNo := GenPostingSetup.GetSalesCrMemoAccount()
+                    else
+                        SalesAccountNo := GenPostingSetup.GetSalesAccount();
+            end;
+
+        ServicePostInvoiceEvents.RunOnAfterGetSalesAccount(ServiceLine, GenPostingSetup, SalesAccountNo);
     end;
 
     local procedure CalcInvoiceDiscountPosting(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")

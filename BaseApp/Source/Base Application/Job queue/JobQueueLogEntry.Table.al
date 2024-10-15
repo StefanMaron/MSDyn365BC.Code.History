@@ -263,10 +263,11 @@ table 474 "Job Queue Log Entry"
     procedure GetErrorCallStack(): Text
     var
         TypeHelper: Codeunit "Type Helper";
+        TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        CalcFields("Error Call Stack");
-        "Error Call Stack".CreateInStream(InStream, TEXTENCODING::Windows);
+        TempBlob.FromRecord(Rec, FieldNo("Error Call Stack"));
+        TempBlob.CreateInStream(InStream, TEXTENCODING::Windows);
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 }

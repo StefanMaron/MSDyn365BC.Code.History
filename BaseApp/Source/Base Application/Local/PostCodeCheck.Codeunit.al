@@ -155,7 +155,7 @@ codeunit 28000 "Post Code Check"
         PostCodeRec: Record "Post Code";
         RecCount: Integer;
     begin
-        if (PostCode = '') or (CurrentFieldNo = 0) or (not GuiAllowed) then
+        if (PostCode = '') or (CurrentFieldNo = 0) or (not GuiAllowed = false) then
             exit;
 
         GetAddressValidationSetup(CountryCode);

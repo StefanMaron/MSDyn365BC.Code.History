@@ -103,6 +103,8 @@ page 450 "Issued Finance Charge Memo"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date for the finance charge memo.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -432,6 +434,13 @@ page 450 "Issued Finance Charge Memo"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+    begin
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+    end;
+
     trigger OnAfterGetRecord()
     var
         Customer: Record Customer;
@@ -444,5 +453,7 @@ page 450 "Issued Finance Charge Memo"
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        [InDataSet]
+        VATDateEnabled: Boolean;
 }
 

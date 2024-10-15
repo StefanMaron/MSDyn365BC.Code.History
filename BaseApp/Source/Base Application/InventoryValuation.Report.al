@@ -415,7 +415,7 @@ report 1001 "Inventory Valuation"
         ItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         ItemLedgEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         ItemLedgEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
-        ItemLedgEntry."Entry No." := ItemApplnEntry."Outbound Item Entry No.";
+        ItemLedgEntry.SetRange("Entry No.", ItemApplnEntry."Outbound Item Entry No.");
         exit(ItemLedgEntry.IsEmpty());
     end;
 

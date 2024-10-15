@@ -139,6 +139,8 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date on the invoice.';
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     Importance = Promoted;
                 }
                 field("Your Reference"; Rec."Your Reference")
@@ -589,7 +591,7 @@ page 134 "Posted Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(114),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Cr.Memo Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -1026,11 +1028,13 @@ page 134 "Posted Sales Credit Memo"
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetSecurityFilterOnRespCenter();
         IsOfficeAddin := OfficeMgt.IsAvailable();
 
         ActivateFields();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1046,6 +1050,8 @@ page 134 "Posted Sales Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

@@ -158,55 +158,55 @@
                 }
                 column(GLBudgetedAmount1; GLBudgetedAmount[1])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount2; GLBudgetedAmount[2])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount3; GLBudgetedAmount[3])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount4; GLBudgetedAmount[4])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount5; GLBudgetedAmount[5])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount6; GLBudgetedAmount[6])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount7; GLBudgetedAmount[7])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount8; GLBudgetedAmount[8])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount9; GLBudgetedAmount[9])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount10; GLBudgetedAmount[10])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount11; GLBudgetedAmount[11])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(GLBudgetedAmount12; GLBudgetedAmount[12])
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
                 column(TotalBudgetAmount; TotalBudgetAmount)
                 {
-                    DecimalPlaces = 0 : 0;
+                    DecimalPlaces = 0 : 5;
                 }
             }
 

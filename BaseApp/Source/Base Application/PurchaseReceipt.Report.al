@@ -251,7 +251,6 @@ report 408 "Purchase - Receipt"
 
                         trigger OnPreDataItem()
                         begin
-
                             if not ShowInternalInfo then
                                 CurrReport.Break();
                         end;
@@ -313,7 +312,7 @@ report 408 "Purchase - Receipt"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindFirst() then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -324,8 +323,7 @@ report 408 "Purchase - Receipt"
                                 repeat
                                     OldDimText := DimText;
                                     if DimText = '' then
-                                        DimText := StrSubstNo(
-                                          '%1 - %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
+                                        DimText := StrSubstNo('%1 - %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
                                     else
                                         DimText :=
                                           StrSubstNo(
@@ -336,12 +334,11 @@ report 408 "Purchase - Receipt"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next() = 0);
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
                             begin
-
                                 if not ShowInternalInfo then
                                     CurrReport.Break();
                             end;
@@ -352,12 +349,11 @@ report 408 "Purchase - Receipt"
                             if (not ShowCorrectionLines) and Correction then
                                 CurrReport.Skip();
 
-                            DimSetEntry2.SetRange("Dimension Set ID", "Purch. Rcpt. Line"."Dimension Set ID");
+                            DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                         end;
 
                         trigger OnPreDataItem()
                         begin
-
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
@@ -372,7 +368,6 @@ report 408 "Purchase - Receipt"
 
                         trigger OnPreDataItem()
                         begin
-
                             if "Purch. Rcpt. Header"."Buy-from Vendor No." = "Purch. Rcpt. Header"."Pay-to Vendor No." then
                                 CurrReport.Break();
                         end;

@@ -28,6 +28,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATDateErr: Label 'VAT date on document do not mach VAT Entry', Comment = '.';
         VATDateOnRecordErr: Label 'VAT date was not correctly updated on record', Comment = '.';
         VatDateComparisonErr: Label 'VAT Date is not correct based on GL setup', Comment = '.';
+        VatEntriesErr: Label 'VAT Entries should contain two records';
+        VATDateNoChangeErr: Label 'VAT date should not be editable.', Comment = '.';
         MustNotBeNegativeErr: Label '%1 must not be negative.', Comment = '.';
         PostingGroupErr: Label '%1 must be %2 in %3: %4.', Comment = '.';
         VATAmountMsg: Label '%1 must not be editable.', Comment = '.';
@@ -3763,9 +3765,277 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(WorkDate() + 1, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
     end;
 
+    [Test]
+    procedure VATDateChangeMultiEntriesSuccessful()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntry: Record "VAT Entry";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 448198] Restricting VAT Date change
+        Initialize();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDocWithTwoLines(WorkDate(), DocType);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.FindSet();
+
+        Assert.AreEqual(2, VATEntry.Count(), VatEntriesErr);
+       
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VATEntry."Entry No.";
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] Change VAT Date to date within VAT period there is no warnings
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+
+        // [THEN] Check date for entry on page
+        Assert.AreEqual(WorkDate() + 1, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);   
+
+        // [THEN] Find other related entries and check date
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetFilter("Entry No.", '<>%1', VATEntryNo);
+        VATEntry.FindSet();
+        repeat 
+            Assert.AreEqual(WorkDate() + 1, VATEntry."VAT Reporting Date", VATDateOnRecordErr);
+        until VATEntry.Next() = 0;
+    end;
+    
+    [Test]
+    procedure VATDateChangeWhenNoChangeOptionSelectedError()
+    var
+        GLSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        VATEntryPage: TestPage "VAT Entries";
+        VATEntryNo: Integer;
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 455405] Change VAT when No VAT Date changes" selected
+        Initialize();
+        
+        GLSetup.Get();
+        GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::"No VAT Date changes";
+        GLSetup.Modify();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.FindSet();
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VATEntry."Entry No.";
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] VAT date should not be editable on page
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        Assert.IsFalse(VATEntryPage."VAT Reporting Date".Editable(), VATDateNoChangeErr);
+
+        asserterror VATEntry.Validate("VAT Reporting Date", NewVATDate);
+    end;
+
+    [Test]
+    procedure VATDateChangeWhenDisabledSelectedError()
+    var
+        GLSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        VATEntryPage: TestPage "VAT Entries";
+        VATEntryNo: Integer;
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 455405] Change VAT when No VAT Date changes" selected
+        Initialize();
+        
+        GLSetup.Get();
+        GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Disabled;
+        GLSetup.Modify();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.FindSet();
+       
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VATEntry."Entry No.";
+        NewVATDate := WorkDate() + 1;
+
+        // [WHEN] VAT date should not be editable on page
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        Assert.IsFalse(VATEntryPage."VAT Reporting Date".Editable(), VATDateNoChangeErr);
+
+        asserterror VATEntry.Validate("VAT Reporting Date", NewVATDate);
+    end;
+
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoicesRequestPageHandler,MessageHandler')]
+    procedure BatchPostSalesInvWithVATDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SellToCustomerNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Sales Invoice.
+        Initialize();
+        SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Sales Invoices.
+        RunReportBatchPostSalesInvoices(SellToCustomerNo, PostingDate, VATDate);
+
+        // [THEN] Verify Sales Invoice Header is updated with Posting Date and VAT Date of report.
+        VerifySalesInvoiceHeader(SellToCustomerNo, PostingDate, VATDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrdersRequestPageHandler,MessageHandler')]
+    procedure BatchPostSalesOrdersWithVATDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SellToCustomerNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Sales Order.
+        Initialize();
+        SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Sales Orders.
+        RunReportBatchPostSalesOrders(SellToCustomerNo, SalesHeader."No.", PostingDate, VATDate);
+
+        // [THEN] Verify Sales Invoice Header is updated with Posting Date and VAT Date of report.
+        VerifySalesInvoiceHeader(SellToCustomerNo, PostingDate, VATDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesCreditMemosRequestPageHandler,MessageHandler')]
+    procedure BatchPostSalesCreditMemosWithVATDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SellToCustomerNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Sales Credit Memo.
+        Initialize();
+        SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Sales Credit Memo.
+        RunReportBatchPostSalesCreditMemos(SellToCustomerNo, PostingDate, VATDate);
+
+        // [THEN] Verify Sales Credit Memo Header is updated with Posting Date and VAT Date of report.
+        VerifySalesCreditMemoHeader(SellToCustomerNo, PostingDate, VATDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchInvoicesRequestPageHandler,MessageHandler')]
+    procedure BatchPostPurchInvWithVATDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Purchase Invoice.
+        Initialize();
+        VendorNo := CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Purhcase Invoices.
+        RunReportBatchPostPurchInvoices(VendorNo, PostingDate, VATDate);
+
+        // [THEN] Verify Purchase Invoice Header is updated with Posting Date and VAT Date of report.
+        VerifyPurchInvoiceHeader(VendorNo, PostingDate, VATDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchOrdersRequestPageHandler,MessageHandler')]
+    procedure BatchPostPurchOrdersWithVATDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Purchase Order.
+        Initialize();
+        VendorNo := CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Purhcase Order.
+        RunReportBatchPostPurchOrders(VendorNo, PostingDate, VATDate);
+
+        // [THEN] Verify Purchase Invoice Header is updated with Posting Date and VAT Date of report.
+        VerifyPurchInvoiceHeader(VendorNo, PostingDate, VATDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchCreditMemosRequestPageHandler,MessageHandler')]
+    procedure BatchPostPurchCreditMemosWithVATDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        PostingDate, VATDate: Date;
+    begin
+        // [GIVEN] Create Purchase Credit Memo.
+        Initialize();
+        VendorNo := CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
+        PostingDate := WorkDate();
+        VATDate := WorkDate() + 1;
+
+        // [WHEN] Run Report Batch Post Purhcase Credit Memos.
+        RunReportBatchPostPurchCreditMemos(VendorNo, PostingDate, VATDate);
+
+        // [THEN] Verify Purchase Credit Memos is updated with Posting Date and VAT Date of report.
+        VerifyPurchCreditMemoHeader(VendorNo, PostingDate, VATDate);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
+        GLSetup: Record "General Ledger Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
@@ -3774,6 +4044,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
 
+        GLSetup.Get();
+        GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Complete;
+        GLSetup.Modify();
+        
         // Lazy Setup.
         if IsInitialized then
             exit;
@@ -3790,6 +4064,163 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        exit(Customer."No.");
+    end;
+
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
+    var
+        PurchLine: Record "Purchase Line";
+        Item: Record Item;
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchaseHeader, PurchLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        exit(Vendor."No.");
+    end;
+
+    local procedure RunReportBatchPostSalesInvoices(SellToCustomerNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        SalesHeader: Record "Sales Header";
+        BatchPostSalesInvoices: Report "Batch Post Sales Invoices";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate);  
+        LibraryVariableStorage.Enqueue(VATDate);
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostSalesInvoices);
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        BatchPostSalesInvoices.SetTableView(SalesHeader);
+        BatchPostSalesInvoices.Run(); 
+    end;
+
+    local procedure RunReportBatchPostSalesOrders(SellToCustomerNo: Code[20]; DocNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        SalesHeader: Record "Sales Header";
+        BatchPostSalesOrders: Report "Batch Post Sales Orders";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate); 
+        LibraryVariableStorage.Enqueue(VATDate);
+        LibraryVariableStorage.Enqueue(DocNo);
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostSalesOrders);
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        BatchPostSalesOrders.SetTableView(SalesHeader);
+        BatchPostSalesOrders.Run();  
+    end;
+
+    local procedure RunReportBatchPostSalesCreditMemos(SellToCustomerNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        SalesHeader: Record "Sales Header";
+        BatchPostSalesCreditMemos: Report "Batch Post Sales Credit Memos";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate); 
+        LibraryVariableStorage.Enqueue(VATDate);
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostSalesCreditMemos);
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        BatchPostSalesCreditMemos.SetTableView(SalesHeader);
+        BatchPostSalesCreditMemos.Run();  
+    end;
+
+    local procedure RunReportBatchPostPurchInvoices(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        PurchHeader: Record "Purchase Header";
+        BatchPostPurchInvoices: Report "Batch Post Purchase Invoices";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate); 
+        LibraryVariableStorage.Enqueue(VATDate); 
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostPurchInvoices);
+        PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        BatchPostPurchInvoices.SetTableView(PurchHeader);
+        BatchPostPurchInvoices.Run();
+    end;
+    
+    local procedure RunReportBatchPostPurchOrders(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        PurchHeader: Record "Purchase Header";
+        BatchPostPurchOrders: Report "Batch Post Purchase Orders";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate);  
+        LibraryVariableStorage.Enqueue(VATDate);  
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostPurchOrders);
+        PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        BatchPostPurchOrders.SetTableView(PurchHeader);
+        BatchPostPurchOrders.Run(); 
+    end;
+
+    local procedure RunReportBatchPostPurchCreditMemos(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        PurchHeader: Record "Purchase Header";
+        BatchPostPurchCreditMemos: Report "Batch Post Purch. Credit Memos";
+    begin
+        LibraryVariableStorage.Enqueue(PostingDate);  
+        LibraryVariableStorage.Enqueue(VATDate); 
+        Commit();  // Commit required to Run report.
+        Clear(BatchPostPurchCreditMemos);
+        PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        BatchPostPurchCreditMemos.SetTableView(PurchHeader);
+        BatchPostPurchCreditMemos.Run();
+    end;
+
+    local procedure VerifySalesInvoiceHeader(SellToCustomerNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        SalesInvoiceHeader.FindFirst();
+        SalesInvoiceHeader.TestField("Posting Date", PostingDate);
+        SalesInvoiceHeader.TestField("Document Date", WorkDate());
+        SalesInvoiceHeader.TestField("VAT Reporting Date", VATDate);
+    end;
+    
+    local procedure VerifySalesCreditMemoHeader(SellToCustomerNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        SalesCreditMemoHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        SalesCreditMemoHeader.FindFirst();
+        SalesCreditMemoHeader.TestField("Posting Date", PostingDate);
+        SalesCreditMemoHeader.TestField("Document Date", WorkDate());
+        SalesCreditMemoHeader.TestField("VAT Reporting Date", VATDate);
+    end;
+
+    local procedure VerifyPurchInvoiceHeader(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvoiceHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvoiceHeader.FindFirst();
+        PurchInvoiceHeader.TestField("Posting Date", PostingDate);
+        PurchInvoiceHeader.TestField("Document Date", WorkDate());
+        PurchInvoiceHeader.TestField("VAT Reporting Date", VATDate);
+    end;
+
+    local procedure VerifyPurchCreditMemoHeader(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
+    var
+        PurchCreditMemoHeader: Record "Purch. Cr. Memo Hdr.";
+    begin
+        PurchCreditMemoHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchCreditMemoHeader.FindFirst();
+        PurchCreditMemoHeader.TestField("Posting Date", PostingDate);
+        PurchCreditMemoHeader.TestField("Document Date", WorkDate());
+        PurchCreditMemoHeader.TestField("VAT Reporting Date", VATDate);
     end;
 
     local procedure CreateVATReturnPeriod(VATReturnPeriodStatus: Option; VATReportHeaderStatus: Option; StartDate: Date; EndDate: Date) 
@@ -4126,6 +4557,33 @@ codeunit 134045 "ERM VAT Sales/Purchase"
                 Validate("VAT Reporting Date");
             Modify(true);
             CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
+            exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        end;
+    end;
+
+    local procedure CreateAndPostSalesDocWithTwoLines(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        VATPostingSetupA, VATPostingSetupB: Record "VAT Posting Setup";
+        Codeno: Code[20];
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetupA, VATPostingSetupA."VAT Calculation Type"::"Normal VAT", 10);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetupB, VATPostingSetupB."VAT Calculation Type"::"Normal VAT", 20);
+        with SalesHeader do begin
+            VATPostingSetupB.Rename(VATPostingSetupA."VAT Bus. Posting Group", VATPostingSetupB."VAT Prod. Posting Group");
+            Codeno := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetupA."VAT Bus. Posting Group");
+            LibrarySales.CreateSalesHeader(SalesHeader, DocType, Codeno);
+            Validate("Document Date", CalcDate(Format(-LibraryRandom.RandIntInRange(50, 100)) + '<D>', WorkDate()));
+            if VATDate <> 0D then
+                Validate("VAT Reporting Date", VATDate)
+            else
+                Validate("VAT Reporting Date");
+            Modify(true);            
+            CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupA."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupA."VAT Prod. Posting Group"), 1, 100);
+            CreateSalesLineWithUnitPriceAndVATProdPstGroup(SalesLine, SalesHeader, VATPostingSetupB."VAT Prod. Posting Group", Enum::"Sales Line Type"::Item, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetupB."VAT Prod. Posting Group"), 1, 100);
             exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         end;
     end;
@@ -4850,5 +5308,99 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         Reply := false;
     end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesInvoicesRequestPageHandler(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
+    var
+        PostingDate, VATDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostSalesInvoices.VATDate.SetValue(VATDate);
+        BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
+        BatchPostSalesInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostSalesInvoices.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesOrdersRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
+    var
+        PostingDate, VATDate: Date;
+        DocumentNoFilter: Code[20];
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        DocumentNoFilter := LibraryVariableStorage.DequeueText();
+        
+        BatchPostSalesOrders.Ship.SetValue(true);
+        BatchPostSalesOrders.Invoice.SetValue(true);
+        BatchPostSalesOrders."Sales Header".SetFilter("No.", DocumentNoFilter);
+        BatchPostSalesOrders."Sales Header".SetFilter("Document Type", Format(Enum::"Sales Document Type"::Order));
+        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
+        BatchPostSalesOrders.VATDate.SetValue(VATDate);
+        BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
+        BatchPostSalesOrders.ReplaceVATDate.SetValue(true);
+        BatchPostSalesOrders.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesCreditMemosRequestPageHandler(var BatchPostSalesCreditMemos: TestRequestPage "Batch Post Sales Credit Memos")
+    var
+        PostingDate, VATDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
+        BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
+        BatchPostSalesCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostSalesCreditMemos.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchInvoicesRequestPageHandler(var BatchPostPurchInvoices: TestRequestPage "Batch Post Purchase Invoices")
+    var
+        PostingDate, VATDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostPurchInvoices.VATDate.SetValue(VATDate);
+        BatchPostPurchInvoices.ReplacePostingDate.SetValue(true);
+        BatchPostPurchInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostPurchInvoices.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchOrdersRequestPageHandler(var BatchPostPurchOrders: TestRequestPage "Batch Post Purchase Orders")
+    var
+        PostingDate, VATDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        BatchPostPurchOrders.Receive.SetValue(true);
+        BatchPostPurchOrders.Invoice.SetValue(true);
+        BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
+        BatchPostPurchOrders.VATDate.SetValue(VATDate);
+        BatchPostPurchOrders.ReplacePostingDate.SetValue(true);
+        BatchPostPurchOrders.ReplaceVATDate.SetValue(true);
+        BatchPostPurchOrders.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchCreditMemosRequestPageHandler(var BatchPostPurchCreditMemos: TestRequestPage "Batch Post Purch. Credit Memos")
+    var
+        PostingDate, VATDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        VATDate := LibraryVariableStorage.DequeueDate();
+        BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
+        BatchPostPurchCreditMemos.ReplacePostingDate.SetValue(true);
+        BatchPostPurchCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostPurchCreditMemos.OK.Invoke;
+    end;
+    
 }
 

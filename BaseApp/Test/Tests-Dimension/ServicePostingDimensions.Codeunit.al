@@ -19,6 +19,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -39,6 +40,7 @@ codeunit 136118 "Service Posting - Dimensions"
         NoCodeDimensionLine: Label 'The dimensions used in %1 %2, line no. %3 are invalid. %4 %5 must not be mentioned for %6 %7.';
         DimensionSetIDErr: Label 'Dimension Set ID is incorrect on Posted Service Shipment Line';
         IncorrectShortcutDimensionValueErr: Label 'Incorrect Shortcut Dimension value for %1';
+        DimensionValueCodeError: Label '%1 must be %2.';
 
     [Test]
     [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
@@ -2626,6 +2628,49 @@ codeunit 136118 "Service Posting - Dimensions"
         asserterror VerifyDimSetEntry(ServiceLine."Dimension Set ID", Dimension[2].Code, UnexpectedDimValueCode);
     end;
 
+    [Test]
+    procedure VerifyDimensionsAreNotReInitializedIfDefaultDimensionDoesntExist()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Location: Record Location;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        ServiceItemNo: Code[20];
+    begin
+        // [SCENARIO 455039] Verify dimensions are not re-initialized on validate field if default dimensions does not exist
+        Initialize();
+
+        // [GIVEN] Create Customer with default global dimension value
+        CreateCustomerWithDefaultGlobalDimValue(Customer, DimensionValue);
+
+        // [GIVEN] Create Service Item        
+        ServiceItemNo := CreateServiceItem(Customer."No.", CreateServiceItemGroup);
+
+        // [GIVEN] Create Location without Default Dimension
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Service Order
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
+
+        // [GIVEN] Create Service Line related to Service Item Line
+        CreateServiceLineWithServItemLineNo(
+          ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), ServiceItemLine."Line No.");
+
+        // [GIVEN] Update global dimension 1 on Service Line
+        UpdateGlobalDimensionOnServiceLine(ServiceLine, DimensionValue2);
+
+        // [WHEN] Change Location on Service Line
+        UpdateLocationOnServiceLine(ServiceLine, Location.Code);
+
+        // [VERIFY] Verify Dimensions are not re initialized on Service Line
+        VerifyDimensionOnServiceLine(ServiceLine, DimensionValue2."Dimension Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4262,6 +4307,42 @@ codeunit 136118 "Service Posting - Dimensions"
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.FindFirst();
         GLEntry.TestField("Dimension Set ID", ExpectedDimSetID);
+    end;
+
+    local procedure VerifyDimensionOnServiceLine(var ServiceLine: Record "Service Line"; DimensionCode: Code[20])
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
+        DimensionSetEntry.SetRange("Dimension Set ID", ServiceLine."Dimension Set ID");
+        DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(
+            DimensionCode, DimensionSetEntry."Dimension Code",
+            StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+    end;
+
+    local procedure UpdateLocationOnServiceLine(var ServiceLine: Record "Service Line"; LocationCode: Code[10])
+    begin
+        ServiceLine.Validate("Location Code", LocationCode);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure UpdateGlobalDimensionOnServiceLine(var ServiceLine: Record "Service Line"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        ServiceLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithDefaultGlobalDimValue(var Customer: Record Customer; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionCustomer(
+          DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     [ConfirmHandler]
