@@ -4066,9 +4066,9 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostedInvNo: Code[20];
     begin
         // [FEATURE] [UI] [Customer/Vendor Warnings 349] [Purchase]
-        // [SCENARIO 273577] When "Original Declaration FY" is changed on Customer/Vendor Warnings 349 page, then Previous Declared Amount is changed with respect to Purch. Corrective Cr. Memo from previous periods
-        // [SCENARIO 273577] even if Purchase Invoice was posted with several lines having different VAT Prod. Posting Groups
-        Initialize;
+        // [SCENARIO 417581] When "Original Declaration FY" is changed on Customer/Vendor Warnings 349 page, then Previous Declared Amount is not changed
+        // [SCENARIO 417581] even if Purchase Invoice was posted with several lines having different VAT Prod. Posting Groups
+        Initialize();
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
 
         // [GIVEN] Posted Purchase Invoice with two lines, having different VAT Prod. Posting Groups; Posting Date = 01/02/2018 and Amount = 1000.0
@@ -4078,7 +4078,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [GIVEN] Posted Corrective Purchase Credit Memo with Amount = 100.0 and Posting Date = 01/03/2018 (same year, other period)
         CreateVATPostingSetupForBusGroup(VATPostingSetup, VATBusinessPostingGroup.Code);
-        Amount -= CreateAndPostCorrectivePurchCrMemo(
+        CreateAndPostCorrectivePurchCrMemo(
             PurchaseHeader."Buy-from Vendor No.", CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
             LibraryRandom.RandDateFrom(CalcDate('<1M>', PurchaseHeader."Posting Date"), 10), PostedInvNo);
 
@@ -4097,7 +4097,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         // [WHEN] Stan sets value "Original Declaration FY" = 2018 on Customer/Vendor Warnings 349 page
         // value is set in CustomerVendorWarnings349ModalPageHandlerWithModifyOrigDeclFY
 
-        // [THEN] Stan sees "Previous Declared Amount" = 900.0 on Customer/Vendor Warnings 349 page
+        // [THEN] Stan sees "Previous Declared Amount" = 1000.0 on Customer/Vendor Warnings 349 page
         Assert.AreEqual(Amount, LibraryVariableStorage.DequeueDecimal, '');
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -4114,9 +4114,9 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostedInvNo: Code[20];
     begin
         // [FEATURE] [UI] [Customer/Vendor Warnings 349] [Sales]
-        // [SCENARIO 273577] When "Original Declaration FY" is changed on Customer/Vendor Warnings 349 page, then Previous Declared Amount is changed with respect to Sales Corrective Cr. Memos from previous periods
-        // [SCENARIO 273577] even if Sales Invoice was posted with several lines having different VAT Prod. Posting Groups
-        Initialize;
+        // [SCENARIO 417581] When "Original Declaration FY" is changed on Customer/Vendor Warnings 349 page, then Previous Declared Amount is not changed
+        // [SCENARIO 417581] even if Sales Invoice was posted with several lines having different VAT Prod. Posting Groups
+        Initialize();
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
 
         // [GIVEN] Posted Sales Invoice with two lines, having different VAT Prod. Posting Groups; Posting Date = 01/02/2018 and Amount = 1000.0
@@ -4126,7 +4126,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [GIVEN] Posted Corrective Sales Credit Memo with Amount = 100.0 and Posting Date = 01/03/2018 (same year, other period)
         CreateVATPostingSetupForBusGroup(VATPostingSetup, VATBusinessPostingGroup.Code);
-        Amount -= CreateAndPostCorrectiveSalesCrMemo(
+        CreateAndPostCorrectiveSalesCrMemo(
             SalesHeader."Sell-to Customer No.", CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
             LibraryRandom.RandDateFrom(CalcDate('<1M>', SalesHeader."Posting Date"), 10), PostedInvNo);
 
@@ -4145,7 +4145,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         // [WHEN] Stan sets value "Original Declaration FY" = 2018 on Customer/Vendor Warnings 349 page
         // value is set in CustomerVendorWarnings349ModalPageHandlerWithModifyOrigDeclFY
 
-        // [THEN] Stan sees "Previous Declared Amount" = 900.0 on Customer/Vendor Warnings 349 page
+        // [THEN] Stan sees "Previous Declared Amount" = 1000.0 on Customer/Vendor Warnings 349 page
         Assert.AreEqual(Amount, LibraryVariableStorage.DequeueDecimal, '');
         LibraryVariableStorage.AssertEmpty;
     end;

@@ -472,6 +472,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplate.Name, IntrastatJnlBatch.Name);
         IntrastatJnlLine.Validate(Type, IntrastatJnlLine.Type::Shipment);
         IntrastatJnlLine.Validate("Country/Region Code", 'DE');
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", 'AT');
         IntrastatJnlLine.Validate("Tariff No.", CreateTariffNumber());
         IntrastatJnlLine."Transaction Type" := 'dummy';
         IntrastatJnlLine.Area := 'dummy';
@@ -516,13 +517,17 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatMakeDeclaration: Report "Intrastat - Make Declaration";
+        FileTempBlob: Codeunit "Temp Blob";
+        FileOutStream: OutStream;
+        ExportFormat: Enum "Intrastat Export Format";
     begin
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
         IntrastatJnlBatch.SetRecFilter();
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
         Commit();
-        IntrastatMakeDeclaration.InitializeRequest(LibraryReportDataset.GetFileName());
+        FileTempBlob.CreateOutStream(FileOutStream);
+        IntrastatMakeDeclaration.InitializeRequest(FileOutStream, ExportFormat::"2022");
         IntrastatMakeDeclaration.SetTableView(IntrastatJnlBatch);
         IntrastatMakeDeclaration.SetTableView(IntrastatJnlLine);
         IntrastatMakeDeclaration.UseRequestPage(true);

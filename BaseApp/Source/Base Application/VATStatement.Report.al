@@ -751,9 +751,9 @@
         if VATEntry.FindFirst() then;
         case VATStatementLine."Amount Type" of
             VATStatementLine."Amount Type"::Amount:
-                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
-                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
+                begin
+                    VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
+                    Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
                 end;
             VATStatementLine."Amount Type"::Base:
                 begin

@@ -61,7 +61,7 @@ codeunit 134387 "ERM Sales Documents III"
         QuoteNoMustNotBeVisibleErr: Label 'Quote No. must not be visible.';
         ZeroQuantityInLineErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         WrongReportInvokedErr: Label 'Wrong report invoked.';
-        ConfirmDownloadPostedShipmentQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
+        ConfirmSendPostedShipmentQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         LinesNotUpdatedMsg: Label 'You have changed Language Code on the sales header, but it has not been changed on the existing sales lines.';
         LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
         UpdateManuallyMsg: Label 'You must update the existing sales lines manually.';
@@ -3693,7 +3693,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Selected to post "Ship and Invoice"
         // [THEN] Declined to download report of posted Sales Shipment
         LibraryVariableStorage.Enqueue(3); // Select Ship and Invocie in menu
-        LibraryVariableStorage.Enqueue(ConfirmDownloadPostedShipmentQst);
+        LibraryVariableStorage.Enqueue(ConfirmSendPostedShipmentQst);
         LibraryVariableStorage.Enqueue(false); // do not download report
         SalesHeader.SetRecFilter;
         SalesOrder.OpenEdit;
@@ -5501,6 +5501,42 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RecreateSalesItemLineWithEmptyNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] 
+        // [SCENARIO 414831] The sales line with "No." = '' and Type <> 'Item' must be recreated when Customer No. is changed
+        Initialize();
+
+        // [GIVEN] Item with empty description
+        LibraryInventory.CreateItem(Item);
+        Item.Description := '';
+        Item.Modify();
+
+        // [GIVEN] Sales Order with Customer No. = '10000' Sales Line with Type = "Item" and "No." is blank
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, '', 0);
+        SalesLine.Validate("No.", '');
+        SalesLine.Modify(true);
+
+        // [WHEN] Change Customer No. in Purchase Header
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Sales Line with "No." = '' and Type = "Item" exists
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", '');
+        Assert.RecordCount(SalesLine, 1);
     end;
 
     local procedure Initialize()

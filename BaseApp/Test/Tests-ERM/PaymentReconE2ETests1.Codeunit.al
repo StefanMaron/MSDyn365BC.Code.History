@@ -879,7 +879,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
+        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount, TransactionText);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -914,7 +914,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
+        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount, TransactionText);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -3485,7 +3485,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostPaymentToGLAccount(GLAccountNo: Code[20]; BankAccNo: Code[20]; Amount: Decimal)
+    local procedure PostPaymentToGLAccount(GLAccountNo: Code[20]; BankAccNo: Code[20]; Amount: Decimal; TransactionText: Text)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -3503,6 +3503,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           GenJournalLine."Bal. Account Type"::"Bank Account",
           BankAccNo,
           -Amount);
+
+        GenJournalLine.Description := CopyStr(TransactionText, 1, MaxStrLen(GenJournalLine.Description));
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

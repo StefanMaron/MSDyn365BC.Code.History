@@ -345,7 +345,7 @@
         Text1100102: Label 'Posting to bal. account    #5######\';
         Text1100103: Label 'Creating documents         #6######';
         Text1100104: Label 'Corrective Invoice';
-        DownloadShipmentAlsoQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
+        SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         SuppressCommit: Boolean;
         PostingPreviewNoTok: Label '***', Locked = true;
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
@@ -6883,7 +6883,7 @@
         if IsHandled then
             exit(Result);
 
-        if ConfirmManagement.GetResponseOrDefault(DownloadShipmentAlsoQst, true) then
+        if ConfirmManagement.GetResponseOrDefault(SendShipmentAlsoQst, true) then
             exit(true);
 
         exit(false);

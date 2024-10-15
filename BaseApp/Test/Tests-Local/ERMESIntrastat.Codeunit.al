@@ -663,13 +663,13 @@
         // [THEN] File 1 has no empty line in the end
         ExtractDirectory := FileManagement.ServerTempFileName('tmp');
         Zipfile.ExtractToDirectory(FileName, ExtractDirectory);
-        VerifyLastSymbolOfFile(ExtractDirectory, 1);
+        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 1);
 
         // [THEN] File 2 has no empty line in the end
-        VerifyLastSymbolOfFile(ExtractDirectory, 2);
+        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 2);
 
         // [THEN] File 3 has no empty line in the end
-        VerifyLastSymbolOfFile(ExtractDirectory, 3);
+        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 3);
     end;
 
     [Test]
@@ -1377,7 +1377,7 @@
         Assert.RecordIsNotEmpty(DummyIntrastatJnlLine);
     end;
 
-    local procedure VerifyLastSymbolOfFile(FileName: Text; FileNo: Integer)
+    local procedure VerifyLastSymbolOfFile(FileName: Text; StatisticsPeriod: Code[10]; FileNo: Integer)
     var
         InFile: File;
         InStream: InStream;
@@ -1386,7 +1386,8 @@
         LineFeed: Char;
         LineFeedText: Text[1];
     begin
-        FileName := FileManagement.CombinePath(FileName, 'Default_' + Format(FileNo) + '.txt');
+        FileName := FileManagement.CombinePath(FileName, 'Intrastat-%1-' + Format(FileNo) + '.txt');
+        FileName := StrSubstNo(FileName, StatisticsPeriod);
 
         InFile.TextMode(true);
         InFile.Open(FileName);

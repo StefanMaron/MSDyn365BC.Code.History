@@ -304,11 +304,11 @@ page 10736 "Customer/Vendor Warnings 349"
                     if not IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then
                         case true of
                             ((not "EU Service") and (not "EU 3-Party Trade")):
-                                NormalAmount += Base + GetAppliedCorrCrMemosAmtFromDiffPeriod(VATEntry, FromDate, ToDate);
+                                NormalAmount += Base;
                             ("EU 3-Party Trade" and (not "EU Service")):
-                                AmountOpTri += Base + GetAppliedCorrCrMemosAmtFromDiffPeriod(VATEntry, FromDate, ToDate);
+                                AmountOpTri += Base;
                             "EU Service":
-                                AmountEUService += Base + GetAppliedCorrCrMemosAmtFromDiffPeriod(VATEntry, FromDate, ToDate);
+                                AmountEUService += Base;
                         end;
                 until Next() = 0;
         end;
@@ -318,64 +318,6 @@ page 10736 "Customer/Vendor Warnings 349"
     procedure Cancelled() GotCancelled: Boolean
     begin
         GotCancelled := not IsProcess;
-    end;
-
-    local procedure GetAppliedCorrCrMemosAmtFromDiffPeriod(VATEntry: Record "VAT Entry"; FromDate: Date; ToDate: Date) TotalAmount: Decimal
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        if VATEntry."Document Type" <> VATEntry."Document Type"::Invoice then
-            exit(0);
-
-        case VATEntry.Type of
-            VATEntry.Type::Sale:
-                begin
-                    SalesCrMemoHeader.SetRange("Corrected Invoice No.", VATEntry."Document No.");
-                    SalesCrMemoHeader.SetFilter("Posting Date", '..%1|%2..%3', CalcDate('<-CM-1D>', FromDate),
-                      CalcDate('<CM+1D>', ToDate), CalcDate('<-1D>', "Posting Date"));
-                    if SalesCrMemoHeader.FindSet then
-                        repeat
-                            if not TempSalesCrMemoHeader.Get(SalesCrMemoHeader."No.") then begin
-                                TempSalesCrMemoHeader.Init();
-                                TempSalesCrMemoHeader."No." := SalesCrMemoHeader."No.";
-                                TempSalesCrMemoHeader.Insert();
-                                TotalAmount +=
-                                  GetVATBaseFromCrMemoVATEntry(SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date",
-                                    SalesCrMemoHeader."Bill-to Customer No.");
-                            end;
-                        until SalesCrMemoHeader.Next() = 0;
-                end;
-            VATEntry.Type::Purchase:
-                begin
-                    PurchCrMemoHdr.SetRange("Corrected Invoice No.", VATEntry."Document No.");
-                    PurchCrMemoHdr.SetFilter("Posting Date", '..%1|%2..%3', CalcDate('<-CM-1D>', FromDate),
-                      CalcDate('<CM+1D>', ToDate), CalcDate('<-1D>', "Posting Date"));
-                    if PurchCrMemoHdr.FindSet then
-                        repeat
-                            if not TempPurchCrMemoHdr.Get(PurchCrMemoHdr."No.") then begin
-                                TempPurchCrMemoHdr.Init();
-                                TempPurchCrMemoHdr."No." := PurchCrMemoHdr."No.";
-                                TempPurchCrMemoHdr.Insert();
-                                TotalAmount +=
-                                  GetVATBaseFromCrMemoVATEntry(PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date",
-                                    PurchCrMemoHdr."Pay-to Vendor No.");
-                            end;
-                        until PurchCrMemoHdr.Next() = 0;
-                end;
-        end;
-    end;
-
-    local procedure GetVATBaseFromCrMemoVATEntry(DocNo: Code[20]; PostingDate: Date; CustVendNo: Code[20]): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
-        VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.SetRange("Posting Date", PostingDate);
-        VATEntry.SetRange("Bill-to/Pay-to No.", CustVendNo);
-        VATEntry.CalcSums(Base);
-        exit(VATEntry.Base);
     end;
 }
 

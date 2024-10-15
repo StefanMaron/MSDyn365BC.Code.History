@@ -1794,8 +1794,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Verify: Verify Starting Date on the 2nd Planning Routing Line, the Starting Date is weekend since the Wait Time is 1 ~ 2 days
         PlanningRoutingLine2.TestField(
-          "Starting Date", DT2Date(PlanningRoutingLine2."Ending Date-Time" - PlanningRoutingLine2."Wait Time" * 60 * 1000)); // Wait Time is not capacity contrained
-        PlanningRoutingLine2.TestField("Starting Time", 000000T); // When routing starts in non-working day, the starting time is 12:00:00 AM
+            "Starting Date-Time", PlanningRoutingLine2."Ending Date-Time" - PlanningRoutingLine2."Wait Time" * 60 * 1000);
 
         FindPlanningRoutingLine(PlanningRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No."); // Find the 1st Planning Routing Line
 

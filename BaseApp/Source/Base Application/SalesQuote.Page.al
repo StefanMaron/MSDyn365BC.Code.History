@@ -1125,6 +1125,7 @@ page 41 "Sales Quote"
                             exit;
 
                         OpenDocumentStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action("Co&mments")
