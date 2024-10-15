@@ -1418,6 +1418,37 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.AssertElementTagWithValueExists('ShptShipToAddr3', ShipToAddress);
     end;
 
+    [Test]
+    [HandlerFunctions('StandardPurchaseOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchLineVATPctStandardPurchaseOrderReport()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 417377] "Standard - Purchase Order" contains value of "Purchase Line"."VAT %"
+
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(1, 5));
+        PurchaseLine."VAT %" := LibraryRandom.RandIntInRange(1, 20);
+        PurchaseLine.Modify();
+        LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
+
+        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
+        Commit();
+        Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
+
+        LibraryReportDataset.RunReportAndLoad(
+            Report::"Standard Purchase - Order", PurchaseHeader, '');
+        LibraryReportDataset.AssertElementWithValueExists('PurchLine_VATPct', PurchaseLine."VAT %");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

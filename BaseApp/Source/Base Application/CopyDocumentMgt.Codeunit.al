@@ -400,7 +400,7 @@
                         if CopySalesDocLine(
                              ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
                              NextLineNo, LinesNotCopied, false,
-                             "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc(ConvertToSalesDocumentTypeFrom(FromSalesHeader."Document Type"))),
+                             ConvertToSalesDocumentTypeFrom(FromSalesHeader."Document Type"),
                              CopyPostedDeferral, FromSalesLine."Line No.")
                         then begin
                             OnCopySalesDocSalesLineOnBeforeCopyFromSalesDocAssgntToLine(FromSalesLine, ToSalesLine, RecalculateLines, NextLineNo);
@@ -418,21 +418,39 @@
         OnAfterCopySalesDocSalesLine(ToSalesLine);
     end;
 
-    local procedure ConvertToSalesDocumentTypeFrom(DocType: Enum "Sales Document Type"): Integer;
+    local procedure ConvertToSalesDocumentTypeFrom(SalesDocType: Enum "Sales Document Type") SalesDocTypeFrom: Enum "Sales Document Type From"
     begin
-        case DocType of
-            DocType::Quote:
-                exit("Sales Document Type From"::Quote.AsInteger());
-            DocType::Order:
-                exit("Sales Document Type From"::Order.AsInteger());
-            DocType::Invoice:
-                exit("Sales Document Type From"::Invoice.AsInteger());
-            DocType::"Credit Memo":
-                exit("Sales Document Type From"::"Credit Memo".AsInteger());
-            DocType::"Blanket Order":
-                exit("Sales Document Type From"::"Blanket Order".AsInteger());
-            DocType::"Return Order":
-                exit("Sales Document Type From"::"Return Order".AsInteger());
+        case SalesDocType of
+            SalesDocType::Quote:
+                exit(SalesDocTypeFrom::Quote);
+            SalesDocType::Order:
+                exit(SalesDocTypeFrom::Order);
+            SalesDocType::Invoice:
+                exit(SalesDocTypeFrom::Invoice);
+            SalesDocType::"Credit Memo":
+                exit(SalesDocTypeFrom::"Credit Memo");
+            SalesDocType::"Blanket Order":
+                exit(SalesDocTypeFrom::"Blanket Order");
+            SalesDocType::"Return Order":
+                exit(SalesDocTypeFrom::"Return Order");
+        end;
+    end;
+
+    local procedure ConvertToPurchaseDocumentTypeFrom(PurchaseDocType: Enum "Purchase Document Type") PurchaseDocTypeFrom: Enum "Purchase Document Type From"
+    begin
+        case PurchaseDocType of
+            PurchaseDocType::Quote:
+                exit(PurchaseDocTypeFrom::Quote);
+            PurchaseDocType::Order:
+                exit(PurchaseDocTypeFrom::Order);
+            PurchaseDocType::Invoice:
+                exit(PurchaseDocTypeFrom::Invoice);
+            PurchaseDocType::"Credit Memo":
+                exit(PurchaseDocTypeFrom::"Credit Memo");
+            PurchaseDocType::"Blanket Order":
+                exit(PurchaseDocTypeFrom::"Blanket Order");
+            PurchaseDocType::"Return Order":
+                exit(PurchaseDocTypeFrom::"Return Order");
         end;
     end;
 
@@ -899,8 +917,7 @@
                     if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine."Attached to Line No.") then
                         if CopyPurchDocLine(
                              ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, false,
-                             "Purchase Document Type From".FromInteger(
-                                 DeferralTypeForPurchDoc(FromPurchHeader."Document Type".AsInteger())),
+                             ConvertToPurchaseDocumentTypeFrom(FromPurchHeader."Document Type"),
                              CopyPostedDeferral, FromPurchLine."Line No.")
                         then begin
                             if FromPurchLine.Type = FromPurchLine.Type::"Charge (Item)" then
@@ -1543,31 +1560,34 @@
     local procedure UpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var CopyPostedDeferral: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        FromSalesCommentDocTypeInt: Integer;
     begin
         OnBeforeUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
           CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral);
 
+        FromSalesCommentDocTypeInt := DeferralTypeForSalesDoc(FromSalesDocType.AsInteger());
         CopyPostedDeferral := false;
         if RecalculateLines and not FromSalesLine."System-Created Entry" then begin
             RecalculateSalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, CopyThisLine);
             if IsDeferralToBeCopied(
-                "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesDocType.AsInteger()) then
+                "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt)
+            then
                 ToSalesLine.Validate("Deferral Code", FromSalesLine."Deferral Code");
             OnUpdateSalesLineOnAfterRecalculateSalesLine(ToSalesLine, FromSalesLine);
         end else begin
             SetDefaultValuesToSalesLine(ToSalesLine, ToSalesHeader, FromSalesLine."VAT Difference");
             if IsDeferralToBeCopied(
-                "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesDocType.AsInteger())
+                "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt)
             then
-                if IsDeferralPosted("Deferral Document Type"::Sales, FromSalesDocType.AsInteger()) then
+                if IsDeferralPosted("Deferral Document Type"::Sales, FromSalesCommentDocTypeInt) then
                     CopyPostedDeferral := true
                 else
                     ToSalesLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Sales, FromSalesLine."Document Type".AsInteger(), FromSalesLine."Document No.",
                         FromSalesLine."Line No.", ToSalesLine."Document Type".AsInteger(), ToSalesLine."Document No.", ToSalesLine."Line No.")
             else
-                if IsDeferralToBeDefaulted("Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesDocType.AsInteger()) then
+                if IsDeferralToBeDefaulted("Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt) then
                     InitSalesDeferralCode(ToSalesLine);
 
             if ToSalesLine."Document Type" <> ToSalesLine."Document Type"::Order then begin
@@ -1862,27 +1882,29 @@
     local procedure UpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var CopyPostedDeferral: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        FromPurchCommentDocTypeInt: Integer;
     begin
         OnBeforeUpdatePurchLine(
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
           CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), CopyPostedDeferral);
 
+        FromPurchCommentDocTypeInt := DeferralTypeForPurchDoc(FromPurchDocType.AsInteger());
         CopyPostedDeferral := false;
         if RecalculateLines and not FromPurchLine."System-Created Entry" then begin
             RecalculatePurchLine(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, CopyThisLine);
-            if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchDocType.AsInteger()) then
+            if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
                 ToPurchLine.Validate("Deferral Code", FromPurchLine."Deferral Code");
         end else begin
             SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference");
-            if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchDocType.AsInteger()) then
-                if IsDeferralPosted("Deferral Document Type"::Purchase, FromPurchDocType.AsInteger()) then
+            if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
+                if IsDeferralPosted("Deferral Document Type"::Purchase, FromPurchCommentDocTypeInt) then
                     CopyPostedDeferral := true
                 else
                     ToPurchLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Purchase, FromPurchLine."Document Type".AsInteger(), FromPurchLine."Document No.",
                         FromPurchLine."Line No.", ToPurchLine."Document Type".AsInteger(), ToPurchLine."Document No.", ToPurchLine."Line No.")
             else
-                if IsDeferralToBeDefaulted("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchDocType.AsInteger()) then
+                if IsDeferralToBeDefaulted("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
                     InitPurchDeferralCode(ToPurchLine);
 
             if FromPurchLine."Drop Shipment" or FromPurchLine."Special Order" then
@@ -2746,8 +2768,7 @@
 
                             if CopySalesDocLine(
                                  ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLineBuf, NextLineNo, LinesNotCopied, false,
-                                 "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc("Sales Document Type From"::"Posted Shipment".AsInteger())),
-                                 CopyPostedDeferral, FromSalesLineBuf."Line No.")
+                                 "Sales Document Type From"::"Posted Shipment", CopyPostedDeferral, FromSalesLineBuf."Line No.")
                             then begin
                                 if CopyItemTrkg then begin
                                     if SplitLine then
@@ -2930,8 +2951,7 @@
 
                     if CopySalesDocLine(
                         ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine2, NextLineNo, LinesNotCopied, "Return Receipt No." = '',
-                        "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc("Sales Document Type From"::"Posted Invoice".AsInteger())),
-                        CopyPostedDeferral, GetSalesLineNo(TempDocSalesLine, FromSalesLine2."Line No."))
+                        "Sales Document Type From"::"Posted Invoice", CopyPostedDeferral, GetSalesLineNo(TempDocSalesLine, FromSalesLine2."Line No."))
                     then begin
                         if CopyPostedDeferral then
                             CopySalesPostedDeferrals(ToSalesLine, "Deferral Document Type"::Sales,
@@ -3088,8 +3108,7 @@
                     if CopySalesDocLine(
                          ToSalesHeader, ToSalesLine, FromSalesHeader,
                          FromSalesLine2, NextLineNo, LinesNotCopied, "Return Receipt No." = '',
-                         "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc("Sales Document Type From"::"Posted Credit Memo".AsInteger())),
-                         CopyPostedDeferral, GetSalesLineNo(TempDocSalesLine, FromSalesLine2."Line No."))
+                         "Sales Document Type From"::"Posted Credit Memo", CopyPostedDeferral, GetSalesLineNo(TempDocSalesLine, FromSalesLine2."Line No."))
                     then begin
                         if CopyPostedDeferral then
                             CopySalesPostedDeferrals(ToSalesLine, "Deferral Document Type"::Sales,
@@ -3216,8 +3235,7 @@
                             OnCopySalesReturnRcptLinesToDocOnBeforeCopySalesDocLine(ToSalesHeader, FromSalesLineBuf);
                             if CopySalesDocLine(
                                  ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLineBuf, NextLineNo, LinesNotCopied, false,
-                                 "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc("Sales Document Type From"::"Posted Return Receipt".AsInteger())),
-                                 CopyPostedDeferral, FromSalesLineBuf."Line No.")
+                                 "Sales Document Type From"::"Posted Return Receipt", CopyPostedDeferral, FromSalesLineBuf."Line No.")
                             then begin
                                 if CopyItemTrkg then begin
                                     if SplitLine then
@@ -3610,9 +3628,7 @@
 
                             if CopyPurchDocLine(
                                  ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLineBuf, NextLineNo, LinesNotCopied, false,
-                                 "Purchase Document Type From".FromInteger(
-                                     DeferralTypeForPurchDoc("Purchase Document Type From"::"Posted Receipt".AsInteger())),
-                                 CopyPostedDeferral, FromPurchLineBuf."Line No.")
+                                 "Purchase Document Type From"::"Posted Receipt", CopyPostedDeferral, FromPurchLineBuf."Line No.")
                             then begin
                                 if CopyItemTrkg then begin
                                     if SplitLine then
@@ -3771,8 +3787,7 @@
                     if CopyPurchDocLine(
                         ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine2, NextLineNo, LinesNotCopied,
                         "Return Shipment No." = '',
-                        "Purchase Document Type From".FromInteger(DeferralTypeForPurchDoc("Purchase Document Type From"::"Posted Invoice".AsInteger())),
-                        CopyPostedDeferral, GetPurchLineNo(TempDocPurchaseLine, FromPurchLine2."Line No."))
+                        "Purchase Document Type From"::"Posted Invoice", CopyPostedDeferral, GetPurchLineNo(TempDocPurchaseLine, FromPurchLine2."Line No."))
                     then begin
                         if CopyPostedDeferral then
                             CopyPurchPostedDeferrals(
@@ -3938,9 +3953,7 @@
 
                     if CopyPurchDocLine(
                         ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine2, NextLineNo, LinesNotCopied, "Return Shipment No." = '',
-                        "Purchase Document Type From".FromInteger(
-                            DeferralTypeForPurchDoc("Purchase Document Type From"::"Posted Credit Memo".AsInteger())),
-                        CopyPostedDeferral, GetPurchLineNo(TempDocPurchaseLine, FromPurchLine2."Line No."))
+                        "Purchase Document Type From"::"Posted Credit Memo", CopyPostedDeferral, GetPurchLineNo(TempDocPurchaseLine, FromPurchLine2."Line No."))
                     then begin
                         if CopyPostedDeferral then
                             CopyPurchPostedDeferrals(
@@ -4079,9 +4092,7 @@
 
                             if CopyPurchDocLine(
                                 ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLineBuf, NextLineNo, LinesNotCopied, false,
-                                "Purchase Document Type From".FromInteger(
-                                    DeferralTypeForPurchDoc("Purchase Document Type From"::"Posted Return Shipment".AsInteger())),
-                                CopyPostedDeferral, FromPurchLineBuf."Line No.")
+                                "Purchase Document Type From"::"Posted Return Shipment", CopyPostedDeferral, FromPurchLineBuf."Line No.")
                             then begin
                                 if CopyItemTrkg then begin
                                     if SplitLine then
@@ -6070,6 +6081,11 @@
             "Prepmt. Cr. Memo No." := OldSalesHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldSalesHeader."Prepmt. Posting Description";
             SetSalespersonPurchaserCode("Salesperson Code");
+            Area := OldSalesHeader.Area;
+            "Exit Point" := OldSalesHeader."Exit Point";
+            "Transaction Specification" := OldSalesHeader."Transaction Specification";
+            "Transaction Type" := OldSalesHeader."Transaction Type";
+            "Transport Method" := OldSalesHeader."Transport Method";
         end
     end;
 
@@ -6091,6 +6107,11 @@
             "Prepmt. Cr. Memo No." := OldPurchHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldPurchHeader."Prepmt. Posting Description";
             SetSalespersonPurchaserCode("Purchaser Code");
+            Area := OldPurchHeader.Area;
+            "Entry Point" := OldPurchHeader."Entry Point";
+            "Transaction Specification" := OldPurchHeader."Transaction Specification";
+            "Transaction Type" := OldPurchHeader."Transaction Type";
+            "Transport Method" := OldPurchHeader."Transport Method";
         end;
     end;
 
@@ -6328,7 +6349,7 @@
         end;
     end;
 
-    local procedure IsDeferralToBeCopied(DeferralDocType: Enum "Deferral Document Type"; ToDocType: Option; FromDocType: Option): Boolean
+    local procedure IsDeferralToBeCopied(DeferralDocType: Enum "Deferral Document Type"; ToDocType: Option; FromCommentDocType: Option): Boolean
     var
         SalesLine: Record "Sales Line";
         SalesCommentLine: Record "Sales Comment Line";
@@ -6342,7 +6363,7 @@
                 SalesLine."Document Type"::Invoice.AsInteger(),
                 SalesLine."Document Type"::"Credit Memo".AsInteger(),
                 SalesLine."Document Type"::"Return Order".AsInteger():
-                    case FromDocType of
+                    case FromCommentDocType of
                         SalesCommentLine."Document Type"::Order.AsInteger(),
                         SalesCommentLine."Document Type"::Invoice.AsInteger(),
                         SalesCommentLine."Document Type"::"Credit Memo".AsInteger(),
@@ -6359,7 +6380,7 @@
                     PurchLine."Document Type"::Invoice.AsInteger(),
                     PurchLine."Document Type"::"Credit Memo".AsInteger(),
                     PurchLine."Document Type"::"Return Order".AsInteger():
-                        case FromDocType of
+                        case FromCommentDocType of
                             PurchCommentLine."Document Type"::Order.AsInteger(),
                             PurchCommentLine."Document Type"::Invoice.AsInteger(),
                             PurchCommentLine."Document Type"::"Credit Memo".AsInteger(),
@@ -6373,7 +6394,7 @@
         exit(false);
     end;
 
-    local procedure IsDeferralToBeDefaulted(DeferralDocType: Enum "Deferral Document Type"; ToDocType: Option; FromDocType: Option): Boolean
+    local procedure IsDeferralToBeDefaulted(DeferralDocType: Enum "Deferral Document Type"; ToDocType: Option; FromCommentDocType: Option): Boolean
     var
         SalesLine: Record "Sales Line";
         SalesCommentLine: Record "Sales Comment Line";
@@ -6387,7 +6408,7 @@
                 SalesLine."Document Type"::Invoice.AsInteger(),
                 SalesLine."Document Type"::"Credit Memo".AsInteger(),
                 SalesLine."Document Type"::"Return Order".AsInteger():
-                    case FromDocType of
+                    case FromCommentDocType of
                         SalesCommentLine."Document Type"::Quote.AsInteger(),
                         SalesCommentLine."Document Type"::"Blanket Order".AsInteger(),
                         SalesCommentLine."Document Type"::Shipment.AsInteger(),
@@ -6402,7 +6423,7 @@
                     PurchLine."Document Type"::Invoice.AsInteger(),
                     PurchLine."Document Type"::"Credit Memo".AsInteger(),
                     PurchLine."Document Type"::"Return Order".AsInteger():
-                        case FromDocType of
+                        case FromCommentDocType of
                             PurchCommentLine."Document Type"::Quote.AsInteger(),
                             PurchCommentLine."Document Type"::"Blanket Order".AsInteger(),
                             PurchCommentLine."Document Type"::Receipt.AsInteger(),
@@ -6414,14 +6435,14 @@
         exit(false);
     end;
 
-    local procedure IsDeferralPosted(DeferralDocType: Enum "Deferral Document Type"; FromDocType: Option): Boolean
+    local procedure IsDeferralPosted(DeferralDocType: Enum "Deferral Document Type"; FromCommentDocType: Option): Boolean
     var
         SalesCommentLine: Record "Sales Comment Line";
         PurchCommentLine: Record "Purch. Comment Line";
         DeferralHeader: Record "Deferral Header";
     begin
         if DeferralDocType = DeferralHeader."Deferral Doc. Type"::Sales then
-            case FromDocType of
+            case FromCommentDocType of
                 SalesCommentLine."Document Type"::Shipment.AsInteger(),
                 SalesCommentLine."Document Type"::"Posted Invoice".AsInteger(),
                 SalesCommentLine."Document Type"::"Posted Credit Memo".AsInteger(),
@@ -6430,7 +6451,7 @@
             end
         else
             if DeferralDocType = DeferralHeader."Deferral Doc. Type"::Purchase then
-                case FromDocType of
+                case FromCommentDocType of
                     PurchCommentLine."Document Type"::Receipt.AsInteger(),
                     PurchCommentLine."Document Type"::"Posted Invoice".AsInteger(),
                     PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger(),

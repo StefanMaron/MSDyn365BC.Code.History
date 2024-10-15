@@ -35,6 +35,8 @@
         HttpTxt: Label 'http://';
         OnDelIntrastatContactErr: Label 'You cannot delete contact number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Contact No';
         OnDelVendorIntrastatContactErr: Label 'You cannot delete vendor number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Vendor No';
+        StatPeriodFormatErr: Label '%1 must be 4 characters, for example, 9410 for October, 1994.', Comment = '%1 - field caption';
+        StatPeriodMonthErr: Label 'Please check the month number.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2260,6 +2262,117 @@
         Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.789), '');
     end;
 
+    [Test]
+    procedure GetPartnerVATIDTransferShipment()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        CountryRegion: Record "Country/Region";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Partner VAT ID] [Transfer Order] [In-Transit]
+        // [SCENARIO 417835] Partner VAT ID of Transfer Shipment (using In-Transit location)
+        Initialize();
+
+        // [GIVEN] Local location "A", local In-Transit location "B", EU foreign location "C"
+        // [GIVEN] Item "I" on local location "A"
+        CreateCountryRegion(CountryRegion, true);
+        ItemNo := CreateItem();
+        CreateFromToLocations(FromLocation, ToLocation, CountryRegion.Code);
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
+        InTransitLocation.Validate("Use As In-Transit", true);
+        InTransitLocation.Modify(true);
+
+        // [GIVEN] Transfer Order to transfer item "I" from location "A" to "C" using In-Transit location "B"
+        // [GIVEN] Transfer Order's "Partner VAT ID" = "X"
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        TransferHeader.Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Transfer Order is Shipped and Receipt
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Intrastat journal line is created and has "Partner VAT ID" = "X"
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.FindFirst();
+        IntrastatJnlLine.TestField("Partner VAT ID", TransferHeader."Partner VAT ID");
+    end;
+
+    [Test]
+    procedure GetPartnerVATIDDirectTransferShipment()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        CountryRegion: Record "Country/Region";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Partner VAT ID] [Transfer Order] [Direct Transfer]
+        // [SCENARIO 417834] Partner VAT ID of Transfer Shipment (direct transfer)
+        Initialize();
+
+        // [GIVEN] Local location "A", EU foreign location "B"
+        // [GIVEN] Item "I" on local location "A"
+        CreateCountryRegion(CountryRegion, true);
+        ItemNo := CreateItem();
+        CreateFromToLocations(FromLocation, ToLocation, CountryRegion.Code);
+        CreateAndPostPurchaseItemJournalLine(FromLocation.Code, ItemNo);
+
+        // [GIVEN] Transfer Order to transfer item "I" from location "A" to "C" (direct transfer)
+        // [GIVEN] Transfer Order's "Partner VAT ID" = "X"
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, 1);
+
+        // [GIVEN] Transfer Order is Shipped and Receipt
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+
+        // [WHEN] Invoke Get Entries from Intrastat journal
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [THEN] Intrastat journal line is created and has "Partner VAT ID" = "X"
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.FindFirst();
+        IntrastatJnlLine.TestField("Partner VAT ID", TransferHeader."Partner VAT ID");
+    end;
+
+    [Test]
+    procedure BatchStatisticsPeriodFormatValidation()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 419963] Intrastat journal batch "Statistics Period" validation
+        Initialize();
+
+        asserterror IntrastatJnlBatch.Validate("Statistics Period", '12345');
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(StatPeriodFormatErr, IntrastatJnlBatch.FieldCaption("Statistics Period")));
+
+        asserterror IntrastatJnlBatch.Validate("Statistics Period", '0122');
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StatPeriodMonthErr);
+
+        IntrastatJnlBatch.Validate("Statistics Period", '2201'); // YYMM
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -2593,7 +2706,7 @@
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20];
-                                                                                                                                                                   NoOfLines: Integer)
+                                                                                                                                                                               NoOfLines: Integer)
     var
         i: Integer;
     begin
@@ -2757,7 +2870,9 @@
           ItemLedgerEntry, DocumentNo, ServiceHeader."Document Type"::"Credit Memo", ShipToCustomerNo, BillToCustomerNo, ItemNo);
     end;
 
-    local procedure CreatePostServiceDoc(var ItemLedgerEntry: Record "Item Ledger Entry"; var DocumentNo: Code[20]; DocumentType: Enum "Service Document Type"; ShipToCustomerNo: Code[20]; BillToCustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreatePostServiceDoc(var ItemLedgerEntry: Record "Item Ledger Entry"; var DocumentNo: Code[20]; DocumentType: Enum "Service Document Type"; ShipToCustomerNo: Code[20];
+                                                                                                                                      BillToCustomerNo: Code[20];
+                                                                                                                                      ItemNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";

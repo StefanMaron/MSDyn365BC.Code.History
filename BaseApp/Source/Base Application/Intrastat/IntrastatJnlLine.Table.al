@@ -272,7 +272,7 @@ table 263 "Intrastat Jnl. Line"
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
-        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", "Area")
+        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", "Area", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
         key(Key4; "Internal Ref. No.")
@@ -419,6 +419,8 @@ table 263 "Intrastat Jnl. Line"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         Customer: Record Customer;
         Vendor: Record Vendor;
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
         if not ItemLedgerEntry.Get("Source Entry No.") then 
             exit('');
@@ -499,6 +501,16 @@ table 263 "Intrastat Jnl. Line"
                         ServiceCrMemoHeader."VAT Registration No.", Customer."Enterprise No.",
                         IsCustomerPrivatePerson(ServiceCrMemoHeader."Bill-to Customer No."), ServiceCrMemoHeader."EU 3-Party Trade"));
                 end;
+            ItemLedgerEntry."Document Type"::"Transfer Receipt":
+                if TransferReceiptHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferReceiptHeader."Partner VAT ID", '', false, false));
+            ItemLedgerEntry."Document Type"::"Transfer Shipment":
+                if TransferShipmentHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferShipmentHeader."Partner VAT ID", '', false, false));
         end;
 
         case ItemLedgerEntry."Source Type" of

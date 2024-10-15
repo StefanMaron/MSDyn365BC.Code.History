@@ -1062,6 +1062,7 @@ page 41 "Sales Quote"
                             Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                            CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         end
                     end;
                 }

@@ -819,6 +819,12 @@
     end;
 
     procedure CalculateRemInventoryValue(ItemLedgEntryNo: Integer; ItemLedgEntryQty: Decimal; RemQty: Decimal; IncludeExpectedCost: Boolean; PostingDate: Date): Decimal
+    begin
+        exit(
+          CalculateRemInventoryValue(ItemLedgEntryNo, ItemLedgEntryQty, RemQty, IncludeExpectedCost, PostingDate, 0D));
+    end;
+
+    procedure CalculateRemInventoryValue(ItemLedgEntryNo: Integer; ItemLedgEntryQty: Decimal; RemQty: Decimal; IncludeExpectedCost: Boolean; ValuationDate: Date; PostingDate: Date): Decimal
     var
         ValueEntry: Record "Value Entry";
         AdjustedCost: Decimal;
@@ -826,7 +832,11 @@
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-        ValueEntry.SetFilter("Valuation Date", '<=%1', PostingDate);
+        if ValuationDate <> 0D then
+            ValueEntry.SetRange("Valuation Date", 0D, ValuationDate);
+        if PostingDate <> 0D then
+            ValueEntry.SetRange("Posting Date", 0D, PostingDate);
+        ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
         if not IncludeExpectedCost then
             ValueEntry.SetRange("Expected Cost", false);
         if ValueEntry.FindSet then
@@ -835,12 +845,12 @@
                     TotalQty := ValueEntry."Valued Quantity"
                 else
                     TotalQty := ItemLedgEntryQty;
-                if ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Rounding then
-                    if IncludeExpectedCost then
-                        AdjustedCost += RemQty / TotalQty * (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)")
-                    else
-                        AdjustedCost += RemQty / TotalQty * ValueEntry."Cost Amount (Actual)";
+                if IncludeExpectedCost then
+                    AdjustedCost += RemQty / TotalQty * (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)")
+                else
+                    AdjustedCost += RemQty / TotalQty * ValueEntry."Cost Amount (Actual)";
             until ValueEntry.Next = 0;
+
         exit(AdjustedCost);
     end;
 
