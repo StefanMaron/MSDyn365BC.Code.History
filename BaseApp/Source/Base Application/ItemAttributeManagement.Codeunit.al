@@ -52,6 +52,7 @@ codeunit 7500 "Item Attribute Management"
 
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
 
+        OnFindItemsByAttributesOnBeforeFilterItemAttributesBufferLoop(FilterItemAttributesBuffer, TempFilteredItem, ItemAttributeValueMapping);
         repeat
             ItemAttribute.SetRange(Name, FilterItemAttributesBuffer.Attribute);
             if ItemAttribute.FindFirst() then begin
@@ -104,7 +105,13 @@ codeunit 7500 "Item Attribute Management"
     local procedure GetFilteredItems(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempFilteredItem: Record Item temporary; AttributeValueIDFilter: Text)
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFilteredItems(ItemAttributeValueMapping, TempFilteredItem, AttributeValueIDFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemAttributeValueMapping.SetFilter("Item Attribute Value ID", AttributeValueIDFilter);
 
         if ItemAttributeValueMapping.IsEmpty() then begin
@@ -222,7 +229,14 @@ codeunit 7500 "Item Attribute Management"
     end;
 
     local procedure GenerateAttributeDifference(var TempFirstItemAttributeValue: Record "Item Attribute Value" temporary; var TempSecondItemAttributeValue: Record "Item Attribute Value" temporary; var TempResultingItemAttributeValue: Record "Item Attribute Value" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenerateAttributeDifference(TempFirstItemAttributeValue, TempSecondItemAttributeValue, TempResultingItemAttributeValue, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempFirstItemAttributeValue.FindFirst() then
             repeat
                 if not TempSecondItemAttributeValue.Get(TempFirstItemAttributeValue."Attribute ID", TempFirstItemAttributeValue.ID) then begin
@@ -296,7 +310,13 @@ codeunit 7500 "Item Attribute Management"
         ItemCategory: Record "Item Category";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         ItemAttributeValue: Record "Item Attribute Value";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToRemove, CategoryCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetRange("Item Category Code", CategoryCode);
         if Item.FindSet() then
             repeat
@@ -323,7 +343,13 @@ codeunit 7500 "Item Attribute Management"
     var
         Item: Record Item;
         ItemCategory: Record "Item Category";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertCategoryItemsAttributeValueMapping(TempItemAttributeValueToInsert, CategoryCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetRange("Item Category Code", CategoryCode);
         if Item.FindSet() then
             repeat
@@ -341,7 +367,13 @@ codeunit 7500 "Item Attribute Management"
     var
         Item: Record Item;
         ItemCategory: Record "Item Category";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertCategoryItemsBufferedAttributeValueMapping(TempItemAttributeValueToInsert, TempInsertedItemAttributeValueMapping, CategoryCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetRange("Item Category Code", CategoryCode);
         if Item.FindSet() then
             repeat
@@ -417,7 +449,37 @@ codeunit 7500 "Item Attribute Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCategoryItemsAttributeValueMapping(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; CategoryCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCategoryItemsBufferedAttributeValueMapping(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; var TempInsertedItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary; CategoryCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBufferedItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteCategoryItemsAttributeValueMapping(var TempItemAttributeValueToRemove: Record "Item Attribute Value" temporary; CategoryCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateAttributeDifference(var TempFirstItemAttributeValue: Record "Item Attribute Value" temporary; var TempSecondItemAttributeValue: Record "Item Attribute Value" temporary; var TempResultingItemAttributeValue: Record "Item Attribute Value" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFilteredItems(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempFilteredItem: Record Item temporary; AttributeValueIDFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemsByAttributesOnBeforeFilterItemAttributesBufferLoop(var FilterItemAttributesBuffer: Record "Filter Item Attributes Buffer"; var TempFilteredItem: Record Item temporary; var ItemAttributeValueMapping: Record "Item Attribute Value Mapping")
     begin
     end;
 

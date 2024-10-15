@@ -1,5 +1,6 @@
 codeunit 9520 "Mail Management"
 {
+    Permissions = TableData "Email Attachments" = rimd;
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
@@ -90,7 +91,7 @@ codeunit 9520 "Mail Management"
         Cancelled := false;
         if not HideMailDialog then begin
             Commit();
-            MailSent := Email.OpenInEditorModally(Message, TempEmailModuleAccount) = Enum::"Email Action"::Sent;
+            MailSent := Email.OpenInEditorModallyWithScenario(Message, TempEmailModuleAccount, CurrentEmailScenario) = Enum::"Email Action"::Sent;
             Cancelled := not MailSent;
         end else
             MailSent := Email.Send(Message, TempEmailModuleAccount);
@@ -419,9 +420,10 @@ codeunit 9520 "Mail Management"
         exit(not CancelSending);
     end;
 
-    local procedure IsBackground(): Boolean
+    local procedure IsBackground() Result: Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Background]);
+        Result := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Background];
+        OnAfterIsBackground(Result);
     end;
 
     procedure IsHandlingGetEmailBody(): Boolean
@@ -537,6 +539,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSenderEmailAddress(var EmailItem: Record "Email Item")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsBackground(var Result: Boolean)
     begin
     end;
 

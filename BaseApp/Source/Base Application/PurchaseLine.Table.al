@@ -335,6 +335,7 @@
 
                 UpdateDirectUnitCostByField(FieldNo("Location Code"));
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                OnAfterValidateLocationCode(Rec, xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -4260,19 +4261,25 @@
     end;
 
     local procedure CopyFromGLAccount()
+    var
+        IsHandled: Boolean;
     begin
-        GLAcc.Get("No.");
-        GLAcc.CheckGLAcc();
-        if not "System-Created Entry" then
-            GLAcc.TestField("Direct Posting", true);
-        Description := GLAcc.Name;
-        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-        "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
-        "Tax Group Code" := GLAcc."Tax Group Code";
-        "Allow Invoice Disc." := false;
-        "Allow Item Charge Assignment" := false;
-        "Auto. Acc. Group" := GLAcc."Auto. Acc. Group";
-        InitDeferralCode();
+        IsHandled := false;
+        OnBeforeCopyFromGLAccount(Rec, xRec, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            GLAcc.Get("No.");
+            GLAcc.CheckGLAcc();
+            if not "System-Created Entry" then
+                GLAcc.TestField("Direct Posting", true);
+            Description := GLAcc.Name;
+            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+            "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
+            "Tax Group Code" := GLAcc."Tax Group Code";
+            "Allow Invoice Disc." := false;
+            "Allow Item Charge Assignment" := false;
+            "Auto. Acc. Group" := GLAcc."Auto. Acc. Group";
+            InitDeferralCode();
+        end;
         OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader, xRec);
     end;
 
@@ -5821,7 +5828,13 @@
         TotalAmtToAssign: Decimal;
         TotalQtyToHandle: Decimal;
         TotalAmtToHandle: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemChargeAssgnt(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::"Blanket Order" then
             exit;
 
@@ -5893,8 +5906,10 @@
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", DocLineNo);
         if not ItemChargeAssgntPurch.IsEmpty() then
             ItemChargeAssgntPurch.DeleteAll(true);
-
+#if not CLEAN22
         OnAfterDeleteChargeChargeAssgnt(Rec, xRec, CurrFieldNo);
+#endif
+        OnAfterDeleteItemChargeAssignment(Rec, xRec, CurrFieldNo);
     end;
 
     protected procedure DeleteChargeChargeAssgnt(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; DocLineNo: Integer)
@@ -5913,6 +5928,8 @@
         ItemChargeAssgntPurch.SetRange("Document Line No.", DocLineNo);
         if not ItemChargeAssgntPurch.IsEmpty() then
             ItemChargeAssgntPurch.DeleteAll();
+
+        OnAfterDeleteChargeChargeAssgntProcedure(Rec, xRec, CurrFieldNo);
     end;
 
     procedure CheckItemChargeAssgnt()
@@ -7638,51 +7655,51 @@
     begin
         IsHandled := false;
         OnBeforeUpdateICPartner(Rec, GLAcc, PurchHeader, IsHandled);
-
-        if PurchHeader."Send IC Document" and
-           (PurchHeader."IC Direction" = PurchHeader."IC Direction"::Outgoing)
-        then
-            case Type of
-                Type::" ", Type::"Charge (Item)":
-                    begin
-                        "IC Partner Ref. Type" := Type;
-                        "IC Partner Reference" := "No.";
-                    end;
-                Type::"G/L Account":
-                    begin
-                        "IC Partner Ref. Type" := Type;
-                        "IC Partner Reference" := GLAcc."Default IC Partner G/L Acc. No";
-                    end;
-                Type::Item:
-                    begin
-                        ICPartner.Get(PurchHeader."Buy-from IC Partner Code");
-                        case ICPartner."Outbound Purch. Item No. Type" of
-                            ICPartner."Outbound Purch. Item No. Type"::"Common Item No.":
-                                Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
-                            ICPartner."Outbound Purch. Item No. Type"::"Internal No.":
-                                begin
-                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::Item);
-                                    "IC Partner Reference" := "No.";
-                                end;
-                            ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
-                                begin
-                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
-                                    UpdateICPartnerItemReference();
-                                end;
-                            ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
-                                begin
-                                    "IC Partner Ref. Type" := "IC Partner Ref. Type"::"Vendor Item No.";
-                                    "IC Item Reference No." := "Vendor Item No.";
-                                end;
+        if not IsHandled then begin
+            if PurchHeader."Send IC Document" and
+               (PurchHeader."IC Direction" = PurchHeader."IC Direction"::Outgoing)
+            then
+                case Type of
+                    Type::" ", Type::"Charge (Item)":
+                        begin
+                            "IC Partner Ref. Type" := Type;
+                            "IC Partner Reference" := "No.";
                         end;
-                    end;
-                Type::"Fixed Asset":
-                    begin
-                        "IC Partner Ref. Type" := "IC Partner Ref. Type"::" ";
-                        "IC Partner Reference" := '';
-                    end;
-            end;
-
+                    Type::"G/L Account":
+                        begin
+                            "IC Partner Ref. Type" := Type;
+                            "IC Partner Reference" := GLAcc."Default IC Partner G/L Acc. No";
+                        end;
+                    Type::Item:
+                        begin
+                            ICPartner.Get(PurchHeader."Buy-from IC Partner Code");
+                            case ICPartner."Outbound Purch. Item No. Type" of
+                                ICPartner."Outbound Purch. Item No. Type"::"Common Item No.":
+                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
+                                ICPartner."Outbound Purch. Item No. Type"::"Internal No.":
+                                    begin
+                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::Item);
+                                        "IC Partner Reference" := "No.";
+                                    end;
+                                ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
+                                    begin
+                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
+                                        UpdateICPartnerItemReference();
+                                    end;
+                                ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
+                                    begin
+                                        "IC Partner Ref. Type" := "IC Partner Ref. Type"::"Vendor Item No.";
+                                        "IC Item Reference No." := "Vendor Item No.";
+                                    end;
+                            end;
+                        end;
+                    Type::"Fixed Asset":
+                        begin
+                            "IC Partner Ref. Type" := "IC Partner Ref. Type"::" ";
+                            "IC Partner Reference" := '';
+                        end;
+                end;
+        end;
         OnAfterUpdateICPartner(Rec, PurchHeader);
     end;
 
@@ -7969,6 +7986,10 @@
 
     procedure UpdatePrepmtAmounts()
     begin
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+            if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
+                exit;
+
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then begin
@@ -7994,6 +8015,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
             if "Direct Unit Cost" < 0 then
@@ -8460,8 +8485,21 @@
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by OnAfterDeleteItemChargeAssignment with the same arguments', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteChargeChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteItemChargeAssignment(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteChargeChargeAssgntProcedure(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -8552,6 +8590,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemReference(var Rec: Record "Purchase Line"; xRec: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemChargeAssgnt(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -8859,6 +8902,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromGLAccount(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -9264,6 +9312,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateLocationCode(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 

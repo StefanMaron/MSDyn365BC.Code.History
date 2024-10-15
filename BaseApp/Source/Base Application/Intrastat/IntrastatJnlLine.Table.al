@@ -496,7 +496,7 @@ table 263 "Intrastat Jnl. Line"
         end;
     end;
 
-    local procedure GetPartnerIDFromJobEntry(): Text[50]
+    local procedure GetPartnerIDFromJobEntry() Result: Text[50]
     var
         Job: Record Job;
         JobLedgerEntry: Record "Job Ledger Entry";
@@ -512,12 +512,8 @@ table 263 "Intrastat Jnl. Line"
             exit('');
         if not IntrastatSetup.Get() then
             IntrastatSetup.Init();
-        exit(
-          GetPartnerIDForCountry(
-            Customer."Country/Region Code",
-            IntraJnlManagement.GetVATRegNo(
-              Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
-            IsCustomerPrivatePerson(Customer."No."), false));
+        Result := GetPartnerIDForCountry(Customer."Country/Region Code", IntraJnlManagement.GetVATRegNo(Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"), IsCustomerPrivatePerson(Customer."No."), false);
+        OnAfterGetPartnerIDFromJobEntry(Rec, Customer, Result);
     end;
 
     local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
@@ -570,6 +566,11 @@ table 263 "Intrastat Jnl. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCountryOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var CountryOfOriginCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPartnerIDFromJobEntry(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Customer: Record Customer; var Result: Text[50])
     begin
     end;
 

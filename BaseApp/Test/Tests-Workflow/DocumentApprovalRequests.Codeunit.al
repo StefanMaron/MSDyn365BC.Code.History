@@ -471,6 +471,7 @@ codeunit 134204 "Document Approval - Requests"
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
     begin
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, No);
+        PurchaseHeader.CalcFields(Amount);
         Clear(ApprovalEntry);
         with ApprovalEntry do begin
             Init();
@@ -478,6 +479,7 @@ codeunit 134204 "Document Approval - Requests"
             Validate("Document Type", EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type"));
             Validate("Document No.", PurchaseHeader."No.");
             Validate("Sequence No.", LibraryRandom.RandInt(100));
+            Validate(Amount, PurchaseHeader.Amount);
             Validate(Status, Status::Open);
             "Approver ID" := UserId;
             "Record ID to Approve" := PurchaseHeader.RecordId;

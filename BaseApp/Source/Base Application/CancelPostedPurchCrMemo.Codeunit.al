@@ -48,18 +48,42 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             PurchInvHeader.SetRange("Applies-to Doc. No.", PurchCrMemoHdr."No.");
             if PurchInvHeader.FindFirst() then begin
                 if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedInvQst, GetLastErrorText)) then
-                    PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                    ShowPostedPurchaseInvoice(PurchInvHeader);
             end else begin
                 PurchHeader.SetRange("Applies-to Doc. No.", PurchCrMemoHdr."No.");
                 if PurchHeader.FindFirst() then begin
                     if Confirm(StrSubstNo(PostingCreditMemoFailedOpenInvQst, GetLastErrorText)) then
-                        PAGE.Run(PAGE::"Purchase Invoice", PurchHeader);
+                        ShowPurchaseInvoice(PurchHeader);
                 end else
                     Error(CreatingInvFailedNothingCreatedErr, GetLastErrorText);
             end;
             exit(false);
         end;
         exit(true);
+    end;
+
+    local procedure ShowPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowPostedPurchaseInvoice(PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+    end;
+
+    local procedure ShowPurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowPurchaseInvoice(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
     end;
 
     local procedure CreateCopyDocument(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchHeader: Record "Purchase Header")
@@ -313,12 +337,16 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
-            TestField("Purch. Account");
-            CheckGLAccount("Purch. Account", PurchCrMemoLine);
-            TestField("Purch. Credit Memo Account");
-            CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
-            TestField("Purch. Line Disc. Account");
-            CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
+            if PurchCrMemoLine.Type <> PurchCrMemoLine.Type::"G/L Account" then begin
+                TestField("Purch. Account");
+                CheckGLAccount("Purch. Account", PurchCrMemoLine);
+                TestField("Purch. Credit Memo Account");
+                CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
+            end;
+            if PurchCrMemoLine."Line Discount Amount" <> 0 then begin
+                TestField("Purch. Line Disc. Account");
+                CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
+            end;
             if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
                 Item.Get(PurchCrMemoLine."No.");
                 if Item.IsInventoriableType() then
@@ -485,6 +513,16 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             ErrorType::DimErr:
                 Error(InvalidDimCodeCancelErr, AccountCaption, AccountNo, No, Name);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

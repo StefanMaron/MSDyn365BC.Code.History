@@ -1,5 +1,6 @@
 page 99000815 "Production Order List"
 {
+    ApplicationArea = Manufacturing;
     Caption = 'Production Order List';
     DataCaptionFields = Status;
     Editable = false;

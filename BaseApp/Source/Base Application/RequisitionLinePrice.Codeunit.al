@@ -53,7 +53,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
         exit(CurrPriceType);
     end;
 
-    procedure IsPriceUpdateNeeded(AmountType: enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
+    procedure IsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
     begin
         if FoundPrice then
             Result := true
@@ -61,7 +61,8 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
             Result :=
                 Result or
                 not ((CalledByFieldNo = RequisitionLine.FieldNo(Quantity)) or
-                    ((CalledByFieldNo = RequisitionLine.FieldNo("Variant Code")) and not IsSKU))
+                    ((CalledByFieldNo = RequisitionLine.FieldNo("Variant Code")) and not IsSKU));
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, RequisitionLine, Result, IsSKU);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -70,7 +71,14 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     end;
 
     procedure Verify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerify(RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+
         RequisitionLine.TestField("Qty. per Unit of Measure");
         if RequisitionLine."Currency Code" <> '' then
             RequisitionLine.TestField("Currency Factor");
@@ -202,7 +210,17 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; RequisitionLine: Record "Requisition Line"; var Result: Boolean; IsSKU: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var RequisitionLine: Record "Requisition Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerify(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

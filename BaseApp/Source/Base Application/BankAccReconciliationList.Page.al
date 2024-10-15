@@ -8,6 +8,7 @@ page 388 "Bank Acc. Reconciliation List"
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = WHERE("Statement Type" = CONST("Bank Reconciliation"));
     UsageCategory = Lists;
+    RefreshOnActivate = true;
 
     layout
     {
