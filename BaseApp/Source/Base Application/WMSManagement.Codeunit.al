@@ -57,6 +57,7 @@
             if ToTransfer then
                 "Location Code" := "New Location Code";
             GetLocation("Location Code");
+            OnCreateWhseJnlLineOnAfterGetLocation(ItemJnlLine, WhseJnlLine, Location);
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Quantity (Base)");
             SetZoneAndBins(ItemJnlLine, WhseJnlLine, ToTransfer);
             if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then begin
@@ -92,6 +93,7 @@
             TestField("Order Type", "Order Type"::Production);
             GetLocation("Location Code");
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Output Quantity (Base)");
+            OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(WhseJnlLine, ItemJnlLine);
             SetZoneAndBinsForOutput(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 5, "Order No.", "Order Line No.", 0); // Output Journal
             WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
@@ -132,10 +134,16 @@
         QtyAbsBase: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWhseJnlLine(WhseJnlLine, SourceJnl, DecreaseQtyBase, ToTransfer, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem(WhseJnlLine."Item No.");
         with WhseJnlLine do begin
             TestField("Location Code");
             GetLocation("Location Code");
+            OnCheckWhseJnlLineOnAfterGetLocation(WhseJnlLine, Location, Item);
 
             if SourceJnl = SourceJnl::WhseJnl then
                 CheckAdjBinCode(WhseJnlLine);
@@ -170,12 +178,7 @@
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
                 if SourceJnl = SourceJnl::" " then begin
-                    if Location."Directed Put-away and Pick" and ("To Zone Code" = '') then
-                        Error(
-                          Text006,
-                          FieldCaption("Zone Code"), "Whse. Document Type",
-                          FieldCaption("Whse. Document No."), "Whse. Document No.",
-                          FieldCaption("Line No."), "Whse. Document Line No.");
+                    CheckWhseDocumentToZoneCode(WhseJnlLine);
                     if "To Bin Code" = '' then
                         Error(
                           Text006,
@@ -184,8 +187,7 @@
                           FieldCaption("Line No."), "Whse. Document Line No.");
                 end else
                     if ("Entry Type" <> "Entry Type"::Movement) or ToTransfer then begin
-                        if Location."Directed Put-away and Pick" then
-                            TestField("To Zone Code");
+                        CheckToZoneCode(WhseJnlLine);
                         TestField("To Bin Code");
                     end;
             if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
@@ -304,6 +306,37 @@
         end;
 
         OnAfterCheckWhseJnlLine(WhseJnlLine, SourceJnl, DecreaseQtyBase, ToTransfer);
+    end;
+
+    local procedure CheckWhseDocumentToZoneCode(WhseJnlLine: Record "Warehouse Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseDocumentToZoneCode(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseJnlLine do
+            if Location."Directed Put-away and Pick" and ("To Zone Code" = '') then
+                Error(
+                  Text006,
+                  FieldCaption("Zone Code"), "Whse. Document Type",
+                  FieldCaption("Whse. Document No."), "Whse. Document No.",
+                  FieldCaption("Line No."), "Whse. Document Line No.");
+    end;
+
+    local procedure CheckToZoneCode(WhseJnlLine: Record "Warehouse Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckToZoneCode(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Location."Directed Put-away and Pick" then
+            WhseJnlLine.TestField("To Zone Code");
     end;
 
     local procedure CheckAdjBinCode(WhseJnlLine: Record "Warehouse Journal Line")
@@ -458,7 +491,14 @@
     end;
 
     procedure CheckItemTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTrackingChange(TrackingSpecification, xTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         with TrackingSpecification do
             if ("Source Type" = DATABASE::"Item Journal Line") and
                ("Item No." <> '') and
@@ -631,20 +671,32 @@
         Error(UserIsNotWhseEmployeeAtWMSLocationErr, UserId);
     end;
 
-    procedure GetDefaultDirectedPutawayAndPickLocation(): Code[10]
+    procedure GetDefaultDirectedPutawayAndPickLocation() LocationCode: Code[10]
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultDirectedPutawayAndPickLocation(LocationCode, IsHandled);
+        if IsHandled then
+            exit(LocationCode);
+
         if Location.Get(GetDefaultLocation) then
             if Location."Directed Put-away and Pick" then
                 exit(Location.Code);
         Error(DefaultLocationNotDirectedPutawayPickErr, UserId);
     end;
 
-    procedure GetDefaultBin(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var BinCode: Code[20]): Boolean
+    procedure GetDefaultBin(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var BinCode: Code[20]) Result: Boolean
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(ItemNo, VariantCode, LocationCode, BinCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         BinContent.SetCurrentKey(Default);
         BinContent.SetRange(Default, true);
         BinContent.SetRange("Location Code", LocationCode);
@@ -1432,8 +1484,7 @@
                             ((ProdOrderCompLine."Flushing Method" = ProdOrderCompLine."Flushing Method"::"Pick + Forward") and
                              (ProdOrderCompLine."Routing Link Code" <> '')))
                         then
-                            if ProdOrderCompLine."Qty. Picked (Base)" < "Quantity (Base)" then
-                                ProdOrderCompLine.FieldError("Qty. Picked (Base)");
+                            CheckProdOrderCompLineQtyPickedBase(ProdOrderCompLine, ItemJnlLine);
                         GetBin("Location Code", WhseJnlLine."From Bin Code");
                         WhseJnlLine."From Zone Code" := Bin."Zone Code";
                         WhseJnlLine."From Bin Type Code" := Bin."Bin Type Code";
@@ -1463,6 +1514,19 @@
                         WhseJnlLine."To Zone Code" := Bin."Zone Code";
                     end;
                 end;
+    end;
+
+    local procedure CheckProdOrderCompLineQtyPickedBase(var ProdOrderCompLine: Record "Prod. Order Component"; ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderCompLineQtyPickedBase(ProdOrderCompLine, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ProdOrderCompLine."Qty. Picked (Base)" < ItemJnlLine."Quantity (Base)" then
+            ProdOrderCompLine.FieldError("Qty. Picked (Base)");
     end;
 
     procedure SerialNoOnInventory(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[50]): Boolean
@@ -2029,7 +2093,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseDocumentToZoneCode(WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckToZoneCode(WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTrackingChange(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUserIsWhseEmployee(Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderCompLineQtyPickedBase(var ProdOrderCompLine: Record "Prod. Order Component"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2055,6 +2144,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAllowedLocation(var LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var BinCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultDirectedPutawayAndPickLocation(var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2090,6 +2189,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBalanceQtyToHandleOnAfterSetFilters(var ToWarehouseActivityLine: Record "Warehouse Activity Line"; FromWarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseJnlLineOnAfterGetLocation(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Location: Record Location; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseJnlLineOnAfterGetLocation(var ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; var Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 241 "Item Jnl.-Post"
+﻿codeunit 241 "Item Jnl.-Post"
 {
     TableNo = "Item Journal Line";
 
@@ -47,6 +47,7 @@ codeunit 241 "Item Jnl.-Post"
             TempJnlBatchName := "Journal Batch Name";
 
             ItemJnlPostBatch.SetSuppressCommit(SuppressCommit);
+            OnCodeOnBeforeItemJnlPostBatchRun(ItemJnlLine);
             ItemJnlPostBatch.Run(ItemJnlLine);
 
             if not HideDialog then
@@ -74,6 +75,11 @@ codeunit 241 "Item Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ItemJournalLine: Record "Item Journal Line"; var HideDialog: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeItemJnlPostBatchRun(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

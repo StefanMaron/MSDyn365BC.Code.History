@@ -385,6 +385,8 @@ codeunit 5510 "Production Journal Mgt"
         PostingDate := WorkDate;
         CalcBasedOn := CalcBasedOn::"Expected Output";
         PresetOutputQuantity := MfgSetup."Preset Output Quantity";
+
+        OnAfterInitSetupValues(PostingDate, CalcBasedOn)
     end;
 
     local procedure IsLastOperation(ProdOrderRoutingLine: Record "Prod. Order Routing Line") Result: Boolean
@@ -529,6 +531,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDataHasChanged(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLineNo: Integer; var HasChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSetupValues(var PostingDate: Date; var CalcBasedOn: Option "Actual Output","Expected Output")
     begin
     end;
 

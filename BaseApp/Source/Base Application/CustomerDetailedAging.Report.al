@@ -117,7 +117,7 @@ report 106 "Customer Detailed Aging"
                             OverDueMonths := 0
                         else
                             OverDueMonths := CalcFullMonthsBetweenDates("Due Date", EndDate);
-                        if "Remaining Amount" = 0 then
+                        if ("Remaining Amount" = 0) and OnlyOpen then
                             CurrReport.Skip();
                         TempCurrencyTotalBuffer.UpdateTotal(
                           "Currency Code", "Remaining Amount", "Remaining Amt. (LCY)", Counter);

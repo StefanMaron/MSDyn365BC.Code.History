@@ -74,7 +74,7 @@ page 1871 "Credit Limit Details"
             field(OverdueBalance; CalcOverdueBalance)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(StrSubstNo(OverdueAmountsTxt, Format(GetRangeMax("Date Filter"))));
+                CaptionClass = OverdueAmountsTxt;
                 Editable = false;
                 ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
 
@@ -117,7 +117,7 @@ page 1871 "Credit Limit Details"
         OrderAmountThisOrderLCY: Decimal;
         CustCreditAmountLCY: Decimal;
         ExtensionAmounts: List of [Decimal];
-        OverdueAmountsTxt: Label 'Overdue Amounts (LCY) as of %1', Comment = '%1=Date on which the amounts arebeing calculated.';
+        OverdueAmountsTxt: Label 'Overdue Amounts (LCY)';
 
     procedure PopulateDataOnNotification(var CreditLimitNotification: Notification)
     begin

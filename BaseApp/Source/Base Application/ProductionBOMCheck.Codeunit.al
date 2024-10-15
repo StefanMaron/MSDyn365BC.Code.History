@@ -40,17 +40,13 @@ codeunit 99000769 "Production BOM-Check"
         Item.SetRange("Production BOM No.", ProdBOMHeader."No.");
 
         if Item.Find('-') then begin
-            if GuiAllowed then
-                Window.Open(Text000);
+            OpenDialogWindow();
             NoOfItems := Item.Count();
             ItemCounter := 0;
             repeat
                 ItemCounter := ItemCounter + 1;
 
-                if GuiAllowed then begin
-                    Window.Update(1, Item."No.");
-                    Window.Update(2, Round(ItemCounter / NoOfItems * 10000, 1));
-                end;
+                UpdateDialogWindow();
                 if MfgSetup."Dynamic Low-Level Code" then
                     CalcLowLevel.Run(Item);
                 if Item."Routing No." <> '' then
@@ -60,6 +56,34 @@ codeunit 99000769 "Production BOM-Check"
         end;
 
         OnAfterCode(ProdBOMHeader, VersionCode);
+    end;
+
+    local procedure OpenDialogWindow()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenDialogWindow(Window, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed() then
+            Window.Open(Text000);
+    end;
+
+    local procedure UpdateDialogWindow()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDialogWindow(Item, ItemCounter, NoOfItems, Window, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed() then begin
+            Window.Update(1, Item."No.");
+            Window.Update(2, Round(ItemCounter / NoOfItems * 10000, 1));
+        end;
     end;
 
     local procedure CheckBOMStructure(BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer)
@@ -126,6 +150,16 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProdBomLineCheck(ProductionBOMLine: Record "Production BOM Line"; VersionCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenDialogWindow(var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDialogWindow(var Item: Record Item; ItemCounter: Integer; NoOfItems: Integer; var Window: Dialog; var IsHandled: Boolean)
     begin
     end;
 }

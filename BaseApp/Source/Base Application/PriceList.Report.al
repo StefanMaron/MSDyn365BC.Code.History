@@ -598,9 +598,6 @@ report 715 "Price List"
                 SetRange("Currency Code");
             end;
 
-            SetRange("Sales Type", SalesType);
-            SetRange("Sales Code", SalesCode);
-
             if IsVariant then begin
                 SetRange("Variant Code", '');
                 DeleteAll();

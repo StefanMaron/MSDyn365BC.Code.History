@@ -319,7 +319,7 @@
     begin
         OnBeforeInsertToBinContent(WhseEntry);
         with WhseEntry do begin
-            GetBin("Location Code", "Bin Code");
+            GetBinForBinContent(WhseEntry);
             BinContent.Init();
             BinContent."Location Code" := "Location Code";
             BinContent."Zone Code" := "Zone Code";
@@ -342,6 +342,18 @@
             OnBeforeBinContentInsert(BinContent, WhseEntry);
             BinContent.Insert();
         end;
+    end;
+
+    local procedure GetBinForBinContent(var WhseEntry: Record "Warehouse Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetBinForBinContent(WhseEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetBin(WhseEntry."Location Code", WhseEntry."Bin Code");
     end;
 
     local procedure CheckDefaultBin(WhseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
@@ -512,6 +524,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBinForBinContent(var WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
     begin
     end;
 

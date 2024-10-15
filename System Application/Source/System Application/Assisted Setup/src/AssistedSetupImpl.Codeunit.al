@@ -78,8 +78,8 @@ codeunit 1813 "Assisted Setup Impl."
     begin
         if not AssistedSetup.Get(PageID) then
             exit;
-        if LanguageID <> GlobalLanguage() THEN
-            Translation.Set(AssistedSetup, AssistedSetup.FIELDNO(Name), LanguageID, CopyStr(TranslatedName, 1, 2048));
+
+        Translation.Set(AssistedSetup, AssistedSetup.FIELDNO(Name), LanguageID, CopyStr(TranslatedName, 1, 2048));
     end;
 
     procedure IsComplete(PageID: Integer): Boolean
