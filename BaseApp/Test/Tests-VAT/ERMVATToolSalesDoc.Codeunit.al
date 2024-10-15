@@ -1242,7 +1242,108 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine.Next();
         SalesLine.TestField("Attached to Line No.", SecondSalesLineNo);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    procedure BlanketOrderAndOrderWithShipment()
+    var
+        VATProdPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        SalesHeaderBlanketOrder: Record "Sales Header";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineBlanketOrder: Record "Sales Line";
+        SalesLineOrder: Record "Sales Line";
+        VATRateChangeConv: Record "VAT Rate Change Conversion";
+        SalesOrderDocNo: Code[20];
+        CustomerNo: Code[20];
+        BlanketOrderQuantity: Decimal;
+    begin
+        // [FEATURE] [Blanket Order] [Order] [Partial Shipment] [Shipment]
+        // [SCENARIO 385191] Partially or fully shipped line in a Sales Order created from a Blanket Order does not change reference to a source Blanket Order's line after running the VAT Rate Change Tool
+        Initialize();
+
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[2]);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[1].Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[2].Code);
+
+        CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup.Code);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        Item.Modify(true);
+
+        BlanketOrderQuantity := LibraryRandom.RandIntInRange(10, 20) * 3;
+
+        LibrarySales.CreateSalesHeader(SalesHeaderBlanketOrder, SalesHeaderBlanketOrder."Document Type"::"Blanket Order", CustomerNo);
+        LibrarySales.CreateSalesLine(
+            SalesLineBlanketOrder, SalesHeaderBlanketOrder,
+            SalesLineBlanketOrder.Type::Item, Item."No.", BlanketOrderQuantity);
+        SalesLineBlanketOrder.Validate("Qty. to Ship", Round(BlanketOrderQuantity / 3));
+        SalesLineBlanketOrder.Modify(true);
+
+        SalesOrderDocNo := LibrarySales.BlanketSalesOrderMakeOrder(SalesHeaderBlanketOrder);
+
+        SalesHeaderOrder.Get(SalesHeaderOrder."Document Type"::Order, SalesOrderDocNo);
+        LibrarySales.FindFirstSalesLine(SalesLineOrder, SalesHeaderOrder);
+        SalesLineOrder.Validate("Qty. to Invoice", 0);
+        SalesLineOrder.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        ERMVATToolHelper.SetupToolConvGroups(
+            VATRateChangeConv.Type::"VAT Prod. Posting Group", VATProdPostingGroup[1].Code, VATProdPostingGroup[2].Code);
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        SalesLineOrder.Reset();
+        SalesLineOrder.SetRange("Document Type", SalesHeaderOrder."Document Type");
+        SalesLineOrder.SetRange("Document No.", SalesHeaderOrder."No.");
+        Assert.RecordCount(SalesLineOrder, 1);
+
+        SalesLineOrder.FindFirst();
+        SalesLineOrder.TestField("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        SalesLineOrder.TestField("Blanket Order No.", SalesHeaderBlanketOrder."No.");
+        SalesLineOrder.TestField("Blanket Order Line No.", SalesLineBlanketOrder."Line No.");
+
+        SalesLineBlanketOrder.SetRange("Document Type", SalesHeaderBlanketOrder."Document Type");
+        SalesLineBlanketOrder.SetRange("Document No.", SalesHeaderBlanketOrder."No.");
+        Assert.RecordCount(SalesLineBlanketOrder, 2);
+
+        SalesLineBlanketOrder.FindFirst();
+        VerifyQuantitiesOnSalesLine(
+            SalesLineBlanketOrder, Round(BlanketOrderQuantity / 3),
+            Round(BlanketOrderQuantity / 3), 0, 0, Round(BlanketOrderQuantity / 3),
+            VATProdPostingGroup[1].Code);
+
+        SalesLineBlanketOrder.Next();
+        VerifyQuantitiesOnSalesLine(
+            SalesLineBlanketOrder, Round(BlanketOrderQuantity * 2 / 3),
+            Round(BlanketOrderQuantity * 2 / 3), 0, Round(BlanketOrderQuantity * 2 / 3), 0,
+            VATProdPostingGroup[2].Code);
+
+        SalesLineOrder.Validate("Qty. to Invoice", SalesLineOrder.Quantity);
+        SalesLineOrder.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+
+        SalesLineBlanketOrder.FindFirst();
+        VerifyQuantitiesOnSalesLine(
+            SalesLineBlanketOrder, Round(BlanketOrderQuantity / 3),
+            0, Round(BlanketOrderQuantity / 3), 0, Round(BlanketOrderQuantity / 3),
+            VATProdPostingGroup[1].Code);
+
+        SalesLineBlanketOrder.Next();
+        VerifyQuantitiesOnSalesLine(
+            SalesLineBlanketOrder, Round(BlanketOrderQuantity * 2 / 3),
+            Round(BlanketOrderQuantity * 2 / 3), 0, Round(BlanketOrderQuantity * 2 / 3), 0,
+            VATProdPostingGroup[2].Code);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VATToolReminderLine(FieldOption: Option; "Count": Integer)
@@ -2340,6 +2441,16 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         Item.Get(SalesLine."No.");
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Modify(true);
+    end;
+
+    local procedure VerifyQuantitiesOnSalesLine(SalesLine: Record "Sales Line"; ExpectedQuantity: Decimal; ExpectedQuantityToInvoice: Decimal; ExpectedQuantityInvoiced: Decimal; ExpectedQuantityToShip: Decimal; ExpectedQuantityShipped: Decimal; VATProductPostingGroupCode: Code[20])
+    begin
+        SalesLine.TestField("VAT Prod. Posting Group", VATProductPostingGroupCode);
+        SalesLine.TestField(Quantity, ExpectedQuantity);
+        SalesLine.TestField("Quantity Invoiced", ExpectedQuantityInvoiced);
+        SalesLine.TestField("Qty. to Invoice", ExpectedQuantityToInvoice);
+        SalesLine.TestField("Quantity Shipped", ExpectedQuantityShipped);
+        SalesLine.TestField("Qty. to Ship", ExpectedQuantityToShip);
     end;
 
     local procedure VerifySalesDocAmount(SalesHeader: Record "Sales Header")

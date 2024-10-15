@@ -222,7 +222,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         SetAllowInvoiceDiscountOnAllLines(PurchaseHeader, false);
 
         asserterror PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
-        Assert.ExpectedError('There is no amount that you can apply an invoice discount to.');
+        Assert.ExpectedError('Cannot apply an invoice discount because the document does not include lines where the Allow Invoice Disc. field is selected.');
     end;
 
     [Test]

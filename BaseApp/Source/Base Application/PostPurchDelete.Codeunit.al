@@ -194,23 +194,8 @@ codeunit 364 "PostPurch-Delete"
                 ("Posting No." <> '') or
                 ("Document Type" = "Document Type"::Invoice) and
                 ("No. Series" = "Posting No. Series"))
-            then begin
-                PurchInvHeader.TransferFields(PurchHeader);
-                if "Posting No." <> '' then
-                    PurchInvHeader."No." := "Posting No.";
-                if "Document Type" = "Document Type"::Invoice then begin
-                    PurchInvHeader."Pre-Assigned No. Series" := "No. Series";
-                    PurchInvHeader."Pre-Assigned No." := "No.";
-                end else begin
-                    PurchInvHeader."Pre-Assigned No. Series" := '';
-                    PurchInvHeader."Pre-Assigned No." := '';
-                    PurchInvHeader."Order No. Series" := "No. Series";
-                    PurchInvHeader."Order No." := "No.";
-                end;
-                PurchInvHeader."Posting Date" := Today;
-                PurchInvHeader."User ID" := UserId;
-                PurchInvHeader."Source Code" := SourceCode;
-            end;
+            then
+                InitPurchInvHeader(PurchInvHeader, PurchHeader, SourceCode);
 
             if ("Posting No. Series" <> '') and
                (("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]) and
@@ -230,16 +215,7 @@ codeunit 364 "PostPurch-Delete"
 
             if ("Prepayment No. Series" <> '') and ("Prepayment No." <> '') then begin
                 TestField("Document Type", "Document Type"::Order);
-                PurchInvHeaderPrepmt.TransferFields(PurchHeader);
-                PurchInvHeaderPrepmt."No." := "Prepayment No.";
-                PurchInvHeaderPrepmt."Order No. Series" := "No. Series";
-                PurchInvHeaderPrepmt."Prepayment Order No." := "No.";
-                PurchInvHeaderPrepmt."Posting Date" := Today;
-                PurchInvHeaderPrepmt."Pre-Assigned No. Series" := '';
-                PurchInvHeaderPrepmt."Pre-Assigned No." := '';
-                PurchInvHeaderPrepmt."User ID" := UserId;
-                PurchInvHeaderPrepmt."Source Code" := SourceCode;
-                PurchInvHeaderPrepmt."Prepayment Invoice" := true;
+                InitPurchInvHeaderPrepmt(PurchInvHeaderPrepmt, PurchHeader, SourceCode);
             end;
 
             if ("Prepmt. Cr. Memo No. Series" <> '') and ("Prepmt. Cr. Memo No." <> '') then begin
@@ -260,6 +236,47 @@ codeunit 364 "PostPurch-Delete"
           PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr, ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt);
     end;
 
+    local procedure InitPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; SourceCode: Code[10])
+    begin
+        with PurchHeader do begin
+            PurchInvHeader.TransferFields(PurchHeader);
+            if "Posting No." <> '' then
+                PurchInvHeader."No." := "Posting No.";
+            if "Document Type" = "Document Type"::Invoice then begin
+                PurchInvHeader."Pre-Assigned No. Series" := "No. Series";
+                PurchInvHeader."Pre-Assigned No." := "No.";
+            end else begin
+                PurchInvHeader."Pre-Assigned No. Series" := '';
+                PurchInvHeader."Pre-Assigned No." := '';
+                PurchInvHeader."Order No. Series" := "No. Series";
+                PurchInvHeader."Order No." := "No.";
+            end;
+            PurchInvHeader."Posting Date" := Today;
+            PurchInvHeader."User ID" := UserId;
+            PurchInvHeader."Source Code" := SourceCode;
+        end;
+
+        OnAfterInitPurchInvHeader(PurchInvHeader, PurchHeader);
+    end;
+
+    local procedure InitPurchInvHeaderPrepmt(var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; SourceCode: Code[10])
+    begin
+        with PurchHeader do begin
+            PurchInvHeaderPrepmt.TransferFields(PurchHeader);
+            PurchInvHeaderPrepmt."No." := "Prepayment No.";
+            PurchInvHeaderPrepmt."Order No. Series" := "No. Series";
+            PurchInvHeaderPrepmt."Prepayment Order No." := "No.";
+            PurchInvHeaderPrepmt."Posting Date" := Today;
+            PurchInvHeaderPrepmt."Pre-Assigned No. Series" := '';
+            PurchInvHeaderPrepmt."Pre-Assigned No." := '';
+            PurchInvHeaderPrepmt."User ID" := UserId;
+            PurchInvHeaderPrepmt."Source Code" := SourceCode;
+            PurchInvHeaderPrepmt."Prepayment Invoice" := true;
+        end;
+
+        OnAfterInitPurchInvHeaderPrepmt(PurchInvHeaderPrepmt, PurchHeader);
+    end;
+
     procedure IsDocumentDeletionAllowed(PostingDate: Date)
     var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -277,6 +294,16 @@ codeunit 364 "PostPurch-Delete"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDeleteHeader(var PurchHeader: Record "Purchase Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShptHeader: Record "Return Shipment Header"; var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; var PurchCrMemoHdrPrepmt: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchInvHeaderPrepmt(var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header")
     begin
     end;
 

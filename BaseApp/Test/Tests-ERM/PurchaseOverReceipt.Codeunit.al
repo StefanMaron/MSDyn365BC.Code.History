@@ -763,7 +763,6 @@ codeunit 134851 "Purchase Over Receipt"
 
     [Test]
     [HandlerFunctions('OverReceiptNotificationHandler')]
-    [Scope('OnPrem')]
     procedure ClearOverRcptValueWhenDefQtyToRcptBlank()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -803,6 +802,102 @@ codeunit 134851 "Purchase Over Receipt"
         // [THEN] 'Qty. to Receive' = 0
         PurchaseOrder.PurchLines."Qty. to Receive".AssertEquals(0);
         PurchaseOrder.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('OverReceiptNotificationHandler')]
+    procedure SetPurchLineQtyToReceiveWithOverRcptWhenDeletedRevalidated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        PurchaseOrder: TestPage "Purchase Order";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 385845] Set Qty to Receive with Over-Receipt tolerance on Purchase Line after clearing Qty. To Receive
+        Initialize();
+
+        // [GIVEN] Default Qty. to Receive = Blank in Purchases & Payables Setup
+        PurchSetup.Get();
+        PurchSetup.Validate("Default Qty. to Receive", PurchSetup."Default Qty. to Receive"::Remainder);
+        PurchSetup.Modify();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Released Purchase Order with Quantity = X
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        Qty := PurchaseLine.Quantity;
+
+        // [GIVEN] Open purchase order page
+        PurchaseHeader.Find();
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [GIVEN] "Qty. to Receive" set to 0
+        PurchaseOrder.PurchLines."Qty. to Receive".SetValue(0);
+
+        // [WHEN] Set "Qty. to Receive" = X + 1
+        PurchaseOrder.PurchLines."Qty. to Receive".SetValue(Qty + 1);
+        PurchaseOrder.Close();
+
+        // [THEN] Quantity = Qty. To Receive = X + 1, Over-Receipt Quantity = 1.
+        PurchaseLine.Find();
+        PurchaseLine.TestField(Quantity, Qty + 1);
+        PurchaseLine.TestField("Qty. to Receive", Qty + 1);
+        PurchaseLine.TestField("Over-Receipt Quantity", 1);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('OverReceiptNotificationHandler')]
+    procedure SetWhseRcptQtyToReceiveWithOverRcptWhenDeletedRevalidated()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseSetup: Record "Warehouse Setup";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 385845] Set Qty to Receive with Over-Receipt tolerance on Warehouse Receipt Line after clearing Qty. To Receive
+        Initialize();
+        LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
+
+        // [GIVEN] Default Qty. to Receive = Blank in Purchases & Payables Setup
+        PurchSetup.Get();
+        PurchSetup.Validate("Default Qty. to Receive", PurchSetup."Default Qty. to Receive"::Remainder);
+        PurchSetup.Modify();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Released Purchase Order with Quantity = X
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+        Qty := WarehouseReceiptLine.Quantity;
+
+        // [GIVEN] Open Warehouse Receipt page
+        WarehouseReceiptHeader.Find();
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.Filter.SetFilter("No.", WarehouseReceiptHeader."No.");
+
+        // [GIVEN] "Qty. to Receive" set to 0
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(0);
+
+        // [WHEN] Set "Qty. to Receive" = X + 1
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(Qty + 1);
+        WarehouseReceipt.Close();
+
+        // [THEN] Quantity = Qty. To Receive = X + 1, Over-Receipt Quantity = 1.
+        WarehouseReceiptLine.Find();
+        WarehouseReceiptLine.TestField(Quantity, Qty + 1);
+        WarehouseReceiptLine.TestField("Qty. to Receive", Qty + 1);
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 1);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -895,7 +990,7 @@ codeunit 134851 "Purchase Over Receipt"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 10);

@@ -1,4 +1,4 @@
-codeunit 1000 "Job Calculate WIP"
+﻿codeunit 1000 "Job Calculate WIP"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Task" = rimd,
@@ -261,8 +261,21 @@ codeunit 1000 "Job Calculate WIP"
             exit;
         end;
 
-        with JobWIPMethod do begin
-            Get(JobWIPTotal."WIP Method");
+        JobWIPMethod.Get(JobWIPTotal."WIP Method");
+        CalcRecognizedCosts(JobTask, JobWIPTotal, JobWIPMethod);
+        CalcRecognizedSales(JobTask, JobWIPTotal, JobWIPMethod);
+    end;
+
+    local procedure CalcRecognizedCosts(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobWIPMethod: Record "Job WIP Method")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcRecognizedCosts(JobTask, JobWIPTotal, JobWIPMethod, IsHandled);
+        if IsHandled then
+            exit;
+
+        with JobWIPMethod do
             case "Recognized Costs" of
                 "Recognized Costs"::"Cost of Sales":
                     CalcCostOfSales(JobTask, JobWIPTotal);
@@ -273,6 +286,18 @@ codeunit 1000 "Job Calculate WIP"
                 "Recognized Costs"::"Usage (Total Cost)":
                     CalcUsageTotalCostCosts(JobTask);
             end;
+    end;
+
+    local procedure CalcRecognizedSales(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobWIPMethod: Record "Job WIP Method")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcRecognizedSales(JobTask, JobWIPTotal, JobWIPMethod, IsHandled);
+        if IsHandled then
+            exit;
+
+        with JobWIPMethod do
             case "Recognized Sales" of
                 "Recognized Sales"::"Contract (Invoiced Price)":
                     CalcContractInvoicedPrice(JobTask);
@@ -285,7 +310,6 @@ codeunit 1000 "Job Calculate WIP"
                 "Recognized Sales"::"Sales Value":
                     CalcSalesValue(JobTask, JobWIPTotal);
             end;
-        end;
     end;
 
     local procedure CalcCostOfSales(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total")
@@ -1099,6 +1123,16 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPercentageOfCompletion(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; var JobWIPTotalChanged: Boolean; var WIPAmount: Decimal; var RecognizedAllocationPercentage: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRecognizedCosts(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; var JobWIPMethod: Record "Job WIP Method"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRecognizedSales(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; var JobWIPMethod: Record "Job WIP Method"; var IsHandled: Boolean)
     begin
     end;
 

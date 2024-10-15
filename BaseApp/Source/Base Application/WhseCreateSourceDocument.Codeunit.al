@@ -279,12 +279,18 @@ codeunit 5750 "Whse.-Create Source Document"
         end;
     end;
 
-    procedure TransLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; TransLine: Record "Transfer Line"): Boolean
+    procedure TransLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; TransLine: Record "Transfer Line") Result: Boolean
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
         UnitOfMeasureMgt: Codeunit "Unit of Measure Management";
         WhseInbndOtsdgQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransLine2ReceiptLine(WhseReceiptHeader, TransLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with WhseReceiptLine do begin
             InitNewLine(WhseReceiptHeader."No.");
             SetSource(DATABASE::"Transfer Line", 1, TransLine."Document No.", TransLine."Line No.");
@@ -677,6 +683,11 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetQtysOnShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; var QtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransLine2ReceiptLine(WhseReceiptHeader: Record "Warehouse Receipt Header"; var TransLine: Record "Transfer Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

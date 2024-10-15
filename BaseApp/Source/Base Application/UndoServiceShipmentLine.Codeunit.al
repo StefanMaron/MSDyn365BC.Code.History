@@ -283,7 +283,13 @@ codeunit 5818 "Undo Service Shipment Line"
     local procedure InsertNewShipmentLine(OldServShptLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer)
     var
         NewServShptLine: Record "Service Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertNewShipmentLine(OldServShptLine, ItemShptEntryNo, TempGlobalItemEntryRelation, IsHandled);
+        if IsHandled then
+            exit;
+
         with OldServShptLine do begin
             NewServShptLine.Reset();
             NewServShptLine.Init();
@@ -410,6 +416,11 @@ codeunit 5818 "Undo Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServShptLine(var ServiceShptLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewShipmentLine(var ServiceShptLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var IsHandled: Boolean)
     begin
     end;
 

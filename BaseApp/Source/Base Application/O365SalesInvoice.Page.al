@@ -208,7 +208,7 @@ page 2110 "O365 Sales Invoice"
                     Caption = 'Discount %';
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a discount amount that is deducted from the value in the Total Incl. VAT field. You can enter or change the amount manually.';
+                    ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected. You can enter or change the amount manually.';
                 }
                 field(Amount; Amount)
                 {

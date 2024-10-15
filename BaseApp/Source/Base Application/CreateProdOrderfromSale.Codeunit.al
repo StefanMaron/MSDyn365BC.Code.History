@@ -1,4 +1,4 @@
-codeunit 99000792 "Create Prod. Order from Sale"
+﻿codeunit 99000792 "Create Prod. Order from Sale"
 {
 
     trigger OnRun()
@@ -87,10 +87,8 @@ codeunit 99000792 "Create Prod. Order from Sale"
                         ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)";
                     end;
                     SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                    if SalesLine.Reserve = SalesLine.Reserve::Never then begin
-                        SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify();
-                    end;
+                    UpdateSalesLineReserve(SalesLine, ProdOrderLine);
+                    OnCreateProductionOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine);
                     ProdOrderLine.Modify();
                 end;
             end;
@@ -104,6 +102,21 @@ codeunit 99000792 "Create Prod. Order from Sale"
             Message(
               Text000,
               ProdOrder.Status, ProdOrder."No.");
+    end;
+
+    local procedure UpdateSalesLineReserve(var SalesLine: Record "Sales Line"; var ProdOrderLine: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSalesLineReserve(SalesLine, ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesLine.Reserve = SalesLine.Reserve::Never then begin
+            SalesLine.Reserve := SalesLine.Reserve::Optional;
+            SalesLine.Modify();
+        end;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -127,12 +140,22 @@ codeunit 99000792 "Create Prod. Order from Sale"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesLineReserve(var SalesLine: Record "Sales Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderOnAfterProdOrderInsert(var ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderOnBeforeProdOrderInsert(var ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProductionOrderOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

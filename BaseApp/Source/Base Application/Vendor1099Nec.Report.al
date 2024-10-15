@@ -126,9 +126,7 @@ report 10117 "Vendor 1099 Nec"
                 VendorNo := 0;
                 PageGroupNo := 0;
 
-                // Create date range which covers the entire calendar year
-                PeriodDate[1] := DMY2Date(1, 1, CurrYear);
-                PeriodDate[2] := DMY2Date(31, 12, CurrYear);
+                UpdatePeriodDateArray();
 
                 // Fill in the Codes used on this particular 1099 form
                 Clear(Codes);
@@ -166,6 +164,7 @@ report 10117 "Vendor 1099 Nec"
                         begin
                             if (CurrYear < 1980) or (CurrYear > 2060) then
                                 Error(ValidYearErr);
+                            UpdatePeriodDateArray();
                         end;
                     }
                     field(TestPrint; RunTestPrint)
@@ -182,7 +181,7 @@ report 10117 "Vendor 1099 Nec"
         {
         }
 
-        trigger OnOpenPage()
+        trigger OnInit()
         begin
             RunTestPrint := false;
             CurrYear := Date2DMY(WorkDate(), 3);
@@ -236,6 +235,12 @@ report 10117 "Vendor 1099 Nec"
                       Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "Amount to Apply");
                 until Next() = 0;
         end;
+    end;
+
+    local procedure UpdatePeriodDateArray()
+    begin
+        PeriodDate[1] := DMY2Date(1, 1, CurrYear);
+        PeriodDate[2] := DMY2Date(31, 12, CurrYear);
     end;
 }
 

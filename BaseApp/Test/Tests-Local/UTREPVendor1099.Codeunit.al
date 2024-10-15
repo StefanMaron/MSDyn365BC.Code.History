@@ -772,6 +772,40 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryReportDataset.AssertElementWithValueExists(Amounts, -VendorLedgerEntry.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaMisc10CodeHasCorrectPosition()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 389780] The magnetic media file contains the information about the MISC-10 code in the correct position in B and C sections
+
+        Initialize;
+
+        // [GIVEN] Vendor entry with MISC-10 code and amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc10Tok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit;
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 187 to 198
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 187, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 214 to 231
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 214, 18), AmountErr);
+
+        FILE.Erase(FileName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

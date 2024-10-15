@@ -1,4 +1,4 @@
-codeunit 131300 "Library - ERM"
+﻿codeunit 131300 "Library - ERM"
 {
     // All utility functions related to ERM.
 
@@ -1409,7 +1409,13 @@ codeunit 131300 "Library - ERM"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, VATRate, IsHandled);
+        if IsHandled then
+            exit;
+
         VATPostingSetup.Init();
         if not (VATPostingSetup.GetFilter("VAT Bus. Posting Group") in ['', '''', '<>''''']) then
             VATBusinessPostingGroup.Get(VATPostingSetup.GetFilter("VAT Bus. Posting Group"))
@@ -3151,6 +3157,11 @@ codeunit 131300 "Library - ERM"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePrepaymentVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalcType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; SetupGLAccount: Record "G/L Account"; VATAccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVATPostingSetupWithAccounts(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-report 840 "Suggest Worksheet Lines"
+﻿report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -270,6 +270,7 @@ report 840 "Suggest Worksheet Lines"
                             GLBudgEntry.SetRange("Budget Name", GLBudgName);
                             GLBudgEntry.SetRange("G/L Account No.", GLAcc."No.");
                             GLBudgEntry.SetRange(Date, "Cash Flow Forecast"."G/L Budget From", "Cash Flow Forecast"."G/L Budget To");
+                            OnCFAccountForBudgetOnAfterGetRecordOnAfterGLBudgEntrySetFilters(GLBudgEntry);
                             if GLBudgEntry.FindSet() then
                                 repeat
                                     InsertCFLineForGLBudget(GLAcc);
@@ -1640,6 +1641,11 @@ report 840 "Suggest Worksheet Lines"
         CashFlowSetup: Record "Cash Flow Setup";
     begin
         exit(Date < CashFlowSetup.GetCurrentPeriodStartDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCFAccountForBudgetOnAfterGetRecordOnAfterGLBudgEntrySetFilters(var GLBudgEntry: Record "G/L Budget Entry")
+    begin
     end;
 }
 

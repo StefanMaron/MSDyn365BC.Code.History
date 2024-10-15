@@ -541,8 +541,8 @@ page 20 "General Ledger Entries"
         SetControlVisibility;
         SetDimVisibility();
 
-        if GetFilters <> '' then
-            if FindFirst then;
+        if (GetFilters() <> '') and not Find() then
+            if FindFirst() then;
     end;
 
     var
