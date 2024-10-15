@@ -6,6 +6,7 @@ page 379 "Bank Acc. Reconciliation"
     SaveValues = false;
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = WHERE("Statement Type" = CONST("Bank Reconciliation"));
+    RefreshOnActivate = true;
 
     layout
     {
@@ -410,8 +411,8 @@ page 379 "Bank Acc. Reconciliation"
 
     trigger OnAfterGetCurrRecord()
     begin
+        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
         if UpdatedBankAccountLESystemId <> Rec.SystemId then begin
-            UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
             UpdatedBankAccountLESubpageStementDate := Rec."Statement Date";
             UpdatedBankAccountLESystemId := Rec.SystemId;
         end;
