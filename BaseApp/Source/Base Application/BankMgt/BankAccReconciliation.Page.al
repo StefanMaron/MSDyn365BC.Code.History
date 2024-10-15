@@ -508,10 +508,11 @@ page 379 "Bank Acc. Reconciliation"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if UpdatedBankAccountLESystemId <> Rec.SystemId then
+        if UpdatedBankAccountLESystemId <> Rec.SystemId then begin
             UpdatedBankAccountLESystemId := Rec.SystemId;
+            CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
+        end;
 
-        CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
         CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
     end;
 

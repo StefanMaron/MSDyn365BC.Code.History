@@ -878,6 +878,8 @@ report 1304 "Standard Sales - Quote"
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
 
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
+
                 SetLanguage("Language Code");
 
                 CalcFields("Work Description");
@@ -1297,6 +1299,11 @@ report 1304 "Standard Sales - Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnLineOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -1022,77 +1022,83 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalAmountLCY: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforePopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled);
+        if not IsHandled then begin
+            ApprovalEntryArgument.Init();
+            ApprovalEntryArgument."Table ID" := RecRef.Number;
+            ApprovalEntryArgument."Record ID to Approve" := RecRef.RecordId;
+            ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::" ";
+            ApprovalEntryArgument."Approval Code" := WorkflowStepInstance."Workflow Code";
+            ApprovalEntryArgument."Workflow Step Instance ID" := WorkflowStepInstance.ID;
 
-        ApprovalEntryArgument.Init();
-        ApprovalEntryArgument."Table ID" := RecRef.Number;
-        ApprovalEntryArgument."Record ID to Approve" := RecRef.RecordId;
-        ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::" ";
-        ApprovalEntryArgument."Approval Code" := WorkflowStepInstance."Workflow Code";
-        ApprovalEntryArgument."Workflow Step Instance ID" := WorkflowStepInstance.ID;
-
-        case RecRef.Number of
-            DATABASE::"Purchase Header":
-                begin
-                    RecRef.SetTable(PurchaseHeader);
-                    CalcPurchaseDocAmount(PurchaseHeader, ApprovalAmount, ApprovalAmountLCY);
-                    ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type");
-                    ApprovalEntryArgument."Document No." := PurchaseHeader."No.";
-                    ApprovalEntryArgument."Salespers./Purch. Code" := PurchaseHeader."Purchaser Code";
-                    ApprovalEntryArgument.Amount := ApprovalAmount;
-                    ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
-                    ApprovalEntryArgument."Currency Code" := PurchaseHeader."Currency Code";
-                end;
-            DATABASE::"Sales Header":
-                begin
-                    RecRef.SetTable(SalesHeader);
-                    CalcSalesDocAmount(SalesHeader, ApprovalAmount, ApprovalAmountLCY);
-                    ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetSalesApprovalDocumentType(SalesHeader."Document Type");
-                    ApprovalEntryArgument."Document No." := SalesHeader."No.";
-                    ApprovalEntryArgument."Salespers./Purch. Code" := SalesHeader."Salesperson Code";
-                    ApprovalEntryArgument.Amount := ApprovalAmount;
-                    ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
-                    ApprovalEntryArgument."Currency Code" := SalesHeader."Currency Code";
-                    ApprovalEntryArgument."Available Credit Limit (LCY)" := GetAvailableCreditLimit(SalesHeader);
-                end;
-            DATABASE::Customer:
-                begin
-                    RecRef.SetTable(Customer);
-                    ApprovalEntryArgument."Salespers./Purch. Code" := Customer."Salesperson Code";
-                    ApprovalEntryArgument."Currency Code" := Customer."Currency Code";
-                    ApprovalEntryArgument."Available Credit Limit (LCY)" := Customer.CalcAvailableCredit();
-                end;
-            DATABASE::"Gen. Journal Batch":
-                RecRef.SetTable(GenJournalBatch);
-            DATABASE::"Gen. Journal Line":
-                begin
-                    RecRef.SetTable(GenJournalLine);
-                    case GenJournalLine."Document Type" of
-                        GenJournalLine."Document Type"::Invoice:
-                            ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::Invoice;
-                        GenJournalLine."Document Type"::"Credit Memo":
-                            ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::"Credit Memo";
-                        else
-                            ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type";
+            case RecRef.Number of
+                DATABASE::"Purchase Header":
+                    begin
+                        RecRef.SetTable(PurchaseHeader);
+                        CalcPurchaseDocAmount(PurchaseHeader, ApprovalAmount, ApprovalAmountLCY);
+                        ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type");
+                        ApprovalEntryArgument."Document No." := PurchaseHeader."No.";
+                        ApprovalEntryArgument."Salespers./Purch. Code" := PurchaseHeader."Purchaser Code";
+                        ApprovalEntryArgument.Amount := ApprovalAmount;
+                        ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
+                        ApprovalEntryArgument."Currency Code" := PurchaseHeader."Currency Code";
                     end;
-                    ApprovalEntryArgument."Document No." := GenJournalLine."Document No.";
-                    ApprovalEntryArgument."Salespers./Purch. Code" := GenJournalLine."Salespers./Purch. Code";
-                    ApprovalEntryArgument.Amount := GenJournalLine.Amount;
-                    ApprovalEntryArgument."Amount (LCY)" := GenJournalLine."Amount (LCY)";
-                    ApprovalEntryArgument."Currency Code" := GenJournalLine."Currency Code";
-                end;
-            DATABASE::"Incoming Document":
-                begin
-                    RecRef.SetTable(IncomingDocument);
-                    ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
-                end;
-            DATABASE::Vendor:
-                begin
-                    RecRef.SetTable(Vendor);
-                    ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
-                end;
-            else
-                OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
+                DATABASE::"Sales Header":
+                    begin
+                        RecRef.SetTable(SalesHeader);
+                        CalcSalesDocAmount(SalesHeader, ApprovalAmount, ApprovalAmountLCY);
+                        ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetSalesApprovalDocumentType(SalesHeader."Document Type");
+                        ApprovalEntryArgument."Document No." := SalesHeader."No.";
+                        ApprovalEntryArgument."Salespers./Purch. Code" := SalesHeader."Salesperson Code";
+                        ApprovalEntryArgument.Amount := ApprovalAmount;
+                        ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
+                        ApprovalEntryArgument."Currency Code" := SalesHeader."Currency Code";
+                        ApprovalEntryArgument."Available Credit Limit (LCY)" := GetAvailableCreditLimit(SalesHeader);
+                    end;
+                DATABASE::Customer:
+                    begin
+                        RecRef.SetTable(Customer);
+                        ApprovalEntryArgument."Salespers./Purch. Code" := Customer."Salesperson Code";
+                        ApprovalEntryArgument."Currency Code" := Customer."Currency Code";
+                        ApprovalEntryArgument."Available Credit Limit (LCY)" := Customer.CalcAvailableCredit();
+                    end;
+                DATABASE::"Gen. Journal Batch":
+                    RecRef.SetTable(GenJournalBatch);
+                DATABASE::"Gen. Journal Line":
+                    begin
+                        RecRef.SetTable(GenJournalLine);
+                        case GenJournalLine."Document Type" of
+                            GenJournalLine."Document Type"::Invoice:
+                                ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::Invoice;
+                            GenJournalLine."Document Type"::"Credit Memo":
+                                ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::"Credit Memo";
+                            GenJournalLine."Document Type"::" ":
+                                ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::" ";
+                            GenJournalLine."Document Type"::"Payment":
+                                ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::"Payment";
+                            else
+                                ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type";
+                        end;
+                        ApprovalEntryArgument."Document No." := GenJournalLine."Document No.";
+                        ApprovalEntryArgument."Salespers./Purch. Code" := GenJournalLine."Salespers./Purch. Code";
+                        ApprovalEntryArgument.Amount := GenJournalLine.Amount;
+                        ApprovalEntryArgument."Amount (LCY)" := GenJournalLine."Amount (LCY)";
+                        ApprovalEntryArgument."Currency Code" := GenJournalLine."Currency Code";
+                    end;
+                DATABASE::"Incoming Document":
+                    begin
+                        RecRef.SetTable(IncomingDocument);
+                        ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
+                    end;
+                DATABASE::Vendor:
+                    begin
+                        RecRef.SetTable(Vendor);
+                        ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
+                    end;
+                else
+                    OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
+            end;
         end;
 
         OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled, RecRef);
@@ -1238,7 +1244,23 @@ codeunit 1535 "Approvals Mgmt."
         if GenJournalLine.IsForSales() then
             exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
 
+        if GenJournalLine.IsForGLAccount() then
+            exit(IsSufficientGLAccountApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)"));
+
         exit(true);
+    end;
+
+    local procedure IsSufficientGLAccountApprover(UserSetup: Record "User Setup"; ApprovalAmountLCY: Decimal): Boolean
+    begin
+        if UserSetup."User ID" = UserSetup."Approver ID" then
+            exit(true);
+
+        if UserSetup."Unlimited Request Approval" or
+            ((ApprovalAmountLCY <= UserSetup."Request Amount Approval Limit") and (UserSetup."Request Amount Approval Limit" <> 0))
+        then
+            exit(true);
+
+        exit(false);
     end;
 
     procedure IsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean

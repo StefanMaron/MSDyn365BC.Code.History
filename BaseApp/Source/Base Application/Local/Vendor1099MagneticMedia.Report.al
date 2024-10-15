@@ -652,6 +652,8 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1#############', VendContactPhoneNo) +
           StrSubstNo('#1##################', VendorInfo."E-Mail") + // 20 chars
           StrSubstNo('                          '));
+
+          OnAfterWriteTRec(IRSData, VendorInfo);
     end;
 
     procedure WriteARec()
@@ -1241,6 +1243,11 @@ report 10115 "Vendor 1099 Magnetic Media"
     local procedure GetFullVendorName(Vendor: Record Vendor): Text
     begin
         exit(Vendor.Name + Vendor."Name 2");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWriteTRec(var IRSData: File; VendorCompanyInformation: Record "Company Information")
+    begin
     end;
 }
 

@@ -716,6 +716,16 @@
             Caption = 'Error Description';
             Editable = false;
         }
+        field(10037; "Date/Time Stamp Received"; DateTime)
+        {
+            Caption = 'Date/Time Stamp Received';
+            Editable = false;
+        }
+        field(10038; "Date/Time Cancel Sent"; DateTime)
+        {
+            Caption = 'Date/Time Cancel Sent';
+            Editable = false;
+        }
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
@@ -743,8 +753,8 @@
         field(27003; "Substitution Entry No."; Integer)
         {
             Caption = 'Substitution Entry No.';
-            TableRelation = "Cust. Ledger Entry" WHERE ("Document Type" = FILTER (Payment),
-                                                        "Electronic Document Status" = FILTER ("Stamp Received"));
+            TableRelation = "Cust. Ledger Entry" WHERE("Document Type" = FILTER(Payment),
+                                                        "Electronic Document Status" = FILTER("Stamp Received"));
         }
         field(27007; "CFDI Cancellation ID"; Text[50])
         {

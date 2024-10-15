@@ -520,11 +520,23 @@
                         ApplicationArea = BasicMX;
                         ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
                     }
+                    field("SAT Address ID"; Rec."SAT Address ID")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                        BlankZero = true;
+                    }
+#if not CLEAN23                    
                     field("Transit-to Location"; Rec."Transit-to Location")
                     {
                         ApplicationArea = BasicMX;
                         ToolTip = 'Specifies the location that the goods or merchandise are moved to.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address ID.';
+                        ObsoleteTag = '23.0';
                     }
+#endif                    
                     field("SAT International Trade Term"; Rec."SAT International Trade Term")
                     {
                         ApplicationArea = BasicMX;

@@ -1452,7 +1452,13 @@
     procedure VerifyNoInboundWhseHandlingOnLocation(LocationCode: Code[10])
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyNoInboundWhseHandlingOnLocation(LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Location.Get(LocationCode) then
             exit;
 
@@ -1743,6 +1749,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBeforeTransferPost(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyNoInboundWhseHandlingOnLocation(LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

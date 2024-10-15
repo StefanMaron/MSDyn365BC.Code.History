@@ -394,6 +394,9 @@ codeunit 1002 "Job Create-Invoice"
 
         SalesHeader."Your Reference" := Job."Your Reference";
 
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+            SalesHeader.SetDefaultPaymentServices();
+
         IsHandled := false;
         OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if not IsHandled then
@@ -718,6 +721,8 @@ codeunit 1002 "Job Create-Invoice"
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
+        OnBeforeGetJobPlanningLineInvoices(JobPlanningLine);
+
         ClearAll();
         with JobPlanningLine do begin
             if "Line No." = 0 then
@@ -1214,6 +1219,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterSetSalesDocumentType(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeGetJobPlanningLineInvoices(JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

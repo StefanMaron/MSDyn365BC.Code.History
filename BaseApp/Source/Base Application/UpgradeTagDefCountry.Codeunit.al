@@ -16,6 +16,8 @@
         PerCompanyUpgradeTags.Add(GetCFDIEnableOptionUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCompanyInformationRFCNumberUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPACWebServiceDetailsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSCTPermissionNoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSATAddressUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -74,5 +76,14 @@
         exit('MS-462312-PACWebServiceDetails-20230202');
     end;
 
+    procedure GetSCTPermissionNoUpgradeTag(): Code[250]
+    begin
+        exit('MS-479044-SCTPermissionNo-20230809');
+    end;
+
+    procedure GetSATAddressUpgradeTag(): Code[250]
+    begin
+        exit('MS-477864-SATAddress-20230814');
+    end;
 }
 

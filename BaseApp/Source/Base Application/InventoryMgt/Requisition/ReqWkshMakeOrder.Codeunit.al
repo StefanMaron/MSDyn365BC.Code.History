@@ -351,7 +351,7 @@
                     if Item.IsVariantMandatory() then
                         TestField("Variant Code");
             end;
-            
+
             if IsDropShipment() then
                 CheckLocation(ReqLine2);
 
@@ -953,7 +953,7 @@
             ReqLine2.SetRange("Currency Code", PurchOrderHeader."Currency Code");
             ReqLine2.SetRange("Purchasing Code", PrevPurchCode);
             IsHandled := false;
-            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled);
+            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled, TempFailedReqLine);
             if not IsHandled then
                 if ReqLine2.FindSet() then begin
                     ReqLine2.BlockDynamicTracking(true);
@@ -1308,7 +1308,7 @@
               CheckAddressDetailsResult;
 
         OnBeforeCheckInsertFinalizePurchaseOrderHeader(
-            RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult, ReceiveDateReq);
+            RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult, ReceiveDateReq, CheckCustomer);
         exit(CheckInsert);
     end;
 
@@ -1530,7 +1530,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean; var CheckAddressDetailsResult: Boolean; ReceiveDateReq: Date)
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean; var CheckAddressDetailsResult: Boolean; ReceiveDateReq: Date; CheckCustomer: Boolean)
     begin
     end;
 
@@ -1685,7 +1685,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var TempFailedRequisitionLine: Record "Requisition Line" temporary)
     begin
     end;
 

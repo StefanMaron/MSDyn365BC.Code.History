@@ -550,7 +550,11 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the code for USD currency that is used to calculate exchange rate to report foreing trade electronic invoices to Mexican SAT authorities.';
                 }
-
+                field("Cancel on Time Expiration"; Rec."Cancel on Time Expiration")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if users cancel documents when requesting cancellation before 24 hours of issue, or if no response is received for cancellation after 72 hours.';
+                }
             }
             group("Gen. Journal Templates")
             {

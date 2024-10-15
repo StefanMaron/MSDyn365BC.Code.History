@@ -26,6 +26,8 @@ codeunit 134389 "ERM Customer Statistics"
         IsNotFoundOnThePageErr: Label 'is not found on the page';
         InvoicePaymentDaysAverageErr: Label 'Invoice Payment Days Average was not calculated correct.';
         FieldIsNotHiddenErr: Label 'Field is hidden';
+        EntryNoMustMatchErr: Label 'Entry No. must match.';
+        PaymentsLCYAndAmountLCYMustMatchErr: Label 'Payemnts (LCY) and Amount (LCY) must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -913,6 +915,52 @@ codeunit 134389 "ERM Customer Statistics"
           SalesLine.Quantity * (Item."Unit Price" - Item."Unit Cost"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DrillDownOnPaymentsThisYearFromCustomerCard()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustomerCard: TestPage "Customer Card";
+        DetailedCustLedgEntries: TestPage "Detailed Cust. Ledg. Entries";
+    begin
+        // [SCENARIO 480403] Payments this Year field under Statistics tab on the Customer Card is using the wrong Date Filter.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Customer Ledger Entry.
+        CreateBasicCustLedgerEntry(CustLedgerEntry, Customer."No.");
+
+        // [GIVEN] Create a Detailed Customer Ledger Entry.
+        CreatePaymentsThisYearDetailedCustLedgerEntry(DetailedCustLedgEntry, CustLedgerEntry);
+
+        // [GIVEN] Open Customer Card page.
+        CustomerCard.OpenView();
+        CustomerCard.GotoRecord(Customer);
+
+        // [GIVEN] Drill Down Payments This Year field & Find Detailed Customer Ledger Entry.
+        DetailedCustLedgEntries.Trap();
+        CustomerCard."Payments (LCY)".Drilldown();
+        DetailedCustLedgEntries.First();
+
+        // [VERIFY] Verify Detailed Customer Ledger Entry found is of Current Fiscal year.
+        Assert.AreEqual(
+            DetailedCustLedgEntry."Entry No.",
+            DetailedCustLedgEntries."Entry No.".AsInteger(),
+            EntryNoMustMatchErr);
+
+        // [VERIFY] Verify Payments This Year value matches with Detailed Customer Ledger Entry Amount (LCY) value & Close the pages.
+        Assert.AreEqual(
+            CustomerCard."Payments (LCY)".AsDecimal(),
+            -DetailedCustLedgEntries."Amount (LCY)".AsDecimal(),
+            PaymentsLCYAndAmountLCYMustMatchErr);  
+        DetailedCustLedgEntries.Close();
+        CustomerCard.Close();
+    end;
+
     local procedure Initialize()
     var
         Currency: Record Currency;
@@ -1337,6 +1385,19 @@ codeunit 134389 "ERM Customer Statistics"
           'Invalid This Period Adjusted Profit (LCY) value');
 
         CustomerStatistics.ThisPeriodCostAdjmtAmountsLCY.AssertEquals(0);
+    end;
+
+    local procedure CreatePaymentsThisYearDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry.Validate("Posting Date", WorkDate());
+        DetailedCustLedgEntry.Validate("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.Validate("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.Validate("Customer No.", CustLedgerEntry."Customer No.");
+        DetailedCustLedgEntry.Validate("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Payment);
+        DetailedCustLedgEntry.Validate("Amount (LCY)", -LibraryRandom.RandInt(1000));
+        DetailedCustLedgEntry.Insert();
     end;
 
     [ConfirmHandler]

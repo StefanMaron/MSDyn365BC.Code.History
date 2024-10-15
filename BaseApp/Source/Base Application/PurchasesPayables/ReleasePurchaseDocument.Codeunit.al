@@ -40,7 +40,7 @@
                 exit;
 
             IsHandled := false;
-            OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode, SkipCheckReleaseRestrictions, IsHandled);
+            OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode, SkipCheckReleaseRestrictions, IsHandled, SkipWhseRequestOperations);
             if IsHandled then
                 exit;
 
@@ -88,7 +88,7 @@
             if PrepaymentMgt.TestPurchasePrepayment(PurchaseHeader) and ("Document Type" = "Document Type"::Order) then begin
                 Status := Status::"Pending Prepayment";
                 Modify(true);
-                OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified);
+                OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
                 exit;
             end;
             Status := Status::Released;
@@ -105,7 +105,7 @@
                     if not SkipWhseRequestOperations then
                         WhsePurchRelease.Release(PurchaseHeader);
 
-            OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified);
+            OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
         end;
     end;
 
@@ -164,7 +164,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReopenPurchaseDoc(PurchHeader, PreviewMode, IsHandled);
+        OnBeforeReopenPurchaseDoc(PurchHeader, PreviewMode, IsHandled, SkipWhseRequestOperations);
         if IsHandled then
             exit;
 
@@ -179,7 +179,7 @@
             Modify(true);
         end;
 
-        OnAfterReopenPurchaseDoc(PurchHeader, PreviewMode);
+        OnAfterReopenPurchaseDoc(PurchHeader, PreviewMode, SkipWhseRequestOperations);
     end;
 
     procedure PerformManualRelease(var PurchHeader: Record "Purchase Header")
@@ -308,12 +308,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var SkipCheckReleaseRestrictions: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var SkipCheckReleaseRestrictions: Boolean; var IsHandled: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    local procedure OnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
@@ -328,7 +328,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
@@ -348,7 +348,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnAfterReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
