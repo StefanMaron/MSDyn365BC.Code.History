@@ -32,6 +32,7 @@ codeunit 700 "Page Management"
 
         PageID := GetPageID(RecRef);
 
+        OnPageRunAtFieldOnBeforeRunPage(RecRef, PageID);
         if PageID <> 0 then begin
             RecordRefVariant := RecRef;
             if Modal then
@@ -184,9 +185,9 @@ codeunit 700 "Page Management"
             Database::Employee:
                 Exit(Page::"Employee Card");
             else begin
-                    OnConditionalCardPageIDNotFound(RecRef, CardPageID);
-                    exit(CardPageID);
-                end;
+                OnConditionalCardPageIDNotFound(RecRef, CardPageID);
+                exit(CardPageID);
+            end;
         end;
         exit(0);
     end;
@@ -231,42 +232,44 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetPurchaseHeaderPageID(RecRef: RecordRef): Integer
+    local procedure GetPurchaseHeaderPageID(RecRef: RecordRef) Result: Integer
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         RecRef.SetTable(PurchaseHeader);
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
-                exit(PAGE::"Purchase Quote");
+                Result := PAGE::"Purchase Quote";
             PurchaseHeader."Document Type"::Order:
-                exit(PAGE::"Purchase Order");
+                Result := PAGE::"Purchase Order";
             PurchaseHeader."Document Type"::Invoice:
-                exit(PAGE::"Purchase Invoice");
+                Result := PAGE::"Purchase Invoice";
             PurchaseHeader."Document Type"::"Credit Memo":
-                exit(PAGE::"Purchase Credit Memo");
+                Result := PAGE::"Purchase Credit Memo";
             PurchaseHeader."Document Type"::"Blanket Order":
-                exit(PAGE::"Blanket Purchase Order");
+                Result := PAGE::"Blanket Purchase Order";
             PurchaseHeader."Document Type"::"Return Order":
-                exit(PAGE::"Purchase Return Order");
+                Result := PAGE::"Purchase Return Order";
         end;
+        OnAfterGetPurchaseHeaderPageID(RecRef, PurchaseHeader, Result);
     end;
 
-    local procedure GetServiceHeaderPageID(RecRef: RecordRef): Integer
+    local procedure GetServiceHeaderPageID(RecRef: RecordRef) Result: Integer
     var
         ServiceHeader: Record "Service Header";
     begin
         RecRef.SetTable(ServiceHeader);
         case ServiceHeader."Document Type" of
             ServiceHeader."Document Type"::Quote:
-                exit(PAGE::"Service Quote");
+                Result := PAGE::"Service Quote";
             ServiceHeader."Document Type"::Order:
-                exit(PAGE::"Service Order");
+                Result := PAGE::"Service Order";
             ServiceHeader."Document Type"::Invoice:
-                exit(PAGE::"Service Invoice");
+                Result := PAGE::"Service Invoice";
             ServiceHeader."Document Type"::"Credit Memo":
-                exit(PAGE::"Service Credit Memo");
+                Result := PAGE::"Service Credit Memo";
         end;
+        OnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);
     end;
 
     local procedure GetServiceContractHeaderPageID(RecRef: RecordRef): Integer
@@ -499,7 +502,17 @@ codeunit 700 "Page Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetPageID(RecordRef: RecordRef; var PageID: Integer)
+    local procedure OnAfterGetPageID(var RecordRef: RecordRef; var PageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPurchaseHeaderPageID(RecRef: RecordRef; PurchaseHeader: Record "Purchase Header"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record "Service Header"; var Result: Integer)
     begin
     end;
 
@@ -515,6 +528,11 @@ codeunit 700 "Page Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnConditionalCardPageIDNotFound(RecordRef: RecordRef; var CardPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPageRunAtFieldOnBeforeRunPage(var RecordRef: RecordRef; var PageID: Integer)
     begin
     end;
 }

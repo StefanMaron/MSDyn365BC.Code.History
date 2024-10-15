@@ -408,7 +408,13 @@ table 7347 "Internal Movement Line"
     local procedure SelectLookUp(CurrentFieldNo: Integer)
     var
         ItemVariant: Record "Item Variant";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectLookUp(Rec, CurrentFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         if Location."Bin Mandatory" then
             LookUpBinContent()
@@ -655,6 +661,11 @@ table 7347 "Internal Movement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckQtyItemTrackingLines(var Rec: Record "Internal Movement Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectLookUp(var InternalMovementLine: Record "Internal Movement Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

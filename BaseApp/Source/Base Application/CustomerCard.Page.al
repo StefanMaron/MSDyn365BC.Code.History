@@ -407,6 +407,12 @@ page 21 "Customer Card"
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';

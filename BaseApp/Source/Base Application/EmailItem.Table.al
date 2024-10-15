@@ -248,6 +248,7 @@ table 9500 "Email Item"
 
     procedure SetAttachments(TempBlobList: Codeunit "Temp Blob List"; Names: List of [Text])
     begin
+        OnBeforeSetAttachments(Rec, TempBlobList, Names);
         Attachments := TempBlobList;
         AttachmentNames := Names;
     end;
@@ -499,6 +500,11 @@ table 9500 "Email Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSend(var EmailItem: Record "Email Item"; var HideMailDialog: Boolean; var MailManagement: Codeunit "Mail Management")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAttachments(var EmailItem: Record "Email Item"; var TempBlobList: Codeunit "Temp Blob List"; var Names: List of [Text])
     begin
     end;
 }

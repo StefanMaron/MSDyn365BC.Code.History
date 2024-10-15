@@ -635,6 +635,38 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementTemplateListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyVATDateUsedOnVATStatementReport()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATReportingDate: Date;
+        PostingDate: Date;
+        GLAccountNoFrom: Code[20];
+        GLAccountNoTo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report] [VAT Statement] Test VAT Statement Report is using VAT Reporting Date as Date filter 
+        // [GIVEN] Posted a general journal line with different Posting and VAT Reporting Date       
+        Initialize();
+
+        PostingDate := CalcDate('<+2M>', GetLastPostingDate());
+        VATReportingDate := CalcDate('<+1M>', PostingDate);
+
+        CreateVATPostingSetup(VATPostingSetup);
+
+        GLAccountNoFrom := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        GLAccountNoTo := CreateGLAccountWithVAT(VATPostingSetup);
+
+        // [WHEN] Generla Journal Line with different Posting and VAT Registraion Date is posted 
+        PostGenJournalLine(GLAccountNoFrom, GLAccountNoTo, Amount, PostingDate, VATReportingDate);
+
+        // [THEN] VAT Statement conatins VAT Statement Line if report run in VAT Resitsration Date period
+        VerifyVATStatementWithinSelectedPeriod(VATPostingSetup, GLAccountNoTo, VATReportingDate);
+
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -673,7 +705,10 @@ codeunit 134992 "ERM Financial Reports IV"
         end;
     end;
 
-    local procedure CalcAndPostVATSettlementWithPostingOption(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; Post: Boolean)
+    local procedure CalcAndPostVATSettlementWithPostingOption(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                               GenPostingType: Enum "General Posting Type";
+                                                                               SignFactor: Integer;
+                                                                               Post: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry: Record "VAT Entry";
@@ -702,12 +737,18 @@ codeunit 134992 "ERM Financial Reports IV"
         TotalAmount := VATEntry.Amount;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; FindVATPostingSetup: Boolean)
+    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                                      GenPostingType: Enum "General Posting Type";
+                                                                                                                      SignFactor: Integer;
+                                                                                                                      FindVATPostingSetup: Boolean)
     begin
         CreateAndPostGeneralJournalLine(VATPostingSetup, WorkDate(), AccountType, AccountNo, GenPostingType, SignFactor, FindVATPostingSetup);
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; FindVATPostingSetup: Boolean)
+    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                                                         GenPostingType: Enum "General Posting Type";
+                                                                                                                                         SignFactor: Integer;
+                                                                                                                                         FindVATPostingSetup: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -992,6 +1033,116 @@ codeunit 134992 "ERM Financial Reports IV"
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATAmount'), -VATEntry.Amount,
           SameAmountErr);
+    end;
+
+    local procedure GetLastPostingDate(): Date
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetCurrentKey("Posting Date");
+        VATEntry.FindLast();
+        exit(VATEntry."Posting Date");
+    end;
+
+    local procedure PostGenJournalLine(GLAccountNoFrom: Code[20]; GLAccountNoTo: Code[20]; var Amount: Decimal; PostingDate: Date; VATReportingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        Amount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateGeneralJnlLine2WithBalAcc(GenJournalLine,
+            GenJournalTemplate.Name,
+            GenJournalBatch.Name,
+            GenJournalDocumentType::" ",
+            GenJournalAccountType::"G/L Account",
+            GLAccountNoFrom,
+            GenJournalAccountType::"G/L Account",
+            GLAccountNoTo,
+            Amount);
+
+        GenJournalLine."Posting Date" := PostingDate;
+        GenJournalLine."VAT Reporting Date" := VATReportingDate;
+        GenJournalLine."Bal. Gen. Posting Type" := GenJournalLine."Bal. Gen. Posting Type"::"Sale";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup."Sales VAT Account" := GLAccount."No.";
+        VATPostingSetup."VAT %" := LibraryRandom.RandInt(20);
+        VATPostingSetup.Modify();
+    end;
+
+    local procedure CreateGLAccountWithVAT(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        GenPostingType: Enum "General Posting Type";
+    begin
+        exit(CreateGLAccountWithVAT(VATPostingSetup, GenPostingType::"Sale"));
+    end;
+
+    local procedure VerifyVATStatementWithinSelectedPeriod(VATPostingSetup: Record "VAT Posting Setup"; GLAccountTotalingNo: Code[20]; VATReportingDate: Date)
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATEntry: Record "VAT Entry";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        VATStatement: TestPage "VAT Statement";
+        TotalAmount: Decimal;
+    begin
+        // Create VAT Statement Name and VAT Statement Line
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"Account Totaling");
+        VATStatementLine.Validate("Account Totaling", GLAccountTotalingNo);
+        VATStatementLine.Validate("Calculate with", VATStatementLine."Calculate with"::"Opposite Sign");
+        VATStatementLine.Modify(true);
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+
+        // Open page "VAT Statement Preview" for created line
+        VATStatement.OpenEdit();
+        VATStatement.Filter.SetFilter("Statement Template Name", VATStatementLine."Statement Template Name");
+        VATStatement.Filter.SetFilter("Statement Name", VATStatementLine."Statement Name");
+        VATStatement.First();
+        VATStatementPreview.Trap();
+        VATStatement."P&review".Invoke();
+
+        // Find related VAT Entry to get amount
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.SetRange("VAT Reporting Date", VATReportingDate);
+        VatEntry.FindFirst();
+
+        VATEntry.CalcSums(Base);
+        TotalAmount := -VATEntry.Base;
+
+        // Open VAT Statement Preview with Date Filter within VAT Reporting Date and verify amount
+        VATStatementPreview.PeriodSelection.SetValue('Within Period');
+        VATStatementPreview.DateFilter.SetValue(Format(VATReportingDate) + '..' + Format(VATReportingDate));
+        Assert.AreEqual(TotalAmount, VATStatementPreview.VATStatementLineSubForm.ColumnValue.AsDecimal(), '');
+        VATStatementPreview.Close();
+
+        // Open VAT Statement Preview with Date Filter within Posting Date to verify that amount is 0 as entry is out of date filter
+        VATStatementPreview.Trap();
+        VATStatement."P&review".Invoke();
+        VATStatementPreview.PeriodSelection.SetValue('Within Period');
+        VATStatementPreview.DateFilter.SetValue(Format(VATEntry."Posting Date") + '..' + Format(VATEntry."Posting Date"));
+        Assert.AreEqual(0, VATStatementPreview.VATStatementLineSubForm.ColumnValue.AsDecimal(), '');
     end;
 
     [RequestPageHandler]

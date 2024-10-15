@@ -42,6 +42,12 @@ report 5973 "Service Contract Quote-Detail"
                 column(BilltoName_ServContract; "Service Contract Header"."Bill-to Name")
                 {
                 }
+                column(CompanyAddr7; CompanyAddr[7])
+                {
+                }
+                column(CompanyAddr8; CompanyAddr[8])
+                {
+                }
                 column(CompanyAddr6; CompanyAddr[6])
                 {
                 }

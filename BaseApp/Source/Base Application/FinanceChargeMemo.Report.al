@@ -107,6 +107,12 @@ report 118 "Finance Charge Memo"
                 column(CustAddr6; CustAddr[6])
                 {
                 }
+                column(CompanyAddr8; CompanyAddr[8])
+                {
+                }
+                column(CompanyAddr7; CompanyAddr[7])
+                {
+                }
                 column(CompanyAddr6; CompanyAddr[6])
                 {
                 }

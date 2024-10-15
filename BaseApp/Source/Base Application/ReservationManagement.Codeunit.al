@@ -1597,6 +1597,7 @@ codeunit 99000845 "Reservation Management"
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then begin
             ReservEntry2.Lock();
             ReservEntry2.SetLoadFields("Entry No.");
+            OnClearSurplusOnBeforeReservEntry2FindSet(ReservEntry2);
             if not ReservEntry2.FindSet() then
                 exit;
             ActionMessageEntry.Reset();
@@ -3092,6 +3093,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnClearSurplusOnAfterReservEntry2SetFilters(var ReservationEntry: Record "Reservation Entry"; ItemTrackingHandling: Option "None","Allow deletion",Match)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClearSurplusOnBeforeReservEntry2FindSet(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 

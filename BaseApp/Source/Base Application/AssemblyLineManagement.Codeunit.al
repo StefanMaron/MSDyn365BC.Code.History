@@ -120,6 +120,7 @@ codeunit 905 "Assembly Line Management"
             AssemblyLine."Position 2" := BOMComponent."Position 2";
             AssemblyLine."Position 3" := BOMComponent."Position 3";
             UpdateAssemblyLineLocationCode(AssemblyHeader, AssemblyLine);
+            AssemblyLine.Validate("Consumed Quantity", "Assembled Quantity");
 
             OnAfterTransferBOMComponent(AssemblyLine, BOMComponent, AssemblyHeader);
 
@@ -570,9 +571,9 @@ codeunit 905 "Assembly Line Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowAvailability(TempAssemblyHeader, TempAssemblyLine, ShowPageEvenIfEnoughComponentsAvailable, IsHandled);
+        OnBeforeShowAvailability(TempAssemblyHeader, TempAssemblyLine, ShowPageEvenIfEnoughComponentsAvailable, IsHandled, Rollback);
         if IsHandled then
-            exit;
+            exit(Rollback);
 
         AssemblySetup.Get();
         if not GuiAllowed or
@@ -800,7 +801,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowAvailability(var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary; ShowPageEvenIfEnoughComponentsAvailable: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeShowAvailability(var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary; ShowPageEvenIfEnoughComponentsAvailable: Boolean; var IsHandled: Boolean; var RollBack: Boolean)
     begin
     end;
 

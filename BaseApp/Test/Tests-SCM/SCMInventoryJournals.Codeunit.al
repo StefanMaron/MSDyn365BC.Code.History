@@ -578,6 +578,7 @@ codeunit 137275 "SCM Inventory Journals"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure RevaluationJournalDimension()
     var
@@ -714,7 +715,7 @@ codeunit 137275 "SCM Inventory Journals"
     end;
 
     [Test]
-    [HandlerFunctions('CalculateInventory,MultipleDimSelectionHandler')]
+    [HandlerFunctions('ConfirmHandlerNo,CalculateInventory,MultipleDimSelectionHandler')]
     [Scope('OnPrem')]
     procedure DimensionOnPhysInventoryJournal()
     var
@@ -750,6 +751,7 @@ codeunit 137275 "SCM Inventory Journals"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure DimensionOnPhysInventoryJournalWhenItemDefaultDimensionValueIsEmpty()
     var
@@ -797,7 +799,7 @@ codeunit 137275 "SCM Inventory Journals"
     end;
 
     [Test]
-    [HandlerFunctions('VerifyDimensionSetEntryHandler')]
+    [HandlerFunctions('ConfirmHandlerNo,VerifyDimensionSetEntryHandler')]
     [Scope('OnPrem')]
     procedure CalcInventoryUsesDefaultDimOfItemIfByDimIsNotSetUpForBinMandatoryLocation()
     var
@@ -2561,6 +2563,12 @@ codeunit 137275 "SCM Inventory Journals"
 
         MultipleDimSelection.Selected.SetValue(true);
         MultipleDimSelection.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

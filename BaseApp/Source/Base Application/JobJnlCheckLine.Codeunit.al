@@ -226,7 +226,13 @@ codeunit 1011 "Job Jnl.-Check Line"
     var
         JobPlanningLine: Record "Job Planning Line";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWhseQtyPicked(JobJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if WhseValidateSourceLine.IsWhsePickRequiredForJobJnlLine(JobJournalLine) or WhseValidateSourceLine.IsInventoryPickRequiredForJobJnlLine(JobJournalLine) then
             if not CalledFromInvtPutawayPick then
                 if JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") and (JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. Posted" < JobJournalLine.Quantity) then
@@ -263,6 +269,11 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingDate(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseQtyPicked(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

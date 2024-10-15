@@ -115,6 +115,9 @@ page 543 "Default Dimension Priorities"
 
     trigger OnOpenPage()
     begin
+        if "Source Code" <> '' then
+            CurrentSourceCode := "Source Code";
+
         OpenSourceCode(CurrentSourceCode, Rec);
     end;
 

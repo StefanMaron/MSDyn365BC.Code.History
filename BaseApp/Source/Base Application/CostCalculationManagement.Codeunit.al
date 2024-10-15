@@ -309,11 +309,7 @@ codeunit 5836 "Cost Calculation Management"
         OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(CapLedgEntry, ProdOrder);
         if CapLedgEntry.FindSet() then begin
             repeat
-                if CapLedgEntry.Type = CapLedgEntry.Type::"Work Center" then begin
-                    if not WorkCenter.Get(CapLedgEntry."No.") then
-                        Clear(WorkCenter);
-                end else
-                    Clear(WorkCenter);
+                ClearWorkCenter(CapLedgEntry, WorkCenter);
                 if WorkCenter."Subcontractor No." = '' then begin
                     if CapLedgEntry."Qty. per Cap. Unit of Measure" = 0 then
                         GetCapacityUoM(CapLedgEntry);
@@ -344,6 +340,16 @@ codeunit 5836 "Cost Calculation Management"
         CapacityLedgerEntry."Qty. per Cap. Unit of Measure" := 1;
         if WorkCenter.Get(CapacityLedgerEntry."Work Center No.") then
             CapacityLedgerEntry."Cap. Unit of Measure Code" := WorkCenter."Unit of Measure Code";
+    end;
+
+    local procedure ClearWorkCenter(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var WorkCenter: Record "Work Center")
+    begin
+        if CapacityLedgerEntry.Type = CapacityLedgerEntry.Type::"Work Center" then begin
+            if not WorkCenter.Get(CapacityLedgerEntry."No.") then
+                Clear(WorkCenter);
+        end else
+            Clear(WorkCenter);
+        OnAfterClearWorkCenter(CapacityLedgerEntry, WorkCenter);
     end;
 
     procedure CalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
@@ -1281,6 +1287,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearWorkCenter(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var WorkCenter: Record "Work Center")
     begin
     end;
 
