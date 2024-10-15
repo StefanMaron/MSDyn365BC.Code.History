@@ -5026,8 +5026,8 @@ codeunit 137054 "SCM Supply Planning"
           SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
           SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned, SupplyTypeOption::None);
         CreateSupplyDate(
-          SupplyDateValue, GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(15),
-          GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20), 0D);
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20),
+          GetRandomDateUsingWorkDate(15), GetRandomDateUsingWorkDate(16), 0D);
         CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 10, 4, 0);
         CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
 
@@ -5038,11 +5038,11 @@ codeunit 137054 "SCM Supply Planning"
         // [THEN] Two Requisition Lines are created. The first line has Action Message = "Reschedule", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Quantity = 10.
         // [THEN] The second line has Action Message = "Reschedule", Original Due Date = 16.02.2021, Due Date = 20.02.2021, Quantity = 4.
         VerifyRequisitionLineWithOriginalDueDate(
-          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[1],
-          DemandDateValue[1], 0, SupplyQuantityValue[1], LocationBlue.Code);
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[3],
+          DemandDateValue[1], 0, SupplyQuantityValue[3], LocationBlue.Code);
         VerifyRequisitionLineWithOriginalDueDate(
-          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[2],
-          DemandDateValue[1], 0, SupplyQuantityValue[2], LocationBlue.Code);
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[4],
+          DemandDateValue[1], 0, SupplyQuantityValue[4], LocationBlue.Code);
         VerifyRequisitionLineCount(2);
     end;
 
