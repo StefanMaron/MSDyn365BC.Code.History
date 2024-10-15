@@ -414,11 +414,22 @@ Page 1 "Company Information"
                     ApplicationArea = BasicCA;
                     ToolTip = 'Specifies the tax area code for self assessed Provincial Sales Tax for the company.';
                 }
-                field("RFC No."; "RFC No.")
+                field("RFC Number"; Rec."RFC Number")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the federal registration number for taxpayers.';
                 }
+#if not CLEAN22
+                field("RFC No."; "RFC No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the federal registration number for taxpayers.';
+                    ObsoleteReason = 'Replaced with RFC Number';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    Visible = false;
+                }
+#endif                
                 field("CURP No."; "CURP No.")
                 {
                     ApplicationArea = BasicMX;

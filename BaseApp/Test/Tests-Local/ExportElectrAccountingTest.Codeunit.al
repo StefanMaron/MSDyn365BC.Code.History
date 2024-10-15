@@ -475,7 +475,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         ElementName := '/' + RootNodeName;
 
         LibraryXPathXMLReader.VerifyAttributeValue(ElementName, 'Version', '1.3');
-        LibraryXPathXMLReader.VerifyAttributeValue(ElementName, 'RFC', CompanyInformation."RFC No.");
+        LibraryXPathXMLReader.VerifyAttributeValue(ElementName, 'RFC', CompanyInformation."RFC Number");
         LibraryXPathXMLReader.VerifyAttributeValue(ElementName, 'Mes', FormatMonth(ExpectedMonth));
         LibraryXPathXMLReader.VerifyAttributeValue(ElementName, 'Anio', Format(Year));
     end;
@@ -723,7 +723,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         Assert.AreEqual(
           FormatDecimal(BankAccountLedgerEntry."Credit Amount"), Node.Attributes.GetNamedItem('Monto').Value,
           StrSubstNo(ValueMistmatchErr, 'Monto'));
-        Assert.AreEqual(CompanyInformation."RFC No.", Node.Attributes.GetNamedItem('RFC').Value, StrSubstNo(ValueMistmatchErr, 'RFC'));
+        Assert.AreEqual(CompanyInformation."RFC Number", Node.Attributes.GetNamedItem('RFC').Value, StrSubstNo(ValueMistmatchErr, 'RFC'));
     end;
 
     local procedure VerifyCheckPaymentNodeInXML(GLEntry: Record "G/L Entry"; CheckLedgerEntry: Record "Check Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1139,7 +1139,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         with CompanyInformation do begin
             Get;
-            "RFC No." := 'SWC920404DA3';  // Set number, otherwise will run into all kind of errors
+            "RFC Number" := 'SWC920404DA3';  // Set number, otherwise will run into all kind of errors
             Modify(true);
         end;
     end;

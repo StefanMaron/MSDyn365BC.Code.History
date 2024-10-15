@@ -35,12 +35,25 @@ page 10458 "MX Electroninc - CompanyInfo"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s email address.';
                 }
-                field("RFC No."; "RFC No.")
+                field("RFC Number"; Rec."RFC Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the federal registration number for taxpayers.';
                 }
+#if not CLEAN22
+                field("RFC No."; "RFC No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowMandatory = true;
+                    ToolTip = 'Specifies the federal registration number for taxpayers.';
+                    ObsoleteReason = 'Replaced with RFC Number';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    Visible = false;
+                }
+#endif
+
                 field("CURP No."; "CURP No.")
                 {
                     ApplicationArea = Basic, Suite;
