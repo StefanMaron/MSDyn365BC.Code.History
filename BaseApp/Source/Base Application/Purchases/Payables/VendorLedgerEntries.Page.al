@@ -331,16 +331,24 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
+#if not CLEAN25
                 field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the amount for the 1099 code that the vendor entry is linked to.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 field("IRS 1099 Amount"; Rec."IRS 1099 Amount")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the amount for the 1099 code that the vendor entry is linked to.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;

@@ -792,12 +792,17 @@ page 55 "Purch. Invoice Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+#if not CLEAN25
                 field("IRS 1099 Liable"; Rec."IRS 1099 Liable")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies if the amount is to be a 1099 amount.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                     Visible = false;
                 }
+#endif
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;

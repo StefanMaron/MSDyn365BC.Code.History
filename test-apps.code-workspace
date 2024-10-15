@@ -36,6 +36,12 @@
       "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
     },
     {
+      "path": "./IRSForms/Test Library/IRS Forms Test Library"
+    },
+    {
+      "path": "./IRSForms/Test/IRS Forms Tests"
+    },
+    {
       "path": "./QuickbooksPayrollFileImport/Test/Quickbooks Payroll File Import Tests"
     },
     {

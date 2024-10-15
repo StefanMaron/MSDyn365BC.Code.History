@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ report 10181 "Vendor 1099 Div 2022"
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor 1099 Div 2022';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -344,3 +348,4 @@ report 10181 "Vendor 1099 Div 2022"
     end;
 }
 
+#endif

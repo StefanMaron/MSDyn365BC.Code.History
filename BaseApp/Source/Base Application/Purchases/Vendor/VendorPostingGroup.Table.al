@@ -63,10 +63,10 @@ table 93 "Vendor Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", IsVATInUse(), true)
                 else
                     CheckGLAccount(
-                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense());
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", IsVATInUse(), true, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense());
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -110,9 +110,9 @@ table 93 "Vendor Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", true, false)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", IsVATInUse(), false)
                 else
-                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", IsVATInUse(), false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(10; "Debit Curr. Appln. Rndg. Acc."; Code[20])
@@ -442,6 +442,12 @@ table 93 "Vendor Posting Group"
     local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
     begin
         GLAccountCategoryMgt.LookupGLAccount(Database::"Vendor Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
+    end;
+
+    local procedure IsVATInUse(): Boolean
+    begin
+        GLSetup.Get();
+        exit(GLSetup."VAT in Use");
     end;
 }
 

@@ -1737,12 +1737,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor Purchase Statistics';
                         RunObject = Report "Vendor Purchase Statistics";
                     }
+#if not CLEAN25
                     action("Vendor 1099 Magnetic Media")
                     {
                         ApplicationArea = BasicUS;
                         Caption = 'Vendor 1099 Magnetic Media';
                         RunObject = Report "Vendor 1099 Magnetic Media";
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                     action("Item/Vendor Catalog")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1884,11 +1889,16 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor Purchase Statistics';
                         RunObject = Report "Vendor Purchase Statistics";
                     }
+#if not CLEAN25
                     action("Vendor 1099 Information")
                     {
                         Caption = 'Vendor 1099 Information';
                         RunObject = Report "Vendor 1099 Information";
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                     action("Vendor - List1")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1911,12 +1921,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Purchases & Payables Setup';
                         RunObject = page "Purchases & Payables Setup";
                     }
+#if not CLEAN25
                     action("IRS 1099 Form-Box")
                     {
                         ApplicationArea = BasicUS;
                         Caption = '1099 Forms-Boxes';
                         RunObject = page "IRS 1099 Form-Box";
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
             }
             group("Group42")

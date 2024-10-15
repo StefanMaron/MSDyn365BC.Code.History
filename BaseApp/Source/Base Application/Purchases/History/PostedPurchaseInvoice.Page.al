@@ -578,13 +578,18 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you should contact at the vendor who you received the invoice from.';
                     }
+#if not CLEAN25
                     field("IRS 1099 Code"; Rec."IRS 1099 Code")
                     {
                         ApplicationArea = BasicUS;
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the Internal Revenue Service (IRS) 1099 code for the purchase invoice header.';
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
                 group("Remit-to")
                 {

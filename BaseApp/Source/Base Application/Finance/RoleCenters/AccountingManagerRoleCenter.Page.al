@@ -998,6 +998,7 @@ page 9001 "Accounting Manager Role Center"
                     RunObject = Page "Bank Account Posting Groups";
                     ToolTip = 'Set up posting groups, so that payments in and out of each bank account are posted to the specified general ledger account.';
                 }
+#if not CLEAN25
                 action("IRS 1099 Form-Box")
                 {
                     ApplicationArea = BasicUS;
@@ -1005,7 +1006,11 @@ page 9001 "Accounting Manager Role Center"
                     Image = "1099Form";
                     RunObject = Page "IRS 1099 Form-Box";
                     ToolTip = 'Set up 1099 tax forms to use on vendor cards, track posted amounts, and print or export 1099 information. After you have set up a 1099 code, you can enter it as a default 1099 form for a vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("GIFI Codes")
                 {
                     ApplicationArea = BasicCA;

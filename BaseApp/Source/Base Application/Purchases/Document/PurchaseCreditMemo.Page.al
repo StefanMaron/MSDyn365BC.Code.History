@@ -748,12 +748,17 @@ page 52 "Purchase Credit Memo"
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the person to contact about an invoice from this vendor.';
                     }
+#if not CLEAN25
                     field("IRS 1099 Code"; Rec."IRS 1099 Code")
                     {
                         ApplicationArea = BasicUS;
                         Importance = Additional;
                         ToolTip = 'Specifies the 1099 code of the vendor if one was entered on the vendor card.';
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
             }
             group("Foreign Trade")

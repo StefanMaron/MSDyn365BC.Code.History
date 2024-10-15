@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142081 "UT PAG Vendor 1099"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -182,4 +186,4 @@ codeunit 142081 "UT PAG Vendor 1099"
         Vendor1099Statistics.OK.Invoke;
     end;
 }
-
+#endif

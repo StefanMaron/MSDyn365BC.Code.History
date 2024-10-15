@@ -3518,6 +3518,10 @@ codeunit 7312 "Create Pick"
                             BinContent.SetRange("Lot No. Filter", "Lot No.")
                         else
                             BinContent.SetFilter("Lot No. Filter", '%1|%2', "Lot No.", '');
+                        if WhseItemTrackingSetup."Package No. Required" then
+                            BinContent.SetRange("Package No. Filter", WhseActivLine1."Package No.")
+                        else
+                            BinContent.SetFilter("Package No. Filter", '%1|%2', WhseActivLine1."Package No.", '');
 
                         BreakbulkBinFound := false;
                         if BinContent.FindSet() then

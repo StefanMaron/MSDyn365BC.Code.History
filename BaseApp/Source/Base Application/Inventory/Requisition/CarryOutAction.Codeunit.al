@@ -1687,6 +1687,7 @@ codeunit 99000813 "Carry Out Action"
         ProductionBOMHeader: Record "Production BOM Header";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
+        ProductionBOMLine: Record "Production BOM Line";
         VersionManagement: Codeunit VersionManagement;
         ActiveVersionCode: Code[20];
     begin
@@ -1697,15 +1698,21 @@ codeunit 99000813 "Carry Out Action"
 
         ActiveVersionCode := VersionManagement.GetBOMVersion(ProductionBOMHeader."No.", WorkDate(), true);
 
-        ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
-        ProductionBOMCommentLine.SetRange("BOM Line No.", ProdOrderComponent."Line No.");
-        ProductionBOMCommentLine.SetRange("Version Code", ActiveVersionCode);
-        if ProductionBOMCommentLine.FindSet() then
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", ProdOrderComponent."Item No.");
+        if ProductionBOMLine.FindSet() then
             repeat
-                ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
-                if not ProdOrderCompCmtLine.Insert() then
-                    ProdOrderCompCmtLine.Modify();
-            until ProductionBOMCommentLine.Next() = 0;
+                ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+                ProductionBOMCommentLine.SetRange("BOM Line No.", ProductionBOMLine."Line No.");
+                ProductionBOMCommentLine.SetRange("Version Code", ActiveVersionCode);
+                if ProductionBOMCommentLine.FindSet() then
+                    repeat
+                        ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
+                        if not ProdOrderCompCmtLine.Insert() then
+                            ProdOrderCompCmtLine.Modify();
+                    until ProductionBOMCommentLine.Next() = 0;
+            until ProductionBOMLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

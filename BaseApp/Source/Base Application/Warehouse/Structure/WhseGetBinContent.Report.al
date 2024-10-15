@@ -397,7 +397,7 @@ report 7391 "Whse. Get Bin Content"
             Reset();
             SetCurrentKey(
               "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
-              "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.");
+              "Lot No.", "Package No.", "Serial No.", "Entry Type", Dedicated);
             SetRange("Item No.", BinContent."Item No.");
             SetRange("Bin Code", BinContent."Bin Code");
             SetRange("Location Code", BinContent."Location Code");

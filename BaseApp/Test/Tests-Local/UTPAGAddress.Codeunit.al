@@ -10,9 +10,11 @@ codeunit 144007 "UT PAG Address"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+#if not CLEAN25
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -37,6 +39,7 @@ codeunit 144007 "UT PAG Address"
         ServiceItemCard.Close();
     end;
 
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure VerifyFieldsAreVisibleOnVendorLedgerEntry()
@@ -61,6 +64,7 @@ codeunit 144007 "UT PAG Address"
         Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Editable, '"IRS 199 Amount" must be editable');
         VendorLedgerEntries.Close();
     end;
+#endif
 
     local procedure CreateCustomer(): Code[20]
     var

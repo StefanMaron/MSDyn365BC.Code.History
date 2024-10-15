@@ -199,7 +199,9 @@ codeunit 90 "Purch.-Post"
         OnRunOnAfterCalcVATAmountLines(PurchHeader, TempPurchLineGlobal, TempVATAmountLine);
 
         PurchaseLinesProcessed := false;
+#if not CLEAN25
         PurchHeader."IRS 1099 Amount" := 0;
+#endif
         if TempPurchLineGlobal.FindSet() then
             repeat
                 IsHandled := false;
@@ -946,11 +948,13 @@ codeunit 90 "Purch.-Post"
                     end;
             end;
 
+#if not CLEAN25
             if "IRS 1099 Liable" then
                 if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
                     PurchHeader."IRS 1099 Amount" -= xPurchLine."Amount Including VAT"
                 else
                     PurchHeader."IRS 1099 Amount" += xPurchLine."Amount Including VAT";
+#endif
 
             RemQtyToBeInvoiced := "Qty. to Invoice";
             RemQtyToBeInvoicedBase := "Qty. to Invoice (Base)";
@@ -4227,11 +4231,13 @@ codeunit 90 "Purch.-Post"
               CurrExchRate.ExchangeAmtFCYToLCY(
                 PurchHeader.GetUseDate(), PurchHeader."Currency Code", -TotalPurchLine2."Pmt. Discount Amount", PurchHeader."Currency Factor");
 
+#if not CLEAN25
             if PurchHeader."IRS 1099 Code" <> '' then begin
                 "IRS 1099 Code" := PurchHeader."IRS 1099 Code";
                 "IRS 1099 Amount" := -Round(PurchHeader."IRS 1099 Amount");
             end;
         end;
+#endif
     end;
 #endif
 
@@ -7021,7 +7027,7 @@ codeunit 90 "Purch.-Post"
         PreviewMode := NewPreviewMode;
     end;
 
-    internal procedure SetCalledBy(NewCalledBy: Integer)
+    procedure SetCalledBy(NewCalledBy: Integer)
     begin
         CalledBy := NewCalledBy;
     end;

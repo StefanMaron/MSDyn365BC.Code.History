@@ -17,6 +17,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
         ExpectedTaxGroupCodeErr: Label 'Tax Group Code must have a value in G/L Account: No.=%1. It cannot be zero or empty.';
         CannotRemoveTaxGroupErr: Label 'You cannot remove Tax Group Code from G/L Account :%1 because it is attached to Service Contract Group : %2.', Comment = '%1 - G/L Account No., %2 - Service Contract Group Code';
@@ -243,6 +244,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
+#if not CLEAN25
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -525,6 +527,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         RecRef.SetTable(GenJournalLine);
         GenJournalLine.TestField("IRS 1099 Amount", -Amount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -538,7 +541,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         Initialize();
 
         // [GIVEN] Create Vendor with a Tax Area Code
-        CreateVendor(Vendor);
+        LibraryPurchase.CreateVendor(Vendor);
         Vendor."Tax Area Code" := LibraryUtility.GenerateRandomCode(82, 81);
         Vendor.Modify();
 
@@ -724,6 +727,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         exit(GLAccount."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -746,6 +750,7 @@ codeunit 142090 "UT TAB Sales Tax II"
 
         GenJournalLine.Insert();
     end;
+#endif
 
     local procedure CreateItem(): Code[20]
     var
@@ -757,6 +762,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         exit(Item."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateIRSCode(): Code[10]
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -765,6 +771,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         IRS1099FormBox.Insert();
         exit(IRS1099FormBox.Code);
     end;
+#endif
 
     local procedure CreateSalesTaxDifference(var SalesTaxDifference: Record "Sales Tax Amount Difference"; ServiceHeader: Record "Service Header")
     begin
@@ -851,12 +858,14 @@ codeunit 142090 "UT TAB Sales Tax II"
         VATPostingSetup.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
         Vendor."IRS 1099 Code" := CreateIRSCode;
         Vendor.Insert();
     end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

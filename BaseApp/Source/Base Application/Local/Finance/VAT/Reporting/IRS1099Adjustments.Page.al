@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +10,9 @@ page 10018 "IRS 1099 Adjustments"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "IRS 1099 Adjustment";
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -39,4 +43,4 @@ page 10018 "IRS 1099 Adjustments"
     {
     }
 }
-
+#endif

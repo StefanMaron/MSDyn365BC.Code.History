@@ -822,12 +822,17 @@ page 51 "Purchase Invoice"
                             ToolTip = 'Specifies the name of the person to contact about an invoice from this vendor.';
                         }
                     }
+#if not CLEAN25
                     field("IRS 1099 Code"; Rec."IRS 1099 Code")
                     {
                         ApplicationArea = BasicUS;
                         Importance = Additional;
                         ToolTip = 'Specifies the 1099 code of the vendor if one was entered on the vendor card.';
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
                 group("Remit-to")
                 {
@@ -1978,7 +1983,7 @@ page 51 "Purchase Invoice"
         IsPurchaseLinesEditable: Boolean;
         RejectICPurchaseInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
-
+        
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
@@ -2037,7 +2042,7 @@ page 51 "Purchase Invoice"
         if IsHandled then
             exit;
 
-        if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
+                if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
 
         case Navigate of
@@ -2178,10 +2183,9 @@ page 51 "Purchase Invoice"
     begin
         if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
             PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
-        else begin
+        else
             PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            PurchInvHeader.SetRange("Order No.", '');
-        end;
+
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

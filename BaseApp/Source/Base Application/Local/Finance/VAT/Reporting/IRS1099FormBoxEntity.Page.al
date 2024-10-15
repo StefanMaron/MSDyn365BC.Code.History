@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ page 10900 "IRS 1099 Form-Box Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "IRS 1099 Form-Box";
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -115,3 +119,4 @@ page 10900 "IRS 1099 Form-Box Entity"
     end;
 }
 
+#endif

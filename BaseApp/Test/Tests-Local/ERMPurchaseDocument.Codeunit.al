@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 140611 "ERM - Purchase Document"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -162,4 +166,4 @@ codeunit 140611 "ERM - Purchase Document"
         PurchaseLine.TestField("IRS 1099 Liable", true);
     end;
 }
-
+#endif

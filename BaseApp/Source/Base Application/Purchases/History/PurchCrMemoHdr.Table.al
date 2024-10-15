@@ -32,7 +32,9 @@ using System.Automation;
 using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 124 "Purch. Cr. Memo Hdr."
 {
@@ -607,7 +609,15 @@ table 124 "Purch. Cr. Memo Hdr."
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {

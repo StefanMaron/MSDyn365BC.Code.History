@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142060 "ERM Misc. Report"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -3521,4 +3525,4 @@ codeunit 142060 "ERM Misc. Report"
         GLRegister.SaveAsXml(LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

@@ -23,7 +23,6 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader."Payment Reference" := Rec."Payment Reference";
         SalesInvoiceHeader."Company Bank Account Code" := Rec."Company Bank Account Code";
         SalesInvoiceHeader."Posting Description" := Rec."Posting Description";
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := Rec."Fiscal Invoice Number PAC";
         OnOnRunOnBeforeTestFieldNo(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", Rec."No.");
         SalesInvoiceHeader.Modify();

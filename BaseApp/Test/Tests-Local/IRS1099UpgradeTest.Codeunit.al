@@ -1,3 +1,4 @@
+#if not CLEAN25
 codeunit 144030 "IRS 1099 Upgrade Test"
 {
     EventSubscriberInstance = Manual;
@@ -10,6 +11,9 @@ codeunit 144030 "IRS 1099 Upgrade Test"
                   TableData "Detailed Vendor Ledg. Entry" = rim;
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -1127,4 +1131,4 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         Vendor1099Nec2022.Cancel.Invoke();
     end;
 }
-
+#endif

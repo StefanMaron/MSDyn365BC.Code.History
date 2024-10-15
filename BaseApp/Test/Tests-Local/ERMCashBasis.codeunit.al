@@ -680,6 +680,70 @@
         VerifyVATEntryForPostApplication(VATAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyVATEntryForCreateCorrectiveCreditMemo()
+    var
+        //CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales INvoice Header";
+        CustomerNo: Code[20];
+        ItemNo: array[2] of Code[20];
+        //CreditMemoNo: Code[20];
+        UnitAmount: array[2] of Decimal;
+        UnrealizedVATAmount: Decimal;
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 502698]  Verify VAT Entries when post Corrective Sales Credit memo with lesser posted quantity
+        Initialize();
+
+        // [GIVEN] Create two VAT Posting Setup
+        CreateVATPostingSetupWithUnrealizedVATDetail(VATPostingSetup);
+
+        // [GIVEN] Create two Item with different "VAT Prod. Posting Group"
+        ItemNo[1] := CreateItem(VATPostingSetup[1]."VAT Prod. Posting Group");
+        ItemNo[2] := CreateItem(VATPostingSetup[2]."VAT Prod. Posting Group");
+
+        // [GIVEN] Create customer
+        CustomerNo := CreateCustomer('', VATPostingSetup[1]."VAT Bus. Posting Group");
+
+        // [GIVEN] Get two Unit amount for two Items
+        UnitAmount[1] := LibraryRandom.RandInt(10);
+        UnitAmount[2] := LibraryRandom.RandInt(20);
+
+        // [GIVEN] Create Sales order
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesLine[1]."Document Type"::Order, CustomerNo);
+
+        // [GIVEN] Create first Sales Line of Item1
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[1], 3);
+        SalesLine[1].Validate("Unit Price", UnitAmount[1]);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Update Unrealized VAT Amount 
+        UnrealizedVATAmount := SalesLine[1]."Amount Including VAT" - SalesLine[1].Amount;
+
+        // [GIVEN] Create Second Sales Line of Item2
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[2], 3);
+        SalesLine[1].Validate("Unit Price", UnitAmount[2]);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Update Unrealized VAT Amount 
+        UnrealizedVATAmount := UnrealizedVATAmount + SalesLine[1]."Amount Including VAT" - SalesLine[1].Amount;
+
+        // [THEN] Post Sales Order and save the Posted Sales Invoice
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, true);
+
+        // [WHEN] Create the Corrective Credit memo and reduce the quantity to reversed to 1
+        SalesInvoiceHeader.Get(PostedDocumentNo);
+        CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader);
+
+        // [VERIFY] Verify VAT UnRealized Amount for customer.
+        VerifyVATEntryForPartiallyPostedCreditMemo(UnrealizedVATAmount / 3);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1029,11 +1093,50 @@
         end;
     end;
 
+    local procedure CreateCorrectiveCreditMemoAndOpenSalesCreditMemoPageAndPost(SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeader: Record "Sales Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.Quantity.Value(Format(1));
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.Quantity.Value(Format(1));
+        SalesCreditMemo.Post.Invoke();
+    end;
+
+    local procedure VerifyVATEntryForPartiallyPostedCreditMemo(VATAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.FindLast();
+        VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
+        VATEntry.CalcSums("Unrealized Amount");
+        Assert.AreNearlyEqual(VATEntry."Unrealized Amount",
+          VATAmount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, VATEntry.FieldCaption("Unrealized Amount"), VATAmount, VATEntry.TableCaption()));
+        Assert.AreEqual(0,
+          VATEntry.Amount,
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), 0, VATEntry.TableCaption()));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure ExchRateAdjustedMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

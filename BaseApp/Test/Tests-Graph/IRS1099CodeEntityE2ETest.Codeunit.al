@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 135519 "IRS 1099 Code Entity E2E Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -227,4 +231,4 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         exit(IRS1099FormBox.Code);
     end;
 }
-
+#endif

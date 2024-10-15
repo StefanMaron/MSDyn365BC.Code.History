@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142087 "ERM Nec Report"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -274,4 +278,4 @@ codeunit 142087 "ERM Nec Report"
         Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

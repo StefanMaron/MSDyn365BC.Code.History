@@ -802,12 +802,17 @@ page 98 "Purch. Cr. Memo Subform"
                     ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
                     Visible = false;
                 }
+#if not CLEAN25
                 field("IRS 1099 Liable"; Rec."IRS 1099 Liable")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies if the amount is to be a 1099 amount.';
                     Visible = false;
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
             }
             group(Control47)
             {
