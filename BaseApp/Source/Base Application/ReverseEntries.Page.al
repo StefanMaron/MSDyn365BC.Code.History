@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 179 "Reverse Entries"
 {
     Caption = 'Reverse Entries';
@@ -6,6 +7,9 @@ page 179 "Reverse Entries"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Reversal Entry";
+    ObsoleteReason = 'This page will be replaced by "Reverse Transaction Entries". Use that page instead';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -432,4 +436,4 @@ page 179 "Reverse Entries"
     begin
     end;
 }
-
+#endif

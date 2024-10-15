@@ -191,7 +191,7 @@
         IsPicked := PriceListCode <> '';
     end;
 
-    procedure LookupPriceLists(SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20]): Boolean;
+    procedure LookupPriceLists(SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20]) Result: Boolean;
     var
         PriceListHeader: Record "Price List Header";
     begin
@@ -205,13 +205,13 @@
         end;
         case SourceGroup of
             SourceGroup::Job:
-                exit(SelectJobPriceLists(PriceListHeader, PriceListCode));
+                Result := SelectJobPriceLists(PriceListHeader, PriceListCode);
             SourceGroup::Customer,
             SourceGroup::Vendor:
-                exit(SelectPriceLists(PriceListHeader, PriceListCode));
+                Result := SelectPriceLists(PriceListHeader, PriceListCode);
         end;
 
-        OnAfterLookupPriceLists(PriceListHeader, SourceGroup, PriceType, PriceListCode);
+        OnAfterLookupPriceLists(PriceListHeader, SourceGroup, PriceType, PriceListCode, Result);
     end;
 
     procedure EditPriceList(PriceListCode: Code[20])
@@ -639,7 +639,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupPriceLists(var PriceListHeader: Record "Price List Header"; var SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20])
+    local procedure OnAfterLookupPriceLists(var PriceListHeader: Record "Price List Header"; var SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20]; var Result: Boolean)
     begin
     end;
 

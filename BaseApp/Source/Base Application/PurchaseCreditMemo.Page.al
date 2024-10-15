@@ -217,7 +217,8 @@
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     QuickEntry = false;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
@@ -774,7 +775,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -1612,6 +1613,7 @@
     var
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetDocNoVisible();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1628,6 +1630,7 @@
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1685,6 +1688,8 @@
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";

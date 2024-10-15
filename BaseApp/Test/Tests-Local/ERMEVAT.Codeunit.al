@@ -1431,6 +1431,7 @@ codeunit 144051 "ERM EVAT"
             Base := BaseValue;
             Amount := AmountValue;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             "Country/Region Code" := CountryRegionCode;
             "VAT Registration No." := VATRegistrationNo;
             Insert();

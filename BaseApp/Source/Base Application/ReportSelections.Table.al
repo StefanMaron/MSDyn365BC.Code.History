@@ -1639,12 +1639,12 @@ table 77 "Report Selections"
         FilePath := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 250);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
-        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage, false, TempBlob);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage, false, TempBlob, Rec);
         if not IsHandled then begin
             Report.SaveAsPdf(ReportID, FilePath, RecordVariant);
             FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
         end;
-        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, FilePath, false, TempBlob);
+        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, FilePath, false, TempBlob, Rec);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected('');
 
@@ -1662,13 +1662,13 @@ table 77 "Report Selections"
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
-        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob, Rec);
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
             LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);
             Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, GetRecRef(RecordVariant));
         end;
-        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob);
+        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob, Rec);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected('');
 
@@ -1993,7 +1993,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
+    local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob"; var ReportSelections: Record "Report Selections")
     begin
     end;
 
@@ -2083,7 +2083,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveReportAsPDF(var ReportID: Integer; RecordVariant: Variant; var LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
+    local procedure OnBeforeSaveReportAsPDF(var ReportID: Integer; RecordVariant: Variant; var LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob"; var ReportSelections: Record "Report Selections")
     begin
     end;
 

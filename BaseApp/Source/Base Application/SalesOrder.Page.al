@@ -224,7 +224,8 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Order Date"; Rec."Order Date")
@@ -960,7 +961,7 @@ page 42 "Sales Order"
                 }
                 field("Compress Prepayment"; Rec."Compress Prepayment")
                 {
-                    ApplicationArea = Dimensions;
+                    ApplicationArea = Prepayments;
                     ToolTip = 'Specifies that prepayments on the sales order are combined if they have the same general ledger account for prepayments or the same dimensions.';
                 }
                 field("Prepmt. Payment Terms Code"; Rec."Prepmt. Payment Terms Code")
@@ -1000,7 +1001,7 @@ page 42 "Sales Order"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(36),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -2435,10 +2436,10 @@ page 42 "Sales Order"
 
     trigger OnAfterGetRecord()
     begin
+        WorkDescription := GetWorkDescription();
         if GuiAllowed() then begin
             SetControlVisibility();
             UpdateShipToBillToGroupVisibility();
-            WorkDescription := GetWorkDescription();
             BillToContact.GetOrClear("Bill-to Contact No.");
             SellToContact.GetOrClear("Sell-to Contact No.");
         end;
@@ -2484,6 +2485,7 @@ page 42 "Sales Order"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -2506,6 +2508,7 @@ page 42 "Sales Order"
         SetPostingGroupEditable();
         if GuiAllowed() then
             CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2578,6 +2581,8 @@ page 42 "Sales Order"
         IsSalesLinesEditable: Boolean;
         ShouldSearchForCustByName: Boolean;
         IsBidirectionalSyncEnabled: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";

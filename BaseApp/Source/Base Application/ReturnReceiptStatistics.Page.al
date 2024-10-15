@@ -72,7 +72,13 @@ page 6665 "Return Receipt Statistics"
     local procedure CalculateTotals()
     var
         ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
         ReturnRcptLine.SetRange("Document No.", Rec."No.");
         if ReturnRcptLine.Find('-') then
             repeat
@@ -82,21 +88,19 @@ page 6665 "Return Receipt Statistics"
                 TotalVolume += ReturnRcptLine.Quantity * ReturnRcptLine."Unit Volume";
                 if ReturnRcptLine."Units per Parcel" > 0 then
                     TotalParcels += Round(ReturnRcptLine.Quantity / ReturnRcptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    ReturnRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec);
             until ReturnRcptLine.Next = 0;
     end;
 
-#if not CLEAN20
-    [Obsolete('Event is never raised', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(ReturnReceiptHeader: Record "Return Receipt Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [Obsolete('Event is never raised', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnReceiptLine: Record "Return Receipt Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
-#endif
 }
 

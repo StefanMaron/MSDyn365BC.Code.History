@@ -3789,6 +3789,8 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Modify(true);
         CreateSalesDocument(
             SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Customer."No.", SalesLine.Type::Item, '');
+        SalesHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.Modify(true);
 
         // [WHEN] Sales Return Order is posted.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4117,6 +4119,67 @@ codeunit 134386 "ERM Sales Documents II"
                 Assert.AreEqual(ExpectedQty, ReservationEntry.Quantity, StrSubstNo('The Quantity on the Reservation Entry should be equal to %1', ExpectedQty));
             until ReservationEntry.Next() = 0;
         end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CheckVATBusPostingGroupWhenChangeBillToForSalesOrderWithDifferentGroup()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesOrder: TestPage "Sales Order";
+        BillToOptions: Option "Default (Customer)","Another Customer";
+    begin
+        // [FEATURE] [Sales Order] [VAT Posting Setup]
+        // [SCENARIO 454698] When the VAT Bus. Posting Group is changed on the sales order header the sales lines are not being validated.
+        Initialize();
+
+        // Setup: Create Sales Order with VAT Bus. Posting Group different from Customer
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, Customer."No.");
+
+        // Setup: Create VAT Posting Setup with another VAT Bus. Posting Group and change it in the Sales Order
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1&<>%2', SalesHeader."VAT Bus. Posting Group", '');
+        if not VATPostingSetup.FindFirst() then begin
+            LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
+        end;
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Modify();
+
+        // Add sales order line with this VAT Bus. Posting Group
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 1000);
+        SalesLine.Modify();
+
+        // [GIVEN] Open Sales Order card
+        SalesOrder.Trap();
+        Page.Run(Page::"Sales Order", SalesHeader);
+
+        // [GIVEN] Change field "Bill-to" to "Another Customer" in Sales Order page
+        SalesOrder.BillToOptions.SetValue(BillToOptions::"Another Customer");
+
+        // [GIVEN] Change field "Bill-to" back to "Default Customer" in Sales Order page
+        SalesOrder.BillToOptions.SetValue(BillToOptions::"Default (Customer)");
+
+        // [THEN] Verify that VAT Bus. Posting Group in Sales Order equal to Customer VAT Bus. Posting Group now
+        Assert.AreEqual(Customer."VAT Bus. Posting Group", SalesOrder."VAT Bus. Posting Group".Value, 'incorrect VAT Bus. Posting Group in Sales Header');
+        SalesOrder.Close();
+
+        // [THEN] Verify that VAT Bus. Posting Group in Sales Line changed to Customer VAT Bus. Posting Group now
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT Bus. Posting Group");
+
+        Assert.AreEqual(Customer."VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group", 'incorrect VAT Bus. Posting Group in Sales Line');
     end;
 
     local procedure Initialize()

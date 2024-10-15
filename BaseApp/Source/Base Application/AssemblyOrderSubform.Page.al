@@ -39,6 +39,7 @@ page 901 "Assembly Order Subform"
                     var
                         Item: Record "Item";
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         ReserveItem();
                         if "Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
@@ -77,6 +78,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         ReserveItem();
                     end;
                 }

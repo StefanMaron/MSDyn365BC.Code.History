@@ -1426,6 +1426,7 @@ codeunit 144018 "ERM MISC"
         ItemNo := Item."No.";
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo());
         SalesHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);

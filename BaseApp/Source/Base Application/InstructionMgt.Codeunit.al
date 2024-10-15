@@ -22,6 +22,8 @@ codeunit 1330 "Instruction Mgt."
         ClosingUnreleasedOrdersNotificationTxt: Label 'Warn about unreleased orders.';
         ClosingUnreleasedOrdersNotificationDescriptionTxt: Label 'Show a warning when you close an order that requires warehouse handling but has not been released.';
         ClosingUnreleasedOrdersConfirmQst: Label 'The document has not been released.\Are you sure you want to exit?';
+        DefaultDimPrioritiesMissingTxt: Label 'Notify user about missing Default Dimension Priorities.';
+        DefaultDimPrioritiesMissingDescriptionTxt: Label 'Show notification when Default Dimension Priorities are not defined, and than header dimension will have priority over lines default dimensions.';
 
     procedure ShowConfirm(ConfirmQst: Text; InstructionType: Code[50]): Boolean
     begin
@@ -106,6 +108,16 @@ codeunit 1330 "Instruction Mgt."
         exit('OFFICEUPDATENOTIFICATION');
     end;
 
+    procedure GetDefaultDimPrioritiesTxt(): Text[128]
+    begin
+        exit(DefaultDimPrioritiesMissingTxt);
+    end;
+
+    procedure GetDefaultDimPrioritiesDescriptionTxt(): Text
+    begin
+        exit(DefaultDimPrioritiesMissingDescriptionTxt);
+    end;
+
 #if not CLEAN21
     [Obsolete('Renamed to PostingAfterWorkingDateNotAllowedCode', '21.0')]
     procedure PostingAfterCurrentCalendarDateNotAllowedCode(): Code[50]
@@ -121,6 +133,11 @@ codeunit 1330 "Instruction Mgt."
     procedure ClosingUnreleasedOrdersCode(): Code[50]
     begin
         exit('CLOSINGUNRELEASEDORDERS');
+    end;
+
+    procedure DefaultDimPrioritiesCode(): Code[50]
+    begin
+        exit('DEFAULTDIMPRIORITIES');
     end;
 
     procedure MarkBookingAsInvoicedWarningCode(): Code[50]
@@ -176,6 +193,11 @@ codeunit 1330 "Instruction Mgt."
     procedure GetClosingUnreleasedOrdersNotificationId(): Guid
     begin
         exit('F76D6004-3FD8-2ABC-B14D-61B2AEB53ACF');
+    end;
+
+    procedure GetDefaultDimPrioritiesNotificationId(): Guid
+    begin
+        exit('69CE42D9-0580-4907-8BC9-0EEB59DA96C9');
     end;
 
     procedure GetAutomaticLineItemsDialogNotificationId(): Guid
@@ -252,6 +274,10 @@ codeunit 1330 "Instruction Mgt."
           ClosingUnreleasedOrdersNotificationTxt,
           ClosingUnreleasedOrdersNotificationDescriptionTxt,
           IsEnabled(ClosingUnreleasedOrdersCode()));
+        MyNotifications.InsertDefault(GetDefaultDimPrioritiesNotificationId(),
+          DefaultDimPrioritiesMissingTxt,
+          DefaultDimPrioritiesMissingDescriptionTxt,
+          IsEnabled(DefaultDimPrioritiesCode()));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnStateChanged', '', false, false)]
@@ -283,6 +309,11 @@ codeunit 1330 "Instruction Mgt."
                     EnableMessageForCurrentUser(ClosingUnreleasedOrdersCode())
                 else
                     DisableMessageForCurrentUser(ClosingUnreleasedOrdersCode());
+            GetDefaultDimPrioritiesNotificationId():
+                if NewEnabledState then
+                    EnableMessageForCurrentUser(DefaultDimPrioritiesCode())
+                else
+                    DisableMessageForCurrentUser(DefaultDimPrioritiesCode());
         end;
     end;
 
