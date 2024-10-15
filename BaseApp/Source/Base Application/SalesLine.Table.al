@@ -4478,11 +4478,10 @@
 
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then begin
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
-            end;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round(
+                    ("Line Amount" - "Inv. Discount Amount") * "Prepayment %" / 100,
+                    Currency."Amount Rounding Precision");
             PrePaymentLineAmountEntered := false;
         end;
 
