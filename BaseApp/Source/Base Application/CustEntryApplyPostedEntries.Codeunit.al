@@ -1,4 +1,4 @@
-codeunit 226 "CustEntry-Apply Posted Entries"
+﻿codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -248,6 +248,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             UnapplyCustEntries.LookupMode(true);
             UnapplyCustEntries.RunModal;
         end;
+
+        OnAfterUnApplyCustomer(DtldCustLedgEntry);
     end;
 
     procedure PostUnApplyCustomer(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date)
@@ -407,6 +409,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         if not ApplyingCustLedgEntry.Open then
             Error(CannotApplyClosedEntriesErr);
 
+        OnApplyCustEntryFormEntryOnAfterCheckEntryOpen(ApplyingCustLedgEntry);
         CustEntryApplID := UserId;
         if CustEntryApplID = '' then
             CustEntryApplID := '***';
@@ -639,6 +642,16 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitChanges: Boolean; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustEntryFormEntryOnAfterCheckEntryOpen(ApplyingCustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 

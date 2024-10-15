@@ -1,4 +1,4 @@
-codeunit 5987 "Serv-Posting Journals Mgt."
+﻿codeunit 5987 "Serv-Posting Journals Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd;
 
@@ -494,6 +494,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
         with ResJnlLine do begin
             Init;
+            OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
             CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
             CopyFromServHeader(ServiceHeader);
             CopyFromServLine(ServiceLine);
@@ -774,6 +775,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPostJobJnlLineOnBeforeValidateNo(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostResJnlLineOnAfterResJnlLineInit(var ResJnlLine: Record "Res. Journal Line"; EntryType: Enum "Res. Journal Line Entry Type"; Qty: Decimal)
     begin
     end;
 }

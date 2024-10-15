@@ -611,7 +611,7 @@
     local procedure CalcInvtAccrualInterim(var ValueEntry: Record "Value Entry"): Decimal
     begin
         with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::"Direct Cost") and
+            if ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
                ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Purchase)
             then begin
                 CalcSums("Cost Amount (Expected)");

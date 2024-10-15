@@ -1,4 +1,4 @@
-codeunit 5988 "Serv-Documents Mgt."
+﻿codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -2016,6 +2016,8 @@ codeunit 5988 "Serv-Documents Mgt."
             ServLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
             ServLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+
+        OnAfterSortLines(ServLine);
     end;
 
     local procedure UpdateServiceLedgerEntry(ServLedgEntryNo: Integer)
@@ -2203,6 +2205,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterServCrMemoLineInsert(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSortLines(var ServiceLine: Record "Service Line")
     begin
     end;
 

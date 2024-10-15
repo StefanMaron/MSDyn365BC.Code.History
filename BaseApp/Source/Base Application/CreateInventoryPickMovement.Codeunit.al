@@ -1410,6 +1410,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         PrepareItemTrackingFromWhseIT(
           DATABASE::"Internal Movement Line", 0, InternalMovementLine."No.", InternalMovementLine."Line No.", -1);
+
+        OnAfterPrepareItemTrackingForInternalMovement(InternalMovementLine, TempReservEntry);
     end;
 
     local procedure PrepareItemTrackingFromWhseIT(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SignFactor: Integer)
@@ -1427,8 +1429,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 EntryNo += 1;
                 TempReservEntry."Entry No." := EntryNo;
                 TempReservEntry."Reservation Status" := TempReservEntry."Reservation Status"::Surplus;
-                if SignFactor < 0 then
-                    TempReservEntry.Validate("Quantity (Base)", -TempReservEntry."Quantity (Base)");
+                TempReservEntry.Validate("Quantity (Base)", TempReservEntry."Quantity (Base)" * SignFactor);
                 TempReservEntry.Positive := (TempReservEntry."Quantity (Base)" > 0);
                 TempReservEntry.UpdateItemTracking;
                 OnBeforeTempReservEntryInsert(TempReservEntry, WhseItemTrackingLine);
@@ -1754,6 +1755,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareItemTrackingFromWhseIT(var ReservationEntry: Record "Reservation Entry"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareItemTrackingForInternalMovement(InternalMovementLine: Record "Internal Movement Line"; var ReservationEntryBuffer: Record "Reservation Entry")
     begin
     end;
 

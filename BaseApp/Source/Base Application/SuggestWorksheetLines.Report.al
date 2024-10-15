@@ -1432,7 +1432,12 @@
                       Job.Description,
                       Format("Job Planning Line"."Document Date")),
                     1, MaxStrLen(Description));
+
+                if "Job Planning Line"."Planning Due Date" = 0D then
+                    if "Job Planning Line".UpdatePlannedDueDate() then
+                        "Job Planning Line".Modify();
                 SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Due Date");
+
                 "Document No." := "Job Planning Line"."Document No.";
                 "Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
 

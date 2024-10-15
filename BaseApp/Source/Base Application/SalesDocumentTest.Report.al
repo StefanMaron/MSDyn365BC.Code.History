@@ -1,4 +1,4 @@
-report 202 "Sales Document - Test"
+﻿report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesDocumentTest.rdlc';
@@ -2119,7 +2119,13 @@ report 202 "Sales Document - Test"
     local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
     var
         ErrorText: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesLine(SalesLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine2 do
             case Type of
                 Type::"G/L Account":
@@ -2347,6 +2353,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePostingLine(var SalesLine: Record "Sales Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

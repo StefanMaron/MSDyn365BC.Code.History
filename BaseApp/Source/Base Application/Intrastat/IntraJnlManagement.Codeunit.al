@@ -1,4 +1,4 @@
-codeunit 350 IntraJnlManagement
+﻿codeunit 350 IntraJnlManagement
 {
     Permissions = TableData "Intrastat Jnl. Template" = imd,
                   TableData "Intrastat Jnl. Batch" = imd;
@@ -71,7 +71,9 @@ codeunit 350 IntraJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, IntrastatJnlLine);
         IntrastatJnlLine.CheckIntrastatJnlLineUserRestriction; // NAVCZ
+
         CheckTemplateName(IntrastatJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         IntrastatJnlLine.FilterGroup(2);
         IntrastatJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -121,7 +123,13 @@ codeunit 350 IntraJnlManagement
     var
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
         IntrastatJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not IntrastatJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not IntrastatJnlBatch.FindFirst then begin
@@ -336,6 +344,16 @@ codeunit 350 IntraJnlManagement
     begin
         Commit();
         Error(AdvChecklistErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
     end;
 }
 

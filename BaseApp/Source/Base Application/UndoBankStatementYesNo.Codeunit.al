@@ -75,34 +75,59 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
     local procedure UndoBankEntries(BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountStatementLine."Bank Account No.");
         BankAccountLedgerEntry.SetRange("Statement No.", BankAccountStatementLine."Statement No.");
         BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccountStatementLine."Statement Line No.");
         if BankAccountLedgerEntry.FindSet(true, true) then
             repeat
-                CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
-                CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
-                if CheckLedgerEntry.FindSet(true) then begin
-                    repeat
-                        CheckLedgerEntry."Statement No." := NewStatementNo;
-                        CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::"Check Entry Applied";
-                        CheckLedgerEntry.Open := true;
-                        CheckLedgerEntry.Modify();
-                    until CheckLedgerEntry.Next() = 0;
-
-                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Check Entry Applied";
-                    BankAccountLedgerEntry."Statement No." := '';
-                    BankAccountLedgerEntry."Statement Line No." := 0;
-                end else begin
-                    BankAccountLedgerEntry."Statement No." := NewStatementNo;
-                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
-                end;
-
-                BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
-                BankAccountLedgerEntry.Open := true;
-                BankAccountLedgerEntry.Modify();
+                UndoBankEntry(BankAccountLedgerEntry, BankAccountStatementLine, NewStatementNo);
             until BankAccountLedgerEntry.Next() = 0;
+    end;
+
+    local procedure UndoBankEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+    begin
+        CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
+        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+        if CheckLedgerEntry.FindSet(true) then begin
+            repeat
+                CheckLedgerEntry."Statement Status" := GetNewStatementStatus(BankAccountStatementLine);
+                if CheckLedgerEntry."Statement Status" = CheckLedgerEntry."Statement Status"::"Check Entry Applied" then
+                    CheckLedgerEntry."Statement No." := NewStatementNo
+                else begin
+                    CheckLedgerEntry."Statement No." := '';
+                    CheckLedgerEntry."Statement Line No." := 0;
+                end;
+                CheckLedgerEntry.Open := true;
+                CheckLedgerEntry.Modify();
+            until CheckLedgerEntry.Next() = 0;
+
+            BankAccountLedgerEntry."Statement Status" := GetNewStatementStatus(BankAccountStatementLine);
+            if BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied" then
+                BankAccountLedgerEntry."Statement No." := NewStatementNo
+            else begin
+                BankAccountLedgerEntry."Statement No." := '';
+                BankAccountLedgerEntry."Statement Line No." := 0;
+            end;
+        end else begin
+            BankAccountLedgerEntry."Statement No." := NewStatementNo;
+            BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
+        end;
+
+        BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
+        BankAccountLedgerEntry.Open := true;
+        BankAccountLedgerEntry.Modify();
+    end;
+
+    local procedure GetNewStatementStatus(BankAccountStatementLine: Record "Bank Account Statement Line") StatementStatus: Option Open,"Bank Acc. Entry Applied","Check Entry Applied",Closed
+    begin
+        case BankAccountStatementLine.Type of
+            BankAccountStatementLine.Type::"Bank Account Ledger Entry":
+                exit(StatementStatus::"Bank Acc. Entry Applied");
+            BankAccountStatementLine.Type::"Check Ledger Entry":
+                exit(StatementStatus::"Check Entry Applied");
+        end;
     end;
 }

@@ -196,8 +196,10 @@ page 345 Reconciliation
         "No." := GLAcc."No.";
         Name := GLAcc.Name;
         "Balance after Posting" := GLAcc."Balance at Date";
-        OnBeforeGLAccountNetChange(Rec);
+        OnBeforeGLAccountNetChange(Rec, GLAcc);
         Insert;
+
+        OnAfterInsertGLAccNetChange(Rec);
     end;
 
     procedure ReturnGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
@@ -240,7 +242,12 @@ page 345 Reconciliation
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
     begin
     end;
 

@@ -18,6 +18,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibararyVariableStorage: Codeunit "Library - Variable Storage";
         DeltaAssert: Codeunit "Delta Assert";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -1058,6 +1059,105 @@ codeunit 134010 "ERM Application Customer"
         VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,PostApplicationModalPageHandler,SimpleMessageHandler')]
+    procedure TwpPaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Customer: Record Customer;
+        GenJournalLineInvoice: array[2] of Record "Gen. Journal Line";
+        GenJournalLinePayment: array[2] of Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        InvoiceAmount: array[2] of Decimal;
+        PaymentAmount: array[2] of Decimal;
+        AppliesToId: Code[20];
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in customer ledger entry when it is generated from general journal line applied to customer ledger entry
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        InvoiceAmount[1] := LibraryRandom.RandIntInRange(10, 20);
+        InvoiceAmount[2] := LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount[1] := -(InvoiceAmount[1] + InvoiceAmount[2]) * 3;
+        PaymentAmount[2] := -InvoiceAmount[2];
+
+        // [GIVEN] Posted Invoice "B"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLineInvoice[2], GenJournalLineInvoice[2]."Document Type"::Invoice, GenJournalLineInvoice[2]."Account Type"::Customer, Customer."No.", InvoiceAmount[2]);
+        GenJournalLineInvoice[2].Validate("Posting Date", WorkDate() + 1);
+        GenJournalLineInvoice[2].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice[2]);
+
+        // [GIVEN] Posted Payment "A"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLinePayment[1], GenJournalLinePayment[1]."Document Type"::Payment, GenJournalLinePayment[1]."Account Type"::Customer, Customer."No.", PaymentAmount[1]);
+        GenJournalLinePayment[1].Validate("Posting Date", WorkDate() - 1);
+        GenJournalLinePayment[1].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment[1]);
+
+        // [GIVEN] Posted Payment "A" applied to Invoice "B" with "Applies-to ID", but not posted
+        LibararyVariableStorage.Enqueue(GenJournalLineInvoice[2]."Document No.");
+        LibararyVariableStorage.Enqueue(false);
+
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
+        CustomerLedgerEntries.Filter.SetFilter("Document No.", GenJournalLinePayment[1]."Document No.");
+        CustomerLedgerEntries."Apply Entries".Invoke();
+        CustomerLedgerEntries.Close();
+
+        AppliesToId := LibraryUtility.GenerateGUID();
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetRange("Applies-to ID", UserId());
+        CustLedgerEntry.ModifyAll("Applies-to ID", AppliesToId);
+
+        // [GIVEN] Payment "B" applied to Invoice "B" with "Applies-to Doc. No." and posted
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLinePayment[2], GenJournalLinePayment[2]."Document Type"::Payment, GenJournalLinePayment[2]."Account Type"::Customer, Customer."No.", PaymentAmount[2]);
+        GenJournalLinePayment[2].Validate("Posting Date", WorkDate() + 1);
+        GenJournalLinePayment[2].Validate("Applies-to Doc. Type", GenJournalLinePayment[2]."Applies-to Doc. Type"::Invoice);
+        GenJournalLinePayment[2].Validate("Applies-to Doc. No.", GenJournalLineInvoice[2]."Document No.");
+        GenJournalLinePayment[2].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment[2]);
+
+        // [GIVEN] Posting engine cleared "Applies-to ID" and "Applies-to Doc. No." on applied customer ledger entry of Invoice "B"
+        VerifyBlankAppliestoID(Customer."No.", GenJournalLineInvoice[2]."Document No.", CustLedgerEntry."Document Type"::Invoice);
+
+        // [GIVEN] Posted Invoice "A"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLineInvoice[1], GenJournalLineInvoice[1]."Document Type"::Invoice, GenJournalLineInvoice[1]."Account Type"::Customer, Customer."No.", InvoiceAmount[1]);
+        GenJournalLineInvoice[1].Validate("Posting Date", WorkDate() - 1);
+        GenJournalLineInvoice[1].Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice[1]);
+
+        // [GIVEN] Posted Payment "A" applied to Posted Invoice "A" with "Applies-to ID."
+        AppliesToId := LibraryUtility.GenerateGUID();
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetRange("Applies-to ID", AppliesToId);
+        CustLedgerEntry.ModifyAll("Applies-to ID", UserId());
+
+        LibararyVariableStorage.Enqueue(GenJournalLineInvoice[1]."Document No.");
+        LibararyVariableStorage.Enqueue(true);
+        LibararyVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibararyVariableStorage.Enqueue(WorkDate() - 1);
+
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
+        CustomerLedgerEntries.Filter.SetFilter("Document No.", GenJournalLinePayment[1]."Document No.");
+
+        // [WHEN] Stan posts 
+        CustomerLedgerEntries."Apply Entries".Invoke();
+
+        // [GIVEN] Applied documents posted and posting engine cleared "Applies-to ID" and "Applies-to Doc. No." on applied customer ledger entry of Invoice "A"
+        VerifyBlankAppliestoID(Customer."No.", GenJournalLineInvoice[1]."Document No.", CustLedgerEntry."Document Type"::Invoice);
+
+        LibararyVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1882,6 +1982,22 @@ codeunit 134010 "ERM Application Customer"
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
     end;
 
+    local procedure VerifyBlankAppliestoID(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.FindSet();
+        repeat
+            CustLedgerEntry.TestField(Open, false);
+            CustLedgerEntry.TestField("Applies-to ID", '');
+            CustLedgerEntry.TestField("Applies-to Doc. No.", '');
+        until CustLedgerEntry.Next() = 0;
+    end;
+
     local procedure VerifyRoundingDtldEntryExists(CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -1926,11 +2042,38 @@ codeunit 134010 "ERM Application Customer"
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.Filter.SetFilter("Document No.", LibararyVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        if (LibararyVariableStorage.DequeueBoolean()) then
+            ApplyCustomerEntries."Post Application".Invoke()
+        else
+            ApplyCustomerEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
+    begin
+        PostApplication.DocNo.SetValue(LibararyVariableStorage.DequeueText());
+        PostApplication.PostingDate.SetValue(LibararyVariableStorage.DequeueDate());
+        PostApplication.OK().Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure SimpleMessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ReportHandler]

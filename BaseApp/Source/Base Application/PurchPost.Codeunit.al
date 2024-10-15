@@ -286,7 +286,6 @@
         WhseReceive: Boolean;
         WhseShip: Boolean;
         InvtPickPutaway: Boolean;
-        PositiveWhseEntrycreated: Boolean;
         UnpostedInvoiceDuplicateQst: Label 'An unposted invoice for order %1 exists. To avoid duplicate postings, delete order %1 or invoice %2.\Do you still want to post order %1?', Comment = '%1 = Order No.,%2 = Invoice No.';
         InvoiceDuplicateInboxQst: Label 'An invoice for order %1 exists in the IC inbox. To avoid duplicate postings, cancel invoice %2 in the IC inbox.\Do you still want to post order %1?', Comment = '%1 = Order No.';
         PostedInvoiceDuplicateQst: Label 'Posted invoice %1 already exists for order %2. To avoid duplicate postings, do not post order %2.\Do you still want to post order %2?', Comment = '%1 = Invoice No., %2 = Order No.';
@@ -492,7 +491,6 @@
         ModifyHeader: Boolean;
         RefreshTempLinesNeeded: Boolean;
         CopyAndCheckItemChargeNeeded: Boolean;
-        IsHandled: Boolean;
     begin
         with PurchHeader do begin
             // Check
@@ -602,12 +600,7 @@
             CalcInvDiscount(PurchHeader);
             ReleasePurchDocument(PurchHeader);
 
-            IsHandled := false;
-            OnCheckAndUpdateOnBeforeArchiveUnpostedOrder(PurchHeader, PreviewMode, IsHandled);
-            if not IsHandled then
-                if Receive or Ship then
-                    ArchiveUnpostedOrder(PurchHeader);
-            OnCheckAndUpdateOnAfterArchiveUnpostedOrder(PurchHeader, Currency, PreviewMode);
+            HandleArchiveUnpostedOrder(PurchHeader);
 
             CheckICPartnerBlocked(PurchHeader);
             SendICDocument(PurchHeader, ModifyHeader);
@@ -629,6 +622,21 @@
         end;
 
         OnAfterCheckAndUpdate(PurchHeader, SuppressCommit, PreviewMode);
+    end;
+
+    local procedure HandleArchiveUnpostedOrder(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnCheckAndUpdateOnBeforeArchiveUnpostedOrder(PurchHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchHeader.Receive or PurchHeader.Ship then
+            ArchiveUnpostedOrder(PurchHeader);
+
+        OnCheckAndUpdateOnAfterArchiveUnpostedOrder(PurchHeader, Currency, PreviewMode);
     end;
 
     local procedure CheckExtDocNo(PurchaseHeader: Record "Purchase Header")
@@ -1403,19 +1411,25 @@
     local procedure PostItemJnlLineWhseLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary; PurchLine: Record "Purchase Line"; PostBefore: Boolean)
     var
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
+        PositiveWhseEntryCreated: Boolean;
     begin
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempWhseTrackingSpecification, false);
+        OnPostItemJnlLineWhseLineOnBeforeTempWhseJnlLine2Find(TempWhseJnlLine2, PurchLine, WhseReceive, WhseShip, InvtPickPutaway);
         if TempWhseJnlLine2.Find('-') then
             repeat
+                PositiveWhseEntryCreated := false;
                 if PurchLine.IsCreditDocType and (PurchLine.Quantity > 0) or
                    PurchLine.IsInvoiceDocType and (PurchLine.Quantity < 0)
                 then
-                    CreatePositiveEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore);
+                    PositiveWhseEntryCreated := CreatePositiveEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore);
+
                 WhseJnlPostLine.Run(TempWhseJnlLine2);
-                if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then begin
-                    WhseJnlPostLine.Run(TempWhseJnlLine2);
-                    OnPostItemJnlLineWhseLineOnAfterPostRevert(TempWhseJnlLine2, PurchLine);
-                end;
+
+                if not PositiveWhseEntryCreated then
+                    if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then begin
+                        WhseJnlPostLine.Run(TempWhseJnlLine2);
+                        OnPostItemJnlLineWhseLineOnAfterPostRevert(TempWhseJnlLine2, PurchLine);
+                    end;
             until TempWhseJnlLine2.Next() = 0;
         TempWhseTrackingSpecification.DeleteAll();
     end;
@@ -2352,6 +2366,7 @@
             OriginalDocumentDate := SalesHeader."Document Date";
             SalesHeader.SetHideValidationDialog(true);
             SalesHeader.Validate("Posting Date", PostingDate);
+            OnCheckAndUpdateAssocOrderPostingDateOnBeforeValidateDocumentDate(SalesHeader, OriginalDocumentDate);
             SalesHeader.Validate("Document Date", OriginalDocumentDate);
 
             ReleaseSalesDocument.Run(SalesHeader);
@@ -5369,7 +5384,7 @@
         if IsHandled then
             exit(Result);
 
-        if PostJobConsumptionBeforePurch or (JobNo = '') or PositiveWhseEntrycreated then
+        if PostJobConsumptionBeforePurch or (JobNo = '') then
             exit(false);
 
         TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Negative Adjmt.";
@@ -5382,19 +5397,21 @@
         exit(true);
     end;
 
-    local procedure CreatePositiveEntry(WhseJnlLine: Record "Warehouse Journal Line"; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean)
+    local procedure CreatePositiveEntry(WhseJnlLine: Record "Warehouse Journal Line"; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean): Boolean
     begin
-        if PostJobConsumptionBeforePurch or (JobNo <> '') then begin
-            WhseJnlLine.Quantity := -WhseJnlLine.Quantity;
-            WhseJnlLine."Qty. (Base)" := -WhseJnlLine."Qty. (Base)";
-            WhseJnlLine."Qty. (Absolute)" := -WhseJnlLine."Qty. (Absolute)";
-            WhseJnlLine."To Bin Code" := WhseJnlLine."From Bin Code";
-            WhseJnlLine."From Bin Code" := '';
+        if not PostJobConsumptionBeforePurch and (JobNo = '') then
+            exit(false);
 
-            OnCreatePositiveOnBeforeWhseJnlPostLine(WhseJnlLine);
-            WhseJnlPostLine.Run(WhseJnlLine);
-            PositiveWhseEntrycreated := true;
-        end;
+        WhseJnlLine.Quantity := -WhseJnlLine.Quantity;
+        WhseJnlLine."Qty. (Base)" := -WhseJnlLine."Qty. (Base)";
+        WhseJnlLine."Qty. (Absolute)" := -WhseJnlLine."Qty. (Absolute)";
+        WhseJnlLine."To Bin Code" := WhseJnlLine."From Bin Code";
+        WhseJnlLine."From Bin Code" := '';
+
+        OnCreatePositiveOnBeforeWhseJnlPostLine(WhseJnlLine);
+        WhseJnlPostLine.Run(WhseJnlLine);
+
+        exit(true);
     end;
 
     local procedure UpdateIncomingDocument(IncomingDocNo: Integer; PostingDate: Date; GenJnlLineDocNo: Code[20])
@@ -6135,7 +6152,7 @@
                 PurchRcptHeader."No. Printed" := 0;
                 PurchRcptHeader."Source Code" := SrcCode;
                 PurchRcptHeader."User ID" := UserId;
-                OnBeforePurchRcptHeaderInsert(PurchRcptHeader, PurchHeader, SuppressCommit);
+                OnBeforePurchRcptHeaderInsert(PurchRcptHeader, PurchHeader, SuppressCommit, TempWhseRcptHeader, WhseReceive, TempWhseShptHeader, WhseShip);
                 PurchRcptHeader.Insert(true);
                 OnAfterPurchRcptHeaderInsert(PurchRcptHeader, PurchHeader, SuppressCommit);
 
@@ -6246,7 +6263,7 @@
                 ReturnShptHeader."No. Printed" := 0;
                 ReturnShptHeader."Source Code" := SrcCode;
                 ReturnShptHeader."User ID" := UserId;
-                OnBeforeReturnShptHeaderInsert(ReturnShptHeader, PurchHeader, SuppressCommit);
+                OnBeforeReturnShptHeaderInsert(ReturnShptHeader, PurchHeader, SuppressCommit, TempWhseRcptHeader, WhseReceive, TempWhseShptHeader, WhseShip);
                 ReturnShptHeader.Insert(true);
                 OnAfterReturnShptHeaderInsert(ReturnShptHeader, PurchHeader, SuppressCommit);
 
@@ -6726,7 +6743,7 @@
                 if not (WhseShip or WhseReceive or InvtPickPutaway) then
                     CheckWarehouse(TempPurchLine);
             end;
-            OnAfterCheckTrackingAndWarehouseForShip(PurchHeader, Ship, SuppressCommit, TempPurchLine);
+            OnAfterCheckTrackingAndWarehouseForShip(PurchHeader, Ship, SuppressCommit, TempPurchLine, TempWhseShptHeader, TempWhseRcptHeader);
             exit(Ship);
         end;
     end;
@@ -8586,7 +8603,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckTrackingAndWarehouseForShip(var PurchaseHeader: Record "Purchase Header"; var Ship: Boolean; CommitIsSupressed: Boolean; var TempPurchaseLine: Record "Purchase Line" temporary)
+    local procedure OnAfterCheckTrackingAndWarehouseForShip(var PurchaseHeader: Record "Purchase Header"; var Ship: Boolean; CommitIsSupressed: Boolean; var TempPurchaseLine: Record "Purchase Line" temporary; var TempWarehouseShipmentHeader: Record "Warehouse Shipment Header" temporary; var TempWarehouseReceiptHeader: Record "Warehouse Receipt Header" temporary)
     begin
     end;
 
@@ -9226,7 +9243,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
+    local procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WhseReceive: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; WhseShip: Boolean)
     begin
     end;
 
@@ -9261,7 +9278,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReturnShptHeaderInsert(var ReturnShptHeader: Record "Return Shipment Header"; var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
+    local procedure OnBeforeReturnShptHeaderInsert(var ReturnShptHeader: Record "Return Shipment Header"; var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WhseReceive: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; WhseShip: Boolean)
     begin
     end;
 
@@ -9601,6 +9618,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAndUpdateAssocOrderPostingDateOnBeforeValidateDocumentDate(var SalesHeader: Record "Sales Header"; var OriginalDocumentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckAssociatedOrderLinesOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean);
     begin
     end;
@@ -9807,6 +9829,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemChargePerTransferOnBeforePostItemJnlLine(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ItemApplnEntry: Record "Item Application Entry"; TransferReceiptLine: Record "Transfer Receipt Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineWhseLineOnBeforeTempWhseJnlLine2Find(var TempWarehouseJournalLine2: Record "Warehouse Journal Line" temporary; PurchaseLine: Record "Purchase Line"; WhseReceive: Boolean; WhseShip: Boolean; InvtPickPutaway: Boolean)
     begin
     end;
 

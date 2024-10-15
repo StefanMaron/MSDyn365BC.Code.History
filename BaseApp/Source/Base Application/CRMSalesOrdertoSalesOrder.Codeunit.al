@@ -623,10 +623,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         Error(ZombieCouplingErr, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
     end;
 
-    procedure GetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account"): Boolean
+    procedure GetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account") Result: Boolean
     var
         CRMContact: Record "CRM Contact";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCRMAccountOfCRMSalesOrder(CRMSalesorder, CRMAccount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CRMSalesorder.CustomerIdType = CRMSalesorder.CustomerIdType::account then
             if CRMAccount.Get(CRMSalesorder.CustomerId) then
                 if CRMAccount.CustomerTypeCode <> CRMAccount.CustomerTypeCode::Customer then begin
@@ -786,6 +792,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

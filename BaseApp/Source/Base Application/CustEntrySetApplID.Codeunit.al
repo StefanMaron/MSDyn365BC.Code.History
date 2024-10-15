@@ -1,4 +1,4 @@
-codeunit 101 "Cust. Entry-SetAppl.ID"
+﻿codeunit 101 "Cust. Entry-SetAppl.ID"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd;
 
@@ -45,7 +45,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID, IsHandled);
+        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID, IsHandled, CustEntryApplID);
         if IsHandled then
             exit;
 
@@ -77,18 +77,24 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
 
         if CustLedgerEntry."Entry No." = ApplyingCustLedgerEntry."Entry No." then
             CustLedgerEntry."Applying Entry" := ApplyingCustLedgerEntry."Applying Entry";
+        OnUpdateCustLedgerEntryOnBeforeCustLedgerEntryModify(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
         CustLedgerEntry.Modify();
 
         OnAfterUpdateCustLedgerEntry(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean);
+    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean; var CustEntryApplID: Code[50]);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgerEntryOnBeforeCustLedgerEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
     begin
     end;
 }

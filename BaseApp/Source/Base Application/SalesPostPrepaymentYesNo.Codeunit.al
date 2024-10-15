@@ -19,13 +19,10 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     procedure PostPrepmtInvoiceYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)
     var
         SalesHeader: Record "Sales Header";
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         SalesHeader.Copy(SalesHeader2);
         with SalesHeader do begin
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(Text000, "Document Type", "No."), true)
-            then
+            if not ConfirmForDocument(SalesHeader, Text000) then
                 exit;
 
             // NAVCZ
@@ -50,13 +47,10 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     var
         SalesHeader: Record "Sales Header";
         SalesInvHeader: Record "Sales Invoice Header";
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         SalesHeader.Copy(SalesHeader2);
         with SalesHeader do begin
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(Text001, "Document Type", "No."), true)
-            then
+            if not ConfirmForDocument(SalesHeader, Text001) then
                 exit;
 
             // NAVCZ
@@ -77,6 +71,19 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
 
             SalesHeader2 := SalesHeader;
         end;
+    end;
+
+    local procedure ConfirmForDocument(var SalesHeader: Record "Sales Header"; ConfirmationText: Text) Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmForDocument(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmationText, SalesHeader."Document Type", SalesHeader."No."), true);
     end;
 
     local procedure PostPrepmtDocument(var SalesHeader: Record "Sales Header"; PrepmtDocumentType: Enum "Sales Document Type")
@@ -199,6 +206,11 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetReport(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmForDocument(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

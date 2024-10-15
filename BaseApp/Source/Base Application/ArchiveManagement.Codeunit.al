@@ -602,6 +602,7 @@ codeunit 5063 ArchiveManagement
         DeferralLine: Record "Deferral Line";
     begin
         if DeferralHeaderArchive.Get(DeferralDocType, DocType, DocNo, DocNoOccurrence, VersionNo, LineNo) then begin
+            OnRestoreDeferralsOnAfterGetDeferralHeaderArchive(DeferralHeaderArchive, DeferralHeader);
             // Updates the header if is exists already and removes all the lines
             DeferralUtilities.SetDeferralRecords(DeferralHeader,
               DeferralDocType, '', '',
@@ -914,6 +915,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeArchiveSalesDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreDeferralsOnAfterGetDeferralHeaderArchive(DeferralHeaderArchive: Record "Deferral Header Archive"; var DeferralHeader: Record "Deferral Header")
     begin
     end;
 }

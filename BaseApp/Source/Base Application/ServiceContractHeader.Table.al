@@ -2521,7 +2521,14 @@ table 5965 "Service Contract Header"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserMgt.GetServiceFilter <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserMgt.GetServiceFilter);
@@ -2644,6 +2651,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateEndPeriodDate(var ServiceContractHeader: Record "Service Contract Header"; PrepaidContract: Boolean; NextInvDate: Date; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

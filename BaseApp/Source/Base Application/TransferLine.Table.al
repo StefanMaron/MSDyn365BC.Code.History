@@ -1,4 +1,4 @@
-table 5741 "Transfer Line"
+﻿table 5741 "Transfer Line"
 {
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
@@ -91,6 +91,7 @@ table 5741 "Transfer Line"
                     TestField("Item No.");
                 "Quantity (Base)" :=
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                OnValidateQuantityOnAfterCalcQuantityBase(Rec, xRec);
                 if ((Quantity * "Quantity Shipped") < 0) or
                    (Abs(Quantity) < Abs("Quantity Shipped"))
                 then
@@ -142,13 +143,8 @@ table 5741 "Transfer Line"
                     WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
                 end;
 
-                if "Qty. to Ship" > "Outstanding Quantity" then
-                    if "Outstanding Quantity" > 0 then
-                        Error(
-                          Text005,
-                          "Outstanding Quantity")
-                    else
-                        Error(Text006);
+                CheckItemCanBeShipped();
+
                 "Qty. to Ship (Base)" :=
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
 
@@ -329,7 +325,14 @@ table 5741 "Transfer Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
                 TestField("Qty. per Unit of Measure", 1);
@@ -349,7 +352,14 @@ table 5741 "Transfer Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToShipBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Ship", "Qty. to Ship (Base)");
             end;
@@ -367,7 +377,14 @@ table 5741 "Transfer Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToReceiveBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Receive", "Qty. to Receive (Base)");
             end;
@@ -1272,6 +1289,24 @@ table 5741 "Transfer Line"
                 ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
+    local procedure CheckItemCanBeShipped()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemCanBeShipped(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Qty. to Ship" > "Outstanding Quantity" then
+            if "Outstanding Quantity" > 0 then
+                Error(
+                  Text005,
+                  "Outstanding Quantity")
+            else
+                Error(Text006);
+    end;
+
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
     begin
         TestField("Item No.");
@@ -1853,6 +1888,11 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemCanBeShipped(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line");
     begin
     end;
@@ -1898,6 +1938,21 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToShipBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToReceiveBase(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReserveTransferLineQuantity(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1934,6 +1989,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeTransLineVerifyChange(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcQuantityBase(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line")
     begin
     end;
 

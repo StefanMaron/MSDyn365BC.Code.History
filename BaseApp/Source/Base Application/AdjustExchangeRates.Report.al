@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 report 595 "Adjust Exchange Rates"
 {
     DefaultLayout = RDLC;
@@ -191,17 +191,14 @@ report 595 "Adjust Exchange Rates"
                             if TempDimBuf2.FindFirst then
                                 DimBufMgt.GetDimensions(TempDimBuf2."Entry No.", TempDimBuf);
                             DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
-                            if TempEntryNoAmountBuf.Amount > 0 then begin
-                                Currency.TestField("Realized Gains Acc.");
+                            if TempEntryNoAmountBuf.Amount > 0 then
                                 PostAdjmt(
-                                  Currency."Realized Gains Acc.", -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
-                                  "Currency Code", TempDimSetEntry, PostingDate, '');
-                            end else begin
-                                Currency.TestField("Realized Losses Acc.");
+                                  Currency.GetRealizedGainsAccount(), -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
+                                  "Currency Code", TempDimSetEntry, PostingDate, '')
+                            else
                                 PostAdjmt(
-                                  Currency."Realized Losses Acc.", -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
+                                  Currency.GetRealizedLossesAccount(), -TempEntryNoAmountBuf.Amount, TempEntryNoAmountBuf.Amount2,
                                   "Currency Code", TempDimSetEntry, PostingDate, '');
-                            end;
                         end;
                     end;
                     TempDimBuf2.DeleteAll();
@@ -785,9 +782,9 @@ report 595 "Adjust Exchange Rates"
 
                     if GLAmtTotal <> 0 then begin
                         if GLAmtTotal < 0 then
-                            GenJnlLine."Account No." := Currency3."Realized G/L Losses Account"
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
                         else
-                            GenJnlLine."Account No." := Currency3."Realized G/L Gains Account";
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
                         GenJnlLine.Description :=
                           StrSubstNo(
                             PostingDescription,
@@ -802,9 +799,9 @@ report 595 "Adjust Exchange Rates"
                     end;
                     if GLAddCurrAmtTotal <> 0 then begin
                         if GLAddCurrAmtTotal < 0 then
-                            GenJnlLine."Account No." := Currency3."Realized G/L Losses Account"
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
                         else
-                            GenJnlLine."Account No." := Currency3."Realized G/L Gains Account";
+                            GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
                         GenJnlLine.Description :=
                           StrSubstNo(
                             PostingDescription, '',
@@ -1045,6 +1042,12 @@ report 595 "Adjust Exchange Rates"
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
+
+        if not TestMode then // NAVCZ
+            Commit();
+
         UpdateAnalysisView.UpdateAll(0, true);
 
         if not TestMode then // NAVCZ
@@ -1508,18 +1511,14 @@ report 595 "Adjust Exchange Rates"
 
                     with AdjExchRateBuffer2 do begin
                         Currency2.Get("Currency Code");
-                        if TotalGainsAmount <> 0 then begin
-                            Currency2.TestField("Unrealized Gains Acc.");
+                        if TotalGainsAmount <> 0 then
                             PostAdjmt(
-                              Currency2."Unrealized Gains Acc.", -TotalGainsAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                              Currency2.GetUnrealizedGainsAccount(), -TotalGainsAmount, AdjBase, "Currency Code", TempDimSetEntry, // BUG
                               "Posting Date", "IC Partner Code");
-                        end;
-                        if TotalLossesAmount <> 0 then begin
-                            Currency2.TestField("Unrealized Losses Acc.");
+                        if TotalLossesAmount <> 0 then
                             PostAdjmt(
-                              Currency2."Unrealized Losses Acc.", -TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry,
+                              Currency2.GetUnrealizedLossesAccount(), -TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry, // BUG
                               "Posting Date", "IC Partner Code");
-                        end;
                     end;
                 until AdjExchRateBuffer2.Next() = 0;
 
@@ -1956,7 +1955,7 @@ report 595 "Adjust Exchange Rates"
               Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
               "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
 
-            // Calculate Old Unrealized GainLoss
+            // Calculate Old Unrealized Gains and Losses
             SetUnrealizedGainLossFilterCust(DtldCustLedgEntry, "Entry No.");
             DtldCustLedgEntry.CalcSums("Amount (LCY)");
 
@@ -1977,7 +1976,7 @@ report 595 "Adjust Exchange Rates"
 
             AdjustedFactor := Round(1 / "Adjusted Currency Factor", 0.0001);  // NAVCZ
 
-            // Calculate New Unrealized GainLoss
+            // Calculate New Unrealized Gains and Losses
             AdjAmount :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCYAdjmt(
@@ -2102,7 +2101,7 @@ report 595 "Adjust Exchange Rates"
 
             AdjustedFactor := Round(1 / "Adjusted Currency Factor", 0.0001);  // NAVCZ
 
-            // Calculate New Unrealized GainLoss
+            // Calculate New Unrealized Gains and Losses
             AdjAmount :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCYAdjmt(

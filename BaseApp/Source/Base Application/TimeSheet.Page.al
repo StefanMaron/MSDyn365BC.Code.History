@@ -8,6 +8,7 @@ page 950 "Time Sheet"
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Time Sheet Line";
+    DelayedInsert = true;
 
     layout
     {
