@@ -38,6 +38,7 @@ codeunit 144001 VATSTAT
         TestClassWorkdate: Date;
         MissingFDFTagErr: Label 'Assert.IsTrue failed. The key="%1" could not be found';
         MissingXMLElementErr: Label 'Assert.AreNotEqual failed. Expected any value except:<0> (Integer). Actual:<0> (Integer)';
+        ClaimTaxfreeRevErr: Label 'In order to claim taxfree revenues without input tax reduction (position 020) the necessary number of Art. 6 Abs. 1 has to be specified.\KZ 020 only together with "Number of Art. 6 Abs. 1".';
 
     [Test]
     [HandlerFunctions('VATStmtATRequestPageHandler,VATStmtATMessageHandler')]
@@ -133,8 +134,8 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1000', 'EULIEF', true);
-        SetupVatStatementLine('1017', 'EULIEF', true);
+        SetupVatStatementLine('1000', 'EULIEF', true, 'UVA-2016');
+        SetupVatStatementLine('1017', 'EULIEF', true, 'UVA-2016');
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -174,7 +175,7 @@ codeunit 144001 VATSTAT
     begin
         // Enter a foreign sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1011', 'BU0', true);
+        SetupVatStatementLine('1011', 'BU0', true, 'UVA-2016');
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -370,7 +371,7 @@ codeunit 144001 VATSTAT
         Initialize;
 
         // [GIVEN] Setup VAT Statement Line '1067' with 'Row Totaling' = 'UST20' (Sale Domestic VAT20)
-        SetupVatStatementLine('1067', 'UST20', true);
+        SetupVatStatementLine('1067', 'UST20', true, 'UVA-2016');
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -398,7 +399,7 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader.VerifyNodeCountByXPath('descendant::*[@type="kz"]', 4);
 
         // Tear Down
-        SetupVatStatementLine('1067', '', false);
+        SetupVatStatementLine('1067', '', false, 'UVA-2016');
     end;
 
     [Test]
@@ -461,8 +462,8 @@ codeunit 144001 VATSTAT
     begin
         // Enter an eu sales invoice and verify that the data in the generated FDF file.
         Initialize;
-        SetupVatStatementLine('1000', 'EULIEF', true);
-        SetupVatStatementLine('1017', 'EULIEF', true);
+        SetupVatStatementLine('1000', 'EULIEF', true, 'UVA-2016');
+        SetupVatStatementLine('1017', 'EULIEF', true, 'UVA-2016');
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -498,7 +499,7 @@ codeunit 144001 VATSTAT
         Initialize;
 
         // [GIVEN] Setup VAT Statement Line '1011' with 'Row Totaling' = 'BU0' (Sale Export VAT10)
-        SetupVatStatementLine('1011', 'BU0', true);
+        SetupVatStatementLine('1011', 'BU0', true, 'UVA-2016');
         EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
           ReportingType::"Defined period", false, false, false, false, 0);
 
@@ -983,6 +984,67 @@ codeunit 144001 VATSTAT
         Assert.AreEqual(11010, DACHReportSelections."Report ID", 'Report 11010 was expected');
     end;
 
+    [Test]
+    [HandlerFunctions('VATStmtATRequestPageHandler,VATStmtATMessageHandler')]
+    [Scope('Internal')]
+    procedure TestKZ020WithArt6Abs1()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementAT: Report "VAT Statement AT";
+    begin
+        // [SCENARIO 343187] Running VAT Statement AT report with KZ020 <> 0 and "Number of Art. 6 Abs. 1" <> 0 doesn't raise errors
+        Initialize();
+
+        // [GIVEN] Setup VAT Statement Line for Row Check and set Row1020 = BU0
+        SetupVatStatementLine('1000', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1011', '', false, 'UVA-2016');
+        SetupVatStatementLine('1020', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1019', '', false, 'VAT');
+
+        // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 1 and post a sales document
+        EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
+          ReportingType::Quarter, true, false, false, false, 1);
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EXPORT');
+
+        // [WHEN] Run VAT Statement AT report
+        VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
+        VATStatementAT.RunModal();
+
+        // [THEN] The report has run correctly and an output file created
+        Assert.IsTrue(Exists(XmlFileName), StrSubstNo('File %1 must be generated', XmlFileName));
+    end;
+
+    [Test]
+    [HandlerFunctions('VATStmtATRequestPageHandler')]
+    [Scope('Internal')]
+    procedure TestKZ020WithoutArt6Abs1Error()
+    var
+        SalesHeader: Record "Sales Header";
+        VATStatementAT: Report "VAT Statement AT";
+    begin
+        // [SCENARIO 343187] Running VAT Statement AT report with KZ020 <> 0 and "Number of Art. 6 Abs. 1" = 0 raises an error
+        Initialize();
+
+        // [GIVEN] Setup VAT Statement Line for Row Check and set Row1020 = BU0
+        SetupVatStatementLine('1000', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1011', '', false, 'UVA-2016');
+        SetupVatStatementLine('1020', 'BU0', false, 'UVA-2016');
+        SetupVatStatementLine('1019', '', false, 'VAT');
+
+        // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 0 and post a sales document
+        EnqueRequestPageFields(WorkDate, WorkDate, IncludeVATEntries::"Open and Closed", PeriodSelection::"Within Period",
+          ReportingType::Quarter, true, false, false, false, 0);
+        CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, 'EXPORT');
+
+        // [WHEN] Run VAT Statement AT report
+        VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
+        asserterror VATStatementAT.RunModal();
+
+        // [THEN] An error is thrown: "In order to claim taxfree revenues without input tax reduction (position 020)..."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(ClaimTaxfreeRevErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1032,12 +1094,12 @@ codeunit 144001 VATSTAT
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::VATSTAT);
     end;
 
-    local procedure SetupVatStatementLine(RowNo: Code[10]; RowTotalingFilter: Text; Add: Boolean)
+    local procedure SetupVatStatementLine(RowNo: Code[10]; RowTotalingFilter: Text; Add: Boolean; TemplateName: Code[10])
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
         with VATStatementLine do begin
-            SetFilter("Statement Template Name", 'UVA-2016');
+            SetFilter("Statement Template Name", TemplateName);
             SetFilter("Row No.", RowNo);
             FindFirst;
             if not StringContains("Row Totaling", RowTotalingFilter) then begin

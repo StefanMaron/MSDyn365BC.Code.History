@@ -162,6 +162,49 @@ codeunit 134891 "Sales Batch Document Posting"
     end;
 
     [Test]
+    [HandlerFunctions('SimpleConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure TwoOfThreeInvoicesPostedAsBatchWhileSecondFailed()
+    var
+        SalesHeader: array[3] of Record "Sales Header";
+        SalesHeaderCreated: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        ErrorMessages: TestPage "Error Messages";
+        ErrorCount: Integer;
+    begin
+        // [SCENARIO] One of three invoices failed during batch posting does not stop other invoices to be posted.
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(false);
+
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C", with Amount = 0 each
+        CreateThreeDocuments(
+          SalesHeader, SalesHeaderCreated, SalesHeader[1]."Document Type"::Invoice, 1);
+        // [GIVEN] Invoice 'Y' has "Quantity" = 0
+        SalesLine.Get(SalesHeader[2]."Document Type", SalesHeader[2]."No.", 10000);
+        SalesLine.Validate(Quantity, 0);
+        SalesLine.Modify(true);
+
+        // [WHEN] Post three invoices as a batch
+        ErrorMessages.Trap;
+        SalesBatchPostMgt.RunWithUI(SalesHeaderCreated, SalesHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
+
+        // [THEN] Error message page for "Y" opened with one error line: 'There is nothing to post'
+        repeat
+            ErrorCount += 1;
+            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
+        until not ErrorMessages.Next;
+        Assert.AreEqual(1, ErrorCount, 'Unexpected error count');
+
+        // [THEN] 'X' and 'Z' are posted, 'Y' is not posted.
+        Assert.IsFalse(SalesHeader[1].Find(), 'First invoice is not posted');
+        Assert.IsTrue(SalesHeader[2].Find(), 'Second invoice is posted');
+        Assert.IsFalse(SalesHeader[3].Find(), 'Third invoice is not posted');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ErrorMessagesPageSalesPostBatchMgtRunWithUIPostsFilteredOutRecords()
@@ -440,6 +483,13 @@ codeunit 134891 "Sales Batch Document Posting"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
         Reply := true; // precal forces to set any value to VAR parameter
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure SimpleConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [MessageHandler]

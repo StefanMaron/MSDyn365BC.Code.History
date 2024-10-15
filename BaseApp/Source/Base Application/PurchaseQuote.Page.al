@@ -366,8 +366,8 @@
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
                             HideValue = NOT ShowShippingOptionsWithLocation AND (ShipToOptions = ShipToOptions::Location);
-                            OptionCaption = 'Default (Company Address),Location,Customer Address,Custom Address';
-                            ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Customer Address: Used in connection with drop shipment. Custom Address: Any ship-to address that you specify in the fields below.';
+                            OptionCaption = 'Default (Company Address),Location,Custom Address';
+                            ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Custom Address: Any ship-to address that you specify in the fields below.';
 
                             trigger OnValidate()
                             begin

@@ -1274,6 +1274,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VATSTAT - NamedType MissingXMLElementErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2403978555 - NamedType 987974513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[In order to claim taxfree revenues without input tax reduction (position 020) the necessary number of Art. 6 Abs. 1 has to be specified.\KZ 020 only together with "Number of Art. 6 Abs. 1".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VATSTAT - NamedType ClaimTaxfreeRevErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1309639922 - NamedType 2329632328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[XML file does not contains expected value: %1 %2.]]></Val>

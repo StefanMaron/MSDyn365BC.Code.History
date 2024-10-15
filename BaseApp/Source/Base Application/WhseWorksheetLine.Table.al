@@ -1493,7 +1493,7 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
-    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.')]
+    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.','16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin

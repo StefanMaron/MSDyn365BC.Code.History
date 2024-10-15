@@ -525,15 +525,10 @@ page 189 "Incoming Document"
                 var
                     IncomingDocumentAttachment: Record "Incoming Document Attachment";
                     InStr: InStream;
+                    PictureName: Text;
                 begin
-                    if not HasCamera then
-                        exit;
-
-                    Camera.SetQuality(100); // 100%
-                    Camera.RunModal();
-                    Camera.GetPicture(InStr);
-                    AddAttachmentFromStream(IncomingDocumentAttachment, 'Incoming Document', '', InStr);
-                    Clear(Camera);
+                    if Camera.GetPicture(InStr, PictureName) then
+                        AddAttachmentFromStream(IncomingDocumentAttachment, PictureName, '', InStr);
                 end;
             }
             action(TextToAccountMapping)
@@ -1051,7 +1046,7 @@ page 189 "Incoming Document"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         AutomaticProcessingQst: Label 'The Data Exchange Type field is filled on at least one of the selected Incoming Documents.\\Are you sure you want to create documents manually?', Comment = '%1 is Data Exchange Type';
         ClientTypeManagement: Codeunit "Client Type Management";
-        Camera: Page Camera;
+        Camera: Codeunit Camera;
         [InDataSet]
         HasCamera: Boolean;
         URL: Text;

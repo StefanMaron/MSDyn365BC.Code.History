@@ -422,9 +422,15 @@ report 1131 "Cost Allocation"
     end;
 
     local procedure WriteJournalLine(CostTypeCode: Code[20]; CostCenterCode: Code[20]; CostObjectCode: Code[20]; PostAmount: Decimal; Text: Text; AllocKey: Text; AllocID: Code[10]; Allocated2: Boolean)
+    var
+        CostCenter: Record "Cost Center";
     begin
         if PostAmount = 0 then
             exit;
+
+        if CostCenterCode <> '' then
+            if CostCenter.Get(CostCenterCode) and CostCenter.Blocked then
+                exit;
 
         if CostTypeCode = '' then
             Error(Text015, "Cost Allocation Source".ID);

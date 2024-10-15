@@ -722,7 +722,6 @@
 
     local procedure SplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean): Boolean
     var
-        SalesSetup: Record "Sales & Receivables Setup";
         OldReservEntryQty: Decimal;
     begin
         if not TrackingSpecificationExists then
@@ -733,7 +732,6 @@
                 exit(true);
             end;
 
-        SalesSetup.Get;
         TempTrkgSpec1.Reset;
         if not TempTrkgSpec1.FindFirst then
             exit(false);
@@ -756,7 +754,7 @@
             ReservEntry2.Validate("Quantity (Base)", TempTrkgSpec2."Quantity (Base)");
             if Abs(ReservEntry2.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision then
                 ReservEntry2.Quantity := OldReservEntryQty;
-            if ReservEntry2.Positive and SalesSetup."Exact Cost Reversing Mandatory" then
+            if ReservEntry2.Positive then
                 ReservEntry2."Appl.-from Item Entry" := TempTrkgSpec2."Appl.-from Item Entry";
             TempTrkgSpec2.Delete;
         end;
