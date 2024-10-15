@@ -586,11 +586,70 @@
         OnAfterGetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
     end;
 
+#if not CLEAN23
+    [Obsolete('Replaced by GetLegalMonetaryInfo with TempSalesLine parameter for invoice rounding.', '23.0')]
     procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
     begin
         VATAmtLine.Reset();
         VATAmtLine.CalcSums("Line Amount", "VAT Base", "Amount Including VAT", "Invoice Discount Amount");
 
+        GetLegalMonetaryDocAmounts(
+                SalesHeader, VATAmtLine, LineExtensionAmount, LegalMonetaryTotalCurrencyID,
+                TaxExclusiveAmount, TaxExclusiveAmountCurrencyID, TaxInclusiveAmount, TaxInclusiveAmountCurrencyID,
+                AllowanceTotalAmount, AllowanceTotalAmountCurrencyID, ChargeTotalAmount, ChargeTotalAmountCurrencyID);
+
+        PrepaidAmount := '0.00';
+        PrepaidCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+        PayableRoundingAmount :=
+          Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+        PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+        PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+        PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+        OnAfterGetLegalMonetaryInfo(
+          SalesHeader, VATAmtLine, LineExtensionAmount, TaxExclusiveAmount, TaxInclusiveAmount,
+          AllowanceTotalAmount, ChargeTotalAmount, PrepaidAmount, PayableRoundingAmount, PayableAmount);
+    end;
+#endif
+
+    procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
+    begin
+        VATAmtLine.Reset();
+        VATAmtLine.CalcSums("Line Amount", "VAT Base", "Amount Including VAT", "Invoice Discount Amount");
+
+        GetLegalMonetaryDocAmounts(
+                SalesHeader, VATAmtLine, LineExtensionAmount, LegalMonetaryTotalCurrencyID,
+                TaxExclusiveAmount, TaxExclusiveAmountCurrencyID, TaxInclusiveAmount, TaxInclusiveAmountCurrencyID,
+                AllowanceTotalAmount, AllowanceTotalAmountCurrencyID, ChargeTotalAmount, ChargeTotalAmountCurrencyID);
+
+        PrepaidAmount := '0.00';
+        PrepaidCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+        if TempSalesLine."Line No." = 0 then begin
+            PayableRoundingAmount :=
+              Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+            PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+        end else begin
+            PayableRoundingAmount := Format(TempSalesLine."Amount Including VAT", 0, 9);
+            PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" + TempSalesLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+        end;
+
+        OnAfterGetLegalMonetaryInfoWithInvRounding(
+          SalesHeader, TempSalesLine, VATAmtLine, LineExtensionAmount, TaxExclusiveAmount, TaxInclusiveAmount,
+          AllowanceTotalAmount, ChargeTotalAmount, PrepaidAmount, PayableRoundingAmount, PayableAmount);
+    end;
+
+
+    procedure GetLegalMonetaryDocAmounts(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text)
+    begin
         LineExtensionAmount := Format(Round(VATAmtLine."VAT Base", 0.01) + Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
         LegalMonetaryTotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
@@ -606,20 +665,6 @@
 
         ChargeTotalAmount := '';
         ChargeTotalAmountCurrencyID := '';
-
-        PrepaidAmount := '0.00';
-        PrepaidCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        PayableRoundingAmount :=
-          Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
-        PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
-        PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        OnAfterGetLegalMonetaryInfo(
-          SalesHeader, VATAmtLine, LineExtensionAmount, TaxExclusiveAmount, TaxInclusiveAmount,
-          AllowanceTotalAmount, ChargeTotalAmount, PrepaidAmount, PayableRoundingAmount, PayableAmount);
     end;
 
     procedure GetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var LineExtensionAmountCurrencyID: Text; var InvoiceLineAccountingCost: Text)
@@ -907,6 +952,17 @@
         if VATProductPostingGroupCategory.Insert() then;
     end;
 
+    procedure GetInvoiceRoundingLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
+    begin
+        if TempSalesLine."Line No." <> 0 then
+            exit;
+
+        if IsRoundingLine(SalesLine, SalesLine."Bill-to Customer No.") then begin
+            TempSalesLine.TransferFields(SalesLine);
+            TempSalesLine.Insert();
+        end;
+    end;
+
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
         TaxExemptionReasonTxt := '';
@@ -1065,6 +1121,21 @@
             OutFile.Create(XmlServerPath)
         else
             OutFile.Open(XmlServerPath);
+    end;
+
+    local procedure IsRoundingLine(SalesLine: Record "Sales Line"; CustomerNo: Code[20]): Boolean;
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        if SalesLine.Type = SalesLine.Type::"G/L Account" then begin
+            Customer.Get(CustomerNo);
+            CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
+            if CustomerPostingGroup.FindFirst() then
+                if SalesLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
+                    exit(true);
+        end;
+        exit(false);
     end;
 
     procedure MapServiceLineTypeToSalesLineType(ServiceLineType: Enum "Service Line Type"): Integer
@@ -1293,8 +1364,16 @@
     begin
     end;
 
+#if not CLEAN23
+    [Obsolete('Replaced by event OnAfterGetLegalMonetaryInfoWithInvRounding()', '23.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
+    begin
+    end;
+#endif    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLegalMonetaryInfoWithInvRounding(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
     begin
     end;
 
