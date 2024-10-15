@@ -17,6 +17,7 @@ page 6762 "Create Reminders Setup"
         {
             group(General)
             {
+                Caption = 'General';
                 field(Code; Rec.Code)
                 {
                     ApplicationArea = All;

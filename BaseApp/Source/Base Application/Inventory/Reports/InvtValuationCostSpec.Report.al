@@ -234,23 +234,25 @@ report 5801 "Invt. Valuation - Cost Spec."
         i: Integer;
         NoOfEntries: array[5] of Decimal;
         PosQty: Decimal;
-        RemainingQty: Decimal;
         TotalCostTotal: array[5] of Decimal;
         TotalRemAvg: Decimal;
         TotalCostAvg: array[5] of Decimal;
         TotalCost: Decimal;
-        ValuationDate: Date;
         IsPositive: Boolean;
         ResultForTotalCostTotal: array[5] of Decimal;
         ResultForUnitCost: array[5] of Decimal;
         ResultForTotalCostAvg: array[5] of Decimal;
-        ResultForTotalRemAvg: Decimal;
         ResultForTotalCost: Decimal;
         ResultForRemainingQty: Decimal;
-        ResultForAvgCost: Decimal;
 
         Text000: Label 'As of %1';
         Text001: Label 'Enter the valuation date.';
+
+    protected var
+        ValuationDate: Date;
+        ResultForTotalRemAvg: Decimal;
+        ResultForAvgCost: Decimal;
+        RemainingQty: Decimal;
 
     local procedure CalcRemainingQty(ItemLedgerEntry: Record "Item Ledger Entry")
     var

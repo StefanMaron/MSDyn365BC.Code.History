@@ -70,6 +70,13 @@ table 431 "Handled IC Outbox Sales Line"
             Caption = 'Line Discount Amount';
             Editable = false;
         }
+        field(29; Amount; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Amount';
+            Editable = false;
+        }
         field(30; "Amount Including VAT"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -91,6 +98,13 @@ table 431 "Handled IC Outbox Sales Line"
         field(64; "Shipment Line No."; Integer)
         {
             Caption = 'Shipment Line No.';
+            Editable = false;
+        }
+        field(69; "Inv. Discount Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Inv. Discount Amount';
             Editable = false;
         }
         field(73; "Drop Shipment"; Boolean)

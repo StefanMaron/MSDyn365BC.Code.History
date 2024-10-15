@@ -33,6 +33,11 @@ codeunit 5790 "Available to Promise"
         PrevItemNo: Code[20];
         PrevItemFilters: Text;
 
+    procedure SetRecalculateFields()
+    begin
+        AllFieldCalculated := false;
+    end;
+
     procedure CalcQtyAvailableToPromise(var Item: Record Item; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; AvailabilityDate: Date; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula) AvailableToPromise: Decimal
     var
         IsHandled: Boolean;

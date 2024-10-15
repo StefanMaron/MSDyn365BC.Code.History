@@ -137,7 +137,6 @@ codeunit 11603 "EFT Management"
         Clear(TotalAmountLCY);
     end;
 
-    [Scope('OnPrem')]
     procedure WriteFile(Length: Integer; Text: Text)
     begin
         if StrLen(Text) > Length then
@@ -171,7 +170,14 @@ codeunit 11603 "EFT Management"
     end;
 
     procedure CreateFileFromEFTRegister(var EFTRegister: Record "EFT Register"; FileDescription: Text[12]; var BankAcc: Record "Bank Account")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateFileFromEFTRegister(EFTRegister, FileDescription, BankAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSetup();
         if EFTRegister."EFT Payment" then begin
             EFTRegister.TestField(Canceled, false);
@@ -186,7 +192,13 @@ codeunit 11603 "EFT Management"
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         WHTManagement: Codeunit WHTManagement;
         LodgementReference: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateFileEFTPayment(EFTRegister, FileDescription, BankAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         PreparePaymentBuffer(EFTRegister, TempGenJournalLine);
         if not TempGenJournalLine.Find('-') then
             exit;
@@ -256,7 +268,6 @@ codeunit 11603 "EFT Management"
         exit(Round(VendLedgEntry."EFT Amount Transferred", GLSetup."Inv. Rounding Precision (LCY)"))
     end;
 
-    [Scope('OnPrem')]
     procedure FormatBranchNumber(BranchNo: Text[10]): Text[7]
     begin
         if BranchNo = ' ' then
@@ -266,7 +277,6 @@ codeunit 11603 "EFT Management"
         exit(Format(CopyStr(BranchNo, 1, 3) + '-' + CopyStr(BranchNo, 4, 3)));
     end;
 
-    [Scope('OnPrem')]
     procedure FormatBankAccount(BankAcc: Code[10]): Text[3]
     begin
         if BankAcc = ' ' then
@@ -326,7 +336,7 @@ codeunit 11603 "EFT Management"
         exit(ServerFileName);
     end;
 
-    local procedure PreparePaymentBuffer(EFTRegister: Record "EFT Register"; var PaymentBufferGenJournalLine: Record "Gen. Journal Line")
+    procedure PreparePaymentBuffer(EFTRegister: Record "EFT Register"; var PaymentBufferGenJournalLine: Record "Gen. Journal Line")
     begin
         FillBufferFromNonPostedPayments(EFTRegister, PaymentBufferGenJournalLine);
         FillBufferFromPostedPayments(EFTRegister, PaymentBufferGenJournalLine);
@@ -538,7 +548,6 @@ codeunit 11603 "EFT Management"
         exit(not DoNotDownloadFile);
     end;
 
-    [Scope('OnPrem')]
     procedure CancelExport(var EFTRegister: Record "EFT Register")
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -560,6 +569,16 @@ codeunit 11603 "EFT Management"
         if GenJnlLine."Payment Reference" = '' then
             exit(GenJnlLine."Document No.");
         exit(GenJnlLine."Payment Reference");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateFileEFTPayment(var EFTRegister: Record "EFT Register"; FileDescription: Text[12]; var BankAccount: Record "Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateFileFromEFTRegister(var EFTRegister: Record "EFT Register"; FileDescription: Text[12]; var BankAcc: Record "Bank Account"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

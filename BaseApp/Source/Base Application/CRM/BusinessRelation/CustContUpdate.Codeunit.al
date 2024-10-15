@@ -62,6 +62,7 @@ codeunit 5056 "CustCont-Update"
             NoSeries := Contact."No. Series";
             Contact.Validate("E-Mail", Cust."E-Mail");
 
+            OnModifyOnBeforeTransferFieldsFromCustToContact(Contact, Cust);
             Contact.TransferFields(Cust);
             Contact."No." := ContactNo;
             Contact."No. Series" := NoSeries;
@@ -277,6 +278,11 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Customer: Record Customer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeTransferFieldsFromCustToContact(var Contact: Record Contact; var Customer: Record Customer)
     begin
     end;
 }

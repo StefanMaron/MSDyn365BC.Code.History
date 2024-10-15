@@ -60,6 +60,13 @@ table 609 "Buffer IC Inbox Sales Line"
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
         }
+        field(29; Amount; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Amount';
+            Editable = false;
+        }
         field(30; "Amount Including VAT"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -70,6 +77,13 @@ table 609 "Buffer IC Inbox Sales Line"
         field(45; "Job No."; Code[20])
         {
             Caption = 'Project No.';
+            Editable = false;
+        }
+        field(69; "Inv. Discount Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Inv. Discount Amount';
             Editable = false;
         }
         field(73; "Drop Shipment"; Boolean)

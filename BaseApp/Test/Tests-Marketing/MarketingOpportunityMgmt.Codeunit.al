@@ -1782,6 +1782,49 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Assert.IsTrue(ToDo.Count() = 1, ToDoCountShouldBeOneErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,CloseOpportunityPageHandler,CustomerCreated')]
+    procedure ConvertContactIntoCustomerClosingOpportunity()
+    var
+        Contact: Record Contact;
+        Opportunity: Record Opportunity;
+        SalesCycle: Record "Sales Cycle";
+        SalesCycleStage: Record "Sales Cycle Stage";
+        ContactCard: TestPage "Contact Card";
+        OpportunityCard: TestPage "Opportunity Card";
+    begin
+        // [SCENARIO 527026] Convert a Contact into a Customer by closing the Opportunity with no linked to a Company No.
+        Initialize();
+
+        // [GIVEN] Create Contact of Type Person.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Open Conact card , go to record and invoke Opportunities.
+        ContactCard.OpenEdit();
+        ContactCard.GoToRecord(Contact);
+        ContactCard."Oppo&rtunities".Invoke();
+
+        // [GIVEN] Create Sales Cycle.
+        LibraryMarketing.CreateSalesCycle(SalesCycle);
+
+        // [GIVEN] Create Sales Cycle Stage with blank Activity Code.
+        CreateSalesCycleStageWithActivityCode(SalesCycle, SalesCycleStage, '');
+
+        // [GIVEN] Create Opportunity and Validate Sales Cycle Code.
+        LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
+        Opportunity.Validate("Sales Cycle Code", SalesCycle.Code);
+        Opportunity.Modify(true);
+
+        // [GIVEN] Open Opportunity Card page and run Activate the First Stage action.
+        OpportunityCard.OpenEdit();
+        OpportunityCard.GoToRecord(Opportunity);
+        OpportunityCard."Activate the First Stage".Invoke();
+
+        // [THEN] Close Opportunity to verify if Customer is created.
+        Opportunity.CloseOpportunity();
+    end;
+
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
@@ -2633,6 +2676,35 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage".Value());
         LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage Description".Value());
         UpdateOpportunity.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CloseOpportunityPageHandler(var CloseOpportunity: Page "Close Opportunity"; var Response: Action)
+    var
+        TempOpportunityEntry: Record "Opportunity Entry" temporary;
+        CloseOpportunityCode: Record "Close Opportunity Code";
+    begin
+        TempOpportunityEntry.Init();
+        CloseOpportunity.GetRecord(TempOpportunityEntry);
+        TempOpportunityEntry.Insert();
+        TempOpportunityEntry.Validate("Action Taken", TempOpportunityEntry."Action Taken"::Won);
+
+        CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Won);
+        CloseOpportunityCode.FindFirst();
+
+        TempOpportunityEntry.Validate("Close Opportunity Code", CloseOpportunityCode.Code);
+        TempOpportunityEntry.Validate("Calcd. Current Value (LCY)", Random(10));
+        TempOpportunityEntry.CheckStatus();
+        TempOpportunityEntry.FinishWizard();
+    end;
+
+    [MessageHandler]
+    procedure CustomerCreated(Message: Text)
+    var
+        ExpectedMsg: Label 'The Customer record has been created.';
+    begin
+        Assert.ExpectedMessage(ExpectedMsg, Message);
     end;
 }
 
