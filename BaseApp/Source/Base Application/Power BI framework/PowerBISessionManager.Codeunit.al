@@ -14,6 +14,7 @@ codeunit 6317 "Power BI Session Manager"
     var
         PowerBIUserLicense: Record "Power BI User License";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+        UserLicenseSetTelemetryMsg: Label 'Setting value of PowerBIUserLicense to: %1.', Locked = true;
         HasPowerBILicense: Boolean;
 
     [Scope('OnPrem')]
@@ -21,6 +22,10 @@ codeunit 6317 "Power BI Session Manager"
     begin
         HasPowerBILicense := Value;
 
+        SendTraceTag('0000BVI', PowerBIServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(UserLicenseSetTelemetryMsg, Value), DataClassification::SystemMetadata);
+
+        PowerBIUserLicense.LockTable();
         if PowerBIUserLicense.Get(UserSecurityId) then begin
             PowerBIUserLicense."Has Power BI License" := Value;
             PowerBIUserLicense.Modify();

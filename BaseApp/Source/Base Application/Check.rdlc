@@ -3151,7 +3151,7 @@ CStr(Last(Fields!TotWHTAmount.Value)), 1)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(1,1)</Value>
+                          <Value>="[" + Code.GetData(1,1) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3237,7 +3237,7 @@ CStr(Last(Fields!TotWHTAmount.Value)), 1)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(19,1)</Value>
+                          <Value>="[" + Code.GetData(19,1) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3270,7 +3270,7 @@ CStr(Last(Fields!TotWHTAmount.Value)), 1)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>="********" +Code.GetData(20,1)</Value>
+                          <Value>="[********" + Code.GetData(20,1) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>

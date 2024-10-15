@@ -51,6 +51,7 @@ page 5651 "Insurance Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Insurance No."; "Insurance No.")
                 {

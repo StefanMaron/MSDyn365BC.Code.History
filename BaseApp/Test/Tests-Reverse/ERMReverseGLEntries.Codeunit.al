@@ -787,6 +787,76 @@ codeunit 134131 "ERM Reverse GL Entries"
         VerifyDocNoAndDocDateAreEmpty(GenJournalBatch, PaymentJournal);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReverseGLRegisterEnabled()
+    var
+        GLRegister: Record "G/L Register";
+        GLRegisters: TestPage "G/L Registers";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 342488] Action "Reverse Register" enabled for register from posted G/L journal line
+        Initialize;
+
+        // [GIVEN] G/L register entry from posted G/L journal line
+        PrepareGLRegisterEntry(GLRegister);
+
+        // [WHEN] Open G/L Registers page and locate on register XXX
+        GLRegisters.OpenView();
+        GLRegisters.Filter.SetFilter("No.", format(GLRegister."No."));
+
+        // [THEN] Action "Reverse Register" is enabled
+        Assert.IsTrue(GLRegisters.ReverseRegister.Enabled(), 'Reverse Register must be enabled');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReverseGLRegisterDisabledForReversedRegister()
+    var
+        GLRegister: Record "G/L Register";
+        GLRegisters: TestPage "G/L Registers";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 342488] Action "Reverse Register" disabled when register already reversed
+        Initialize;
+
+        // [GIVEN] G/L register entry XXX with Reversed = true
+        PrepareGLRegisterEntry(GLRegister);
+        GLRegister.Reversed := true;
+        GLRegister.Modify();
+
+        // [WHEN] Open G/L Registers page and locate on register XXX
+        GLRegisters.OpenView();
+        GLRegisters.Filter.SetFilter("No.", format(GLRegister."No."));
+
+        // [THEN] Action "Reverse Register" is disabled
+        Assert.IsFalse(GLRegisters.ReverseRegister.Enabled(), 'Reverse Register must be disabled');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReverseGLRegisterDisabledForEmptyBatchName()
+    var
+        GLRegister: Record "G/L Register";
+        GLRegisters: TestPage "G/L Registers";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 342488] Action "Reverse Register" disabled when "Journal Batch Name" is empty
+        Initialize;
+
+        // [GIVEN] G/L register entry XXX with empty "Journal Batch Name" 
+        PrepareGLRegisterEntry(GLRegister);
+        GLRegister."Journal Batch Name" := '';
+        GLRegister.Modify();
+
+        // [WHEN] Open G/L Registers page and locate on register XXX
+        GLRegisters.OpenView();
+        GLRegisters.Filter.SetFilter("No.", format(GLRegister."No."));
+
+        // [THEN] Action "Reverse Register" is disabled
+        Assert.IsFalse(GLRegisters.ReverseRegister.Enabled(), 'Reverse Register must be disabled');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1197,6 +1267,15 @@ codeunit 134131 "ERM Reverse GL Entries"
                 end;
             until DimensionTranslation.Next = 0;
         DimensionSelectionBuffer.SetDimSelection(3, 98, '', RetainDimText, DimensionSelectionBuffer);
+    end;
+
+    local procedure PrepareGLRegisterEntry(var GLRegister: Record "G/L Register")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Invoice);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        GLRegister.FindLast();
     end;
 
     local procedure UnApplyCustomerLedgerEntries(DocumentType: Option; DocumentNo: Code[20])

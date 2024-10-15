@@ -922,6 +922,7 @@ page 232 "Apply Customer Entries"
             GenJnlApply.CheckAgainstApplnCurrency(
               ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Customer, true);
 
+        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType, GenJnlLine);
         CustLedgEntry.Copy(Rec);
         if CurrentRec then begin
             CustLedgEntry.SetRecFilter;
@@ -948,7 +949,7 @@ page 232 "Apply Customer Entries"
 
     procedure CalcApplnAmount()
     begin
-        OnBeforeCalcApplnAmount(Rec, GenJnlLine);
+        OnBeforeCalcApplnAmount(Rec, GenJnlLine, SalesHeader, AppliedCustLedgEntry, CalcType, ApplnType);
 
         AppliedAmount := 0;
         PmtDiscAmount := 0;
@@ -1427,7 +1428,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; CalculationType: Option; ApplicationType: Option)
     begin
     end;
 
@@ -1453,6 +1454,11 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindFindApplyingEntryOnAfterCustLedgEntrySetFilters(ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

@@ -1,7 +1,7 @@
 page 737 "VAT Return Period List"
 {
     ApplicationArea = VAT;
-    Caption = 'VAT Return Periods';
+    Caption = 'BAS Return Periods';
     CardPageID = "VAT Return Period Card";
     PageType = List;
     SourceTable = "VAT Return Period";
@@ -71,7 +71,7 @@ page 737 "VAT Return Period List"
             part(Control9; "VAT Return Period FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = FIELD ("No.");
             }
         }
     }

@@ -53,8 +53,7 @@ page 5510 "Production Journal"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the posting date for the entry.';
-                    Visible = false;
-                }
+}
                 field("Order Line No."; "Order Line No.")
                 {
                     ApplicationArea = Manufacturing;

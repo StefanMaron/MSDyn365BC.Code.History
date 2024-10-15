@@ -739,14 +739,7 @@ report 212 "Sales Prepmt. Document Test"
                 CheckCust("Sell-to Customer No.", FieldCaption("Sell-to Customer No."));
                 CheckCust("Bill-to Customer No.", FieldCaption("Bill-to Customer No."));
 
-                case true of
-                    "Posting Date" = 0D:
-                        AddError(StrSubstNo(Text005, FieldCaption("Posting Date")));
-                    "Posting Date" <> NormalDate("Posting Date"):
-                        AddError(StrSubstNo(Text009, FieldCaption("Posting Date")));
-                    GenJnlCheckLine.DateNotAllowed("Posting Date"):
-                        AddError(StrSubstNo(Text010, FieldCaption("Posting Date")));
-                end;
+                CheckPostingDate("Sales Header");
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
@@ -911,6 +904,28 @@ report 212 "Sales Prepmt. Document Test"
               StrSubstNo(Text008, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, CustNo));
     end;
 
+    local procedure CheckPostingDate(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+        PostingDateError: Text[250];
+    begin
+        IsHandled := false;
+        OnBeforeCheckPostingDate(SalesHeader, PostingDateError, IsHandled);
+        if IsHandled then begin
+            AddError(PostingDateError);
+            exit;
+        end;
+
+        case true of
+            SalesHeader."Posting Date" = 0D:
+                AddError(StrSubstNo(Text005, SalesHeader.FieldCaption("Posting Date")));
+            SalesHeader."Posting Date" <> NormalDate(SalesHeader."Posting Date"):
+                AddError(StrSubstNo(Text009, SalesHeader.FieldCaption("Posting Date")));
+            GenJnlCheckLine.DateNotAllowed(SalesHeader."Posting Date"):
+                AddError(StrSubstNo(Text010, SalesHeader.FieldCaption("Posting Date")));
+        end;
+    end;
+
     local procedure MergeText(DimSetEntry: Record "Dimension Set Entry"): Boolean
     begin
         if StrLen(DimText) + StrLen(StrSubstNo('%1 - %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")) + 2 >
@@ -925,6 +940,11 @@ report 212 "Sales Prepmt. Document Test"
               StrSubstNo('%1; %2', DimText, StrSubstNo('%1 - %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code"));
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDate(var SalesHeader: Record "Sales Header"; var PostingDateError: Text[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 

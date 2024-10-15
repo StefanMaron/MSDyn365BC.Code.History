@@ -226,21 +226,27 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMQuote.ShippingMethodCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMQuote.ShippingMethodCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMQuote.ShippingMethodCode)
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMQuote.PaymentTermsCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMQuote.PaymentTermsCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMQuote.PaymentTermsCode)
         then
             SalesHeader.Validate(
               "Payment Terms Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMQuote.FreightTermsCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMQuote.FreightTermsCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMQuote.FreightTermsCode)
         then
             SalesHeader.Validate(
               "Shipment Method Code",

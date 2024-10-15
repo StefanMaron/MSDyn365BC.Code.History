@@ -335,6 +335,7 @@
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         CheckDimensions: Codeunit "Check Dimensions";
     begin
+        OnBeforeCheckPrepmtDoc(PurchHeader, DocumentType);
         with PurchHeader do begin
             TestField("Document Type", "Document Type"::Order);
             TestField("Buy-from Vendor No.");
@@ -2130,6 +2131,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVATOnLines(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 

@@ -1,6 +1,6 @@
 page 738 "VAT Return Period Card"
 {
-    Caption = 'VAT Return Period';
+    Caption = 'BAS Return Period';
     Editable = false;
     SourceTable = "VAT Return Period";
 

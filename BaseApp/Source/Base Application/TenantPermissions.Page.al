@@ -885,14 +885,26 @@ page 9850 "Tenant Permissions"
            (TenantPermission."Modify Permission" = 0) and
            (TenantPermission."Delete Permission" = 0) and
            (TenantPermission."Execute Permission" = 0)
-        then begin
-            TenantPermission.Delete();
-            if Show = Show::"Only In Permission Set" then
-                ModifiedTenantPermission.Delete();
-            IsNewPermission := false;
-        end;
+        then
+            DeleteTenantPermission(TenantPermission, ModifiedTenantPermission, IsNewPermission);
+
         if IsNewPermission and AddRelatedTables then
             DoAddRelatedTables(ModifiedTenantPermission);
+    end;
+
+    local procedure DeleteTenantPermission(var TenantPermission: Record "Tenant Permission"; var ModifiedTenantPermission: Record "Tenant Permission"; var IsNewPermission: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteTenantPermission(TenantPermission, IsHandled);
+        if IsHandled then
+            exit;
+
+        TenantPermission.Delete();
+        if Show = Show::"Only In Permission Set" then
+            ModifiedTenantPermission.Delete();
+        IsNewPermission := false;
     end;
 
     local procedure UpdateSelected(RIMDX: Text[1]; PermissionOption: Option)
@@ -1082,6 +1094,11 @@ page 9850 "Tenant Permissions"
             "Delete Permission" := "Delete Permission"::Yes;
         end else
             "Execute Permission" := "Execute Permission"::Yes;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteTenantPermission(var TenantPermission: Record "Tenant Permission"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -55,32 +55,6 @@ page 7201 "CDS Connection Setup Wizard"
                     InstructionalText = 'If you choose Next we will try to find your Common Data Service environments so you can choose the one to connect to.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
-                usercontrol(OAuthIntegration; OAuthControlAddIn)
-                {
-                    ApplicationArea = Basic, Suite;
-
-
-                    trigger AuthorizationCodeRetrieved(code: Text)
-                    var
-                        CDSEnvironment: Codeunit "CDS Environment";
-                        Token: Text;
-                    begin
-                        Token := CDSDiscoverabilityOauth.CompleteAuthorizationProcess(code, Rec);
-                        SendTraceTag('0000BFE', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, OauthCodeRetrievedMsg, DataClassification::SystemMetadata);
-
-                        CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
-                    end;
-
-                    trigger AuthorizationErrorOccurred(error: Text; desc: Text);
-                    begin
-                        SendTraceTag('0000BFF', GlobalDiscoOauthCategoryLbl, Verbosity::Error, StrSubstNo(OauthFailErrMsg, error, desc), DataClassification::SystemMetadata);
-                    end;
-
-                    trigger ControlAddInReady();
-                    begin
-                        OAuthAddinReady := true;
-                    end;
-                }
             }
             group(Step1)
             {
@@ -105,11 +79,24 @@ page 7201 "CDS Connection Setup Wizard"
                         CDSIntegrationImpl.CheckModifyConnectionURL("Server Address");
                         CurrPage.Update();
                     end;
+
+                    trigger OnAssistEdit()
+                    var
+                        CDSEnvironment: Codeunit "CDS Environment";
+                        AuthenticationType: Option Office365,AD,IFD,OAuth;
+                    begin
+                        AuthenticationType := "Authentication Type";
+
+                        CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
+                        Validate("Authentication Type", AuthenticationType);
+
+                        CurrPage.Update();
+                    end;
                 }
 
                 group(Control12)
                 {
-                    InstructionalText = 'Sign-in to Common Data Service with an administrator user account. The account will be used one time to install and configure components that the integration requires.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Sign in with an administrator user account and give consent to the application that will be used to connect to Common Data Service. The account will be used one time to install and configure components that the integration requires.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
 
@@ -127,14 +114,17 @@ page 7201 "CDS Connection Setup Wizard"
 
                         trigger OnDrillDown()
                         begin
+                            if "Server Address" = '' then
+                                Error(NoEnvironmentSelectedErr);
+
                             HasAdminSignedIn := true;
-                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUser, AdminPassword);
+                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken);
 
                             AreAdminCredentialsCorrect := true;
                             SetPassword(UserPassword);
                             NextActionEnabled := true;
 
-                            CurrPage.Update(true);
+                            CurrPage.Update(false);
                         end;
                     }
                 }
@@ -147,7 +137,7 @@ page 7201 "CDS Connection Setup Wizard"
                     field(SuccesfullyLoggedIn; SuccesfullyLoggedInTxt)
                     {
                         ApplicationArea = Suite;
-                        ToolTip = 'Indicates whether the administrator user has logged in succesfully.';
+                        ToolTip = 'Indicates whether the administrator user has logged in successfully.';
                         Caption = 'The administrator is signed in.';
                         Editable = false;
                         ShowCaption = false;
@@ -163,7 +153,7 @@ page 7201 "CDS Connection Setup Wizard"
                     field(UnsuccesfullyLoggedIn; UnsuccesfullyLoggedInTxt)
                     {
                         ApplicationArea = Suite;
-                        Tooltip = 'Indicates that the administrator user has not logged in succesfully';
+                        Tooltip = 'Indicates that the administrator user has not logged in successfully';
                         Caption = 'Could not sign in the administrator.';
                         Editable = false;
                         ShowCaption = false;
@@ -229,7 +219,7 @@ page 7201 "CDS Connection Setup Wizard"
                     Caption = 'Choose an ownership model.';
                     InstructionalText = 'People or a team own records in Common Data Service that are created from data in Business Central. We recommend the Team model.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
-                    field("Ownership Model"; "Ownership Model")
+                    field("Ownership Model"; TempCDSConnectionSetup."Ownership Model")
                     {
                         Caption = 'Ownership Model';
                         ShowCaption = false;
@@ -238,12 +228,9 @@ page 7201 "CDS Connection Setup Wizard"
 
                         trigger OnValidate()
                         begin
-                            if "Ownership Model" = "Ownership Model"::Person then
-                                IsPersonOwnershipModelSelected := true
-                            else
-                                IsPersonOwnershipModelSelected := false;
+                            IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
 
-                            CurrPage.Update(true);
+                            CurrPage.Update(false);
                         end;
 
                     }
@@ -282,7 +269,7 @@ page 7201 "CDS Connection Setup Wizard"
                                 FinishActionEnabled := false;
                             end;
 
-                            CurrPage.Update(true);
+                            CurrPage.Update(false);
                         end;
                     }
                     group(Control31)
@@ -311,14 +298,20 @@ page 7201 "CDS Connection Setup Wizard"
                     ApplicationArea = Suite;
 
                     trigger OnDrillDown()
+                    var
+                        CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                     begin
                         SetPassword(UserPassword);
                         CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
 
-                        if Page.RunModal(PAGE::"CDS Couple Salespersons") = ACTION::LookupOK then
+                        CDSCoupleSalespersons.LookupMode := true;
+                        CDSCoupleSalespersons.Initialize(CrmHelper);
+                        if CDSCoupleSalespersons.RunModal() = Action::LookupOK then begin
                             CoupledSalesPeople := true;
+                            AddCoupledUsersToDefaultOwningTeam();
+                        end;
 
-                        CurrPage.Update(true);
+                        CurrPage.Update(false);
                     end;
                 }
 
@@ -411,6 +404,15 @@ page 7201 "CDS Connection Setup Wizard"
                         Commit();
                     end;
 
+                    if Step = Step::OwnershipModel then
+                        if "Authentication Type" = "Authentication Type"::Office365 then begin
+                            // skip the user credentials step in Office365 authentication
+                            // we don't use username/password authentication
+                            // we inject an application user and use ClientId/ClientSecret authentication
+                            NextStep(true, true);
+                            exit;
+                        end;
+
                     NextStep(true, false);
                 end;
             }
@@ -437,6 +439,14 @@ page 7201 "CDS Connection Setup Wizard"
                             Error(URLShouldNotBeEmptyErr);
 
                         ImportCDSSOlution();
+
+                        if "Authentication Type" = "Authentication Type"::Office365 then begin
+                            // skip the user credentials step in Office365 authentication
+                            // we don't use username/password authentication
+                            // we inject an application user and use ClientId/ClientSecret authentication
+                            NextStep(false, true);
+                            exit;
+                        end;
                     end;
 
                     if Step = Step::IntegrationUser then begin
@@ -445,7 +455,7 @@ page 7201 "CDS Connection Setup Wizard"
                         SetPassword(UserPassword);
                         if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
                             Error(WrongCredentialsErr);
-                        CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUser, AdminPassword);
+                        CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken);
                     end;
 
                     if Step = Step::CoupleSalespersons then begin
@@ -486,15 +496,19 @@ page 7201 "CDS Connection Setup Wizard"
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
                     CRMFullSynchReview: Page "CRM Full Synch. Review";
+                    CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                 begin
                     if FinishWithoutSynchronizingData then begin
                         Window.Open('Getting things ready for you.');
                         ConfigureCDSSolution();
+                        SendTraceTag('0000CDW', CategoryTok, Verbosity::Normal, FinishWithoutSynchronizingDataTxt, DataClassification::SystemMetadata);
                         if IsPersonOwnershipModelSelected then
                             if Confirm(OpenCoupleSalespeoplePageQst) then begin
                                 Window.Close();
-                                Page.Run(Page::"CDS Couple Salespersons");
+                                CDSCoupleSalespersons.Initialize(CrmHelper);
+                                CDSCoupleSalespersons.Run();
                                 AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
+                                AddCoupledUsersToDefaultOwningTeam();
                                 CurrPage.Close();
                                 exit;
                             end;
@@ -514,7 +528,7 @@ page 7201 "CDS Connection Setup Wizard"
                     CRMFullSynchReview.SetRecord(CRMFullSynchReviewLine);
                     CRMFullSynchReview.SetTableView(CRMFullSynchReviewLine);
                     CRMFullSynchReview.LookupMode := true;
-
+                    SendTraceTag('0000CDZ', CategoryTok, Verbosity::Normal, FinishWithSynchronizingDataTxt, DataClassification::SystemMetadata);
                     Window.Close();
                     CRMFullSynchReview.Run();
                     AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
@@ -535,13 +549,15 @@ page 7201 "CDS Connection Setup Wizard"
     begin
         Init();
         if CDSConnectionSetup.Get() then begin
+            TempCDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model";
             "Server Address" := CDSConnectionSetup."Server Address";
             "User Name" := CDSConnectionSetup."User Name";
             UserPassword := CDSConnectionSetup.GetPassword();
             SetPassword(UserPassword);
-        end;
+        end else
+            TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
+        IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
-        InitializeDefaultOwnershipModel();
         Insert();
         IsCurrentTenantCDSOwner := true;
         Step := Step::Info;
@@ -564,13 +580,17 @@ page 7201 "CDS Connection Setup Wizard"
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
-        CDSDiscoverabilityOauth: Codeunit "CDS Discoverability Oauth";
+        TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         ClientTypeManagement: Codeunit "Client Type Management";
         CrmHelper: DotNet CrmHelper;
         Step: Option Info,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
         Window: Dialog;
-        AdminUser: Text;
+        [NonDebuggable]
+        AdminAccessToken: Text;
+        [NonDebuggable]
+        AdminUserName: Text;
+        [NonDebuggable]
         AdminPassword: Text;
         IsCurrentTenantCDSOwner: Boolean;
         TopBannerVisible: Boolean;
@@ -588,33 +608,34 @@ page 7201 "CDS Connection Setup Wizard"
         IsPersonOwnershipModelSelected: Boolean;
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
-        OAuthAddinReady: Boolean;
         FinishWithoutSynchronizingData: Boolean;
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Common Data Service before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
-        GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
-        OauthFailErrMsg: Label 'Error: %1 ; Description: %2.', Comment = '%1 = OAuth error message ; %2 = description of OAuth failure error message';
-        OauthCodeRetrievedMsg: Label 'OAuth authorization code retrieved.';
         UserPassword: Text;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
         UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';
-        SignInAdminTxt: Label 'Sign in with Administrator Credentials';
-        CoupleSalesPeopleTxt: Label 'Couple Salespeople';
+        SignInAdminTxt: Label 'Sign in with administrator user';
+        CoupleSalesPeopleTxt: Label 'Couple Salespeople to Users';
+        NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
         ConnectionNotSetUpQst: Label 'The connection to Common Data Service environment has not been set up.\\Are you sure you want to exit?';
         WrongCredentialsErr: Label 'The credentials provided are incorrect.';
         UsernameAndPasswordShouldNotBeEmptyErr: Label 'You must specify a username and a password for the integration user';
         SalespeoplShouldBeCoupledErr: Label 'When the Person ownership model is selected, coupling of salespeople is required.';
         URLShouldNotBeEmptyErr: Label 'You must specify the URL of your Common Data Service environment.';
         AdminUserShouldBesignedInErr: Label 'The admin user must be connected in order to proceed.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        FinishWithoutSynchronizingDataTxt: Label 'User has chosen to finalize CDS configuration without synchronizing data.', Locked = true;
+        FinishWithSynchronizingDataTxt: Label 'User has chosen to finalize CDS configuration also synchronizing data.', Locked = true;
 
     [NonDebuggable]
     [Scope('OnPrem')]
     local procedure GetCDSEnvironment()
     var
         CDSEnvironment: Codeunit "CDS Environment";
+        OAuth2: Codeunit OAuth2;
         Token: Text;
     begin
-        Token := CDSEnvironment.GetOnBehalfAuthorizationToken();
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), '', Token);
         CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
     end;
 
@@ -772,39 +793,51 @@ page 7201 "CDS Connection Setup Wizard"
         Validate("Proxy Version", CDSIntegrationImpl.GetLastProxyVersionItem());
     end;
 
-    local procedure InitializeDefaultOwnershipModel()
-    begin
-        Validate("Ownership Model", "Ownership Model"::Team);
-    end;
-
     local procedure FinalizeSetup(IsEnabled: Boolean): Boolean
     begin
+        "Ownership Model" := TempCDSConnectionSetup."Ownership Model";
         "Is Enabled" := IsEnabled;
         CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, UserPassword);
         exit(true);
     end;
 
+    [NonDebuggable]
     local procedure ConfigureCDSSolution()
+    var
+        CDSConectionSetup: Record "CDS Connection Setup";
     begin
-        SetPassword(UserPassword);
-        CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
-        CDSIntegrationImpl.CheckCredentials(Rec);
-        CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUser, AdminPassword, true);
+        if "Authentication Type" <> "Authentication Type"::Office365 then begin
+            SetPassword(UserPassword);
+            CDSIntegrationImpl.CheckCredentials(Rec);
+        end;
+        CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, true);
 
         if not FinalizeSetup(true) then
             exit;
 
+        if CDSConectionSetup.Get() then begin
+            CDSIntegrationImpl.RegisterConnection(CDSConectionSetup, false);
+            CDSIntegrationImpl.ActivateConnection();
+            CDSIntegrationImpl.ClearConnectionDisableReason(CDSConectionSetup);
+            CDSConectionSetup.EnableIntegrationTables();
+        end;
+
         Commit();
     end;
 
+    [NonDebuggable]
     local procedure ImportCDSSolution()
     begin
         if not HasAdminSignedIn then
             Error(AdminUserShouldBesignedInErr);
 
         Window.Open('Getting things ready for you.');
-        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUser, AdminPassword, false);
+        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
         Window.Close();
     end;
 
+    local procedure AddCoupledUsersToDefaultOwningTeam()
+    begin
+        CDSIntegrationImpl.AddCoupledUsersToDefaultOwningTeam(Rec, CrmHelper);
+    end;
 }

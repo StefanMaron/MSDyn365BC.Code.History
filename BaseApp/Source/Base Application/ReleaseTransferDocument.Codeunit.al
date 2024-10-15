@@ -5,6 +5,7 @@ codeunit 5708 "Release Transfer Document"
     trigger OnRun()
     var
         TransLine: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
         if Status = Status::Released then
             exit;
@@ -12,8 +13,11 @@ codeunit 5708 "Release Transfer Document"
         OnBeforeReleaseTransferDoc(Rec);
         TestField("Transfer-from Code");
         TestField("Transfer-to Code");
-        if "Transfer-from Code" = "Transfer-to Code" then
-            Error(Text001, "No.", FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"));
+        IsHandled := false;
+        OnBeforeCheckTransferCode(Rec, IsHandled);
+        if not IsHandled then
+            if "Transfer-from Code" = "Transfer-to Code" then
+                Error(Text001, "No.", FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"));
         if not "Direct Transfer" then
             TestField("In-Transit Code")
         else begin
@@ -91,6 +95,11 @@ codeunit 5708 "Release Transfer Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReopenTransferDoc(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

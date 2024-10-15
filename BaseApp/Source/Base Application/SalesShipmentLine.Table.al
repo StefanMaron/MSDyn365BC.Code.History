@@ -270,7 +270,7 @@ table 111 "Sales Shipment Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup ("Sales Shipment Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Sales Shipment Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -501,6 +501,10 @@ table 111 "Sales Shipment Line"
         {
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

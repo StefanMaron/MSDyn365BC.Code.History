@@ -337,12 +337,14 @@ codeunit 10 "Type Helper"
 
     procedure GetTimezoneOffset(var Duration: Duration; TimeZoneID: Text)
     var
+        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         TimeZoneInfo: DotNet TimeZoneInfo;
     begin
-        if TimeZoneID = '' then
-            Duration := 0;
-        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
-        Duration := TimeZoneInfo.BaseUtcOffset;
+        Duration := DotNet_DateTimeOffset.GetOffset();
+        if TimeZoneID <> '' then begin
+            TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            Duration := TimeZoneInfo.BaseUtcOffset;
+        end;
     end;
 
     procedure EvaluateUnixTimestamp(Timestamp: BigInteger): DateTime
