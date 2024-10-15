@@ -115,6 +115,12 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of your company''s CNAE code.';
                 }
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 field(Picture; Picture)
                 {
                     ApplicationArea = Basic, Suite;

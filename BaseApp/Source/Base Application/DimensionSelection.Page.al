@@ -59,7 +59,13 @@ page 568 "Dimension Selection"
             BusinessUnit.TableCaption:
                 "Filter Lookup Table No." := DATABASE::"Business Unit";
         end;
+        OnInsertDimSelBufOnBeforeInsert(Rec);
         Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDimSelBufOnBeforeInsert(var DimensionSelectionBuffer: Record "Dimension Selection Buffer")
+    begin
     end;
 }
 

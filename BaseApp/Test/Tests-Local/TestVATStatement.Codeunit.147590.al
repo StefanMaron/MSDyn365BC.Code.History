@@ -1341,6 +1341,49 @@ codeunit 147590 "Test VAT Statement"
         LibraryReportDataset.AssertElementWithValueExists(TotalBaseTok, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementRequestPageHandlerDefault')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementVATAmountECAmountRounding()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATPostingSetupNormal: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        GLSetup: Record "General Ledger Setup";
+        VATAmount: Decimal;
+        ECAmount: Decimal;
+    begin
+        // [SCENARIO 462144] Totals in VAT Statement are not correctly calculated due to rounding if there is EC amount in Spanish Version
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with "VAT %" and "EC %"
+        CreateVATPostingSetup(VATPostingSetupNormal);
+        VATPostingSetupNormal.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
+        VATPostingSetupNormal.Validate("EC %", LibraryRandom.RandDecInDecimalRange(5, 15, 2));
+        VATPostingSetupNormal.Modify(true);
+
+        // [GIVEN] Create Sales invoice with VAT and save VAT Amount and EC Amount in variable
+        CreatePostSalesInvoice(SalesHeader, VATPostingSetupNormal);
+        GLSetup.Get();
+        VATAmount := Round(SalesHeader.Amount * VATPostingSetupNormal."VAT %" / 100, GlSetup."Amount Rounding Precision");
+        ECAmount := Round(SalesHeader.Amount * VATPostingSetupNormal."EC %" / 100, GlSetup."Amount Rounding Precision");
+
+        // [GIVEN] Create VAT Statement Line for Sales with "Amount Type" = Amount
+        CreateVATStatementNameWithTemplateType(VATStatementName, VATStatementName."Template Type"::"Two Columns Report");
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '0', VATPostingSetupNormal,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, '');
+        Commit();
+
+        // [WHEN] Run VAT Statement report
+        RunVatStatementReportAndLoad(VATStatementLine, VATStatementName);
+
+        // [VERIFY] Verify the VAT Amount and EC Amount
+        LibraryReportDataset.AssertElementWithValueExists(TotalVATAmtTok, -VATAmount);
+        LibraryReportDataset.AssertElementWithValueExists(TotalECAmtTok, -ECAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

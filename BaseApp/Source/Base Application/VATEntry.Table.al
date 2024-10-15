@@ -436,7 +436,7 @@
             var
                 VATDateReportingMgt: Codeunit "VAT Reporting Date Mgt";
             begin
-                if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidDate("VAT Reporting Date") then
+                if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidVATDate(Rec) then
                     Error('');
 
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
@@ -487,7 +487,7 @@
         {
             Clustered = true;
         }
-        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "G/L Acc. No.")
+        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "G/L Acc. No.", "VAT Reporting Date")
         {
             SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Remaining Unrealized Amount", "Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Amount", "Add.-Curr. Rem. Unreal. Base";
         }
@@ -577,7 +577,7 @@
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
 
-    local procedure SetVATDate(var GenJnlLine: Record "Gen. Journal Line")
+    internal procedure SetVATDateFromGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."VAT Reporting Date" = 0D then
             "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
@@ -728,7 +728,7 @@
 
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
-        SetVATDate(GenJnlLine);
+        SetVATDateFromGenJnlLine(GenJnlLine);
         CopyPostingGroupsFromGenJnlLine(GenJnlLine);
         CopyPostingDataFromGenJnlLine(GenJnlLine);
         Type := GenJnlLine."Gen. Posting Type";

@@ -2448,6 +2448,58 @@ codeunit 137101 "SCM Kitting"
         ItemCard.AssemblyBOM.AssertEquals(false);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure VerifyConsumedQtyIsKeptOnAssemblyLinesOnRefreshLineAction()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyItem: Record Item;
+        TempAssemblyLine: Record "Assembly Line" temporary;
+        ComponentItem: array[2] of Record Item;
+        AssemblyBOM: TestPage "Assembly BOM";
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        // [SCENARIO 461537] Verify Consumed Qty. is kept on Assembly Lines on Refresh Line action 
+        Initialize();
+
+        // [GIVEN] Create an assembled item "I" with two components
+        CreateItem(AssemblyItem, AssemblyItem."Costing Method"::Standard, AssemblyItem."Replenishment System"::Assembly,
+            AssemblyItem."Reordering Policy"::"Fixed Reorder Qty.", 0, 99, 300);
+        CreateItem(ComponentItem[1], ComponentItem[1]."Costing Method"::Standard, ComponentItem[1]."Replenishment System"::Purchase,
+            ComponentItem[1]."Reordering Policy"::"Fixed Reorder Qty.", 6, 99, 300);
+        CreateItem(ComponentItem[2], ComponentItem[2]."Costing Method"::Standard, ComponentItem[2]."Replenishment System"::Purchase,
+            ComponentItem[2]."Reordering Policy"::"Fixed Reorder Qty.", 6, 99, 300);
+
+        // [GIVEN] Create Assembly BOM
+        CreateAssemblyBomComponent(ComponentItem[1], AssemblyItem."No.", 1);
+        CreateAssemblyBomComponent(ComponentItem[2], AssemblyItem."No.", 1);
+
+        // [GIVEN] Open Assembly BOM and Calc. Standard Cost
+        CalculateStandardCostOnAssemblyBOM(AssemblyBOM, AssemblyItem."No.");
+
+        // [GIVEN] Post Component Items
+        CreateAndPostItemJournalLine(ComponentItem[1]."No.", 100, '');
+        CreateAndPostItemJournalLine(ComponentItem[2]."No.", 100, '');
+
+        // [GIVEN] Create Assembly Order
+        CreateAssemblyOrder(AssemblyHeader, AssemblyItem."No.", 10, 6);
+
+        // [GIVEN] Post Assembly Order
+        PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 100, true);
+
+        // [GIVEN] Reopen Assembly Order
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LibraryAssembly.ReopenAO(AssemblyHeader);
+
+        // [WHEN] Open Assembly Order and Refresh Lines
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
+        AssemblyOrder."Refresh Lines".Invoke();
+
+        // [THEN] Verify Consumed Qty. on Assembly Lines
+        VerifyAssemblyLine(AssemblyHeader, 6);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4024,6 +4076,56 @@ codeunit 137101 "SCM Kitting"
     begin
         FindItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         ItemLedgerEntry.TestField("Applies-to Entry", ApplToEntry);
+    end;
+
+    local procedure VerifyAssemblyLine(AssemblyHeader: Record "Assembly Header"; ConsumedQty: Decimal)
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindSet();
+        repeat
+            AssemblyLine.TestField(AssemblyLine."Consumed Quantity", ConsumedQty);
+            AssemblyLine.TestField(AssemblyLine."Consumed Quantity (Base)", ConsumedQty);
+        until AssemblyLine.Next() = 0;
+    end;
+
+    local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Quantity: Decimal; QtyToAssemble: Decimal)
+    begin
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ItemNo, '', 10, '');
+        AssemblyHeader.Validate("Quantity to Assemble", 6);
+        AssemblyHeader.Modify(true);
+    end;
+
+    local procedure CreateAssemblyBomComponent(ComponentItem: Record Item; ParentItemNo: Code[20]; Quantity: Decimal)
+    var
+        BomComponent: Record "BOM Component";
+        RecRef: RecordRef;
+    begin
+        with BomComponent do begin
+            Init();
+            Validate("Parent Item No.", ParentItemNo);
+            RecRef.GetTable(BomComponent);
+            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
+            Validate(Type, Type::Item);
+            Validate("No.", ComponentItem."No.");
+            Validate("Quantity per", Quantity);
+            Insert(true);
+        end;
+    end;
+
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; StandardCostAmt: Decimal; ReorderPoint: Decimal; ReorderQuantity: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Reorder Point", ReorderPoint);
+        Item.Validate("Reorder Quantity", ReorderQuantity);
+        if StandardCostAmt <> 0 then
+            Item.Validate("Standard Cost", StandardCostAmt);
+        Item.Modify(true);
     end;
 
     [ConfirmHandler]

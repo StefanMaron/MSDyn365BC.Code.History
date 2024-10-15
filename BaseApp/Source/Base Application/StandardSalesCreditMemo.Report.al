@@ -33,6 +33,12 @@
             column(CompanyAddress6; CompanyAddr[6])
             {
             }
+            column(CompanyAddress7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddr[8])
+            {
+            }
             column(CompanyHomePage; CompanyInfo."Home Page")
             {
             }
@@ -1143,6 +1149,7 @@
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your credit memo is attached to this message.';
+        LCYTxt: label ' (LCY)';
         VATClauseText: Text;
         ECAmountLCYLbl: Label 'EC Amount (LCY)';
 
@@ -1256,8 +1263,11 @@
             if TotalAmountVAT <> 0 then
                 ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
         end;
-        if TotalAmountVAT <> 0 then
+        if TotalAmountVAT <> 0 then begin
             ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
+            if TotalVATAmountLCY <> TotalAmountVAT then
+                ReportTotalsLine.Add(VATAmountLine.VATAmountText() + LCYTxt, TotalVATAmountLCY, false, true, false);
+        end;
     end;
 
     local procedure FormatAddressFields(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")

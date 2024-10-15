@@ -932,6 +932,26 @@ codeunit 147316 "Test 347 Declaration"
         Assert.AreEqual(VATRegNo, CopyStr(Line, 9, 9), '');
     end;
 
+    [Test]
+    [HandlerFunctions('Make347DeclarationReportHandler')]
+    procedure SecondLineBeginningInDeclarationFile()
+    var
+        CustomerNo: Code[20];
+        FileName: Text[1024];
+        Line: Text;
+    begin
+        // [SCENARIO 462453] Second line of Make 347 Declaration file is not cut in the beginning.
+        Initialize();
+        CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, false, false);
+
+        // [WHEN] Run Make 347 Declaration report.
+        FileName := RunMake347DeclarationReport();
+
+        // [THEN] Second line of Make 347 Declaration file is not cut in the beginning.
+        Line := LibraryTextFileValidation.ReadLine(FileName, 2);
+        Assert.AreEqual('2347', CopyStr(Line, 1, 4), 'The second line must start from 2347');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

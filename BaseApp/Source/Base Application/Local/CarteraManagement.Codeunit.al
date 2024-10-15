@@ -311,7 +311,7 @@ codeunit 7000000 CarteraManagement
                 GenJournalLine.SetRange("Account No.", VendLedgEntry."Vendor No.");
                 if not GenJournalLine.IsEmpty() then
                     Error(EntryIsAppliedErr, "Document No.", "No.");
-                
+
                 TestField(Type, Type::Payable);
                 TestField("Bill Gr./Pmt. Order No.", '');
                 TestField("Currency Code", PmtOrd."Currency Code");
@@ -747,6 +747,7 @@ codeunit 7000000 CarteraManagement
                         VATEntry := VATEntry2;
                         VATEntry."Entry No." := VATEntryNo;
                         VATEntry."Posting Date" := GenJnlLine."Posting Date";
+                        VATEntry.SetVATDateFromGenJnlLine(GenJnlLine);
                         VATEntry."Document No." := GenJnlLine."Document No.";
                         VATEntry."External Document No." := GenJnlLine."External Document No.";
                         VATEntry."Document Type" := GenJnlLine."Document Type";
@@ -965,6 +966,7 @@ codeunit 7000000 CarteraManagement
                         VATEntry := VATEntry2;
                         VATEntry."Entry No." := VATEntryNo;
                         VATEntry."Posting Date" := GenJnlLine."Posting Date";
+                        VATEntry.SetVATDateFromGenJnlLine(GenJnlLine);
                         VATEntry."Document No." := GenJnlLine."Document No.";
                         VATEntry."External Document No." := GenJnlLine."External Document No.";
                         VATEntry."Document Type" := GenJnlLine."Document Type";

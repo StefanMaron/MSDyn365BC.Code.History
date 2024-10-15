@@ -1128,6 +1128,7 @@
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
+        LCYTxt: label ' (LCY)';
         TotalECAmount: Decimal;
         ECAmountLCYLbl: Label 'EC Amount (LCY)';
 
@@ -1186,8 +1187,11 @@
             if TotalAmountVAT <> 0 then
                 ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false, Header."Currency Code");
         end;
-        if TotalAmountVAT <> 0 then
+        if TotalAmountVAT <> 0 then begin
             ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false, Header."Currency Code");
+            if TotalVATAmountLCY <> TotalAmountVAT then
+                ReportTotalsLine.Add(VATAmountLine.VATAmountText() + LCYTxt, TotalVATAmountLCY, false, true, false);
+        end;
     end;
 
     local procedure SetLanguage(LanguageCode: Code[10])

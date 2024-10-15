@@ -63,6 +63,8 @@ report 296 "Batch Post Sales Orders"
                     {
                         ApplicationArea = VAT;
                         Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -87,6 +89,8 @@ report 296 "Batch Post Sales Orders"
                     {
                         ApplicationArea = VAT;
                         Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies if you want to replace the sales orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
@@ -133,6 +137,7 @@ report 296 "Batch Post Sales Orders"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
             IsHandled: Boolean;
         begin
             IsHandled := false;
@@ -145,6 +150,7 @@ report 296 "Batch Post Sales Orders"
                     ReplaceDocumentDate := false;
                     PrintDoc := false;
                     PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+                    VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
                 end;
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
@@ -159,6 +165,7 @@ report 296 "Batch Post Sales Orders"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+        VATDateEnabled: Boolean;
 
     protected var
         ShipReq: Boolean;

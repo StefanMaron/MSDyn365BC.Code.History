@@ -29,6 +29,14 @@ page 134 "Posted Sales Credit Memo"
                     TableRelation = Customer.Name;
                     ToolTip = 'Specifies the name of the customer that you shipped the items on the credit memo to.';
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -1170,7 +1178,7 @@ page 134 "Posted Sales Credit Memo"
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         ActivateFields();
-		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

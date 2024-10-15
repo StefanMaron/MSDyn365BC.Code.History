@@ -1113,11 +1113,7 @@
 
         SetDocNoVisible();
 
-        GLSetup.Get();
-        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
-        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
-
-        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+        ActivateFields();
     end;
 
     var
@@ -1142,6 +1138,14 @@
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+
+    local procedure ActivateFields()
+    begin
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+    end;
 
     local procedure ApproveCalcInvDisc()
     begin
@@ -1196,4 +1200,3 @@
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 }
-

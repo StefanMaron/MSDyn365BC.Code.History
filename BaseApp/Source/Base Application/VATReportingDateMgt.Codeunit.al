@@ -15,14 +15,15 @@ codeunit 799 "VAT Reporting Date Mgt"
                     TableData "General Ledger Setup" = r;
 
     trigger OnRun()
-    begin    
+    begin
     end;
-    
+
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
-        VATReturnStatusWarningMsg: Label 'VAT Return for the chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
+        VATReturnStatusWarningMsg: Label 'VAT Return for the chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.';
         VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+        VATDateNotAllowedErr: Label 'The VAT Date is not within your range of allowed posting dates.';
 
     procedure UpdateLinkedEntries(VATEntry: Record "VAT Entry")
     begin
@@ -33,40 +34,75 @@ codeunit 799 "VAT Reporting Date Mgt"
         UpdatePostedDocuments(VATEntry);
     end;
 
-    procedure IsVATDateModifiable(): Boolean
+    procedure IsVATDateModifiable() IsModifiable: Boolean
     var
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
-        if not GLSetup.Get() then
-            exit(false);
+        OnBeforeIsVATDateModifiable(IsModifiable, IsHandled);
+        if IsHandled then
+            exit;
 
-        exit(GLSetup."VAT Reporting Date Usage" = GLSetup."VAT Reporting Date Usage"::Complete);
+        if GLSetup.Get() then
+            IsModifiable := GLSetup."VAT Reporting Date Usage" = GLSetup."VAT Reporting Date Usage"::Complete;
     end;
 
-    procedure IsVATDateEnabled(): Boolean
+    procedure IsVATDateEnabled() IsEnabled: Boolean
     var
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
-        if not GLSetup.Get() then
-            exit(false);
+        OnBeforeIsVATDateEnabled(IsEnabled, IsHandled);
+        if IsHandled then
+            exit;
 
-        exit(GLSetup."VAT Reporting Date Usage" <> GLSetup."VAT Reporting Date Usage"::Disabled);
+        if GLSetup.Get() then
+            IsEnabled := GLSetup."VAT Reporting Date Usage" <> GLSetup."VAT Reporting Date Usage"::Disabled;
     end;
 
-    procedure IsValidDate(VATDate: Date) : Boolean;
+    procedure IsValidVATDate(VATEntry: Record "VAT Entry"): Boolean
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+        SetupRecordID: RecordID;
+    begin
+        // check whether VAT Date is within allowed VAT Periods
+        if not IsValidDate(VATEntry."VAT Reporting Date") then
+            exit(false);
+
+        // check whether VAT Date is within Allowed period fedined in Gen. Ledger Setup
+        if not UserSetupManagement.IsPostingDateValidWithSetup(VATEntry."VAT Reporting Date", SetupRecordID) then
+            VATEntry.FieldError(VATEntry."VAT Reporting Date", VATDateNotAllowedErr);
+
+        exit(true);
+    end;
+
+    procedure IsValidDate(VATDate: Date): Boolean;
     var
         VATReturnPeriod: Record "VAT Return Period";
+        GLSetup: Record "General Ledger Setup";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if VATReturnPeriod.FindVATPeriodByDate(VATDate) then begin
-            if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                Error(VATReturnPeriodClosedErr);
+        if not GLSetup.Get() then
+            exit(false);
+        if VATReturnPeriod.FindVATPeriodByDate(VATDate) then
+            case GLSetup."Control VAT Period" of
+                "VAT Period Control"::Disabled: exit(true);
+                "VAT Period Control"::"Block posting within closed and warn for released period":
+                    begin
+                        if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
+                            Error(VATReturnPeriodClosedErr);
 
-            VATReturnPeriod.CalcFields("VAT Return Status");
-            if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
-                exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
-
-        end;
+                        VATReturnPeriod.CalcFields("VAT Return Status");
+                        if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
+                            exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
+                    end;
+                "VAT Period Control"::"Block posting within closed period":
+                    if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
+                        Error(VATReturnPeriodClosedErr);
+                "VAT Period Control"::"Warn when posting in closed period":
+                    if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
+                        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod.Status::Closed)), true));
+            end;
         exit(true);
     end;
 
@@ -74,9 +110,11 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         GLEntry: Record "G/L Entry";
     begin
+        GLEntry.LoadFields("Entry No.", "Document No.", "Posting Date", "Transaction No.", "VAT Reporting Date");
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetRange("Document No.", VATEntry."Document No.");
         GLEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        GLEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
         GLEntry.ModifyAll("VAT Reporting Date", VATEntry."VAT Reporting Date");
     end;
 
@@ -84,11 +122,13 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.SetCurrentKey("Document No.", "VAT Reporting Date", Type);
+        VATEntry2.LoadFields("Entry No.", Type, "Document No.", "Document Type", "Posting Date", "Transaction No.", "VAT Reporting Date");
         VATEntry2.SetFilter("Entry No.", '<>%1', VATEntry."Entry No.");
+        VATEntry2.SetRange(Type, VATEntry.Type);
         VATEntry2.SetRange("Document No.", VATEntry."Document No.");
         VATEntry2.SetRange("Document Type", VATEntry."Document Type");
-        VATEntry2.SetRange(Type, VATEntry.Type);
+        VATEntry2.SetRange("Posting Date", VATEntry."Posting Date");
+        VATEntry2.SetRange("Transaction No.", VATEntry."Transaction No.");
         VATEntry2.ModifyAll("VAT Reporting Date", VATEntry."VAT Reporting Date");
     end;
 
@@ -230,4 +270,13 @@ codeunit 799 "VAT Reporting Date Mgt"
         exit(false);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVATDateModifiable(var IsModifiable: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVATDateEnabled(var IsModifiable: Boolean; var IsHandled: Boolean);
+    begin
+    end;
 }

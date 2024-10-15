@@ -1203,6 +1203,7 @@
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
+        LCYTxt: label ' (LCY)';
         VATClauseText: Text;
         TotalECAmount: Decimal;
         ECAmountLCYLbl: Label 'EC Amount (LCY)';
@@ -1240,8 +1241,11 @@
             if TotalAmountVAT <> 0 then
                 ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
         end;
-        if TotalAmountVAT <> 0 then
+        if TotalAmountVAT <> 0 then begin
             ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
+            if TotalVATAmountLCY <> TotalAmountVAT then
+                ReportTotalsLine.Add(VATAmountLine.VATAmountText() + LCYTxt, TotalVATAmountLCY, false, true, false);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

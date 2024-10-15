@@ -982,6 +982,7 @@
                                             AddError(DimMgt.GetDimValuePostingErr());
                                     end;
                             end;
+                            OnAfterCheckSalesDocLine("Sales Line", ErrorText, ErrorCounter);
                         end;
 
                         trigger OnPreDataItem()
@@ -2286,10 +2287,10 @@
                                     FA.TableCaption(), "No."));
                     end;
                 else begin
-                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorTextLocal);
-                        if ErrorTextLocal <> '' then
-                            AddError(ErrorTextLocal);
-                    end;
+                    OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorTextLocal);
+                    if ErrorTextLocal <> '' then
+                        AddError(ErrorTextLocal);
+                end;
             end;
     end;
 
@@ -2412,6 +2413,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSalesDoc(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesDocLine(SalesLine: Record "Sales Line"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
     begin
     end;
 

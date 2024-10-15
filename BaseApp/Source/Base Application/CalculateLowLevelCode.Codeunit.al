@@ -25,7 +25,7 @@ codeunit 99000793 "Calculate Low-Level Code"
 
         ProdBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
 
-    procedure CalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; Level: Integer; LevelDepth: Integer): Integer
+    procedure CalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; Level: Integer; LevelDepth: Integer) Result: Integer
     var
         Item2: Record Item;
         ProdBOMHeader: Record "Production BOM Header";
@@ -35,7 +35,13 @@ codeunit 99000793 "Calculate Low-Level Code"
         ActLevel: Integer;
         TotalLevels: Integer;
         CalculateDeeperLevel: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcLevels(Type, No, Level, LevelDepth, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if LevelDepth > 50 then
             Error(ProdBomErr, 50, Item."No.", No, Level);
 
@@ -193,7 +199,13 @@ codeunit 99000793 "Calculate Low-Level Code"
     procedure SetRecursiveLevelsOnBOM(var CompBOM: Record "Production BOM Header"; LowLevelCode: Integer; IgnoreMissingItemsOrBOMs: Boolean)
     var
         xLowLevelCode: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetRecursiveLevelsOnBOM(CompBOM, LowLevelCode, IgnoreMissingItemsOrBOMs, IsHandled);
+        if IsHandled then
+            exit;
+
         xLowLevelCode := CompBOM."Low-Level Code";
         if CompBOM.Status = CompBOM.Status::Certified then begin
             // set low level on this BOM
@@ -224,7 +236,17 @@ codeunit 99000793 "Calculate Low-Level Code"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLevels(Type: Option; No: Code[20]; Level: Integer; LevelDepth: Integer; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeItemModify(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetRecursiveLevelsOnBOM(var ProductionBOMHeader: Record "Production BOM Header"; LowLevelCode: Integer; IgnoreMissingItemsOrBOMs: Boolean; var IsHandled: Boolean)
     begin
     end;
 

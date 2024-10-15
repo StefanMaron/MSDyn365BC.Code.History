@@ -19,8 +19,6 @@ report 10707 "Make 347 Declaration"
                 FromDate := DMY2Date(1, 1, NumFiscalYear);
                 ToDate := DMY2Date(31, 12, NumFiscalYear);
                 NotIn347Amt := 0;
-
-                OutFile.Write(PadStr('', 499, ' '));
             end;
         }
         dataitem(Customer; Customer)
@@ -115,7 +113,7 @@ report 10707 "Make 347 Declaration"
                                   GetVATCashRegimeText(AnnualAmountVATCashRegime, OperationsCashAccountingCriteria, ReverseChargeOperation);
                                 OutText := PadStr(OutText, 500, ' ');
 
-                                OutFile.Write(OutText);
+                                AppendLine(OutText);
 
                                 TotalAmount := TotalAmount + SalesAmt;
                                 Acum := Acum + 1;
@@ -138,7 +136,7 @@ report 10707 "Make 347 Declaration"
                                           CashAmtText + FormatAmount(0) + YearText + GetQuarterZeroAmountsText() + PadStr('', 17, ' ') +
                                           GetVATCashRegimeText(AnnualAmountVATCashRegime, OperationsCashAccountingCriteria, ReverseChargeOperation);
                                         OutText := PadStr(OutText, 500, ' ');
-                                        OutFile.Write(OutText);
+                                        AppendLine(OutText);
                                         // Increase RecordCount
                                         Acum := Acum + 1;
                                     end;
@@ -307,7 +305,7 @@ report 10707 "Make 347 Declaration"
                                       GetVATCashRegimeText(AnnualAmountVATCashRegime, OperationsCashAccountingCriteria, '');
                                     OutText := PadStr(OutText, 500, ' ');
 
-                                    OutFile.Write(OutText);
+                                    AppendLine(OutText);
                                     Acum := Acum + 1;
                                 end;
 
@@ -322,7 +320,7 @@ report 10707 "Make 347 Declaration"
                                       GetVATCashRegimeText(0, '', ReverseChargeOperation);
                                     OutText := PadStr(OutText, 500, ' ');
 
-                                    OutFile.Write(OutText);
+                                    AppendLine(OutText);
                                     Acum := Acum + 1;
                                 end;
 
@@ -560,14 +558,13 @@ report 10707 "Make 347 Declaration"
             exit;
         end;
 
-        if Acum > 0 then begin
+        if TextList.Count <> 0 then begin
             if EmptyVATRegNo then begin
                 if Confirm(StrSubstNo(DoYouWantToContinueQst, Customer.TableCaption(), Vendor.TableCaption(),
                        Customer.FieldCaption("VAT Registration No.")), false)
                 then begin
-                    OutFile.Seek(0);
                     CreateFileHeader();
-                    OutFile.Close();
+                    WriteLinesToFile();
                     ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
                     if IsSilentMode then
                         FileManagement.CopyServerFile(FileName, ToTestFileName, true)
@@ -579,9 +576,8 @@ report 10707 "Make 347 Declaration"
                     Message(ProcessAbortedMsg);
                 end;
             end else begin
-                OutFile.Seek(0);
                 CreateFileHeader();
-                OutFile.Close();
+                WriteLinesToFile();
                 ConvertFileEncoding(FileName, Utf8Lbl, Iso88591Lbl);
                 if IsSilentMode then
                     FileManagement.CopyServerFile(FileName, ToTestFileName, true)
@@ -661,6 +657,7 @@ report 10707 "Make 347 Declaration"
         FiscalYear: Code[4];
         OperationsCashAccountingCriteria: Code[1];
         ReverseChargeOperation: Code[1];
+        TextList: List of [Text];
         Acum: Integer;
         NumFiscalYear: Integer;
         NoOfAccounts: Integer;
@@ -823,7 +820,7 @@ report 10707 "Make 347 Declaration"
           ConvertStr(Format(Acum, 9, IntegerTypeTxt), ' ', '0') + AmountText +
           PadStr('', 9, '0') + ' ' + PadStr('', 15, '0') + PadStr('', 315, ' ');
 
-        OutFile.Write(OutText);
+        InsertFirstLine(OutText);
     end;
 
     [Scope('OnPrem')]
@@ -1577,6 +1574,29 @@ report 10707 "Make 347 Declaration"
             NewEncoding.GetString(
                 NewEncoding.Convert(OriginalEncoding, NewEncoding, OriginalEncoding.GetBytes(FileContents))));
         DotNetStreamWriter.Close();
+        OutFile.Close();
+    end;
+
+    local procedure AppendLine(Content: Text)
+    begin
+        TextList.Add(Content);
+    end;
+
+    local procedure InsertFirstLine(Content: Text)
+    begin
+        TextList.Insert(1, Content);
+    end;
+
+    local procedure WriteLinesToFile()
+    var
+        TextLine: Text;
+        TextToWrite: Text[500];
+    begin
+        OutFile.Seek(0);
+        foreach TextLine in TextList do begin
+            TextToWrite := CopyStr(TextLine, 1, MaxStrLen(TextToWrite));
+            OutFile.Write(TextToWrite);
+        end;
         OutFile.Close();
     end;
 

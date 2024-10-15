@@ -47,6 +47,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         ApplyTemplate(Vendor, VendorTempl, UpdateExistingValues);
         InsertDimensions(Vendor."No.", VendorTempl.Code, Database::Vendor, Database::"Vendor Templ.");
         Vendor.Get(Vendor."No.");
+        OnAfterApplyVendorTemplate(Vendor, VendorTempl);
     end;
 
     [Obsolete('Replaced by ApplyVendorTemplate with different set of parameters', '18.0')]
@@ -396,6 +397,11 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyVendorTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
     end;
 

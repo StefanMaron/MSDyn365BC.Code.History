@@ -599,7 +599,14 @@ codeunit 10752 "SII Doc. Upload Management"
     end;
 
     local procedure XMLParseDocumentResponse(var XMLBuffer: Record "XML Buffer"; var SIIHistory: Record "SII History"; ParentEntryNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeXMLParseDocumentResponse(XMLBuffer, SIIHistory, ParentEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
         XMLBuffer.SetFilter(Name, 'EstadoRegistro');
         if XMLBuffer.FindFirst() then
@@ -745,6 +752,11 @@ codeunit 10752 "SII Doc. Upload Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExecutePendingRequestsPerDocument(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; var XMLDoc: DotNet XmlDocument; var IsInvokeSoapRequest: Boolean; SIISessionId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeXMLParseDocumentResponse(var XMLBuffer: Record "XML Buffer"; var SIIHistory: Record "SII History"; ParentEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

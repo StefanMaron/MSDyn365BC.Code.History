@@ -411,7 +411,7 @@
         VATAmount := Amount;
         if VATPostSetup."VAT+EC %" <> 0 then
             VATAmount := VATAmount / VATPostSetup."VAT+EC %" * VATPercentage;
-        TotalVATAmount := TotalVATAmount + VATAmount;
+        TotalVATAmount := TotalVATAmount + RoundVATAmount(VATAmount, UseAmtsInAddCurr);
         TotalECAmount := TotalAmount - TotalVATAmount;
     end;
 
@@ -436,7 +436,7 @@
             VATStmtLine2.Type::"Account Totaling":
                 begin
                     GLAcc.SetFilter("No.", VATStmtLine2."Account Totaling");
-                    "VAT Statement Line".CopyFilter("Date Filter", GLAcc."Date Filter");
+                    "VAT Statement Line".CopyFilter("Date Filter", GLAcc."VAT Reporting Date Filter");
                     OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2);
                     Amount := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then
@@ -487,7 +487,7 @@
                     SetVATEntryKeyAndRangesForVATDate(VATStmtLine2);
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
                     SetVATDate("VAT Statement Line");
-                    
+
                     case Selection of
                         Selection::Open:
                             VATEntry.SetRange(Closed, false);
@@ -563,7 +563,7 @@
     end;
 
     local procedure SetVATDate(var VATStatementLine: Record "VAT Statement Line")
-    begin 
+    begin
         if VATStatementLine.GetFilter("Date Filter") <> '' then
             if PeriodSelection = PeriodSelection::"Before and Within Period" then
                 VATEntry.SetRange("VAT Reporting Date", 0D, VATStatementLine.GetRangeMax("Date Filter"))
@@ -583,6 +583,14 @@
         if PrintInIntegers and VATStmtLine2.Print then
             Base := Round(Base, 1, '<');
         TotalBase := TotalBase + Base;
+    end;
+
+    local procedure RoundVATAmount(VATAmount: Decimal; UseAddCurr: Boolean): Decimal
+    begin
+        if UseAddCurr then
+            exit(Round(VATAmount, Currency."Amount Rounding Precision"))
+        else
+            exit(Round(VATAmount, GLSetup."Amount Rounding Precision"));
     end;
 
 #if not CLEAN22
@@ -715,10 +723,10 @@
     begin
         VATEntry.Reset();
         SetVATEntryKeyAndRangesForVATDate(VATStatementLine);
-       
+
         VATEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
         SetVATDate("VAT Statement Line");
-        
+
         case Selection of
             Selection::Open:
                 VATEntry.SetRange(Closed, false);

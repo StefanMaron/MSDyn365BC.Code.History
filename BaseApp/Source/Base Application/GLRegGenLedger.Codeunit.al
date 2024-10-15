@@ -3,7 +3,14 @@ codeunit 235 "G/L Reg.-Gen. Ledger"
     TableNo = "G/L Register";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GLEntry.SetCurrentKey("Transaction No.");
         GLEntry.SetRange("Transaction No.", "No.");
         PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
@@ -11,5 +18,11 @@ codeunit 235 "G/L Reg.-Gen. Ledger"
 
     var
         GLEntry: Record "G/L Entry";
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(GLRegister: Record "G/L Register"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

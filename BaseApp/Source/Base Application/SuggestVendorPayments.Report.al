@@ -933,7 +933,7 @@
 
             TempVendorPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
-            OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer, SummarizePerVend);
+            OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer, SummarizePerVend, DocNoPerLine, NextDocNo);
 #if not CLEAN22
             TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
             OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer, SummarizePerVend);
@@ -1359,7 +1359,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; SummarizePerVend: Boolean)
+    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; SummarizePerVend: Boolean; DocNoPerLine: Boolean; var NextDocNo: Code[20])
     begin
     end;
 

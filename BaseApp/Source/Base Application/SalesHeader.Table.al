@@ -91,7 +91,7 @@
                 OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, Customer, IsHandled);
                 if not IsHandled then
                     Customer.CheckBlockedCustOnDocs(Customer, "Document Type", false, false);
-                if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+                if (not ApplicationAreaMgmt.IsSalesTaxEnabled()) and (Customer."No." <> '') then
                     Customer.TestField("Gen. Bus. Posting Group");
                 OnAfterCheckSellToCust(Rec, xRec, Customer, CurrFieldNo);
 
@@ -190,7 +190,8 @@
                 OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, Customer, IsHandled);
                 if not IsHandled then
                     Customer.CheckBlockedCustOnDocs(Customer, "Document Type", false, false);
-                Customer.TestField("Customer Posting Group");
+                if Customer."No." <> '' then
+                    Customer.TestField("Customer Posting Group");
                 PostingSetupMgt.CheckCustPostingGroupReceivablesAccount("Customer Posting Group");
                 CheckCreditLimit();
                 OnAfterCheckBillToCust(Rec, xRec, Customer);
@@ -606,8 +607,10 @@
                     if xRec."Prepayment Due Date" = 0D then begin
                         IsHandled := false;
                         OnValidatePaymentTermsCodeOnBeforeCalculatePrepaymentDueDate(Rec, xRec, CurrFieldNo, IsHandled);
-                        if not IsHandled then
+                        if not IsHandled then begin
+                            TestField("Document Date");
                             "Prepayment Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+                        end;
                     end;
                     Validate("Prepmt. Payment Terms Code", "Payment Terms Code");
                 end;
@@ -747,10 +750,11 @@
                 if ShouldCheckShowRecurringSalesLines(xRec, Rec) then
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
-                if "Currency Code" <> xRec."Currency Code" then begin
+                if "Currency Code" <> xRec."Currency Code" then
                     SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+
+                if Status = Status::Open then
                     SetCompanyBankAccount();
-                end;
             end;
         }
         field(33; "Currency Factor"; Decimal)
@@ -3372,9 +3376,11 @@
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
 
-        IF "Sell-to Customer No." <> '' THEN
-            GetCust("Sell-to Customer No.");
-        UpdateLocationCode(Customer."Location Code");
+        if "Location Code" = '' then begin
+            if "Sell-to Customer No." <> '' then
+                GetCust("Sell-to Customer No.");
+            UpdateLocationCode(Customer."Location Code");
+        end;
 
         if IsCreditDocType() then begin
             GLSetup.Get();
@@ -4295,7 +4301,7 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
             Modify();
@@ -4327,19 +4333,32 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if Confirm(DoYouWantToKeepExistingDimensionsQst) then begin
+                if ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
+            OnCreateDimOnBeforeModify(Rec, xRec, CurrFieldNo, OldDimSetID);
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
+    end;
+
+    local procedure ConfirmKeepExistingDimensions(OldDimSetID: Integer) Confirmed: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmKeepExistingDimensions(Rec, xRec, CurrFieldNo, OldDimSetID, Confirmed, IsHandled);
+        if IsHandled then
+            exit(Confirmed);
+
+        Confirmed := Confirm(DoYouWantToKeepExistingDimensionsQst);
     end;
 
     local procedure CouldDimensionsBeKept() Result: Boolean;
@@ -5712,7 +5731,7 @@
         if IsHandled then
             exit(Confirmed);
 
-        ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text048, Opportunity."Sales Document No.", Opportunity."No."), true)
+        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text048, Opportunity."Sales Document No.", Opportunity."No."), true))
     end;
 
     local procedure UpdateOpportunityLink(Opportunity: Record Opportunity; SalesDocumentType: Enum "Opportunity Document Type"; SalesHeaderNo: Code[20])
@@ -5868,7 +5887,13 @@
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDimSetForPrepmtAccDefaultDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Prepmt. Amt. Inv.", '<>%1', 0);
@@ -6095,12 +6120,21 @@
                 ATOLink.Delete();
             end;
 
-            TempSalesLine.Insert();
+            if not IsServiceChargeLine(SalesLine) then
+                TempSalesLine.Insert();
             OnAfterInsertTempSalesLine(SalesLine, TempSalesLine);
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
             RecreateReqLine(SalesLine, 0, true);
             OnRecreateReservEntryReqLineOnAfterLoop(Rec, SalesLine);
         until SalesLine.Next() = 0;
+    end;
+
+    local procedure IsServiceChargeLine(SalesLine: Record "Sales Line"): Boolean
+    begin
+        if SalesLine."System-Created Entry" then
+            if SalesLine.Type = SalesLine.Type::"G/L Account" then
+                if SalesLine.IsServiceChargeLine() then
+                    exit(true);
     end;
 
     local procedure TransferItemChargeAssgntSalesToTemp(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
@@ -6395,7 +6429,13 @@
     var
         PaymentServiceSetup: Record "Payment Service Setup";
         SetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultPaymentServices(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not PaymentServiceSetup.CanChangePaymentService(Rec) then
             exit;
 
@@ -8260,6 +8300,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmKeepExistingDimensions(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateAllLineDim(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -8630,6 +8675,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetForPrepmtAccDefaultDim(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -8656,6 +8706,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetCustomerLocationCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; SellToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultPaymentServices(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8775,7 +8830,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateDimOnBeforeUpdateLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; OldDimSetID: Integer)
+    local procedure OnCreateDimOnBeforeUpdateLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeModify(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
     begin
     end;
 

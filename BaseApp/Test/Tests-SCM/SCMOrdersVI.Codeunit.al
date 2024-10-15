@@ -51,7 +51,8 @@
         ReturnOrderPostedMsg: Label 'All the documents were posted.';
         CannotUndoAppliedQuantityErr: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry', Comment = '%1 = Value';
         RecordCountErr: Label 'No of record must be same.';
-        ExpectedCostPostingToGLQst: Label 'If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
+        ExpectedCostPostingEnableToGLQst: Label 'If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
+        ExpectedCostPostingDisableToGLQst: Label 'If you disable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
         ExpectedCostPostingToGLMsg: Label 'Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.';
         ConfirmTextForChangeOfSellToCustomerOrBuyFromVendorQst: Label 'Do you want to change';
         DiscountErr: Label 'The Discount Amount is not correct.';
@@ -4303,7 +4304,10 @@
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        LibraryVariableStorage.Enqueue(ExpectedCostPostingToGLQst);
+        if NewExpectedCostPostingToGL then
+            LibraryVariableStorage.Enqueue(ExpectedCostPostingEnableToGLQst)
+        else
+            LibraryVariableStorage.Enqueue(ExpectedCostPostingDisableToGLQst);
         LibraryVariableStorage.Enqueue(true);
         if NewExpectedCostPostingToGL then
             LibraryVariableStorage.Enqueue(ExpectedCostPostingToGLMsg);
