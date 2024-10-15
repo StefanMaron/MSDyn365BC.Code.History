@@ -1,0 +1,594 @@
+codeunit 144013 "Sales Documents With Tax"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Sales Tax] [Sales]
+    end;
+
+    var
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryResource: Codeunit "Library - Resource";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        ValueMustEqual: Label 'Value must be equal.';
+        LibraryPlanning: Codeunit "Library - Planning";
+        Assert: Codeunit Assert;
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryUtility: Codeunit "Library - Utility";
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderFullLineDiscountPctWithPartialPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: array[2] of Code[20];
+    begin
+        // Verify General Ledger Entries Amount with Partially Posted Sales Return Order with 100 % Line Discount Percentage.
+
+        // Setup: Create Sales Return Order.
+        Initialize;
+        CreateSalesDocumentWithFullLineDiscount(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine);
+
+        // Excercise: Post Sales Return Order - Partially. Post Sales Return Order with remaining Quantity to Invoice.
+        DocumentNo[1] := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        DocumentNo[2] := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Verify General Ledger Entry Amount with calculated Amount for filtered Posted Sales Credit Memo Line.
+        VerifyGLEntryForPostedCreditMemo(DocumentNo[1], SalesLine);
+        VerifyGLEntryForPostedCreditMemo(DocumentNo[2], SalesLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceResourceWithTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // Verify General Ledger Entries, Post Sales Invoice with Type - Resource.
+        // Setup.
+        Initialize;
+        PostedSalesDocumentResourceWithTax(SalesHeader."Document Type"::Invoice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedCreditMemoResourceWithTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // Verify General Ledger Entries, Post Sales Credit Memo with Type - Resource.
+        // Setup.
+        Initialize;
+        PostedSalesDocumentResourceWithTax(SalesHeader."Document Type"::"Credit Memo");
+    end;
+
+    local procedure PostedSalesDocumentResourceWithTax(DocumentType: Option)
+    var
+        Customer: Record Customer;
+        TaxGroup: Record "Tax Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Resource: Record Resource;
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+        OldUnrealizedVAT: Boolean;
+    begin
+        // Create Tax Group, Tax Area Line, Tax Detail and Sales Document.
+        UpdateGeneralLedgerSetup(OldUnrealizedVAT, true);
+        LibraryResource.CreateResourceNew(Resource);  // Blank value for VAT Bus Posting Group.
+        Resource."VAT Prod. Posting Group" := '';
+        Resource.Modify;
+        CreateCustomerWithDetailTax(Customer, TaxGroup, LibraryRandom.RandDec(10, 2));  // Random value for Tax Below Maximum.
+        Resource.Validate("Tax Group Code", TaxGroup.Code);
+        Resource.Modify(true);
+        CreateSalesDocumentWithVAT(
+          SalesHeader, SalesLine, DocumentType, Customer."No.", SalesLine.Type::Resource, Resource."No.", TaxGroup.Code);
+        FindTaxJurisdiction(TaxJurisdiction, Customer."Tax Area Code");
+
+        // Exercise: Post as Ship and Invoice Sales Document.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Verify General Ledger Entry Amount with VAT Entry Amount.
+        FindVATEntry(DocumentNo, VATEntry);
+        VerifyGLEntry(DocumentNo, TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
+
+        // TearDown.
+        UpdateGeneralLedgerSetup(OldUnrealizedVAT, OldUnrealizedVAT);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,CashAppliedRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentAppliedEntriesWithoutVATCashAppliedReport()
+    begin
+        // Verify program will populates correct amount without tax on report - Cash Applied.
+        // Setup.
+        Initialize;
+        PaymentAppliedEntriesCashAppliedReport(0);  // 0 value for Tax Below Maximum.
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,CashAppliedRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentAppliedEntriesWithVATCashAppliedReport()
+    begin
+        // Verify program will populates correct amount without tax on report - Cash Applied.
+        // Setup.
+        Initialize;
+        PaymentAppliedEntriesCashAppliedReport(LibraryRandom.RandDec(10, 2));  // Random value for Tax Below Maximum.
+    end;
+
+    local procedure PaymentAppliedEntriesCashAppliedReport(TaxBelowMaximum: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        TaxGroup: Record "Tax Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        AmountToApply: Decimal;
+        LineAmount: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // Create Sales Order With VAT, Create and Post General Journal Line. Apply Customer Entries.
+        AmountToApply := LibraryRandom.RandDec(10, 2);
+        LibraryVariableStorage.Enqueue(AmountToApply);  // Enqueue value for ApplyCustomerEntriesPageHandler.
+        CreateCustomerWithDetailTax(Customer, TaxGroup, TaxBelowMaximum);
+        CreateSalesDocumentWithVAT(
+          SalesHeader, SalesLine, SalesLine."Document Type"::Order, Customer."No.", SalesLine.Type::Item,
+          CreateItemWithTaxGroup(TaxGroup.Code), TaxGroup.Code);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        LineAmount := GetSalesInvoiceLineAmount(DocumentNo);
+        CreateAndApplyGeneralJournalLine(GenJournalLine, Customer."No.", LineAmount);
+        UpdateAndPostGenJournalLine(GenJournalLine, LineAmount);
+
+        // Exercise.
+        RunCashAppliedReport(Customer."No.");
+
+        // Verify: Verify Amount To Apply and Total Applied Customer Ledger Entry on Report - Cash Applied.
+        FindVATEntry(DocumentNo, VATEntry);
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('TotalApplied', AmountToApply);
+        LibraryReportDataset.AssertElementWithValueExists('TotalApplied_CustLedgEntry', LineAmount - AmountToApply);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpecialOrdersAlwaysCombined()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // Verify Generated Purchase Order from Requisition Work sheet with Get Sales Order functionality, Option Combine Special Orders Default as Always Combined in Purchases Payables Setup.
+        // Setup.
+        Initialize;
+        SpecialOrdersCombined(PurchasesPayablesSetup."Combine Special Orders Default"::"Always Combine");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpecialOrdersNeverCombined()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // Verify Generated Purchase Order from Requisition Work sheet with Get Sales Order functionality, Option Combine Special Orders Default as Never Combined in Purchases Payables Setup.
+        // Setup.
+        Initialize;
+        SpecialOrdersCombined(PurchasesPayablesSetup."Combine Special Orders Default"::"Never Combine");
+    end;
+
+    local procedure SpecialOrdersCombined(CombineSpecialOrdersDefault: Option)
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        OldCombineSpecialOrdersDefault: Option;
+    begin
+        // Update Purchases Payables Setup, Create two Sales Order, Create Requisition Line, Get Sales Orders.
+        UpdatePurchasesPayablesSetup(OldCombineSpecialOrdersDefault, CombineSpecialOrdersDefault);
+        CreateCustomer(Customer);
+        CreateSalesDocumentWithShipToCode(SalesHeader, SalesLine, CreateLocation(''), Customer."No.", CreateItem, CreatePurchasingCode);
+        CreateSalesDocumentWithShipToCode(
+          SalesHeader2, SalesLine2, SalesHeader."Location Code", SalesHeader."Sell-to Customer No.",
+          SalesLine."No.", SalesLine."Purchasing Code");
+        CreateRequisitionLine(RequisitionLine);
+        RunGetSalesOrdersReport(RequisitionLine, SalesLine."Document No.");
+        RunGetSalesOrdersReport(RequisitionLine, SalesLine2."Document No.");
+
+        // Exercise: Create Purchase Order by Carry Out Action Message Action.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');  // Blank value for Your Reference.
+
+        // Verify: Verify Purchase Order is created by Carry Out Action.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine2.Get(SalesLine2."Document Type", SalesLine2."Document No.", SalesLine2."Line No.");
+        VerifyPurchaseLineCount(
+          SalesLine."Special Order Purchase No.", SalesLine2."Special Order Purchase No.", CombineSpecialOrdersDefault);
+
+        // TearDown.
+        UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Combine Special Orders Default", OldCombineSpecialOrdersDefault);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup;
+    end;
+
+    local procedure CreateCustomer(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", '');  // Blank value is required for VAT Business Posting Group.
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithDetailTax(var Customer: Record Customer; var TaxGroup: Record "Tax Group"; TaxBelowMaximum: Decimal)
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+    begin
+        CreateCustomer(Customer);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        CreateTaxAreaLine(TaxAreaLine);
+        CreateTaxDetail(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroup.Code, TaxBelowMaximum);  // Random value for Tax Below Maximum.
+        UpdateCustomer(Customer, TaxAreaLine."Tax Area");
+    end;
+
+    local procedure UpdateCustomer(var Customer: Record Customer; TaxAreaCode: Code[20])
+    begin
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateLocation(TaxAreaCode: Code[20]): Code[10]
+    var
+        Location: Record Location;
+    begin
+        with Location do begin
+            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+            Validate("Tax Area Code", TaxAreaCode);
+            Modify(true);
+            exit(Code);
+        end;
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("VAT Prod. Posting Group", '');  // Blank value required for creating Sales Line.
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));  // Take Random Unit Cost.
+        Item.Validate("Vendor No.", CreateVendor);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithTaxGroup(TaxGroupCode: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", '');  // Blank value required for creating Sales Line.
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateItemChargeNo(): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("VAT Prod. Posting Group", '');
+        ItemCharge.Modify(true);
+        exit(ItemCharge."No.")
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", '');  // Blank value required for creating Purchase Line.
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        CreateSalesLine(SalesHeader, SalesLine, Type, No, Quantity);
+    end;
+
+    local procedure CreateSalesDocumentWithFullLineDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Option; var SalesLine: Record "Sales Line")
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        CreateCustomer(Customer);
+        Item.Get(CreateItem);
+        CreateSalesDocument(
+          SalesHeader, SalesLine, DocumentType, Customer."No.", SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));  // Random value for Quantity.
+        UpdateSalesLineInvoiceToQtyAndLineDiscountPct(SalesLine);  // Update partially Quantity to Invoice and 100 % Line discount - full line discount.
+    end;
+
+    local procedure CreateSalesDocumentWithShipToCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LocationCode: Code[10]; CustomerNo: Code[20]; No: Code[20]; PurchasingCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("Ship-to Code", CreateShipToAddress(CustomerNo));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        SalesLine.Validate("Purchasing Code", PurchasingCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; TaxGroupCode: Code[20])
+    begin
+        CreateSalesDocument(SalesHeader, SalesLine, DocumentType, CustomerNo, Type, No, LibraryRandom.RandDecInRange(1, 10, 2));  // Random value for Quantity.
+        SalesLine.Validate("VAT Prod. Posting Group", '');
+        SalesLine.Validate("Tax Group Code", TaxGroupCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 100, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
+        SalesLine.Validate("Tax Group Code", '');
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)
+    begin
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMaximum);
+        TaxDetail.Modify(true);
+    end;
+
+    local procedure CreateTaxAreaLine(var TaxAreaLine: Record "Tax Area Line")
+    var
+        TaxArea: Record "Tax Area";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction."Tax Account (Sales)" := CreateGLAccount;
+        TaxJurisdiction.Modify(true);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreatePurchasingCode(): Code[10]
+    var
+        Purchasing: Record Purchasing;
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Special Order", true);
+        Purchasing.Modify(true);
+        exit(Purchasing.Code);
+    end;
+
+    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line")
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst;
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+    end;
+
+    local procedure CreateShipToAddress(CustomerNo: Code[20]): Code[20]
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate(Address, LibraryUtility.GenerateRandomCode(ShipToAddress.FieldNo(Address), DATABASE::"Ship-to Address"));
+        ShipToAddress.Modify(true);
+        exit(ShipToAddress.Code);
+    end;
+
+    local procedure CreateAndApplyGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, AccountNo, -Amount);
+        GeneralJournal.OpenEdit;
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        GeneralJournal."Apply Entries".Invoke;  // Opens handler - ApplyCustomerEntriesModalPageHandler.
+        GeneralJournal.Close;
+    end;
+
+    local procedure FilterOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+    end;
+
+    local procedure FindTaxJurisdiction(var TaxJurisdiction: Record "Tax Jurisdiction"; TaxArea: Code[20])
+    var
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        TaxAreaLine.SetRange("Tax Area", TaxArea);
+        TaxAreaLine.FindFirst;
+        TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
+    end;
+
+    local procedure FindVATEntry(DocumentNo: Code[20]; var VATEntry: Record "VAT Entry")
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst;
+    end;
+
+    local procedure GetSalesInvoiceLineAmount(DocumentNo: Code[20]): Decimal
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.FindFirst;
+        exit(SalesInvoiceLine."Line Amount");
+    end;
+
+    local procedure UpdateGeneralLedgerSetup(var OldUnrealizedVAT: Boolean; NewUnrealizedVAT: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get;
+        OldUnrealizedVAT := GeneralLedgerSetup."Unrealized VAT";
+        GeneralLedgerSetup.Validate("Unrealized VAT", NewUnrealizedVAT);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure RunGetSalesOrdersReport(var RequisitionLine: Record "Requisition Line"; DocumentNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        GetSalesOrders: Report "Get Sales Orders";
+        RetrieveDimensionsFrom: Option Item,"Sales Line";
+    begin
+        Clear(GetSalesOrders);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        GetSalesOrders.SetTableView(SalesLine);
+        GetSalesOrders.InitializeRequest(RetrieveDimensionsFrom::"Sales Line");
+        GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);  // Value 1 for Special Order.
+        GetSalesOrders.UseRequestPage(false);
+        GetSalesOrders.Run;
+    end;
+
+    local procedure RunCashAppliedReport(CustomerNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CashApplied: Report "Cash Applied";
+    begin
+        Clear(CashApplied);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CashApplied.SetTableView(CustLedgerEntry);
+        CashApplied.Run;
+    end;
+
+    local procedure UpdateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
+    begin
+        GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        GenJournalLine.Amount := -Amount;
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure UpdatePurchasesPayablesSetup(var OldCombineSpecialOrdersDefault: Option; CombineSpecialOrdersDefault: Option)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get;
+        OldCombineSpecialOrdersDefault := PurchasesPayablesSetup."Combine Special Orders Default";
+        PurchasesPayablesSetup.Validate("Combine Special Orders Default", CombineSpecialOrdersDefault);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateSalesLineInvoiceToQtyAndLineDiscountPct(SalesLine: Record "Sales Line")
+    begin
+        SalesLine.Validate("Line Discount %", 100);  // Line discount percentage as 100 required - full line discount.
+        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);  // Partial Quantity to Invoice.
+        SalesLine.Modify(true);
+    end;
+
+    local procedure SelectPostedSalesCreditMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]; No: Code[20])
+    begin
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+        SalesCrMemoLine.SetRange("No.", No);
+        SalesCrMemoLine.FindFirst;
+    end;
+
+    local procedure VerifyPurchaseLineCount(SpecialOrderPurchaseNo: Code[20]; SpecialOrderPurchaseNo2: Code[20]; CombineSpecialOrdersDefault: Option)
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // Using 2 for creating 2 Purchase Lines and 1 for single purchase Line created from Sales Order.
+        PurchasesPayablesSetup.Get;
+        FilterOnPurchaseLine(PurchaseLine, SpecialOrderPurchaseNo);
+        if CombineSpecialOrdersDefault = PurchasesPayablesSetup."Combine Special Orders Default"::"Always Combine" then
+            Assert.AreEqual(2, PurchaseLine.Count, ValueMustEqual)
+        else begin
+            Assert.AreEqual(1, PurchaseLine.Count, ValueMustEqual);
+            FilterOnPurchaseLine(PurchaseLine, SpecialOrderPurchaseNo2);
+            Assert.AreEqual(1, PurchaseLine.Count, ValueMustEqual);
+        end;
+    end;
+
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Amount, Amount);
+    end;
+
+    local procedure VerifyGLEntryForPostedCreditMemo(DocumentNo: Code[20]; SalesLine: Record "Sales Line")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        SelectPostedSalesCreditMemoLine(SalesCrMemoLine, DocumentNo, SalesLine."No.");
+        VerifyGLEntry(DocumentNo, GeneralPostingSetup."Sales Account", SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Price");
+        VerifyGLEntry(
+          DocumentNo, GeneralPostingSetup."Sales Line Disc. Account", -SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Price");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        AmountToApply: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(AmountToApply);
+        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Amount to Apply".SetValue(AmountToApply);
+        ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CashAppliedRequestPageHandler(var CashApplied: TestRequestPage "Cash Applied")
+    begin
+        CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+}
+
