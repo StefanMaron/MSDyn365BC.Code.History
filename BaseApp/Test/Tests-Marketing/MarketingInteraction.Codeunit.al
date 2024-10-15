@@ -45,1715 +45,1716 @@ codeunit 136208 "Marketing Interaction"
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         FileLbl: Label '%1.%2', Comment = '%1 - Filename, 2% - Extension', Locked = true;
+        SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure CreationInteractionGroup()
-        var
-            InteractionGroup: Record "Interaction Group";
-        begin
-            // Test that it is possible to create a new Interaction Group.
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreationInteractionGroup()
+    var
+        InteractionGroup: Record "Interaction Group";
+    begin
+        // Test that it is possible to create a new Interaction Group.
 
-            // 1. Setup:
-            Initialize;
+        // 1. Setup:
+        Initialize;
 
-            // 2. Exercise: Create Interaction Group.
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        // 2. Exercise: Create Interaction Group.
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
 
-            // 3. Verify: Check that Interaction Group created.
-            InteractionGroup.Get(InteractionGroup.Code);
-        end;
+        // 3. Verify: Check that Interaction Group created.
+        InteractionGroup.Get(InteractionGroup.Code);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure CreationInteractionTemplate()
-        var
-            InteractionGroup: Record "Interaction Group";
-            InteractionTemplate: Record "Interaction Template";
-        begin
-            // Test that it is possible to create a new Interaction Template.
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreationInteractionTemplate()
+    var
+        InteractionGroup: Record "Interaction Group";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // Test that it is possible to create a new Interaction Template.
 
-            // 1. Setup: Create Interaction Group.
-            Initialize;
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        // 1. Setup: Create Interaction Group.
+        Initialize;
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
 
-            // 2. Exercise: Create Interaction Template with Interaction Group Code.
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
-            InteractionTemplate.Modify(true);
+        // 2. Exercise: Create Interaction Template with Interaction Group Code.
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
+        InteractionTemplate.Modify(true);
 
-            // 3. Verify: Check that Interaction Template created with Interaction Group Code.
-            InteractionTemplate.Get(InteractionTemplate.Code);
-            InteractionTemplate.TestField("Interaction Group Code", InteractionGroup.Code);
-        end;
+        // 3. Verify: Check that Interaction Template created with Interaction Group Code.
+        InteractionTemplate.Get(InteractionTemplate.Code);
+        InteractionTemplate.TestField("Interaction Group Code", InteractionGroup.Code);
+    end;
 
-        [Test]
-        [HandlerFunctions('ModalFormInteractionGroupStat')]
-        [Scope('OnPrem')]
-        procedure OpenInteractionGroupStatistics()
-        var
-            InteractionGroup: Record "Interaction Group";
-            InteractionTemplate: Record "Interaction Template";
-            SegmentHeader: Record "Segment Header";
-            InteractionGroupStatistics: Page "Interaction Group Statistics";
-        begin
-            // Test that it is possible to open Interaction Group Statistics with correct values.
+    [Test]
+    [HandlerFunctions('ModalFormInteractionGroupStat')]
+    [Scope('OnPrem')]
+    procedure OpenInteractionGroupStatistics()
+    var
+        InteractionGroup: Record "Interaction Group";
+        InteractionTemplate: Record "Interaction Template";
+        SegmentHeader: Record "Segment Header";
+        InteractionGroupStatistics: Page "Interaction Group Statistics";
+    begin
+        // Test that it is possible to open Interaction Group Statistics with correct values.
 
-            // 1. Setup: Create Interaction Group, Interaction Template. Create a Segment.
-            Initialize;
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        // 1. Setup: Create Interaction Group, Interaction Template. Create a Segment.
+        Initialize;
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
-            UpdateInteractionTemplate(InteractionTemplate, InteractionGroup.Code);
-            CreateSegment(SegmentHeader, InteractionTemplate.Code);
+        UpdateInteractionTemplate(InteractionTemplate, InteractionGroup.Code);
+        CreateSegment(SegmentHeader, InteractionTemplate.Code);
 
-            // 2. Exercise: Run Log Segment Batch Job for Created Segment.
-            RunLogSegment(SegmentHeader."No.");
+        // 2. Exercise: Run Log Segment Batch Job for Created Segment.
+        RunLogSegment(SegmentHeader."No.");
 
-            // 3. Verify: Check that Interaction Group Statistics opens with correct values.
-            LibraryVariableStorage.Enqueue(InteractionTemplate."Unit Cost (LCY)");
-            LibraryVariableStorage.Enqueue(InteractionTemplate."Unit Duration (Min.)");
-            Clear(InteractionGroupStatistics);
-            InteractionGroupStatistics.SetRecord(InteractionGroup);
-            InteractionGroupStatistics.RunModal;
-        end;
+        // 3. Verify: Check that Interaction Group Statistics opens with correct values.
+        LibraryVariableStorage.Enqueue(InteractionTemplate."Unit Cost (LCY)");
+        LibraryVariableStorage.Enqueue(InteractionTemplate."Unit Duration (Min.)");
+        Clear(InteractionGroupStatistics);
+        InteractionGroupStatistics.SetRecord(InteractionGroup);
+        InteractionGroupStatistics.RunModal;
+    end;
 
-        [Test]
-        [HandlerFunctions('ConfirmHandler')]
-        [Scope('OnPrem')]
-        procedure RemoveAttachment()
-        var
-            InteractionTemplate: Record "Interaction Template";
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-        begin
-            // Test that it is possible to Remove Attachment from Interaction Template.
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveAttachment()
+    var
+        InteractionTemplate: Record "Interaction Template";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+    begin
+        // Test that it is possible to Remove Attachment from Interaction Template.
 
-            // 1. Setup: Find the Interaction Template with Attachment.
-            Initialize;
-            InteractionTemplate.SetFilter("Attachment No.", '<>0');  // Check for an Template that has some attachment.
-            InteractionTemplate.FindFirst;
+        // 1. Setup: Find the Interaction Template with Attachment.
+        Initialize;
+        InteractionTemplate.SetFilter("Attachment No.", '<>0');  // Check for an Template that has some attachment.
+        InteractionTemplate.FindFirst;
 
-            // 2. Exercise: Remove the Attachment.
-            InteractionTmplLanguage.Get(InteractionTemplate.Code, InteractionTemplate."Language Code (Default)");
-            InteractionTmplLanguage.RemoveAttachment(true);
+        // 2. Exercise: Remove the Attachment.
+        InteractionTmplLanguage.Get(InteractionTemplate.Code, InteractionTemplate."Language Code (Default)");
+        InteractionTmplLanguage.RemoveAttachment(true);
 
-            // 3. Verify: Check the Attachment has been removed.
-            InteractionTemplate.CalcFields("Attachment No.");
-            InteractionTemplate.TestField("Attachment No.", 0);  // Checks that there are no attachment.
+        // 3. Verify: Check the Attachment has been removed.
+        InteractionTemplate.CalcFields("Attachment No.");
+        InteractionTemplate.TestField("Attachment No.", 0);  // Checks that there are no attachment.
 
-            // 4. TearDown:
-            TransactionRollback;
-        end;
+        // 4. TearDown:
+        TransactionRollback;
+    end;
 
-        [Test]
-        [HandlerFunctions('ModalFormHandlerCreateInteract')]
-        [Scope('OnPrem')]
-        procedure InteractionWithoutTemplate()
-        var
-            Contact: Record Contact;
-            SegmentLine: Record "Segment Line";
-            LibraryMarketing: Codeunit "Library - Marketing";
-        begin
-            // Test that application generates an error on creating Interaction without Interaction Template code in Interaction Wizard.
+    [Test]
+    [HandlerFunctions('ModalFormHandlerCreateInteract')]
+    [Scope('OnPrem')]
+    procedure InteractionWithoutTemplate()
+    var
+        Contact: Record Contact;
+        SegmentLine: Record "Segment Line";
+        LibraryMarketing: Codeunit "Library - Marketing";
+    begin
+        // Test that application generates an error on creating Interaction without Interaction Template code in Interaction Wizard.
 
-            // 1. Setup: Create a Contact.
-            Initialize;
-            LibraryMarketing.CreateCompanyContact(Contact);
+        // 1. Setup: Create a Contact.
+        Initialize;
+        LibraryMarketing.CreateCompanyContact(Contact);
 
-            // 2. Exercise: Create Interaction without Interaction Template code in Interaction Wizard.
-            asserterror CreateInteractionFromContact(Contact, '');
+        // 2. Exercise: Create Interaction without Interaction Template code in Interaction Wizard.
+        asserterror CreateInteractionFromContact(Contact, '');
 
-            // 3. Verify: Check application generates an error on creating Interaction without Interaction Template code in Interaction Wizard.
-            Assert.AreEqual(StrSubstNo(FieldEmptyErr, SegmentLine.FieldCaption("Interaction Template Code")), GetLastErrorText, UnknownErr);
-        end;
+        // 3. Verify: Check application generates an error on creating Interaction without Interaction Template code in Interaction Wizard.
+        Assert.AreEqual(StrSubstNo(FieldEmptyErr, SegmentLine.FieldCaption("Interaction Template Code")), GetLastErrorText, UnknownErr);
+    end;
 
-        [Test]
-        [HandlerFunctions('ModalFormHandlerCreateInteract')]
-        [Scope('OnPrem')]
-        procedure InteractionWithoutDescription()
-        var
-            Contact: Record Contact;
-            InteractionTemplate: Record "Interaction Template";
-            SegmentLine: Record "Segment Line";
-            LibraryMarketing: Codeunit "Library - Marketing";
-        begin
-            // [SCENARIO] Application generates an error on creating Interaction without Description in "Create Interaction" page.
-            Initialize;
-            // [GIVEN] Create a Contact.
-            LibraryMarketing.CreateCompanyContact(Contact);
-            // [GIVEN] Create Interaction Template, where Description is <blank>
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            InteractionTemplate.Description := '';
-            InteractionTemplate.Modify();
-            // [GIVEN] Run "Create Interaction" page from Contact
+    [Test]
+    [HandlerFunctions('ModalFormHandlerCreateInteract')]
+    [Scope('OnPrem')]
+    procedure InteractionWithoutDescription()
+    var
+        Contact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+        SegmentLine: Record "Segment Line";
+        LibraryMarketing: Codeunit "Library - Marketing";
+    begin
+        // [SCENARIO] Application generates an error on creating Interaction without Description in "Create Interaction" page.
+        Initialize;
+        // [GIVEN] Create a Contact.
+        LibraryMarketing.CreateCompanyContact(Contact);
+        // [GIVEN] Create Interaction Template, where Description is <blank>
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate.Description := '';
+        InteractionTemplate.Modify();
+        // [GIVEN] Run "Create Interaction" page from Contact
 
-            // [WHEN] Enter "Interaction Template Code" and close the page
-            // by ModalFormHandlerCreateInteract
-            asserterror CreateInteractionFromContact(Contact, InteractionTemplate.Code);
+        // [WHEN] Enter "Interaction Template Code" and close the page
+        // by ModalFormHandlerCreateInteract
+        asserterror CreateInteractionFromContact(Contact, InteractionTemplate.Code);
 
-            // [THEN] The error : "You must fill in the Description"
-            Assert.AreEqual(StrSubstNo(FieldEmptyErr, SegmentLine.FieldCaption(Description)), GetLastErrorText, UnknownErr);
-        end;
+        // [THEN] The error : "You must fill in the Description"
+        Assert.AreEqual(StrSubstNo(FieldEmptyErr, SegmentLine.FieldCaption(Description)), GetLastErrorText, UnknownErr);
+    end;
 
-        [Test]
-        [HandlerFunctions('CreateInteractPageHandler')]
-        [Scope('OnPrem')]
-        procedure InteractionForContact()
-        var
-            Contact: Record Contact;
-            InteractionGroup: Record "Interaction Group";
-            TemplateCode: Code[10];
-        begin
-            // Test for successful Contact Interaction.
+    [Test]
+    [HandlerFunctions('CreateInteractPageHandler')]
+    [Scope('OnPrem')]
+    procedure InteractionForContact()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        TemplateCode: Code[10];
+    begin
+        // Test for successful Contact Interaction.
 
-            // 1. Setup: Create Interaction Group, Create Interaction Template, Create Contact, Save Template Code in Global Variable.
-            Initialize;
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
-            LibraryMarketing.CreateCompanyContact(Contact);
+        // 1. Setup: Create Interaction Group, Create Interaction Template, Create Contact, Save Template Code in Global Variable.
+        Initialize;
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        TemplateCode := CreateAndUpdateTemplate(InteractionGroup.Code);
+        LibraryMarketing.CreateCompanyContact(Contact);
 
-            // 2. Exercise: Create Interaction for Contact.
-            CreateInteractionFromContact(Contact, TemplateCode);
+        // 2. Exercise: Create Interaction for Contact.
+        CreateInteractionFromContact(Contact, TemplateCode);
 
-            // 3. Verify: Verify that Interaction successfully logged in Interaction Log Entry.
-            VerifyInteractionLogEntry(Contact."No.", TemplateCode);
-        end;
+        // 3. Verify: Verify that Interaction successfully logged in Interaction Log Entry.
+        VerifyInteractionLogEntry(Contact."No.", TemplateCode);
+    end;
 
-        [Test]
-        [HandlerFunctions('CreateInteractPageHandler')]
-        [Scope('OnPrem')]
-        procedure InteractionFromLogEntries()
-        var
-            Contact: Record Contact;
-            InteractionGroup: Record "Interaction Group";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            TemplateCode: array[2] of Code[10];
-        begin
-            // Test to check that it is possible to create Interaction for a Contact from Interaction Log Entries.
+    [Test]
+    [HandlerFunctions('CreateInteractPageHandler')]
+    [Scope('OnPrem')]
+    procedure InteractionFromLogEntries()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TemplateCode: array[2] of Code[10];
+    begin
+        // Test to check that it is possible to create Interaction for a Contact from Interaction Log Entries.
 
-            // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
-            Initialize;
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);
-            TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
-            LibraryMarketing.CreateCompanyContact(Contact);
-            CreateInteractionFromContact(Contact, TemplateCode[1]);
+        // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
+        Initialize;
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);
+        TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        CreateInteractionFromContact(Contact, TemplateCode[1]);
 
-            // 2. Exercise: Create Interaction From Interaction Log Entries.
-            FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, TemplateCode[1]);
-            CreateInteractionFromLogEntry(InteractionLogEntry, TemplateCode[2], false, 0, 0);
+        // 2. Exercise: Create Interaction From Interaction Log Entries.
+        FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, TemplateCode[1]);
+        CreateInteractionFromLogEntry(InteractionLogEntry, TemplateCode[2], false, 0, 0);
 
-            // 3. Verify: Verify Interaction Log Entry for the Second Interaction Template.
-            VerifyInteractionLogEntry(Contact."No.", TemplateCode[2]);
-        end;
+        // 3. Verify: Verify Interaction Log Entry for the Second Interaction Template.
+        VerifyInteractionLogEntry(Contact."No.", TemplateCode[2]);
+    end;
 
-        [Test]
-        [HandlerFunctions('CreateInteractPageHandler')]
-        [Scope('OnPrem')]
-        procedure InteractionForNewCostAndAmount()
-        var
-            Contact: Record Contact;
-            InteractionGroup: Record "Interaction Group";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            InteractionTemplate: Record "Interaction Template";
-            CostLCY: Decimal;
-            DurationMin: Decimal;
-        begin
-            // Test to check Interaction Details can be successfully updated while creating Interaction for Contact.
-            Initialize;
+    [Test]
+    [HandlerFunctions('CreateInteractPageHandler')]
+    [Scope('OnPrem')]
+    procedure InteractionForNewCostAndAmount()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+        CostLCY: Decimal;
+        DurationMin: Decimal;
+    begin
+        // Test to check Interaction Details can be successfully updated while creating Interaction for Contact.
+        Initialize;
 
-            // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            InteractionTemplate.Get(CreateAndUpdateTemplate(InteractionGroup.Code));
-            LibraryMarketing.CreateCompanyContact(Contact);
-            CreateInteractionFromContact(Contact, InteractionTemplate.Code);
+        // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        InteractionTemplate.Get(CreateAndUpdateTemplate(InteractionGroup.Code));
+        LibraryMarketing.CreateCompanyContact(Contact);
+        CreateInteractionFromContact(Contact, InteractionTemplate.Code);
 
-            // Take Random Cost LCY and Duration greater than Interaction Template's Cost LCY and Duration and store in Global Variable.
-            CostLCY := InteractionTemplate."Unit Cost (LCY)" + LibraryRandom.RandInt(10);
-            DurationMin := InteractionTemplate."Unit Duration (Min.)" + LibraryRandom.RandInt(10);
+        // Take Random Cost LCY and Duration greater than Interaction Template's Cost LCY and Duration and store in Global Variable.
+        CostLCY := InteractionTemplate."Unit Cost (LCY)" + LibraryRandom.RandInt(10);
+        DurationMin := InteractionTemplate."Unit Duration (Min.)" + LibraryRandom.RandInt(10);
 
-            // 2. Exercise: Create Interaction From Interaction Log Entries.
-            FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, InteractionTemplate.Code);
-            CreateInteractionFromLogEntry(InteractionLogEntry, InteractionTemplate.Code, true, CostLCY, DurationMin);
+        // 2. Exercise: Create Interaction From Interaction Log Entries.
+        FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, InteractionTemplate.Code);
+        CreateInteractionFromLogEntry(InteractionLogEntry, InteractionTemplate.Code, true, CostLCY, DurationMin);
 
-            // 3. Verify: Verify that new Cost and Duration updated in Interaction Log Entry.
-            InteractionLogEntry.FindLast;
-            InteractionLogEntry.TestField("Cost (LCY)", CostLCY);
-            InteractionLogEntry.TestField("Duration (Min.)", DurationMin);
-        end;
+        // 3. Verify: Verify that new Cost and Duration updated in Interaction Log Entry.
+        InteractionLogEntry.FindLast;
+        InteractionLogEntry.TestField("Cost (LCY)", CostLCY);
+        InteractionLogEntry.TestField("Duration (Min.)", DurationMin);
+    end;
 
-        [Test]
-        [HandlerFunctions('CreateInteractPageHandler')]
-        [Scope('OnPrem')]
-        procedure InteractionTemplateStatistics()
-        var
-            Contact: Record Contact;
-            InteractionGroup: Record "Interaction Group";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            InteractionTemplate: Record "Interaction Template";
-            CostLCY: Decimal;
-            DurationMin: Decimal;
-        begin
-            // Test to verify Interaction Template Statistics after creating Interaction.
-            Initialize;
+    [Test]
+    [HandlerFunctions('CreateInteractPageHandler')]
+    [Scope('OnPrem')]
+    procedure InteractionTemplateStatistics()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+        CostLCY: Decimal;
+        DurationMin: Decimal;
+    begin
+        // Test to verify Interaction Template Statistics after creating Interaction.
+        Initialize;
 
-            // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            InteractionTemplate.Get(CreateAndUpdateTemplate(InteractionGroup.Code));
-            LibraryMarketing.CreateCompanyContact(Contact);
-            CreateInteractionFromContact(Contact, InteractionTemplate.Code);
+        // 1. Setup: Create Interaction Group, Interaction Template, Create Contact and Interaction for the Contact.
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        InteractionTemplate.Get(CreateAndUpdateTemplate(InteractionGroup.Code));
+        LibraryMarketing.CreateCompanyContact(Contact);
+        CreateInteractionFromContact(Contact, InteractionTemplate.Code);
 
-            // Take Random Cost LCY and Duration greater than Interaction Template's Cost LCY and Duration and store in Global Variable.
-            DurationMin := InteractionTemplate."Unit Duration (Min.)" + LibraryRandom.RandInt(10);
-            CostLCY := InteractionTemplate."Unit Cost (LCY)" + LibraryRandom.RandInt(10);
+        // Take Random Cost LCY and Duration greater than Interaction Template's Cost LCY and Duration and store in Global Variable.
+        DurationMin := InteractionTemplate."Unit Duration (Min.)" + LibraryRandom.RandInt(10);
+        CostLCY := InteractionTemplate."Unit Cost (LCY)" + LibraryRandom.RandInt(10);
 
-            // 2. Exercise: Create Interaction From Interaction Log Entries.
-            FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, InteractionTemplate.Code);
-            CreateInteractionFromLogEntry(InteractionLogEntry, InteractionTemplate.Code, true, CostLCY, DurationMin);
+        // 2. Exercise: Create Interaction From Interaction Log Entries.
+        FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, InteractionTemplate.Code);
+        CreateInteractionFromLogEntry(InteractionLogEntry, InteractionTemplate.Code, true, CostLCY, DurationMin);
 
-            // 3. Verify: Verify Values on Interaction Template Statistics Page.
-            InteractionTemplate.CalcFields("No. of Interactions", "Cost (LCY)", "Duration (Min.)");
-            VerifyTemplateStatistics(InteractionTemplate);
-        end;
+        // 3. Verify: Verify Values on Interaction Template Statistics Page.
+        InteractionTemplate.CalcFields("No. of Interactions", "Cost (LCY)", "Duration (Min.)");
+        VerifyTemplateStatistics(InteractionTemplate);
+    end;
 
-        [Test]
-        [HandlerFunctions('CreateInteractPageHandler')]
-        [Scope('OnPrem')]
-        procedure InteractionGroupStatistics()
-        var
-            Contact: Record Contact;
-            InteractionGroup: Record "Interaction Group";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            TemplateCode: array[2] of Code[10];
-        begin
-            // Test to verify Interaction Group Statistics after creating Interaction.
+    [Test]
+    [HandlerFunctions('CreateInteractPageHandler')]
+    [Scope('OnPrem')]
+    procedure InteractionGroupStatistics()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TemplateCode: array[2] of Code[10];
+    begin
+        // Test to verify Interaction Group Statistics after creating Interaction.
 
-            // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
-            Initialize;
-            LibraryMarketing.CreateInteractionGroup(InteractionGroup);
-            TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);  // Set value in global variable.
-            TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
-            LibraryMarketing.CreateCompanyContact(Contact);
-            CreateInteractionFromContact(Contact, TemplateCode[1]);
+        // 1. Setup: Create Interaction Group, Interaction Templates, Create Contact and Interaction for the Contact.
+        Initialize;
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        TemplateCode[1] := CreateAndUpdateTemplate(InteractionGroup.Code);  // Set value in global variable.
+        TemplateCode[2] := CreateAndUpdateTemplate(InteractionGroup.Code);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        CreateInteractionFromContact(Contact, TemplateCode[1]);
 
-            // 2. Exercise: Create Interaction From Interaction Log Entries.
-            FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, TemplateCode[1]);
-            CreateInteractionFromLogEntry(InteractionLogEntry, TemplateCode[2], false, 0, 0);
+        // 2. Exercise: Create Interaction From Interaction Log Entries.
+        FindInteractionLogEntry(InteractionLogEntry, Contact."No.", InteractionGroup.Code, TemplateCode[1]);
+        CreateInteractionFromLogEntry(InteractionLogEntry, TemplateCode[2], false, 0, 0);
 
-            // 3. Verify: Verify Entries on Interaction Group Statistics Page.
-            InteractionGroup.CalcFields("No. of Interactions", "Cost (LCY)", "Duration (Min.)");
-            VerifyTemplateGroupStatistics(InteractionGroup);
-        end;
+        // 3. Verify: Verify Entries on Interaction Group Statistics Page.
+        InteractionGroup.CalcFields("No. of Interactions", "Cost (LCY)", "Duration (Min.)");
+        VerifyTemplateGroupStatistics(InteractionGroup);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure ValidateWizardActionWithoutLangCode()
-        var
-            InteractionTemplate: Record "Interaction Template";
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" can be validated with any value for an Interaction Template without Interaction Tmpl. Language
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWizardActionWithoutLangCode()
+    var
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" can be validated with any value for an Interaction Template without Interaction Tmpl. Language
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
-            with InteractionTemplate do
-                for WizardAction := WizardAction::" " to WizardAction::Merge do begin
-                    Validate("Wizard Action", WizardAction);
-                    Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
-                end;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure ValidateWizardActionWithLangCodeWithoutAttachment()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language without attachment
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
-
-            with InteractionTemplate do begin
-                Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
-                for WizardAction := WizardAction::" " to WizardAction::Import do begin
-                    Validate("Wizard Action", WizardAction);
-                    Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
-                end;
-
-                asserterror Validate("Wizard Action", WizardAction::Merge);
-                Assert.ExpectedErrorCode(DialogTxt);
-                Assert.ExpectedError(
-                  StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction::Merge, TableCaption, Code));
+        with InteractionTemplate do
+            for WizardAction := WizardAction::" " to WizardAction::Merge do begin
+                Validate("Wizard Action", WizardAction);
+                Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
             end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWizardActionWithLangCodeWithoutAttachment()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language without attachment
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
+
+        with InteractionTemplate do begin
+            Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
+            for WizardAction := WizardAction::" " to WizardAction::Import do begin
+                Validate("Wizard Action", WizardAction);
+                Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
+            end;
+
+            asserterror Validate("Wizard Action", WizardAction::Merge);
+            Assert.ExpectedErrorCode(DialogTxt);
+            Assert.ExpectedError(
+              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction::Merge, TableCaption, Code));
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWizardActionWithLangCodeWithWordAttachment()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+        SavedWizardAction: Enum "Interaction Template Wizard Action";
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" value can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language with Word attachment
+        Initialize;
+
+        InteractionTmplLanguage.SetRange("Attachment No.", FindWordAttachment);
+        InteractionTmplLanguage.FindFirst;
+        InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
+        SavedWizardAction := InteractionTemplate."Wizard Action";
+
+        with InteractionTemplate do begin
+            for WizardAction := WizardAction::" " to WizardAction::Import do begin
+                Validate("Wizard Action", WizardAction);
+                Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
+            end;
+
+            WizardAction := WizardAction::Merge;
+            asserterror Validate("Wizard Action", WizardAction);
+            Assert.ExpectedErrorCode(DialogTxt);
+            Assert.ExpectedError(
+              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
         end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure ValidateWizardActionWithLangCodeWithWordAttachment()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-            SavedWizardAction: Enum "Interaction Template Wizard Action";
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" value can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language with Word attachment
-            Initialize;
+        // Tear Down
+        InteractionTemplate.Validate("Wizard Action", SavedWizardAction);
+        InteractionTemplate.Modify(true);
+    end;
 
-            InteractionTmplLanguage.SetRange("Attachment No.", FindWordAttachment);
-            InteractionTmplLanguage.FindFirst;
-            InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
-            SavedWizardAction := InteractionTemplate."Wizard Action";
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWizardActionWithLangCodeWithEmailMergeAttachment()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" value can be only "Merge" for an Interaction Template with Interaction Tmpl. Language with Email Merge attachment
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
+        Commit();
 
-            with InteractionTemplate do begin
-                for WizardAction := WizardAction::" " to WizardAction::Import do begin
-                    Validate("Wizard Action", WizardAction);
-                    Assert.AreEqual(WizardAction, "Wizard Action", FieldCaption("Wizard Action"));
-                end;
+        with InteractionTemplate do begin
+            Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
+            Assert.AreEqual(WizardAction::Merge, "Wizard Action", FieldCaption("Wizard Action"));
 
-                WizardAction := WizardAction::Merge;
+            for WizardAction := WizardAction::" " to WizardAction::Import do begin
                 asserterror Validate("Wizard Action", WizardAction);
                 Assert.ExpectedErrorCode(DialogTxt);
                 Assert.ExpectedError(
                   StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
             end;
-
-            // Tear Down
-            InteractionTemplate.Validate("Wizard Action", SavedWizardAction);
-            InteractionTemplate.Modify(true);
         end;
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure ValidateWizardActionWithLangCodeWithEmailMergeAttachment()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" value can be only "Merge" for an Interaction Template with Interaction Tmpl. Language with Email Merge attachment
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+    [Test]
+    [Scope('OnPrem')]
+    procedure WizardActionIsChangedFromEmptyToMergeAfterValidateEmailMergeAttachment()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+        LanguageCode: array[2] of Code[10];
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" value is changed from "" to "Merge" after validate Interaction Tmpl. Language with Email Merge attachment
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        LanguageCode[1] :=
+          CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
+        LanguageCode[2] :=
+          CreateInteractionTmplLangWithEmailMergeAttachment(
+            InteractionTmplLanguage, InteractionTemplate.Code, StrSubstNo('<>%1', LanguageCode[1]));
+
+        with InteractionTemplate do begin
+            Validate("Language Code (Default)", LanguageCode[1]);
+            Validate("Language Code (Default)", LanguageCode[2]);
+            Assert.AreEqual(WizardAction::Merge, "Wizard Action", FieldCaption("Wizard Action"));
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WizardActionIsChangedFromMergeToEmptyAfterValidateLangCodeWithoutAttachment()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+        LanguageCode: array[2] of Code[10];
+    begin
+        // [FEATURE] [UT] [Interaction Template]
+        // [SCENARIO] "Wizard Action" value is changed from "Merge" to "" after validate Interaction Tmpl. Language without attachment
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        LanguageCode[1] :=
+          CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
+        LanguageCode[2] :=
+          CreateInteractionTmplLangWithEmailMergeAttachment(
+            InteractionTmplLanguage, InteractionTemplate.Code, StrSubstNo('<>%1', LanguageCode[1]));
+
+        with InteractionTemplate do begin
+            Validate("Language Code (Default)", LanguageCode[2]);
+            Validate("Language Code (Default)", LanguageCode[1]);
+            Assert.AreEqual(WizardAction::" ", "Wizard Action", FieldCaption("Wizard Action"));
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateCustomLayoutFromInterTmplLangPage()
+    var
+        DummyAttachment: Record Attachment;
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        CustomReportLayout: Record "Custom Report Layout";
+        InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
+    begin
+        // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
+        // [SCENARIO] Email Merge attachment is created when validate "Custom Layout No." field on "Interact. Tmpl. Languages" page
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+
+        InteractTmplLanguages.OpenView;
+        InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
+        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
+        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractTmplLanguages.Close;
+
+        InteractionTmplLanguage.Find;
+        DummyAttachment.SetRange("No.", InteractionTmplLanguage."Attachment No.");
+        Assert.RecordIsNotEmpty(DummyAttachment);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RevalidateCustomLayoutFromInterTmplLangPage()
+    var
+        DummyAttachment: Record Attachment;
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        CustomReportLayout: Record "Custom Report Layout";
+        InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
+        AttachmentNo: array[2] of Integer;
+    begin
+        // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
+        // [SCENARIO] Email Merge attachment is created when validate a new "Custom Layout No." field on "Interact. Tmpl. Languages" page
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+
+        InteractTmplLanguages.OpenView;
+        InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
+
+        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
+        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractionTmplLanguage.Find;
+        AttachmentNo[1] := InteractionTmplLanguage."Attachment No.";
+
+        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
+        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractionTmplLanguage.Find;
+        AttachmentNo[2] := InteractionTmplLanguage."Attachment No.";
+
+        InteractTmplLanguages.Close;
+
+        DummyAttachment.SetRange("No.", AttachmentNo[1]);
+        Assert.RecordIsEmpty(DummyAttachment);
+
+        DummyAttachment.SetRange("No.", AttachmentNo[2]);
+        Assert.RecordIsNotEmpty(DummyAttachment);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZeroCustomLayoutFromInterTmplLangPage()
+    var
+        DummyAttachment: Record Attachment;
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        CustomReportLayout: Record "Custom Report Layout";
+        InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
+        "Count": Integer;
+    begin
+        // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
+        // [SCENARIO] Email Merge attachment is deleted after validate "Custom Layout No." = 0 "Interact. Tmpl. Languages" page
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        Count := DummyAttachment.Count();
+
+        InteractTmplLanguages.OpenView;
+        InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
+        CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
+        InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
+        InteractTmplLanguages.CustLayoutDescription.SetValue('');
+        InteractTmplLanguages.Close;
+
+        InteractionTmplLanguage.Find;
+        Assert.AreEqual(0, InteractionTmplLanguage."Attachment No.", InteractionTmplLanguage.FieldCaption("Attachment No."));
+        Assert.RecordCount(DummyAttachment, Count);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteInteractionTmplWithEmailMergeAttachment()
+    var
+        DummyAttachment: Record Attachment;
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+        "Count": Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
+        // [SCENARIO] Email Merge attachments are removed when delete Interaction Template with several attachments
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        Count := DummyAttachment.Count();
+
+        for i := 2 to LibraryRandom.RandIntInRange(2, 5) do
             CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
-            Commit();
 
-            with InteractionTemplate do begin
-                Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
-                Assert.AreEqual(WizardAction::Merge, "Wizard Action", FieldCaption("Wizard Action"));
+        InteractionTemplate.Delete(true);
 
-                for WizardAction := WizardAction::" " to WizardAction::Import do begin
-                    asserterror Validate("Wizard Action", WizardAction);
-                    Assert.ExpectedErrorCode(DialogTxt);
-                    Assert.ExpectedError(
-                      StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
-                end;
-            end;
-        end;
+        Assert.RecordCount(DummyAttachment, Count);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure WizardActionIsChangedFromEmptyToMergeAfterValidateEmailMergeAttachment()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-            LanguageCode: array[2] of Code[10];
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" value is changed from "" to "Merge" after validate Interaction Tmpl. Language with Email Merge attachment
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            LanguageCode[1] :=
-              CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
-            LanguageCode[2] :=
-              CreateInteractionTmplLangWithEmailMergeAttachment(
-                InteractionTmplLanguage, InteractionTemplate.Code, StrSubstNo('<>%1', LanguageCode[1]));
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteInteractionLogEntryWithAttachment()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Attachment: Record Attachment;
+    begin
+        // [FEATURE] [UT] [Attachment]
+        // [SCENARIO] Attachment is removed when delete "Interaction Log Entry" record with attachment
+        Initialize;
+        LibraryMarketing.CreateAttachment(Attachment);
+        MockInterLogEntryWithAttachment(InteractionLogEntry, Attachment."No.");
 
-            with InteractionTemplate do begin
-                Validate("Language Code (Default)", LanguageCode[1]);
-                Validate("Language Code (Default)", LanguageCode[2]);
-                Assert.AreEqual(WizardAction::Merge, "Wizard Action", FieldCaption("Wizard Action"));
-            end;
-        end;
+        InteractionLogEntry.Delete(true);
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure WizardActionIsChangedFromMergeToEmptyAfterValidateLangCodeWithoutAttachment()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-            LanguageCode: array[2] of Code[10];
-        begin
-            // [FEATURE] [UT] [Interaction Template]
-            // [SCENARIO] "Wizard Action" value is changed from "Merge" to "" after validate Interaction Tmpl. Language without attachment
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            LanguageCode[1] :=
-              CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
-            LanguageCode[2] :=
-              CreateInteractionTmplLangWithEmailMergeAttachment(
-                InteractionTmplLanguage, InteractionTemplate.Code, StrSubstNo('<>%1', LanguageCode[1]));
+        Attachment.SetRecFilter;
+        Assert.RecordIsEmpty(Attachment);
+    end;
 
-            with InteractionTemplate do begin
-                Validate("Language Code (Default)", LanguageCode[2]);
-                Validate("Language Code (Default)", LanguageCode[1]);
-                Assert.AreEqual(WizardAction::" ", "Wizard Action", FieldCaption("Wizard Action"));
-            end;
-        end;
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteTwoCanceledInteractionLogEntriesWithOneAttachment()
+    var
+        Attachment: Record Attachment;
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [Attachment]
+        // [SCENARIO 285790] Attachment is removed when delete all canceled Interaction Log Entries
+        // [SCENARIO 285790] with one related attachment
+        Initialize;
+        InteractionLogEntry.ModifyAll(Canceled, false);
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure ValidateCustomLayoutFromInterTmplLangPage()
-        var
-            DummyAttachment: Record Attachment;
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            CustomReportLayout: Record "Custom Report Layout";
-            InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
-        begin
-            // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
-            // [SCENARIO] Email Merge attachment is created when validate "Custom Layout No." field on "Interact. Tmpl. Languages" page
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        // [GIVEN] Two canceled Interaction Log Entries with one attachment
+        LibraryMarketing.CreateAttachment(Attachment);
+        MockCanceledInterLogEntryWithAttachment(Attachment."No.");
+        MockCanceledInterLogEntryWithAttachment(Attachment."No.");
+        // [WHEN] Delete all canceled Interaction Log Entries
+        Commit();
+        REPORT.Run(REPORT::"Delete Interaction Log Entries", false);
+        // [THEN] Attachment is removed
+        Attachment.SetRecFilter;
+        Assert.RecordIsEmpty(Attachment);
+    end;
 
-            InteractTmplLanguages.OpenView;
-            InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-            CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-            InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-            InteractTmplLanguages.Close;
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteOneOfTwoCanceledInteractionLogEntriesWithOneAttachment()
+    var
+        Attachment: Record Attachment;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        EntryNo: Integer;
+    begin
+        // [FEATURE] [Attachment]
+        // [SCENARIO 285790] Attachment is not removed when delete one of canceled Interaction Log Entries
+        // [SCENARIO 285790] with one related attachment
+        Initialize;
+        InteractionLogEntry.ModifyAll(Canceled, false);
 
-            InteractionTmplLanguage.Find;
-            DummyAttachment.SetRange("No.", InteractionTmplLanguage."Attachment No.");
-            Assert.RecordIsNotEmpty(DummyAttachment);
-        end;
+        // [GIVEN] Two canceled Interaction Log Entries with one attachment
+        LibraryMarketing.CreateAttachment(Attachment);
+        EntryNo := MockCanceledInterLogEntryWithAttachment(Attachment."No.");
+        MockCanceledInterLogEntryWithAttachment(Attachment."No.");
+        // [WHEN] Delete first of two canceled Interaction Log Entries
+        InteractionLogEntry.SetRange("Entry No.", EntryNo);
+        Commit();
+        REPORT.Run(REPORT::"Delete Interaction Log Entries", false, false, InteractionLogEntry);
+        // [THEN] Attachment is not removed
+        Attachment.SetRecFilter;
+        Assert.RecordIsNotEmpty(Attachment);
+    end;
 
-        [Test]
-        [HandlerFunctions('ConfirmHandler')]
-        [Scope('OnPrem')]
-        procedure RevalidateCustomLayoutFromInterTmplLangPage()
-        var
-            DummyAttachment: Record Attachment;
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            CustomReportLayout: Record "Custom Report Layout";
-            InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
-            AttachmentNo: array[2] of Integer;
-        begin
-            // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
-            // [SCENARIO] Email Merge attachment is created when validate a new "Custom Layout No." field on "Interact. Tmpl. Languages" page
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-
-            InteractTmplLanguages.OpenView;
-            InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-
-            CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-            InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-            InteractionTmplLanguage.Find;
-            AttachmentNo[1] := InteractionTmplLanguage."Attachment No.";
-
-            CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-            InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-            InteractionTmplLanguage.Find;
-            AttachmentNo[2] := InteractionTmplLanguage."Attachment No.";
-
-            InteractTmplLanguages.Close;
-
-            DummyAttachment.SetRange("No.", AttachmentNo[1]);
-            Assert.RecordIsEmpty(DummyAttachment);
-
-            DummyAttachment.SetRange("No.", AttachmentNo[2]);
-            Assert.RecordIsNotEmpty(DummyAttachment);
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure ZeroCustomLayoutFromInterTmplLangPage()
-        var
-            DummyAttachment: Record Attachment;
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            CustomReportLayout: Record "Custom Report Layout";
-            InteractTmplLanguages: TestPage "Interact. Tmpl. Languages";
-            "Count": Integer;
-        begin
-            // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
-            // [SCENARIO] Email Merge attachment is deleted after validate "Custom Layout No." = 0 "Interact. Tmpl. Languages" page
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-            Count := DummyAttachment.Count();
-
-            InteractTmplLanguages.OpenView;
-            InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-            CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
-            InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-            InteractTmplLanguages.CustLayoutDescription.SetValue('');
-            InteractTmplLanguages.Close;
-
-            InteractionTmplLanguage.Find;
-            Assert.AreEqual(0, InteractionTmplLanguage."Attachment No.", InteractionTmplLanguage.FieldCaption("Attachment No."));
-            Assert.RecordCount(DummyAttachment, Count);
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure DeleteInteractionTmplWithEmailMergeAttachment()
-        var
-            DummyAttachment: Record Attachment;
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-            "Count": Integer;
-            i: Integer;
-        begin
-            // [FEATURE] [UT] [UI] [Interaction Template] [Email Merge]
-            // [SCENARIO] Email Merge attachments are removed when delete Interaction Template with several attachments
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            Count := DummyAttachment.Count();
-
-            for i := 2 to LibraryRandom.RandIntInRange(2, 5) do
-                CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
-
-            InteractionTemplate.Delete(true);
-
-            Assert.RecordCount(DummyAttachment, Count);
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure DeleteInteractionLogEntryWithAttachment()
-        var
-            InteractionLogEntry: Record "Interaction Log Entry";
-            Attachment: Record Attachment;
-        begin
-            // [FEATURE] [UT] [Attachment]
-            // [SCENARIO] Attachment is removed when delete "Interaction Log Entry" record with attachment
-            Initialize;
-            LibraryMarketing.CreateAttachment(Attachment);
-            MockInterLogEntryWithAttachment(InteractionLogEntry, Attachment."No.");
-
-            InteractionLogEntry.Delete(true);
-
-            Attachment.SetRecFilter;
-            Assert.RecordIsEmpty(Attachment);
-        end;
-
-        [Test]
-        [HandlerFunctions('MessageHandler')]
-        [Scope('OnPrem')]
-        procedure DeleteTwoCanceledInteractionLogEntriesWithOneAttachment()
-        var
-            Attachment: Record Attachment;
-            InteractionLogEntry: Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [Attachment]
-            // [SCENARIO 285790] Attachment is removed when delete all canceled Interaction Log Entries
-            // [SCENARIO 285790] with one related attachment
-            Initialize;
-            InteractionLogEntry.ModifyAll(Canceled, false);
-
-            // [GIVEN] Two canceled Interaction Log Entries with one attachment
-            LibraryMarketing.CreateAttachment(Attachment);
-            MockCanceledInterLogEntryWithAttachment(Attachment."No.");
-            MockCanceledInterLogEntryWithAttachment(Attachment."No.");
-            // [WHEN] Delete all canceled Interaction Log Entries
-            Commit();
-            REPORT.Run(REPORT::"Delete Interaction Log Entries", false);
-            // [THEN] Attachment is removed
-            Attachment.SetRecFilter;
-            Assert.RecordIsEmpty(Attachment);
-        end;
-
-        [Test]
-        [HandlerFunctions('MessageHandler')]
-        [Scope('OnPrem')]
-        procedure DeleteOneOfTwoCanceledInteractionLogEntriesWithOneAttachment()
-        var
-            Attachment: Record Attachment;
-            InteractionLogEntry: Record "Interaction Log Entry";
-            EntryNo: Integer;
-        begin
-            // [FEATURE] [Attachment]
-            // [SCENARIO 285790] Attachment is not removed when delete one of canceled Interaction Log Entries
-            // [SCENARIO 285790] with one related attachment
-            Initialize;
-            InteractionLogEntry.ModifyAll(Canceled, false);
-
-            // [GIVEN] Two canceled Interaction Log Entries with one attachment
-            LibraryMarketing.CreateAttachment(Attachment);
-            EntryNo := MockCanceledInterLogEntryWithAttachment(Attachment."No.");
-            MockCanceledInterLogEntryWithAttachment(Attachment."No.");
-            // [WHEN] Delete first of two canceled Interaction Log Entries
-            InteractionLogEntry.SetRange("Entry No.", EntryNo);
-            Commit();
-            REPORT.Run(REPORT::"Delete Interaction Log Entries", false, false, InteractionLogEntry);
-            // [THEN] Attachment is not removed
-            Attachment.SetRecFilter;
-            Assert.RecordIsNotEmpty(Attachment);
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_IsHTML_Negative_EmptyRecord()
-        var
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
-            Initialize;
-    #if CLEAN17
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_IsHTML_Negative_EmptyRecord()
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
+        Initialize;
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
-            Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
-        end;
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
+        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_IsHTML_Negative_NotHTMLAttachment()
-        var
-            TempSegmentLine: Record "Segment Line" temporary;
-            Attachment: Record Attachment;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for the record with not a HTML attachment
-            Initialize;
-            LibraryMarketing.CreateAttachment(Attachment);
-            TempSegmentLine."Attachment No." := Attachment."No.";
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_IsHTML_Negative_NotHTMLAttachment()
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+        Attachment: Record Attachment;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for the record with not a HTML attachment
+        Initialize;
+        LibraryMarketing.CreateAttachment(Attachment);
+        TempSegmentLine."Attachment No." := Attachment."No.";
 
-    #if CLEAN17
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
-        end;
+        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_IsHTML_Positive()
-        var
-            Attachment: Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO] SegmentLine.IsHTMLAttachment() returns TRUE for the record with Email Merge attachment
-            Initialize;
-            LibraryMarketing.CreateEmailMergeAttachment(Attachment);
-            TempSegmentLine."Attachment No." := Attachment."No.";
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_IsHTML_Positive()
+    var
+        Attachment: Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO] SegmentLine.IsHTMLAttachment() returns TRUE for the record with Email Merge attachment
+        Initialize;
+        LibraryMarketing.CreateEmailMergeAttachment(Attachment);
+        TempSegmentLine."Attachment No." := Attachment."No.";
 
-    #if CLEAN17
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+        Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
 
-            // Tear Down
-            Attachment.Delete(true);
-        end;
+        // Tear Down
+        Attachment.Delete(true);
+    end;
 
-        [Test]
-        [HandlerFunctions('ContentPreviewMPH')]
-        [Scope('OnPrem')]
-        procedure SegmentLine_PreviewHTMLContent()
-        var
-            Attachment: Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO] SegmentLine.PreviewHTMLContent() opens "Content Preview" page for Email Merge attachment
-            Initialize;
-            LibraryMarketing.CreateEmailMergeAttachment(Attachment);
-            TempSegmentLine."Attachment No." := Attachment."No.";
-    #if CLEAN17
+    [Test]
+    [HandlerFunctions('ContentPreviewMPH')]
+    [Scope('OnPrem')]
+    procedure SegmentLine_PreviewHTMLContent()
+    var
+        Attachment: Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO] SegmentLine.PreviewHTMLContent() opens "Content Preview" page for Email Merge attachment
+        Initialize;
+        LibraryMarketing.CreateEmailMergeAttachment(Attachment);
+        TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
                 TempSegmentLine.PreviewSegLineHTMLContent();
-    #else
-            TempSegmentLine.LoadAttachment(false);
-            TempSegmentLine.PreviewHTMLContent();
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+        TempSegmentLine.PreviewHTMLContent();
+#endif
 
 
-            // Verify "Content Preview" page is opened in ContentPreviewMPH handler
+        // Verify "Content Preview" page is opened in ContentPreviewMPH handler
 
-            // Tear Down
-            Attachment.Delete(true);
-        end;
+        // Tear Down
+        Attachment.Delete(true);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_LoadContentBodyText()
-        var
-            Attachment: Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-            ContentBodyText: Text;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO] SegmentLine.LoadContentBodyTextFromCustomLayoutAttachment() returns content text
-            Initialize;
-            ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment);
-            TempSegmentLine."Attachment No." := Attachment."No.";
-    #if CLEAN17
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_LoadContentBodyText()
+    var
+        Attachment: Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+        ContentBodyText: Text;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO] SegmentLine.LoadContentBodyTextFromCustomLayoutAttachment() returns content text
+        Initialize;
+        ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment);
+        TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            Assert.AreEqual(
-              ContentBodyText,
-              TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
-              TempSegmentLine.FieldCaption("Attachment No."));
+        Assert.AreEqual(
+          ContentBodyText,
+          TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
+          TempSegmentLine.FieldCaption("Attachment No."));
 
-            // Tear Down
-            Attachment.Delete(true);
-        end;
+        // Tear Down
+        Attachment.Delete(true);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_UpdateContentBodyText()
-        var
-            Attachment: Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-            NewContentBodyText: Text;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO] SegmentLine.UpdateContentBodyTextInCustomLayoutAttachment() updates content text
-            Initialize;
-            LibraryMarketing.CreateEmailMergeAttachment(Attachment);
-            NewContentBodyText := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandIntInRange(2000, 3000), 0);
-            TempSegmentLine."Attachment No." := Attachment."No.";
-    #if CLEAN17
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_UpdateContentBodyText()
+    var
+        Attachment: Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+        NewContentBodyText: Text;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO] SegmentLine.UpdateContentBodyTextInCustomLayoutAttachment() updates content text
+        Initialize;
+        LibraryMarketing.CreateEmailMergeAttachment(Attachment);
+        NewContentBodyText := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandIntInRange(2000, 3000), 0);
+        TempSegmentLine."Attachment No." := Attachment."No.";
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(NewContentBodyText);
+        TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(NewContentBodyText);
 
-            Assert.AreEqual(
-              NewContentBodyText,
-              TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
-              TempSegmentLine.FieldCaption("Attachment No."));
+        Assert.AreEqual(
+          NewContentBodyText,
+          TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
+          TempSegmentLine.FieldCaption("Attachment No."));
 
-            // Tear Down
-            Attachment.Delete(true);
-        end;
+        // Tear Down
+        Attachment.Delete(true);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure AttachmentNotLoadedWhenItAlreadyExists()
-        var
-            Attachment: array[2] of Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO 220243] When using Attachment loading with optimization new attachment is not loaded if attachment already exists
+    [Test]
+    [Scope('OnPrem')]
+    procedure AttachmentNotLoadedWhenItAlreadyExists()
+    var
+        Attachment: array[2] of Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO 220243] When using Attachment loading with optimization new attachment is not loaded if attachment already exists
 
-            // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
-            Initialize;
-            CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
+        // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
+        Initialize;
+        CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
 
-            // [GIVEN] Create Attachment "A2"
-            LibraryMarketing.CreateEmailMergeAttachment(Attachment[2]);
-            TempSegmentLine."Attachment No." := Attachment[2]."No.";
+        // [GIVEN] Create Attachment "A2"
+        LibraryMarketing.CreateEmailMergeAttachment(Attachment[2]);
+        TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
-            // [WHEN] Load attachment to "SL" with optimization (check if attachment already exists).
-    #if CLEAN17
+        // [WHEN] Load attachment to "SL" with optimization (check if attachment already exists).
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            // [THEN] Attachment was not loaded ("SL" Attachment = "A1")
-            Assert.AreEqual(
-              FirstContentBodyTxt,
-              TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
-              TempSegmentLine.FieldCaption("Attachment No."));
+        // [THEN] Attachment was not loaded ("SL" Attachment = "A1")
+        Assert.AreEqual(
+          FirstContentBodyTxt,
+          TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
+          TempSegmentLine.FieldCaption("Attachment No."));
 
-            // Tear Down
-            Attachment[1].Delete(true);
-            Attachment[2].Delete(true);
-        end;
+        // Tear Down
+        Attachment[1].Delete(true);
+        Attachment[2].Delete(true);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure AttachmentLoadedWhenLoadWithForceAttachment()
-        var
-            Attachment: array[2] of Record Attachment;
-            TempSegmentLine: Record "Segment Line" temporary;
-            ContentBodyText: Text;
-        begin
-            // [FEATURE] [UT] [Segment] [Email Merge]
-            // [SCENARIO 220243] When using Attachment loading with reload forcing new attachment is loaded even if attachment already exists
+    [Test]
+    [Scope('OnPrem')]
+    procedure AttachmentLoadedWhenLoadWithForceAttachment()
+    var
+        Attachment: array[2] of Record Attachment;
+        TempSegmentLine: Record "Segment Line" temporary;
+        ContentBodyText: Text;
+    begin
+        // [FEATURE] [UT] [Segment] [Email Merge]
+        // [SCENARIO 220243] When using Attachment loading with reload forcing new attachment is loaded even if attachment already exists
 
-            // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
-            Initialize;
-            CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
+        // [GIVEN] Create Attachment "A1" and load it to Segment Line "SL"
+        Initialize;
+        CreateSegmentLineWithAttachment(TempSegmentLine, Attachment[1], FirstContentBodyTxt);
 
-            // [GIVEN] Create Attachment "A2"
-            ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment[2]);
-            TempSegmentLine."Attachment No." := Attachment[2]."No.";
+        // [GIVEN] Create Attachment "A2"
+        ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment[2]);
+        TempSegmentLine."Attachment No." := Attachment[2]."No.";
 
-            // [WHEN] Load attachment to "SL" with Reload forcing
-    #if CLEAN17
+        // [WHEN] Load attachment to "SL" with Reload forcing
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(true);
-    #else
-            TempSegmentLine.LoadAttachment(true);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(true);
+#endif
 
-            // [THEN] Attachment was loaded ("SL" Attachment = "A2")
-            Assert.AreEqual(
-              ContentBodyText,
-              TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
-              TempSegmentLine.FieldCaption("Attachment No."));
+        // [THEN] Attachment was loaded ("SL" Attachment = "A2")
+        Assert.AreEqual(
+          ContentBodyText,
+          TempSegmentLine.LoadContentBodyTextFromCustomLayoutAttachment,
+          TempSegmentLine.FieldCaption("Attachment No."));
 
-            // Tear Down
-            Attachment[1].Delete(true);
-            Attachment[2].Delete(true);
-        end;
+        // Tear Down
+        Attachment[1].Delete(true);
+        Attachment[2].Delete(true);
+    end;
 
-        [Test]
-        [HandlerFunctions('InteractTmplLanguagesMPH')]
-        [Scope('OnPrem')]
-        procedure SegmentLine_LanguageCodeOnLookup()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            InteractionTemplate: Record "Interaction Template";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.LanguageCodeOnLookup() opens "Interact. Tmpl. Languages" page
-            Initialize;
-            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-            CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
+    [Test]
+    [HandlerFunctions('InteractTmplLanguagesMPH')]
+    [Scope('OnPrem')]
+    procedure SegmentLine_LanguageCodeOnLookup()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplate: Record "Interaction Template";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.LanguageCodeOnLookup() opens "Interact. Tmpl. Languages" page
+        Initialize;
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
 
-            MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
-    #if CLEAN17
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
+#if CLEAN17
                 TempSegmentLine.LoadSegLineAttachment(false);
-    #else
-            TempSegmentLine.LoadAttachment(false);
-    #endif
+#else
+        TempSegmentLine.LoadAttachment(false);
+#endif
 
-            LibraryVariableStorage.Enqueue(TempSegmentLine."Interaction Template Code");
-            LibraryVariableStorage.Enqueue(TempSegmentLine."Language Code");
-            TempSegmentLine.LanguageCodeOnLookup;
+        LibraryVariableStorage.Enqueue(TempSegmentLine."Interaction Template Code");
+        LibraryVariableStorage.Enqueue(TempSegmentLine."Language Code");
+        TempSegmentLine.LanguageCodeOnLookup;
 
-            // Verify "Interact. Tmpl. Languages" page is opened in InteractTmplLanguagesMPH handler
+        // Verify "Interact. Tmpl. Languages" page is opened in InteractTmplLanguagesMPH handler
 
-            // Tear Down
-            InteractionTemplate.Delete(true);
-        end;
+        // Tear Down
+        InteractionTemplate.Delete(true);
+    end;
 
-        [Test]
-        [HandlerFunctions('ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_ConfirmNo()
-        var
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(FALSE): asks for confirm action
-            Initialize;
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_ConfirmNo()
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(FALSE): asks for confirm action
+        Initialize;
 
-    #if CLEAN17
+#if CLEAN17
                 TempSegmentLine.FinishSegLineWizard(false);
-    #else
-            TempSegmentLine.FinishWizard(false);
-    #endif
+#else
+        TempSegmentLine.FinishWizard(false);
+#endif
 
-            // Verify finish later confirm question in ConfirmHandlerNo handler
-        end;
+        // Verify finish later confirm question in ConfirmHandlerNo handler
+    end;
 
-        [Test]
-        [HandlerFunctions('ConfirmHandlerYes')]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_ConfirmYes_InterTmplIsMandatory()
-        var
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(FALSE): "Contact No." field is mandatory for empty Segment Line
-            Initialize;
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_ConfirmYes_InterTmplIsMandatory()
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(FALSE): "Contact No." field is mandatory for empty Segment Line
+        Initialize;
 
-    #if CLEAN17
+#if CLEAN17
                 asserterror TempSegmentLine.FinishSegLineWizard(false);
-    #else
-            asserterror TempSegmentLine.FinishWizard(false);
-    #endif
+#else
+        asserterror TempSegmentLine.FinishWizard(false);
+#endif
 
-            // Verify finish later confirm question in ConfirmHandlerNo handler
-            Assert.ExpectedErrorCode('Dialog');
-            Assert.ExpectedError(SelectContactErr);
-        end;
+        // Verify finish later confirm question in ConfirmHandlerNo handler
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(SelectContactErr);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_ContactIsMandatory()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Contact No." field is mandatory
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_ContactIsMandatory()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Contact No." field is mandatory
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
-            MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
 
-    #if CLEAN17
+#if CLEAN17
                 asserterror TempSegmentLine.FinishSegLineWizard(true);
-    #else
-            asserterror TempSegmentLine.FinishWizard(true);
-    #endif
-            Assert.ExpectedErrorCode('Dialog');
-            Assert.ExpectedError(SelectContactErr);
-        end;
+#else
+        asserterror TempSegmentLine.FinishWizard(true);
+#endif
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(SelectContactErr);
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_SalesPersonIsMandatory()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Salesperson Code" field is mandatory
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_SalesPersonIsMandatory()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(TRUE): "Salesperson Code" field is mandatory
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
 
-            MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), '', 0D, '');
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), '', 0D, '');
 
-    #if CLEAN17
+#if CLEAN17
                 asserterror TempSegmentLine.FinishSegLineWizard(true);
-    #else
-            asserterror TempSegmentLine.FinishWizard(true);
-    #endif
-            Assert.ExpectedErrorCode('Dialog');
-            Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption("Salesperson Code")));
-        end;
+#else
+        asserterror TempSegmentLine.FinishWizard(true);
+#endif
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption("Salesperson Code")));
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_DateIsMandatory()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(TRUE): Date field is mandatory
-            Initialize;
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_DateIsMandatory()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(TRUE): Date field is mandatory
+        Initialize;
 
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-            MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), MockSalesPersonCode, 0D, '');
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), MockSalesPersonCode, 0D, '');
 
-    #if CLEAN17
+#if CLEAN17
                 asserterror TempSegmentLine.FinishSegLineWizard(true);
-    #else
-            asserterror TempSegmentLine.FinishWizard(true);
-    #endif
-            Assert.ExpectedErrorCode('Dialog');
-            Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Date)));
-        end;
+#else
+        asserterror TempSegmentLine.FinishWizard(true);
+#endif
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Date)));
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_DescriptionIsMandatory()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-            ContactCode: Code[20];
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(TRUE): Description field is mandatory
-            Initialize;
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_DescriptionIsMandatory()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+        ContactCode: Code[20];
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(TRUE): Description field is mandatory
+        Initialize;
 
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-            ContactCode := MockContactNo('');
-            MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        ContactCode := MockContactNo('');
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
 
-    #if CLEAN17
+#if CLEAN17
                 asserterror TempSegmentLine.FinishSegLineWizard(true);
-    #else
-            asserterror TempSegmentLine.FinishWizard(true);
-    #endif
-            Assert.ExpectedErrorCode('Dialog');
-            Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Description)));
-        end;
+#else
+        asserterror TempSegmentLine.FinishWizard(true);
+#endif
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(FieldEmptyErr, TempSegmentLine.FieldCaption(Description)));
+    end;
 
-        [Test]
-        [Scope('OnPrem')]
-        procedure SegmentLine_FinishWizard_InteractionLogEntry_NotEmail()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-            InteractionLogEntry: Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT] [Segment]
-            // [SCENARIO] SegmentLine.FinishWizard(TRUE): Interaction Log Entry is created in case of not Email Correspondence Type
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-            MockSegmentLine(
-              TempSegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
-              MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID);
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLine_FinishWizard_InteractionLogEntry_NotEmail()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO] SegmentLine.FinishWizard(TRUE): Interaction Log Entry is created in case of not Email Correspondence Type
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        MockSegmentLine(
+          TempSegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
+          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID);
 
-            InteractionLogEntry.FindLast;
-    #if CLEAN17
+        InteractionLogEntry.FindLast;
+#if CLEAN17
                 TempSegmentLine.FinishSegLineWizard(true);
-    #else
-            TempSegmentLine.FinishWizard(true);
-    #endif
+#else
+        TempSegmentLine.FinishWizard(true);
+#endif
 
-            VerifyInteractionLogEntryDetails(InteractionLogEntry."Entry No." + 1, TempSegmentLine);
+        VerifyInteractionLogEntryDetails(InteractionLogEntry."Entry No." + 1, TempSegmentLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeTemplate()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Email Merge]
+        // [SCENARIO] "Create Interaction" page is opened with not visible HTML content for not Email Merge template
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
+        MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
+
+        LibraryVariableStorage.Enqueue(false);
+        CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+
+        // Verify html content visibility in CreateInteraction_VerifyHTMLContentVisibility_MPH handler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_HTMLContentIsVisibleFor_EmailMergeTemplate()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Email Merge]
+        // [SCENARIO] "Create Interaction" page is opened with visible HTML content for Email Merge template
+        Initialize;
+        PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
+        MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
+
+        LibraryVariableStorage.Enqueue(true);
+        CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+
+        // Verify html content visibility in CreateInteraction_VerifyHTMLContentVisibility_MPH handler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeLangTmpl()
+    var
+        InteractionTmplLanguage: array[2] of Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Email Merge]
+        // [SCENARIO] "Create Interaction" page: html content is hide when validate Language Code for not Email Merge template
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
+        CreateInteractionTmplLangWithEmailMergeAttachment(
+          InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
+          StrSubstNo('<>%1', InteractionTmplLanguage[1]."Language Code"));
+
+        MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage[2]);
+
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(InteractionTmplLanguage[1]."Language Code");
+        CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+
+        // Verify html content visibility in CreateInteraction_ValidateLanguageCode_MPH handler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_HTMLContentIsVisible_EmailMergeLangTmpl()
+    var
+        InteractionTmplLanguage: array[2] of Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Email Merge]
+        // [SCENARIO] "Create Interaction" page: html content is shown when validate Language Code for Email Merge template
+        Initialize;
+        PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
+        CreateInteractionTmplLangWithEmailMergeAttachment(
+          InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
+          StrSubstNo('<>%1', InteractionTmplLanguage[1]."Language Code"));
+
+        MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage[1]);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(InteractionTmplLanguage[2]."Language Code");
+        CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+
+        // Verify html content visibility in CreateInteraction_ValidateLanguageCode_MPH handler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_ValidateHTMLContent_MPH,ContentPreviewMPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure CreateInteraction_ValidateAndPreviewHTMLContent()
+    var
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        TempSegmentLine: Record "Segment Line" temporary;
+    begin
+        // [FEATURE] [UT] [Email Merge]
+        // [SCENARIO] "Create Interaction" page: validate and preview html content
+        Initialize;
+        PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
+        MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
+
+        CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+
+        // Validate and preview html content in CreateInteraction_ValidateHTMLContent_MPH
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentWithEmailWordAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        LogSegmentWithEmailWordAttachmentInternal();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentWithEmailWordAttachment()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LogSegmentWithEmailWordAttachmentInternal();
+    end;
+
+    procedure LogSegmentWithEmailWordAttachmentInternal()
+    var
+        SegmentHeader: Record "Segment Header";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 178203] User sends email with Word document as attachment in Web client
+        Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else begin
+            LibraryWorkflow.SetUpSMTPEmailSetup;
+            UpdateSMTPSetup;
+        end;
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+        // [GIVEN] Segment for email
+        PrepareSegmentForEmail(SegmentHeader, FileExtension);
+        // [GIVEN] Emulate Web client
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        // [WHEN] Log Segment
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke;
+        // [THEN] Email dialog launched (verification in handler)
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentWithEmailTextAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        LogSegmentWithEmailTextAttachmentInternal();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentWithEmailTextAttachment()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LogSegmentWithEmailTextAttachmentInternal();
+    end;
+
+    procedure LogSegmentWithEmailTextAttachmentInternal()
+    var
+        SegmentHeader: Record "Segment Header";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 178203] User sends email with text document as attachment in Web client
+        Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else begin
+            LibraryWorkflow.SetUpSMTPEmailSetup;
+            UpdateSMTPSetup;
+        end;
+        // [GIVEN] Interaction Template with text attachment
+        FileExtension := 'TXT';
+        // [GIVEN] Segment for email
+        PrepareSegmentForEmail(SegmentHeader, FileExtension);
+        // [GIVEN] Emulate Web client
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        // [WHEN] Log Segment
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke;
+        // [THEN] Email dialog launched (verification in handler)
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntry_ResumeInteraction_LongFilters()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of long field filters
+        // [SCENARIO 255837]
+        Initialize;
+
+        // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and applied field filter =  "A"), where "A" - 20-char length value
+        // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
+        // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
+        // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
+        MockInterLogEntryWithRandomDetails(InteractionLogEntry);
+        with InteractionLogEntry do begin
+            SetFilter("To-do No.", "To-do No." + '|' + "To-do No.");
+            SetFilter("Contact Company No.", "Contact Company No." + '|' + "Contact Company No.");
+            SetFilter("Contact No.", "Contact No." + '|' + "Contact No.");
+            SetFilter("Salesperson Code", "Salesperson Code" + '|' + "Salesperson Code");
+            SetFilter("Campaign No.", "Campaign No." + '|' + "Campaign No.");
+            SetFilter("Opportunity No.", "Opportunity No." + '|' + "Opportunity No.");
+
+            ResumeInteraction;
+
+            Find;
+            VerifyFilterValuesAfterResumeInteraction(
+              "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
         end;
 
-        [Test]
-        [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeTemplate()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Email Merge]
-            // [SCENARIO] "Create Interaction" page is opened with not visible HTML content for not Email Merge template
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-            MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
+        LibraryVariableStorage.AssertEmpty;
+    end;
 
-            LibraryVariableStorage.Enqueue(false);
-            CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+    [Test]
+    [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntry_ResumeInteraction_BlankedFilters()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field filters
+        // [SCENARIO 255837]
+        Initialize;
 
-            // Verify html content visibility in CreateInteraction_VerifyHTMLContentVisibility_MPH handler
+        // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and no applied field filter)
+        // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
+        // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
+        // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
+        MockInterLogEntryWithRandomDetails(InteractionLogEntry);
+        with InteractionLogEntry do begin
+            ResumeInteraction;
+
+            Find;
+            VerifyFilterValuesAfterResumeInteraction(
+              "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
         end;
 
-        [Test]
-        [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure CreateInteraction_HTMLContentIsVisibleFor_EmailMergeTemplate()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Email Merge]
-            // [SCENARIO] "Create Interaction" page is opened with visible HTML content for Email Merge template
-            Initialize;
-            PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
-            MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
+        LibraryVariableStorage.AssertEmpty;
+    end;
 
-            LibraryVariableStorage.Enqueue(true);
-            CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+    [Test]
+    [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntry_ResumeInteraction_BlankedValues()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field values
+        // [SCENARIO 255837]
+        Initialize;
 
-            // Verify html content visibility in CreateInteraction_VerifyHTMLContentVisibility_MPH handler
+        // [GIVEN] Interaction Log Entry with "Salesperson Code" = ""
+        // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
+        // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "" (and no applied field filter)
+        // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
+        with InteractionLogEntry do begin
+            Init;
+            ResumeInteraction;
+            VerifyFilterValuesAfterResumeInteraction('', '', '', '', '', '');
         end;
 
-        [Test]
-        [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeLangTmpl()
-        var
-            InteractionTmplLanguage: array[2] of Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Email Merge]
-            // [SCENARIO] "Create Interaction" page: html content is hide when validate Language Code for not Email Merge template
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
-            CreateInteractionTmplLangWithEmailMergeAttachment(
-              InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
-              StrSubstNo('<>%1', InteractionTmplLanguage[1]."Language Code"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
 
-            MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage[2]);
+    [Test]
+    [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntry_ResumeInteraction_FiltersOrderAB()
+    var
+        InteractionLogEntry: array[2] of Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" = "A", filter "A|B" and two records
+        // [SCENARIO 255837]
+        Initialize;
 
-            LibraryVariableStorage.Enqueue(false);
-            LibraryVariableStorage.Enqueue(InteractionTmplLanguage[1]."Language Code");
-            CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+        // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
+        // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
+        // [GIVEN] Select Interaction Log Entry "X", apply "Salesperson Code" filter "A|B"
+        // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
+        // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
+        // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
+        with InteractionLogEntry[1] do begin
+            SetFilter("Salesperson Code", "Salesperson Code" + '|' + InteractionLogEntry[2]."Salesperson Code");
 
-            // Verify html content visibility in CreateInteraction_ValidateLanguageCode_MPH handler
+            ResumeInteraction;
+
+            Find;
+            VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
         end;
 
-        [Test]
-        [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure CreateInteraction_HTMLContentIsVisible_EmailMergeLangTmpl()
-        var
-            InteractionTmplLanguage: array[2] of Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Email Merge]
-            // [SCENARIO] "Create Interaction" page: html content is shown when validate Language Code for Email Merge template
-            Initialize;
-            PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage[1]);
-            CreateInteractionTmplLangWithEmailMergeAttachment(
-              InteractionTmplLanguage[2], InteractionTmplLanguage[1]."Interaction Template Code",
-              StrSubstNo('<>%1', InteractionTmplLanguage[1]."Language Code"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
 
-            MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage[1]);
+    [Test]
+    [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure InteractionLogEntry_ResumeInteraction_FiltersOrderBA()
+    var
+        InteractionLogEntry: array[2] of Record "Interaction Log Entry";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" "B", filter "A|B" and two records
+        // [SCENARIO 255837]
+        Initialize;
 
-            LibraryVariableStorage.Enqueue(true);
-            LibraryVariableStorage.Enqueue(InteractionTmplLanguage[2]."Language Code");
-            CreateInteractionFromContact_EmailMerge(TempSegmentLine);
+        // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
+        // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
+        // [GIVEN] Select Interaction Log Entry "Y", apply "Salesperson Code" filter "A|B"
+        // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
+        // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "B" (and applied field filter =  "B")
+        // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
+        MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
+        with InteractionLogEntry[2] do begin
+            SetFilter("Salesperson Code", InteractionLogEntry[1]."Salesperson Code" + '|' + "Salesperson Code");
 
-            // Verify html content visibility in CreateInteraction_ValidateLanguageCode_MPH handler
+            ResumeInteraction;
+
+            Find;
+            VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
         end;
 
-        [Test]
-        [HandlerFunctions('CreateInteraction_ValidateHTMLContent_MPH,ContentPreviewMPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure CreateInteraction_ValidateAndPreviewHTMLContent()
-        var
-            InteractionTmplLanguage: Record "Interaction Tmpl. Language";
-            TempSegmentLine: Record "Segment Line" temporary;
-        begin
-            // [FEATURE] [UT] [Email Merge]
-            // [SCENARIO] "Create Interaction" page: validate and preview html content
-            Initialize;
-            PrepareInteractionTmplLangCodeWithEmailMergeAttachment(InteractionTmplLanguage);
-            MockFullSegmentLine(TempSegmentLine, InteractionTmplLanguage);
-
-            CreateInteractionFromContact_EmailMerge(TempSegmentLine);
-
-            // Validate and preview html content in CreateInteraction_ValidateHTMLContent_MPH
-        end;
-
-        [Test]
-        [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
-        [Scope('OnPrem')]
-        procedure LogSegmentWithEmailWordAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
-        var
-            LibraryEmailFeature: Codeunit "Library - Email Feature";
-        begin
-            LibraryEmailFeature.SetEmailFeatureEnabled(false);
-            LogSegmentWithEmailWordAttachmentInternal();
-        end;
-
-        [Test]
-        [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
-        [Scope('OnPrem')]
-        procedure LogSegmentWithEmailWordAttachment()
-        var
-            LibraryEmailFeature: Codeunit "Library - Email Feature";
-        begin
-            LibraryEmailFeature.SetEmailFeatureEnabled(true);
-            LogSegmentWithEmailWordAttachmentInternal();
-        end;
-
-        procedure LogSegmentWithEmailWordAttachmentInternal()
-        var
-            SegmentHeader: Record "Segment Header";
-            TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-            EmailFeature: Codeunit "Email Feature";
-            Segment: TestPage Segment;
-            FileExtension: Text[250];
-        begin
-            // [SCENARIO 178203] User sends email with Word document as attachment in Web client
-            Initialize;
-            if EmailFeature.IsEnabled() then
-                LibraryWorkflow.SetUpEmailAccount()
-            else begin
-                LibraryWorkflow.SetUpSMTPEmailSetup;
-                UpdateSMTPSetup;
-            end;
-            // [GIVEN] Interaction Template with Word attachment
-            FileExtension := 'DOC';
-            // [GIVEN] Segment for email
-            PrepareSegmentForEmail(SegmentHeader, FileExtension);
-            // [GIVEN] Emulate Web client
-            BindSubscription(TestClientTypeSubscriber);
-            TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
-            // [WHEN] Log Segment
-            Segment.OpenView;
-            Segment.GotoRecord(SegmentHeader);
-            Segment.LogSegment.Invoke;
-            // [THEN] Email dialog launched (verification in handler)
-        end;
-
-        [Test]
-        [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
-        [Scope('OnPrem')]
-        procedure LogSegmentWithEmailTextAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
-        var
-            LibraryEmailFeature: Codeunit "Library - Email Feature";
-        begin
-            LibraryEmailFeature.SetEmailFeatureEnabled(false);
-            LogSegmentWithEmailTextAttachmentInternal();
-        end;
-
-        [Test]
-        [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
-        [Scope('OnPrem')]
-        procedure LogSegmentWithEmailTextAttachment()
-        var
-            LibraryEmailFeature: Codeunit "Library - Email Feature";
-        begin
-            LibraryEmailFeature.SetEmailFeatureEnabled(true);
-            LogSegmentWithEmailTextAttachmentInternal();
-        end;
-
-        procedure LogSegmentWithEmailTextAttachmentInternal()
-        var
-            SegmentHeader: Record "Segment Header";
-            TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-            LibraryWorkflow: Codeunit "Library - Workflow";
-            EmailFeature: Codeunit "Email Feature";
-            Segment: TestPage Segment;
-            FileExtension: Text[250];
-        begin
-            // [SCENARIO 178203] User sends email with text document as attachment in Web client
-            Initialize;
-            if EmailFeature.IsEnabled() then
-                LibraryWorkflow.SetUpEmailAccount()
-            else begin
-                LibraryWorkflow.SetUpSMTPEmailSetup;
-                UpdateSMTPSetup;
-            end;
-            // [GIVEN] Interaction Template with text attachment
-            FileExtension := 'TXT';
-            // [GIVEN] Segment for email
-            PrepareSegmentForEmail(SegmentHeader, FileExtension);
-            // [GIVEN] Emulate Web client
-            BindSubscription(TestClientTypeSubscriber);
-            TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
-            // [WHEN] Log Segment
-            Segment.OpenView;
-            Segment.GotoRecord(SegmentHeader);
-            Segment.LogSegment.Invoke;
-            // [THEN] Email dialog launched (verification in handler)
-        end;
-
-        [Test]
-        [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure InteractionLogEntry_ResumeInteraction_LongFilters()
-        var
-            InteractionLogEntry: Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT]
-            // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of long field filters
-            // [SCENARIO 255837]
-            Initialize;
-
-            // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and applied field filter =  "A"), where "A" - 20-char length value
-            // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
-            // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
-            // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-            MockInterLogEntryWithRandomDetails(InteractionLogEntry);
-            with InteractionLogEntry do begin
-                SetFilter("To-do No.", "To-do No." + '|' + "To-do No.");
-                SetFilter("Contact Company No.", "Contact Company No." + '|' + "Contact Company No.");
-                SetFilter("Contact No.", "Contact No." + '|' + "Contact No.");
-                SetFilter("Salesperson Code", "Salesperson Code" + '|' + "Salesperson Code");
-                SetFilter("Campaign No.", "Campaign No." + '|' + "Campaign No.");
-                SetFilter("Opportunity No.", "Opportunity No." + '|' + "Opportunity No.");
-
-                ResumeInteraction;
-
-                Find;
-                VerifyFilterValuesAfterResumeInteraction(
-                  "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
-            end;
-
-            LibraryVariableStorage.AssertEmpty;
-        end;
-
-        [Test]
-        [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure InteractionLogEntry_ResumeInteraction_BlankedFilters()
-        var
-            InteractionLogEntry: Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT]
-            // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field filters
-            // [SCENARIO 255837]
-            Initialize;
-
-            // [GIVEN] Interaction Log Entry with "Salesperson Code" = "A" (and no applied field filter)
-            // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
-            // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
-            // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-            MockInterLogEntryWithRandomDetails(InteractionLogEntry);
-            with InteractionLogEntry do begin
-                ResumeInteraction;
-
-                Find;
-                VerifyFilterValuesAfterResumeInteraction(
-                  "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
-            end;
-
-            LibraryVariableStorage.AssertEmpty;
-        end;
-
-        [Test]
-        [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure InteractionLogEntry_ResumeInteraction_BlankedValues()
-        var
-            InteractionLogEntry: Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT]
-            // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of blanked field values
-            // [SCENARIO 255837]
-            Initialize;
-
-            // [GIVEN] Interaction Log Entry with "Salesperson Code" = ""
-            // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
-            // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "" (and no applied field filter)
-            // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-            with InteractionLogEntry do begin
-                Init;
-                ResumeInteraction;
-                VerifyFilterValuesAfterResumeInteraction('', '', '', '', '', '');
-            end;
-
-            LibraryVariableStorage.AssertEmpty;
-        end;
-
-        [Test]
-        [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure InteractionLogEntry_ResumeInteraction_FiltersOrderAB()
-        var
-            InteractionLogEntry: array[2] of Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT]
-            // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" = "A", filter "A|B" and two records
-            // [SCENARIO 255837]
-            Initialize;
-
-            // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
-            // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
-            // [GIVEN] Select Interaction Log Entry "X", apply "Salesperson Code" filter "A|B"
-            // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
-            // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "A" (and applied field filter =  "A")
-            // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-            MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
-            MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
-            with InteractionLogEntry[1] do begin
-                SetFilter("Salesperson Code", "Salesperson Code" + '|' + InteractionLogEntry[2]."Salesperson Code");
-
-                ResumeInteraction;
-
-                Find;
-                VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
-            end;
-
-            LibraryVariableStorage.AssertEmpty;
-        end;
-
-        [Test]
-        [HandlerFunctions('CreateInteraction_Cancel_MPH,ConfirmHandlerNo')]
-        [Scope('OnPrem')]
-        procedure InteractionLogEntry_ResumeInteraction_FiltersOrderBA()
-        var
-            InteractionLogEntry: array[2] of Record "Interaction Log Entry";
-        begin
-            // [FEATURE] [UT]
-            // [SCENARIO 252197] TAB 5065 "Interaction Log Entry".ResumeInteraction() in case of "Salesperson Code" "B", filter "A|B" and two records
-            // [SCENARIO 255837]
-            Initialize;
-
-            // [GIVEN] Interaction Log Entry "X" with "Salesperson Code" = "A"
-            // [GIVEN] Interaction Log Entry "Y" with "Salesperson Code" = "B"
-            // [GIVEN] Select Interaction Log Entry "Y", apply "Salesperson Code" filter "A|B"
-            // [WHEN] Perform "Interaction Log Entry".ResumeInteraction()
-            // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "B" (and applied field filter =  "B")
-            // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
-            MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[1], LibraryUtility.GenerateGUID);
-            MockInterLogEntryWithGivenSalesPersonCode(InteractionLogEntry[2], LibraryUtility.GenerateGUID);
-            with InteractionLogEntry[2] do begin
-                SetFilter("Salesperson Code", InteractionLogEntry[1]."Salesperson Code" + '|' + "Salesperson Code");
-
-                ResumeInteraction;
-
-                Find;
-                VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
-            end;
-
-            LibraryVariableStorage.AssertEmpty;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure LogDocumentNoEmail()
-        var
-            SalesHeader: Record "Sales Header";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            SegManagement: Codeunit SegManagement;
-        begin
-            // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type email but no email address
-            Initialize;
-            // [GIVEN] Marketing setup with default correspondence type of email
-            SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Email);
-            // [GIVEN] A Sales Invoice to a customer with a contact without email
-            CreateSalesInvoiceForCustomerWithContact(SalesHeader);
-
-            // [WHEN] A document creation is logged
-            SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
-              SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
-              SalesHeader."Posting Description", '');
-
-            // [THEN] The correspondence is logged with blank correspondence type
-            VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure LogDocumentNoFax()
-        var
-            SalesHeader: Record "Sales Header";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            SegManagement: Codeunit SegManagement;
-        begin
-            // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type fax but no fax number
-            Initialize;
-            // [GIVEN] Marketing setup with default correspondence type of fax
-            SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Fax);
-
-            // [GIVEN] A Sales Invoice to a customer with a contact without fax
-            CreateSalesInvoiceForCustomerWithContact(SalesHeader);
-
-            // [WHEN] A document creation is logged
-            SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
-              SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
-              SalesHeader."Posting Description", '');
-
-            // [THEN] The interaction is logged with blank correspondence type
-            VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure SalesOrderShowInteractionLogEntriesSuiteAppArea()
-        var
-            SalesHeader: Record "Sales Header";
-            SalesOrder: TestPage "Sales Order";
-            InteractionLogEntries: TestPage "Interaction Log Entries";
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 199812] Action "Interaction log entries" on sales order page opens list of related interaciton log entries if #Suite app area enabled
-            Initialize;
-            LibraryApplicationArea.EnableFoundationSetup;
-
-            // [GIVEN] Create sales order XXX
-            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-
-            // [GIVEN] Mock interaction log entry related to created sales order XXX
-            MockInterLogEntryRelatedToSalesDocument(SalesHeader);
-
-            // [WHEN] Action "Interaction log entries" is being pushed on sales order card page
-            SalesOrder.OpenEdit;
-            SalesOrder.GotoRecord(SalesHeader);
-            InteractionLogEntries.Trap;
-            SalesOrder.PageInteractionLogEntries.Invoke;
-
-            // [THEN] Opened Interaction log entries page contains entry related to order XXX
-            VerifyInterLogEntry(
-              InteractionLogEntries."Entry No.".AsInteger, SalesHeader."No.", GetInterLogEntryDocTypeFromSalesDoc(SalesHeader));
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure SalesOrderShowInteractionLogEntriesBasicAppArea()
-        var
-            SalesHeader: Record "Sales Header";
-            SalesOrder: TestPage "Sales Order";
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 199812] Action "Interaction log entries" is not available on sales order page if only #Basic app area enabled
-            Initialize;
-            LibraryApplicationArea.EnableBasicSetup;
-
-            // [GIVEN] Create sales order XXX
-            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-
-            // [WHEN] Order card page is being opened
-            SalesOrder.OpenEdit;
-            SalesOrder.GotoRecord(SalesHeader);
-
-            // [THEN] Action "Interaction log entries" is hidden
-            asserterror SalesOrder.PageInteractionLogEntries.Invoke;
-            Assert.ExpectedError(IsNotFoundOnPageErr);
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure SalesQuoteShowInteractionLogEntriesSuiteAppArea()
-        var
-            SalesHeader: Record "Sales Header";
-            SalesQuote: TestPage "Sales Quote";
-            InteractionLogEntries: TestPage "Interaction Log Entries";
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 199812] Action "Interaction log entries" on sales quote page opens list of related interaciton log entries if #Suite app area enabled
-            Initialize;
-            LibraryApplicationArea.EnableFoundationSetup;
-
-            // [GIVEN] Create sales quote XXX
-            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-
-            // [GIVEN] Mock interaction log entry related to created sales quote XXX
-            MockInterLogEntryRelatedToSalesDocument(SalesHeader);
-
-            // [WHEN] Action "Interaction log entries" is being pushed on sales quote card page
-            SalesQuote.OpenEdit;
-            SalesQuote.GotoRecord(SalesHeader);
-            InteractionLogEntries.Trap;
-            SalesQuote.PageInteractionLogEntries.Invoke;
-
-            // [THEN] Opened Interaction log entries page contains entry related to quote XXX
-            InteractionLogEntries.First;
-            VerifyInterLogEntry(
-              InteractionLogEntries."Entry No.".AsInteger, SalesHeader."No.", GetInterLogEntryDocTypeFromSalesDoc(SalesHeader));
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure SalesQuoteShowInteractionLogEntriesBasicAppArea()
-        var
-            SalesHeader: Record "Sales Header";
-            SalesQuote: TestPage "Sales Quote";
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 199812] Action "Interaction log entries" is not available on sales quote page if only #Basic app area enabled
-            Initialize;
-            LibraryApplicationArea.EnableBasicSetup;
-
-            // [GIVEN] Create sales quote XXX
-            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-
-            // [WHEN] quote card page is being opened
-            SalesQuote.OpenEdit;
-            SalesQuote.GotoRecord(SalesHeader);
-
-            // [THEN] Action "Interaction log entries" is hidden
-            asserterror SalesQuote.PageInteractionLogEntries.Invoke;
-            Assert.ExpectedError(IsNotFoundOnPageErr);
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure CommentsFromInteractionLogEntriesPageForSuitUserExperience()
-        var
-            InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
-            InteractionLogEntry: Record "Interaction Log Entry";
-            InteractionLogEntries: TestPage "Interaction Log Entries";
-            InterLogEntryCommentSheet: TestPage "Inter. Log Entry Comment Sheet";
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 199903] User is able to add comments for interaction log entry when user experience is Suite
-            Initialize;
-
-            // [GIVEN] User experience set to Suite
-            LibraryApplicationArea.EnableRelationshipMgtSetup;
-
-            // [GIVEN] Mock interaction log entry XXX
-            MockInterLogEntry(InteractionLogEntry);
-
-            // [GIVEN] Create comment YYY for interaction log entry XXX
-            CreateInteractionLogEntryComment(InterLogEntryCommentLine, InteractionLogEntry."Entry No.");
-
-            // [GIVEN] Open page Interaction Log Entries with entry XXX
-            InteractionLogEntries.OpenView;
-            InteractionLogEntries.GotoRecord(InteractionLogEntry);
-
-            // [WHEN] Action Comments is being hit
-            InterLogEntryCommentSheet.Trap;
-            InteractionLogEntries."Co&mments".Invoke;
-
-            // [THEN] Comment YYY is displayed in the opened Inter. Log Entry Comment Sheet
-            InterLogEntryCommentSheet.Date.AssertEquals(InterLogEntryCommentLine.Date);
-            InterLogEntryCommentSheet.Comment.AssertEquals(InterLogEntryCommentLine.Comment);
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
-
-        [Test]
-        [Scope('OnPrem')]
-        procedure IntLogCommentCopiedToCreatedOpportunity()
-        var
-            InteractionLogEntry: Record "Interaction Log Entry";
-            InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
-            RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line";
-        begin
-            // [SCENARIO 202036] Creating opportunity from interaction log copies comments to opportunity
-            Initialize;
-
-            // [GIVEN] Mock interaction log entry XXX
-            MockInterLogEntry(InteractionLogEntry);
-
-            // [GIVEN] Create comment YYY for interaction log entry XXX
-            CreateInteractionLogEntryComment(InterLogEntryCommentLine, InteractionLogEntry."Entry No.");
-
-            // [WHEN] Opportunity is being created from interaction log entry
-            InteractionLogEntry.AssignNewOpportunity;
-
-            // [THEN] Comment YYY is copied to opportunity's comment
-            FindOpportunityCommentLine(InteractionLogEntry."Opportunity No.", RlshpMgtCommentLine);
-            VerifyOpporunityCommentLine(InterLogEntryCommentLine, RlshpMgtCommentLine);
-        end;
-
-        [Test]
-        [HandlerFunctions('MakePhoneCall_MPH,InterLogEntryCommentSheet_MPH,ConfirmHandler')]
-        [Scope('OnPrem')]
-        procedure CommentsForMakePhoneCallPage()
-        var
-            Contact: Record Contact;
-            InteractionLogEntry: Record "Interaction Log Entry";
-            InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
-            ContactList: TestPage "Contact List";
-            CommentDate: Date;
-            CommentText: Text;
-        begin
-            // [FEATURE] [UI]
-            // [SCENARIO 202034] Comments entered from Make Phone Call page saved into interaction log entries comments
-            Initialize;
-
-            // [GIVEN] User experience set to Suite
-            LibraryApplicationArea.EnableRelationshipMgtSetup;
-
-            // [GIVEN] Create contact XXX wiht phone number
-            CreateContactWithPhoneNo(Contact);
-
-            // [GIVEN] Open contact card with contact XXX
-            ContactList.OpenView;
-            ContactList.GotoRecord(Contact);
-
-            // [GIVEN] Run Make Phone Call action
-            // [GIVEN] Run Comments action
-            // [WHEN] Comment YYY is being entered, comments page is being closed, and Phone call completed
-            CommentDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
-            CommentText :=
-              LibraryUtility.GenerateRandomCode(
-                InterLogEntryCommentLine.FieldNo(Comment),
-                DATABASE::"Inter. Log Entry Comment Line");
-            LibraryVariableStorage.Enqueue(CommentDate);
-            LibraryVariableStorage.Enqueue(CommentText);
-            ContactList.MakePhoneCall.Invoke;
-
-            // [THEN] Comment YYY saved into interacton log entry comments
-            FindContactInteractionLogEntry(InteractionLogEntry, Contact."No.");
-            FindIntLogEntryCommentLine(InteractionLogEntry."Entry No.", InterLogEntryCommentLine);
-            InterLogEntryCommentLine.TestField(Date, CommentDate);
-            InterLogEntryCommentLine.TestField(Comment, CommentText);
-
-            // TearDown
-            LibraryApplicationArea.DisableApplicationAreaSetup;
-        end;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogDocumentNoEmail()
+    var
+        SalesHeader: Record "Sales Header";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        SegManagement: Codeunit SegManagement;
+    begin
+        // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type email but no email address
+        Initialize;
+        // [GIVEN] Marketing setup with default correspondence type of email
+        SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Email);
+        // [GIVEN] A Sales Invoice to a customer with a contact without email
+        CreateSalesInvoiceForCustomerWithContact(SalesHeader);
+
+        // [WHEN] A document creation is logged
+        SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
+          SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
+          SalesHeader."Posting Description", '');
+
+        // [THEN] The correspondence is logged with blank correspondence type
+        VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogDocumentNoFax()
+    var
+        SalesHeader: Record "Sales Header";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        SegManagement: Codeunit SegManagement;
+    begin
+        // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type fax but no fax number
+        Initialize;
+        // [GIVEN] Marketing setup with default correspondence type of fax
+        SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Fax);
+
+        // [GIVEN] A Sales Invoice to a customer with a contact without fax
+        CreateSalesInvoiceForCustomerWithContact(SalesHeader);
+
+        // [WHEN] A document creation is logged
+        SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
+          SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
+          SalesHeader."Posting Description", '');
+
+        // [THEN] The interaction is logged with blank correspondence type
+        VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShowInteractionLogEntriesSuiteAppArea()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        InteractionLogEntries: TestPage "Interaction Log Entries";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 199812] Action "Interaction log entries" on sales order page opens list of related interaciton log entries if #Suite app area enabled
+        Initialize;
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // [GIVEN] Create sales order XXX
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+
+        // [GIVEN] Mock interaction log entry related to created sales order XXX
+        MockInterLogEntryRelatedToSalesDocument(SalesHeader);
+
+        // [WHEN] Action "Interaction log entries" is being pushed on sales order card page
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+        InteractionLogEntries.Trap;
+        SalesOrder.PageInteractionLogEntries.Invoke;
+
+        // [THEN] Opened Interaction log entries page contains entry related to order XXX
+        VerifyInterLogEntry(
+          InteractionLogEntries."Entry No.".AsInteger, SalesHeader."No.", GetInterLogEntryDocTypeFromSalesDoc(SalesHeader));
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShowInteractionLogEntriesBasicAppArea()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 199812] Action "Interaction log entries" is not available on sales order page if only #Basic app area enabled
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+
+        // [GIVEN] Create sales order XXX
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+
+        // [WHEN] Order card page is being opened
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        // [THEN] Action "Interaction log entries" is hidden
+        asserterror SalesOrder.PageInteractionLogEntries.Invoke;
+        Assert.ExpectedError(IsNotFoundOnPageErr);
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteShowInteractionLogEntriesSuiteAppArea()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        InteractionLogEntries: TestPage "Interaction Log Entries";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 199812] Action "Interaction log entries" on sales quote page opens list of related interaciton log entries if #Suite app area enabled
+        Initialize;
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // [GIVEN] Create sales quote XXX
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+
+        // [GIVEN] Mock interaction log entry related to created sales quote XXX
+        MockInterLogEntryRelatedToSalesDocument(SalesHeader);
+
+        // [WHEN] Action "Interaction log entries" is being pushed on sales quote card page
+        SalesQuote.OpenEdit;
+        SalesQuote.GotoRecord(SalesHeader);
+        InteractionLogEntries.Trap;
+        SalesQuote.PageInteractionLogEntries.Invoke;
+
+        // [THEN] Opened Interaction log entries page contains entry related to quote XXX
+        InteractionLogEntries.First;
+        VerifyInterLogEntry(
+          InteractionLogEntries."Entry No.".AsInteger, SalesHeader."No.", GetInterLogEntryDocTypeFromSalesDoc(SalesHeader));
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteShowInteractionLogEntriesBasicAppArea()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 199812] Action "Interaction log entries" is not available on sales quote page if only #Basic app area enabled
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+
+        // [GIVEN] Create sales quote XXX
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+
+        // [WHEN] quote card page is being opened
+        SalesQuote.OpenEdit;
+        SalesQuote.GotoRecord(SalesHeader);
+
+        // [THEN] Action "Interaction log entries" is hidden
+        asserterror SalesQuote.PageInteractionLogEntries.Invoke;
+        Assert.ExpectedError(IsNotFoundOnPageErr);
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CommentsFromInteractionLogEntriesPageForSuitUserExperience()
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntries: TestPage "Interaction Log Entries";
+        InterLogEntryCommentSheet: TestPage "Inter. Log Entry Comment Sheet";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 199903] User is able to add comments for interaction log entry when user experience is Suite
+        Initialize;
+
+        // [GIVEN] User experience set to Suite
+        LibraryApplicationArea.EnableRelationshipMgtSetup;
+
+        // [GIVEN] Mock interaction log entry XXX
+        MockInterLogEntry(InteractionLogEntry);
+
+        // [GIVEN] Create comment YYY for interaction log entry XXX
+        CreateInteractionLogEntryComment(InterLogEntryCommentLine, InteractionLogEntry."Entry No.");
+
+        // [GIVEN] Open page Interaction Log Entries with entry XXX
+        InteractionLogEntries.OpenView;
+        InteractionLogEntries.GotoRecord(InteractionLogEntry);
+
+        // [WHEN] Action Comments is being hit
+        InterLogEntryCommentSheet.Trap;
+        InteractionLogEntries."Co&mments".Invoke;
+
+        // [THEN] Comment YYY is displayed in the opened Inter. Log Entry Comment Sheet
+        InterLogEntryCommentSheet.Date.AssertEquals(InterLogEntryCommentLine.Date);
+        InterLogEntryCommentSheet.Comment.AssertEquals(InterLogEntryCommentLine.Comment);
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IntLogCommentCopiedToCreatedOpportunity()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+        RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line";
+    begin
+        // [SCENARIO 202036] Creating opportunity from interaction log copies comments to opportunity
+        Initialize;
+
+        // [GIVEN] Mock interaction log entry XXX
+        MockInterLogEntry(InteractionLogEntry);
+
+        // [GIVEN] Create comment YYY for interaction log entry XXX
+        CreateInteractionLogEntryComment(InterLogEntryCommentLine, InteractionLogEntry."Entry No.");
+
+        // [WHEN] Opportunity is being created from interaction log entry
+        InteractionLogEntry.AssignNewOpportunity;
+
+        // [THEN] Comment YYY is copied to opportunity's comment
+        FindOpportunityCommentLine(InteractionLogEntry."Opportunity No.", RlshpMgtCommentLine);
+        VerifyOpporunityCommentLine(InterLogEntryCommentLine, RlshpMgtCommentLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MakePhoneCall_MPH,InterLogEntryCommentSheet_MPH,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CommentsForMakePhoneCallPage()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+        ContactList: TestPage "Contact List";
+        CommentDate: Date;
+        CommentText: Text;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 202034] Comments entered from Make Phone Call page saved into interaction log entries comments
+        Initialize;
+
+        // [GIVEN] User experience set to Suite
+        LibraryApplicationArea.EnableRelationshipMgtSetup;
+
+        // [GIVEN] Create contact XXX wiht phone number
+        CreateContactWithPhoneNo(Contact);
+
+        // [GIVEN] Open contact card with contact XXX
+        ContactList.OpenView;
+        ContactList.GotoRecord(Contact);
+
+        // [GIVEN] Run Make Phone Call action
+        // [GIVEN] Run Comments action
+        // [WHEN] Comment YYY is being entered, comments page is being closed, and Phone call completed
+        CommentDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        CommentText :=
+          LibraryUtility.GenerateRandomCode(
+            InterLogEntryCommentLine.FieldNo(Comment),
+            DATABASE::"Inter. Log Entry Comment Line");
+        LibraryVariableStorage.Enqueue(CommentDate);
+        LibraryVariableStorage.Enqueue(CommentText);
+        ContactList.MakePhoneCall.Invoke;
+
+        // [THEN] Comment YYY saved into interacton log entry comments
+        FindContactInteractionLogEntry(InteractionLogEntry, Contact."No.");
+        FindIntLogEntryCommentLine(InteractionLogEntry."Entry No.", InterLogEntryCommentLine);
+        InterLogEntryCommentLine.TestField(Date, CommentDate);
+        InterLogEntryCommentLine.TestField(Comment, CommentText);
+
+        // TearDown
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -2512,6 +2513,188 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
+    [HandlerFunctions('ModalReportHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentEmailCorrTypeContNoEmail()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with no Email, Deliver = true should not be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Email);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with no email specified
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."E-Mail" := '';  // clear email field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Email and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Email);
+        Commit();
+
+        // [WHEN] Log Segment with "Deliver" = true
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        asserterror Segment.LogSegment.Invoke();
+
+        // [THEN] Error message appears stating "Contact or Contact Alt. Address should specify Email"
+        Assert.ExpectedError(StrSubstNo(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("E-Mail"), Contact."No."));
+
+        // [THEN] No Interaction Log Entries created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentFaxCorrTypeContNoFax()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax No", Deliver = true should not be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with empty "Fax No."
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Fax);
+        Commit();
+
+        // [WHEN] Log Segment with Deliver = true
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        asserterror Segment.LogSegment.Invoke();
+
+        // [THEN] Error message appears stating "Contact or Contact Alt. Address should specify 'Fax No'"
+        Assert.ExpectedError(StrSubstNo(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("Fax No."), Contact."No."));
+
+        // [THEN] No Interaction Log Entries created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentEmailCorrTypeContNoEmailNoDeliver()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with empty "Email", Deliver = false should be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Email);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with no email specified
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."E-Mail" := '';  // clear email field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Email and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Email);
+        Commit();
+
+        // [WHEN] Log Segment with Deliver = False
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke();
+
+        // [THEN] Segment is logged and Interaction Log Entry created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentFaxCorrTypeContNoFaxNoDeliver()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax", Deliver = false should be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with empty "Fax No." 
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Fax);
+        Commit();
+        EnqueueVariablesForEmailDialog(Contact."E-Mail", SegmentHeader."Subject (Default)", '.' + FileExtension);
+
+        // [WHEN] Log Segment with Deliver = false
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke();
+
+        // [THEN] Segment is logged and Interaction Log Entry created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 1);
+    end;
+
+    [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandlerVerifyAttachment,CloseEmailEditorHandler')]
     procedure LogSegmentWithWordTemplateAndSendAsAttachmentToggle()
     var
@@ -2710,6 +2893,13 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Phone No.", '1234567890');
+        Contact.Modify(true);
+    end;
+
+    local procedure CreateContactWithFaxNo(var Contact: Record Contact)
+    begin
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Validate("Fax No.", '1234567890');
         Contact.Modify(true);
     end;
 
@@ -3534,6 +3724,14 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     procedure ModalReportHandler(var LogSegment: TestRequestPage "Log Segment")
     begin
         LogSegment.Deliver.SetValue(true);
+        LogSegment.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure LogSegmentDeliverFalseHandler(var LogSegment: TestRequestPage "Log Segment")
+    begin
+        LogSegment.Deliver.SetValue(false);
         LogSegment.OK.Invoke();
     end;
 

@@ -61,6 +61,8 @@
             OnCancelReservationOnAfterDoCancel(ReservEntry, TempSurplusEntry);
         end else
             CloseReservEntry(ReservEntry, true, false);
+
+        OnAfterCancelReservation(ReservEntry3, ReservEntry);
     end;
 
     local procedure RevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
@@ -1295,6 +1297,11 @@
             ItemTrackingSetup.CheckTrackingMismatch(TrackingSpecification2, ItemTrackingCode);
         end;
         exit(ItemTrackingSetup.TrackingMismatch());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelReservation(ReservationEntry3: Record "Reservation Entry"; ReservationEntry: Record "Reservation Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

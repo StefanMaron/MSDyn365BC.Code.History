@@ -364,7 +364,7 @@ page 14971 "Sales Corrective Invoice"
                 field("Area"; Area)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
             }
             group(VAT)

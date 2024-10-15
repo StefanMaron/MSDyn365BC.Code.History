@@ -380,9 +380,11 @@ page 99000886 "Subcontracting Worksheet"
     var
         ReqJnlManagement: Codeunit ReqJnlManagement;
         CurrentJnlBatchName: Code[10];
+        OpenedFromBatch: Boolean;
+
+    protected var
         Description2: Text[100];
         BuyFromVendorName: Text[100];
-        OpenedFromBatch: Boolean;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin

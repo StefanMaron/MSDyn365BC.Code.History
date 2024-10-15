@@ -1106,11 +1106,12 @@
         end;
     end;
 
-    local procedure CanSaveReportAsPDF(ReportId: Integer): Boolean
+    local procedure CanSaveReportAsPDF(ReportId: Integer) Result: Boolean
     var
         DummyInStream: InStream;
     begin
-        exit(Report.RdlcLayout(ReportId, DummyInStream) or Report.WordLayout(ReportId, DummyInStream));
+        Result := Report.RdlcLayout(ReportId, DummyInStream) or Report.WordLayout(ReportId, DummyInStream);
+        OnAfterCanSaveReportAsPDF(ReportId, Result);
     end;
 
     procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]; DocNoFieldNo: Integer)
@@ -1497,6 +1498,7 @@
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
+                OnSendToDiskForCustOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
                 Clear(TempBlob);
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
@@ -1527,6 +1529,7 @@
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
+                OnSendToDiskForVendOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
                 Clear(TempBlob);
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
@@ -1556,6 +1559,7 @@
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
+                OnSendToZipForCustOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
                 Clear(AttachmentTempBlob);
                 SaveReportAsPDFInTempBlob(
                     AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
@@ -1586,6 +1590,7 @@
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
+                OnSendToZipForVendOnBeforeSendFileLoop(TempReportSelections, RecordVariant);
                 Clear(AttachmentTempBlob);
                 SaveReportAsPDFInTempBlob(
                     AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
@@ -2099,6 +2104,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCanSaveReportAsPDF(ReportId: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCustEmailAddress(BillToCustomerNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean)
     begin
     end;
@@ -2300,6 +2310,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailToVendorOnAfterSetParameterString(var RecRef: RecordRef; var ParameterString: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToDiskForCustOnBeforeSendFileLoop(var ReportSelections: Record "Report Selections" temporary; var RecordVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToDiskForVendOnBeforeSendFileLoop(var ReportSelections: Record "Report Selections" temporary; var RecordVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToZipForCustOnBeforeSendFileLoop(var ReportSelections: Record "Report Selections" temporary; var RecordVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToZipForVendOnBeforeSendFileLoop(var ReportSelections: Record "Report Selections" temporary; var RecordVariant: Variant)
     begin
     end;
 

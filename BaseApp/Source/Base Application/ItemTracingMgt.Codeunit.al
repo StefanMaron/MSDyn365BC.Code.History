@@ -572,7 +572,13 @@ codeunit 6520 "Item Tracing Mgt."
         ServInvHeader: Record "Service Invoice Header";
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetRecordID(TrackingEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with TrackingEntry do begin
             Clear(RecRef);
 
@@ -882,7 +888,13 @@ codeunit 6520 "Item Tracing Mgt."
     procedure IsSpecificTracking(ItemNo: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup") IsSpecific: Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsSpecificTracking(ItemNo, ItemTrackingSetup, IsSpecific, IsHandled);
+        if IsHandled then
+            exit(IsSpecific);
+
         GetItemTrackingCode(ItemTrackingCode, ItemNo);
         ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
         exit(ItemTrackingSetup.SpecificTracking(ItemNo));
@@ -1071,6 +1083,11 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSpecificTracking(ItemNo: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; var IsSpecific: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeItemTracingHistoryBufferInsert(var ItemTracingHistoryBuffer: Record "Item Tracing History Buffer")
     begin
     end;
@@ -1082,6 +1099,11 @@ codeunit 6520 "Item Tracing Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDocument(RecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetRecordID(var TrackingEntry: Record "Item Tracing Buffer"; var IsHandled: Boolean)
     begin
     end;
 

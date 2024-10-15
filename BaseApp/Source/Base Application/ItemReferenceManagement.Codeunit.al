@@ -99,6 +99,8 @@ codeunit 5720 "Item Reference Management"
     end;
 
     procedure EnterPurchaseItemReference(var PurchLine2: Record "Purchase Line")
+    var
+        ShouldAssignDescription: Boolean;
     begin
         with PurchLine2 do
             if Type = Type::Item then begin
@@ -121,7 +123,9 @@ codeunit 5720 "Item Reference Management"
                     "Item Reference Unit of Measure" := ItemReference."Unit of Measure";
                     "Item Reference Type" := ItemReference."Reference Type";
                     "Item Reference Type No." := ItemReference."Reference Type No.";
-                    if ItemReference.Description <> '' then begin
+                    ShouldAssignDescription := ItemReference.Description <> '';
+                    OnEnterPurchaseItemReferenceOnAfterCalcShouldAssignDescription(PurchLine2, ItemReference, ShouldAssignDescription);
+                    if ShouldAssignDescription then begin
                         Description := ItemReference.Description;
                         "Description 2" := ItemReference."Description 2";
                     end;
@@ -670,6 +674,11 @@ codeunit 5720 "Item Reference Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateItemReferenceOnBeforeInsert(var ItemReference: Record "Item Reference"; ItemVendor: Record "Item Vendor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnterPurchaseItemReferenceOnAfterCalcShouldAssignDescription(var PurchaseLine: Record "Purchase Line"; ItemReference: Record "Item Reference"; var ShouldAssignDescription: Boolean)
     begin
     end;
 

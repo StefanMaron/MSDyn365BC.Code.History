@@ -254,6 +254,8 @@ table 5407 "Prod. Order Component"
 
                 OnValidateExpectedQuantityOnAfterCalcActConsumptionQty(Rec, xRec);
                 "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)" / "Qty. per Unit of Measure";
+                "Remaining Quantity" := UOMMgt.RoundQty("Remaining Quantity", "Qty. Rounding Precision");
+                
                 if ("Remaining Quantity" * "Expected Quantity") <= 0 then
                     "Remaining Quantity" := 0;
                 "Remaining Qty. (Base)" := CalcBaseQty("Remaining Quantity", FieldCaption("Remaining Quantity"), FieldCaption("Remaining Qty. (Base)"));

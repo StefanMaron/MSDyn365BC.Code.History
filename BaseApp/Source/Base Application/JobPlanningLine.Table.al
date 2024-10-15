@@ -148,6 +148,9 @@
 
             trigger OnValidate()
             begin
+                if (Quantity <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
+
                 CheckQuantityPosted();
 
                 CalcFields("Qty. Transferred to Invoice");
@@ -188,6 +191,12 @@
         {
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost (LCY)';
+
+            trigger OnValidate()
+            begin
+                if ("Direct Unit Cost (LCY)" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
+            end;
         }
         field(12; "Unit Cost (LCY)"; Decimal)
         {
@@ -198,6 +207,9 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Unit Cost (LCY)" <> "Unit Cost (LCY)");
+
+                if ("Unit Cost (LCY)" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
 
                 if (Type = Type::Item) and
                    Item.Get("No.") and
@@ -226,6 +238,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Unit Price (LCY)" <> "Unit Price (LCY)");
+                if ("Unit Price (LCY)" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
 
                 InitRoundingPrecisions();
                 "Unit Price" := ConvertAmountToFCY("Unit Price (LCY)", UnitAmountRoundingPrecisionFCY);
@@ -438,6 +452,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Line Amount (LCY)" <> "Line Amount (LCY)");
+                if ("Line Amount (LCY)" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
 
                 InitRoundingPrecisions();
                 "Line Amount" := ConvertAmountToFCY("Line Amount (LCY)", AmountRoundingPrecisionFCY);
@@ -453,7 +469,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Unit Cost" <> "Unit Cost");
-
+                if ("Unit Cost" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
                 UpdateAllAmounts();
             end;
         }
@@ -473,7 +490,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Unit Price" <> "Unit Price");
-
+                if ("Unit Price" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
                 UpdateAllAmounts();
             end;
         }
@@ -493,6 +511,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Line Amount" <> "Line Amount");
+                if ("Line Amount" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
 
                 UpdateAllAmounts();
             end;
@@ -506,7 +526,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Line Discount Amount" <> "Line Discount Amount");
-
+                if ("Line Discount Amount" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
                 UpdateAllAmounts();
             end;
         }
@@ -519,7 +540,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Line Discount Amount (LCY)" <> "Line Discount Amount (LCY)");
-
+                if ("Line Discount Amount (LCY)" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
                 InitRoundingPrecisions();
                 "Line Discount Amount" :=
                     ConvertAmountToFCY("Line Discount Amount (LCY)", AmountRoundingPrecisionFCY);
@@ -557,7 +579,8 @@
             trigger OnValidate()
             begin
                 ValidateModification(xRec."Line Discount %" <> "Line Discount %");
-
+                if ("Line Discount %" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
                 UpdateAllAmounts();
             end;
         }
@@ -777,6 +800,12 @@
         {
             Caption = 'Qty. to Transfer to Journal';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                if ("Qty. to Transfer to Journal" <> 0) and (Type = Type::Text) then
+                    FieldError(Type);
+            end;
         }
         field(1072; "Posted Total Cost"; Decimal)
         {
@@ -830,6 +859,9 @@
 
                 if "Qty. to Transfer to Invoice" = 0 then
                     exit;
+
+                if Type = Type::Text then
+                    FieldError(Type);
 
                 if "Contract Line" then begin
                     if Quantity = "Qty. Transferred to Invoice" then
@@ -1630,8 +1662,6 @@
         UpdateTotalPrice;
         UpdateAmountsAndDiscounts;
         UpdateRemainingCostsAndAmounts("Currency Date", "Currency Factor");
-        if Type = Type::Text then
-            FieldError(Type);
 
         OnAfterUpdateAllAmounts(Rec, xRec);
     end;

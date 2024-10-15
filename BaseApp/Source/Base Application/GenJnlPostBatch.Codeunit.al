@@ -221,7 +221,7 @@
             // Check lines
             LineCount := 0;
             StartLineNo := "Line No.";
-            NoOfRecords := Count;
+            NoOfRecords := CountGenJournalLines(GenJnlLine);
             GenJnlCheckLine.SetBatchMode(true);
             repeat
                 LineCount := LineCount + 1;
@@ -1042,7 +1042,7 @@
         RefPostingSubState: Option "Check account","Check bal. account","Update lines";
         LinesFound: Boolean;
     begin
-        JnlLineTotalQty := GenJnlLine4.Count();
+        JnlLineTotalQty := CountGenJournalLines(GenJnlLine4);
         LineCount := 0;
         if CheckBalAcount then
             RefPostingSubState := RefPostingSubState::"Check bal. account"
@@ -1079,6 +1079,18 @@
                     until not LinesFound or (-GenJnlLine4.Amount = CheckAmount);
                 end;
             until GenJnlLine4.Next() = 0;
+    end;
+
+    local procedure CountGenJournalLines(var GenJournalLine: Record "Gen. Journal Line") Result: Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCountGenJournalLines(GenJournalLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := GenJournalLine.Count();
     end;
 
     local procedure UpdateGenJnlLineWithVATInfo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineVATInfoSource: Record "Gen. Journal Line"; StartLineNo: Integer; LastLineNo: Integer)
@@ -2154,6 +2166,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCountGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalLineCount: Integer; var IsHandled: Boolean);
     begin
     end;
 

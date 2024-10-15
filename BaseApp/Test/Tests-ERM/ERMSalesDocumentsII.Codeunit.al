@@ -30,6 +30,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryMarketing: Codeunit "Library - Marketing";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
         PostingErr: Label 'There is nothing to post.';
@@ -3769,6 +3770,119 @@ codeunit 134386 "ERM Sales Documents II"
         ItemLedgerEntry.TestField("Country/Region Code", CountryRegion.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UpdateContactInfoAfterChangeSelltoContactNoinSalesOrderByValidatePageField()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 414694] When user change Sell-to Contact No. in Sales Order card then contact info must be updated 
+        Initialize();
+
+        // [GIVEN] Customer with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Sales Order with "Sell-to Contact No." = "C1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesOrder.Trap();
+        Page.Run(Page::"Sales Order", SalesHeader);
+
+        // [WHEN] User set "Sell-to Contact No." = "C2" by validate page field
+        SalesOrder."Sell-to Contact No.".SetValue(Contact2."No.");
+
+        // [THEN] "Sales Order"."Phone No." = "333333333"
+        SalesOrder."Sell-to Phone No.".AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Sales Order"."Mobile Phone No." = "444444444"
+        SalesOrder.SellToMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Sales Order"."Email" = "contact2@mail.com"
+        SalesOrder."Sell-to E-Mail".AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerYes')]
+    procedure UpdateContactInfoAfterChangeSelltoContactNoinSalesOrderCardByLookup()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] When user change Sell-to Contact No. in Sales Order then contact info must be updated
+        Initialize();
+
+        // [GIVEN] Customer with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Sales Order with "Sell-to Contact No." = "C1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesOrder.Trap();
+        Page.Run(Page::"Sales Order", SalesHeader);
+
+        // [WHEN] User set "Sell-to Contact No." = "C2" by validate page field
+        LibraryVariableStorage.Enqueue(Contact2."No.");
+        SalesOrder."Sell-to Contact No.".Lookup();
+
+        // [THEN] "Sales Order"."Phone No." = "333333333"
+        SalesOrder."Sell-to Phone No.".AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Sales Order"."Mobile Phone No." = "444444444"
+        SalesOrder.SellToMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Sales Order"."Email" = "contact2@mail.com"
+        SalesOrder."Sell-to E-Mail".AssertEquals(Contact2."E-Mail");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLookupPageHandler')]
+    procedure SalesQuoteLookup()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UT][UI]
+        // [SCENARIO 412023] Set "Sell-to Customer No." in Sales Header in Sales Quote page by lookup
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryVariableStorage.Enqueue(Customer.Name);
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer Name".Lookup();
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        Assert.RecordCount(SalesHeader, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5142,6 +5256,14 @@ codeunit 134386 "ERM Sales Documents II"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure UpdateContactInfo(var Contact: Record Contact; PhoneNo: Text[30]; MobilePhoneNo: Text[30]; Email: Text[80])
+    begin
+        Contact.Validate("Phone No.", PhoneNo);
+        Contact.Validate("Mobile Phone No.", MobilePhoneNo);
+        Contact.Validate("E-Mail", Email);
+        Contact.Modify(true);
+    end;
+
     local procedure VerifyAmountOnGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -5833,6 +5955,14 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         ContactList.GotoKey(LibraryVariableStorage.DequeueText);
         ContactList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerLookupPageHandler(var CustomerLookup: TestPage "Customer Lookup")
+    begin
+        CustomerLookup.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        CustomerLookup.OK().Invoke();
     end;
 }
 
