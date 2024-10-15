@@ -249,6 +249,52 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TestRemovePostedReceiptWithChargeItemAssigned()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 438887] System should not allow remove of posted receipt if any receit lines applied to purchase order lines as item charge
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+
+        // Post purchase order with item
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineOrder, PurchaseHeaderOrder, PurchaseLineOrder.Type::Item,
+            Item."No.", LibraryRandom.RandIntInRange(5, 20));
+        PurchaseLineOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // Create purchase order with item charge and assign to posted receipt from first order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineInvoice, PurchaseHeaderInvoice,
+          PurchaseLineInvoice.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLineInvoice.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineInvoice.Modify(true);
+
+        GetReceiptLinesForItemCharge(PurchaseLineInvoice);
+        Commit();
+
+        // Find and delete posted receipt
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchRcptHeader.FindFirst();
+        asserterror PurchRcptHeader.Delete(true);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
