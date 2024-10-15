@@ -27,6 +27,12 @@
                 if "No." = '' then
                     InitRecord();
                 TestStatusOpen();
+
+                IsHandled := false;
+                OnValidateSellToCustomerNoOnAfterTestStatusOpen(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Sell-to Customer No." <> xRec."Sell-to Customer No.") and
                    (xRec."Sell-to Customer No." <> '')
                 then begin
@@ -164,7 +170,11 @@
             begin
                 TestStatusOpen();
                 BilltoCustomerNoChanged := xRec."Bill-to Customer No." <> "Bill-to Customer No.";
-                if BilltoCustomerNoChanged then
+
+                IsHandled := false;
+                OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled);
+
+                if BilltoCustomerNoChanged and not IsHandled then
                     if xRec."Bill-to Customer No." = '' then
                         InitRecord()
                     else
@@ -1446,9 +1456,13 @@
             trigger OnValidate()
             var
                 IsHandled: Boolean;
+                DoExit: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateSellToPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                OnBeforeValidateSellToPostCode(Rec, PostCode, CurrFieldNo, IsHandled, DoExit);
+                if DoExit then
+                    exit;
+
                 if not IsHandled then
                     PostCode.ValidatePostCode(
                         "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
@@ -2450,6 +2464,11 @@
                 if "Sell-to Contact No." <> '' then
                     if Cont.Get("Sell-to Contact No.") then
                         Cont.CheckIfPrivacyBlockedGeneric();
+
+                IsHandled := false;
+                OnValidateSellToContactNoOnAfterContCheckIfPrivacyBlockedGeneric(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") and
                    (xRec."Sell-to Contact No." <> '')
@@ -3843,7 +3862,14 @@
     end;
 
     local procedure ResetInvoiceDiscountValue()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetInvoiceDiscountValue(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Invoice Discount Value" <> 0 then begin
             CalcFields("Invoice Discount Amount");
             if "Invoice Discount Amount" = 0 then
@@ -3967,7 +3993,7 @@
         if ShouldCreateSalsesLine then begin
             CreateSalesLine(TempSalesLine);
             ExtendedTextAdded := false;
-            OnAfterRecreateSalesLine(SalesLine, TempSalesLine);
+            OnAfterRecreateSalesLine(SalesLine, TempSalesLine, Rec);
 
             if SalesLine.Type = SalesLine.Type::Item then
                 RecreateSalesLinesFillItemChargeAssignment(SalesLine, TempSalesLine, TempItemChargeAssgntSales);
@@ -3977,6 +4003,8 @@
                 TempInteger.Number := SalesLine."Line No.";
                 TempInteger.Insert();
             end;
+
+            OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(Rec, SalesLine, TempSalesLine);
         end else
             if not ExtendedTextAdded then begin
                 TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
@@ -7052,19 +7080,26 @@
         if IsCreditDocType() then
             exit;
 
-        IsHandled := FALSE;
+        IsHandled := false;
         OnUpdateShipToContactOnBeforeValidateShipToContact(Rec, xRec, CurrFieldNo, IsHandled);
         if not IsHandled then
             Validate("Ship-to Contact", "Sell-to Contact");
     end;
 
-    procedure ConfirmCloseUnposted(): Boolean
+    procedure ConfirmCloseUnposted() Result: Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
-        if SalesLinesExist() then
+        if SalesLinesExist() then begin
+            IsHandled := false;
+            OnConfirmCloseUnpostedOnSalesLinesExist(Rec, Result, IsHandled);
+            if IsHandled then
+                exit(Result);
+
             if InstructionMgt.IsUnpostedEnabledForRecord(Rec) then
                 exit(InstructionMgt.ShowConfirm(DocumentNotPostedClosePageQst, InstructionMgt.QueryPostOnCloseCode()));
+        end;
         exit(true)
     end;
 
@@ -8220,7 +8255,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRecreateSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnAfterRecreateSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8873,7 +8908,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean; var DoExit: Boolean)
     begin
     end;
 
@@ -9849,6 +9884,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailabilityInLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnAfterTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToContactNoOnAfterContCheckIfPrivacyBlockedGeneric(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmCloseUnpostedOnSalesLinesExist(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetInvoiceDiscountValue(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

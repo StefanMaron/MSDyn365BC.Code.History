@@ -1533,6 +1533,14 @@ codeunit 5940 ServContractManagement
                                     CreateDetailedServiceLine(ServHeader, ServContractLine, "Contract Type", "Contract No.");
                         OnCreateAllServLinesOnAfterCreateDetailedServLine(ServContractToInvoice, ServHeader, ServContractLine);
 
+                        if Prepaid then
+                            CheckAndCreateServiceLinesForPartOfTheMonth(
+                                ServContractToInvoice,
+                                ServContractLine,
+                                ServHeader,
+                                PartInvoiceFrom,
+                                PartInvoiceTo);
+
                         ServiceApplyEntry :=
                           CreateServiceLedgEntry(
                             ServHeader, "Contract Type", "Contract No.", InvoiceFrom, InvoiceTo,
@@ -2248,21 +2256,21 @@ codeunit 5940 ServContractManagement
         ServLedgEntry."Serial No. (Serviced)" := ServContractLine."Serial No.";
         if IsYearContract(ServContractLine."Contract Type", ServContractLine."Contract No.") then begin
             YearContractCorrection := true;
-            CalcServLedgEntryAmounts(ServContractLine, InvAmountRounded);
-            ServLedgEntry."Entry No." := NextEntry;
-            UpdateServLedgEntryAmount(ServLedgEntry, ServHeader);
-        end else begin
+
+            if not YearContractCorrection then
+                CalcServLedgEntryAmounts(ServContractLine, InvAmountRounded);
+        end else
             YearContractCorrection := false;
-            SetServLedgEntryAmounts(
-              ServLedgEntry, InvAmountRounded,
-              -CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, InvTo),
-              -CalcContractLineAmount(ServContractLine."Line Value", InvFrom, InvTo),
-              -CalcContractLineAmount(ServContractLine."Line Cost", InvFrom, InvTo),
-              -CalcContractLineAmount(ServContractLine."Line Discount Amount", InvFrom, InvTo),
-              AmtRoundingPrecision);
-            ServLedgEntry."Entry No." := NextEntry;
-            UpdateServLedgEntryAmount(ServLedgEntry, ServHeader);
-        end;
+
+        SetServLedgEntryAmounts(
+          ServLedgEntry, InvAmountRounded,
+          -CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, InvTo),
+          -CalcContractLineAmount(ServContractLine."Line Value", InvFrom, InvTo),
+          -CalcContractLineAmount(ServContractLine."Line Cost", InvFrom, InvTo),
+          -CalcContractLineAmount(ServContractLine."Line Discount Amount", InvFrom, InvTo),
+          AmtRoundingPrecision);
+        ServLedgEntry."Entry No." := NextEntry;
+        UpdateServLedgEntryAmount(ServLedgEntry, ServHeader);
         ServLedgEntry."Posting Date" := DueDate;
         ServLedgEntry.Prepaid := true;
         OnPostPartialServLedgEntryOnBeforeServLedgEntryInsert(ServLedgEntry, ServContractLine);
@@ -2387,6 +2395,43 @@ codeunit 5940 ServContractManagement
                     SalesPersonCodeToAssign := ''
                 else
                     SalesPersonCodeToAssign := SalesPersonCodeToCheck;
+    end;
+
+    local procedure CheckAndCreateServiceLinesForPartOfTheMonth(
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        var PartInvoiceFrom: Date;
+        var PartInvoiceTo: Date)
+    var
+        ServiceApplyEntryNo: Integer;
+    begin
+        if (ServiceContractLine."Starting Date" < ServiceContractHeader."Next Invoice Date") and
+           (ServiceContractLine."Invoiced to Date" = 0D)
+        then begin
+            PartInvoiceFrom := ServiceContractLine."Starting Date";
+            PartInvoiceTo := ServiceContractHeader."Next Invoice Date" - 1;
+            ServiceApplyEntryNo :=
+                CreateServiceLedgEntry(
+                    ServiceHeader,
+                    ServiceContractHeader."Contract Type",
+                    ServiceContractHeader."Contract No.",
+                    CalcDate('<-CM>', PartInvoiceFrom),
+                    PartInvoiceTo,
+                    false,
+                    false,
+                    ServiceContractLine."Line No.");
+
+            if ServiceApplyEntryNo <> 0 then
+                CreateServiceLine(
+                    ServiceHeader,
+                    ServiceContractHeader."Contract Type",
+                    ServiceContractHeader."Contract No.",
+                    PartInvoiceFrom,
+                    PartInvoiceTo,
+                    ServiceApplyEntryNo,
+                    false);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

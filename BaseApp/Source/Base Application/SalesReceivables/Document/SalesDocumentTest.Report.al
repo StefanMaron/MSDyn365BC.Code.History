@@ -1462,6 +1462,8 @@ report 202 "Sales Document - Test"
                 Ship := ShipReceiveOnNextPostReq;
                 Receive := ShipReceiveOnNextPostReq;
 
+                OnSalesHeaderOnAfterGetRecordOnBeforeVerifySellToCust("Sales Header", ErrorText, ErrorCounter);
+
                 VerifySellToCust("Sales Header");
                 VerifyBillToCust("Sales Header");
 
@@ -2460,6 +2462,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordSalesLineOnBeforeCheckDim(SalesLine: Record "Sales Line"; var GLAcc: Record "G/L Account"; OrigMaxLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnAfterGetRecordOnBeforeVerifySellToCust(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
     begin
     end;
 }

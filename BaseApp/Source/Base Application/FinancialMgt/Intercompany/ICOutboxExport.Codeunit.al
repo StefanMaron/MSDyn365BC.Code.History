@@ -181,7 +181,7 @@ codeunit 431 "IC Outbox Export"
                             SourceIDs.Add(ICPartner.SystemId);
                             SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
 
-                            DocumentMailing.EmailFile(
+                            DocumentMailing.EnqueueEmailFile(
                               InStream,
                               StrSubstNo('%1.xml', ICPartner.Code),
                               '',

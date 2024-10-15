@@ -173,7 +173,11 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
                     PriceAsset."Unit Price" := Item."Unit Price";
                 end;
             PriceAsset."Price Type"::Purchase:
-                PriceAsset."Unit Price" := Item."Last Direct Cost";
+                begin
+                    PriceAsset."Allow Invoice Disc." := Item."Allow Invoice Disc.";
+
+                    PriceAsset."Unit Price" := Item."Last Direct Cost";
+                end;
         end;
 
         OnAfterFillAdditionalFields(PriceAsset, Item, ItemVariant);

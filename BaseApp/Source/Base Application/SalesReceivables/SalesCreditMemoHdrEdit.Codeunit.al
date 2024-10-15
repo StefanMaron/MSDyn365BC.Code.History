@@ -31,6 +31,8 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;
         UpdateSIIDocUploadState(Rec);
+
+	OnRunOnAfterSalesCrMemoHeaderEdit(Rec);
     end;
 
     local procedure UpdateSIIDocUploadState(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -67,6 +69,11 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeSalesCrMemoHeaderModify(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesCrMemoHeaderEdit(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

@@ -521,19 +521,22 @@
                 No[2] := "Salespers./Purch. Code";
                 TableID[3] := DATABASE::"Work Center";
                 No[3] := "Work Center No.";
-                TableID[4] := DATABASE::Location;
-                No[4] := "Location Code";
-                TableID[5] := DATABASE::Location;
-                No[5] := "New Location Code";
-                OnCheckDimensionsOnAfterAssignDimTableIDs(ItemJnlLine, TableID, No);
-                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then begin
-                    if "Line No." <> 0 then
-                        Error(
-                            ErrorInfo.Create(
-                                StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr()),
-                            true));
-                    Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr()), true));
+
+                if "New Dimension Set ID" <> 0 then begin
+                    TableID[4] := DATABASE::Location;
+                    No[4] := "Location Code";
+                    CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
+                    TableID[4] := DATABASE::Location;
+                    No[4] := "New Location Code";
+                    CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "New Dimension Set ID");
+                end else begin
+                    TableID[4] := DATABASE::Location;
+                    No[4] := "Location Code";
+                    TableID[5] := DATABASE::Location;
+                    No[5] := "New Location Code";
+                    CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
                 end;
+
                 if ("Entry Type" = "Entry Type"::Transfer) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
@@ -640,6 +643,23 @@
 
         if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") then
             ItemJournalLine.TestField("Variant Code", ErrorInfo.Create());
+    end;
+
+    local procedure CheckDimensionsAfterAssignDimTableIDs(
+        ItemJnlLine: Record "Item Journal Line";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        DimSetID: Integer)
+    begin
+        OnCheckDimensionsOnAfterAssignDimTableIDs(ItemJnlLine, TableID, No);
+        if not DimMgt.CheckDimValuePosting(TableID, No, DimSetID) then begin
+            if ItemJnlLine."Line No." <> 0 then
+                Error(
+                    ErrorInfo.Create(
+                        StrSubstNo(DimCausedErr, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", ItemJnlLine."Line No.", DimMgt.GetDimValuePostingErr()),
+                    true));
+            Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr()), true));
+        end;
     end;
 
     [IntegrationEvent(false, false)]

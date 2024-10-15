@@ -7205,6 +7205,7 @@ then
             "Payment Method Code" := Cust."Payment Method Code";
         end;
         CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Account No.");
+        OnGetCustomerAccountOnBeforeValidatePaymentTermsCode(Rec, Cust, HideValidationDialog);
         Validate("Payment Terms Code");
         CheckPaymentTolerance();
 
@@ -9641,6 +9642,11 @@ then
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReplaceDescription(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalTemplate: Record "Gen. Journal Template"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustomerAccountOnBeforeValidatePaymentTermsCode(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; HideValidationDialog: Boolean)
     begin
     end;
 }

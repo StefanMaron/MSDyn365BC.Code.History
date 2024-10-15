@@ -26,6 +26,8 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader.Modify();
         Rec := PurchInvHeader;
         UpdateSIIDocUploadState(Rec);
+
+	OnRunOnAfterPurchInvHeaderEdit(Rec);
     end;
 
     local procedure UpdateSIIDocUploadState(PurchInvHeader: Record "Purch. Inv. Header")
@@ -58,6 +60,11 @@ codeunit 1405 "Purch. Inv. Header - Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchInvHeaderModify(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeaderRec: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterPurchInvHeaderEdit(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }
