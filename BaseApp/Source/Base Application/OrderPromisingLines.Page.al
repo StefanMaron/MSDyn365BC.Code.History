@@ -196,8 +196,10 @@ page 99000959 "Order Promising Lines"
     var
         CapableToPromise: Codeunit "Capable to Promise";
     begin
-        if Accepted = false then
+        if not Accepted then begin
             CapableToPromise.RemoveReqLines(CrntSourceID, 0, 0, true);
+            AvailabilityMgt.CancelReservations();
+        end;
     end;
 
     trigger OnInit()

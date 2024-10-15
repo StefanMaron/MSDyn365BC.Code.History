@@ -20,11 +20,13 @@ codeunit 1201 "Process Data Exch."
         TempFieldIdsToNegate: Record "Integer" temporary;
         RecRef: RecordRef;
         LastKeyFieldId: Integer;
+        DataExchLineNoFieldId: Integer;
         LineNoOffset: Integer;
         CurrLineNo: Integer;
     begin
         LastKeyFieldId := GetLastIntegerKeyField(RecRefTemplate);
         LineNoOffset := GetLastKeyValueInRange(RecRefTemplate, LastKeyFieldId);
+        DataExchLineNoFieldId := GetDataExchLineNoFieldId(RecRefTemplate.Number);
 
         DataExchMapping.Get(DataExch."Data Exch. Def Code", DataExchLineDef.Code, RecRefTemplate.Number);
 
@@ -58,6 +60,8 @@ codeunit 1201 "Process Data Exch."
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. No. Field ID", DataExch."Entry No.");
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. Line Field ID", CurrLineNo);
                 end;
+                if DataExchMapping."Data Exch. Line Field ID" = 0 then
+                    SetFieldValue(RecRef, DataExchLineNoFieldId, CurrLineNo);
                 SetFieldValue(RecRef, LastKeyFieldId, CurrLineNo * 10000 + LineNoOffset);
                 DataExchFieldMapping.FindSet;
                 repeat
@@ -232,6 +236,21 @@ codeunit 1201 "Process Data Exch."
         if RecRef.FindLast then
             exit(RecRef.Field(FieldId).Value);
         exit(0);
+    end;
+
+    local procedure GetDataExchLineNoFieldId(TableId: Integer): Integer
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        case TableId of
+            Database::"Bank Acc. Reconciliation Line":
+                exit(BankAccReconciliationLine.FieldNo("Data Exch. Line No."));
+            Database::"Gen. Journal Line":
+                exit(GenJournalLine.FieldNo("Data Exch. Line No."));
+            else
+                exit(0);
+        end;
     end;
 
     local procedure SetFieldValue(RecRef: RecordRef; FieldID: Integer; Value: Variant)

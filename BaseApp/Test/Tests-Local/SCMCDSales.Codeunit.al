@@ -126,7 +126,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Receipt, Location.Code);
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[EntryType::Receipt]);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, '', CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, '', CDNo, 1);
 
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(CDType::"1 CD", SalesLine, ReservationEntry, false, Qty[EntryType::Sales], SerialNo, '', CDNo);
@@ -245,7 +245,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Receipt, Location.Code);
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[EntryType::Receipt]);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, LotNo, CDNo, 1);
 
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(CDType::"1 CD", SalesLine, ReservationEntry, false, Qty[EntryType::Sales], SerialNo, LotNo, CDNo);
@@ -1883,7 +1883,7 @@ codeunit 147101 "SCM CD Sales"
         ItemReceiptNo := ItemDocumentHeader."No.";
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, '', CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, '', CDNo, 1);
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
         LibraryCDTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', CDNo[1], Qty);
 
@@ -1895,7 +1895,7 @@ codeunit 147101 "SCM CD Sales"
           ItemDocumentHeader);
         ItemDocumentHeader.Validate(Correction, true);
         ItemDocumentHeader.Modify();
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, '', CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, '', CDNo, 1);
         ReservationEntry.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         ReservationEntry.Modify();
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
@@ -1936,7 +1936,7 @@ codeunit 147101 "SCM CD Sales"
         ItemReceiptNo := ItemDocumentHeader."No.";
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, LotNo, CDNo, 1);
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
         LibraryCDTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', LotNo, CDNo[1], Qty);
 
@@ -1948,7 +1948,7 @@ codeunit 147101 "SCM CD Sales"
           ItemDocumentHeader);
         ItemDocumentHeader.Validate(Correction, true);
         ItemDocumentHeader.Modify();
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty, SerialNo, LotNo, CDNo, 1);
         ReservationEntry.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         ReservationEntry.Modify();
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
@@ -1990,7 +1990,7 @@ codeunit 147101 "SCM CD Sales"
         ItemReceiptNo := ItemDocumentHeader."No.";
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty, SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty, SerialNo, LotNo, CDNo, 1);
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
 
         for j := 1 to Qty do begin
@@ -2006,7 +2006,7 @@ codeunit 147101 "SCM CD Sales"
           ItemDocumentHeader);
         ItemDocumentHeader.Validate(Correction, true);
         ItemDocumentHeader.Modify();
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty, SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty, SerialNo, LotNo, CDNo, -1);
         ReservationEntry.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
         ReservationEntry.Modify();
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
@@ -2050,7 +2050,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Receipt, Location.Code);
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[ItemEntryType::Receipt]);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[ItemEntryType::Receipt], SerialNo, '', CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[ItemEntryType::Receipt], SerialNo, '', CDNo, 1);
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
 
         LibraryCDTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', CDNo[1], Qty[ItemEntryType::Receipt]);
@@ -2121,7 +2121,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[ItemEntryType::Receipt]);
         CreateIRLineTracking(
-          CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[ItemEntryType::Receipt], SerialNo, LotNo, CDNo);
+          CDType::"1 CD", ItemDocumentLine, ReservationEntry, false, Qty[ItemEntryType::Receipt], SerialNo, LotNo, CDNo, 1);
 
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
         LibraryCDTracking.CheckLastItemLedgerEntry(
@@ -2197,7 +2197,7 @@ codeunit 147101 "SCM CD Sales"
         LibraryCDTracking.CreateItemDocument(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Receipt, Location.Code);
         LibraryCDTracking.CreateItemDocumentLine(
           ItemDocumentHeader, ItemDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[ItemEntryType::Receipt]);
-        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty[ItemEntryType::Receipt], SerialNo, LotNo, CDNo);
+        CreateIRLineTracking(CDType::"1 CD", ItemDocumentLine, ReservationEntry, true, Qty[ItemEntryType::Receipt], SerialNo, LotNo, CDNo, 1);
         LibraryCDTracking.PostItemDocument(ItemDocumentHeader);
 
         for j := 1 to Qty[ItemEntryType::Receipt] do begin
@@ -2231,7 +2231,7 @@ codeunit 147101 "SCM CD Sales"
         ItemDocumentHeader.Modify();
 
         for j := 1 to Qty[ItemEntryType::Shipment] do begin
-            LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], 1);
+            LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], -1);
         end;
 
         ReservationEntry.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
@@ -2757,7 +2757,7 @@ codeunit 147101 "SCM CD Sales"
         end;
     end;
 
-    local procedure CreateIRLineTracking(Type: Option "1 CD","Empty CD","2 CDs","3 CDs"; var ItemDocumentLine: Record "Item Document Line"; var ReservationEntry: Record "Reservation Entry"; NewSerialTracking: Boolean; Qty: Decimal; var SerialNo: array[10] of Code[20]; LotNo: Code[20]; CDNo: array[3] of Code[30])
+    local procedure CreateIRLineTracking(Type: Option "1 CD","Empty CD","2 CDs","3 CDs"; var ItemDocumentLine: Record "Item Document Line"; var ReservationEntry: Record "Reservation Entry"; NewSerialTracking: Boolean; Qty: Decimal; var SerialNo: array[10] of Code[20]; LotNo: Code[20]; CDNo: array[3] of Code[30]; Sign: Integer)
     var
         j: Integer;
     begin
@@ -2766,27 +2766,30 @@ codeunit 147101 "SCM CD Sales"
             Type::"Empty CD":
                 begin
                     if not NewSerialTracking then
-                        LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, '', LotNo, CDNo[1], Qty)
+                        LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, '', LotNo, CDNo[1], Sign * Qty)
                     else
                         for j := 1 to Qty do begin
                             UpdateSerialNos(SerialNo, j);
-                            LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], 1);
+                            LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], Sign * 1);
                         end;
                 end;
             Type::"2 CDs":
                 begin
                     if not NewSerialTracking then begin
-                        LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, '', LotNo, CDNo[1], Round(Qty / 2, 1));
+                        LibraryCDTracking.CreateItemDocumentLineTracking(
+                          ReservationEntry, ItemDocumentLine, '', LotNo, CDNo[1], Sign * Round(Qty / 2, 1));
                         LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, '', LotNo, CDNo[2],
-                          Qty - Round(Qty / 2, 1));
+                          Sign * Qty - Round(Qty / 2, 1));
                     end else
                         for j := 1 to Qty do begin
                             UpdateSerialNos(SerialNo, j);
                             case j of
                                 1 .. Round(Qty / 2, 1):
-                                    LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], 1);
+                                    LibraryCDTracking.CreateItemDocumentLineTracking(
+                                      ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[1], Sign * 1);
                                 (Round(Qty / 2, 1) + 1) .. Qty:
-                                    LibraryCDTracking.CreateItemDocumentLineTracking(ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[2], 1);
+                                    LibraryCDTracking.CreateItemDocumentLineTracking(
+                                      ReservationEntry, ItemDocumentLine, SerialNo[j], LotNo, CDNo[2], Sign * 1);
                             end;
                         end;
                 end;

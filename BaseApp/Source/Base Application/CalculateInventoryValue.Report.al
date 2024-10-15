@@ -13,6 +13,7 @@
             trigger OnAfterGetRecord()
             var
                 SkipItem: Boolean;
+                RemCost: Decimal;
             begin
                 if ShowDialog then
                     Window.Update;
@@ -42,19 +43,15 @@
                     repeat
                         if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
                             RemQty := ItemLedgEntry.CalculateRemQuantity(ItemLedgEntry."Entry No.", PostingDate);
+                            RemCost := CalcRemainingCost(ItemLedgEntry, RemQty, IncludeExpectedCost);
                             case CalculatePer of
                                 CalculatePer::"Item Ledger Entry":
                                     InsertItemJnlLine(
                                       ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
-                                      ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty,
-                                      ItemLedgEntry.CalculateRemInventoryValue(ItemLedgEntry."Entry No.", ItemLedgEntry.Quantity, RemQty, false, PostingDate),
-                                      ItemLedgEntry."Entry No.", 0);
+                                      ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
                                 CalculatePer::Item:
                                     InsertValJnlBuffer(
-                                      ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
-                                      ItemLedgEntry."Location Code", RemQty,
-                                      ItemLedgEntry.CalculateRemInventoryValue(ItemLedgEntry."Entry No.", ItemLedgEntry.Quantity, RemQty,
-                                        IncludeExpectedCost and not ItemLedgEntry."Completely Invoiced", PostingDate));
+                                      ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost);
                             end;
                         end;
                     until ItemLedgEntry.Next = 0;
@@ -471,7 +468,7 @@
                            ("Invoiced Quantity" <> 0)
                         then begin
                             RemQty := Quantity;
-                            RemInvValue := CalcItemLedgEntryActualCostTillPostingDate("Entry No.", PostingDate);
+                            RemInvValue := CalculateRemInventoryValue("Entry No.", Quantity, Quantity, false, 0D, PostingDate);
                             NotComplInvQty := NotComplInvQty + RemQty;
                             NotComplInvValue := NotComplInvValue + RemInvValue;
                         end;
@@ -637,19 +634,29 @@
         end;
     end;
 
-    local procedure CalcItemLedgEntryActualCostTillPostingDate(ItemLedgEntryNo: Integer; PostingDate: Date): Decimal
+    local procedure CalcRemainingCost(ItemLedgerEntry: Record "Item Ledger Entry"; RemainingQty: Decimal; IncludeExpCost: Boolean): Decimal
     var
-        ValueEntry: Record "Value Entry";
+        UntilValuationDate: Date;
+        UntilPostingDate: Date;
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-            SetFilter("Posting Date", '<=%1', PostingDate);
-            SetFilter("Entry Type", '<>%1', "Entry Type"::Rounding);
-            SetRange("Expected Cost", false);
-            CalcSums("Cost Amount (Actual)");
-            exit("Cost Amount (Actual)");
+        if ItemLedgerEntry."Entry Type" in [ItemLedgerEntry."Entry Type"::Output, ItemLedgerEntry."Entry Type"::"Assembly Output"] then
+            UntilPostingDate := PostingDate
+        else
+            UntilValuationDate := PostingDate;
+
+        case CalculatePer of
+            CalculatePer::"Item Ledger Entry":
+                exit(
+                  ItemLedgerEntry.CalculateRemInventoryValue(
+                    ItemLedgerEntry."Entry No.", ItemLedgerEntry.Quantity, RemainingQty, false, UntilValuationDate, UntilPostingDate));
+            CalculatePer::Item:
+                exit(
+                  ItemLedgerEntry.CalculateRemInventoryValue(
+                    ItemLedgerEntry."Entry No.", ItemLedgerEntry.Quantity, RemainingQty,
+                    IncludeExpCost and not ItemLedgerEntry."Completely Invoiced", UntilValuationDate, UntilPostingDate));
         end;
+
+        exit(0);
     end;
 
     local procedure Calculate(Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10])

@@ -19,6 +19,9 @@ codeunit 99000889 AvailabilityManagement
         SalesLine: Record "Sales Line";
         ServLine: Record "Service Line";
         JobPlanningLine: Record "Job Planning Line";
+        TempSalesLine: Record "Sales Line" temporary;
+        TempServiceLine: Record "Service Line" temporary;
+        TempJobPlanningLine: Record "Job Planning Line" temporary;
         AvailToPromise: Codeunit "Available to Promise";
         UOMMgt: Codeunit "Unit of Measure Management";
         CaptionText: Text;
@@ -500,8 +503,10 @@ codeunit 99000889 AvailabilityManagement
                 OrderPromisingLine."Source Type"::Sales:
                     begin
                         if (SalesLine2.Reserve = SalesLine2.Reserve::Never) and not SalesLine2."Drop Shipment" then begin
-                            SalesLine2.Reserve := SalesLine.Reserve::Optional;
+                            SalesLine2.Reserve := SalesLine2.Reserve::Optional;
                             SalesLine2.Modify();
+                            TempSalesLine := SalesLine2;
+                            if TempSalesLine.Insert() then;
                         end;
                         SalesLineReserve.BindToRequisition(SalesLine2, ReqLine, ReservQty, ReservQtyBase);
 
@@ -517,9 +522,11 @@ codeunit 99000889 AvailabilityManagement
                 OrderPromisingLine."Source Type"::"Service Order":
                     begin
                         ServLineReserve.BindToRequisition(ServLine2, ReqLine, ReservQty, ReservQtyBase);
-                        if ServLine2.Reserve = ServLine.Reserve::Never then begin
-                            ServLine2.Reserve := ServLine.Reserve::Optional;
+                        if ServLine2.Reserve = ServLine2.Reserve::Never then begin
+                            ServLine2.Reserve := ServLine2.Reserve::Optional;
                             ServLine2.Modify();
+                            TempServiceLine := ServLine2;
+                            if TempServiceLine.Insert() then;
                         end;
                     end;
                 OrderPromisingLine."Source Type"::Job:
@@ -528,11 +535,64 @@ codeunit 99000889 AvailabilityManagement
                         if JobPlanningLine2.Reserve = JobPlanningLine2.Reserve::Never then begin
                             JobPlanningLine2.Reserve := JobPlanningLine2.Reserve::Optional;
                             JobPlanningLine2.Modify();
+                            TempJobPlanningLine := JobPlanningLine2;
+                            if TempJobPlanningLine.Insert() then;
                         end;
                     end;
             end;
             OnCreateReservationsAfterSecondCASE(OrderPromisingLine, ReqLine, ReservQty, ReservQtyBase);
         end;
+    end;
+
+    procedure CancelReservations()
+    var
+        SalesLine2: Record "Sales Line";
+        ServiceLine2: Record "Service Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
+    begin
+        if TempSalesLine.FindSet() then
+            repeat
+                SalesLine2 := TempSalesLine;
+                SalesLine2.Find();
+                ReservationEngineMgt.InitFilterAndSortingFor(ReservationEntry, true);
+                SalesLine2.SetReservationFilters(ReservationEntry);
+                if ReservationEntry.FindSet() then
+                    repeat
+                        ReservationEngineMgt.CancelReservation(ReservationEntry);
+                    until ReservationEntry.Next() = 0;
+                SalesLine2.Reserve := SalesLine2.Reserve::Never;
+                SalesLine2.Modify();
+            until TempSalesLine.Next() = 0;
+
+        if TempServiceLine.FindSet() then
+            repeat
+                ServiceLine2 := TempServiceLine;
+                ServiceLine2.Find();
+                ReservationEngineMgt.InitFilterAndSortingFor(ReservationEntry, true);
+                ServiceLine2.SetReservationFilters(ReservationEntry);
+                if ReservationEntry.FindSet() then
+                    repeat
+                        ReservationEngineMgt.CancelReservation(ReservationEntry);
+                    until ReservationEntry.Next() = 0;
+                ServiceLine2.Reserve := ServiceLine2.Reserve::Never;
+                ServiceLine2.Modify();
+            until TempServiceLine.Next() = 0;
+
+        if TempJobPlanningLine.FindSet() then
+            repeat
+                JobPlanningLine2 := TempJobPlanningLine;
+                JobPlanningLine2.Find();
+                ReservationEngineMgt.InitFilterAndSortingFor(ReservationEntry, true);
+                JobPlanningLine2.SetReservationFilters(ReservationEntry);
+                if ReservationEntry.FindSet() then
+                    repeat
+                        ReservationEngineMgt.CancelReservation(ReservationEntry);
+                    until ReservationEntry.Next() = 0;
+                JobPlanningLine2.Reserve := JobPlanningLine2.Reserve::Never;
+                JobPlanningLine2.Modify();
+            until TempJobPlanningLine.Next() = 0;
     end;
 
     local procedure JobPlanningLineIsInventoryItem(): Boolean

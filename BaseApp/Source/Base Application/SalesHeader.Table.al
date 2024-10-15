@@ -19,6 +19,7 @@
             trigger OnValidate()
             var
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                LocationCode: Code[10];
                 IsHandled: Boolean;
             begin
                 CheckCreditLimitIfLineNotInsertedYet;
@@ -106,8 +107,11 @@
                 "Send IC Document" := ("Sell-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
                 UpdateShipToCodeFromCust();
+                LocationCode := "Location Code";
+
                 SetBillToCustomerNo(Cust);
 
+                Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
@@ -5824,8 +5828,8 @@
         SalesLine.Validate(Type, TempSalesLine.Type);
         OnCreateSalesLineOnAfterAssignType(SalesLine, TempSalesLine);
         if TempSalesLine."No." = '' then begin
-            SalesLine.Validate(Description, TempSalesLine.Description);
-            SalesLine.Validate("Description 2", TempSalesLine."Description 2");
+            SalesLine.Description := TempSalesLine.Description;
+            SalesLine."Description 2" := TempSalesLine."Description 2";
         end else begin
             SalesLine.Validate("No.", TempSalesLine."No.");
             if SalesLine.Type <> SalesLine.Type::" " then begin
@@ -6137,7 +6141,10 @@
         "Sell-to Customer Name 2" := Cust."Name 2";
         "Sell-to Phone No." := Cust."Phone No.";
         "Sell-to E-Mail" := Cust."E-Mail";
-        if SellToCustomerIsReplaced or ShouldCopyAddressFromSellToCustomer(SellToCustomer) then begin
+        if SellToCustomerIsReplaced() or
+            ShouldCopyAddressFromSellToCustomer(SellToCustomer) or
+            (HasDifferentSellToAddress(SellToCustomer) and SellToCustomer.HasAddress())
+        then begin
             "Sell-to Address" := SellToCustomer.Address;
             "Sell-to Address 2" := SellToCustomer."Address 2";
             "Sell-to City" := SellToCustomer.City;
@@ -6173,7 +6180,10 @@
 
         "Ship-to Name" := Cust.Name;
         "Ship-to Name 2" := Cust."Name 2";
-        if SellToCustomerIsReplaced or ShipToAddressEqualsOldSellToAddress then begin
+        if SellToCustomerIsReplaced() or
+            ShipToAddressEqualsOldSellToAddress or
+            (HasDifferentShipToAddress(SellToCustomer) and SellToCustomer.HasAddress())
+        then begin
             "Ship-to Address" := SellToCustomer.Address;
             "Ship-to Address 2" := SellToCustomer."Address 2";
             "Ship-to City" := SellToCustomer.City;
@@ -6249,7 +6259,10 @@
         "Bill-to Customer Template Code" := '';
         "Bill-to Name" := BillToCustomer.Name;
         "Bill-to Name 2" := BillToCustomer."Name 2";
-        if BillToCustomerIsReplaced or ShouldCopyAddressFromBillToCustomer(BillToCustomer) then begin
+        if BillToCustomerIsReplaced() or
+            ShouldCopyAddressFromBillToCustomer(BillToCustomer) or
+            (HasDifferentBillToAddress(BillToCustomer) and BillToCustomer.HasAddress())
+        then begin
             "Bill-to Address" := BillToCustomer.Address;
             "Bill-to Address 2" := BillToCustomer."Address 2";
             "Bill-to City" := BillToCustomer.City;
