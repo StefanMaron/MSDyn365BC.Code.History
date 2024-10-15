@@ -156,11 +156,17 @@ codeunit 5816 "Undo Return Receipt Line"
         end;
     end;
 
-    local procedure GetCorrectionLineNo(ReturnRcptLine: Record "Return Receipt Line"): Integer;
+    local procedure GetCorrectionLineNo(ReturnRcptLine: Record "Return Receipt Line") Result: Integer;
     var
         ReturnRcptLine2: Record "Return Receipt Line";
         LineSpacing: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCorrectionLineNo(ReturnRcptLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ReturnRcptLine do begin
             ReturnRcptLine2.SetRange("Document No.", "Document No.");
             ReturnRcptLine2."Document No." := "Document No.";
@@ -355,6 +361,11 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCorrectionLineNo(ReturnRcptLine: Record "Return Receipt Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

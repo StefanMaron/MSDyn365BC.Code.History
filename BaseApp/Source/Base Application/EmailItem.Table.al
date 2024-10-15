@@ -428,9 +428,11 @@ table 9500 "Email Item"
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         InStr: InStream;
         IsPostedDocument: Boolean;
+        CorrectAttachment: Boolean;
     begin
         if SalesInvoiceNo = '' then
             exit;
@@ -456,11 +458,19 @@ table 9500 "Email Item"
         IncomingDocumentAttachment.SetAutoCalcFields(Content);
         if IncomingDocumentAttachment.FindSet() then
             repeat
-                if IncomingDocumentAttachment.Content.HasValue() then begin
-                    IncomingDocumentAttachment.Content.CreateInStream(InStr);
-                    // To ensure that Attachment file name has . followed by extension in the email item
-                    Rec.AddAttachment(InStr, StrSubstNo('%1.%2', IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension"));
+                CorrectAttachment := true;
+                if IsPostedDocument then begin
+                    CorrectAttachment := false;
+                    if IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
+                        if (IncomingDocument."Document Type" = IncomingDocument."Document Type"::"Sales Invoice") and IncomingDocument.Posted then
+                            CorrectAttachment := true;
                 end;
+                if CorrectAttachment then
+                    if IncomingDocumentAttachment.Content.HasValue() then begin
+                        IncomingDocumentAttachment.Content.CreateInStream(InStr);
+                        // To ensure that Attachment file name has . followed by extension in the email item
+                        Rec.AddAttachment(InStr, StrSubstNo('%1.%2', IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension"));
+                    end;
             until IncomingDocumentAttachment.Next() = 0;
     end;
 

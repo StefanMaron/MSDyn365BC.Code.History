@@ -762,6 +762,10 @@ codeunit 7201 "CDS Integration Impl."
         TempConnectionName: Text;
         ChangedToNonInteractive: Boolean;
     begin
+        // User non-interactive mode is not supported on CRM OnPrem, therefore if authentication type is AD or IFD, do nothing
+        if CDSConnectionSetup."Authentication Type" in [CDSConnectionSetup."Authentication Type"::AD, CDSConnectionSetup."Authentication Type"::IFD] then
+            exit(false);
+
         Session.LogMessage('0000B2I', SetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
@@ -956,7 +960,10 @@ codeunit 7201 "CDS Integration Impl."
 
         CDSConnectionSetup."User Name" := CRMSystemuser.InternalEMailAddress;
         CDSConnectionSetup.SetPassword('');
-        NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+        if (CDSConnectionFirstPartyAppIdTxt <> '') and (CDSConnectionFirstPartyAppCertificateTxt <> '') then
+            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version")
+        else
+            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
         SetConnectionString(CDSConnectionSetup, NewConnectionString);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
