@@ -122,6 +122,7 @@ table 1275 "Doc. Exch. Service Setup"
         TelemetryCategoryTok: Label 'AL Document Exchange Service', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(var PasswordKey: Guid; PasswordText: Text)
     begin
@@ -133,6 +134,7 @@ table 1275 "Doc. Exch. Service Setup"
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(PasswordKey: Guid): Text
     var
@@ -148,6 +150,7 @@ table 1275 "Doc. Exch. Service Setup"
         IsolatedStorageManagement.Delete(PasswordKey, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(PasswordKey: Guid): Boolean
     var

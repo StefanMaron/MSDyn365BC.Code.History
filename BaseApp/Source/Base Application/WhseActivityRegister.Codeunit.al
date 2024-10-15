@@ -1621,6 +1621,7 @@
     local procedure AutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
     var
         SalesLine: Record "Sales Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
         IsHandled: Boolean;
@@ -1632,16 +1633,19 @@
 
         if TempWhseActivLineToReserve.FindSet then
             repeat
-                SalesLine.Get(
-                  SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
+                ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLineToReserve."Item No.", WhseItemTrackingSetup);
+                if TempWhseActivLineToReserve.HasRequiredTracking(WhseItemTrackingSetup) then begin
+                    SalesLine.Get(
+                      SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
 
-                if not IsSalesLineCompletelyReserved(SalesLine) then begin
-                    ReservMgt.SetReservSource(SalesLine);
-                    ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
-                    ReservMgt.AutoReserve(
-                      FullAutoReservation, '', SalesLine."Shipment Date", TempWhseActivLineToReserve."Qty. to Handle",
-                      TempWhseActivLineToReserve."Qty. to Handle (Base)");
-                end;
+                    if not IsSalesLineCompletelyReserved(SalesLine) then begin
+                        ReservMgt.SetReservSource(SalesLine);
+                        ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
+                        ReservMgt.AutoReserve(
+                          FullAutoReservation, '', SalesLine."Shipment Date", TempWhseActivLineToReserve."Qty. to Handle",
+                          TempWhseActivLineToReserve."Qty. to Handle (Base)");
+                    end;
+                end;		    
             until TempWhseActivLineToReserve.Next = 0;
     end;
 
