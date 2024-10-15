@@ -480,8 +480,10 @@ report 12461 "VAT Ledger Export XML"
                 XMLAddSimpleElement(DataUcTovTxt, GetFormattedDate(ItemRealizeDate));
 
             // C/V info element
-            CreatePurchaseCVInfoElement;
-            XMLCurrNode := XMLCurrNode.ParentNode;
+            if not ("VAT Entry Type" in ['19', '20', '27', '28']) then begin
+                CreatePurchaseCVInfoElement();
+                XMLCurrNode := XMLCurrNode.ParentNode();
+            end;
         end;
         XMLCurrNode := XMLCurrNode.ParentNode;
         LineNo += 1;

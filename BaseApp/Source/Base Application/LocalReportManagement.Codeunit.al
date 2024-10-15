@@ -1098,13 +1098,13 @@ codeunit 12401 "Local Report Management"
         if StrLen(CompanyInformation."VAT Registration No.") = 10 then  // The company is an organization
             Result += Format(CompanyInformation."KPP Code");
         Result += '_' + Format(Today, 8, '<Year4><Month,2><Day,2>'); // Date format YYYYMMDD
-        Result += '_' + ConvertStr(GetVATLedgerFormatVersion(), '.', '_');
+        Result += '_0' + ConvertStr(GetVATLedgerFormatVersion(), '.', '_');
         Result += '_N'; // Iteration number; added to create unique file names
     end;
 
     procedure GetVATLedgerFormatVersion(): Text
     begin
-        exit('5.06');
+        exit('5.07');
     end;
 
     [Scope('OnPrem')]

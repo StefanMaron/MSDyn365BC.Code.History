@@ -660,6 +660,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
+        LatestSDKVersion: Integer;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Step Finish should update the real record
@@ -691,8 +692,9 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [THEN] user mapping is disabled
         CRMConnectionSetup.TestField("Is User Mapping Required", false);
         CRMConnectionSetup.TestField("Is User Mapped To CRM User", false);
-        // [THEN] By Default "Proxy Version" = 9
-        CRMConnectionSetup.TestField("Proxy Version", 9);
+        // [THEN] The latest SDK proxy version is by default
+        LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
+        CRMConnectionSetup.TestField("Proxy Version", LatestSDKVersion);
     end;
 
     [Test]
