@@ -420,9 +420,7 @@
             begin
                 TestField("Phys. Inventory", true);
 
-                if "Serial No." <> '' then
-                    if ("Qty. (Phys. Inventory)" < 0) or ("Qty. (Phys. Inventory)" > 1) then
-                        Error(Text006, FieldCaption("Qty. (Phys. Inventory)"));
+                CheckQtyPhysInventory();
 
                 PhysInvtEntered := true;
                 Quantity := 0;
@@ -723,7 +721,7 @@
             "Location Code" := LastWhseJnlLine."Location Code";
         end else begin
             "Registering Date" := WorkDate;
-            WhseJnlBatch.Get("Journal Template Name", "Journal Batch Name", "Location Code");
+            GetWhseJnlBatch();
             if WhseJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Whse. Document No." :=
@@ -747,6 +745,18 @@
             "Entry Type" := "Entry Type"::Movement;
 
         OnAfterSetupNewLine(Rec, LastWhseJnlLine, WhseJnlTemplate);
+    end;
+
+    local procedure GetWhseJnlBatch()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetWhseJnlBatch(Rec, WhseJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseJnlBatch.Get("Journal Template Name", "Journal Batch Name", "Location Code");
     end;
 
     procedure SetUpAdjustmentBin()
@@ -1013,6 +1023,8 @@
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
     begin
+        OnBeforeOpenJnl(WhseJnlLine, CurrentJnlBatchName, CurrentLocationCode);
+
         WMSMgt.CheckUserIsWhseEmployee;
         CheckTemplateName(
           WhseJnlLine.GetRangeMax("Journal Template Name"), CurrentLocationCode, CurrentJnlBatchName);
@@ -1064,6 +1076,20 @@
           WhseJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName, CurrentLocationCode);
         if (UserId <> '') and not WhseEmployee.Get(UserId, CurrentLocationCode) then
             Error(Text005, CurrentLocationCode, CurrentJnlBatchName, UserId);
+    end;
+
+    local procedure CheckQtyPhysInventory()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQtyPhysInventory(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Serial No." <> '' then
+            if ("Qty. (Phys. Inventory)" < 0) or ("Qty. (Phys. Inventory)" > 1) then
+                Error(Text006, FieldCaption("Qty. (Phys. Inventory)"));
     end;
 
     procedure SetName(CurrentJnlBatchName: Code[10]; CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
@@ -1426,6 +1452,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyPhysInventory(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTemplateName(var JnlTemplateName: Code[10]; var JnlBatchName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -1436,12 +1467,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWhseJnlBatch(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseJnlBatch: Record "Warehouse Journal Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBinCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var WarehouseJournalLine: Record "Warehouse Journal Line"; var CurrentJnlBatchName: Code[10]; CurrentLocationCode: Code[10])
     begin
     end;
 

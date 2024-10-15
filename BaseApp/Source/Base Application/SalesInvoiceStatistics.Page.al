@@ -304,7 +304,7 @@ page 397 "Sales Invoice Statistics"
         AmountLCY: Decimal;
         CostLCY: Decimal;
 
-        local procedure CalculateTotals()
+    local procedure CalculateTotals()
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
         IsHandled: Boolean;
@@ -312,7 +312,7 @@ page 397 "Sales Invoice Statistics"
         IsHandled := false;
         OnBeforeCalculateTotals(
             Rec, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
-            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled, VATpercentage);
         if IsHandled then
             exit;
 
@@ -352,7 +352,7 @@ page 397 "Sales Invoice Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateTotals(SalesInvoiceHeader: Record "Sales Invoice Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateTotals(SalesInvoiceHeader: Record "Sales Invoice Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean; var VATPercentage: Decimal)
     begin
     end;
 

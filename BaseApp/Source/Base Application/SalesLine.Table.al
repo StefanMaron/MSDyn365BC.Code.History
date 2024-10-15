@@ -608,9 +608,11 @@
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl(false);
 
+                if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then
+                    PlanPriceCalcByField(FieldNo(Quantity));
+
                 if Type = Type::Item then begin
                     if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
-                        PlanPriceCalcByField(FieldNo(Quantity));
                         OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
                         ReserveSalesLine.VerifyQuantity(Rec, xRec);
                         if not "Drop Shipment" then
@@ -4125,6 +4127,7 @@
                             ApplyPrice(CalledByFieldNo, PriceCalculation);
                         end;
                     end;
+                    OnUpdateUnitPriceByFieldOnAfterFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo);
                 end;
         end;
 
@@ -4177,6 +4180,7 @@
     begin
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         GetLineWithCalculatedPrice(PriceCalculation);
+        OnAfterApplyPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
     end;
 
     local procedure ApplyResUnitCost(CalledByFieldNo: Integer)
@@ -5397,9 +5401,14 @@
     end;
 
     procedure TestStatusOpen()
+    var
+        IsHandled: Boolean;
     begin
         GetSalesHeader();
-        OnBeforeTestStatusOpen(Rec, SalesHeader);
+        IsHandled := false;
+        OnBeforeTestStatusOpen(Rec, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         if StatusCheckSuspended then
             exit;
@@ -8189,6 +8198,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyPrice(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CallFieldNo: Integer; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAssignHeaderValues(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
@@ -8530,7 +8544,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestStatusOpen(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeTestStatusOpen(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8791,6 +8805,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var SalesLine: Record "Sales Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitPriceByFieldOnAfterFindPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer)
     begin
     end;
 

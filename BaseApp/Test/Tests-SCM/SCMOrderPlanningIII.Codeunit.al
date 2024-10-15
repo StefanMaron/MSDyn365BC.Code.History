@@ -2005,6 +2005,178 @@ codeunit 137088 "SCM Order Planning - III"
           DATABASE::"Requisition Line");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateRunTimeOnPlanRoutingLineWhenRoutingWithOneLine()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        AdditionalRunTime: Decimal;
+        PlanningLineStartTime: Time;
+        PlanningLineEndTime: Time;
+    begin
+        // [FEATURE] [Requisition Line]
+        // [SCENARIO 377015] Update "Run Time" for Planning Routing Line when Routing contains only one line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 5.
+        // [GIVEN] Work Center with operational hours 08:00 - 16:00, it works 8 hours per day.
+        CreateProductionItemWithOneLineRouting(Item, 20200122D);
+
+        // [GIVEN] Requisition Line for Item "I" with Quantity = 10, that was refreshed in Forward direction. Starting Date is 21.01.20, Starting Time is 09:00.
+        // [GIVEN] Planning Routing Line with Operation "10" and "Run Time" = 5 is created. Starting Time is 09:00, Ending Time is 09:50.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200121D, 090000T);
+        FindFirstPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
+        PlanningLineStartTime := PlanningRoutingLine."Starting Time";
+        PlanningLineEndTime := PlanningRoutingLine."Ending Time";
+        AdditionalRunTime := LibraryRandom.RandDecInRange(5, 10, 2);
+
+        // [WHEN] Set "Run Time" = 15 for Planning Routing Line.
+        PlanningRoutingLine.Validate("Run Time", PlanningRoutingLine."Run Time" + AdditionalRunTime);
+        PlanningRoutingLine.Modify(true);
+
+        // [THEN] Ending Time for Requisition Line was updated to (09:00 + 10 * 15) = 11:30.
+        RequisitionLine.Get(RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", RequisitionLine."Line No.");
+        VerifyRequisitionLineStartEndDateTime(
+          RequisitionLine, CreateDateTime(20200121D, PlanningLineStartTime),
+          CreateDateTime(20200121D, PlanningLineEndTime + AdditionalRunTime * 10 * 60000));
+
+        // [THEN] Ending Time for Planning Routing Line was updated to (09:00 + 10 * 15) = 11:30.
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200121D, PlanningLineStartTime),
+          CreateDateTime(20200121D, PlanningLineEndTime + AdditionalRunTime * 10 * 60000));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateSetupTimeOnPlanRoutingLineWhenRoutingWithOneLine()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        AdditionalSetupTime: Decimal;
+        PlanningLineStartTime: Time;
+        PlanningLineEndTime: Time;
+    begin
+        // [FEATURE] [Requisition Line]
+        // [SCENARIO 377015] Update "Setup Time" for Planning Routing Line when Routing contains only one line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 5, "Setup Time" = 5.
+        // [GIVEN] Work Center with operational hours 08:00 - 16:00, it works 8 hours per day.
+        CreateProductionItemWithOneLineRouting(Item, 20200122D);
+
+        // [GIVEN] Requisition Line for Item "I" with Quantity = 10, that was refreshed in Forward direction. Starting Date is 21.01.20, Starting Time is 09:00.
+        // [GIVEN] Planning Routing Line with Operation "10", "Setup Time" = 5 and "Run Time" = 5 is created. Starting Time is 09:00, Ending Time is 09:55.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200121D, 090000T);
+        FindFirstPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
+        PlanningLineStartTime := PlanningRoutingLine."Starting Time";
+        PlanningLineEndTime := PlanningRoutingLine."Ending Time";
+        AdditionalSetupTime := LibraryRandom.RandDecInRange(5, 10, 2);
+
+        // [WHEN] Set "Setup Time" = 15 for Planning Routing Line.
+        PlanningRoutingLine.Validate("Setup Time", PlanningRoutingLine."Setup Time" + AdditionalSetupTime);
+        PlanningRoutingLine.Modify(true);
+
+        // [THEN] Ending Time for Requisition Line was updated to (09:00 + 10 * 5 + 15) = 10:05.
+        RequisitionLine.Get(RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", RequisitionLine."Line No.");
+        VerifyRequisitionLineStartEndDateTime(
+          RequisitionLine, CreateDateTime(20200121D, PlanningLineStartTime),
+          CreateDateTime(20200121D, PlanningLineEndTime + AdditionalSetupTime * 60000));
+
+        // [THEN] Ending Time for Planning Routing Line was updated to (09:00 + 10 * 15) = 11:30.
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200121D, PlanningLineStartTime),
+          CreateDateTime(20200121D, PlanningLineEndTime + AdditionalSetupTime * 60000));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateStartingTimeOnPlanRoutingLineWhenRoutingWithOneLine()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        TimeShiftMs: Integer;
+        PlanningLineStartTime: Time;
+        PlanningLineEndTime: Time;
+    begin
+        // [FEATURE] [Requisition Line]
+        // [SCENARIO 377015] Update "Starting Date-Time" for Planning Routing Line when Routing contains only one line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 5.
+        // [GIVEN] Work Center with operational hours 08:00 - 16:00, it works 8 hours per day.
+        CreateProductionItemWithOneLineRouting(Item, 20200122D);
+
+        // [GIVEN] Requisition Line for Item "I" with Quantity = 10, that was refreshed in Forward direction. Starting Date is 21.01.20, Starting Time is 09:00.
+        // [GIVEN] Planning Routing Line with Operation "10" and "Run Time" = 5 is created. Starting Time is 09:00, Ending Time is 09:50.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200121D, 090000T);
+        FindFirstPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
+        PlanningLineStartTime := PlanningRoutingLine."Starting Time";
+        PlanningLineEndTime := PlanningRoutingLine."Ending Time";
+        TimeShiftMs := 2 * 3600000;
+
+        // [WHEN] Set "Starting Date-Time" = 11:00 for Planning Routing Line.
+        PlanningRoutingLine.Validate("Starting Date-Time", CreateDateTime(20200121D, PlanningLineStartTime + TimeShiftMs));
+        PlanningRoutingLine.Modify(true);
+
+        // [THEN] Starting Time and Ending Time for Requisition Line were updated to 11:00 and 11:50 respectively.
+        RequisitionLine.Get(RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", RequisitionLine."Line No.");
+        VerifyRequisitionLineStartEndDateTime(
+          RequisitionLine, CreateDateTime(20200121D, PlanningLineStartTime + TimeShiftMs),
+          CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
+
+        // [THEN] Starting Time and Ending Time for Planning Routing Line were updated to 11:00 and 11:50 respectively.
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200121D, PlanningLineStartTime + TimeShiftMs),
+          CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateEndingTimeOnPlanRoutingLineWhenRoutingWithOneLine()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        TimeShiftMs: Integer;
+        PlanningLineStartTime: Time;
+        PlanningLineEndTime: Time;
+    begin
+        // [FEATURE] [Requisition Line]
+        // [SCENARIO 377015] Update "Ending Date-Time" for Planning Routing Line when Routing contains only one line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 5.
+        // [GIVEN] Work Center with operational hours 08:00 - 16:00, it works 8 hours per day.
+        CreateProductionItemWithOneLineRouting(Item, 20200122D);
+
+        // [GIVEN] Requisition Line for Item "I" with Quantity = 10, that was refreshed in Forward direction. Starting Date is 21.01.20, Starting Time is 09:00.
+        // [GIVEN] Planning Routing Line with Operation "10" and "Run Time" = 5 is created. Starting Time is 09:00, Ending Time is 09:50.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200121D, 090000T);
+        FindFirstPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
+        PlanningLineStartTime := PlanningRoutingLine."Starting Time";
+        PlanningLineEndTime := PlanningRoutingLine."Ending Time";
+        TimeShiftMs := 2 * 3600000;
+
+        // [WHEN] Set "Ending Date-Time" = 11:50 for Planning Routing Line.
+        PlanningRoutingLine.Validate("Ending Date-Time", CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
+        PlanningRoutingLine.Modify(true);
+
+        // [THEN] Starting Time and Ending Time for Requisition Line were updated to 11:00 and 11:50 respectively.
+        RequisitionLine.Get(RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", RequisitionLine."Line No.");
+        VerifyRequisitionLineStartEndDateTime(
+          RequisitionLine, CreateDateTime(20200121D, PlanningLineStartTime + TimeShiftMs),
+          CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
+
+        // [THEN] Starting Time and Ending Time for Planning Routing Line were updated to 11:00 and 11:50 respectively.
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200121D, PlanningLineStartTime + TimeShiftMs),
+          CreateDateTime(20200121D, PlanningLineEndTime + TimeShiftMs));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2088,6 +2260,30 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Create Parent Item.
         CreateItemWithProductionBOM(ParentItem, ChildItem, '', LibraryRandom.RandDec(5, 2));
+    end;
+
+    local procedure CreateProductionItemWithOneLineRouting(var Item: Record Item; DueDate: Date)
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        CapUnitOfMeasure: Record "Capacity Unit of Measure";
+        ShopCalendarCode: Code[10];
+    begin
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDaysCustomTime(080000T, 160000T);
+        LibraryManufacturing.CreateWorkCenterFullWorkingWeek(WorkCenter, 080000T, 160000T);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapUnitOfMeasure, CapUnitOfMeasure.Type::Minutes);
+        WorkCenter.Validate("Unit of Measure Code", CapUnitOfMeasure.Code);
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', DueDate), CalcDate('<2M>', DueDate));
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order", RoutingHeader."No.", '');
     end;
 
     local procedure CreateItemWithProductionBOM(var Item: Record Item; ChildItem: Record Item; VariantCode: Code[10]; QuantityPer: Decimal)
@@ -2212,7 +2408,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Random values not important for test.
         LibraryManufacturing.CreateRoutingLineSetup(
-          RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
+          RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2));
     end;
 
     local procedure ClearManufacturingUserTemplate()
@@ -2232,6 +2428,22 @@ codeunit 137088 "SCM Order Planning - III"
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateAndRefreshForwardPlanningLine(var RequisitionLine: Record "Requisition Line"; SourceNo: Code[20]; Quantity: Decimal; StartingDate: Date; StartingTime: Time)
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        Direction: Option Forward,Backward;
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", SourceNo);
+        RequisitionLine.Validate(Quantity, Quantity);
+        RequisitionLine.Validate("Starting Date", StartingDate);
+        RequisitionLine.Validate("Starting Time", StartingTime);
+        RequisitionLine.Modify(true);
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Forward, true, true);
     end;
 
     local procedure CreateLocationSetup()
@@ -2466,6 +2678,12 @@ codeunit 137088 "SCM Order Planning - III"
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
     end;
 
+    local procedure FindFirstPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line")
+    begin
+        FindPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
+        PlanningRoutingLine.FindFirst();
+    end;
+
     local procedure FindPurchaseDocumentByItemNo(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -2692,6 +2910,18 @@ codeunit 137088 "SCM Order Planning - III"
             TestField("Reservation Status", "Reservation Status"::Reservation);
             TestField(Binding, Binding::"Order-to-Order");
         end;
+    end;
+
+    local procedure VerifyPlanningLineStartEndDateTime(PlanningRoutingLine: Record "Planning Routing Line"; ExpectedStartingDateTime: DateTime; ExpectedEndingDateTime: DateTime)
+    begin
+        PlanningRoutingLine.TestField("Starting Date-Time", ExpectedStartingDateTime);
+        PlanningRoutingLine.TestField("Ending Date-Time", ExpectedEndingDateTime);
+    end;
+
+    local procedure VerifyRequisitionLineStartEndDateTime(RequisitionLine: Record "Requisition Line"; ExpectedStartingDateTime: DateTime; ExpectedEndingDateTime: DateTime)
+    begin
+        RequisitionLine.TestField("Starting Date-Time", ExpectedStartingDateTime);
+        RequisitionLine.TestField("Ending Date-Time", ExpectedEndingDateTime);
     end;
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)

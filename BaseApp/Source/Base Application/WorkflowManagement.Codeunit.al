@@ -20,6 +20,18 @@ codeunit 1501 "Workflow Management"
         AlwaysTxt: Label '<Always>';
         CombinedConditionTxt: Label '%1; %2', Locked = true;
 
+        // Telemetry strings
+        WorkflowTelemetryCategoryTxt: Label 'Workflow', Locked = true;
+        WorkflowEventStartTelemetryTxt: Label 'Workflow event: Start Scope', Locked = true;
+        WorkflowEventEndTelemetryTxt: Label 'Workflow event: End Scope', Locked = true;
+        WorkflowStepFoundTelemetryTxt: Label 'Active workflow step instance was found for the provided function and the conditions were met', Locked = true;
+        WorkflowStepCondionsNotMetTelemetryTxt: Label 'Active workflow step instances were found for the provided function, but the conditions were not met', Locked = true;
+        WorkflowMatchingStepFoundTelemetryTxt: Label 'Matching workflow step instance found for the provided function', Locked = true;
+        WorkflowInstanceCreatedTelemetryTxt: Label 'Workflow instance created', Locked = true;
+        WorkflowNotFoundTelementryTxt: Label 'No active workflow was found for the provided function', Locked = true;
+        WorkflowStepNotFoundTelemetryTxt: Label 'No actionable workflow step was found for the provided function or the conditions were not met', Locked = true;
+        WorkflowArchiveTelemetryTxt: Label 'Workflow is being archived', Locked = true;
+
     procedure TrackWorkflow(Variant: Variant; var WorkflowStepInstance: Record "Workflow Step Instance")
     var
         RecRef: RecordRef;
@@ -53,6 +65,7 @@ codeunit 1501 "Workflow Management"
         RecRef: RecordRef;
         xRecRef: RecordRef;
         ActiveStepInstanceFound: Boolean;
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
         RecRef.GetTable(Variant);
         xRecRef.GetTable(xVariant);
@@ -63,49 +76,66 @@ codeunit 1501 "Workflow Management"
                 WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
                 WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
                 WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
-                if WorkflowStepInstanceLoop.IsEmpty then
+                if WorkflowStepInstanceLoop.IsEmpty() then
                     exit(false);
             end;
         end;
 
-        with WorkflowStepInstanceLoop do begin
-            Reset;
-            SetRange(Type, Type::"Event");
-            SetRange(Status, Status::Active);
-            SetRange("Function Name", FunctionName);
-            SetCurrentKey("Sequence No.");
+        WorkflowStepInstanceLoop.Reset();
+        WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
+        WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
+        WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
+        WorkflowStepInstanceLoop.SetCurrentKey("Sequence No.");
 
-            if FindSet then
-                repeat
-                    if WorkflowStepInstance2.Get(ID, "Workflow Code", "Previous Workflow Step ID") then
-                        if (Format(WorkflowStepInstance2."Record ID") = Format(RecRef.RecordId)) and
-                           (WorkflowStepInstance2.Status in [WorkflowStepInstance2.Status::Completed, WorkflowStepInstance2.Status::Processing])
-                        then begin
-                            ActiveStepInstanceFound := true;
-                            if WorkflowStepInstance.Get(ID, "Workflow Code", "Workflow Step ID") then begin
-                                WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
-                                if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then
-                                    exit(true);
+        if WorkflowStepInstanceLoop.FindSet() then
+            repeat
+                if WorkflowStepInstance2.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Previous Workflow Step ID") then
+                    if (Format(WorkflowStepInstance2."Record ID") = Format(RecRef.RecordId)) and
+                       (WorkflowStepInstance2.Status in [WorkflowStepInstance2.Status::Completed, WorkflowStepInstance2.Status::Processing])
+                    then begin
+                        ActiveStepInstanceFound := true;
+                        if WorkflowStepInstance.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Workflow Step ID") then begin
+                            WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
+                            if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then begin
+                                GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
+                                Session.LogMessage('0000DZB', WorkflowStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
+                                exit(true);
                             end;
                         end;
-                until Next = 0;
-        end;
+                    end;
+            until WorkflowStepInstanceLoop.Next() = 0;
 
         // If the execution reaches inside this IF, it means that
-        // active steps were found but the condition were not met.
-        if ActiveStepInstanceFound then
+        // active steps were found but the conditions were not met.
+        if ActiveStepInstanceFound then begin
+            GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+            Session.LogMessage('0000DZC', WorkflowStepCondionsNotMetTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
             exit(false);
+        end;
 
         WorkflowStepInstance.Reset();
-        if FindMatchingWorkflowStepInstance(RecRef, xRecRef, WorkflowStepInstance, FunctionName) then
+        if FindMatchingWorkflowStepInstance(RecRef, xRecRef, WorkflowStepInstance, FunctionName) then begin
+            GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
+            Session.LogMessage('0000DZD', WorkflowMatchingStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
             exit(true);
+        end;
 
         WorkflowStepInstance.Reset();
         if FindWorkflow(RecRef, xRecRef, FunctionName, Workflow) then begin
-            if StartWorkflow then
+            if StartWorkflow then begin
                 InstantiateWorkflow(Workflow, FunctionName, WorkflowStepInstance);
+
+                GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
+                Session.LogMessage('0000DYR', WorkflowInstanceCreatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+            end;
             exit(true);
         end;
+
+        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+        Session.LogMessage('0000DZE', WorkflowNotFoundTelementryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
         exit(false);
     end;
@@ -293,7 +323,11 @@ codeunit 1501 "Workflow Management"
         ToArchiveWorkflowRecordChange: Record "Workflow - Record Change";
         WorkflowRecordChangeArchive: Record "Workflow Record Change Archive";
         ToArchiveWorkflowStepArgument: Record "Workflow Step Argument";
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        GetTelemetryDimensions(WorkflowStepInstance."Function Name", WorkflowStepInstance.ToString(), TelemetryDimensions);
+        Session.LogMessage('0000DZF', WorkflowArchiveTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
         ToArchiveWorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         ToArchiveWorkflowStepInstance.SetRange(ID, WorkflowStepInstance.ID);
 
@@ -383,7 +417,7 @@ codeunit 1501 "Workflow Management"
         WorkflowEvent: Record "Workflow Event";
     begin
         Workflow.SetRange(Enabled, true);
-        if WorkflowStepInstance.IsEmpty and Workflow.IsEmpty then
+        if WorkflowStepInstance.IsEmpty() and Workflow.IsEmpty() then
             exit(false);
 
         WorkflowEvent.Get(FunctionName);
@@ -401,17 +435,25 @@ codeunit 1501 "Workflow Management"
         ActionableWorkflowStepInstance: Record "Workflow Step Instance";
         RecRef: RecordRef;
         IsHandled: Boolean;
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+        Session.LogMessage('0000DYS', WorkflowEventStartTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
         IsHandled := false;
         OnBeforeHandleEventWithxRec(FunctionName, Variant, xVariant, IsHandled);
         if IsHandled then
             exit;
 
         RecRef.GetTable(Variant);
-        if RecRef.IsTemporary then
+        if RecRef.IsTemporary() then
             exit;
+
         if FindEventWorkflowStepInstance(ActionableWorkflowStepInstance, FunctionName, Variant, xVariant) then
             ExecuteResponses(Variant, xVariant, ActionableWorkflowStepInstance);
+
+        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+        Session.LogMessage('0000DYV', WorkflowEventEndTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
     end;
 
     procedure HandleEventOnKnownWorkflowInstance(FunctionName: Code[128]; Variant: Variant; WorkflowStepInstanceID: Guid)
@@ -427,7 +469,11 @@ codeunit 1501 "Workflow Management"
         RecRef: RecordRef;
         xRecRef: RecordRef;
         ActionableStepFound: Boolean;
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+        Session.LogMessage('0000DYW', WorkflowEventStartTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
         RecRef.GetTable(Variant);
         xRecRef.GetTable(xVariant);
 
@@ -443,8 +489,18 @@ codeunit 1501 "Workflow Management"
                 end;
             until (WorkflowStepInstance.Next = 0) or ActionableStepFound;
 
-        if ActionableStepFound then
+        if ActionableStepFound then begin
+            GetTelemetryDimensions(FunctionName, ActionableWorkflowStepInstance.ToString(), TelemetryDimensions);
+            Session.LogMessage('0000DYX', WorkflowStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+
             ExecuteResponses(Variant, xVariant, ActionableWorkflowStepInstance);
+        end else begin
+            GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+            Session.LogMessage('0000DYY', WorkflowStepNotFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+        end;
+
+        GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+        Session.LogMessage('0000DYZ', WorkflowEventEndTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
     end;
 
     procedure ExecuteResponses(Variant: Variant; xVariant: Variant; ActionableWorkflowStepInstance: Record "Workflow Step Instance")
@@ -491,6 +547,19 @@ codeunit 1501 "Workflow Management"
 
         if IsWorkflowCompleted(ActionableWorkflowStepInstance) then
             ArchiveWorkflowInstance(ActionableWorkflowStepInstance);
+    end;
+
+    internal procedure GetTelemetryDimensions(FunctionName: Text; SerializedWorkflowStepInstance: Text; var Dimensions: Dictionary of [Text, Text])
+    begin
+        Clear(Dimensions);
+
+        Dimensions.Add('Category', WorkflowTelemetryCategoryTxt);
+
+        if FunctionName <> '' then
+            Dimensions.Add('FunctionName', FunctionName);
+
+        if SerializedWorkflowStepInstance <> '' then
+            Dimensions.Add('WorkflowStepInstance', SerializedWorkflowStepInstance);
     end;
 
     local procedure CanExecuteEvent(WorkflowStepInstance: Record "Workflow Step Instance"): Boolean
@@ -720,6 +789,18 @@ codeunit 1501 "Workflow Management"
             end;
 
         exit('');
+    end;
+
+    procedure AnyWorkflowExists(): Boolean
+    var
+        Workflow: Record Workflow;
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        if Workflow.IsEmpty then
+            exit(false);
+        if ApprovalEntry.IsEmpty then
+            exit(false);
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

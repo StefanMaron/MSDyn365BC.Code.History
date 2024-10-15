@@ -20,7 +20,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the record.';
+                    ToolTip = 'Specifies the posted credit memo number. You cannot change the number because the document has already been posted.';
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
                 {
@@ -33,7 +33,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the posting date for the entry.';
+                    ToolTip = 'Specifies the date when the credit memo was posted.';
                 }
             }
             group(Shipping)

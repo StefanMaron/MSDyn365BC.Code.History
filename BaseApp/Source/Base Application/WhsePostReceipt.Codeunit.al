@@ -510,17 +510,9 @@
                     OnBeforePostUpdateWhseRcptLine(WhseRcptLine2, WhseRcptLineBuf, DeleteWhseRcptLine, WhseRcptHeader);
                     if DeleteWhseRcptLine then
                         WhseRcptLine2.Delete
-                    else begin
-                        WhseRcptLine2.Validate("Qty. Received", "Qty. Received" + "Qty. to Receive");
-                        WhseRcptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Receive");
-                        WhseRcptLine2."Qty. to Cross-Dock" := 0;
-                        WhseRcptLine2."Qty. to Cross-Dock (Base)" := 0;
-                        WhseRcptLine2.Status := WhseRcptLine2.GetLineStatus;
-                        OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(WhseRcptLine2);
-                        WhseRcptLine2.Modify();
-                        OnAfterPostUpdateWhseRcptLine(WhseRcptLine2);
-                    end;
-                until Next = 0;
+                    else
+                        UpdateWhseRcptLine(WhseRcptLine2);
+                until Next() = 0;
                 OnPostUpdateWhseDocumentsOnBeforeDeleteAll(WhseRcptHeader, WhseRcptLineBuf);
                 DeleteAll();
             end;
@@ -551,6 +543,27 @@
         end;
 
         OnAfterPostUpdateWhseDocuments(WhseRcptHeader, WhsePutAwayRequest);
+    end;
+
+    local procedure UpdateWhseRcptLine(WhseRcptLine2: Record "Warehouse Receipt Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateWhseRcptLine(WhseRcptLine2, WhseRcptLineBuf, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseRcptLineBuf do begin
+            WhseRcptLine2.Validate("Qty. Received", "Qty. Received" + "Qty. to Receive");
+            WhseRcptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Receive");
+            WhseRcptLine2."Qty. to Cross-Dock" := 0;
+            WhseRcptLine2."Qty. to Cross-Dock (Base)" := 0;
+            WhseRcptLine2.Status := WhseRcptLine2.GetLineStatus;
+            OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(WhseRcptLine2);
+            WhseRcptLine2.Modify();
+            OnAfterPostUpdateWhseRcptLine(WhseRcptLine2);
+        end;
     end;
 
     procedure CreatePostedRcptHeader(var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var WhseRcptHeader: Record "Warehouse Receipt Header"; ReceivingNo2: Code[20]; PostingDate2: Date)
@@ -1134,6 +1147,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedWhseRcptLineInsert(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WarehouseReceiptLineBuf: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 
