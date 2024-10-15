@@ -14,6 +14,7 @@ report 5055 "Contact - Cover Sheet"
     ApplicationArea = RelationshipMgmt;
     Caption = 'Contact - Cover Sheet';
     UsageCategory = Documents;
+    WordMergeDataItem = Contact;
 
     dataset
     {

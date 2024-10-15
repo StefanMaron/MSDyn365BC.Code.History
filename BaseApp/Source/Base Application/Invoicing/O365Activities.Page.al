@@ -84,6 +84,17 @@ page 1310 "O365 Activities"
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies sales orders that are not yet posted or only partially posted.';
                 }
+                field("S. Ord. - Reserved From Stock"; Rec."S. Ord. - Reserved From Stock")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Completely Reserved from Stock';
+                    ToolTip = 'Specifies the number of sales orders that are completely reserved from stock.';
+
+                    trigger OnDrillDown()
+                    begin
+                        ActivitiesMgt.DrillDownNoOfReservedFromStockSalesOrders();
+                    end;
+                }
                 field("Ongoing Sales Invoices"; Rec."Ongoing Sales Invoices")
                 {
                     ApplicationArea = Basic, Suite;

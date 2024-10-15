@@ -75,7 +75,7 @@ page 1797 "Data Migration Error"
                     repeat
                         DataMigrationError.Ignore();
                     until DataMigrationError.Next() = 0;
-                    CurrPage.Update();
+                    CurrPage.Update(false);
                 end;
             }
             action(Edit)

@@ -24,6 +24,7 @@ codeunit 137140 "SCM Inventory Documents"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
@@ -1306,6 +1307,267 @@ codeunit 137140 "SCM Inventory Documents"
         Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure[2]."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
     end;
 
+    [Test]
+    procedure InventoryReceiptDoesNotRequireWarehouseHandling()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [Item Receipt] [Warehouse]
+        // [SCENARIO 481855] Inventory Receipt does not require warehouse handling.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        InvtDocumentLine.Validate("Bin Code", Bin.Code);
+        InvtDocumentLine.Modify(true);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 1);
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", Location.Code);
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 1);
+    end;
+
+    [Test]
+    procedure InventoryShipmentDoesNotRequireWarehouseHandling()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        QtyInStock: Decimal;
+    begin
+        // [FEATURE] [Item Shipment] [Warehouse]
+        // [SCENARIO 481855] Inventory Shipment does not require warehouse handling.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        QtyInStock := CreateAndPostItemJournalLine(Item."No.", Location.Code, Bin.Code);
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        InvtDocumentLine.Validate("Bin Code", Bin.Code);
+        InvtDocumentLine.Modify(true);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        Item.Get(InvtDocumentLine."Item No.");
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, QtyInStock - 1);
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", Location.Code);
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", QtyInStock - 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyShortcutDimensionOnPostedInventoryReceiptSubForm()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        Item: Record Item;
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+        InvtReceiptLine: Record "Invt. Receipt Line";
+        InvtReceiptSubform: TestPage "Invt. Receipt Subform";
+        PostedInvtReceiptSubform: TestPage "Posted Invt. Receipt Subform";
+        DimValue: Code[20];
+    begin
+        // [SCENARIO 482799] Shortcut dimension value does not appear on the column of Posted Inventory Shipment Line and Posted Inventory Receipt Line
+        Initialize();
+
+        // [GIVEN] Create Dimension with Values "V1"
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        DimValue := DimensionValue.Code;
+
+        // [GIVEN] Set Dimension V1 as Shortcut Dimension 3 in General Ledger Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create Setup for Item Document
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        LibraryInventory.CreateItem(Item);
+
+        // [THEN] Create Inventory Receipt Document
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader,
+            InvtDocumentLine,
+            Item,
+            InvtDocumentHeader."Document Type"::Receipt,
+            Location.Code,
+            SalespersonPurchaser.Code);
+
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Set ShortcutDimCode3 = "V1" in Invt. Shipment Subform Order Subform
+        InvtReceiptSubform.OpenEdit();
+        InvtReceiptSubform.GoToRecord(InvtDocumentLine);
+        InvtReceiptSubform."ShortcutDimCode[3]".SetValue(DimValue);
+        InvtReceiptSubform.Close();
+
+
+        // [WHEN] Posted Inventory Shipment Document
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Get Posted Invt. Shipment Document and Open Posted Invt. Shipment Subform
+        InvtReceiptHeader.Get(InvtDocumentHeader."Posting No.");
+        InvtReceiptLine.SetRange("Document No.", InvtReceiptHeader."No.");
+        InvtReceiptLine.FindFirst();
+        PostedInvtReceiptSubform.OpenView();
+        PostedInvtReceiptSubform.GoToRecord(InvtReceiptLine);
+
+        // [VERIFY] Verify: Shortcut Dimension 3 on Posted Invt. Shipment Subform
+        PostedInvtReceiptSubform."ShortcutDimCode[3]".AssertEquals(DimValue);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyShortcutDimensionOnPostedInventoryShipmentSubForm()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtShipmentHeader: Record "Invt. Shipment Header";
+        InvtShipmentLine: Record "Invt. Shipment Line";
+        InvtShipmentSubform: TestPage "Invt. Shipment Subform";
+        PostedInvtShipmentSubform: TestPage "Posted Invt. Shipment Subform";
+        DimValue: Code[20];
+    begin
+        // [SCENARIO 482799] Shortcut dimension value does not appear on the column of Posted Inventory Shipment Line and Posted Inventory Receipt Line
+        Initialize();
+
+        // [GIVEN] Create Dimension with Values "V1"
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        DimValue := DimensionValue.Code;
+
+        // [GIVEN] Set Dimension V1 as Shortcut Dimension 3 in General Ledger Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create Setup for Item Document
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        LibraryInventory.CreateItem(Item);
+
+        // [THEN] Create Inventory Shipment Document
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader,
+            InvtDocumentLine,
+            Item,
+            InvtDocumentHeader."Document Type"::Shipment,
+            Location.Code,
+            SalespersonPurchaser.Code);
+
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Set ShortcutDimCode3 = "V1" in Invt. Shipment Subform Order Subform
+        InvtShipmentSubform.OpenEdit();
+        InvtShipmentSubform.GoToRecord(InvtDocumentLine);
+        InvtShipmentSubform."ShortcutDimCode[3]".SetValue(DimValue);
+        InvtShipmentSubform.Close();
+
+
+        // [WHEN] Posted Inventory Shipment Document
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Get Posted Invt. Shipment Document and Open Posted Invt. Shipment Subform
+        InvtShipmentHeader.Get(InvtDocumentHeader."Posting No.");
+        InvtShipmentLine.SetRange("Document No.", InvtShipmentHeader."No.");
+        InvtShipmentLine.FindFirst();
+        PostedInvtShipmentSubform.OpenView();
+        PostedInvtShipmentSubform.GoToRecord(InvtShipmentLine);
+
+        // [VERIFY] Verify: Shortcut Dimension 3 on Posted Invt. Shipment Subform
+        PostedInvtShipmentSubform."ShortcutDimCode[3]".AssertEquals(DimValue);
+    end;
+    
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure VerifyDimIsNotUpdatedOnLineAfterLocationCodeIsValidatedOnHeaderAndUserDontWantToUpdateDimOnLines()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        InvtShipment: TestPage "Invt. Shipment";
+    begin
+        // [SCENARIO 486635] Dimension is not updated on the inventory shipment line after location code is validated on the header and user don't want to update dimension on the lines
+        Initialize();
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Default Dimension for Location
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Inventory Shipment header without Location
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := InvtDocumentHeader."Document Type"::Shipment;
+        InvtDocumentHeader.Insert(true);
+
+        // [GIVEN] Create Inventory Shipment Line for Item type
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Open Inventory Shipment Page
+        InvtShipment.OpenEdit();
+        InvtShipment.Filter.SetFilter("No.", InvtDocumentHeader."No.");
+
+        // [WHEN] Set Location Code on Inventory Shipment Page
+        InvtShipment."Location Code".SetValue(Location.Code);
+
+        // [THEN] Find the first Inventory Shipment Line
+        InvtShipment.ShipmentLines.First();
+
+        // [VERIFY] Verify: The dimension on the Inventory Shipment line should be empty        
+        Assert.AreEqual('', InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value, StrSubstNo(DimensionErr, ''));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1574,6 +1836,12 @@ codeunit 137140 "SCM Inventory Documents"
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

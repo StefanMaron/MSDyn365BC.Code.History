@@ -20,11 +20,15 @@ codeunit 449 "Job Queue Start Codeunit"
         ErrorMessageRegisterId: Guid;
         Success: Boolean;
         LastError: DotNet LastError;
+        SuppressErrorLogging: Boolean;
     begin
         if Rec."User Language ID" <> 0 then
             GlobalLanguage(Rec."User Language ID");
 
-        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        SuppressErrorLogging := false;
+        OnBeforeActivateErrorMessageHandler(Rec, ErrorMessageHandler, ErrorMessageManagement, SuppressErrorLogging);
+        if not SuppressErrorLogging then
+            ErrorMessageManagement.Activate(ErrorMessageHandler);
         ErrorMessageManagement.PushContext(ErrorContextElement, Rec.RecordId(), 0, JobQueueStartContextTxt);
         case Rec."Object Type to Run" of
             Rec."Object Type to Run"::Codeunit:
@@ -69,6 +73,11 @@ codeunit 449 "Job Queue Start Codeunit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivateErrorMessageHandler(var JobQueueEntry: Record "Job Queue Entry"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorMessageManagement: Codeunit "Error Message Management"; var SuppressErrorLogging: Boolean)
     begin
     end;
 }

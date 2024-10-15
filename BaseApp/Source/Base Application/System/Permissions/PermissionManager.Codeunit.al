@@ -15,10 +15,13 @@ codeunit 9002 "Permission Manager"
     InherentEntitlements = X;
     InherentPermissions = X;
 
+    Permissions = TableData "Permission Set Link" = rd,
 #if not CLEAN22
-    Permissions = TableData "User Group Member" = rid, // Do not add m so the check UserGroupMember.WritePermission() would be false unless the user has direct access
-                  TableData "User Group Plan" = rimd;
+                  TableData "User Group Member" = rid, // Do not add m so the check UserGroupMember.WritePermission() would be false unless the user has direct access
+                  TableData "User Group Plan" = rimd,
 #endif
+                  TableData "Aggregate Permission Set" = rimd;
+
     SingleInstance = true;
 
     var
@@ -509,6 +512,26 @@ codeunit 9002 "Permission Manager"
         AccessControl."User Security ID" := UserSecurityID;
         AccessControl."Role ID" := RoleID;
         AccessControl.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tenant Permission Set", OnBeforeDeleteEvent, '', false, false)]
+    local procedure OnBeforeDeleteTenantPermissionSet(var Rec: Record "Tenant Permission Set")
+    var
+        PermissionSetLink: Record "Permission Set Link";
+#if not CLEAN22
+        UserGroupPermissionSet: Record "User Group Permission Set";
+#endif
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        PermissionSetLink.SetRange("Linked Permission Set ID", Rec."Role ID");
+        PermissionSetLink.DeleteAll();
+
+#if not CLEAN22
+        UserGroupPermissionSet.SetRange("Role ID", Rec."Role ID");
+        UserGroupPermissionSet.DeleteAll();
+#endif
     end;
 
     [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', true, true)]

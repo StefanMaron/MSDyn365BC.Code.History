@@ -2,6 +2,7 @@
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
@@ -33,8 +34,9 @@ codeunit 5700 "User Setup Management"
         Text001: Label 'vendor';
         Text002: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
         Text003: Label 'This document will be processed in your %2.';
-        AllowedPostingDateErr: Label 'The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
+        AllowedDateErr: Label 'The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
+        AllowedVATDateMsg: Label 'The setup of allowed VAT dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow VAT Date From, %2 - caption Allow VAT Date To';
         OpenGLSetupActionTxt: Label 'Open the General Ledger Setup window';
         OpenUserSetupActionTxt: Label 'Open the User Setup window';
         PostingDateRangeErr: Label 'The Posting Date is not within your range of allowed posting dates.';
@@ -70,7 +72,7 @@ codeunit 5700 "User Setup Management"
             if UserSetup.Get(UserCode) and (UserCode <> '') then
                 if UserSetup."Sales Resp. Ctr. Filter" <> '' then
                     SalesUserRespCenter := UserSetup."Sales Resp. Ctr. Filter";
-            OnAfterGetSalesFilter(UserSetup, SalesUserRespCenter);
+            OnAfterGetSalesFilter(UserSetup, SalesUserRespCenter, UserLocation);
             HasGotSalesUserSetup := true;
         end;
         Result := SalesUserRespCenter;
@@ -86,7 +88,7 @@ codeunit 5700 "User Setup Management"
             if UserSetup.Get(UserCode) and (UserCode <> '') then
                 if UserSetup."Purchase Resp. Ctr. Filter" <> '' then
                     PurchUserRespCenter := UserSetup."Purchase Resp. Ctr. Filter";
-            OnAfterGetPurchFilter(UserSetup, PurchUserRespCenter);
+            OnAfterGetPurchFilter(UserSetup, PurchUserRespCenter, UserLocation);
             HasGotPurchUserSetup := true;
         end;
         Result := PurchUserRespCenter;
@@ -222,6 +224,13 @@ codeunit 5700 "User Setup Management"
         exit(false);
     end;
 
+    procedure CheckAllowedVATDatesRange(AllowVATDateFrom: Date; AllowVATDateTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer)
+    begin
+        CheckAllowedVATDatesRange(
+            AllowVATDateFrom, AllowVATDateTo, NotificationType, InvokedBy,
+            UserSetup.FieldCaption("Allow VAT Date From"), UserSetup.FieldCaption("Allow VAT Date To"));
+    end;
+
     procedure CheckAllowedPostingDatesRange(AllowPostingFrom: Date; AllowPostingTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer)
     begin
         CheckAllowedPostingDatesRange(
@@ -231,7 +240,7 @@ codeunit 5700 "User Setup Management"
 
     procedure CheckAllowedPostingDatesRange(AllowPostingFrom: Date; AllowPostingTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer; AllowPostingFromCaption: Text; AllowPostingToCaption: Text)
     var
-        AllowedPostingDatesNotification: Notification;
+        Notification: Notification;
     begin
         if AllowPostingFrom <= AllowPostingTo then
             exit;
@@ -239,25 +248,73 @@ codeunit 5700 "User Setup Management"
         if (AllowPostingFrom = 0D) or (AllowPostingTo = 0D) then
             exit;
 
-        case NotificationType of
-            NotificationType::Notification:
-                begin
-                    AllowedPostingDatesNotification.Message :=
-                        StrSubstNo(AllowedPostingDateMsg, AllowPostingFromCaption, AllowPostingToCaption);
-                    case InvokedBy of
-                        DATABASE::"General Ledger Setup":
-                            AllowedPostingDatesNotification.AddAction(OpenGLSetupActionTxt,
-                              CODEUNIT::"Document Notifications", 'ShowGLSetup');
-                        DATABASE::"User Setup":
-                            AllowedPostingDatesNotification.AddAction(OpenUserSetupActionTxt,
-                              CODEUNIT::"Document Notifications", 'ShowUserSetup');
-                    end;
-                    AllowedPostingDatesNotification.Send();
-                    Error('');
-                end;
-            NotificationType::Error:
-                Error(AllowedPostingDateErr, AllowPostingFromCaption, AllowPostingToCaption);
+        if NotificationType = NotificationType::Error then
+            Error(AllowedDateErr, AllowPostingFromCaption, AllowPostingToCaption);
+        
+        CreateAndSendNotification(InvokedBy, StrSubstNo(AllowedPostingDateMsg, AllowPostingFromCaption, AllowPostingToCaption), Notification);
+        Error('');
+    end;
+
+    procedure CheckAllowedVATDatesRange(AllowPostingFrom: Date; AllowPostingTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer; AllowVATFromCaption: Text; AllowVATToCaption: Text)
+    var
+        Notification: Notification;
+    begin
+        if AllowPostingFrom <= AllowPostingTo then
+            exit;
+
+        if (AllowPostingFrom = 0D) or (AllowPostingTo = 0D) then
+            exit;
+
+        if NotificationType = NotificationType::Error then
+            Error(AllowedDateErr, AllowVATFromCaption, AllowVATToCaption);
+
+        CreateAndSendNotification(InvokedBy, StrSubstNo(AllowedVATDateMsg, AllowVATFromCaption, AllowVATToCaption), Notification);
+        Error('');
+    end;
+    
+    procedure IsVATDateInAllowedPeriod(VATDate: Date; var SetupRecordID: RecordID; var FieldNo: Integer) Result: Boolean
+    var
+        VATSetup: Record "VAT Setup";
+        UserSetup2: Record "User Setup";
+        AllowPostingFrom: Date;
+        AllowPostingTo: Date;
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsVATDateValidWithSetup(VATDate, Result, IsHandled, SetupRecordID, FieldNo);
+        if IsHandled then
+            exit(Result);
+
+        if UserId() <> '' then
+            if UserSetup2.Get(UserId) then begin
+                UserSetup2.CheckAllowedVATDates(1);
+                AllowPostingFrom := UserSetup2."Allow VAT Date From";
+                AllowPostingTo := UserSetup2."Allow VAT Date To";
+                SetupRecordID := UserSetup2.RecordId;
+                FieldNo := UserSetup2.FieldNo("Allow VAT Date From");
+            end;
+        if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
+            VATSetup.Get();
+            VATSetup.CheckAllowedVATDates(1);
+            AllowPostingFrom := VATSetup."Allow VAT Date From";
+            AllowPostingTo := VATSetup."Allow VAT Date To";
+            SetupRecordID := VATSetup.RecordId;
+            FieldNo := VATSetup.FieldNo("Allow VAT Date From");
         end;
+        if AllowPostingTo = 0D then
+            AllowPostingTo := DMY2Date(31, 12, 9999);
+        exit(VATDate in [AllowPostingFrom .. AllowPostingTo]);
+    end;
+
+    local procedure CreateAndSendNotification(InvokedBy: Integer; Message: Text; var Notification: Notification)
+    begin
+        Notification.Message := Message;
+        case InvokedBy of
+            Database::"General Ledger Setup":
+                Notification.AddAction(OpenGLSetupActionTxt, Codeunit::"Document Notifications", 'ShowGLSetup');
+            Database::"User Setup":
+                Notification.AddAction(OpenUserSetupActionTxt, Codeunit::"Document Notifications", 'ShowUserSetup');
+        end;
+        Notification.Send();
     end;
 
     procedure IsPostingDateValid(PostingDate: Date): Boolean
@@ -405,12 +462,12 @@ codeunit 5700 "User Setup Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetPurchFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10])
+    local procedure OnAfterGetPurchFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10]; var UserLocation: Code[10])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSalesFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10])
+    local procedure OnAfterGetSalesFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10]; var UserLocation: Code[10])
     begin
     end;
 
@@ -461,6 +518,11 @@ codeunit 5700 "User Setup Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsDeferralPostingDateValidWithSetup(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean; var SetupRecordID: RecordID)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVATDateValidWithSetup(VATDate: Date; var Result: Boolean; var IsHandled: Boolean; var SetupRecordID: RecordID; var FieldNo: Integer)
     begin
     end;
 }

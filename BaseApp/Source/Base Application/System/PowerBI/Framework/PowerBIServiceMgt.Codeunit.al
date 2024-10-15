@@ -23,6 +23,7 @@ codeunit 6301 "Power BI Service Mgt."
         FactboxRatioTxt: Label '4:3', Locked = true;
         FailedAuthErr: Label 'We failed to authenticate with Power BI. Try to sign out and in again. This problem typically happens if you no longer have a license for Power BI or if you just changed your email or password.';
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
+        PowerBIEmbedReportUrlTemplateTxt: Label 'https://app.powerbi.com/reportEmbed?reportId=%1', Locked = true;
         NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
         Dyn365AppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862352', Locked = true;
         PowerBIMyOrgUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862353', Locked = true;
@@ -166,7 +167,7 @@ codeunit 6301 "Power BI Service Mgt."
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         // Gets the URL for AppSource's list of content packs, like Power BI's Services button, filtered to Dynamics reports.
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             exit(Dyn365AppSourceUrlTxt);
 
         exit(NavAppSourceUrlTxt);
@@ -443,6 +444,84 @@ codeunit 6301 "Power BI Service Mgt."
         // Returns an English profile ID for the Report Selection
         ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
         exit(AllProfile."Profile ID");
+    end;
+
+    /// <summary>
+    /// Add a Power BI report visual to the database, so that it's displayed in a certain context for the current user.
+    /// </summary>
+    /// <param name="ReportId">The ID of the Power BI Report that contains the visual to embed</param>
+    /// <param name="ReportPageId">The name of the page in the report that contains the visual to embed</param>
+    /// <param name="ReportVisualId">The ID of the report visual to embed</param>
+    /// <param name="Context">The context where the Power BI report visual should show up</param>
+    /// <remarks>
+    /// The easiest way to get the necessary IDs for report visuals is to:
+    ///   1. Open the Power BI report in the browser
+    ///   2. Hover over the visual you want to embed, and click on the three dots menu
+    ///   3. Choose to "Share" the visual, and choose "Link to this Visual"
+    ///   4. Use the "Copy" button to copy the URL
+    ///   5. From the URL, you can find:
+    ///     a. The Report ID after the /reports/ segment 
+    ///     b. The Report Page right after the Report ID
+    ///     c. The visual ID in a URL query parameter called "visual"
+    ///
+    /// Example URL with placeholders:
+    /// https://app.powerbi.com/groups/me/reports/REPORT_ID/PAGE_ID?[...]&amp;visual=VISUAL_ID
+    /// </remarks>
+    procedure AddReportVisualForContext(ReportId: Guid; ReportPageId: Text[200]; ReportVisualId: Text[200]; Context: Text[50])
+    var
+        PowerBIContextSettings: Record "Power BI Context Settings";
+        PowerBIDisplayedElement: Record "Power BI Displayed Element";
+    begin
+        if not PowerBIDisplayedElement.Get(UserSecurityId(), Context, PowerBIDisplayedElement.MakeReportVisualKey(ReportId, ReportPageId, ReportVisualId), PowerBIDisplayedElement.ElementType::"Report Visual") then begin
+            PowerBIDisplayedElement.Init();
+            PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::"Report Visual";
+            PowerBIDisplayedElement.ElementId := PowerBIDisplayedElement.MakeReportVisualKey(ReportId, ReportPageId, ReportVisualId);
+            // NOTE: The Power BI team recommends to get the embed URL from the Power BI REST APIs, as the URL format might change in the future. 
+            // However, currently the approach below is also supported.
+            PowerBIDisplayedElement.ElementEmbedUrl := StrSubstNo(PowerBIEmbedReportUrlTemplateTxt, ReportId);
+            PowerBIDisplayedElement.Context := Context;
+            PowerBIDisplayedElement.UserSID := UserSecurityId();
+            PowerBIDisplayedElement.ShowPanesInExpandedMode := true;
+            PowerBIDisplayedElement.ShowPanesInNormalMode := false;
+            PowerBIDisplayedElement.Insert(true);
+        end;
+
+        PowerBIContextSettings.CreateOrReadForCurrentUser(Context);
+        if not PowerBIContextSettings.LockToSelectedElement then begin
+            PowerBIContextSettings.LockToSelectedElement := true;
+            PowerBIContextSettings.Modify(true);
+        end;
+    end;
+
+    /// <summary>
+    /// Add a Power BI report to the database, so that it's displayed in a certain context for the current user.
+    /// </summary>
+    /// <param name="ReportId">The ID of the Power BI Report to embed</param>
+    /// <param name="Context">The context where the Power BI report should show up</param>
+    procedure AddReportForContext(ReportId: Guid; Context: Text[50])
+    var
+        PowerBIContextSettings: Record "Power BI Context Settings";
+        PowerBIDisplayedElement: Record "Power BI Displayed Element";
+    begin
+        if not PowerBIDisplayedElement.Get(UserSecurityId(), Context, PowerBIDisplayedElement.MakeReportKey(ReportId), PowerBIDisplayedElement.ElementType::"Report") then begin
+            PowerBIDisplayedElement.Init();
+            PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::"Report";
+            PowerBIDisplayedElement.ElementId := PowerBIDisplayedElement.MakeReportKey(ReportId);
+            // NOTE: The Power BI team recommends to get the embed URL from the Power BI REST APIs, as the URL format might change in the future. 
+            // However, currently the approach below is also supported.
+            PowerBIDisplayedElement.ElementEmbedUrl := StrSubstNo(PowerBIEmbedReportUrlTemplateTxt, ReportId);
+            PowerBIDisplayedElement.Context := Context;
+            PowerBIDisplayedElement.UserSID := UserSecurityId();
+            PowerBIDisplayedElement.ShowPanesInExpandedMode := true;
+            PowerBIDisplayedElement.ShowPanesInNormalMode := false;
+            PowerBIDisplayedElement.Insert(true);
+        end;
+
+        PowerBIContextSettings.CreateOrReadForCurrentUser(Context);
+        if not PowerBIContextSettings.LockToSelectedElement then begin
+            PowerBIContextSettings.LockToSelectedElement := true;
+            PowerBIContextSettings.Modify(true);
+        end;
     end;
 
     procedure IsUserAdminForPowerBI(UserSecurityId: Guid): Boolean
