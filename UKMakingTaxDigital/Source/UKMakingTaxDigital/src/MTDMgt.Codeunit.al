@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -500,5 +500,22 @@ codeunit 10530 "MTD Mgt."
     begin
         if not VATReturnPeriod.Get(VATReportHeader."Return Period No.") then
             Error(PeriodLinkErr);
+    end;
+
+    procedure GetVATReportSetupUpgradeTag(): Code[250];
+    begin
+        exit('MS-345859-GB-MTD-VATReportSetup-20200304');
+    end;
+
+    procedure GetDailyLimitUpgradeTag(): Code[250];
+    begin
+        exit('MS-332065-GB-MTD-DailyLimit-20200304');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 9999, 'OnGetPerCompanyUpgradeTags', '', false, false)]
+    local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
+    begin
+        PerCompanyUpgradeTags.Add(GetVATReportSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDailyLimitUpgradeTag());
     end;
 }

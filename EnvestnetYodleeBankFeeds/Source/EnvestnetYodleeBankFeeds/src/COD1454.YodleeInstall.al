@@ -3,7 +3,12 @@ codeunit 1454 "Yodlee Install"
     Subtype = install;
 
     trigger OnInstallAppPerCompany()
+    var
+        AppInfo: ModuleInfo;
     begin
+        if AppInfo.DataVersion().Major() = 0 then
+            SetAllUpgradeTags();
+
         CompanyInitialize();
     end;
 
@@ -42,6 +47,18 @@ codeunit 1454 "Yodlee Install"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"MS - Yodlee Data Exchange Def");
 
         DataClassificationMgt.SetTableFieldsToNormal(Database::"MS - Yodlee Bank Session");
+    end;
+
+    local procedure SetAllUpgradeTags()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        YodleeServiceUpgrade: Codeunit "MS - Yodlee Service Upgrade";
+    begin
+        if not UpgradeTag.HasUpgradeTag(YodleeServiceUpgrade.GetYodleeSecretsToISUpgradeTag()) then
+            UpgradeTag.SetUpgradeTag(YodleeServiceUpgrade.GetYodleeSecretsToISUpgradeTag());
+
+        if not UpgradeTag.HasUpgradeTag(YodleeServiceUpgrade.GetYodleeSecretsToISValidationTag()) then
+            UpgradeTag.SetUpgradeTag(YodleeServiceUpgrade.GetYodleeSecretsToISValidationTag());
     end;
 
 }

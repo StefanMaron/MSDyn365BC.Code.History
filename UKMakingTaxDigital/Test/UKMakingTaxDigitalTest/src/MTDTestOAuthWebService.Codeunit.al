@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -495,8 +495,6 @@ codeunit 148081 "MTDTestOAuthWebService"
         JSONMgt.InitializeFromString(LibraryMakingTaxDigital.GetLatestHttpLogText());
         Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-Connection-Method'), 'Gov-Client-Connection-Method');
         Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Vendor-Version'), 'Gov-Vendor-Version');
-        Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-IDs'), 'Gov-Client-User-IDs');
-        Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-Agent'), 'Gov-Client-User-Agent');
         Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Vendor-License-IDs'), 'Gov-Vendor-License-IDs');
         Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Public-IP'), 'Gov-Client-Public-IP');
 
@@ -508,6 +506,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Screens'), 'Gov-Client-Screens');
+                    Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-IDs'), 'Gov-Client-User-IDs');
+                    Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-Agent'), 'Gov-Client-User-Agent');
                 end;
             ClientType::Web:
                 begin
@@ -516,6 +516,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-Screens'), 'Gov-Client-Screens');
+                    Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-User-IDs'), 'Gov-Client-User-IDs');
+                    Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-User-Agent'), 'Gov-Client-User-Agent');
                 end;
             ClientType::Background:
                 begin
@@ -524,6 +526,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.AreEqual('', JSONMgt.GetValue('Request.Header.Gov-Client-Screens'), 'Gov-Client-Screens');
+                    Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-IDs'), 'Gov-Client-User-IDs');
+                    Assert.AreEqual('***', JSONMgt.GetValue('Request.Header.Gov-Client-User-Agent'), 'Gov-Client-User-Agent');
                 end;
         end;
     end;
@@ -537,8 +541,6 @@ codeunit 148081 "MTDTestOAuthWebService"
         JSONMgt.InitializeFromString(JsonText);
         Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Connection-Method'), 'ov-Client-Connection-Method');
         Assert.AreEqual('', JSONMgt.GetValue('Gov-Vendor-Version'), 'Gov-Vendor-Version');
-        Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-IDs') <> '', 'Gov-Client-User-IDs');
-        Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-Agent') <> '', 'Gov-Client-User-Agent');
         Assert.IsTrue(JSONMgt.GetValue('Gov-Vendor-License-IDs') <> '', 'Gov-Vendor-License-IDs');
         Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Public-IP'), 'Gov-Client-Public-IP');
 
@@ -550,6 +552,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Screens'), 'Gov-Client-Screens');
+                    Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-IDs') <> '', 'Gov-Client-User-IDs');
+                    Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-Agent') <> '', 'Gov-Client-User-Agent');
                 end;
             ClientType::Web:
                 begin
@@ -558,6 +562,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.IsTrue(JSONMgt.GetValue('Gov-Client-Screens') <> '', 'Gov-Client-Screens');
+                    Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-User-IDs'), 'Gov-Client-User-IDs');
+                    Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-User-Agent'), 'Gov-Client-User-Agent');
                 end;
             ClientType::Background:
                 begin
@@ -566,6 +572,8 @@ codeunit 148081 "MTDTestOAuthWebService"
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Local-IPs'), 'Gov-Client-Local-IPs');
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-MAC-Addresses'), 'Gov-Client-MAC-Addresses');
                     Assert.AreEqual('', JSONMgt.GetValue('Gov-Client-Screens'), 'Gov-Client-Screens');
+                    Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-IDs') <> '', 'Gov-Client-User-IDs');
+                    Assert.IsTrue(JSONMgt.GetValue('Gov-Client-User-Agent') <> '', 'Gov-Client-User-Agent');
                 end;
         end;
     end;

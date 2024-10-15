@@ -13,6 +13,7 @@ codeunit 134331 "ERM Purchase Payables"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
@@ -361,6 +362,52 @@ codeunit 134331 "ERM Purchase Payables"
         // [THEN] Invoice '1001' is not posted, Invoice '1002' is posted
         Assert.IsTrue(PurchaseHeader[1].Find, '1st Invoice does not exist');
         Assert.IsFalse(PurchaseHeader[2].Find, '2nd Invoice is not posted');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchInvCountHandler,ShowErrorsNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceBatchPostCountSecondFailed()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ErrorMessages: TestPage "Error Messages";
+        RecID: RecordID;
+    begin
+        // [SCENARIO] The two of three invoices are posted by "Batch Post Purchase Invoices" report if errors occurred in the second document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        RecID := PurchaseHeader[1].RecordId;
+        // [GIVEN] no unposted purchase invoices
+        PurchaseHeader[1].SetRange("Document Type", PurchaseHeader[1]."Document Type"::Invoice);
+        PurchaseHeader[1].DeleteAll;
+        // [GIVEN] Created Purchase Invoice '1001'
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseLine, PurchaseHeader[1]."Document Type"::Invoice);
+        // [GIVEN] Created Purchase Invoice '1002', where "Qty. to Receive" is 0
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseLine, PurchaseHeader[2]."Document Type"::Invoice);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader[2]."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader[2]."No.");
+        PurchaseLine.ModifyAll("Qty. to Receive", 0, true);
+        // [GIVEN] Created Purchase Invoice '1003'
+        CreatePurchaseDocument(PurchaseHeader[3], PurchaseLine, PurchaseHeader[3]."Document Type"::Invoice);
+
+        // [WHEN] Run Batch Post Purchase Orders Report.
+        ErrorMessages.Trap;
+        BatchPostPurchaseInvoiceRun;
+
+        // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(RecID);
+        LibraryVariableStorage.AssertEmpty;
+        // [THEN] Click "Details" - opened "Error Messages" page, where is one record:
+        // [THEN] Description is 'Qty. to Receive must be equal to...', "Record ID" is 'Invoice,1002'
+        Assert.ExpectedMessage(PurchaseLine.FieldCaption("Qty. to Receive"), ErrorMessages.Description.Value);
+        ErrorMessages.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
+        ErrorMessages.Close;
+        // [THEN] Invoice '1002' is not posted, Invoices '1001' and '1003' are posted
+        Assert.IsFalse(PurchaseHeader[1].Find, '1st Invoice is not posted');
+        Assert.IsTrue(PurchaseHeader[2].Find, '2nd Order does not exist');
+        Assert.IsFalse(PurchaseHeader[3].Find, '3rd Invoice is not posted');
     end;
 
     [Test]
@@ -2231,6 +2278,30 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [THEN] Direct Unit Cost = 0
         PurchaseLine.TestField("Direct Unit Cost", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TariffNumbersApplicationArea()
+    var
+        TariffNumbersPage: TestPage "Tariff Numbers";
+    begin
+        // [FEATURE] [UI] [Application Area]
+        // [SCENARIO 343372] Tariff Numbers controls are enabled in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        
+        // [WHEN] Open Tariff Numbers page
+        TariffNumbersPage.OpenNew();
+
+        // [THEN] "No.", Description, "Supplementary Units" controls are enabled
+        Assert.IsTrue(TariffNumbersPage."No.".Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage.Description.Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage."Supplementary Units".Enabled(), '');
+        TariffNumbersPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()
