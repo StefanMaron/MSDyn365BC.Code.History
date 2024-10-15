@@ -702,6 +702,28 @@ codeunit 5051 SegManagement
     end;
 #endif
 
+    procedure InterLogEntryCommentLineInsert(var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; InteractionLogEntryNo: Integer)
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+    begin
+        DeleteInteractionLogEntryComments(InteractionLogEntryNo);
+        if TempInterLogEntryCommentLine.FindSet() then
+            repeat
+                InterLogEntryCommentLine.Init();
+                InterLogEntryCommentLine := TempInterLogEntryCommentLine;
+                InterLogEntryCommentLine."Entry No." := InteractionLogEntryNo;
+                InterLogEntryCommentLine.Insert();
+            until TempInterLogEntryCommentLine.Next() = 0;
+    end;
+
+    local procedure DeleteInteractionLogEntryComments(InteractionLogEntryNo: Integer)
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+    begin
+        InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntryNo);
+        InterLogEntryCommentLine.DeleteAll();
+    end;
+
     local procedure GetNextLoggedSegmentEntryNo(): Integer
     var
         [SecurityFiltering(SecurityFilter::Ignored)]

@@ -37,11 +37,12 @@ codeunit 380 "Bank Acc. Recon. Test"
         end;
     end;
 
-    local procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    internal procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-        BankAccountLedgerEntry.SetRange(Open, true);
-        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+        BankAccountLedgerEntry.SetFilter("Closed at Date", '%1 | > %2', 0D, BankAccReconciliation."Statement Date");
+        BankAccountLedgerEntry.SetFilter("Statement No.", '<> %1', BankAccReconciliation."Statement No.");
+        BankAccountLedgerEntry.SetRange(Reversed, false);
         if BankAccReconciliation."Statement Date" <> 0D then
             BankAccountLedgerEntry.SetRange("Posting Date", 0D, BankAccReconciliation."Statement Date");
     end;
