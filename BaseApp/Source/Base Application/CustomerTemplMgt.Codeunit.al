@@ -54,6 +54,7 @@ codeunit 1381 "Customer Templ. Mgt."
 
         ApplyTemplate(Customer, CustomerTempl);
         InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
+        Customer.Get(Customer."No.");
 
         exit(true);
     end;
@@ -62,6 +63,7 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
         ApplyTemplate(Customer, CustomerTempl);
         InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
+        Customer.Get(Customer."No.");
     end;
 
     local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")

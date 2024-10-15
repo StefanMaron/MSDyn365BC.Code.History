@@ -15,6 +15,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
     [Test]
@@ -492,6 +496,49 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Assert.AreEqual(2 * PurchaseLine.Quantity * TaxPercent, PurchInvHeader."Amount Including VAT", 'PurchaseHeader."Amount Including VAT" is incorrect');
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatsUpdateTaxAmountModalPageHandler,ConfirmHandlerYes')]
+    procedure PostPurchInvoiceTaxLiableWithIncomingDocAndTaxDifference()
+    var
+        IncomingDocument: Record "Incoming Document";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxDifference: Decimal;
+    begin
+        // [FEATURE] [Incoming Document] [Purchase]
+        // [SCENARIO 409746] Post Purchase Invoice with linked Incoming Document after Tax Amount is corrected according to Incoming Document.
+        Initialize();
+        LibraryApplicationArea.EnableSalesTaxSetup();   // for MX
+
+        // [GIVEN] Allowed Max Tax Difference = 10.
+        LibraryERM.SetMaxVATDifferenceAllowed(10);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Tax Area "T" with Tax Detail that has "Tax Below Maximum" = 10%. 
+        // [GIVEN] Vendor with Tax Area "T", Tax Liable = true.
+        // [GIVEN] Purchase Invoice with Tax Area "T" that has Amount Incl. VAT = 500 and Tax Amount = 50.
+        // [GIVEN] Incoming Document with Amount Incl. VAT = 505 and Tax Amount = 55. Document is linked to Purchase Invoice.
+        CreatePurchaseDocument(PurchaseLine, "Purchase Document Type"::Invoice, false);
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        UpdateIncomingDocEntryNoOnPurchaseInvoice(PurchaseLine."Document No.", IncomingDocument."Entry No.");
+        TaxDifference := 5;
+        UpdateAmountInclVATOnIncomingDoc(IncomingDocument, PurchaseLine."Amount Including VAT" + TaxDifference);
+
+        // [GIVEN] Tax Amount for Puchase Invoice is updated from 50 to 55 on Purchase Invoice Statistics page.
+        LibraryVariableStorage.Enqueue(TaxDifference);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseLine."Document No.");
+        PurchaseInvoice.Statistics.Invoke();
+
+        // [WHEN] Post Purchase Invoice.
+        PostPurchaseInvoiceFromPage(PurchaseLine."Document No.");
+
+        // [THEN] Purchase Invoice was posted. Amount Incl. VAT = 505.
+        VerifyAmountInclVATOnPostedPurchaseInvoice(PurchaseLine."Document No.", IncomingDocument."Amount Incl. VAT");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -540,7 +587,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ExpenseCapitalize: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ExpenseCapitalize: Boolean)
     var
         TaxDetail: Record "Tax Detail";
         TaxAreaCode: Code[20];
@@ -549,7 +596,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         CreatePurchaseDocumentWithCertainTax(PurchaseLine, DocumentType, TaxDetail, TaxAreaCode);
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         Item: Record Item;
@@ -643,6 +690,16 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
+    local procedure PostPurchaseInvoiceFromPage(PurchaseInvoiceNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseInvoiceNo);
+        PurchaseInvoice.Post.Invoke();
+    end;
+
     local procedure SetCompareAmounts(InvoiceDiscountAmount: Decimal; TotalAmountExcTax: Decimal; TaxAmount: Decimal; TotalAmountIncTax: Decimal; CustDiscountPercent: Decimal; var Amounts: array[5] of Decimal)
     var
         FieldType: Option ,InvoiceDiscountAmount,TotalAmountExcTax,TaxAmount,TotalAmountIncTax,DiscountPercent;
@@ -652,6 +709,21 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Amounts[FieldType::TaxAmount] := TaxAmount;
         Amounts[FieldType::TotalAmountIncTax] := TotalAmountIncTax;
         Amounts[FieldType::DiscountPercent] := CustDiscountPercent;
+    end;
+
+    local procedure UpdateAmountInclVATOnIncomingDoc(var IncomingDocument: Record "Incoming Document"; AmountInclVAT: Decimal)
+    begin
+        IncomingDocument."Amount Incl. VAT" := AmountInclVAT;
+        IncomingDocument.Modify();
+    end;
+
+    local procedure UpdateIncomingDocEntryNoOnPurchaseInvoice(PurchaseInvoiceNo: Code[20]; IncomingDocEntryNo: Integer)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.Get("Purchase Document Type"::Invoice, PurchaseInvoiceNo);
+        PurchaseHeader.Validate("Incoming Document Entry No.", IncomingDocEntryNo);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure VerifyFieldValues(PurchaseHeader: Record "Purchase Header"; PreAmounts: array[5] of Decimal; PostAmounts: array[5] of Decimal; TotalTax: Decimal; RoundingPrecision: Decimal)
@@ -705,6 +777,33 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
         Assert.AreEqual(PurchHeaderAmounts[FieldType::TotalAmountIncTax], PurchPostedAmounts[FieldType::TotalAmountIncTax],
           'Posted Total Amount Including Tax not equal to pre-posted value.');
+    end;
+
+    local procedure VerifyAmountInclVATOnPostedPurchaseInvoice(PurchaseInvoiceNo: Code[20]; ExpectedAmountInclVAT: Decimal)
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseInvoiceNo);
+        PurchInvHeader.FindFirst();
+        PurchInvHeader.CalcFields("Amount Including VAT");
+        Assert.AreEqual(ExpectedAmountInclVAT, PurchInvHeader."Amount Including VAT", '');
+    end;
+
+    [ModalPageHandler]
+    procedure PurchaseStatsUpdateTaxAmountModalPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    var
+        TaxDifference: Decimal;
+        NewTaxAmount: Decimal;
+    begin
+        TaxDifference := LibraryVariableStorage.DequeueDecimal();
+        NewTaxAmount := PurchaseStats.SubForm."Tax Amount".AsDecimal() + TaxDifference;
+        PurchaseStats.SubForm."Tax Amount".SetValue(NewTaxAmount);
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

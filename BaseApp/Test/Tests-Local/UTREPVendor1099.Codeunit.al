@@ -38,6 +38,8 @@ codeunit 142055 "UT REP Vendor 1099"
         GetAmtNEC01Tok: Label 'GetAmtNEC01';
         GetAmtCombinedDivCodeAB: Label 'GetAmtCombinedDivCodeAB';
         IRS1099CodeDiv: Label 'DIV-01-A';
+        IRS1099CodeDiv02ETok: Label 'DIV-02-E';
+        IRS1099CodeDiv02FTok: Label 'DIV-02-F';
         IRS1099CodeInt: Label 'INT-01';
         IRS1099CodeMisc: Label 'MISC-02';
         Assert: Codeunit Assert;
@@ -47,6 +49,7 @@ codeunit 142055 "UT REP Vendor 1099"
         IRS1099CodeMisc07Tok: Label 'MISC-07', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc09Tok: Label 'MISC-09', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc10Tok: Label 'MISC-10', Comment = 'MISC - miscellaneous';
+        IRS1099CodeMisc11Tok: Label 'MISC-11', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc12Tok: Label 'MISC-12', Comment = 'MISC - miscellaneous';
         IRS1099CodeMisc13Tok: Label 'MISC-13', Comment = 'MISC - miscellaneous';
         IRS1099CodeNec01Tok: Label 'NEC-01';
@@ -905,7 +908,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2020DoNothingRPH')]
+    [HandlerFunctions('Vendor1099Misc2021DoNothingRPH')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099MiscReportRunsFromTheVendorCard()
@@ -919,6 +922,90 @@ codeunit 142055 "UT REP Vendor 1099"
         VendorCardPage.OpenEdit();
         VendorCardPage.Filter.SetFilter("No.", CreateVendor());
         VendorCardPage."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaMisc11CodeHasCorrectPosition()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 41241] The magnetic media file contains the information about the MISC-11 code in the correct position in B and C sections
+
+        Initialize;
+
+        // [GIVEN] Vendor entry with MISC-11 code and amount = "X"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc11Tok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit;
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 223 to 234
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 223, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 268 to 285
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry.Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 268, 18), AmountErr);
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaDiv02EAndFCodesHasCorrectPosition()
+    var
+        VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
+        AMagneticMediaMgt: Codeunit "A/P Magnetic Media Management";
+        FileName: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 41241] The magnetic media file contains the information about the DIV-02-E and DIV-02-F codes in the correct position in B and C sections
+
+        Initialize;
+
+        VendorNo := CreateVendor;
+        // [GIVEN] Vendor entry with DIV-02-E code and amount = "X"
+        SetupToCreateLedgerEntriesForExistingVendor(
+          VendorLedgerEntry[1], VendorNo, IRS1099CodeDiv02ETok, LibraryRandom.RandIntInRange(5000, 10000));
+        // [GIVEN] Vendor entry with DIV-02-F code and amount = "Y"
+        SetupToCreateLedgerEntriesForExistingVendor(
+          VendorLedgerEntry[2], VendorNo, IRS1099CodeDiv02FTok, LibraryRandom.RandIntInRange(5000, 10000));
+        Commit;
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B record has "X" amount in position 247 to 258
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry[1].Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 247, 12), AmountErr);
+
+        // [THEN] B record has "Y" amount in position 259 to 270
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry[2].Amount, 12),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 259, 12), AmountErr);
+
+        // [THEN] C record has "X" amount in position 304 to 321
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry[1].Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 304, 18), AmountErr);
+
+        // [THEN] C record has "Y" amount in position 322 to 339
+        Assert.AreEqual(
+          AMagneticMediaMgt.FormatMoneyAmount(-VendorLedgerEntry[2].Amount, 18),
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 322, 18), AmountErr);
+
+        FILE.Erase(FileName);
     end;
 
     local procedure Initialize()
@@ -1173,9 +1260,9 @@ codeunit 142055 "UT REP Vendor 1099"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure Vendor1099Misc2020DoNothingRPH(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
+    procedure Vendor1099Misc2021DoNothingRPH(var Vendor1099Misc2021: TestRequestPage "Vendor 1099 Misc 2021")
     begin
-        Vendor1099Misc2020.Cancel().Invoke();
+        Vendor1099Misc2021.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

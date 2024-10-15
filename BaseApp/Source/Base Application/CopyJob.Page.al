@@ -181,6 +181,8 @@ page 1040 "Copy Job"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        TargetJob: Record Job;
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
             ValidateUserInput;
@@ -188,7 +190,8 @@ page 1040 "Copy Job"
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
             CopyJob.CopyJob(SourceJob, TargetJobNo, TargetJobDescription, TargetBillToCustomerNo);
-            Message(Text001, SourceJob."No.", TargetJobNo);
+            TargetJob.Get(TargetJobNo);
+            Message(Text001, SourceJob."No.", TargetJob."No.", TargetJob.Status);
         end
     end;
 
@@ -206,7 +209,7 @@ page 1040 "Copy Job"
         Source: Option "Job Planning Lines","Job Ledger Entries","None";
         PlanningLineType: Option "Budget+Billable",Budget,Billable;
         LedgerEntryType: Option "Usage+Sale",Usage,Sale;
-        Text001: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status Planning.', Comment = '%1 - The "No." of source job; %2 - The "No." of target job';
+        Text001: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status %3.', Comment = '%1 - The "No." of source job; %2 - The "No." of target job, %3 - job status.';
         Text002: Label 'Job No. %1 will be assigned to the new Job. Do you want to continue?';
         Text003: Label '%1 %2 does not exist.', Comment = 'Job Task 1000 does not exist.';
         CopyJobPrices: Boolean;
@@ -265,6 +268,13 @@ page 1040 "Copy Job"
         SourceJobNo := SourceJob."No.";
         TargetJobDescription := SourceJob.Description;
         TargetBillToCustomerNo := SourceJob."Bill-to Customer No.";
+
+        OnAfterSetFromJob(SourceJob, FromDate, ToDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFromJob(SourceJob: Record Job; var FromDate: Date; var ToDate: Date)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

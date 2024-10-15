@@ -172,7 +172,7 @@ codeunit 134255 "Delete Bank Reconciliation"
             "Bank Account No." := BankAccNo;
             "Statement No." := StatementNo;
             "Statement Date" := StatementDate;
-            "Statement Type" := "Statement Type"::"Payment Application";
+            "Statement Type" := "Statement Type"::"Bank Reconciliation";
             Insert;
         end;
     end;

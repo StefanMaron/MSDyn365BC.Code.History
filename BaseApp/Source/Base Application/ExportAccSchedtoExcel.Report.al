@@ -118,16 +118,7 @@ report 29 "Export Acc. Sched. to Excel"
                               '', TempExcelBuffer."Cell Type"::Text);
                         if ColumnLayout.Find('-') then begin
                             repeat
-                                if (AccSchedLine.Totaling = '') or
-                                   (AccSchedLine."Totaling Type" in
-                                    [AccSchedLine."Totaling Type"::Underline, AccSchedLine."Totaling Type"::"Double Underline"])
-                                then
-                                    ColumnValue := 0
-                                else begin
-                                    ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout, UseAmtsInAddCurr);
-                                    if AccSchedManagement.GetDivisionError then
-                                        ColumnValue := 0
-                                end;
+                                CalcColumnValue();
                                 ColumnNo := ColumnNo + 1;
                                 if IncludeRow(AccSchedLine) then
                                     EnterCell(
@@ -201,6 +192,23 @@ report 29 "Export Acc. Sched. to Excel"
         AccSchedLine.CopyFilters(AccSchedLine2);
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName2);
         UseAmtsInAddCurr := UseAmtsInAddCurr2;
+    end;
+
+    local procedure CalcColumnValue()
+    begin
+        OnBeforeCalcColumnValue(UseAmtsInAddCurr, ColumnLayout);
+        if (AccSchedLine.Totaling = '') or
+           (AccSchedLine."Totaling Type" in
+            [AccSchedLine."Totaling Type"::Underline, AccSchedLine."Totaling Type"::"Double Underline"])
+        then
+            ColumnValue := 0
+        else begin
+            ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout, UseAmtsInAddCurr);
+            if AccSchedManagement.GetDivisionError then
+                ColumnValue := 0
+        end;
+
+        OnAferCalcColumnValue(UseAmtsInAddCurr, ColumnLayout);
     end;
 
     local procedure EnterFilterInCell(var RowNo: Integer; "Filter": Text[250]; FieldName: Text[100]; Format: Text[30]; CellType: Option)
@@ -295,6 +303,16 @@ report 29 "Export Acc. Sched. to Excel"
             exit(false);
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcColumnValue(var UseAmtsInAddCurr: Boolean; var ColumnLayout: Record "Column Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAferCalcColumnValue(var UseAmtsInAddCurr: Boolean; var ColumnLayout: Record "Column Layout")
+    begin
     end;
 }
 

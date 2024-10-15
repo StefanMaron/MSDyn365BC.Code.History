@@ -68,7 +68,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
         exit(
           IntegrationRecordManagement.IsModifiedAfterRecordLastSynch(
-            IntegrationTableConnectionTypeContext, RecordRef.RecordId(), LastModifiedOn));
+            IntegrationTableConnectionTypeContext, RecordRef, LastModifiedOn));
     end;
 
     procedure GetRowLastModifiedOn(IntegrationTableMapping: Record "Integration Table Mapping"; FromRecordRef: RecordRef): DateTime
@@ -384,7 +384,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IDValue: Variant;
     begin
         FoundDestination :=
-          IntegrationRecordManagement.FindIntegrationTableUIdByRecordId(IntegrationTableConnectionType, SourceRecordRef.RecordId, IDValue);
+          IntegrationRecordManagement.FindIntegrationTableUIdByRecordRef(IntegrationTableConnectionType, SourceRecordRef, IDValue);
 
         if FoundDestination then
             IsDestinationDeleted := not IntegrationTableMapping.GetRecordRef(IDValue, DestinationRecordRef);
@@ -525,7 +525,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IntegrationTableUid := IntegrationTableUidFieldRef.Value();
 
         IntegrationRecordManagement.UpdateIntegrationTableCoupling(
-          IntegrationTableConnectionType, IntegrationTableUid, LocalRecordRef.RecordId());
+          IntegrationTableConnectionType, IntegrationTableUid, LocalRecordRef);
     end;
 
     local procedure UpdateIntegrationRecordTimestamp(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType; JobID: Guid)

@@ -54,6 +54,20 @@ report 357 "Copy Company"
                     if CustomReportLayout.Insert(true) then;
                 end;
             }
+            dataitem("Feature Data Update Status"; "Feature Data Update Status")
+            {
+                DataItemLink = "Company Name" = FIELD(Name);
+                DataItemTableView = SORTING("Feature Key", "Company Name");
+
+                trigger OnAfterGetRecord()
+                var
+                    FeatureDataUpdateStatus: Record "Feature Data Update Status";
+                begin
+                    FeatureDataUpdateStatus := "Feature Data Update Status";
+                    FeatureDataUpdateStatus."Company Name" := NewCompanyName;
+                    if FeatureDataUpdateStatus.Insert() then;
+                end;
+            }
 
             trigger OnAfterGetRecord()
             begin
