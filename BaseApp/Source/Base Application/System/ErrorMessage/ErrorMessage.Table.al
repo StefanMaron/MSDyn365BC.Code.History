@@ -679,6 +679,7 @@ table 700 "Error Message"
     procedure ShowErrors() IsPageOpen: Boolean
     var
         ErrorMessages: Page "Error Messages";
+        IsHandled: Boolean;
     begin
         AssertRecordTemporaryOrInContext();
 
@@ -686,6 +687,11 @@ table 700 "Error Message"
         SetRange(Context, false);
         if IsEmpty() then
             Error(GetLastErrorText);
+
+        IsHandled := false;
+        OnShowErrorsOnBeforeErrorMessagesRun(Rec, IsPageOpen, IsHandled);
+        if IsHandled then
+            exit(IsPageOpen);
 
         if GuiAllowed then begin
             ErrorMessages.SetRecords(Rec);
@@ -702,6 +708,7 @@ table 700 "Error Message"
     procedure ShowErrorMessages(RollBackOnError: Boolean) ErrorString: Text
     var
         ErrorMessages: Page "Error Messages";
+        IsHandled: Boolean;
     begin
         AssertRecordTemporaryOrInContext();
 
@@ -710,6 +717,11 @@ table 700 "Error Message"
         SetRange(Context, false);
         if IsEmpty() then
             exit;
+
+        IsHandled := false;
+        OnShowErrorMessagesOnBeforeErrorMessagesRun(Rec, ErrorString, IsHandled);
+        if IsHandled then
+            exit(ErrorString);
 
         if GuiAllowed then begin
             ErrorMessages.SetRecords(Rec);
@@ -928,6 +940,16 @@ table 700 "Error Message"
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownSource(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowErrorMessagesOnBeforeErrorMessagesRun(var ErrorMessage: Record "Error Message"; var ErrorString: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowErrorsOnBeforeErrorMessagesRun(var ErrorMessage: Record "Error Message"; var IsPageOpen: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

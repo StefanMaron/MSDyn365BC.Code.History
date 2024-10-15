@@ -142,6 +142,7 @@ codeunit 103 "Cust. Entry-Edit"
 
                 if "Applies-to Doc. No." = '' then
                     CustLedgEntry."Amount to Apply" := 0;
+                OnBeforeModifyCustLedgEntry(CurrentSalesHeader, CustLedgEntry);
                 CustLedgEntry.Modify();
             end;
         end;
@@ -160,6 +161,11 @@ codeunit 103 "Cust. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLogFieldChanged(CurrCustLedgerEntry: Record "Cust. Ledger Entry"; NewCustLedgerEntry: Record "Cust. Ledger Entry"; var Changed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyCustLedgEntry(var CurrentSalesHeader: Record "Sales Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

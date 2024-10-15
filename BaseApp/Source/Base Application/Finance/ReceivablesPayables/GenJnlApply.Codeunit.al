@@ -373,6 +373,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                     end;
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
+                OnApplyCustomerLedgerEntryOnAfterSetCustomerAppliesToDocNo(GenJnlLine, CustLedgEntry);
             end else
                 "Applies-to ID" := '';
 
@@ -489,6 +490,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 end;
             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
             GenJnlLine."Applies-to Doc. No." := '';
+            OnApplyVendorLedgerEntryOnAfterSetVendorAppliesToDocNo(GenJnlLine, VendorLedgerEntry);
         end else
             GenJnlLine."Applies-to ID" := '';
 
@@ -875,6 +877,16 @@ codeunit 225 "Gen. Jnl.-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNotZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustomerLedgerEntryOnAfterSetCustomerAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnAfterSetVendorAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

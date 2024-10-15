@@ -94,6 +94,12 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
                 if DefaultNumber = 0 then
                     DefaultNumber := 1;
                 Selection := StrMenu(Text000, DefaultNumber);
+
+                IsHandled := false;
+                OnGetPostingOptionsOnAfterSelection(TransHeader, DefaultNumber, Selection, PostShipment, PostReceipt, PostTransfer, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PostShipment := Selection = Selection::Shipment;
                 PostReceipt := Selection = Selection::Receipt;
             end;
@@ -176,6 +182,11 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPostingOptions(TransferHeader: Record "Transfer Header"; Selection: Option; var PostShipment: Boolean; var PostReceipt: Boolean; var IsHandled: Boolean; var PostTransfer: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPostingOptionsOnAfterSelection(TransferHeader: Record "Transfer Header"; DefaultNumber: Integer; var Selection: Option; var PostShipment: Boolean; var PostReceipt: Boolean; var PostTransfer: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

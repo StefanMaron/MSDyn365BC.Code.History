@@ -38,4 +38,14 @@ codeunit 1820 "Customer Consent Mgt."
         CustConsentConfirmation.RunModal();
         exit(CustConsentConfirmation.WasAgreed())
     end;
+
+    procedure ConfirmCustomConsent(CustomConsentText: Text): Boolean
+    var
+        CustConsentConfirmation: Page "Cust. Consent Confirmation";
+    begin
+        CustConsentConfirmation.SetCustomConsentText(CustomConsentText);
+        CustConsentConfirmation.LookupMode(true);
+        CustConsentConfirmation.RunModal();
+        exit(CustConsentConfirmation.WasAgreed())
+    end;
 }

@@ -451,7 +451,7 @@ page 5380 "CRM Sales Order"
                             exit;
 
                         if BidirectionalSalesOrderIntEnabled then begin
-                            CRMSalesOrder := Rec;
+                            CRMSalesOrder.SetRange(SalesOrderId, Rec.SalesOrderId);
                             CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMSalesorder)
                         end else begin
                             Session.LogMessage('0000KVP', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
