@@ -1295,6 +1295,7 @@
         SetTableFieldsToNormal(DATABASE::"Semi-Manual Test Wizard");
         SetTableFieldsToNormal(DATABASE::"Semi-Manual Execution Log");
         SetTableFieldsToNormal(DATABASE::"Work Shift");
+        SetTableFieldsToNormal(DATABASE::"Company Size");
     end;
 
     local procedure ClassifyTablesToNormalPart10()

@@ -492,9 +492,9 @@ page 379 "Bank Acc. Reconciliation"
         if UpdatedBankAccountLESystemId <> Rec.SystemId then begin
             UpdatedBankAccountLESubpageStementDate := Rec."Statement Date";
             UpdatedBankAccountLESystemId := Rec.SystemId;
+            CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
         end;
 
-        CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
         CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
     end;
 

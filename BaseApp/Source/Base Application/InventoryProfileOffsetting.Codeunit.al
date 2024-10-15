@@ -2132,6 +2132,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure DecreaseQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal; RespectPlanningParm: Boolean): Boolean
     var
         TempQty: Decimal;
+        NewRemainingQty: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2151,13 +2152,19 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if ReduceQty > 0 then begin
             TempQty := SupplyInvtProfile."Remaining Quantity (Base)";
 
-            if RespectPlanningParm then
-                SupplyInvtProfile."Remaining Quantity (Base)" :=
+            if RespectPlanningParm then begin
+                NewRemainingQty :=
                   SupplyInvtProfile."Remaining Quantity (Base)" - ReduceQty +
                   AdjustReorderQty(
                     SupplyInvtProfile."Remaining Quantity (Base)" - ReduceQty, TempSKU, SupplyInvtProfile."Line No.",
-                    SupplyInvtProfile."Min. Quantity")
-            else
+                    SupplyInvtProfile."Min. Quantity");
+
+                if (SupplyInvtProfile."Action Message" <> SupplyInvtProfile."Action Message"::New) and (TempQty <> NewRemainingQty) then
+                    if (Abs(TempQty - NewRemainingQty) < DampenerQty) and (SupplyInvtProfile."Planning Level Code" = 0) then
+                        exit(false);
+
+                SupplyInvtProfile."Remaining Quantity (Base)" := NewRemainingQty;
+            end else
                 SupplyInvtProfile."Remaining Quantity (Base)" -= ReduceQty;
 
             if TempSKU."Maximum Order Quantity" > 0 then
