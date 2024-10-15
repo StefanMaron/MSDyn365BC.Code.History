@@ -22,11 +22,13 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
-		LibraryPurchase: Codeunit "Library - Purchase";   	
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySpesometro: Codeunit "Library - Spesometro";
         IsInitialized: Boolean;
         EsigibilitaIVATok: Label 'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/EsigibilitaIVA';
-		CAPTok: Label 'DTR/CedentePrestatoreDTR/AltriDatiIdentificativi/Sede/CAP';
-      	
+        CAPTok: Label 'DTR/CedentePrestatoreDTR/AltriDatiIdentificativi/Sede/CAP';
+        CodiceFiscaleTok: Label 'DatiFatturaHeader/Dichiarante/CodiceFiscale';
+
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -223,6 +225,55 @@ codeunit 144562 "IT - Datifattura Split VAT"
 
         // [THEN] Request page with filters is open
         // UI Handled by DatifatturaSuggestLinesRequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestFiscalCodeInHeader()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+        Vendor: Record "Vendor";
+        PurchaseHeader: Record "Purchase Header";
+        SpesometroAppointment: Record "Spesometro Appointment";
+        VATReportMediator: Codeunit "VAT Report Mediator";
+        DotNetXmlNode: DotNet XmlNode;
+        FilePath: Text;
+    begin
+        // [FEATURE] [Fiscal Code] [Purchase]
+        // [SCENARIO 389497] Create Purchase Invoice for Italian vendor. After exporting VAT Report,
+        // [SCENARIO 389497] There is Vendor."Fiscal Code" value for vendor with (XML.Node = CodiceFiscale)
+        Initialize();
+
+        LibraryITDatifattura.CreateGeneralSetup();
+        LibraryITDatifattura.CreateGeneralSetupDatifattura();
+
+        // [GIVEN] Created Vendor "V" with "Fiscal Code" and related "Spesometro Appointment"
+        Vendor.Get(LibrarySpesometro.CreateVendor(true, Vendor.Resident::Resident, true, true));
+        LibrarySpesometro.InsertSpesometroAppointment(
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, Vendor."No.", WorkDate, WorkDate);
+
+        // [GIVEN] Created Purchase invoice "V".
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+
+        // [GIVEN] Purchase Invoice was posted. VATReportHeader and VATReportLine was created for it.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryVATUtils.CreateVATReportHeader(
+          VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
+          WorkDate, WorkDate);
+
+        VATReportMediator.GetLines(VATReportHeader);
+        FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
+        DeleteUnrelatedVATReportLines(VATReportLine);
+
+        // [WHEN] Export "VATReport" to XML file
+        FilePath := LibraryITDatifattura.ExportVATReport(VATReportHeader);
+        LibraryXPathXMLReader.Initialize(FilePath, '');
+        LibraryXPathXMLReader.GetNodeByXPath(CodiceFiscaleTok, DotNetXmlNode);
+
+        // [THEN] There is Vendor."Fiscal Code" value in "DatiFattura Header" with (XML.Node = CAP)
+        Assert.AreEqual(Vendor."Fiscal Code", DotNetXmlNode.InnerText, CodiceFiscaleTok);
     end;
 
     local procedure Initialize()

@@ -12,6 +12,7 @@ codeunit 136150 "Service Pages"
     var
         Assert: Codeunit Assert;
         LibraryService: Codeunit "Library - Service";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -127,6 +128,34 @@ codeunit 136150 "Service Pages"
         LibraryVariableStorage.AssertEmpty;
 
         ServiceOrder.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceQuoteFromCustomerCard()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Ship-to Address] [UT]
+        // [SCENARIO 387958] It is possible to create Service Quote from Customer's Card having Ship-to Code.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        ServiceHeader.Init();
+        ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::Quote);
+        ServiceHeader."Customer No." := Customer."No.";
+        ServiceHeader.Validate("Customer No.");
+        ServiceHeader.Insert(true);
+
+        ServiceHeader.TestField("No.");
+        ServiceHeader.TestField("Ship-to Code", ShipToAddress.Code);
     end;
 
     local procedure Initialize()

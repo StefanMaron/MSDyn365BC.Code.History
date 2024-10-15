@@ -62,6 +62,8 @@
         // Header
         CheckAndUpdate(PurchHeader);
 
+        TempInvoicePostBufferReverseCharge.Reset();
+        TempInvoicePostBufferReverseCharge.DeleteAll();
         TempDeferralHeader.DeleteAll();
         TempDeferralLine.DeleteAll();
         TempInvoicePostBuffer.DeleteAll();
@@ -190,6 +192,7 @@
         ReturnShptHeader: Record "Return Shipment Header";
         SalesShptHeader: Record "Sales Shipment Header";
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
+        TempInvoicePostBufferReverseCharge: Record "Invoice Post. Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         Currency: Record Currency;
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -729,6 +732,9 @@
             if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
                 FillInvoicePostBuffer(PurchHeader, PurchLine, PurchLineACY, TempInvoicePostBuffer, InvoicePostBuffer);
+                TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                if not TempInvoicePostBufferReverseCharge.Insert() then
+                    TempInvoicePostBufferReverseCharge.Modify();
                 InsertPrepmtAdjInvPostingBuf(PurchHeader, PurchLine, TempInvoicePostBuffer, InvoicePostBuffer);
             end;
 
@@ -1967,7 +1973,7 @@
             exit;
 
         with PurchaseLine do begin
-            if "Line Discount %" <> 100 then
+            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
         end;
@@ -6754,17 +6760,22 @@
         GenJnlLine: Record "Gen. Journal Line";
         LineCount: Integer;
         GLEntryNo: Integer;
+        VATAmountRemainder: Decimal;
+        VATAmountACYRemainder: Decimal;
     begin
         OnBeforePostInvoicePostBuffer(PurchHeader, TempInvoicePostBuffer, TotalPurchLine, TotalPurchLineLCY);
 
         LineCount := 0;
+        VATAmountRemainder := 0;
+        VATAmountACYRemainder := 0;
         if TempInvoicePostBuffer.Find('+') then
             repeat
                 LineCount := LineCount + 1;
                 if GuiAllowed and not HideProgressWindow then
                     Window.Update(3, LineCount);
 
-                CalculateVATAmountInBuffer(PurchHeader, TempInvoicePostBuffer);
+                CalculateVATAmountInBuffer(PurchHeader, TempInvoicePostBuffer, VATAmountRemainder, VATAmountACYRemainder);
+
                 PostInvoicePostBufferLine(PurchHeader, TempInvoicePostBuffer, GenJnlLine);
 
                 if Split then
@@ -6785,10 +6796,12 @@
         TempInvoicePostBuffer.DeleteAll();
     end;
 
-    local procedure CalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    local procedure CalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var VATAmountRemainder: Decimal; var VATAmountACYRemainder: Decimal)
     var
         CurrExchRate: Record "Currency Exchange Rate";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATAmount: Decimal;
+        VATAmountACY: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -6802,28 +6815,42 @@
                     VATPostingSetup.Get(
                         TempInvoicePostBuffer."VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
                     OnPostInvoicePostingBufferOnAfterVATPostingSetupGet(VATPostingSetup);
-                    TempInvoicePostBuffer."VAT Amount" :=
-                        Round(
-                        TempInvoicePostBuffer."VAT Base Amount" *
-                        (1 - PurchHeader."VAT Base Discount %" / 100) * VATPostingSetup."VAT %" / 100);
-                    TempInvoicePostBuffer."VAT Amount (ACY)" :=
-                        Round(
+
+                    VATAmount :=
+                        TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                        VATPostingSetup."VAT %" / 100;
+
+                    VATAmountACY :=
                         TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                        VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
+                        VATPostingSetup."VAT %" / 100;
+
+                    TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                    if TempInvoicePostBufferReverseCharge.Find() then begin
+                        VATAmountRemainder += VATAmount;
+                        TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder);
+                        VATAmountRemainder -= TempInvoicePostBuffer."VAT Amount";
+
+                        VATAmountACYRemainder += VATAmountACY;
+                        TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
+                        VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)"
+                    end else begin
+                        TempInvoicePostBuffer."VAT Amount" := Round(VATAmount);
+                        TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
+                    end;
                 end;
             TempInvoicePostBuffer."VAT Calculation Type"::"Sales Tax":
                 if TempInvoicePostBuffer."Use Tax" then begin
                     TempInvoicePostBuffer."VAT Amount" :=
                         Round(
-                        SalesTaxCalculate.CalculateTax(
-                            TempInvoicePostBuffer."Tax Area Code", TempInvoicePostBuffer."Tax Group Code",
-                            TempInvoicePostBuffer."Tax Liable", PurchHeader."Posting Date",
-                            TempInvoicePostBuffer.Amount, TempInvoicePostBuffer.Quantity, 0));
+                            SalesTaxCalculate.CalculateTax(
+                                TempInvoicePostBuffer."Tax Area Code", TempInvoicePostBuffer."Tax Group Code",
+                                TempInvoicePostBuffer."Tax Liable", PurchHeader."Posting Date",
+                                TempInvoicePostBuffer.Amount, TempInvoicePostBuffer.Quantity, 0));
                     if GLSetup."Additional Reporting Currency" <> '' then
                         TempInvoicePostBuffer."VAT Amount (ACY)" :=
                             CurrExchRate.ExchangeAmtLCYToFCY(
-                            PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
-                            TempInvoicePostBuffer."VAT Amount", 0);
+                                PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
+                                TempInvoicePostBuffer."VAT Amount", 0);
                 end;
         end;
     end;

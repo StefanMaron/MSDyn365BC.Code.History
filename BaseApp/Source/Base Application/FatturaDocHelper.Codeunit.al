@@ -1142,7 +1142,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineAmount := LineRecRef.Field(LineAmountFieldNo).Value;
         LineAmount := CalcForPricesIncludingVAT(
             LineAmount, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Amount Rounding Precision");
-        TempFatturaLine.Amount := ExchangeToLCYAmount(TempFatturaHeader, LineAmount);
+        TempFatturaLine.Amount := ExchangeToLCYAmount(TempFatturaHeader, LineAmount) - TempFatturaLine."Discount Amount";
 
         if TempFatturaLine."VAT %" = 0 then begin
             GetVATPostingSetup(VATPostingSetup, LineRecRef);

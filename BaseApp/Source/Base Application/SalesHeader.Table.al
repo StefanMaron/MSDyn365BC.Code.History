@@ -4647,12 +4647,11 @@
         if IsHandled then
             exit;
 
-        if "Document Type" <> "Document Type"::"Credit Memo" then
-            if "VAT Bus. Posting Group" <> '' then begin
-                VATBusPostingGroup.Get("VAT Bus. Posting Group");
-                if VATBusPostingGroup."Default Sales Operation Type" <> '' then
-                    Validate("Operation Type", VATBusPostingGroup."Default Sales Operation Type");
-            end;
+        if "VAT Bus. Posting Group" <> '' then begin
+            VATBusPostingGroup.Get("VAT Bus. Posting Group");
+            if VATBusPostingGroup."Default Sales Operation Type" <> '' then
+                Validate("Operation Type", VATBusPostingGroup."Default Sales Operation Type");
+        end;
 
         OnAfterSetOperationType(Rec);
     end;

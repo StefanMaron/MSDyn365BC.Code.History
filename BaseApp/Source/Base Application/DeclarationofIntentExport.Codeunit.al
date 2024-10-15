@@ -208,8 +208,6 @@ codeunit 12134 "Declaration of Intent Export"
         FlatFileManagement.WritePositionalValue(570, 100, ConstFormat::AN, DescriptionOfGoods, false); // B-36
         TempErrorMessage.LogIfEmpty(
           VATExemption, VATExemption.FieldNo("VAT Exempt. Int. Registry No."), TempErrorMessage."Message Type"::Error);
-        FlatFileManagement.WritePositionalValue(670, 16, ConstFormat::AN, VATExemption."VAT Exempt. Int. Registry No.", false); // B-38
-        FlatFileManagement.WritePositionalValue(686, 4, ConstFormat::NU, Format(Date2DMY(Today, 3)), false); // B-39
     end;
 
     local procedure CreateRecordBDeclarationDestination(var Vendor: Record Vendor)

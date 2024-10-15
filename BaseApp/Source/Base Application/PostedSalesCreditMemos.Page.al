@@ -551,7 +551,7 @@ page 144 "Posted Sales Credit Memos"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
-        if HasFilters then
+        if HasFilters and not Find() then
             if FindFirst then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SalesCrMemoHeader.CopyFilters(Rec);
