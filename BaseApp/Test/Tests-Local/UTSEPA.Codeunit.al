@@ -49,7 +49,7 @@ codeunit 144058 "UT SEPA"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         WrongIBANErr: Label 'Wrong number in the field IBAN.';
-        LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXMLReadOnServer: Codeunit "Library - XML Read OnServer";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         FileManagement: Codeunit "File Management";
@@ -534,63 +534,29 @@ codeunit 144058 "UT SEPA"
         FileName: Text;
     begin
         // [FEATURE] [Credit Transfer]
-        // [SCENARIO 312137] Company postal address is set inside <InitgPty> node in the report "SEPA ISO20022" results.
-        Initialize;
+        // [SCENARIO 312137] There is no company postal address inside <InitgPty> node in the report "SEPA ISO20022" results.
+        Initialize();
 
         // [GIVEN] Payment Slip for Vendor. Address fields of Company Information are filled.
-        UpdateCompanyInfoAddressToMaxValues;
+        UpdateCompanyInfoAddressToMaxValues();
         CreateVendorBankAccount(VendorBankAccount, true);
         LibraryVariableStorage.Enqueue(
           CreatePaymentSlip(
             PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, '',
-            VendorBankAccount."Country/Region Code", LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID));
-        Commit;
+            VendorBankAccount."Country/Region Code", LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID()));
+        Commit();
         FileName := FileManagement.ServerTempFileName('.xml');
 
         // [WHEN] Run "SEPA ISO20022" report.
         RunSEPAISO20022(FileName);
 
-        // [THEN] <PstlAdr> node is added as a child for <InitgPty>.
-        // [THEN] <StrtNm>, <PstCd>, <TwnNm>, <Ctry> nodes are added as children for <PstlAdr> node.
-        // [THEN] These nodes contain values from CompanyInfo: Address -> StrtNm, "Postal Code" -> PstCd, City -> TwnNm, "Country Code" -> Ctry.
-        LibraryXMLRead.Initialize(FileName);
-        LibraryXMLRead.LocateNodeInSubtree(PstlAdrXMLNode, 'InitgPty', 'PstlAdr', '', NodeMatchCriteria::FindByName);
-        VerifySEPAISO20022InitgPtyCompanyInfoAddress(PstlAdrXMLNode);
-    end;
-
-    [Test]
-    [HandlerFunctions('SEPAISO20022RequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PstlAdrAbsentInInitgPtyCompanyInfoAdressEmptySEPAISO20022()
-    var
-        PaymentHeader: Record "Payment Header";
-        VendorBankAccount: Record "Vendor Bank Account";
-        [RunOnClient]
-        PstlAdrXMLNode: DotNet XmlNode;
-        NodeMatchCriteria: Option FindByName,FindByNameAndValue;
-        FileName: Text;
-    begin
-        // [FEATURE] [Credit Transfer]
-        // [SCENARIO 312137] <InitgPty>/<PstlAdr> child nodes are not created in case of corresponding fields of Company Information are empty.
-        Initialize;
-
-        // [GIVEN] Payment Slip for Vendor. Address fields of Company Information, except Country Code, have empty values. Country Code must be filled.
-        UpdateCompanyInfoAddressToEmptyValues;
-        CreateVendorBankAccount(VendorBankAccount, true);
-        LibraryVariableStorage.Enqueue(
-          CreatePaymentSlip(
-            PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, '',
-            VendorBankAccount."Country/Region Code", LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID));
-        Commit;
-        FileName := FileManagement.ServerTempFileName('.xml');
-
-        // [WHEN] Run "SEPA ISO20022" report.
-        RunSEPAISO20022(FileName);
-
-        // [THEN] <InitgPty>/<PstlAdr> node have the only child with name <Ctry>.
-        LibraryXMLRead.Initialize(FileName);
-        LibraryXMLRead.LocateNodeInSubtree(PstlAdrXMLNode, 'InitgPty', 'PstlAdr', '', NodeMatchCriteria::FindByName);
-        VerifySEPAISO20022InitgPtyEmptyCompanyInfoAddress(PstlAdrXMLNode);
+        // [THEN] Node <InitgPty> does not have a child nodes <PstlAdr> and <StrtNm>, <PstCd>, <TwnNm>, <Ctry>.
+        LibraryXMLReadOnServer.Initialize(FileName);
+        LibraryXMLReadOnServer.VerifyNodeAbsenceInSubtree('InitgPty', 'PstlAdr');
+        LibraryXMLReadOnServer.VerifyElementAbsenceInSubtree('InitgPty', 'StrtNm');
+        LibraryXMLReadOnServer.VerifyElementAbsenceInSubtree('InitgPty', 'PstCd');
+        LibraryXMLReadOnServer.VerifyElementAbsenceInSubtree('InitgPty', 'TwnNm');
+        LibraryXMLReadOnServer.VerifyNodeAbsenceInSubtree('InitgPty', 'Ctry');
     end;
 
     local procedure Initialize()
@@ -796,82 +762,9 @@ codeunit 144058 "UT SEPA"
         CompanyInformation.Modify;
     end;
 
-    local procedure UpdateCompanyInfoAddressToEmptyValues()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get;
-        CompanyInformation.Address := '';
-        CompanyInformation."Post Code" := '';
-        CompanyInformation.City := '';
-        CompanyInformation.Modify;
-    end;
-
     local procedure VerifyIBAN(CurrentIBAN: Code[50]; CheckIBAN: Code[50])
     begin
         Assert.AreEqual(CurrentIBAN, CheckIBAN, WrongIBANErr);
-    end;
-
-    local procedure VerifySEPAISO20022InitgPtyCompanyInfoAddress(XMLParentNode: DotNet XmlNode)
-    var
-        CompanyInfo: Record "Company Information";
-        CountryRegion: Record "Country/Region";
-        [RunOnClient]
-        XMLNode: DotNet XmlNode;
-        [RunOnClient]
-        XMLNodeList: DotNet XmlNodeList;
-        StrtNmExpected: Text[70];
-        PstCdExpected: Text[16];
-        TwnNmExpected: Text[30];
-        CtryExpected: Text[2];
-    begin
-        Assert.AreEqual('PstlAdr', XMLParentNode.Name, 'Input node is not PstlAdr');
-        XMLNode := XMLParentNode.ParentNode;
-        Assert.AreEqual('InitgPty', XMLNode.Name, 'Parent node for PstlAdr is not InitgPty');
-
-        CompanyInfo.Get;
-        CountryRegion.Get(CompanyInfo."Country/Region Code");
-        StrtNmExpected := CopyStr(DelChr(CompanyInfo.Address, '<>'), 1, 70);
-        PstCdExpected := CopyStr(DelChr(CompanyInfo."Post Code", '<>'), 1, 16);
-        TwnNmExpected := DelChr(CompanyInfo.City, '<>');
-        CtryExpected := CountryRegion."ISO Code";
-
-        XMLNodeList := XMLParentNode.ChildNodes;
-        Assert.AreEqual(4, XMLNodeList.Count, 'InitiatingParty/PostalAddress must have 4 child nodes');
-
-        XMLNode := XMLParentNode.FirstChild;
-        VerifyNodeNameAndValue(XMLNode, 'StrtNm', StrtNmExpected);
-        XMLNode := XMLNode.NextSibling;
-        VerifyNodeNameAndValue(XMLNode, 'PstCd', PstCdExpected);
-        XMLNode := XMLNode.NextSibling;
-        VerifyNodeNameAndValue(XMLNode, 'TwnNm', TwnNmExpected);
-        XMLNode := XMLNode.NextSibling;
-        VerifyNodeNameAndValue(XMLNode, 'Ctry', CtryExpected);
-    end;
-
-    local procedure VerifySEPAISO20022InitgPtyEmptyCompanyInfoAddress(XMLParentNode: DotNet XmlNode)
-    var
-        CompanyInfo: Record "Company Information";
-        CountryRegion: Record "Country/Region";
-        [RunOnClient]
-        XMLNode: DotNet XmlNode;
-        [RunOnClient]
-        XMLNodeList: DotNet XmlNodeList;
-        CtryExpected: Text[2];
-    begin
-        Assert.AreEqual('PstlAdr', XMLParentNode.Name, 'Input node is not PstlAdr');
-        XMLNode := XMLParentNode.ParentNode;
-        Assert.AreEqual('InitgPty', XMLNode.Name, 'Parent node for PstlAdr is not InitgPty');
-
-        CompanyInfo.Get;
-        CountryRegion.Get(CompanyInfo."Country/Region Code");
-        CtryExpected := CountryRegion."ISO Code";
-
-        XMLNodeList := XMLParentNode.ChildNodes;
-        Assert.AreEqual(1, XMLNodeList.Count, 'InitiatingParty/PostalAddress must have 1 child node');
-
-        XMLNode := XMLParentNode.FirstChild;
-        VerifyNodeNameAndValue(XMLNode, 'Ctry', CtryExpected);
     end;
 
     local procedure VerifyNodeNameAndValue(XMLNode: DotNet XmlNode; NameExpected: Text; ValueExpected: Text)

@@ -19,6 +19,7 @@ codeunit 144000 "DEB DTI Export Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         FileManagement: Codeunit "File Management";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         PostingMessage: Label 'The journal lines were successfully exported.';
         StatisticsPeriodError: Label '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.';
@@ -41,6 +42,7 @@ codeunit 144000 "DEB DTI Export Tests"
         InitReader(FileName);
         VerifyXMLFileHeader;
         VerifyXMLDeclarationHeader;
+        // TFS ID 351484: Intrastat xml file has information about "Entry/Exit Point" and Area
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyNoOptionalXMLItemContent;
 
@@ -668,6 +670,8 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlLine.Amount := 10003.12;
         IntrastatJnlLine."Statistical Value" := 19234.5;
         IntrastatJnlLine."Transaction Specification" := '21';
+        IntrastatJnlLine.Area := CreateArea;
+        IntrastatJnlLine."Entry/Exit Point" := CreateEntryExitPoint;
         IntrastatJnlLine.Insert;
     end;
 
@@ -700,6 +704,29 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlLine.Next(IntrastatJnlLine.Count div 2);
         IntrastatJnlLine."Transaction Type" := '01';
         IntrastatJnlLine.Modify;
+    end;
+
+    local procedure CreateArea(): Code[10]
+    var
+        "Area": Record "Area";
+    begin
+        Area.Init;
+        Area.Code :=
+          LibraryUtility.GenerateRandomCodeWithLength(Area.FieldNo(Code), DATABASE::Area, MaxStrLen(Area.Code));
+        Area.Insert;
+        exit(Area.Code);
+    end;
+
+    local procedure CreateEntryExitPoint(): Code[10]
+    var
+        EntryExitPoint: Record "Entry/Exit Point";
+    begin
+        EntryExitPoint.Init;
+        EntryExitPoint.Code :=
+          LibraryUtility.GenerateRandomCodeWithLength(
+            EntryExitPoint.FieldNo(Code), DATABASE::"Entry/Exit Point", MaxStrLen(EntryExitPoint.Code));
+        EntryExitPoint.Insert;
+        exit(EntryExitPoint.Code);
     end;
 
     local procedure DefaultExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line") FileName: Text
@@ -1037,6 +1064,8 @@ codeunit 144000 "DEB DTI Export Tests"
         LibraryXMLRead.VerifyNodeValue('itemNumber', Format(1, 0, '<Integer,6><Filler Character,0>'));
         LibraryXMLRead.VerifyNodeValue('invoicedAmount', Format(Round(IntrastatJnlLine."Statistical Value", 1), 0, 9));
         LibraryXMLRead.VerifyNodeValue('statisticalProcedureCode', Format(IntrastatJnlLine."Transaction Specification", 0, 9));
+        LibraryXMLRead.VerifyNodeValue('paysProvenance', IntrastatJnlLine."Entry/Exit Point");
+        LibraryXMLRead.VerifyNodeValue('departement', IntrastatJnlLine.Area);
     end;
 
     local procedure VerifyObligationLevelIsSetOnReqPage(var ExportDEBDTI: TestRequestPage "Export DEB DTI"; ExpectedValue: Integer)

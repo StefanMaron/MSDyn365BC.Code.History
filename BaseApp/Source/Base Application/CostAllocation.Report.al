@@ -429,8 +429,8 @@ report 1131 "Cost Allocation"
             exit;
 
         if CostCenterCode <> '' then
-            if CostCenter.Get(CostCenterCode) and CostCenter.Blocked then
-                exit;
+            if CostCenter.Get(CostCenterCode) then
+                CostCenter.TestField(Blocked, false);
 
         if CostTypeCode = '' then
             Error(Text015, "Cost Allocation Source".ID);
