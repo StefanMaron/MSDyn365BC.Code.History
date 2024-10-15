@@ -376,7 +376,11 @@ codeunit 10090 "Export Payments (ACH)"
         ExportFile.Close;
 
         ClientFile := BankAccount."E-Pay Export File Path" + BankAccount."Last E-Pay Export File Name";
+#if not CLEAN17
         RBMgt.DownloadToFile(FileName, ClientFile);
+#else
+        RBMgt.DownloadHandler(FileName, '', '', '', ClientFile);
+#endif
         Erase(FileName);
         exit(true);
     end;
@@ -576,6 +580,9 @@ codeunit 10090 "Export Payments (ACH)"
             ExportFullPathName := "E-Pay Export File Path" + FName;
             TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
 
+#if CLEAN17
+            Error(FileDoesNoteExistErr, FName);
+#else
             if not RBMgt.ClientFileExists(ExportFullPathName) then
                 Error(FileDoesNoteExistErr, FName);
             RBMgt.CopyClientFile(ExportFullPathName, TransmitFullPathName, true);
@@ -583,6 +590,7 @@ codeunit 10090 "Export Payments (ACH)"
             if Confirm(ConfirmTransmissioinQst, true, FName, "E-Pay Trans. Program Path", Name, TableCaption, FieldCaption("No."), "No.") then
                 if Confirm(DidTransmissionWorkQst) then
                     RBMgt.DeleteClientFile(ExportFullPathName);
+#endif
         end;
     end;
 

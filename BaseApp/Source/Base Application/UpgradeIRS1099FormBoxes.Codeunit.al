@@ -15,6 +15,8 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
             UpdateIRS1099FormBoxesTo2019();
         if IRS1099Management.Upgrade2020Needed() then
             UpdateIRS1099FormBoxesTo2020();
+        if IRS1099Management.Upgrade2020FebruaryNeeded() then
+            UpdateIRS1099FormBoxesTo2020February();
     end;
 
     var
@@ -40,6 +42,11 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
         MoveIRS1099('MISC-15-A', 'MISC-12');
         MoveIRS1099('MISC-16', 'MISC-15');
         InsertIRS1099('MISC-14', 'Nonqualified deferred compensation', 0);
+    end;
+
+    local procedure UpdateIRS1099FormBoxesTo2020February()
+    begin
+        InsertIRS1099('NEC-04', 'Federal income tax withheld', 0);
     end;
 
     local procedure ShiftIRS1099(IRSCode: Code[10])

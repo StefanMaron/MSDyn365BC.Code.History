@@ -765,6 +765,13 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    procedure SetApplnBetweenCurrencies(ApplnBetweenCurrencies: Option)
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Appln. between Currencies", ApplnBetweenCurrencies);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     procedure SetArchiveQuotesAlways()
     begin
         PurchasesPayablesSetup.Get();

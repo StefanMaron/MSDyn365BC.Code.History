@@ -4352,6 +4352,75 @@ End Function</Code>
         <Field Name="FilterString">
           <DataField>FilterString</DataField>
         </Field>
+        <Field Name="CurrReport_PAGENOCaption">
+          <DataField>CurrReport_PAGENOCaption</DataField>
+        </Field>
+        <Field Name="Aged_byCaption">
+          <DataField>Aged_byCaption</DataField>
+        </Field>
+        <Field Name="Control11Caption">
+          <DataField>Control11Caption</DataField>
+        </Field>
+        <Field Name="Vendor__No__Caption">
+          <DataField>Vendor__No__Caption</DataField>
+        </Field>
+        <Field Name="NameCaption">
+          <DataField>NameCaption</DataField>
+        </Field>
+        <Field Name="AmountDueToPrint_Control74Caption">
+          <DataField>AmountDueToPrint_Control74Caption</DataField>
+        </Field>
+        <Field Name="Vendor__No__Caption_Control22">
+          <DataField>Vendor__No__Caption_Control22</DataField>
+        </Field>
+        <Field Name="Vendor_NameCaption">
+          <DataField>Vendor_NameCaption</DataField>
+        </Field>
+        <Field Name="DocNoCaption">
+          <DataField>DocNoCaption</DataField>
+        </Field>
+        <Field Name="DescriptionCaption">
+          <DataField>DescriptionCaption</DataField>
+        </Field>
+        <Field Name="TypeCaption">
+          <DataField>TypeCaption</DataField>
+        </Field>
+        <Field Name="AmountDueToPrint_Control63Caption">
+          <DataField>AmountDueToPrint_Control63Caption</DataField>
+        </Field>
+        <Field Name="DocumentCaption">
+          <DataField>DocumentCaption</DataField>
+        </Field>
+        <Field Name="Vendor_Ledger_Entry___Currency_Code_Caption">
+          <DataField>Vendor_Ledger_Entry___Currency_Code_Caption</DataField>
+        </Field>
+        <Field Name="Phone_Caption">
+          <DataField>Phone_Caption</DataField>
+        </Field>
+        <Field Name="Contact_Caption">
+          <DataField>Contact_Caption</DataField>
+        </Field>
+        <Field Name="Control1020000Caption">
+          <DataField>Control1020000Caption</DataField>
+        </Field>
+        <Field Name="Control47Caption">
+          <DataField>Control47Caption</DataField>
+        </Field>
+        <Field Name="Control48Caption">
+          <DataField>Control48Caption</DataField>
+        </Field>
+        <Field Name="Balance_ForwardCaption">
+          <DataField>Balance_ForwardCaption</DataField>
+        </Field>
+        <Field Name="Balance_to_Carry_ForwardCaption">
+          <DataField>Balance_to_Carry_ForwardCaption</DataField>
+        </Field>
+        <Field Name="Total_Amount_DueCaption">
+          <DataField>Total_Amount_DueCaption</DataField>
+        </Field>
+        <Field Name="Total_Amount_DueCaption_Control86">
+          <DataField>Total_Amount_DueCaption_Control86</DataField>
+        </Field>
         <Field Name="ColumnHeadHead_Control21">
           <DataField>ColumnHeadHead_Control21</DataField>
         </Field>
@@ -4369,6 +4438,36 @@ End Function</Code>
         </Field>
         <Field Name="ColumnHead_4__Control29">
           <DataField>ColumnHead_4__Control29</DataField>
+        </Field>
+        <Field Name="GrandTotalBalanceDue_">
+          <DataField>GrandTotalBalanceDue_</DataField>
+        </Field>
+        <Field Name="GrandTotalBalanceDue_Format">
+          <DataField>GrandTotalBalanceDue_Format</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_1_">
+          <DataField>GrandBalanceDue_1_</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_1_Format">
+          <DataField>GrandBalanceDue_1_Format</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_2_">
+          <DataField>GrandBalanceDue_2_</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_2_Format">
+          <DataField>GrandBalanceDue_2_Format</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_3_">
+          <DataField>GrandBalanceDue_3_</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_3_Format">
+          <DataField>GrandBalanceDue_3_Format</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_4_">
+          <DataField>GrandBalanceDue_4_</DataField>
+        </Field>
+        <Field Name="GrandBalanceDue_4_Format">
+          <DataField>GrandBalanceDue_4_Format</DataField>
         </Field>
         <Field Name="Vendor__No__">
           <DataField>Vendor__No__</DataField>
@@ -4474,93 +4573,6 @@ End Function</Code>
         </Field>
         <Field Name="Vendor_Global_Dimension_2_Filter">
           <DataField>Vendor_Global_Dimension_2_Filter</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENOCaption">
-          <DataField>CurrReport_PAGENOCaption</DataField>
-        </Field>
-        <Field Name="Aged_byCaption">
-          <DataField>Aged_byCaption</DataField>
-        </Field>
-        <Field Name="Control11Caption">
-          <DataField>Control11Caption</DataField>
-        </Field>
-        <Field Name="Vendor__No__Caption">
-          <DataField>Vendor__No__Caption</DataField>
-        </Field>
-        <Field Name="NameCaption">
-          <DataField>NameCaption</DataField>
-        </Field>
-        <Field Name="AmountDueToPrint_Control74Caption">
-          <DataField>AmountDueToPrint_Control74Caption</DataField>
-        </Field>
-        <Field Name="Vendor__No__Caption_Control22">
-          <DataField>Vendor__No__Caption_Control22</DataField>
-        </Field>
-        <Field Name="Vendor_NameCaption">
-          <DataField>Vendor_NameCaption</DataField>
-        </Field>
-        <Field Name="DocNoCaption">
-          <DataField>DocNoCaption</DataField>
-        </Field>
-        <Field Name="DescriptionCaption">
-          <DataField>DescriptionCaption</DataField>
-        </Field>
-        <Field Name="TypeCaption">
-          <DataField>TypeCaption</DataField>
-        </Field>
-        <Field Name="AmountDueToPrint_Control63Caption">
-          <DataField>AmountDueToPrint_Control63Caption</DataField>
-        </Field>
-        <Field Name="DocumentCaption">
-          <DataField>DocumentCaption</DataField>
-        </Field>
-        <Field Name="Vendor_Ledger_Entry___Currency_Code_Caption">
-          <DataField>Vendor_Ledger_Entry___Currency_Code_Caption</DataField>
-        </Field>
-        <Field Name="Phone_Caption">
-          <DataField>Phone_Caption</DataField>
-        </Field>
-        <Field Name="Contact_Caption">
-          <DataField>Contact_Caption</DataField>
-        </Field>
-        <Field Name="Control1020000Caption">
-          <DataField>Control1020000Caption</DataField>
-        </Field>
-        <Field Name="Control47Caption">
-          <DataField>Control47Caption</DataField>
-        </Field>
-        <Field Name="Control48Caption">
-          <DataField>Control48Caption</DataField>
-        </Field>
-        <Field Name="GrandTotalBalanceDue_">
-          <DataField>GrandTotalBalanceDue_</DataField>
-        </Field>
-        <Field Name="GrandTotalBalanceDue_Format">
-          <DataField>GrandTotalBalanceDue_Format</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_1_">
-          <DataField>GrandBalanceDue_1_</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_1_Format">
-          <DataField>GrandBalanceDue_1_Format</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_2_">
-          <DataField>GrandBalanceDue_2_</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_2_Format">
-          <DataField>GrandBalanceDue_2_Format</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_3_">
-          <DataField>GrandBalanceDue_3_</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_3_Format">
-          <DataField>GrandBalanceDue_3_Format</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_4_">
-          <DataField>GrandBalanceDue_4_</DataField>
-        </Field>
-        <Field Name="GrandBalanceDue_4_Format">
-          <DataField>GrandBalanceDue_4_Format</DataField>
         </Field>
         <Field Name="AmountDueToPrint">
           <DataField>AmountDueToPrint</DataField>
@@ -4756,18 +4768,6 @@ End Function</Code>
         </Field>
         <Field Name="Totals_Number">
           <DataField>Totals_Number</DataField>
-        </Field>
-        <Field Name="Balance_ForwardCaption">
-          <DataField>Balance_ForwardCaption</DataField>
-        </Field>
-        <Field Name="Balance_to_Carry_ForwardCaption">
-          <DataField>Balance_to_Carry_ForwardCaption</DataField>
-        </Field>
-        <Field Name="Total_Amount_DueCaption">
-          <DataField>Total_Amount_DueCaption</DataField>
-        </Field>
-        <Field Name="Total_Amount_DueCaption_Control86">
-          <DataField>Total_Amount_DueCaption_Control86</DataField>
         </Field>
         <Field Name="Control1020001Caption">
           <DataField>Control1020001Caption</DataField>

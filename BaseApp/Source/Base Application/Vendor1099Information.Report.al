@@ -115,7 +115,8 @@ report 10110 "Vendor 1099 Information"
                 FormTypes[4] := 'MISC';
                 FormTypes[5] := 'R';
                 FormTypes[6] := 'S';
-                LastFormType := 6;
+                FormTypes[7] := 'NEC';
+                LastFormType := 7;
             end;
         }
         dataitem("Integer"; "Integer")

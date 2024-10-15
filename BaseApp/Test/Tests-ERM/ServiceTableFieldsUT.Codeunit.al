@@ -13,6 +13,7 @@ codeunit 134156 "Service Table Fields UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryService: Codeunit "Library - Service";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
@@ -81,6 +82,7 @@ codeunit 134156 "Service Table Fields UT"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Table Fields UT");
         if IsInitialized then
             exit;
 

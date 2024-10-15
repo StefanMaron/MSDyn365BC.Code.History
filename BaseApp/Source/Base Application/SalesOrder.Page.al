@@ -975,7 +975,6 @@
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if sales tax is calculated during Post Prepayment.';
-                    Visible = false;
                 }
             }
         }

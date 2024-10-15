@@ -314,7 +314,11 @@ codeunit 10092 "Export Payments (Cecoban)"
         ExportFile.Close;
 
         ClientFile := BankAccount."E-Pay Export File Path" + BankAccount."Last E-Pay Export File Name";
+#if not CLEAN17
+        RBMgt.DownloadHandler(FileName, '', '', '', ClientFile);
+#else
         RBMgt.DownloadToFile(FileName, ClientFile);
+#endif
         Erase(FileName);
 
         exit(true);
@@ -464,6 +468,9 @@ codeunit 10092 "Export Payments (Cecoban)"
             ExportFullPathName := "E-Pay Export File Path" + FName;
             TransmitFullPathName := "E-Pay Trans. Program Path" + FName;
 
+#if CLEAN17
+            Error(Text016, FName);
+#else
             if not RBMgt.ClientFileExists(ExportFullPathName) then
                 Error(Text016, FName);
             RBMgt.CopyClientFile(ExportFullPathName, TransmitFullPathName, true);
@@ -471,6 +478,7 @@ codeunit 10092 "Export Payments (Cecoban)"
             if Confirm(Text019, true, FName, "E-Pay Trans. Program Path", Name, TableCaption, FieldCaption("No."), "No.") then
                 if Confirm(Text017) then
                     RBMgt.DeleteClientFile(ExportFullPathName);
+#endif
         end;
     end;
 

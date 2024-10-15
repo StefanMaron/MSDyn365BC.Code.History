@@ -486,7 +486,7 @@
                 OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor);
                 if NeedUpdateCurrencyFactor then begin
                     UpdateCurrencyFactor;
-                    if "Currency Factor" <> xRec."Currency Factor" then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
                         ConfirmCurrencyFactorUpdate();
                 end;
 
@@ -2662,10 +2662,6 @@
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
-            Editable = false;
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-            ObsoleteReason = 'The feature may cause wrong ledger entries. It is not under support.';
 
             trigger OnValidate()
             var
@@ -2964,11 +2960,11 @@
         ModifyBillToCustomerAddressNotificationDescriptionTxt: Label 'Warn if the bill-to address on sales documents is different from the customer''s existing address.';
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdateSalesLinesByFieldNo instead.';
         PhoneNoCannotContainLettersErr: Label 'You cannot enter letters in this field.';
-        MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
         RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
+        CalledFromWhseDoc: Boolean;
 
     protected var
         HideValidationDialog: Boolean;
@@ -3523,7 +3519,6 @@
     procedure UpdateCurrencyFactor()
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
-        ConfirmManagement: Codeunit "Confirm Management";
         Updated: Boolean;
     begin
         OnBeforeUpdateCurrencyFactor(Rec, Updated);
@@ -3540,16 +3535,8 @@
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
                 if "Currency Code" <> xRec."Currency Code" then
                     RecreateSalesLines(FieldCaption("Currency Code"));
-            end else begin
-                if ConfirmManagement.GetResponseOrDefault(
-                     StrSubstNo(MissingExchangeRatesQst, "Currency Code", CurrencyDate), true)
-                then begin
-                    Commit();
-                    UpdateCurrencyExchangeRates.OpenExchangeRatesPage("Currency Code");
-                    UpdateCurrencyFactor;
-                end else
-                    RevertCurrencyCodeAndPostingDate;
-            end;
+            end else
+                UpdateCurrencyExchangeRates.ShowMissingExchangeRatesNotification("Currency Code");
         end else begin
             "Currency Factor" := 0;
             if "Currency Code" <> xRec."Currency Code" then
@@ -6479,12 +6466,6 @@
                 end;
     end;
 
-    local procedure RevertCurrencyCodeAndPostingDate()
-    begin
-        "Currency Code" := xRec."Currency Code";
-        "Posting Date" := xRec."Posting Date";
-    end;
-
     procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]) Result: Boolean
     var
         Customer: Record Customer;
@@ -6728,6 +6709,11 @@
             TaxAreaCode := Customer."Tax Area Code";
         end;
         exit(TaxAreaCode <> '');
+    end;
+
+    procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
+    begin
+        CalledFromWhseDoc := NewCalledFromWhseDoc;
     end;
 
     [IntegrationEvent(false, false)]

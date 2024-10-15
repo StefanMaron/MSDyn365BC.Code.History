@@ -1,18 +1,17 @@
 report 10085 "Aged Accounts Payable NA"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './AgedAccountsPayableNA.rdlc';    
+    RDLCLayout = './AgedAccountsPayableNA.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Aged Accounts Payable';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-        
+
     dataset
     {
-        dataitem(Vendor; Vendor)
+        dataitem(Header; "Integer")
         {
-            PrintOnlyIfDetail = true;
-            RequestFilterFields = "No.", "Vendor Posting Group", "Payment Terms Code", "Purchaser Code";
+            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
             column(Aged_Accounts_Payable_; 'Aged Accounts Payable')
             {
             }
@@ -73,99 +72,6 @@ report 10085 "Aged Accounts Payable NA"
             column(FilterString; FilterString)
             {
             }
-            column(ColumnHeadHead_Control21; ColumnHeadHead)
-            {
-            }
-            column(ShortDateTitle; ShortDateTitle)
-            {
-            }
-            column(ColumnHead_1__Control26; ColumnHead[1])
-            {
-            }
-            column(ColumnHead_2__Control27; ColumnHead[2])
-            {
-            }
-            column(ColumnHead_3__Control28; ColumnHead[3])
-            {
-            }
-            column(ColumnHead_4__Control29; ColumnHead[4])
-            {
-            }
-            column(Vendor__No__; "No.")
-            {
-            }
-            column(Vendor_Name; Name)
-            {
-            }
-            column(Vendor__Phone_No__; "Phone No.")
-            {
-            }
-            column(Vendor_Contact; Contact)
-            {
-            }
-            column(BlockedDescription; BlockedDescription)
-            {
-            }
-            column(TotalBalanceDue__; -"TotalBalanceDue$")
-            {
-            }
-            column(BalanceDue___1_; -"BalanceDue$"[1])
-            {
-            }
-            column(BalanceDue___2_; -"BalanceDue$"[2])
-            {
-            }
-            column(BalanceDue___3_; -"BalanceDue$"[3])
-            {
-            }
-            column(BalanceDue___4_; -"BalanceDue$"[4])
-            {
-            }
-            column(PercentString_1_; PercentString[1])
-            {
-            }
-            column(PercentString_2_; PercentString[2])
-            {
-            }
-            column(PercentString_3_; PercentString[3])
-            {
-            }
-            column(PercentString_4_; PercentString[4])
-            {
-            }
-            column(TotalBalanceDue___Control91; -"TotalBalanceDue$")
-            {
-            }
-            column(BalanceDue___1__Control92; -"BalanceDue$"[1])
-            {
-            }
-            column(BalanceDue___2__Control93; -"BalanceDue$"[2])
-            {
-            }
-            column(BalanceDue___3__Control94; -"BalanceDue$"[3])
-            {
-            }
-            column(PercentString_1__Control95; PercentString[1])
-            {
-            }
-            column(PercentString_2__Control96; PercentString[2])
-            {
-            }
-            column(PercentString_3__Control97; PercentString[3])
-            {
-            }
-            column(BalanceDue___4__Control98; -"BalanceDue$"[4])
-            {
-            }
-            column(PercentString_4__Control99; PercentString[4])
-            {
-            }
-            column(Vendor_Global_Dimension_1_Filter; "Global Dimension 1 Filter")
-            {
-            }
-            column(Vendor_Global_Dimension_2_Filter; "Global Dimension 2 Filter")
-            {
-            }
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
@@ -175,7 +81,7 @@ report 10085 "Aged Accounts Payable NA"
             column(Control11Caption; CaptionClassTranslate('101,1,' + VendorCurrencyLbl))
             {
             }
-            column(Vendor__No__Caption; FieldCaption("No."))
+            column(Vendor__No__Caption; Vendor.FieldCaption("No."))
             {
             }
             column(NameCaption; NameCaptionLbl)
@@ -184,10 +90,10 @@ report 10085 "Aged Accounts Payable NA"
             column(AmountDueToPrint_Control74Caption; AmountDueToPrint_Control74CaptionLbl)
             {
             }
-            column(Vendor__No__Caption_Control22; FieldCaption("No."))
+            column(Vendor__No__Caption_Control22; Vendor.FieldCaption("No."))
             {
             }
-            column(Vendor_NameCaption; FieldCaption(Name))
+            column(Vendor_NameCaption; Vendor.FieldCaption(Name))
             {
             }
             column(DocNoCaption; DocNoCaptionLbl)
@@ -214,13 +120,43 @@ report 10085 "Aged Accounts Payable NA"
             column(Contact_Caption; Contact_CaptionLbl)
             {
             }
-            column(Control1020000Caption; CaptionClassTranslate(GetCurrencyCaptionCode("Currency Code")))
+            column(Control1020000Caption; CaptionClassTranslate(GetCurrencyCaptionCode(Vendor."Currency Code")))
             {
             }
             column(Control47Caption; CaptionClassTranslate('101,0,' + ReportTotalAmountLbl))
             {
             }
             column(Control48Caption; CaptionClassTranslate('101,0,' + ReportTotalAmountLbl))
+            {
+            }
+            column(Balance_ForwardCaption; Balance_ForwardCaptionLbl)
+            {
+            }
+            column(Balance_to_Carry_ForwardCaption; Balance_to_Carry_ForwardCaptionLbl)
+            {
+            }
+            column(Total_Amount_DueCaption; Total_Amount_DueCaptionLbl)
+            {
+            }
+            column(Total_Amount_DueCaption_Control86; Total_Amount_DueCaption_Control86Lbl)
+            {
+            }
+            column(ColumnHeadHead_Control21; ColumnHeadHead)
+            {
+            }
+            column(ShortDateTitle; ShortDateTitle)
+            {
+            }
+            column(ColumnHead_1__Control26; ColumnHead[1])
+            {
+            }
+            column(ColumnHead_2__Control27; ColumnHead[2])
+            {
+            }
+            column(ColumnHead_3__Control28; ColumnHead[3])
+            {
+            }
+            column(ColumnHead_4__Control29; ColumnHead[4])
             {
             }
             column(GrandTotalBalanceDue_; -GrandTotalBalanceDue)
@@ -238,365 +174,433 @@ report 10085 "Aged Accounts Payable NA"
             column(GrandBalanceDue_4_; -GrandBalanceDue[4])
             {
             }
-            dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
+            dataitem(Vendor; Vendor)
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter");
-                DataItemTableView = SORTING("Vendor No.", Open, Positive, "Due Date");
+                PrintOnlyIfDetail = true;
+                RequestFilterFields = "No.", "Vendor Posting Group", "Payment Terms Code", "Purchaser Code";
+                column(Vendor__No__; "No.")
+                {
+                }
+                column(Vendor_Name; Name)
+                {
+                }
+                column(Vendor__Phone_No__; "Phone No.")
+                {
+                }
+                column(Vendor_Contact; Contact)
+                {
+                }
+                column(BlockedDescription; BlockedDescription)
+                {
+                }
+                column(TotalBalanceDue__; -"TotalBalanceDue$")
+                {
+                }
+                column(BalanceDue___1_; -"BalanceDue$"[1])
+                {
+                }
+                column(BalanceDue___2_; -"BalanceDue$"[2])
+                {
+                }
+                column(BalanceDue___3_; -"BalanceDue$"[3])
+                {
+                }
+                column(BalanceDue___4_; -"BalanceDue$"[4])
+                {
+                }
+                column(PercentString_1_; PercentString[1])
+                {
+                }
+                column(PercentString_2_; PercentString[2])
+                {
+                }
+                column(PercentString_3_; PercentString[3])
+                {
+                }
+                column(PercentString_4_; PercentString[4])
+                {
+                }
+                column(TotalBalanceDue___Control91; -"TotalBalanceDue$")
+                {
+                }
+                column(BalanceDue___1__Control92; -"BalanceDue$"[1])
+                {
+                }
+                column(BalanceDue___2__Control93; -"BalanceDue$"[2])
+                {
+                }
+                column(BalanceDue___3__Control94; -"BalanceDue$"[3])
+                {
+                }
+                column(PercentString_1__Control95; PercentString[1])
+                {
+                }
+                column(PercentString_2__Control96; PercentString[2])
+                {
+                }
+                column(PercentString_3__Control97; PercentString[3])
+                {
+                }
+                column(BalanceDue___4__Control98; -"BalanceDue$"[4])
+                {
+                }
+                column(PercentString_4__Control99; PercentString[4])
+                {
+                }
+                column(Vendor_Global_Dimension_1_Filter; "Global Dimension 1 Filter")
+                {
+                }
+                column(Vendor_Global_Dimension_2_Filter; "Global Dimension 2 Filter")
+                {
+                }
+                dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
+                {
+                    DataItemLink = "Vendor No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter");
+                    DataItemTableView = SORTING("Vendor No.", Open, Positive, "Due Date");
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        SetRange("Date Filter", 0D, PeriodEndingDate[1]);
+                        CalcFields("Remaining Amount");
+                        if "Remaining Amount" <> 0 then
+                            InsertTemp("Vendor Ledger Entry");
+                        CurrReport.Skip();    // this fools the system into thinking that no details "printed"...yet
+                    end;
+
+                    trigger OnPreDataItem()
+                    begin
+                        // Find ledger entries which are posted before the date of the aging.
+                        SetRange("Posting Date", 0D, PeriodEndingDate[1]);
+
+                        if (Format(ShowOnlyOverDueBy) <> '') and not ShowAllForOverdue then
+                            SetRange("Due Date", 0D, CalculatedDate);
+                    end;
+                }
+                dataitem(Totals; "Integer")
+                {
+                    DataItemTableView = SORTING(Number);
+                    column(AmountDueToPrint; -AmountDueToPrint)
+                    {
+                    }
+                    column(AmountDue_1_; -AmountDue[1])
+                    {
+                    }
+                    column(AmountDue_2_; -AmountDue[2])
+                    {
+                    }
+                    column(AmountDue_3_; -AmountDue[3])
+                    {
+                    }
+                    column(AmountDue_4_; -AmountDue[4])
+                    {
+                    }
+                    column(AgingDate; AgingDate)
+                    {
+                    }
+                    column(Vendor_Ledger_Entry__Description; "Vendor Ledger Entry".Description)
+                    {
+                    }
+                    column(Vendor_Ledger_Entry___Document_Type_; "Vendor Ledger Entry"."Document Type")
+                    {
+                    }
+                    column(DocNo; DocNo)
+                    {
+                    }
+                    column(AmountDueToPrint_Control63; -AmountDueToPrint)
+                    {
+                    }
+                    column(AmountDue_1__Control64; -AmountDue[1])
+                    {
+                    }
+                    column(AmountDue_2__Control65; -AmountDue[2])
+                    {
+                    }
+                    column(AmountDue_3__Control66; -AmountDue[3])
+                    {
+                    }
+                    column(AmountDue_4__Control67; -AmountDue[4])
+                    {
+                    }
+                    column(Vendor_Ledger_Entry___Currency_Code_; "Vendor Ledger Entry"."Currency Code")
+                    {
+                    }
+                    column(AmountDueToPrint_Control68; -AmountDueToPrint)
+                    {
+                    }
+                    column(AmountDue_1__Control69; -AmountDue[1])
+                    {
+                    }
+                    column(AmountDue_2__Control70; -AmountDue[2])
+                    {
+                    }
+                    column(AmountDue_3__Control71; -AmountDue[3])
+                    {
+                    }
+                    column(AmountDue_4__Control72; -AmountDue[4])
+                    {
+                    }
+                    column(AmountDueToPrint_Control74; -AmountDueToPrint)
+                    {
+                    }
+                    column(AmountDue_1__Control75; -AmountDue[1])
+                    {
+                    }
+                    column(AmountDue_2__Control76; -AmountDue[2])
+                    {
+                    }
+                    column(AmountDue_3__Control77; -AmountDue[3])
+                    {
+                    }
+                    column(AmountDue_4__Control78; -AmountDue[4])
+                    {
+                    }
+                    column(PercentString_1__Control5; PercentString[1])
+                    {
+                    }
+                    column(PercentString_2__Control6; PercentString[2])
+                    {
+                    }
+                    column(PercentString_3__Control7; PercentString[3])
+                    {
+                    }
+                    column(PercentString_4__Control8; PercentString[4])
+                    {
+                    }
+                    column(Vendor__No___Control80; Vendor."No.")
+                    {
+                    }
+                    column(AmountDueToPrint_Control81; -AmountDueToPrint)
+                    {
+                    }
+                    column(AmountDue_1__Control82; -AmountDue[1])
+                    {
+                    }
+                    column(AmountDue_2__Control83; -AmountDue[2])
+                    {
+                    }
+                    column(AmountDue_3__Control84; -AmountDue[3])
+                    {
+                    }
+                    column(AmountDue_4__Control85; -AmountDue[4])
+                    {
+                    }
+                    column(PercentString_1__Control87; PercentString[1])
+                    {
+                    }
+                    column(PercentString_2__Control88; PercentString[2])
+                    {
+                    }
+                    column(PercentString_3__Control89; PercentString[3])
+                    {
+                    }
+                    column(PercentString_4__Control90; PercentString[4])
+                    {
+                    }
+                    column(Totals_Number; Number)
+                    {
+                    }
+                    column(Control1020001Caption; CaptionClassTranslate(GetCurrencyCaptionCode(Vendor."Currency Code")))
+                    {
+                    }
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        CalcPercents(AmountDueToPrint, AmountDue);
+                        Clear(AmountDue);
+                        AmountDueToPrint := 0;
+                        if Number = 1 then
+                            TempVendLedgEntry.Find('-')
+                        else
+                            TempVendLedgEntry.Next();
+                        TempVendLedgEntry.SetRange("Date Filter", 0D, PeriodEndingDate[1]);
+                        TempVendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+                        if TempVendLedgEntry."Remaining Amount" = 0 then
+                            CurrReport.Skip();
+                        if TempVendLedgEntry."Currency Code" <> '' then
+                            TempVendLedgEntry."Remaining Amt. (LCY)" :=
+                              Round(
+                                CurrExchRate.ExchangeAmtFCYToFCY(
+                                  PeriodEndingDate[1],
+                                  TempVendLedgEntry."Currency Code",
+                                  '',
+                                  TempVendLedgEntry."Remaining Amount"));
+                        if PrintAmountsInLocal then begin
+                            TempVendLedgEntry."Remaining Amount" :=
+                              Round(
+                                CurrExchRate.ExchangeAmtFCYToFCY(
+                                  PeriodEndingDate[1],
+                                  TempVendLedgEntry."Currency Code",
+                                  Vendor."Currency Code",
+                                  TempVendLedgEntry."Remaining Amount"),
+                                Currency."Amount Rounding Precision");
+                            AmountDueToPrint := TempVendLedgEntry."Remaining Amount";
+                        end else
+                            AmountDueToPrint := TempVendLedgEntry."Remaining Amt. (LCY)";
+
+                        case AgingMethod of
+                            AgingMethod::"Due Date":
+                                AgingDate := TempVendLedgEntry."Due Date";
+                            AgingMethod::"Trans Date":
+                                AgingDate := TempVendLedgEntry."Posting Date";
+                            AgingMethod::"Document Date":
+                                AgingDate := TempVendLedgEntry."Document Date";
+                        end;
+                        j := 0;
+                        while AgingDate < PeriodEndingDate[j + 1] do
+                            j := j + 1;
+                        if j = 0 then
+                            j := 1;
+
+                        AmountDue[j] := AmountDueToPrint;
+                        "BalanceDue$"[j] := "BalanceDue$"[j] + TempVendLedgEntry."Remaining Amt. (LCY)";
+
+                        "TotalBalanceDue$" := 0;
+                        VendTotAmountDue[j] := VendTotAmountDue[j] + AmountDueToPrint;
+                        VendTotAmountDueToPrint := VendTotAmountDueToPrint + AmountDueToPrint;
+
+                        for j := 1 to 4 do
+                            "TotalBalanceDue$" := "TotalBalanceDue$" + "BalanceDue$"[j];
+                        CalcPercents("TotalBalanceDue$", "BalanceDue$");
+
+                        "Vendor Ledger Entry" := TempVendLedgEntry;
+                        if UseExternalDocNo then
+                            DocNo := "Vendor Ledger Entry"."External Document No."
+                        else
+                            DocNo := "Vendor Ledger Entry"."Document No.";
+
+                        TotalNumberOfEntries -= 1;
+                        if TotalNumberOfEntries = 0 then begin
+                            for j := 1 to 4 do
+                                GrandBalanceDue[j] += "BalanceDue$"[j];
+                            GrandTotalBalanceDue += "TotalBalanceDue$";
+                        end;
+
+                        // Do NOT use the following fields in the sections:
+                        // "Applied-To Doc. Type"
+                        // "Applied-To Doc. No."
+                        // Open
+                        // "Paym. Disc. Taken"
+                        // "Closed by Entry No."
+                        // "Closed at Date"
+                        // "Closed by Amount"
+
+                        if PrintDetail and PrintToExcel then
+                            MakeExcelDataBody();
+                    end;
+
+                    trigger OnPostDataItem()
+                    begin
+                        if TempVendLedgEntry.Count() > 0 then begin
+                            for j := 1 to 4 do
+                                AmountDue[j] := VendTotAmountDue[j];
+                            AmountDueToPrint := VendTotAmountDueToPrint;
+                            if not PrintDetail and PrintToExcel then
+                                MakeExcelDataBody();
+                        end;
+                    end;
+
+                    trigger OnPreDataItem()
+                    begin
+                        Clear(AmountDueToPrint);
+                        Clear(AmountDue);
+                        SetRange(Number, 1, TempVendLedgEntry.Count());
+                        TempVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
+                        Clear(VendTotAmountDue);
+                        VendTotAmountDueToPrint := 0;
+                        TotalNumberOfEntries := TempVendLedgEntry.Count();
+                    end;
+                }
 
                 trigger OnAfterGetRecord()
+                var
+                    VendLedgEntry: Record "Vendor Ledger Entry";
                 begin
-                    SetRange("Date Filter", 0D, PeriodEndingDate[1]);
-                    CalcFields("Remaining Amount");
-                    if "Remaining Amount" <> 0 then
-                        InsertTemp("Vendor Ledger Entry");
-                    CurrReport.Skip();    // this fools the system into thinking that no details "printed"...yet
+                    Clear("BalanceDue$");
+                    if PrintAmountsInLocal then begin
+                        GetCurrencyRecord(Currency, "Currency Code");
+                        CurrencyFactor := CurrExchRate.ExchangeRate(PeriodEndingDate[1], "Currency Code");
+                    end;
+
+                    if "Privacy Blocked" then
+                        BlockedDescription := PrivacyBlockedTxt
+                    else
+                        BlockedDescription := '';
+                    if Blocked <> Blocked::" " then
+                        BlockedDescription := StrSubstNo(VendorBlockedLbl, Blocked)
+                    else
+                        BlockedDescription := '';
+
+                    TempVendLedgEntry.DeleteAll();
+
+                    if Format(ShowOnlyOverDueBy) <> '' then
+                        CalculatedDate := CalcDate(ShowOnlyOverDueBy, PeriodEndingDate[1]);
+
+                    if ShowAllForOverdue and (Format(ShowOnlyOverDueBy) <> '') then begin
+                        VendLedgEntry.SetRange("Vendor No.", "No.");
+                        VendLedgEntry.SetRange(Open, true);
+                        VendLedgEntry.SetRange("Due Date", 0D, CalculatedDate);
+                        if VendLedgEntry.IsEmpty() then
+                            CurrReport.Skip();
+                    end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    // Find ledger entries which are posted before the date of the aging.
-                    SetRange("Posting Date", 0D, PeriodEndingDate[1]);
+                    Clear("BalanceDue$");
+                    if PeriodEndingDate[1] = 0D then
+                        PeriodEndingDate[1] := WorkDate();
 
-                    if (Format(ShowOnlyOverDueBy) <> '') and not ShowAllForOverdue then
-                        SetRange("Due Date", 0D, CalculatedDate);
-                end;
-            }
-            dataitem(Totals; "Integer")
-            {
-                DataItemTableView = SORTING(Number);
-                column(AmountDueToPrint; -AmountDueToPrint)
-                {
-                }
-                column(AmountDue_1_; -AmountDue[1])
-                {
-                }
-                column(AmountDue_2_; -AmountDue[2])
-                {
-                }
-                column(AmountDue_3_; -AmountDue[3])
-                {
-                }
-                column(AmountDue_4_; -AmountDue[4])
-                {
-                }
-                column(AgingDate; AgingDate)
-                {
-                }
-                column(Vendor_Ledger_Entry__Description; "Vendor Ledger Entry".Description)
-                {
-                }
-                column(Vendor_Ledger_Entry___Document_Type_; "Vendor Ledger Entry"."Document Type")
-                {
-                }
-                column(DocNo; DocNo)
-                {
-                }
-                column(AmountDueToPrint_Control63; -AmountDueToPrint)
-                {
-                }
-                column(AmountDue_1__Control64; -AmountDue[1])
-                {
-                }
-                column(AmountDue_2__Control65; -AmountDue[2])
-                {
-                }
-                column(AmountDue_3__Control66; -AmountDue[3])
-                {
-                }
-                column(AmountDue_4__Control67; -AmountDue[4])
-                {
-                }
-                column(Vendor_Ledger_Entry___Currency_Code_; "Vendor Ledger Entry"."Currency Code")
-                {
-                }
-                column(AmountDueToPrint_Control68; -AmountDueToPrint)
-                {
-                }
-                column(AmountDue_1__Control69; -AmountDue[1])
-                {
-                }
-                column(AmountDue_2__Control70; -AmountDue[2])
-                {
-                }
-                column(AmountDue_3__Control71; -AmountDue[3])
-                {
-                }
-                column(AmountDue_4__Control72; -AmountDue[4])
-                {
-                }
-                column(AmountDueToPrint_Control74; -AmountDueToPrint)
-                {
-                }
-                column(AmountDue_1__Control75; -AmountDue[1])
-                {
-                }
-                column(AmountDue_2__Control76; -AmountDue[2])
-                {
-                }
-                column(AmountDue_3__Control77; -AmountDue[3])
-                {
-                }
-                column(AmountDue_4__Control78; -AmountDue[4])
-                {
-                }
-                column(PercentString_1__Control5; PercentString[1])
-                {
-                }
-                column(PercentString_2__Control6; PercentString[2])
-                {
-                }
-                column(PercentString_3__Control7; PercentString[3])
-                {
-                }
-                column(PercentString_4__Control8; PercentString[4])
-                {
-                }
-                column(Vendor__No___Control80; Vendor."No.")
-                {
-                }
-                column(AmountDueToPrint_Control81; -AmountDueToPrint)
-                {
-                }
-                column(AmountDue_1__Control82; -AmountDue[1])
-                {
-                }
-                column(AmountDue_2__Control83; -AmountDue[2])
-                {
-                }
-                column(AmountDue_3__Control84; -AmountDue[3])
-                {
-                }
-                column(AmountDue_4__Control85; -AmountDue[4])
-                {
-                }
-                column(PercentString_1__Control87; PercentString[1])
-                {
-                }
-                column(PercentString_2__Control88; PercentString[2])
-                {
-                }
-                column(PercentString_3__Control89; PercentString[3])
-                {
-                }
-                column(PercentString_4__Control90; PercentString[4])
-                {
-                }
-                column(Totals_Number; Number)
-                {
-                }
-                column(Balance_ForwardCaption; Balance_ForwardCaptionLbl)
-                {
-                }
-                column(Balance_to_Carry_ForwardCaption; Balance_to_Carry_ForwardCaptionLbl)
-                {
-                }
-                column(Total_Amount_DueCaption; Total_Amount_DueCaptionLbl)
-                {
-                }
-                column(Total_Amount_DueCaption_Control86; Total_Amount_DueCaption_Control86Lbl)
-                {
-                }
-                column(Control1020001Caption; CaptionClassTranslate(GetCurrencyCaptionCode(Vendor."Currency Code")))
-                {
-                }
-
-                trigger OnAfterGetRecord()
-                begin
-                    CalcPercents(AmountDueToPrint, AmountDue);
-                    Clear(AmountDue);
-                    AmountDueToPrint := 0;
-                    if Number = 1 then
-                        TempVendLedgEntry.Find('-')
+                    if PrintDetail then
+                        SubTitle := DetailLbl
                     else
-                        TempVendLedgEntry.Next();
-                    TempVendLedgEntry.SetRange("Date Filter", 0D, PeriodEndingDate[1]);
-                    TempVendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-                    if TempVendLedgEntry."Remaining Amount" = 0 then
-                        CurrReport.Skip();
-                    if TempVendLedgEntry."Currency Code" <> '' then
-                        TempVendLedgEntry."Remaining Amt. (LCY)" :=
-                          Round(
-                            CurrExchRate.ExchangeAmtFCYToFCY(
-                              PeriodEndingDate[1],
-                              TempVendLedgEntry."Currency Code",
-                              '',
-                              TempVendLedgEntry."Remaining Amount"));
-                    if PrintAmountsInLocal then begin
-                        TempVendLedgEntry."Remaining Amount" :=
-                          Round(
-                            CurrExchRate.ExchangeAmtFCYToFCY(
-                              PeriodEndingDate[1],
-                              TempVendLedgEntry."Currency Code",
-                              Vendor."Currency Code",
-                              TempVendLedgEntry."Remaining Amount"),
-                            Currency."Amount Rounding Precision");
-                        AmountDueToPrint := TempVendLedgEntry."Remaining Amount";
-                    end else
-                        AmountDueToPrint := TempVendLedgEntry."Remaining Amt. (LCY)";
+                        SubTitle := SummaryLbl;
+
+                    SubTitle := copystr(SubTitle + AgedAsOfLbl + ' ' + Format(PeriodEndingDate[1], 0, 4) + ')', 1, MaxStrLen(SubTitle));
 
                     case AgingMethod of
                         AgingMethod::"Due Date":
-                            AgingDate := TempVendLedgEntry."Due Date";
+                            begin
+                                DateTitle := DueDateFullLbl;
+                                ShortDateTitle := DueDateShortLbl;
+                                ColumnHead[2] := UpToLbl + ' '
+                                  + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
+                                  + ' ' + DaysLbl;
+                                ColumnHeadHead := ' ' + AgedOverdueAmountsLbl + ' ';
+                            end;
                         AgingMethod::"Trans Date":
-                            AgingDate := TempVendLedgEntry."Posting Date";
+                            begin
+                                DateTitle := TransactionDateLbl;
+                                ShortDateTitle := TrxDateLbl;
+                                ColumnHead[2] := Format(PeriodEndingDate[1] - PeriodEndingDate[2] + 1)
+                                  + ' - '
+                                  + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
+                                  + ' ' + DaysLbl;
+                                ColumnHeadHead := ' ' + AgedVendorBalancesLbl + ' ';
+                            end;
                         AgingMethod::"Document Date":
-                            AgingDate := TempVendLedgEntry."Document Date";
+                            begin
+                                DateTitle := DocumentDateFullLbl;
+                                ShortDateTitle := DocumentDateShortLbl;
+                                ColumnHead[2] := Format(PeriodEndingDate[1] - PeriodEndingDate[2] + 1)
+                                  + ' - '
+                                  + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
+                                  + ' ' + DaysLbl;
+                                ColumnHeadHead := ' ' + AgedVendorBalancesLbl + ' ';
+                            end;
                     end;
-                    j := 0;
-                    while AgingDate < PeriodEndingDate[j + 1] do
-                        j := j + 1;
-                    if j = 0 then
-                        j := 1;
+                    ColumnHead[1] := CurrentLbl;
+                    ColumnHead[3] := Format(PeriodEndingDate[1] - PeriodEndingDate[3] + 1)
+                                  + ' - '
+                                  + Format(PeriodEndingDate[1] - PeriodEndingDate[4])
+                                  + ' ' + DaysLbl;
+                    ColumnHead[4] := 'Over '
+                                  + Format(PeriodEndingDate[1] - PeriodEndingDate[4])
+                                  + ' ' + DaysLbl;
 
-                    AmountDue[j] := AmountDueToPrint;
-                    "BalanceDue$"[j] := "BalanceDue$"[j] + TempVendLedgEntry."Remaining Amt. (LCY)";
-
-                    "TotalBalanceDue$" := 0;
-                    VendTotAmountDue[j] := VendTotAmountDue[j] + AmountDueToPrint;
-                    VendTotAmountDueToPrint := VendTotAmountDueToPrint + AmountDueToPrint;
-
-                    for j := 1 to 4 do
-                        "TotalBalanceDue$" := "TotalBalanceDue$" + "BalanceDue$"[j];
-                    CalcPercents("TotalBalanceDue$", "BalanceDue$");
-
-                    "Vendor Ledger Entry" := TempVendLedgEntry;
-                    if UseExternalDocNo then
-                        DocNo := "Vendor Ledger Entry"."External Document No."
-                    else
-                        DocNo := "Vendor Ledger Entry"."Document No.";
-
-                    TotalNumberOfEntries -= 1;
-                    if TotalNumberOfEntries = 0 then begin
-                        for j := 1 to 4 do
-                            GrandBalanceDue[j] += "BalanceDue$"[j];
-                        GrandTotalBalanceDue += "TotalBalanceDue$";
-                    end;
-
-                    // Do NOT use the following fields in the sections:
-                    // "Applied-To Doc. Type"
-                    // "Applied-To Doc. No."
-                    // Open
-                    // "Paym. Disc. Taken"
-                    // "Closed by Entry No."
-                    // "Closed at Date"
-                    // "Closed by Amount"
-
-                    if PrintDetail and PrintToExcel then
-                        MakeExcelDataBody();
-                end;
-
-                trigger OnPostDataItem()
-                begin
-                    if TempVendLedgEntry.Count() > 0 then begin
-                        for j := 1 to 4 do
-                            AmountDue[j] := VendTotAmountDue[j];
-                        AmountDueToPrint := VendTotAmountDueToPrint;
-                        if not PrintDetail and PrintToExcel then
-                            MakeExcelDataBody();
-                    end;
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    Clear(AmountDueToPrint);
-                    Clear(AmountDue);
-                    SetRange(Number, 1, TempVendLedgEntry.Count());
-                    TempVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-                    Clear(VendTotAmountDue);
-                    VendTotAmountDueToPrint := 0;
-                    TotalNumberOfEntries := TempVendLedgEntry.Count();
+                    if PrintToExcel then
+                        MakeExcelInfo();
                 end;
             }
-
-            trigger OnAfterGetRecord()
-            var
-                VendLedgEntry: Record "Vendor Ledger Entry";
-            begin
-                Clear("BalanceDue$");
-                if PrintAmountsInLocal then begin
-                    GetCurrencyRecord(Currency, "Currency Code");
-                    CurrencyFactor := CurrExchRate.ExchangeRate(PeriodEndingDate[1], "Currency Code");
-                end;
-
-                if "Privacy Blocked" then
-                    BlockedDescription := PrivacyBlockedTxt
-                else
-                    BlockedDescription := '';
-                if Blocked <> Blocked::" " then
-                    BlockedDescription := StrSubstNo(VendorBlockedLbl, Blocked)
-                else
-                    BlockedDescription := '';
-
-                TempVendLedgEntry.DeleteAll();
-
-                if Format(ShowOnlyOverDueBy) <> '' then
-                    CalculatedDate := CalcDate(ShowOnlyOverDueBy, PeriodEndingDate[1]);
-
-                if ShowAllForOverdue and (Format(ShowOnlyOverDueBy) <> '') then begin
-                    VendLedgEntry.SetRange("Vendor No.", "No.");
-                    VendLedgEntry.SetRange(Open, true);
-                    VendLedgEntry.SetRange("Due Date", 0D, CalculatedDate);
-                    if VendLedgEntry.IsEmpty() then
-                        CurrReport.Skip();
-                end;
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                Clear("BalanceDue$");
-                if PeriodEndingDate[1] = 0D then
-                    PeriodEndingDate[1] := WorkDate();
-
-                if PrintDetail then
-                    SubTitle := DetailLbl
-                else
-                    SubTitle := SummaryLbl;
-
-                SubTitle := copystr(SubTitle + AgedAsOfLbl + ' ' + Format(PeriodEndingDate[1], 0, 4) + ')', 1, MaxStrLen(SubTitle));
-
-                case AgingMethod of
-                    AgingMethod::"Due Date":
-                        begin
-                            DateTitle := DueDateFullLbl;
-                            ShortDateTitle := DueDateShortLbl;
-                            ColumnHead[2] := UpToLbl + ' '
-                              + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
-                              + ' ' + DaysLbl;
-                            ColumnHeadHead := ' ' + AgedOverdueAmountsLbl + ' ';
-                        end;
-                    AgingMethod::"Trans Date":
-                        begin
-                            DateTitle := TransactionDateLbl;
-                            ShortDateTitle := TrxDateLbl;
-                            ColumnHead[2] := Format(PeriodEndingDate[1] - PeriodEndingDate[2] + 1)
-                              + ' - '
-                              + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
-                              + ' ' + DaysLbl;
-                            ColumnHeadHead := ' ' + AgedVendorBalancesLbl + ' ';
-                        end;
-                    AgingMethod::"Document Date":
-                        begin
-                            DateTitle := DocumentDateFullLbl;
-                            ShortDateTitle := DocumentDateShortLbl;
-                            ColumnHead[2] := Format(PeriodEndingDate[1] - PeriodEndingDate[2] + 1)
-                              + ' - '
-                              + Format(PeriodEndingDate[1] - PeriodEndingDate[3])
-                              + ' ' + DaysLbl;
-                            ColumnHeadHead := ' ' + AgedVendorBalancesLbl + ' ';
-                        end;
-                end;
-                ColumnHead[1] := CurrentLbl;
-                ColumnHead[3] := Format(PeriodEndingDate[1] - PeriodEndingDate[3] + 1)
-                              + ' - '
-                              + Format(PeriodEndingDate[1] - PeriodEndingDate[4])
-                              + ' ' + DaysLbl;
-                ColumnHead[4] := 'Over '
-                              + Format(PeriodEndingDate[1] - PeriodEndingDate[4])
-                              + ' ' + DaysLbl;
-
-                if PrintToExcel then
-                    MakeExcelInfo();
-            end;
         }
     }
 

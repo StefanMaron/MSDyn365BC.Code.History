@@ -29,6 +29,7 @@ codeunit 138012 "O365 Templates Test"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryUTUtility: Codeunit "Library UT Utility";
         isInitialized: Boolean;
         NewActionTok: Label 'New';
         CancelActionTok: Label 'Cancel';
@@ -3630,6 +3631,37 @@ codeunit 138012 "O365 Templates Test"
         ValidateItemVsConfigTemplate(Item, ItemTemplateCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerFromContactUsingTemplate()
+    var
+        Contact: Record Contact;
+        CustomerTemplate: Record "Customer Template";
+        Customer: Record Customer;
+        TaxArea: Record "Tax Area";
+    begin
+        // [SCENARIO 383070] Customer creation from Contact using "Customer Template" brings "Tax Liable", "Tax Area Code", "Credit Limit (LCY)"
+        Initialize();
+
+        // [GIVEN] Created Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Created "Customer Template" with specified "Tax Liable", "Tax Area Code", "Credit Limit (LCY)" fields
+        CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
+        CustomerTemplate.Validate("Tax Liable", true);
+        CustomerTemplate.Validate("Tax Area Code", CreateTaxAreaWithCountry(TaxArea."Country/Region"::US));
+        CustomerTemplate.Validate("Credit Limit (LCY)", LibraryRandom.RandDecInRange(1, 1000, 1));
+        CustomerTemplate.Modify();
+
+        // [WHEN] Create Customer from Contact using "Customer Template"
+        CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
+
+        // [THEN] Customer inherited "Tax Liable", "Tax Area Code", "Credit Limit (LCY)" fields from "Customer Template"
+        Customer.TestField("Tax Liable", CustomerTemplate."Tax Liable");
+        Customer.TestField("Tax Area Code", CustomerTemplate."Tax Area Code");
+        Customer.TestField("Credit Limit (LCY)", CustomerTemplate."Credit Limit (LCY)");
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -3670,6 +3702,49 @@ codeunit 138012 "O365 Templates Test"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
+    end;
+
+    local procedure CreateCustomerFromContact(Contact: Record Contact; CustomerTemplateCode: Code[10]; var Customer: Record Customer)
+    begin
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateCustomer(CustomerTemplateCode);
+        FindCustomerByCompanyName(Customer, Contact.Name);
+    end;
+
+    local procedure FindCustomerByCompanyName(var Customer: Record Customer; CompanyName: Text[100])
+    begin
+        Customer.SetRange(Name, CompanyName);
+        Customer.FindFirst();
+    end;
+
+    local procedure CreateTaxAreaWithCountry(Country: Option): Code[20]
+    var
+        TaxArea: Record "Tax Area";
+    begin
+        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea."Country/Region" := Country;
+        TaxArea.Insert();
+        exit(TaxArea.Code);
+    end;
+
+    local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+        CustomerTemplate: Record "Customer Template";
+        GenBusPostingGroup: Record "Gen. Business Posting Group";
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CustomerTemplate.Validate("Country/Region Code", CountryRegion.Code);
+        CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
+        CustomerTemplate.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        CustomerTemplate.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        CustomerTemplate.Modify();
+        LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
+        exit(CustomerTemplate.Code);
     end;
 
     local procedure ChangeDefaultDimensionsValues(TableID: Integer; No: Code[20])
