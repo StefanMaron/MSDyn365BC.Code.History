@@ -45,7 +45,7 @@
         exit(GetServiceFilter(UserId));
     end;
 
-    procedure GetSalesFilter(UserCode: Code[50]): Code[10]
+    procedure GetSalesFilter(UserCode: Code[50]) Result: Code[10]
     var
         IsHandled: Boolean;
     begin
@@ -64,10 +64,11 @@
             OnAfterGetSalesFilter(UserSetup, SalesUserRespCenter);
             HasGotSalesUserSetup := true;
         end;
-        exit(SalesUserRespCenter);
+        Result := SalesUserRespCenter;
+        OnAfterGetSalesFilterProcedure(UserCode, Result);
     end;
 
-    procedure GetPurchasesFilter(UserCode: Code[50]): Code[10]
+    procedure GetPurchasesFilter(UserCode: Code[50]) Result: Code[10]
     begin
         if not HasGotPurchUserSetup then begin
             CompanyInfo.Get();
@@ -79,10 +80,11 @@
             OnAfterGetPurchFilter(UserSetup, PurchUserRespCenter);
             HasGotPurchUserSetup := true;
         end;
-        exit(PurchUserRespCenter);
+        Result := PurchUserRespCenter;
+        OnAfterGetPurchasesFilter(UserCode, Result);
     end;
 
-    procedure GetServiceFilter(UserCode: Code[50]): Code[10]
+    procedure GetServiceFilter(UserCode: Code[50]) Result: Code[10]
     begin
         if not HasGotServUserSetup then begin
             CompanyInfo.Get();
@@ -91,10 +93,11 @@
             if UserSetup.Get(UserCode) and (UserCode <> '') then
                 if UserSetup."Service Resp. Ctr. Filter" <> '' then
                     ServUserRespCenter := UserSetup."Service Resp. Ctr. Filter";
-            OnAfterGetServiceFilter(UserSetup, ServUserRespCenter);
+            OnAfterGetServiceFilter(UserSetup, ServUserRespCenter, UserLocation);
             HasGotServUserSetup := true;
         end;
-        exit(ServUserRespCenter);
+        Result := ServUserRespCenter;
+        OnAfterGetServiceFilterProcedure(UserCode, Result);
     end;
 
     procedure GetRespCenter(DocType: Option Sales,Purchase,Service; AccRespCenter: Code[10]): Code[10]
@@ -327,7 +330,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetServiceFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10])
+    local procedure OnAfterGetServiceFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10]; var UserLocation: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesFilterProcedure(UserCode: Code[50]; Result: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPurchasesFilter(UserCode: Code[50]; Result: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetServiceFilterProcedure(UserCode: Code[50]; Result: Code[10])
     begin
     end;
 

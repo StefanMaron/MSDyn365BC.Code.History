@@ -15,6 +15,17 @@ codeunit 136110 "Service Management Setup"
         Resource: Record Resource;
         FaultResolCodRelationship2: Record "Fault/Resol. Cod. Relationship";
         LibraryService: Codeunit "Library - Service";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryInventory: Codeunit "Library - Inventory";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
+        isInitialized: Boolean;
+        Question: Label 'Force confirm ?';
+        FieldLengthErr: Label 'The length of the Field ''%1'' must be more or equal to %2';
         UseContractTemplateConfirm: Label 'Do you want to create the contract using a contract template?';
         StartingFeeMandErrorServTier: Label 'Service Order Starting Fee must have a value in Service Mgt. Setup: Primary Key=. It cannot be zero or empty.';
         ResourceNotQualifiedError: Label '%1 %2 %3 is not qualified to carry out the service.';
@@ -31,14 +42,6 @@ codeunit 136110 "Service Management Setup"
         ZeroOrderCreated: Label '0 service order was created.';
         UnexpectedMessage: Label 'Unknown message %1.';
         ServiceOrderError: Label '%1 must not exist for %2 %3=%4.';
-        LibraryRandom: Codeunit "Library - Random";
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryInventory: Codeunit "Library - Inventory";
-        Assert: Codeunit Assert;
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        isInitialized: Boolean;
-        Question: Label 'Force confirm ?';
-        FieldLengthErr: Label 'The length of the Field ''%1'' must be more or equal to %2';
 
     local procedure Initialize()
     var
@@ -1459,6 +1462,36 @@ codeunit 136110 "Service Management Setup"
           StrSubstNo(FieldLengthErr, ContractChangeLog.FieldCaption("New Value"), MaxStrLen(ServiceContractHeader."E-Mail")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('NoSeriesListModalPageHandler')]
+    procedure AssistEditServiceHeaderNo()
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        ServiceHeader: Record "Service Header";
+        NoSeriesLine: Record "No. Series Line";
+        ServiceOrder: TestPage "Service Order";
+        NoSeriesCode: Code[20];
+    begin
+        // [SCENARIO 436504] User is able to open number series via assist edit from "No." on the service order page
+        Initialize();
+
+        // [GIVEN] Number series "NS" related to "Service Order Nos." in "Service Mgt. Setup" table
+        ServiceMgtSetup.Get();
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        LibraryUtility.CreateNoSeriesRelationship(ServiceMgtSetup."Service Order Nos.", NoSeriesCode);
+        LibraryVariableStorage.Enqueue(NoSeriesCode);
+
+        // [WHEN] Invoke "No." assist edit on the service order page and select "NS" (processed in NoSeriesListModalPageHandler)
+        ServiceOrder.OpenNew();
+        ServiceOrder."No.".AssistEdit();
+
+        // [THEN] Service order "No." = "Last No. Used" from "NS"
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        ServiceOrder."No.".AssertEquals(NoSeriesLine."Last No. Used");
+    end;
+
     local procedure CreateAndPostServiceOrderForResource(var ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; CustomerNo: Code[20]; ContractNo: Code[20]; Invoice: Boolean)
     var
         ServiceItemLine: Record "Service Item Line";
@@ -1997,6 +2030,17 @@ codeunit 136110 "Service Management Setup"
     procedure InsertTravelFeePageHandler(var ServiceItemWorksheet: TestPage "Service Item Worksheet")
     begin
         ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.SetRange(Code, LibraryVariableStorage.DequeueText());
+        NoSeries.FindFirst();
+        NoSeriesList.GoToRecord(NoSeries);
+        NoSeriesList.OK().Invoke();
     end;
 }
 

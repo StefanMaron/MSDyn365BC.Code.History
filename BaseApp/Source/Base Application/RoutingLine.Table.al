@@ -86,6 +86,8 @@ table 99000764 "Routing Line"
                             MachineCtrTransferFields;
                         end;
                 end;
+
+                "Unit Cost per" := 0;
             end;
         }
         field(9; "Work Center No."; Code[20])

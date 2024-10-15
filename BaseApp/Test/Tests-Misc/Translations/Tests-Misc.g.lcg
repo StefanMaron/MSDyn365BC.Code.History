@@ -5477,6 +5477,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payroll Extension Support Test - NamedType WrongStrMenuErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2462560532 - NamedType 267233681" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[File name should be: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Client File Name]D;]A;(LookupHint=Codeunit PEPPOL BIS BillingTests - NamedType WrongFileNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 438645833 - NamedType 2807715770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Context1]]></Val>
