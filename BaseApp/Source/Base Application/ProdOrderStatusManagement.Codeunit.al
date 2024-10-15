@@ -241,6 +241,8 @@
                     ToProdOrderRtngLine."Prod. Order No." := ToProdOrder."No.";
                     if ToProdOrder.Status = ToProdOrder.Status::Released then
                         ToProdOrderRtngLine."Routing Status" := "Routing Status"::Planned;
+                    if ToProdOrder.Status = ToProdOrder.Status::Finished then
+                        ToProdOrderRtngLine."Routing Status" := "Routing Status"::Finished;
 
                     if ToProdOrder.Status in [ToProdOrder.Status::"Firm Planned", ToProdOrder.Status::Released] then begin
                         ProdOrderCapNeed.SetRange("Prod. Order No.", FromProdOrder."No.");
@@ -599,7 +601,7 @@
                 ActualOutputAndScrapQtyBase :=
                   CostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
                 ActualOutputAndScrapQty := ActualOutputAndScrapQtyBase / ProdOrderLine."Qty. per Unit of Measure";
-                PutawayQtyBaseToCalc := ActualOutputAndScrapQtyBase - CostCalcMgt.CalcActQtyBase(ProdOrderLine, ProdOrderRtngLine);
+                PutawayQtyBaseToCalc := CostCalcMgt.CalcActualOutputQtyWithNoCapacity(ProdOrderLine, ProdOrderRtngLine);
             end;
 
             if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then begin

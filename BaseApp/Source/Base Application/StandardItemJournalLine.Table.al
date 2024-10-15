@@ -679,6 +679,9 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Whse. Net Change Template';
             TableRelation = "Whse. Net Change Template";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
 
             trigger OnValidate()
             var

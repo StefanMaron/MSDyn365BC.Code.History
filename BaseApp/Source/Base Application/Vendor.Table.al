@@ -1602,6 +1602,9 @@
         }
         key(Key14; "Registration No.")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         key(Key15; "Industry Code")
         {

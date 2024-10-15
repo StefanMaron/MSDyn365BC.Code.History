@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432
 codeunit 31149 "Sync.Dep.Fld-CompanyInfo CZL"
 {
@@ -94,3 +95,4 @@ codeunit 31149 "Sync.Dep.Fld-CompanyInfo CZL"
         exit(SyncDepFldUtilities.IsFieldSynchronizationDisabled());
     end;
 }
+#endif

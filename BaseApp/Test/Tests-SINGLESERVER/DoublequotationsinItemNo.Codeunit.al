@@ -120,7 +120,6 @@ codeunit 132902 "Double quotations in Item No."
     begin
         CreateStockkeepingUnit.Item.SetFilter("Location Filter", GetLocationCode);
         CreateStockkeepingUnit.SKUCreationMethod.Value := CreateStockkeepingUnit.SKUCreationMethod.GetOption(PerOption::Location + 1);
-        CreateStockkeepingUnit.OnlyIfTemplateExists.SetValue(false); // NAVCZ
         CreateStockkeepingUnit.OK.Invoke;
     end;
 

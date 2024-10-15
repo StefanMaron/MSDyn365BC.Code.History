@@ -18,7 +18,7 @@ table 5998 "Standard Service Item Gr. Code"
         }
         field(3; Description; Text[100])
         {
-            CalcFormula = Lookup ("Standard Service Code".Description WHERE(Code = FIELD(Code)));
+            CalcFormula = Lookup("Standard Service Code".Description WHERE(Code = FIELD(Code)));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;
@@ -120,6 +120,7 @@ table 5998 "Standard Service Item Gr. Code"
                               "Unit Price",
                               Round(StdServLine."Amount Excl. VAT" *
                                 (ServLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
+                        OnInsertServiceLinesOnAfterCalcUnitPrice(ServLine, StdServLine);
                     end;
 
                 ServLine."Shortcut Dimension 1 Code" := StdServLine."Shortcut Dimension 1 Code";
@@ -159,6 +160,11 @@ table 5998 "Standard Service Item Gr. Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServLine(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServiceLinesOnAfterCalcUnitPrice(var ServiceLine: Record "Service Line"; var StdServLine: Record "Standard Service Line")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 3 "G/L Account-Indent"
+﻿codeunit 3 "G/L Account-Indent"
 {
 
     trigger OnRun()
@@ -23,7 +23,14 @@ codeunit 3 "G/L Account-Indent"
         i: Integer;
 
     procedure Indent()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIndent(GLAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(Text004);
 
         with GLAcc do
@@ -70,7 +77,13 @@ codeunit 3 "G/L Account-Indent"
     local procedure IndentICAccount()
     var
         ICGLAcc: Record "IC G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIndentICAccount(GLAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(Text004);
         with ICGLAcc do
             if Find('-') then
@@ -98,6 +111,16 @@ codeunit 3 "G/L Account-Indent"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIndent()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIndent(var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIndentICAccount(var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

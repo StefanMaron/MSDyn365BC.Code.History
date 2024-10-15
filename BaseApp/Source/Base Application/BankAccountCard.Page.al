@@ -813,6 +813,10 @@ page 370 "Bank Account Card"
             group("F&unctions")
             {
                 Caption = 'F&unctions';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
                 action("Create Cash Desk")
                 {
                     ApplicationArea = Basic, Suite;

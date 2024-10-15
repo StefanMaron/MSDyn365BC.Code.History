@@ -189,17 +189,26 @@ report 12 "VAT Statement"
                     group("Date Row Filter Period")
                     {
                         Caption = 'Date Row Filter Period';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.5';
                         field(StartDate1; StartDate1)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Starting Date';
                             ToolTip = 'Specifies the starting date';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.5';
                         }
                         field(EndDateReq1; EndDateReq1)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ending Date';
                             ToolTip = 'Specifies the last date in the period.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.5';
                         }
                     }
                     field(Selection; Selection)
@@ -233,12 +242,18 @@ report 12 "VAT Statement"
                     {
                         ShowCaption = false;
                         Visible = RoundingDirectionCtrlVisible;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.5';
                         field(RoundingDirectionCtrl; RoundingDirection)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Rounding Direction';
                             OptionCaption = 'Nearest,Down,Up';
                             ToolTip = 'Specifies rounding direction of the vat statement';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.5';
                         }
                     }
                     field(PerfCountryCodeFilter; PerfCountryCodeFilter)
@@ -421,6 +436,7 @@ report 12 "VAT Statement"
                             end;
                         // NAVCZ
                         until GLAcc.Next = 0;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
@@ -653,7 +669,11 @@ report 12 "VAT Statement"
     end;
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection";
+                                                                                                                                                         NewPrintInIntegers: Boolean;
+                                                                                                                                                         NewUseAmtsInAddCurr: Boolean;
+                                                                                                                                                         SettlementNoFilter2: Text[50];
+                                                                                                                                                         PerfCountryCodeFilter2: Code[10])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
@@ -667,15 +687,15 @@ report 12 "VAT Statement"
             EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Row Filter");
             EndDate1 := EndDateReq1;
         end else
-            if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
-                StartDate1 := NewVATStatementLine.GetRangeMin("Date Filter");
-                EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Filter");
-                EndDate1 := EndDateReq1;
-            end else begin
-                StartDate1 := 0D;
-                EndDateReq1 := 0D;
-                EndDate1 := DMY2Date(31, 12, 9999);
-            end;
+        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
+            StartDate1 := NewVATStatementLine.GetRangeMin("Date Filter");
+            EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Filter");
+            EndDate1 := EndDateReq1;
+        end else begin
+            StartDate1 := 0D;
+            EndDateReq1 := 0D;
+            EndDate1 := DMY2Date(31, 12, 9999);
+        end;
         if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
             StartDate2 := NewVATStatementLine.GetRangeMin("Date Filter");
             EndDateReq2 := NewVATStatementLine.GetRangeMax("Date Filter");
@@ -864,6 +884,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
     end;
 }

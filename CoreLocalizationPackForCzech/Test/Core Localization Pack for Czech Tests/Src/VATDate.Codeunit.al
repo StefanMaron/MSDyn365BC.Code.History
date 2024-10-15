@@ -38,11 +38,13 @@ codeunit 148054 "VAT Date CZL"
             exit;
 
         GeneralLedgerSetup.Get();
+#if not CLEAN17
         GeneralLedgerSetup."Use VAT Date" := false;
-        GeneralLedgerSetup."Use VAT Date CZL" := true;
         GeneralLedgerSetup."Allow VAT Posting From" := 0D;
-        GeneralLedgerSetup."Allow VAT Posting From CZL" := 0D;
         GeneralLedgerSetup."Allow VAT Posting To" := 0D;
+#endif
+        GeneralLedgerSetup."Use VAT Date CZL" := true;
+        GeneralLedgerSetup."Allow VAT Posting From CZL" := 0D;
         GeneralLedgerSetup."Allow VAT Posting To CZL" := 0D;
         GeneralLedgerSetup.Modify();
 
@@ -51,19 +53,25 @@ codeunit 148054 "VAT Date CZL"
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Order Nos." := LibraryERM.CreateNoSeriesCode();
+#if not CLEAN17
         SalesReceivablesSetup."Default VAT Date" := SalesReceivablesSetup."Default VAT Date"::Blank;
+#endif
         SalesReceivablesSetup."Default VAT Date CZL" := SalesReceivablesSetup."Default VAT Date CZL"::Blank;
         SalesReceivablesSetup.Modify();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Order Nos." := LibraryERM.CreateNoSeriesCode();
+#if not CLEAN17
         PurchasesPayablesSetup."Default VAT Date" := PurchasesPayablesSetup."Default VAT Date"::Blank;
+#endif
         PurchasesPayablesSetup."Default VAT Date CZL" := PurchasesPayablesSetup."Default VAT Date CZL"::Blank;
         PurchasesPayablesSetup.Modify();
 
         ServiceMgtSetup.Get();
         ServiceMgtSetup."Service Order Nos." := LibraryERM.CreateNoSeriesCode();
+#if not CLEAN17
         ServiceMgtSetup."Default VAT Date" := ServiceMgtSetup."Default VAT Date"::Blank;
+#endif
         ServiceMgtSetup."Default VAT Date CZL" := ServiceMgtSetup."Default VAT Date CZL"::Blank;
         ServiceMgtSetup.Modify();
 

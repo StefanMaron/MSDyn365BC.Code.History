@@ -633,7 +633,7 @@
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '15.0';
         }
-	field(9000; "API Account Type"; Enum "G/L Account Type")
+        field(9000; "API Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
             Editable = false;
@@ -679,6 +679,9 @@
             Caption = 'Net Change ACY (VAT Date)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(11764; "Debit Amount (VAT Date)"; Decimal)
         {
@@ -708,6 +711,9 @@
             Caption = 'Debit Amount ACY (VAT Date)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(11766; "Credit Amount (VAT Date)"; Decimal)
         {
@@ -737,6 +743,9 @@
             Caption = 'Credit Amount ACY (VAT Date)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(11792; "Full Name"; Text[100])
         {
@@ -921,6 +930,8 @@
                 OldGLAcc.Init();
         end;
         "Income/Balance" := OldGLAcc."Income/Balance";
+
+        OnAfterSetupNewGLAcc(Rec);
     end;
 
     procedure CheckGLAcc()
@@ -1105,6 +1116,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGLAcc(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewGLAcc(var GLAccount: Record "G/L Account")
     begin
     end;
 

@@ -187,6 +187,11 @@ report 31060 "VIES Declaration"
 
                 trigger OnAfterGetRecord()
                 begin
+                    Clear(TotalValueItemSaleSupplies);
+                    Clear(TotalValueEU3rdPartyItemSale);
+                    Clear(TotalValueServiceSalSupplies);
+                    Clear(TotalValueofItemPurchSupplies);
+
                     case "Trade Type" of
                         "Trade Type"::Purchase:
                             TotalValueofItemPurchSupplies := "Amount (LCY)";
@@ -200,14 +205,6 @@ report 31060 "VIES Declaration"
                                     TotalValueItemSaleSupplies := "Amount (LCY)";
                             end;
                     end;
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    Clear(TotalValueItemSaleSupplies);
-                    Clear(TotalValueEU3rdPartyItemSale);
-                    Clear(TotalValueServiceSalSupplies);
-                    Clear(TotalValueofItemPurchSupplies);
                 end;
             }
 

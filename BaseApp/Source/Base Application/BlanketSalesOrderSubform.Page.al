@@ -437,7 +437,7 @@
                     field(SubtotalExclVAT; TotalSalesLine."Line Amount")
                     {
                         ApplicationArea = Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalLineAmountWithVATAndCurrencyCaption(Currency.Code, TotalSalesHeader."Prices Including VAT");
                         Caption = 'Subtotal Excl. VAT';
@@ -447,12 +447,12 @@
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
                     {
                         ApplicationArea = Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetInvoiceDiscAmountWithVATAndCurrencyCaption(FieldCaption("Inv. Discount Amount"), Currency.Code);
                         Caption = 'Invoice Discount Amount';
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies a discount amount that is deducted from the value in the Total Incl. VAT field.';
+                        ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected. You can enter or change the amount manually.';
 
                         trigger OnValidate()
                         begin
@@ -466,7 +466,7 @@
                         Caption = 'Invoice Discount %';
                         DecimalPlaces = 0 : 2;
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies a discount percentage that is granted if criteria that you have set up for the customer are met.';
+                        ToolTip = 'Specifies a discount percentage that is applied to the invoice, based on sales lines where the Allow Invoice Disc. field is selected. The percentage and criteria are defined in the Customer Invoice Discounts page, but you can enter or change the percentage manually.';
 
                         trigger OnValidate()
                         begin
@@ -483,7 +483,7 @@
                     field("Total Amount Excl. VAT"; TotalSalesLine.Amount)
                     {
                         ApplicationArea = Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalExclVATCaption(Currency.Code);
                         Caption = 'Total Amount Excl. VAT';
@@ -494,7 +494,7 @@
                     field("Total VAT Amount"; VATAmount)
                     {
                         ApplicationArea = Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalVATCaption(Currency.Code);
                         Caption = 'Total VAT';
@@ -504,7 +504,7 @@
                     field("Total Amount Incl. VAT"; TotalSalesLine."Amount Including VAT")
                     {
                         ApplicationArea = Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalInclVATCaption(Currency.Code);
                         Caption = 'Total Amount Incl. VAT';

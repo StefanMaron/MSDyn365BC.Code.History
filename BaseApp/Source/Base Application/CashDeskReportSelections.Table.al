@@ -51,15 +51,15 @@ table 11759 "Cash Desk Report Selections"
     }
 
     var
-        ReportSelection2: Record "Report Selections";
+        CashDeskReportSelections: Record "Cash Desk Report Selections";
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure NewRecord()
     begin
-        ReportSelection2.SetRange(Usage, Usage);
-        if ReportSelection2.FindLast and (ReportSelection2.Sequence <> '') then
-            Sequence := IncStr(ReportSelection2.Sequence)
+        CashDeskReportSelections.SetRange(Usage, Usage);
+        if CashDeskReportSelections.FindLast and (CashDeskReportSelections.Sequence <> '') then
+            Sequence := IncStr(CashDeskReportSelections.Sequence)
         else
             Sequence := '1';
     end;

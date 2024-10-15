@@ -695,6 +695,7 @@ table 11730 "Cash Document Header"
         SkipLineNo: Integer;
         HideValidationDialog: Boolean;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure AssistEdit(OldCashDocHeader: Record "Cash Document Header"): Boolean
     begin
@@ -756,6 +757,7 @@ table 11730 "Cash Document Header"
             Validate("Currency Factor");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
@@ -787,6 +789,7 @@ table 11730 "Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
@@ -804,6 +807,7 @@ table 11730 "Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ShowDocDim()
     var
@@ -855,6 +859,7 @@ table 11730 "Cash Document Header"
             until CashDocLine.Next = 0;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure UpdateDocLines(ChangedFieldName: Text[30]; AskQuestion: Boolean)
     begin
@@ -886,6 +891,7 @@ table 11730 "Cash Document Header"
         CalcFields("VAT Base Amount", "Amount Including VAT", "VAT Base Amount (LCY)", "Amount Including VAT (LCY)");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure VATRounding()
     var
@@ -986,6 +992,7 @@ table 11730 "Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure GetPartnerTab(): Integer
     begin
@@ -1005,6 +1012,7 @@ table 11730 "Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CashDocLinesExist(): Boolean
     begin
@@ -1014,6 +1022,7 @@ table 11730 "Cash Document Header"
         exit(not CashDocLine.IsEmpty);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -1036,12 +1045,14 @@ table 11730 "Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SetSkipLineNoToUpdateLine(LineNo: Integer)
     begin
         SkipLineNo := LineNo;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SignAmount(): Integer
     begin
@@ -1050,6 +1061,7 @@ table 11730 "Cash Document Header"
         exit(1);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
@@ -1062,6 +1074,7 @@ table 11730 "Cash Document Header"
             exit(true);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SendToPosting(PostingCodeunitID: Integer)
     begin
@@ -1070,6 +1083,7 @@ table 11730 "Cash Document Header"
         CODEUNIT.Run(PostingCodeunitID, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure IsEETCashRegister(): Boolean
     var
@@ -1081,6 +1095,7 @@ table 11730 "Cash Document Header"
         exit(EETCashRegister);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure TestNotEETCashRegister()
     begin
@@ -1088,6 +1103,7 @@ table 11730 "Cash Document Header"
             FieldError("EET Cash Register");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure IsEETTransaction(): Boolean
     var
@@ -1099,6 +1115,7 @@ table 11730 "Cash Document Header"
         exit(EETTransaction);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromSalesInvoiceHeader(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         Validate("Posting Date", SalesInvoiceHeader."Posting Date");
@@ -1114,6 +1131,7 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromSalesInvHeader(SalesInvoiceHeader, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromSalesCrMemoHeader(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         Validate("Posting Date", SalesCrMemoHeader."Posting Date");
@@ -1129,6 +1147,7 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromSalesCrMemoHeader(SalesCrMemoHeader, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromPurchInvHeader(PurchInvHeader: Record "Purch. Inv. Header")
     begin
         Validate("Posting Date", PurchInvHeader."Posting Date");
@@ -1144,6 +1163,7 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromPurchInvHeader(PurchInvHeader, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromPurchCrMemoHeader(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
         Validate("Posting Date", PurchCrMemoHdr."Posting Date");
@@ -1159,6 +1179,7 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromPurchCrMemoHdr(PurchCrMemoHdr, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromServiceInvoiceHeader(ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
         Validate("Posting Date", ServiceInvoiceHeader."Posting Date");
@@ -1174,6 +1195,7 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromServiceInvoiceHeader(ServiceInvoiceHeader, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CopyFromServiceCrMemoHeader(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
         Validate("Posting Date", ServiceCrMemoHeader."Posting Date");
@@ -1189,53 +1211,63 @@ table 11730 "Cash Document Header"
         OnAfterCopyCashDocHeaderFromServiceCrMemoHeader(ServiceCrMemoHeader, Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
     procedure OnCheckCashDocReleaseRestrictions()
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
     procedure OnCheckCashDocPostRestrictions()
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsEETCashRegister(CashDocumentHeader: Record "Cash Document Header"; var EETCashRegister: Boolean)
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsEETTransaction(CashDocumentHeader: Record "Cash Document Header"; var EETTransaction: Boolean)
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromSalesInvHeader(SalesInvoiceHeader: Record "Sales Invoice Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromSalesCrMemoHeader(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromPurchInvHeader(PurchInvHeader: Record "Purch. Inv. Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromPurchCrMemoHdr(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromServiceInvoiceHeader(ServiceInvoiceHeader: Record "Service Invoice Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCashDocHeaderFromServiceCrMemoHeader(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var CashDocHeader: Record "Cash Document Header")
     begin

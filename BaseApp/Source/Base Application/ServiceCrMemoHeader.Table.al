@@ -1082,6 +1082,7 @@ table 5994 "Service Cr.Memo Header"
         exit(true);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CheckVATDate()
     var

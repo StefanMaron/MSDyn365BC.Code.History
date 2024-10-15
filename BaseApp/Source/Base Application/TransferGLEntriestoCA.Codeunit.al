@@ -37,7 +37,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         Text002: Label 'G/L entries from No. %1 have been processed. %2 cost entries have been created.';
         Text003: Label 'Combined entries per month %1', Comment = '%1 - Posting Date.';
         Text004: Label 'Combined entries per day %1', Comment = '%1 - Posting Date';
-        Text005: Label 'Could not transfer general ledger entries to Cost Accounting.';
+        Text005: Label 'There are no G/L entries that meet the criteria for transfer to cost accounting.';
         Text006: Label 'Posting Cost Entries @1@@@@@@@@@@\';
 
     local procedure ConfirmTransferGLtoCA()

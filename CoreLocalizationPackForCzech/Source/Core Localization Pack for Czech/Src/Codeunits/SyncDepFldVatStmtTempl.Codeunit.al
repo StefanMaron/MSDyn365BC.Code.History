@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432
 codeunit 31184 "Sync.Dep.Fld-VatStmtTempl CZL"
 {
@@ -31,3 +32,4 @@ codeunit 31184 "Sync.Dep.Fld-VatStmtTempl CZL"
         Rec."XML Format CZL" := Rec."XML Format CZL"::DPHDP3;
     end;
 }
+#endif

@@ -768,6 +768,10 @@ page 9008 "Whse. Basic Role Center"
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
                 ToolTip = 'Open the report for physical invt. counting document.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
             }
             action("P&ut-away Worksheet")
             {

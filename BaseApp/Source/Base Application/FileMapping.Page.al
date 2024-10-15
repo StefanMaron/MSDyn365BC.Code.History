@@ -4,6 +4,9 @@ page 31082 "File Mapping"
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Statement File Mapping";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.5';
 
     layout
     {

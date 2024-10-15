@@ -129,7 +129,6 @@ codeunit 11748 "Install Application CZL"
         ModifyItemJournalTemplate();
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CopyPermission();
     begin
         InsertTableDataPermissions(Database::"Excel Template", Database::"Excel Template CZL");
@@ -184,7 +183,6 @@ codeunit 11748 "Install Application CZL"
         until Permission.Next() = 0;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyCompanyInformation();
     var
         CompanyInformation: Record "Company Information";
@@ -214,7 +212,6 @@ codeunit 11748 "Install Application CZL"
         StatutoryReportingSetupCZL.Modify();
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyCustomer();
     var
         Customer: Record Customer;
@@ -227,7 +224,6 @@ codeunit 11748 "Install Application CZL"
             until Customer.Next() = 0;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyVendor();
     var
         Vendor: Record Vendor;
@@ -236,12 +232,11 @@ codeunit 11748 "Install Application CZL"
             repeat
                 Vendor."Registration No. CZL" := Vendor."Registration No.";
                 Vendor."Tax Registration No. CZL" := Vendor."Tax Registration No.";
-                Vendor."Disable Unreliab. Check CZL" := true;
+                Vendor."Disable Unreliab. Check CZL" := Vendor."Disable Uncertainty Check";
                 Vendor.Modify(false);
             until Vendor.Next() = 0;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyVendorBankAccount();
     var
         VendorBankAccount: Record "Vendor Bank Account";
@@ -253,7 +248,6 @@ codeunit 11748 "Install Application CZL"
             until VendorBankAccount.Next() = 0;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyContact();
     var
         Contact: Record Contact;
@@ -266,7 +260,6 @@ codeunit 11748 "Install Application CZL"
             until Contact.Next() = 0;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CopyUncertaintyPayerEntry();
     var
         UncertaintyPayerEntry: Record "Uncertainty Payer Entry";
@@ -533,8 +526,6 @@ codeunit 11748 "Install Application CZL"
                 VATEntry."VAT Settlement No. CZL" := VATEntry."VAT Settlement No.";
                 VATEntry."Original Doc. VAT Date CZL" := VATEntry."Original Document VAT Date";
                 VATEntry."EU 3-Party Intermed. Role CZL" := VATEntry."EU 3-Party Intermediate Role";
-                VATEntry."VAT Ctrl. Report No. CZL" := VATEntry."VAT Control Report No.";
-                VATEntry."VAT Ctrl. Report Line No. CZL" := VATEntry."VAT Control Report Line No.";
                 VATEntry."VAT Delay CZL" := VATEntry."VAT Delay";
                 VATEntry.Modify(false);
             until VATEntry.Next() = 0;
@@ -907,7 +898,12 @@ codeunit 11748 "Install Application CZL"
             StatutoryReportingSetupCZL."VAT Control Report XML Format" := StatReportingSetup."VAT Control Report Xml Format";
             StatutoryReportingSetupCZL."Tax Office Number" := StatReportingSetup."Tax Office Number";
             StatutoryReportingSetupCZL."Tax Office Region Number" := StatReportingSetup."Tax Office Region Number";
-            StatutoryReportingSetupCZL."Company Type" := StatReportingSetup."Official Type";
+            case StatReportingSetup."Taxpayer Type" of
+                StatReportingSetup."Taxpayer Type"::Corporation:
+                    StatutoryReportingSetupCZL."Company Type" := StatutoryReportingSetupCZL."Company Type"::Corporate;
+                StatReportingSetup."Taxpayer Type"::Individual:
+                    StatutoryReportingSetupCZL."Company Type" := StatutoryReportingSetupCZL."Company Type"::Individual;
+            end;
             StatutoryReportingSetupCZL."Individual First Name" := StatReportingSetup."Natural Person First Name";
             StatutoryReportingSetupCZL."Individual Surname" := StatReportingSetup."Natural Person Surname";
             StatutoryReportingSetupCZL."Individual Title" := StatReportingSetup."Natural Person Title";
@@ -929,9 +925,17 @@ codeunit 11748 "Install Application CZL"
             StatutoryReportingSetupCZL."VIES Decl. Auth. Employee No." := StatReportingSetup."VIES Decl. Auth. Employee No.";
             StatutoryReportingSetupCZL."VIES Decl. Filled Employee No." := StatReportingSetup."VIES Decl. Filled by Empl. No.";
             StatutoryReportingSetupCZL."VIES Number of Lines" := StatReportingSetup."VIES Number of Lines";
+#if CLEAN17
+            if StatReportingSetup."VIES Declaration Report No." = 31060 then
+#else
             if StatReportingSetup."VIES Declaration Report No." = Report::"VIES Declaration" then
+#endif            
                 StatutoryReportingSetupCZL."VIES Declaration Report No." := Report::"VIES Declaration CZL";
+#if CLEAN17
+            if (StatReportingSetup."VIES Decl. Exp. Obj. Type" = StatReportingSetup."VIES Decl. Exp. Obj. Type"::Report) and (StatReportingSetup."VIES Decl. Exp. Obj. No." = 31066) then
+#else
             if (StatReportingSetup."VIES Decl. Exp. Obj. Type" = StatReportingSetup."VIES Decl. Exp. Obj. Type"::Report) and (StatReportingSetup."VIES Decl. Exp. Obj. No." = Report::"VIES Declaration Export") then
+#endif
                 StatutoryReportingSetupCZL."VIES Declaration Export No." := Xmlport::"VIES Declaration CZL";
             StatutoryReportingSetupCZL.Modify(false);
         end;
@@ -1104,7 +1108,11 @@ codeunit 11748 "Install Application CZL"
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure ConvertVATStatementLineDeprEnumValues(var VATStatementLine: Record "VAT Statement Line");
     begin
+#if CLEAN17
+        if VATStatementLine.Type = 4 then //4 = VATStatementLine.Type::Formula
+#else
         if VATStatementLine.Type = VATStatementLine.Type::Formula then
+#endif
             VATStatementLine.Type := VATStatementLine.Type::"Formula CZL";
     end;
 
@@ -1961,7 +1969,11 @@ codeunit 11748 "Install Application CZL"
             repeat
                 PrevGenJournalTemplate := GenJournalTemplate;
                 GenJournalTemplate."Test Report ID" := Report::"General Journal - Test CZL";
+#if CLEAN17
+                if GenJournalTemplate."Posting Report ID" = 11763 then
+#else
                 if GenJournalTemplate."Posting Report ID" = Report::"General Ledger Document" then
+#endif
                     GenJournalTemplate."Posting Report ID" := Report::"General Ledger Document CZL";
                 if (GenJournalTemplate."Test Report ID" <> PrevGenJournalTemplate."Test Report ID") or (GenJournalTemplate."Posting Report ID" <> PrevGenJournalTemplate."Posting Report ID") then
                     GenJournalTemplate.Modify();
@@ -2207,7 +2219,11 @@ codeunit 11748 "Install Application CZL"
         if ItemJournalTemplate.FindSet(true) then
             repeat
                 PrevItemJournalTemplate := ItemJournalTemplate;
+#if CLEAN17
+                if ItemJournalTemplate."Posting Report ID" = 31078 then
+#else
                 if ItemJournalTemplate."Posting Report ID" = Report::"Posted Inventory Document" then
+#endif
                     ItemJournalTemplate."Posting Report ID" := Report::"Posted Inventory Document CZL";
                 if (ItemJournalTemplate."Posting Report ID" <> PrevItemJournalTemplate."Posting Report ID") then
                     ItemJournalTemplate.Modify();

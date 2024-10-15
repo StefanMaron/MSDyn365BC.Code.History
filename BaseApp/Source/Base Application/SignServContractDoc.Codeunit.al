@@ -763,7 +763,13 @@ codeunit 5944 SignServContractDoc
     local procedure CheckServContractNextInvoiceDate(ServContractHeader: Record "Service Contract Header")
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckServContractNextInvoiceDate(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServContractHeader.IsInvoicePeriodInTimeSegment then
             if ServContractHeader.Prepaid then begin
                 if CalcDate('<-CM>', ServContractHeader."Next Invoice Date") <> ServContractHeader."Next Invoice Date"
@@ -799,7 +805,14 @@ codeunit 5944 SignServContractDoc
     end;
 
     local procedure CheckServContractNonZeroAmounts(ServContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckServContractNonZeroAmounts(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServContractHeader.IsInvoicePeriodInTimeSegment() then begin
             if ServContractHeader."Annual Amount" = 0 then
                 Error(Text020);
@@ -1061,12 +1074,22 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContractNextInvoiceDate(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServContractQuote(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckServContractQuote(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContractNonZeroAmounts(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

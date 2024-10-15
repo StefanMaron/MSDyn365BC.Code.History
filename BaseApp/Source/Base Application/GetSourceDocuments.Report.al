@@ -105,7 +105,13 @@
                 var
                     SkipRecord: Boolean;
                     BreakReport: Boolean;
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeSalesHeaderOnAfterGetRecord("Sales Header", SalesHeaderCounted, IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
+
                     TestField("Sell-to Customer No.");
                     Cust.Get("Sell-to Customer No.");
                     if not SkipBlockedCustomer then
@@ -518,7 +524,7 @@
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine);
+        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine, WhseReceiptHeader, HideDialog);
         if not HideDialog then
             case RequestType of
                 RequestType::Receive:
@@ -630,7 +636,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line", IsHandled, Location, WhseShptLine, ActivitiesCreated, WhseHeaderCreated);
+        OnBeforeCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line", IsHandled, Location, WhseShptLine, ActivitiesCreated, WhseHeaderCreated, RequestType);
         if IsHandled then
             exit;
 
@@ -682,7 +688,7 @@
         // NAVCZ
         OnBeforeWhseReceiptHeaderInsert(WhseReceiptHeader, "Warehouse Request");
         WhseReceiptHeader.Insert(true);
-        OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated);
+        OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated, RequestType);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
         if not SuppressCommit then
@@ -939,7 +945,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; Location: Record Location; var WhseShptLine: Record "Warehouse Shipment Line"; var ActivitiesCreated: Integer; var WhseHeaderCreated: Boolean)
+    local procedure OnBeforeCreateShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; Location: Record Location; var WhseShptLine: Record "Warehouse Shipment Line"; var ActivitiesCreated: Integer; var WhseHeaderCreated: Boolean; var RequestType: Option Receive,Ship)
     begin
     end;
 
@@ -950,6 +956,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseLineOnAfterGetRecord(PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var SalesHeaderCounted: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1069,12 +1080,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader: Record "Warehouse Receipt Header"; ActivitiesCreated: Integer)
+    local procedure OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader: Record "Warehouse Receipt Header"; ActivitiesCreated: Integer; var RequestType: Option Receive,Ship)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line")
+    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean)
     begin
     end;
 

@@ -131,6 +131,10 @@ page 9000 "Whse. WMS Role Center"
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
                 ToolTip = 'Open the report for physical invt. counting document.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
             }
             action("&Customer - Labels")
             {

@@ -35,6 +35,13 @@ tableextension 11701 "Customer CZL" extends Customer
             end;
         }
     }
+    keys
+    {
+        key(Key11700; "Registration No. CZL")
+        {
+        }
+    }
+
     var
         RegistrationLogMgtCZL: Codeunit "Registration Log Mgt. CZL";
         RegistrationNoMgtCZL: Codeunit "Registration No. Mgt. CZL";

@@ -632,12 +632,11 @@ table 11744 "Cash Desk CZP"
         BankAccount.Name := Name;
         BankAccount."Search Name" := "Search Name";
         BankAccount."Bank Acc. Posting Group" := "Bank Acc. Posting Group";
-        BankAccount."Global Dimension 1 Code" := "Global Dimension 1 Code";
-        BankAccount."Global Dimension 2 Code" := "Global Dimension 2 Code";
+        BankAccount.Validate("Global Dimension 1 Code", "Global Dimension 1 Code");
+        BankAccount.Validate("Global Dimension 2 Code", "Global Dimension 2 Code");
         BankAccount."Currency Code" := "Currency Code";
         BankAccount."Exclude from Exch. Rate Adj." := "Exclude from Exch. Rate Adj.";
         BankAccount."Last Date Modified" := Today();
-        DimensionManagement.UpdateDefaultDim(Database::"Bank Account", "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
         BankAccount.Modify(false);
     end;
 

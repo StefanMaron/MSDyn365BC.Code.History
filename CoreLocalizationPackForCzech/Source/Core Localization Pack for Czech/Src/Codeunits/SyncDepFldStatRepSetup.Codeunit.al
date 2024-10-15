@@ -48,7 +48,12 @@ codeunit 31117 "Sync.Dep.Fld-StatRepSetup CZL"
         StatutoryReportingSetupCZL."VAT Control Report XML Format" := Rec."VAT Control Report Xml Format";
         StatutoryReportingSetupCZL."Tax Office Number" := Rec."Tax Office Number";
         StatutoryReportingSetupCZL."Tax Office Region Number" := Rec."Tax Office Region Number";
-        StatutoryReportingSetupCZL."Company Type" := Rec."Official Type";
+        case Rec."Taxpayer Type" of
+            Rec."Taxpayer Type"::Corporation:
+                StatutoryReportingSetupCZL."Company Type" := StatutoryReportingSetupCZL."Company Type"::Corporate;
+            Rec."Taxpayer Type"::Individual:
+                StatutoryReportingSetupCZL."Company Type" := StatutoryReportingSetupCZL."Company Type"::Individual;
+        end;
         StatutoryReportingSetupCZL."Individual First Name" := Rec."Natural Person First Name";
         StatutoryReportingSetupCZL."Individual Surname" := Rec."Natural Person Surname";
         StatutoryReportingSetupCZL."Individual Title" := Rec."Natural Person Title";
@@ -119,7 +124,13 @@ codeunit 31117 "Sync.Dep.Fld-StatRepSetup CZL"
         StatReportingSetup."VAT Control Report XML Format" := Rec."VAT Control Report Xml Format";
         StatReportingSetup."Tax Office Number" := Rec."Tax Office Number";
         StatReportingSetup."Tax Office Region Number" := Rec."Tax Office Region Number";
-        StatReportingSetup."Official Type" := Rec."Company Type";
+        case Rec."Company Type" of
+            Rec."Company Type"::" ",
+            Rec."Company Type"::Corporate:
+                StatReportingSetup."Taxpayer Type" := StatReportingSetup."Taxpayer Type"::Corporation;
+            Rec."Company Type"::Individual:
+                StatReportingSetup."Taxpayer Type" := StatReportingSetup."Taxpayer Type"::Individual;
+        end;
         StatReportingSetup."Natural Person First Name" := Rec."Individual First Name";
         StatReportingSetup."Natural Person Surname" := Rec."Individual Surname";
         StatReportingSetup."Natural Person Title" := Rec."Individual Title";

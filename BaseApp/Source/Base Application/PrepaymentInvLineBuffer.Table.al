@@ -1,4 +1,4 @@
-table 461 "Prepayment Inv. Line Buffer"
+﻿table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;
@@ -353,7 +353,13 @@ table 461 "Prepayment Inv. Line Buffer"
     procedure FillFromGLAcc(CompressPrepayment: Boolean)
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillFromGLAcc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAcc.Get("G/L Account No.");
         "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -438,6 +444,11 @@ table 461 "Prepayment Inv. Line Buffer"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterReverseAmounts()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

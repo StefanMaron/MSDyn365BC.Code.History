@@ -171,16 +171,25 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'VAT Uncertainty Payer';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(191; "Public Bank Account"; Boolean)
         {
             Caption = 'Public Bank Account';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(192; "Third Party Bank Account"; Boolean)
         {
             Caption = 'Third Party Bank Account';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         field(200; "Payment Method Code"; Code[10])
         {

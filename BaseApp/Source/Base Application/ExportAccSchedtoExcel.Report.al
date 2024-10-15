@@ -188,6 +188,10 @@ report 29 "Export Acc. Sched. to Excel"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Skip Empty Lines';
                         ToolTip = 'Specifies when the empty lines are to be skip';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.5';
+                        Visible = false;
                     }
                     field(ExportAccLineNo; ExportAccLineNo)
                     {

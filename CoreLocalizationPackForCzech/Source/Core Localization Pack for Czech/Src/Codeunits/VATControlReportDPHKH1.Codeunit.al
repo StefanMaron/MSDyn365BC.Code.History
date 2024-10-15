@@ -4,9 +4,11 @@ codeunit 31105 "VAT Control Report DPHKH1 CZL" implements "VAT Control Report Ex
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
+        ClientFileNameLbl: Label 'VAT Control Report %1.xml', Comment = '%1 = VAT Control Report number';
     begin
         ExportToXMLBlob(VATCtrlReportHeaderCZL, TempBlob);
-        exit(FileManagement.BLOBExport(TempBlob, '*.xml', true));
+        if TempBlob.HasValue() then
+            exit(FileManagement.BLOBExport(TempBlob, StrSubstNo(ClientFileNameLbl, VATCtrlReportHeaderCZL."No."), true));
     end;
 
     procedure ExportToXMLBlob(VATCtrlReportHeaderCZL: Record "VAT Ctrl. Report Header CZL"; var TempBlob: Codeunit "Temp Blob")

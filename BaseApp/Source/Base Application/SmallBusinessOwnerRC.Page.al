@@ -647,6 +647,10 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Bank Account List";
                     RunPageView = WHERE("Account Type" = CONST("Cash Desk"));
                     ToolTip = 'Specifies cash desk accounts';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 action(Currencies)
                 {
@@ -965,6 +969,10 @@ page 9020 "Small Business Owner RC"
                 Image = PrintVAT;
                 RunObject = Page "VIES Declaration";
                 ToolTip = 'Specifies vies declaration';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
             }
         }
         area(processing)

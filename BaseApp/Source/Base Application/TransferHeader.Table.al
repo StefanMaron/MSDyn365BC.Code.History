@@ -921,7 +921,13 @@
     var
         TransferLine: Record "Transfer Line";
         TempTransferLine: Record "Transfer Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTransLines(TransferHeader, FieldID, IsHandled);
+        if IsHandled then
+            exit;
+
         TransferLine.SetRange("Document No.", "No.");
         TransferLine.SetFilter("Item No.", '<>%1', '');
         if TransferLine.FindSet then begin
@@ -1465,6 +1471,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransLineDeleteAll(TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTransLines(TransferHeader: Record "Transfer Header"; FieldID: Integer; var IsHandled: Boolean)
     begin
     end;
 

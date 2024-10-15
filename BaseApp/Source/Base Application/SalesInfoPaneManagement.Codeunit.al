@@ -1,4 +1,4 @@
-codeunit 7171 "Sales Info-Pane Management"
+﻿codeunit 7171 "Sales Info-Pane Management"
 {
 
     trigger OnRun()
@@ -59,6 +59,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if GetItem(SalesLine) then begin
             SetItemFilter(Item, SalesLine);
+            OnCalcAvailableInventoryOnAfterSetItemFilter(Item);
 
             exit(
               ConvertQty(
@@ -71,6 +72,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if GetItem(SalesLine) then begin
             SetItemFilter(Item, SalesLine);
+            OnCalcScheduledReceiptOnAfterSetItemFilter(Item);
 
             exit(
               ConvertQty(
@@ -83,6 +85,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if GetItem(SalesLine) then begin
             SetItemFilter(Item, SalesLine);
+            OnCalcGrossRequirementsOnAfterSetItemFilter(Item);
 
             exit(
               ConvertQty(
@@ -95,6 +98,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if GetItem(SalesLine) then begin
             SetItemFilter(Item, SalesLine);
+            OnCalcReservedRequirementsOnAfterSetItemFilter(Item);
 
             exit(
               ConvertQty(
@@ -107,6 +111,7 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
         if GetItem(SalesLine) then begin
             SetItemFilter(Item, SalesLine);
+            OnCalcReservedDemandOnAfterSetItemFilter(Item);
 
             exit(
               ConvertQty(
@@ -245,5 +250,29 @@ codeunit 7171 "Sales Info-Pane Management"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableInventoryOnAfterSetItemFilter(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcScheduledReceiptOnAfterSetItemFilter(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGrossRequirementsOnAfterSetItemFilter(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedDemandOnAfterSetItemFilter(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedRequirementsOnAfterSetItemFilter(var Item: Record Item)
+    begin
+    end;
 }
 

@@ -234,10 +234,8 @@ page 576 "VAT Specification Subform"
     begin
         if MainFormActiveTab = MainFormActiveTab::Other then
             VATAmountEditable := AllowVATDifference and not "Includes Prepayment"
-              and ("Currency Code" <> '') // NAVCZ
         else
-            VATAmountEditable := AllowVATDifference
-              and ("Currency Code" <> ''); // NAVCZ
+            VATAmountEditable := AllowVATDifference;
         VATAmountLCYEditable := AllowVATDifferenceOnThisTab; // NAVCZ
         InvoiceDiscountAmountEditable := AllowInvDisc and not "Includes Prepayment";
 
@@ -394,6 +392,7 @@ page 576 "VAT Specification Subform"
     procedure SetParentControl(ID: Integer)
     begin
         ParentControl := ID;
+        OnAfterSetParentControl(ParentControl);
     end;
 
     procedure SetServHeader(ServiceHeader: Record "Service Header")
@@ -419,6 +418,11 @@ page 576 "VAT Specification Subform"
         VATCurrencyFactor := NewVATCurrencyFactor;
         UseExtAmount := true;
         // NAVCZ
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterSetParentControl(var ParentControl: integer)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

@@ -797,6 +797,7 @@ codeunit 2 "Company-Initialize"
         ReportSelections.Insert();
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure InitCashDeskRepSelection()
     var

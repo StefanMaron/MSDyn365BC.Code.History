@@ -664,6 +664,9 @@ table 254 "VAT Entry"
         key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date", "Prepayment Type", "Advance Letter No.", "Perform. Country/Region Code", "VAT Settlement No.")
         {
             SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount", "Advance Base";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         key(Key10; Type, "Advance Letter No.", "Advance Letter Line No.")
         {
@@ -672,6 +675,9 @@ table 254 "VAT Entry"
         key(Key11; Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Date")
         {
             SumIndexFields = Base, "Additional-Currency Base";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
         key(Key12; "Unrealized VAT Entry No.")
         {

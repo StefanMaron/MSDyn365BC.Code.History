@@ -7,9 +7,11 @@ codeunit 11788 "VAT Statement DPHDP3 CZL" implements "VAT Statement Export CZL"
     var
         FileMgt: Codeunit "File Management";
         TempBlob: Codeunit "Temp Blob";
+        ClientFileNameLbl: Label 'VAT Statement %1 %2.xml', Comment = '%1 = VAT Statement Template Nam, %2 = VAT Statement Name';
     begin
         ExportToXMLBlob(VATStatementName, TempBlob);
-        exit(FileMgt.BLOBExport(TempBlob, '*.xml', true));
+        if TempBlob.HasValue() then
+            exit(FileMgt.BLOBExport(TempBlob, StrSubstNo(ClientFileNameLbl, VATStatementName."Statement Template Name", VATStatementName.Name), true));
     end;
 
     procedure ExportToXMLBlob(VATStatementName: Record "VAT Statement Name"; var TempBlob: Codeunit "Temp Blob")
@@ -37,8 +39,6 @@ codeunit 11788 "VAT Statement DPHDP3 CZL" implements "VAT Statement Export CZL"
 
         VATStatementDPHDP3CZL.CopyAttachmentFilter(VATStatementAttachmentCZL);
         VATStmtXMLExportHelperCZL.EncodeAttachmentsToXML(TempBlob, AttachmentXPathTxt, AttachmentNodeNameTok, VATStatementAttachmentCZL);
-
-
     end;
 
     procedure InitVATAttributes(VATStatementTemplateName: Code[10])

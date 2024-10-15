@@ -320,6 +320,9 @@ table 85 "Acc. Schedule Line"
         }
         key(Key2; "Schedule Name", "Row Correction")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.5';
         }
     }
 

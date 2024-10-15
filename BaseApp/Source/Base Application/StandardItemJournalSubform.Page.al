@@ -19,7 +19,11 @@ page 755 "Standard Item Journal Subform"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the template for item''s whse. net change.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
                     Visible = false;
+
                 }
                 field("Entry Type"; "Entry Type")
                 {

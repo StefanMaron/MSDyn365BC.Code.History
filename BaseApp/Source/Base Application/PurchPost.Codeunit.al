@@ -68,6 +68,8 @@
         // Header
         CheckAndUpdate(PurchHeader);
 
+        TempInvoicePostBufferReverseCharge.Reset();
+        TempInvoicePostBufferReverseCharge.DeleteAll();
         TempDeferralHeader.DeleteAll();
         TempDeferralLine.DeleteAll();
         TempInvoicePostBuffer.DeleteAll();
@@ -96,8 +98,8 @@
                     Window.Update(2, LineCount);
 
                 PostPurchLine(
-                  PurchHeader, TempPurchLineGlobal, TempInvoicePostBuffer, TempVATAmountLine, TempVATAmountLineRemainder,
-                  TempDropShptPostBuffer, EverythingInvoiced, ICGenJnlLineNo);
+                  PurchHeader, TempPurchLineGlobal, TempInvoicePostBuffer,
+                  TempVATAmountLine, TempVATAmountLineRemainder, TempDropShptPostBuffer, EverythingInvoiced, ICGenJnlLineNo);
                 OnRunOnAfterPostPurchLine(TempPurchLineGlobal);
 
                 if RoundingLineInserted then
@@ -130,6 +132,7 @@
         if ICGenJnlLineNo > 0 then
             PostICGenJnl();
 
+        OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine);
         MakeInventoryAdjustment();
         UpdateLastPostingNos(PurchHeader);
 
@@ -194,6 +197,7 @@
         ReturnShptHeader: Record "Return Shipment Header";
         SalesShptHeader: Record "Sales Shipment Header";
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
+        TempInvoicePostBufferReverseCharge: Record "Invoice Post. Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         Currency: Record Currency;
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -719,6 +723,9 @@
             if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
                 FillInvoicePostBuffer(PurchHeader, PurchLine, PurchLineACY, TempInvoicePostBuffer, InvoicePostBuffer);
+                TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                if not TempInvoicePostBufferReverseCharge.Insert() then
+                    TempInvoicePostBufferReverseCharge.Modify();
                 InsertPrepmtAdjInvPostingBuf(PurchHeader, PurchLine, TempInvoicePostBuffer, InvoicePostBuffer);
             end;
 
@@ -925,7 +932,7 @@
                 ProcessAssocItemJnlLine(PurchHeader, PurchLine, TempDropShptPostBuffer);
             end;
 
-            OnAfterPostItemLine(PurchLine, SuppressCommit, PurchHeader, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase);
+            OnAfterPostItemLine(PurchLine, SuppressCommit, PurchHeader, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase, TempDropShptPostBuffer);
         end;
     end;
 
@@ -948,6 +955,8 @@
             OnBeforeTempDropShptPostBufferInsert(TempDropShptPostBuffer, PurchLine);
             TempDropShptPostBuffer.Insert();
         end;
+
+        OnAfterProcessAssocItemJnlLine(PurchLine, TempDropShptPostBuffer);
     end;
 
     local procedure PostItemChargeLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
@@ -1341,7 +1350,8 @@
 
     local procedure PostItemJnlLineTracking(PurchLine: Record "Purchase Line"; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary; PostWhseJnlLine: Boolean; QtyToBeInvoiced: Decimal)
     begin
-        if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then
+        if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then begin
+            OnPostItemJnlLineTrackingOnBeforeTempHandlingSpecificationFind(PurchLine, TempHandlingSpecification);
             if TempHandlingSpecification.Find('-') then
                 repeat
                     TempTrackingSpecification := TempHandlingSpecification;
@@ -1358,6 +1368,7 @@
                     TempTrackingSpecificationChargeAssmt := TempTrackingSpecification;
                     TempTrackingSpecificationChargeAssmt.Insert();
                 until TempHandlingSpecification.Next() = 0;
+        end;
     end;
 
     local procedure PostItemJnlLineWhseLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseTrackingSpecification: Record "Tracking Specification" temporary; PurchLine: Record "Purchase Line"; PostBefore: Boolean)
@@ -1406,15 +1417,8 @@
 
     local procedure PostItemChargePerOrder(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; ItemJnlLine2: Record "Item Journal Line"; ItemChargePurchLine: Record "Purchase Line"; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary)
     var
-        NonDistrItemJnlLine: Record "Item Journal Line";
         CurrExchRate: Record "Currency Exchange Rate";
-        OriginalAmt: Decimal;
-        OriginalAmtACY: Decimal;
-        OriginalDiscountAmt: Decimal;
-        OriginalQty: Decimal;
         QtyToInvoice: Decimal;
-        Factor: Decimal;
-        SignFactor: Integer;
     begin
         OnBeforePostItemChargePerOrder(
           PurchHeader, PurchLine, ItemJnlLine2, ItemChargePurchLine, TempTrackingSpecificationChargeAssmt, SuppressCommit,
@@ -1504,6 +1508,25 @@
             OnPostItemChargePerOrderOnAfterCopyToItemJnlLine(
               ItemJnlLine2, ItemChargePurchLine, GLSetup, QtyToInvoice, TempItemChargeAssgntPurch);
         end;
+
+        PostItemTrackingItemChargePerOrder(ItemJnlLine2, TempTrackingSpecificationChargeAssmt);
+    end;
+
+    local procedure PostItemTrackingItemChargePerOrder(var ItemJnlLine2: Record "Item Journal Line"; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary)
+    var
+        NonDistrItemJnlLine: Record "Item Journal Line";
+        OriginalAmt: Decimal;
+        OriginalAmtACY: Decimal;
+        OriginalDiscountAmt: Decimal;
+        OriginalQty: Decimal;
+        SignFactor: Integer;
+        Factor: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemTrackingItemChargePerOrder(TempTrackingSpecificationInv, IsHandled);
+        if IsHandled then
+            exit;
 
         with TempTrackingSpecificationChargeAssmt do begin
             Reset;
@@ -2099,7 +2122,7 @@
             exit;
 
         with PurchaseLine do begin
-            if PurchaseHeader.Invoice and ("Line Discount %" <> 100) then
+            if PurchaseHeader.Invoice and ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
         end;
@@ -2193,7 +2216,13 @@
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAssocOrder(TempDropShptPostBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         TempDropShptPostBuffer.Reset();
         if TempDropShptPostBuffer.IsEmpty then
             exit;
@@ -2227,6 +2256,7 @@
                     OnUpdateAssocOrderOnAfterSalesOrderLineModify(SalesOrderLine, TempDropShptPostBuffer);
                 until TempDropShptPostBuffer.Next() = 0;
                 TempDropShptPostBuffer.SetRange("Order No.");
+                OnUpdateAssocOrderOnAfterOrderNoClearFilter(TempDropShptPostBuffer);
             until TempDropShptPostBuffer.Next() = 0;
             TempDropShptPostBuffer.DeleteAll();
         end;
@@ -2566,6 +2596,7 @@
                     DeleteAfterPosting(PurchHeader);
             end;
 
+            OnFinalizePostingOnBeforeInsertValueEntryRelation(PurchHeader);
             InsertValueEntryRelation;
         end;
 
@@ -6645,7 +6676,7 @@
         end;
     end;
 
-    local procedure CheckAssociatedOrderLines(PurchHeader: Record "Purchase Header")
+    local procedure CheckAssociatedOrderLines(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
@@ -6655,6 +6686,8 @@
         CheckDimensions: Codeunit "Check Dimensions";
         IsHandled: Boolean;
     begin
+        OnBeforeCheckAssociatedOrderLines(PurchHeader);
+
         with PurchHeader do begin
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", "Document Type");
@@ -7180,17 +7213,21 @@
         VATPostingSetup: Record "VAT Posting Setup";
         LineCount: Integer;
         GLEntryNo: Integer;
+        VATAmountRemainder: Decimal;
+        VATAmountACYRemainder: Decimal;
     begin
         OnBeforePostInvoicePostBuffer(PurchHeader, TempInvoicePostBuffer, TotalPurchLine, TotalPurchLineLCY);
 
         LineCount := 0;
+        VATAmountRemainder := 0;
+        VATAmountACYRemainder := 0;
         if TempInvoicePostBuffer.Find('+') then
             repeat
                 LineCount := LineCount + 1;
                 if GuiAllowed and not HideProgressWindow then
                     Window.Update(3, LineCount);
 
-                CalculateVATAmountInBuffer(PurchHeader, TempInvoicePostBuffer);
+                CalculateVATAmountInBuffer(PurchHeader, TempInvoicePostBuffer, VATAmountRemainder, VATAmountACYRemainder);
                 GLEntryNo := PostInvoicePostBufferLine(PurchHeader, TempInvoicePostBuffer);
 
                 if (TempInvoicePostBuffer."Job No." <> '') and
@@ -7232,11 +7269,13 @@
         TempInvoicePostBuffer.DeleteAll();
     end;
 
-    local procedure CalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    local procedure CalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var VATAmountRemainder: Decimal; var VATAmountACYRemainder: Decimal)
     var
         CurrExchRate: Record "Currency Exchange Rate";
         VATAmountLine: Record "VAT Amount Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATAmount: Decimal;
+        VATAmountACY: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7250,21 +7289,39 @@
                     VATPostingSetup.Get(
                         TempInvoicePostBuffer."VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
                     OnPostInvoicePostingBufferOnAfterVATPostingSetupGet(VATPostingSetup);
-                    // NAVCZ
+
                     if PurchSetup."Allow VAT Difference" then
-                        TempInvoicePostBuffer."VAT Amount" :=
-                            VATAmountLine.RoundVAT(TempInvoicePostBuffer.Amount * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100)
+                        VATAmount :=
+                            TempInvoicePostBuffer.Amount * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                            VATPostingSetup."VAT %" / 100
                     else
-                        // NAVCZ
-                        TempInvoicePostBuffer."VAT Amount" :=
-                            Round(
-                                TempInvoicePostBuffer."VAT Base Amount" *
-                                (1 - PurchHeader."VAT Base Discount %" / 100) * VATPostingSetup."VAT %" / 100);
-                    TempInvoicePostBuffer."VAT Amount (ACY)" :=
-                        Round(
-                            TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                            VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
+                        VATAmount :=
+                            TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                            VATPostingSetup."VAT %" / 100;
+
+                    VATAmountACY :=
+                        TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                        VATPostingSetup."VAT %" / 100;
+
+                    TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
+                    if TempInvoicePostBufferReverseCharge.Find() then begin
+                        VATAmountRemainder += VATAmount;
+                        if PurchSetup."Allow VAT Difference" then
+                            TempInvoicePostBuffer."VAT Amount" := VATAmountLine.RoundVAT(VATAmountRemainder)
+                        else
+                            TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder);
+                        VATAmountRemainder -= TempInvoicePostBuffer."VAT Amount";
+
+                        VATAmountACYRemainder += VATAmountACY;
+                        TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
+                        VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)"
+                    end else begin
+                        if PurchSetup."Allow VAT Difference" then
+                            TempInvoicePostBuffer."VAT Amount" := VATAmountLine.RoundVAT(VATAmount)
+                        else
+                            TempInvoicePostBuffer."VAT Amount" := Round(VATAmount);
+                        TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
+                    end;
                 end;
             TempInvoicePostBuffer."VAT Calculation Type"::"Sales Tax":
                 if TempInvoicePostBuffer."Use Tax" then begin
@@ -8058,6 +8115,7 @@
                   UseDate, PurchHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", PurchHeader."Currency Factor"));
             TempDeferralHeader.Insert();
+            OnCalcDeferralAmountsOnAfterTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, PurchHeader);
 
             with DeferralLine do begin
                 DeferralUtilities.FilterDeferralLines(
@@ -8106,7 +8164,8 @@
         AmountRoundingPrecision := Currency."Amount Rounding Precision" / PurchHeader."Currency Factor";
         if AmountRoundingPrecision < GLSetup."Amount Rounding Precision" then
             exit(GLSetup."Amount Rounding Precision");
-        exit(AmountRoundingPrecision);
+
+        OnAfterGetAmountRoundingPrecisionInLCY(DocType, DocNo, CurrencyCode, AmountRoundingPrecision);
     end;
 
     local procedure CollectPurchaseLineReservEntries(var JobReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
@@ -8341,6 +8400,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAmountRoundingPrecisionInLCY(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; CurrencyCode: Code[10]; var AmountRoundingPrecision: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetPurchSetup(var PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
@@ -8496,7 +8560,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterPostItemLine(PurchaseLine: Record "Purchase Line"; CommitIsSupressed: Boolean; PurchaseHeader: Record "Purchase Header"; RemQtyToBeInvoiced: Decimal; RemQtyToBeInvoicedBase: Decimal)
+    local procedure OnAfterPostItemLine(PurchaseLine: Record "Purchase Line"; CommitIsSupressed: Boolean; PurchaseHeader: Record "Purchase Header"; RemQtyToBeInvoiced: Decimal; RemQtyToBeInvoicedBase: Decimal; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 
@@ -8542,6 +8606,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPurchLines(var PurchHeader: Record "Purchase Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShipmentHeader: Record "Return Shipment Header"; WhseShip: Boolean; WhseReceive: Boolean; var PurchLinesProcessed: Boolean; CommitIsSuppressed: Boolean; EverythingInvoiced: Boolean; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessAssocItemJnlLine(var PurchLine: Record "Purchase Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 
@@ -8996,6 +9065,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemTrackingItemChargePerOrder(var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemTrackingLineOnPostPurchLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -9042,6 +9116,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempDropShptPostBufferInsert(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssocOrder(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -9152,6 +9231,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShouldPostWhseJnlLine(PurchLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDeferralAmountsOnAfterTempDeferralHeaderInsert(var TempDeferralHeader: Record "Deferral Header"; DeferralHeader: Record "Deferral Header"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -9509,6 +9593,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeMakeInventoryAdjustment(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSumPurchLines2OnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -9520,6 +9609,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAssocOrderOnAfterSalesOrderLineModify(var SalesOrderLine: Record "Sales Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAssocOrderOnAfterOrderNoClearFilter(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 
@@ -9589,6 +9683,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAssociatedOrderLines(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiveInvoiceShip(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -9629,7 +9728,17 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnPostItemJnlLineTrackingOnBeforeTempHandlingSpecificationFind(PurchLine: Record "Purchase Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnFinalizePostingOnAfterUpdateItemChargeAssgnt(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFinalizePostingOnBeforeInsertValueEntryRelation(var PurchHeader: Record "Purchase Header")
     begin
     end;
 

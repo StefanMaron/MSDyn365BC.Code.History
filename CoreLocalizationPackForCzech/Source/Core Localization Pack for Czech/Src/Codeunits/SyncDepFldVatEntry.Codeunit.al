@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432
 codeunit 31175 "Sync.Dep.Fld-VATEntry CZL"
 {
@@ -35,3 +36,4 @@ codeunit 31175 "Sync.Dep.Fld-VATEntry CZL"
         Rec."VAT Settlement No. CZL" := CopyStr(NewFieldTxt, 1, MaxStrLen(Rec."VAT Settlement No. CZL"));
     end;
 }
+#endif

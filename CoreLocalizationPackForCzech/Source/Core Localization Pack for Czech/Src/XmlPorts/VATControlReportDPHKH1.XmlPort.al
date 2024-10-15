@@ -896,9 +896,8 @@ xmlport 31110 "VAT Control Report DPHKH1 CZL"
                         vatyear := Format(VATCtrlReportHeaderCZL.Year);
                     VATCtrlReportFormatCZL := VATCtrlReportHeaderCZL."VAT Control Report XML Format";
 
-                    TempVATCtrlReportBufferCZL.Reset();
-                    TempVATCtrlReportBufferCZL.DeleteAll();
                     VATCtrlReportMgtCZL.CreateBufferForExport(VATCtrlReportHeaderCZL, TempVATCtrlReportBufferCZL, false, VATStatementReportSelection);
+                    TempVATCtrlReportBufferCZL.Reset();
                     if PrintInIntegers then
                         VATCtrlReportMgtCZL.RoundVATCtrlReportBufferAmounts(TempVATCtrlReportBufferCZL, 1);
                 end;

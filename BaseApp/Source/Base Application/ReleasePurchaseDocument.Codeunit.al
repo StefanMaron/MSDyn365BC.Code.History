@@ -53,6 +53,7 @@
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '>0');
             PurchLine.SetFilter(Quantity, '<>0');
+            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
             if not PurchLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
             InvtSetup.Get();
@@ -288,6 +289,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheck(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterPurchLineSetFilters(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

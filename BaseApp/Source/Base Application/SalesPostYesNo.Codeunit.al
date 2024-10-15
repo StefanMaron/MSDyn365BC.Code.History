@@ -7,6 +7,8 @@ codeunit 81 "Sales-Post (Yes/No)"
     var
         SalesHeader: Record "Sales Header";
     begin
+        OnBeforeOnRun(Rec);
+
         if not Find then
             Error(NothingToPostErr);
 
@@ -56,16 +58,34 @@ codeunit 81 "Sales-Post (Yes/No)"
         if SalesSetup."Post with Job Queue" and not PostAndSend then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
         else
-            CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+            RunSalesPost(SalesHeader);
 
         OnAfterPost(SalesHeader);
     end;
 
-    local procedure ConfirmPost(var SalesHeader: Record "Sales Header"; DefaultOption: Integer): Boolean
+    local procedure RunSalesPost(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunSalesPost(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
+    end;
+
+    local procedure ConfirmPost(var SalesHeader: Record "Sales Header"; DefaultOption: Integer) Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
         Selection: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmPost(SalesHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DefaultOption > 3 then
             DefaultOption := 3;
         if DefaultOption <= 0 then
@@ -144,7 +164,22 @@ codeunit 81 "Sales-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPost(var SalesHeader: Record "Sales Header"; var DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmSalesPost(var SalesHeader: Record "Sales Header"; var HideDialog: Boolean; var IsHandled: Boolean; var DefaultOption: Integer; var PostAndSend: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

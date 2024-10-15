@@ -102,16 +102,28 @@ page 11718 "Payment Order Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is uncertainty payer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 field("Public Bank Account"; "Public Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the bank account is public.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 field("Third Party Bank Account"; "Third Party Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
             }
         }

@@ -330,6 +330,10 @@ page 11716 "Payment Order"
                     Caption = 'Uncertainty VAT Payment Check';
                     Image = ElectronicPayment;
                     ToolTip = 'Checks uncertaintie vat of the vendor';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
 
                     trigger OnAction()
                     begin

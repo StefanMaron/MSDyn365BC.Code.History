@@ -548,7 +548,7 @@ report 11716 "Open Vend. Entries to Date CZL"
                         ApplicationArea = All;
                         Caption = 'Show Currency';
                         ToolTip = 'Specifies when the currency is to be show';
-                        Visible = CurrencyIncludeVisible;
+                        Visible = CurrencyAllowed;
                     }
                     field(VendPerPageField; VendPerPage)
                     {
@@ -580,74 +580,55 @@ report 11716 "Open Vend. Entries to Date CZL"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Skip Balance';
                         ToolTip = 'Specifies when the balance is to be skip';
-
-                        trigger OnValidate()
-                        begin
-                            SkipBalanceOnPush();
-                        end;
                     }
                     group(Limits)
                     {
                         Caption = 'Limits';
-                        Enabled = LimitEnabled;
+                        Enabled = not SkipBalance;
                         field("LimitDate[1]"; LimitDate[1])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Limit 1.';
-                            Enabled = LimitEnabled;
-                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation.';
+                            Enabled = not SkipBalance;
+                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation. Enter the value in format 30D, 60D or 1M.';
+                            ShowMandatory = true;
                         }
                         field("LimitDate[2]"; LimitDate[2])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Limit 2.';
-                            Enabled = LimitEnabled;
-                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation.';
+                            Enabled = not SkipBalance;
+                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation. Enter the value in format 30D, 60D or 1M.';
+                            ShowMandatory = true;
                         }
                         field("LimitDate[3]"; LimitDate[3])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Limit 3.';
-                            Enabled = LimitEnabled;
-                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation.';
+                            Enabled = not SkipBalance;
+                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation. Enter the value in format 30D, 60D or 1M.';
+                            ShowMandatory = true;
                         }
                         field("LimitDate[4]"; LimitDate[4])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Limit 4.';
-                            Enabled = LimitEnabled;
-                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation.';
+                            Enabled = not SkipBalance;
+                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation. Enter the value in format 30D, 60D or 1M.';
+                            ShowMandatory = true;
                         }
                         field("LimitDate[5]"; LimitDate[5])
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Limit 5.';
-                            Enabled = LimitEnabled;
-                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation.';
+                            Enabled = not SkipBalance;
+                            ToolTip = 'Specifies the number of due date for vendor''s entries calculation. Enter the value in format 30D, 60D or 1M.';
+                            ShowMandatory = true;
                         }
                     }
                 }
             }
         }
-        trigger OnInit()
-        begin
-            LimitEnabled := true;
-            CurrencyIncludeVisible := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
-            CurrencyIncludeVisible := CurrencyAllowed;
-            LimitEnabled := not SkipBalance;
-
-            if not SkipBalance then begin
-                Evaluate(LimitDate[1], Format('<30D>'));
-                Evaluate(LimitDate[2], Format('<60D>'));
-                Evaluate(LimitDate[3], Format('<90D>'));
-                Evaluate(LimitDate[4], Format('<120D>'));
-                Evaluate(LimitDate[5], Format('<150D>'));
-            end;
-        end;
     }
     trigger OnInitReport()
     var
@@ -701,12 +682,10 @@ report 11716 "Open Vend. Entries to Date CZL"
         SkipTotal: Boolean;
         SkipGLAcc: Boolean;
         VendPerPage: Boolean;
+        [InDataSet]
         CurrencyAllowed: Boolean;
+        [InDataSet]
         SkipBalance: Boolean;
-        [InDataSet]
-        CurrencyIncludeVisible: Boolean;
-        [InDataSet]
-        LimitEnabled: Boolean;
         PeriodLbl: Label 'Period: %1', Comment = '%1 = Date Filter';
         ToLbl: Label 'To %1', Comment = '%1 = Date';
         OverLbl: Label 'Over %1', Comment = '%1 = Date';
@@ -737,10 +716,5 @@ report 11716 "Open Vend. Entries to Date CZL"
             TempGLAccountNetChange."Net Change in Jnl." := Amount2;
             TempGLAccountNetChange.Insert();
         end;
-    end;
-
-    local procedure SkipBalanceOnPush()
-    begin
-        LimitEnabled := not SkipBalance;
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 1550 "Record Restriction Mgt."
+﻿codeunit 1550 "Record Restriction Mgt."
 {
     Permissions = TableData "Restricted Record" = rimd;
 
@@ -183,7 +183,13 @@ codeunit 1550 "Record Restriction Mgt."
     procedure CustomerCheckSalesPostRestrictions(var Sender: Record "Sales Header")
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCustomerCheckSalesPostRestrictions(Sender, IsHandled);
+        if IsHandled then
+            exit;
+
         Customer.Get(Sender."Sell-to Customer No.");
         CheckRecordHasUsageRestrictions(Customer);
         if Sender."Sell-to Customer No." = Sender."Bill-to Customer No." then
@@ -572,6 +578,11 @@ codeunit 1550 "Record Restriction Mgt."
     begin
         // NAVCZ
         UpdateRestriction(Rec, xRec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustomerCheckSalesPostRestrictions(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

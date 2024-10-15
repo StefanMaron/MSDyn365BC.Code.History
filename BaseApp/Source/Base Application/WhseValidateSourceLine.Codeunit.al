@@ -252,6 +252,7 @@
            ((SourceType = DATABASE::"Transfer Line") and (SourceSubType = 1))
         then begin
             WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+            OnWhseLinesExistOnAfterWhseRcptLineSetFilters(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
             if not WhseRcptLine.IsEmpty then begin
                 TableCaptionValue := WhseRcptLine.TableCaption;
                 exit(true);
@@ -266,6 +267,7 @@
            ((SourceType = DATABASE::"Service Line") and (SourceSubType = 1))
         then begin
             WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+            OnWhseLinesExistOnAfterWhseShptLineSetFilters(WhseShptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
             if not WhseShptLine.IsEmpty then begin
                 TableCaptionValue := WhseShptLine.TableCaption;
                 exit(true);
@@ -675,6 +677,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransLineCommonVerificationOnBeforeQuantityCheck(var OldTransferLine: Record "Transfer Line"; var NewTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseLinesExistOnAfterWhseRcptLineSetFilters(var WhseRcptLine: Record "Warehouse Receipt Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseLinesExistOnAfterWhseShptLineSetFilters(var WhseShptLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal)
     begin
     end;
 }

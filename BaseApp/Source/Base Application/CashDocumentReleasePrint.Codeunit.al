@@ -45,6 +45,7 @@ codeunit 11732 "Cash Document-Release + Print"
     [Scope('OnPrem')]
     procedure GetReport(var CashDocumentHeader: Record "Cash Document Header")
     begin
+        CashDocumentHeader.Reset();
         CashDocumentHeader.SetRecFilter;
         CashDocumentHeader.PrintRecords(false);
     end;

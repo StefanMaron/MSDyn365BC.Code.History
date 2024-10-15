@@ -110,8 +110,14 @@ report 31058 "VIES Declaration CZL"
                     {
                         IncludeCaption = true;
                     }
+
                     trigger OnAfterGetRecord()
                     begin
+                        Clear(TotalValueItemSaleSupplies);
+                        Clear(TotalValueEU3rdPartyItemSale);
+                        Clear(TotalValueServiceSalSupplies);
+                        Clear(TotalValueofItemPurchSupplies);
+
                         case "Trade Type" of
                             "Trade Type"::Purchase:
                                 TotalValueofItemPurchSupplies := "Amount (LCY)";
@@ -125,15 +131,8 @@ report 31058 "VIES Declaration CZL"
                                         TotalValueItemSaleSupplies := "Amount (LCY)";
                         end;
                     end;
-
-                    trigger OnPreDataItem()
-                    begin
-                        Clear(TotalValueItemSaleSupplies);
-                        Clear(TotalValueEU3rdPartyItemSale);
-                        Clear(TotalValueServiceSalSupplies);
-                        Clear(TotalValueofItemPurchSupplies);
-                    end;
                 }
+
                 trigger OnAfterGetRecord()
                 begin
                     TestField("Authorized Employee No.");

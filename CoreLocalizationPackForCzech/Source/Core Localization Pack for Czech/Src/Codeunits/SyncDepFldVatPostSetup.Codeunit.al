@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432,AL0603
 codeunit 31173 "Sync.Dep.Fld-VatPostSetup CZL"
 {
@@ -63,3 +64,4 @@ codeunit 31173 "Sync.Dep.Fld-VatPostSetup CZL"
         SyncDepFldUtilities.SyncFields(Rec."VIES Sales", Rec."VIES Sales CZL", PreviousRecord."VIES Sales", PreviousRecord."VIES Sales CZL");
     end;
 }
+#endif

@@ -1406,6 +1406,7 @@ table 270 "Bank Account"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure GetNoSeriesCode(): Code[20]
     begin
         // NAVCZ
@@ -2018,6 +2019,7 @@ table 270 "Bank Account"
         // The subscriber of this event should insert a unique identifier (Name) and friendly name of the provider (Value)
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CheckCashDesks()
     begin

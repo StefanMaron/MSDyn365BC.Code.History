@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432
 codeunit 31196 "Sync.Dep.Fld-StatisticInd CZL"
 {
@@ -160,3 +161,4 @@ codeunit 31196 "Sync.Dep.Fld-StatisticInd CZL"
         exit(SyncDepFldUtilities.IsFieldSynchronizationDisabled());
     end;
 }
+#endif

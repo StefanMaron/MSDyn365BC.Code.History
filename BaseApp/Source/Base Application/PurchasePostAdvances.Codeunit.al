@@ -1162,6 +1162,7 @@ codeunit 31020 "Purchase-Post Advances"
             IF "VAT Date" = 0D THEN
                 "VAT Date" := "Posting Date";
             "Original Document VAT Date" := PurchAdvanceLetterHeader."Original Document VAT Date";
+            OnPostLetter_SetCrMemoHeaderOnBeforeInsertPurchCrMemoHeader(PurchAdvanceLetterHeader, PurchCrMemoHdr);
             Insert;
         end;
     end;
@@ -5992,6 +5993,11 @@ codeunit 31020 "Purchase-Post Advances"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostLetter_SetInvHeaderOnBeforeInsertPurchInvHeader(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLetter_SetCrMemoHeaderOnBeforeInsertPurchCrMemoHeader(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 

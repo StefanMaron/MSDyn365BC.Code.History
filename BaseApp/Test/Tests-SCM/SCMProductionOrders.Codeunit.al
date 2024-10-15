@@ -3522,6 +3522,65 @@ codeunit 137069 "SCM Production Orders"
         until (OldProdOrderRoutingLine.Next() = 0) and (ProdOrderRoutingLine.Next() = 0);
     end;
 
+    [Test]
+    procedure CapacityCostQtyAndDirectCostOnBackwardFlushingAfterPostOutputWithRunTime()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        Qty: Decimal;
+        RunTime: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Rounting] [Flushing]
+        // [SCENARIO 387610] Calculate remaining capacity to post for backward flushing when the output is partially posted and had capacity.
+        Initialize();
+        Qty := 2 * LibraryRandom.RandIntInRange(10, 20);
+        RunTime := 2 * LibraryRandom.RandIntInRange(100, 200);
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Work Center, unit cost = 2.00
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Unit Cost", UnitCost);
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create a routing with the work center, set "Run Time" = 200.
+        // [GIVEN] Create item with the routing.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, RunTime, 0, 0);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+        CreateItemForRouting(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh production order, quantity = 10.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Qty);
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+
+        // [GIVEN] Post output for 5 pcs, run time = 100.
+        PostOutput(ProductionOrder."No.", Qty / 2, RunTime / 2);
+
+        // [GIVEN] Set the prod. order routing line for backward flushing.
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        ProdOrderRoutingLine.Validate("Flushing Method", ProdOrderRoutingLine."Flushing Method"::Backward);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The total run time posted is equal to 1100 = 100 [posted manually] + 5 * 200 [flushing]
+        // [THEN] The total output quantity posted = 10.
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.CalcSums(Quantity, "Output Quantity");
+        CapacityLedgerEntry.TestField(Quantity, RunTime / 2 + Qty / 2 * RunTime);
+        CapacityLedgerEntry.TestField("Output Quantity", Qty);
+
+        // [THEN] The total amount is equal to 2200 = 1100 [run time] * 2.00 [unit cost]
+        VerifyCapacityAmountOnValueEntries(ProductionOrder."No.", CapacityLedgerEntry.Quantity * WorkCenter."Unit Cost");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4387,6 +4446,19 @@ codeunit 137069 "SCM Production Orders"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, ItemNo, LibraryRandom.RandDec(10, 2));
         ReleasedProductionOrder.OpenEdit;
         ReleasedProductionOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
+    end;
+
+    local procedure PostOutput(ProductionOrderNo: Code[20]; OutputQty: Decimal; RunTime: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        OutputJournalExplodeRouting(ItemJournalLine, ProductionOrderNo);
+        ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Output Quantity", OutputQty);
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure PostConsumptionJournalLine(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; PostingDate: Date; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)

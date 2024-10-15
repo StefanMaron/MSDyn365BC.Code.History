@@ -73,6 +73,10 @@ page 31065 "Stat. Reporting Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies tax payer type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech field Company Type.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 field("Tax Payer Status"; "Tax Payer Status")
                 {
@@ -197,6 +201,10 @@ page 31065 "Stat. Reporting Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type organizational unit code for reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This unused field is discontinued and will be removed.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 field("Company Trade Name"; "Company Trade Name")
                 {
@@ -274,6 +282,10 @@ page 31065 "Stat. Reporting Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the area code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This unused field is discontinued and will be removed.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
                 }
                 field("Intrastat Export Object Type"; "Intrastat Export Object Type")
                 {

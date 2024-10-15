@@ -1042,6 +1042,7 @@ table 11731 "Cash Document Line"
         DimMgt: Codeunit DimensionManagement;
         HideValidationDialog: Boolean;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure InitRecord()
     begin
@@ -1050,6 +1051,7 @@ table 11731 "Cash Document Line"
         "Cash Document Type" := CashDocHeader."Cash Document Type";
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
@@ -1058,6 +1060,7 @@ table 11731 "Cash Document Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
@@ -1085,12 +1088,14 @@ table 11731 "Cash Document Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -1098,12 +1103,14 @@ table 11731 "Cash Document Line"
         ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure GetDocHeader()
     begin
@@ -1123,6 +1130,7 @@ table 11731 "Cash Document Line"
         CashDocHeader.SetHideValidationDialog(HideValidationDialog);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure UpdateAmounts()
     var
@@ -1157,6 +1165,7 @@ table 11731 "Cash Document Line"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure UpdateDocumentType()
     begin
@@ -1175,6 +1184,7 @@ table 11731 "Cash Document Line"
             "Document Type" := "Document Type"::Refund;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SignAmount(): Integer
     begin
@@ -1183,6 +1193,7 @@ table 11731 "Cash Document Line"
         exit(1);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ApplyEntries()
     var
@@ -1474,6 +1485,7 @@ table 11731 "Cash Document Line"
         Clear(ApplyEmplEntries);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure TypeToTableID(Type: Option " ","G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",Employee): Integer
     begin
@@ -1552,6 +1564,7 @@ table 11731 "Cash Document Line"
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure ExtStatistics()
     var
@@ -1572,6 +1585,7 @@ table 11731 "Cash Document Line"
         PAGE.RunModal(PAGE::"Cash Document Statistics", CashDocLine);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure LinkToAdvLetter()
     var
@@ -1617,6 +1631,7 @@ table 11731 "Cash Document Line"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure LinkWholeLetter()
     var
@@ -1625,6 +1640,7 @@ table 11731 "Cash Document Line"
         PrepmtLinksMgt.LinkCashDocLine(Rec);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure UnLinkWholeLetter()
     var
@@ -1656,6 +1672,7 @@ table 11731 "Cash Document Line"
         exit(0);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin

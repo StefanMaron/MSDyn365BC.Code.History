@@ -317,18 +317,18 @@ report 11769 "VAT Statement CZL"
                             case VATStmtLine2."G/L Amount Type CZL" of
                                 VATStmtLine2."G/L Amount Type CZL"::"Net Change":
                                     begin
-                                        GLAccount.CalcFields("Net Change (VAT Date) CZL", "Net Change ACY (VAT Date)");
-                                        Amount := ConditionalAdd(Amount, GLAccount."Net Change (VAT Date) CZL", GLAccount."Net Change ACY (VAT Date)");
+                                        GLAccount.CalcFields("Net Change (VAT Date) CZL", "Net Change ACY (VAT Date) CZL");
+                                        Amount := ConditionalAdd(Amount, GLAccount."Net Change (VAT Date) CZL", GLAccount."Net Change ACY (VAT Date) CZL");
                                     end;
                                 VATStmtLine2."G/L Amount Type CZL"::Debit:
                                     begin
-                                        GLAccount.CalcFields("Debit Amount (VAT Date) CZL", "Debit Amount ACY (VAT Date)");
-                                        Amount := ConditionalAdd(Amount, GLAccount."Debit Amount (VAT Date) CZL", GLAccount."Debit Amount ACY (VAT Date)");
+                                        GLAccount.CalcFields("Debit Amount (VAT Date) CZL", "Debit Amt. ACY (VAT Date) CZL");
+                                        Amount := ConditionalAdd(Amount, GLAccount."Debit Amount (VAT Date) CZL", GLAccount."Debit Amt. ACY (VAT Date) CZL");
                                     end;
                                 VATStmtLine2."G/L Amount Type CZL"::Credit:
                                     begin
-                                        GLAccount.CalcFields("Credit Amount (VAT Date) CZL", "Credit Amount ACY (VAT Date)");
-                                        Amount := ConditionalAdd(Amount, GLAccount."Credit Amount (VAT Date) CZL", GLAccount."Credit Amount ACY (VAT Date)");
+                                        GLAccount.CalcFields("Credit Amount (VAT Date) CZL", "Credit Amt. ACY (VAT Date) CZL");
+                                        Amount := ConditionalAdd(Amount, GLAccount."Credit Amount (VAT Date) CZL", GLAccount."Credit Amt. ACY (VAT Date) CZL");
                                     end;
                             end;
                         until GLAccount.Next() = 0;
@@ -423,9 +423,11 @@ report 11769 "VAT Statement CZL"
                             end;
                         until VATStmtLine2.Next() = 0;
                 end;
+#if not CLEAN17
 #pragma warning disable AL0432
             VATStmtLine2.Type::"Formula", // This value is discontinued and should no longer be used.
 #pragma warning restore
+#endif
             VATStmtLine2.Type::"Formula CZL":
                 begin
                     Amount := EvaluateExpression(true, VATStmtLine2."Row Totaling", VATStmtLine2, true);

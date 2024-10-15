@@ -860,6 +860,8 @@
                 TempPurchaseOrderToPrint := PurchOrderHeader;
                 TempPurchaseOrderToPrint.Insert();
             end;
+
+        OnAfterFinalizeOrderHeaderProcedure(PurchOrderHeader, ReqLine);
     end;
 
     procedure CheckRecurringReqLine(var ReqLine2: Record "Requisition Line")
@@ -1404,6 +1406,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizeOrderHeader(var PurchHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFinalizeOrderHeaderProcedure(var PurchHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
     begin
     end;
 

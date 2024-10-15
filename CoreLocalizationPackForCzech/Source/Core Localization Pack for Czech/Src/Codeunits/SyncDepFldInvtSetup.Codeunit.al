@@ -1,3 +1,4 @@
+#if not CLEAN17
 #pragma warning disable AL0432
 codeunit 31166 "Sync.Dep.Fld-InvtSetup CZL"
 {
@@ -39,3 +40,4 @@ codeunit 31166 "Sync.Dep.Fld-InvtSetup CZL"
         Rec."Def.Tmpl. for Phys.Neg.Adj CZL" := CopyStr(NewFieldTxt, 1, MaxStrLen(Rec."Def.Tmpl. for Phys.Neg.Adj CZL"));
     end;
 }
+#endif

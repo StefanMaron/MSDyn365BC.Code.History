@@ -1,4 +1,4 @@
-page 29 "Vendor Ledger Entries"
+﻿page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -821,7 +821,7 @@ page 29 "Vendor Ledger Entries"
         SetControlVisibility;
         SetDimVisibility();
         if (GetFilters <> '') and ("Entry No." = 0) then // NAVCZ
-            if FindFirst then;
+            if FindFirst() then;
     end;
 
     var

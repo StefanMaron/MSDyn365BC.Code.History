@@ -706,6 +706,10 @@ Page 1 "Company Information"
             group("O&ther")
             {
                 Caption = 'O&ther';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
                 action(Officials)
                 {
                     ApplicationArea = Basic, Suite;

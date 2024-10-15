@@ -158,6 +158,10 @@ page 371 "Bank Account List"
             {
                 Caption = '&Line';
                 Image = Line;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                ObsoleteTag = '17.5';
+                Visible = false;
                 action(Card)
                 {
                     ApplicationArea = Basic, Suite;
@@ -167,6 +171,10 @@ page 371 "Bank Account List"
                     PromotedCategory = Process;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the bank or cash desk.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.5';
+                    Visible = false;
 
                     trigger OnAction()
                     begin

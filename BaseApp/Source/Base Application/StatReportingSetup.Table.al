@@ -247,6 +247,9 @@ table 31065 "Stat. Reporting Setup"
             Caption = 'Taxpayer Type';
             OptionCaption = 'Corporation,Individual';
             OptionMembers = Corporation,Individual;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech field Company Type.';
+            ObsoleteTag = '17.5';
         }
         field(11704; "Company Trade Name Appendix"; Text[11])
         {

@@ -313,6 +313,10 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selection-Cash Desk';
                         RunObject = page "Report Selection - Cash Desk";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                        ObsoleteTag = '17.5';
+                        Visible = false;
                     }
                 }
                 group("Group7")

@@ -339,6 +339,7 @@ codeunit 11795 "User Setup Adv. Management"
             end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CheckWhseNetChangeTemplate(var ItemJnlLine: Record "Item Journal Line"): Boolean
     var

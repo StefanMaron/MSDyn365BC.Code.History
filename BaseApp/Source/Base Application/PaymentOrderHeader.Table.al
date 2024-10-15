@@ -53,7 +53,7 @@ table 11708 "Payment Order Header"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -121,7 +121,7 @@ table 11708 "Payment Order Header"
         }
         field(9; Amount; Decimal)
         {
-            CalcFormula = Sum ("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                           "Skip Payment" = CONST(false)));
             Caption = 'Amount';
             Editable = false;
@@ -129,7 +129,7 @@ table 11708 "Payment Order Header"
         }
         field(10; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                                 "Skip Payment" = CONST(false)));
             Caption = 'Amount (LCY)';
             Editable = false;
@@ -137,7 +137,7 @@ table 11708 "Payment Order Header"
         }
         field(11; Debit; Decimal)
         {
-            CalcFormula = Sum ("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                           Positive = CONST(true),
                                                                           "Skip Payment" = CONST(false)));
             Caption = 'Debit';
@@ -146,7 +146,7 @@ table 11708 "Payment Order Header"
         }
         field(12; "Debit (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                                 Positive = CONST(true),
                                                                                 "Skip Payment" = CONST(false)));
             Caption = 'Debit (LCY)';
@@ -155,7 +155,7 @@ table 11708 "Payment Order Header"
         }
         field(13; Credit; Decimal)
         {
-            CalcFormula = - Sum ("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = - Sum("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                            Positive = CONST(false),
                                                                            "Skip Payment" = CONST(false)));
             Caption = 'Credit';
@@ -164,7 +164,7 @@ table 11708 "Payment Order Header"
         }
         field(14; "Credit (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = - Sum("Payment Order Line"."Amount (LCY) to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                                  Positive = CONST(false),
                                                                                  "Skip Payment" = CONST(false)));
             Caption = 'Credit (LCY)';
@@ -173,7 +173,7 @@ table 11708 "Payment Order Header"
         }
         field(15; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Payment Order Line" WHERE("Payment Order No." = FIELD("No.")));
+            CalcFormula = Count("Payment Order Line" WHERE("Payment Order No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -231,7 +231,7 @@ table 11708 "Payment Order Header"
         }
         field(25; "Amount (Pay.Order Curr.)"; Decimal)
         {
-            CalcFormula = Sum ("Payment Order Line"."Amount(Pay.Order Curr.) to Pay" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Payment Order Line"."Amount(Pay.Order Curr.) to Pay" WHERE("Payment Order No." = FIELD("No."),
                                                                                            "Skip Payment" = CONST(false)));
             Caption = 'Amount (Pay.Order Curr.)';
             Editable = false;
@@ -531,6 +531,7 @@ table 11708 "Payment Order Header"
             until PaymentOrderLine.Next = 0;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     procedure ImportUncPayerStatus()
     var
         PaymentOrderLine: Record "Payment Order Line";

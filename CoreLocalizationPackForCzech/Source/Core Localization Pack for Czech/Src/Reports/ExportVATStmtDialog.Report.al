@@ -144,6 +144,7 @@ report 31003 "Export VAT Stmt. Dialog CZL"
                         Caption = 'Filled By Employee No.';
                         TableRelation = "Company Official CZL";
                         ToolTip = 'Specifies the number of employee, who filled VAT statement.';
+                        ShowMandatory = true;
                     }
                 }
                 group(Additional)

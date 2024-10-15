@@ -399,6 +399,7 @@ page 9401 "VAT Amount Lines"
         CurrencyFactor := NewCurrencyFactor; // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure SetVATCurrencyFactor(NewVATCurrencyFactor: Decimal)
     begin

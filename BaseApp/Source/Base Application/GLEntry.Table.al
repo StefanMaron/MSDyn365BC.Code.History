@@ -461,6 +461,9 @@ table 17 "G/L Entry"
         key(Key5; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Date")
         {
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
+            ObsoleteTag = '17.5';
         }
         key(Key6; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
         {

@@ -309,9 +309,21 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
     local procedure ConfirmProcess(ConfirmQuestion: Text)
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        OnBeforeConfirmProcess(ConfirmQuestion, IsHandled);
+        if IsHandled then
+            exit;
+        if not IsConfirmDialogAllowed() then
+            exit;
         if not ConfirmManagement.GetResponse(ConfirmQuestion, false) then
             Error('');
+    end;
+
+    local procedure IsConfirmDialogAllowed() IsAllowed: Boolean
+    begin
+        IsAllowed := GuiAllowed();
+        OnIsConfirmDialogAllowed(IsAllowed);
     end;
 
     procedure CreateUnrelPayerServiceNotSetNotification()
@@ -335,4 +347,15 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
     local procedure OnAfterIsVATRegNoExportPossible(VATRegNo: Code[20]; CountryCode: Code[10]; var ReturnValue: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure  OnBeforeConfirmProcess(ConfirmQuestion: Text; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure  OnIsConfirmDialogAllowed(var IsAllowed: Boolean)
+    begin
+    end;
+
 }

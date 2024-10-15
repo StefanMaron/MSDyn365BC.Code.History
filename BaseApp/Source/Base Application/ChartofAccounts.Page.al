@@ -184,6 +184,9 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net change VAT date for the general ledger account. This amount is in additional reporting currency.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.5';
                     Visible = false;
                 }
                 field("Consol. Debit Acc."; "Consol. Debit Acc.")

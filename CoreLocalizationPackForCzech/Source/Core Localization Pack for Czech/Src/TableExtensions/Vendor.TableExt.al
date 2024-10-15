@@ -60,6 +60,13 @@ tableextension 11702 "Vendor CZL" extends Vendor
             DataClassification = CustomerContent;
         }
     }
+    keys
+    {
+        key(Key11700; "Registration No. CZL")
+        {
+        }
+    }
+
     var
         UnrelPayerServiceSetupCZL: Record "Unrel. Payer Service Setup CZL";
         UnreliablePayerMgtCZL: Codeunit "Unreliable Payer Mgt. CZL";

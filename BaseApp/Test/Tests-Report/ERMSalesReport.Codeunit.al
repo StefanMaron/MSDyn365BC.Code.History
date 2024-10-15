@@ -3373,6 +3373,88 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementWithValueExists('JobNo', SalesInvoiceLine."Job No.");
         LibraryReportDataset.AssertElementWithValueExists('JobTaskNo', SalesInvoiceLine."Job Task No.");
     end;
+    
+    [Test]
+    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccumulateRoundedVATBaseLCYtInSalesInvoiceRepForDocHavingTwoEqualLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        DocumentNo: Code[20];
+        ExchangeRate: Decimal;
+        UnitPrice: Decimal;
+        VATPercent: Decimal;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [SCENARIO 388612] VAT Base LCY on "Sales - Invoice" report must accumulate remainig amounts from previous lines in LCY
+        Initialize();
+
+        // [GIVEN] "Print VAT specification in LCY" in the "General Ledger Setup" = True
+        UpdateGeneralLedgerSetup(true);
+
+        // [GIVEN] Currency "CAD" with "Echange Rate Amount"
+        ExchangeRate := LibraryRandom.RandDecInDecimalRange(0.5, 1.5, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
+
+        // [GIVEN] VAT Posting Setup with "VAT Bus. Posting Group"
+        VATPercent := LibraryRandom.RandInt(25);
+        CreateVATPostingGroup(VATPostingSetup, VATPercent);
+        VATProdPostingGroup := VATPostingSetup."VAT Prod. Posting Group";
+
+        // [GIVEN] Posted Sales Invoice "PSI001" in "CAD"
+        CreateSalesHeader(
+          SalesHeader, CurrencyCode, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Created two equal Sales line
+        UnitPrice := LibraryRandom.RandInt(1000);
+        CreateSalesLineWithVAT(
+          SalesHeader, SalesLine, CreateItemWithVATProdPostingGroup(VATProdPostingGroup), UnitPrice);
+        CreateSalesLineWithVAT(
+          SalesHeader, SalesLine, CreateItemWithVATProdPostingGroup(VATProdPostingGroup), UnitPrice);
+
+        // [GIVEN] Posted Sales Invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Pring "Sales - Invoice" for "PSI001"
+        RunSalesInvoiceReport(DocumentNo, false, false, false, 1);
+
+        // [THEN] VAT Specification LCY Printed correctly and equal to values from "VAT ENtry"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
+        FindVATEntry(VATEntry, DocumentNo, WorkDate, VATProdPostingGroup);
+        VerifyVATSpecificationLCYForSalesInvoice(VATEntry, VATPercent);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerDetailedAgingRequestPageHandler')]
+    procedure CustomerDetailedAgingShowsEntriesWithZeroRemainingAmount()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 389943] Report "Customer Detailed Aging" with "Show Only Open Entries" = False shows ledger entries with Remaining Amount = 0.
+        Initialize();
+
+        // [GIVEN] Customer has closed Customer Ledger Entry with "Remaining Amount" = 0.
+        LibrarySales.MockCustLedgerEntryWithZeroBalance(CustLedgerEntry,LibrarySales.CreateCustomerNo());
+        CustLedgerEntry.Open := false;
+        CustLedgerEntry.Modify();
+
+        // [WHEN] Customer Detailed Aging Report is run for Customer.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
+        Commit();
+        REPORT.Run(REPORT::"Customer Detailed Aging");
+
+        // [THEN] Report shows Customer Ledger Entry with "Remaining Amount" = 0.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Cust_Ledger_Entry_Remaining_Amount_', 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
 
     local procedure Initialize()
     begin

@@ -2526,6 +2526,7 @@ codeunit 8 AccSchedManagement
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CalcCorrectionCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
     var
