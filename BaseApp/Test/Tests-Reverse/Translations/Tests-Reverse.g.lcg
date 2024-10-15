@@ -32,15 +32,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Diff Amount Type - NamedType EqualAmountError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2904835687 - NamedType 4004943480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Employee Ledger - NamedType PostedAndAppliedSameTransactionErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2904835687 - NamedType 1976599132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dialog]]></Val>
@@ -50,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Employee Ledger - NamedType DialogCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2904835687 - NamedType 4004943480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Employee Ledger - NamedType PostedAndAppliedSameTransactionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3079820153 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2.]]></Val>
@@ -57,15 +57,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Fixed Assets - NamedType AmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3079820153 - NamedType 2033887935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Book Value must not be negative or less than Salvage Value on %1 for Fixed Asset No. = %2 in Depreciation Book Code = %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Fixed Assets - NamedType ReverseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3079820153 - NamedType 2991746174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -86,6 +77,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Fixed Assets - NamedType ReverseEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3079820153 - NamedType 2033887935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Book Value must not be negative or less than Salvage Value on %1 for Fixed Asset No. = %2 in Depreciation Book Code = %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Fixed Assets - NamedType ReverseErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 465635117 - NamedType 1922852221" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot unapply Cust. Ledger Entry No. %1 because the entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType CustUnapplyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 465635117 - NamedType 1700181249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Errors must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ErrorsMustMatchTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 2975884559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot reverse G/L Register No. %1 because the register has already been involved in a reversal.]]></Val>
@@ -104,13 +122,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ReverseSignErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1922852221" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 465635117 - NamedType 1598875479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot unapply Cust. Ledger Entry No. %1 because the entry]]></Val>
+      <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType CustUnapplyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 465635117 - NamedType 2432065093" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -122,49 +140,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType VendUnapplyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1700181249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1270787925 - NamedType 2297097174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Errors must match.]]></Val>
+      <Val><![CDATA[The transaction cannot be reversed, because the %1 has been compressed or a %2 has been deleted.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ErrorsMustMatchTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 465635117 - NamedType 1598875479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 1850006683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse the transaction because it is out of balance.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType OutOfBalanceError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 3528833645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in G/L Account: No.=%1. Current value is 'Yes'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorFromLedger)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 752044822" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can only reverse entries that were posted from a journal.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorForInvoice)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType DateCompressError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 3320106537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -176,6 +158,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ErrorsMustMatch)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1270787925 - NamedType 2351189919" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong G/L Entry - VAT Entry Link reversal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType GLEntryVATEntryLinkErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1270787925 - NamedType 1850006683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot reverse the transaction because it is out of balance.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType OutOfBalanceError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1270787925 - NamedType 752044822" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can only reverse entries that were posted from a journal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorForInvoice)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 50775338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot reverse %1 No. %2 because the posting date is not within the allowed posting period.]]></Val>
@@ -185,13 +194,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorForPeriod)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 2297097174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1270787925 - NamedType 3528833645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The transaction cannot be reversed, because the %1 has been compressed or a %2 has been deleted.]]></Val>
+      <Val><![CDATA[Blocked must be equal to 'No'  in G/L Account: No.=%1. Current value is 'Yes'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType DateCompressError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorFromLedger)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 2033929381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -201,15 +210,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType UnApplyAndVoidCheckErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 2351189919" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong G/L Entry - VAT Entry Link reversal.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType GLEntryVATEntryLinkErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2601868730 - NamedType 3603811132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

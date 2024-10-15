@@ -186,7 +186,7 @@ report 3010839 "LSV Write DebitDirect File"
                 NoOfLines := NoOfLines + 1;
 
                 NextCustEntry.Copy(CustLedgEntry);
-                if (NextCustEntry.Next = 0) or
+                if (NextCustEntry.Next() = 0) or
                    (CombineCollectionPerCust = false) or
                    (NextCustEntry."Customer No." <> CustLedgEntry."Customer No.")
                 then begin
@@ -201,7 +201,7 @@ report 3010839 "LSV Write DebitDirect File"
                     CollectionAmt := 0;
                     MessageTxt := '';
                 end;
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
         WriteTotalRecord;
 
@@ -414,7 +414,7 @@ report 3010839 "LSV Write DebitDirect File"
         if Customer.FindSet then
             repeat
                 WriteCollectionRecord(Customer."No.", LsvSetup."LSV Currency Code", 1.0);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         WriteTotalRecord;
 

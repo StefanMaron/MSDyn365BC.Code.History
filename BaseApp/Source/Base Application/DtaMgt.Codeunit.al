@@ -69,7 +69,7 @@ codeunit 3010541 DtaMgt
                     TestField("DTA Debit Acc. No.");
                     TestField("DTA Sender Name");
                     TestField("DTA Sender City");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -678,7 +678,7 @@ codeunit 3010541 DtaMgt
                 repeat
                     GlLine.Validate("Currency Factor", "Currency Factor");
                     GlLine.Modify();
-                until GlLine.Next = 0;
+                until GlLine.Next() = 0;
             end;
         end;
     end;

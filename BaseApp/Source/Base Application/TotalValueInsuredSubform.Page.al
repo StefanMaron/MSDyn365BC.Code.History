@@ -56,7 +56,7 @@ page 5650 "Total Value Insured Subform"
     procedure CreateTotalValue(FANo: Code[20])
     begin
         CreateInsTotValueInsured(FANo);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

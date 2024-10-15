@@ -26,7 +26,7 @@ table 5300 "Outlook Synch. Entity"
                     exit;
 
                 OutlookSynchUserSetup.SetRange("Synch. Entity Code", Code);
-                if not OutlookSynchUserSetup.IsEmpty then
+                if not OutlookSynchUserSetup.IsEmpty() then
                     Error(Text005, FieldCaption(Description), Code);
             end;
         }
@@ -199,12 +199,12 @@ table 5300 "Outlook Synch. Entity"
     begin
         OSynchDependency.Reset();
         OSynchDependency.SetRange("Depend. Synch. Entity Code", Code);
-        if not OSynchDependency.IsEmpty then
+        if not OSynchDependency.IsEmpty() then
             if not Confirm(Text004) then
                 Error('');
 
         OutlookSynchUserSetup.SetRange("Synch. Entity Code", Code);
-        if not OutlookSynchUserSetup.IsEmpty then
+        if not OutlookSynchUserSetup.IsEmpty() then
             Error(Text003, OutlookSynchUserSetup.TableCaption);
 
         OSynchDependency.DeleteAll();

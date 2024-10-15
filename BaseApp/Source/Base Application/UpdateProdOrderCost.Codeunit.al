@@ -1,4 +1,4 @@
-﻿codeunit 99000757 "Update Prod. Order Cost"
+codeunit 99000757 "Update Prod. Order Cost"
 {
 
     trigger OnRun()
@@ -286,7 +286,7 @@
                     end;
             end;
             TotalCostQty := TotalCostQty + ReservEntry.Quantity;
-        until ReservEntry.Next = 0;
+        until ReservEntry.Next() = 0;
     end;
 
     procedure UpdateUnitCostOnProdOrder(var ProdOrderLine: Record "Prod. Order Line"; MultipleLevels: Boolean; UpdateReservation: Boolean)
@@ -339,7 +339,7 @@
                         end;
                     end;
                 end;
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
 
         ProdOrderLine.CalcFields(
           "Expected Operation Cost Amt.",
@@ -373,7 +373,7 @@
             if ReservEntry.Find('-') then
                 repeat
                     ModifyFor(ReservEntry, UnitCost);
-                until ReservEntry.Next = 0;
+                until ReservEntry.Next() = 0;
         end;
     end;
 

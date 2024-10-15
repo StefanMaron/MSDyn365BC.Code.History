@@ -242,7 +242,7 @@ report 11577 "SR Item Ranking"
                     if not ItemAmount.FindSet then
                         CurrReport.Break();
                 end else
-                    if (ItemAmount.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
+                    if (ItemAmount.Next() = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
                         CurrReport.Break();
 
                 Item.Get(ItemAmount."Item No.");

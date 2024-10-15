@@ -3,8 +3,8 @@ table 7800 "MS-Event Emitter Event Codes"
     Caption = 'MS-Event Emitter Event Codes';
     DataPerCompany = false;
     ObsoleteReason = 'Deprecated';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '18.0';
 
     fields
     {

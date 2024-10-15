@@ -103,7 +103,7 @@ report 11502 "Import Post Codes"
                     NumberOfPostCodes += 1;
                     if NumberOfPostCodes mod 10 = 0 then
                         Window.Update(1, Format(NumberOfPostCodes));
-                until TempCSVBuffer.Next = 0
+                until TempCSVBuffer.Next() = 0
             else
                 exit;
             TempCSVBuffer.ResetFilters;

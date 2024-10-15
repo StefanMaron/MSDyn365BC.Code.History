@@ -101,7 +101,7 @@ table 137 "Inc. Doc. Attachment Overview"
         NotAvailableAttachmentMsg: Label 'The attachment is no longer available.';
         ClientTypeManagement: Codeunit "Client Type Management";
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure NameDrillDown()
     var
         IncomingDocument: Record "Incoming Document";
@@ -192,7 +192,7 @@ table 137 "Inc. Doc. Attachment Overview"
             InsertFromIncomingDocumentAttachment(
               TempIncDocAttachmentOverview, IncomingDocumentAttachment, SortingOrder,
               TempIncDocAttachmentOverview."Attachment Type"::"Supporting Attachment", Indentation2);
-        until IncomingDocumentAttachment.Next = 0;
+        until IncomingDocumentAttachment.Next() = 0;
     end;
 
     local procedure InsertLinkAddress(IncomingDocument: Record "Incoming Document"; var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; var SortingOrder: Integer)

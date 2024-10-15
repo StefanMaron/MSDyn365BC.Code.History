@@ -1,4 +1,4 @@
-﻿codeunit 229 "Document-Print"
+codeunit 229 "Document-Print"
 {
 
     trigger OnRun()
@@ -231,6 +231,19 @@
         ReportSelections.PrintReport(ReportSelections.Usage::"B.Stmt", BankAccStmt);
     end;
 
+    procedure PrintPostedPaymentReconciliation(PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr")
+    var
+        ReportSelections: Record "Report Selections";
+        IsPrinted: Boolean;
+    begin
+        PostedPaymentReconHdr.SetRecFilter;
+        OnBeforePrintPostedPaymentReconciliation(PostedPaymentReconHdr, IsPrinted);
+        if IsPrinted then
+            exit;
+
+        ReportSelections.PrintReport(ReportSelections.Usage::"Posted Payment Reconciliation", PostedPaymentReconHdr);
+    end;
+
     procedure PrintCheck(var NewGenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -274,7 +287,7 @@
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty then
+        if ReportSelection.IsEmpty() then
             Error(Text001, ReportSelection.TableCaption, Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
 
         ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
@@ -296,7 +309,7 @@
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty then
+        if ReportSelection.IsEmpty() then
             Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption, ReportSelection.TableCaption);
 
         ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
@@ -398,7 +411,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintInvtOrder(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ShowRequestForm: Boolean)
@@ -411,7 +424,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintPostedInvtOrder(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; ShowRequestForm: Boolean)
@@ -424,7 +437,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtOrderHdr);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintInvtRecording(PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; ShowRequestForm: Boolean)
@@ -438,7 +451,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtRecordHeader);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     procedure PrintPostedInvtRecording(PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; ShowRequestForm: Boolean)
@@ -452,7 +465,7 @@
         if ReportSelections.FindSet then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtRecordHdr);
-            until ReportSelections.Next = 0;
+            until ReportSelections.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -469,7 +482,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.Run(DACHReportSelection."Report ID", true, false, IntrastatJnlLine);
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -486,7 +499,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.Run(DACHReportSelection."Report ID", true, false, IntrastatJnlLine);
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -499,7 +512,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.Run(DACHReportSelection."Report ID", true, false);
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -513,7 +526,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.Run(DACHReportSelection."Report ID", true, false, VATStatementName);
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -527,7 +540,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.Run(DACHReportSelection."Report ID", true, false, VATStatementName);
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -544,7 +557,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.RunModal(DACHReportSelection."Report ID", true, false, SalesHeaderArch)
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -561,7 +574,7 @@
         DACHReportSelection.Find('-');
         repeat
             REPORT.RunModal(DACHReportSelection."Report ID", true, false, PurchHeaderArch)
-        until DACHReportSelection.Next = 0;
+        until DACHReportSelection.Next() = 0;
     end;
 
     local procedure CheckQuoteMgtPermission(): Boolean
@@ -573,7 +586,76 @@
           (LicensePermission."Read Permission" = LicensePermission."Read Permission"::Yes));
     end;
 
-    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
+    procedure PrintInvtDocument(var NewInvtDocHeader: Record "Invt. Document Header"; ShowRequestPage: Boolean)
+    var
+        InvtDocHeader: Record "Invt. Document Header";
+        ReportSelections: Record "Report Selections";
+    begin
+        InvtDocHeader.Copy(NewInvtDocHeader);
+        InvtDocHeader.SetRecFilter();
+
+        case InvtDocHeader."Document Type" of
+            InvtDocHeader."Document Type"::Receipt:
+                ReportSelections.SetRange(Usage, ReportSelections.Usage::"Inventory Receipt");
+            InvtDocHeader."Document Type"::Shipment:
+                ReportSelections.SetRange(Usage, ReportSelections.Usage::"Inventory Shipment");
+        end;
+        ReportSelections.SetFilter("Report ID", '<>0');
+        if ReportSelections.FindSet() then
+            repeat
+                REPORT.RunModal(ReportSelections."Report ID", ShowRequestPage, false, InvtDocHeader);
+            until ReportSelections.Next() = 0;
+    end;
+
+    procedure PrintInvtReceipt(NewInvtReceiptHeader: Record "Invt. Receipt Header"; ShowRequestPage: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+    begin
+        InvtReceiptHeader.Copy(NewInvtReceiptHeader);
+        InvtReceiptHeader.SetRecFilter();
+
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Inventory Receipt");
+        ReportSelections.SetFilter("Report ID", '<>0');
+        if ReportSelections.FindSet() then
+            repeat
+                REPORT.RunModal(ReportSelections."Report ID", ShowRequestPage, false, InvtReceiptHeader);
+            until ReportSelections.Next() = 0;
+    end;
+
+    procedure PrintInvtShipment(NewInvtShipmentHeader: Record "Invt. Shipment Header"; ShowRequestPage: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        InvtShipmentHeader: Record "Invt. Shipment Header";
+    begin
+        InvtShipmentHeader.Copy(NewInvtShipmentHeader);
+        InvtShipmentHeader.SetRecFilter();
+
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Inventory Shipment");
+        ReportSelections.SetFilter("Report ID", '<>0');
+        if ReportSelections.FindSet() then
+            repeat
+                REPORT.RunModal(ReportSelections."Report ID", ShowRequestPage, false, InvtShipmentHeader);
+            until ReportSelections.Next() = 0;
+    end;
+
+    procedure PrintDirectTransfer(NewDirectTransHeader: Record "Direct Trans. Header"; ShowRequestPage: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        DirectTransHeader: Record "Direct Trans. Header";
+    begin
+        DirectTransHeader.Copy(NewDirectTransHeader);
+        DirectTransHeader.SetRecFilter();
+
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Direct Transfer");
+        ReportSelections.SetFilter("Report ID", '<>0');
+        if ReportSelections.FindSet() then
+            repeat
+                REPORT.RunModal(ReportSelections."Report ID", ShowRequestPage, false, DirectTransHeader);
+            until ReportSelections.Next() = 0;
+    end;
+
+    procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -637,7 +719,7 @@
         end;
     end;
 
-    local procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
+    procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -683,7 +765,7 @@
         end;
     end;
 
-    local procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
+    procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -704,7 +786,7 @@
         end;
     end;
 
-    local procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
+    procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -720,7 +802,7 @@
         end;
     end;
 
-    local procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Enum "Report Selection Usage"
+    procedure GetSalesArchDocTypeUsage(SalesHeaderArchive: Record "Sales Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -745,7 +827,7 @@
         end
     end;
 
-    local procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Enum "Report Selection Usage"
+    procedure GetPurchArchDocTypeUsage(PurchHeaderArchive: Record "Purchase Header Archive"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
@@ -770,7 +852,7 @@
         end;
     end;
 
-    local procedure CalcSalesDisc(var SalesHeader: Record "Sales Header")
+    procedure CalcSalesDisc(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
@@ -792,7 +874,7 @@
         end;
     end;
 
-    local procedure CalcPurchDisc(var PurchHeader: Record "Purchase Header")
+    procedure CalcPurchDisc(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         IsHandled: Boolean;
@@ -814,7 +896,7 @@
         end;
     end;
 
-    local procedure CalcServDisc(var ServHeader: Record "Service Header")
+    procedure CalcServDisc(var ServHeader: Record "Service Header")
     var
         ServLine: Record "Service Line";
         IsHandled: Boolean;
@@ -883,6 +965,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintBankAccStmt(var BankAccountStatement: Record "Bank Account Statement"; var IsPrinted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPostedPaymentReconciliation(var PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr"; var IsPrinted: Boolean)
     begin
     end;
 

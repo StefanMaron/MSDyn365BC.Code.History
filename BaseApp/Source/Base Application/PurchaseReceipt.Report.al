@@ -327,7 +327,7 @@ report 408 "Purchase - Receipt"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -410,7 +410,7 @@ report 408 "Purchase - Receipt"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -615,7 +615,7 @@ report 408 "Purchase - Receipt"
                       15, "Purch. Rcpt. Header"."No.", 0, 0, DATABASE::Vendor, "Purch. Rcpt. Header"."Buy-from Vendor No.",
                       "Purch. Rcpt. Header"."Purchaser Code",
                       '', "Purch. Rcpt. Header"."Posting Description", '');
-                until "Purch. Rcpt. Header".Next = 0;
+                until "Purch. Rcpt. Header".Next() = 0;
     end;
 
     trigger OnPreReport()

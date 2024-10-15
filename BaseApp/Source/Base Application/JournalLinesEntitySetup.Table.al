@@ -2,8 +2,8 @@ table 5479 "Journal Lines Entity Setup"
 {
     Caption = 'Journal Lines Entity Setup';
     ObsoleteReason = 'Became obsolete after refactoring of the NAV APIs.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '18.0';
 
     fields
     {

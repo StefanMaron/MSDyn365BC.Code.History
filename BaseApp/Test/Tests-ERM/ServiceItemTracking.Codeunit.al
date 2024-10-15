@@ -1082,7 +1082,7 @@ codeunit 136146 "Service Item Tracking"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Zone Code", 'PICK');
         BinContent.SetRange("Item No.", ItemNo);
-        BinContent.FindSet;
+        BinContent.FindSet();
         repeat
             BinContent.CalcFields(Quantity);
             if BinContent.Quantity > 0 then
@@ -2101,7 +2101,7 @@ codeunit 136146 "Service Item Tracking"
             Sign := -1;
         repeat
             ItemLedgerEntry.SetRange("Order Line No.", ServiceLine."Line No.");
-            ItemLedgerEntry.FindSet;
+            ItemLedgerEntry.FindSet();
             AggregatedQuantity := 0;
             repeat
                 ItemLedgerEntry.TestField("Item No.", ServiceLine."No.");
@@ -2132,7 +2132,7 @@ codeunit 136146 "Service Item Tracking"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure GetWarehouseEntries(var ServiceLine: Record "Service Line"; var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option)
@@ -2141,7 +2141,7 @@ codeunit 136146 "Service Item Tracking"
         WarehouseEntry.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseEntry.SetRange("Source Line No.", ServiceLine."Line No.");
         WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
     end;
 
     local procedure VerifyWarehouseEntry(var ServiceLine: Record "Service Line"; var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option; LotSpecific: Boolean; SerialNoSpecific: Boolean; CheckExpirationDate: Boolean; ExpirationDate: Date; UndoShipment: Boolean)

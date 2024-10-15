@@ -245,7 +245,7 @@ report 11559 "SR Vendor - Balance to Date"
                         repeat
                             "Entry No." := DtldVendLedgEntry."Vendor Ledger Entry No.";
                             Mark(true);
-                        until DtldVendLedgEntry.Next = 0;
+                        until DtldVendLedgEntry.Next() = 0;
 
                     SetCurrentKey("Vendor No.", Open);
                     SetRange("Vendor No.", Vendor."No.");
@@ -254,7 +254,7 @@ report 11559 "SR Vendor - Balance to Date"
                     if Find('-') then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange(Open);
@@ -503,7 +503,7 @@ report 11559 "SR Vendor - Balance to Date"
                     TmpGLAcc."No." := VendPostGroup."Payables Account";
                     TmpGLAcc.Insert();
                 end;
-            until VendPostGroup.Next = 0;
+            until VendPostGroup.Next() = 0;
 
             if TmpGLAcc.Find('-') then
                 repeat
@@ -511,7 +511,7 @@ report 11559 "SR Vendor - Balance to Date"
                     GLAcc.SetFilter("Date Filter", '..%1', FixedDay);
                     GLAcc.CalcFields("Balance at Date");
                     TotalPayables := TotalPayables + GLAcc."Balance at Date";
-                until TmpGLAcc.Next = 0;
+                until TmpGLAcc.Next() = 0;
 
             if TotalReportLCY <> TotalPayables then
                 Message(Text003, GLSetup."LCY Code", Abs(TotalReportLCY - TotalPayables));

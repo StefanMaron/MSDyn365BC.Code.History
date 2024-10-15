@@ -63,7 +63,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
             repeat
                 ValueEntry.Get(PostValueEntryToGL."Value Entry No.");
                 UpdatePostValueEntryToGL(ValueEntry."Item Ledger Entry No.");
-            until PostValueEntryToGL.Next = 0;
+            until PostValueEntryToGL.Next() = 0;
 
         with ItemLedgEntry do begin
             SetCurrentKey("Item No.", "Entry Type");
@@ -86,7 +86,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                     if (Quantity <> "Invoiced Quantity") and (Quantity <> 0) then
                         UpdatePostValueEntryToGL("Entry No.");
 
-                until Next = 0;
+                until Next() = 0;
         end;
 
         Window.Close;
@@ -114,7 +114,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                         OnBeforePostValueEntryToGLInsert(PostValueEntryToGL, ValueEntry);
                         PostValueEntryToGL.Insert();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -131,7 +131,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                     if ValueEntry."Expected Cost" then
                         Delete;
 
-                until Next = 0;
+                until Next() = 0;
         end;
         Window.Close;
     end;

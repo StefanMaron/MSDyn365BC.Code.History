@@ -112,7 +112,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     end;
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
-                until WhseActivLine.Next = 0;
+                until WhseActivLine.Next() = 0;
                 CheckWhseItemTrackingAgainstSource();
             end;
             NoOfRecords := LineCount;
@@ -150,7 +150,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         WhseActivLine.Modify();
                         OnAfterWhseActivLineModify(WhseActivLine);
                     end;
-                until WhseActivLine.Next = 0;
+                until WhseActivLine.Next() = 0;
 
             WhseActivLine.Reset();
             WhseActivLine.SetRange("Activity Type", Type);
@@ -248,7 +248,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 PurchLine.Validate("Qty. to Invoice", 0);
                                 ModifyPurchaseLine(PurchLine);
                                 OnAfterPurchLineModify(PurchLine);
-                            until PurchLine.Next = 0;
+                            until PurchLine.Next() = 0;
 
                         if (PurchHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
                             PurchRelease.Reopen(PurchHeader);
@@ -287,7 +287,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 SalesLine.Validate("Qty. to Invoice", 0);
                                 ModifySalesLine(SalesLine);
                                 OnAfterSalesLineModify(SalesLine);
-                            until SalesLine.Next = 0;
+                            until SalesLine.Next() = 0;
 
                         if (SalesHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
                             SalesRelease.Reopen(SalesHeader);
@@ -315,7 +315,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 TransLine.Validate("Qty. to Receive", 0);
                                 ModifyTransferLine(TransLine);
                                 OnAfterTransLineModify(TransLine);
-                            until TransLine.Next = 0;
+                            until TransLine.Next() = 0;
 
                         if (TransHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
                             TransHeader.CalledFromWarehouse(true);
@@ -468,7 +468,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         Validate("Qty. to Ship", "Outstanding Quantity");
                     OnBeforeUnhandledTransLineModify(TransLine);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -597,7 +597,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     PostWhseJnlLine(WhseActivLine);
 
                 CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
-            until WhseActivLine.Next = 0;
+            until WhseActivLine.Next() = 0;
         end;
 
         OnAfterPostWhseActivityLine(WhseActivHeader, WhseActivLine, PostedSourceNo, PostedSourceType, PostedSourceSubType);
@@ -761,7 +761,7 @@ codeunit 7324 "Whse.-Activity-Post"
                 end;
                 WhseComment2.Type := WhseComment2.Type::" ";
                 WhseComment2.Insert();
-            until WhseComment.Next = 0;
+            until WhseComment.Next() = 0;
     end;
 
     local procedure CreatePostedActivLine(WhseActivLine: Record "Warehouse Activity Line"; PostedInvtPutAwayHdr: Record "Posted Invt. Put-away Header"; PostedInvtPickHeader: Record "Posted Invt. Pick Header")
@@ -793,7 +793,7 @@ codeunit 7324 "Whse.-Activity-Post"
         InitSourceDocument;
         repeat
             UpdateSourceDocument;
-        until TempWhseActivLine.Next = 0;
+        until TempWhseActivLine.Next() = 0;
 
         PostSourceDocument(WhseActivHeader);
     end;
@@ -809,7 +809,7 @@ codeunit 7324 "Whse.-Activity-Post"
             repeat
                 ProdOrderComp.Get("Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                 PostConsumptionLine(ProdOrder, ProdOrderComp);
-            until Next = 0;
+            until Next() = 0;
 
             PostedSourceType := "Source Type";
             PostedSourceSubType := "Source Subtype";
@@ -822,7 +822,7 @@ codeunit 7324 "Whse.-Activity-Post"
         ItemJnlLine: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
     begin
         with TempWhseActivLine do begin
             ProdOrderLine.Get("Source Subtype", "Source No.", "Source Line No.");
@@ -854,10 +854,10 @@ codeunit 7324 "Whse.-Activity-Post"
             GetItem("Item No.");
             ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
             OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WhseActivLine);
-            ReserveProdOrderComp.TransferPOCompToItemJnlLineCheckILE(ProdOrderComp, ItemJnlLine, ItemJnlLine."Quantity (Base)", true);
+            ProdOrderCompReserve.TransferPOCompToItemJnlLineCheckILE(ProdOrderComp, ItemJnlLine, ItemJnlLine."Quantity (Base)", true);
             ItemJnlPostLine.SetCalledFromInvtPutawayPick(true);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-            ReserveProdOrderComp.UpdateItemTrackingAfterPosting(ProdOrderComp);
+            ProdOrderCompReserve.UpdateItemTrackingAfterPosting(ProdOrderComp);
         end;
     end;
 
@@ -872,7 +872,7 @@ codeunit 7324 "Whse.-Activity-Post"
             repeat
                 ProdOrderLine.Get("Source Subtype", "Source No.", "Source Line No.");
                 PostOutputLine(ProdOrder, ProdOrderLine);
-            until Next = 0;
+            until Next() = 0;
             PostedSourceType := "Source Type";
             PostedSourceSubType := "Source Subtype";
             PostedSourceNo := "Source No.";
@@ -927,7 +927,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
             ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            if not ProdOrderRtngLine.IsEmpty then begin
+            if not ProdOrderRtngLine.IsEmpty() then begin
                 ProdOrderRouteManagement.Check(ProdOrderLine);
                 ProdOrderRtngLine.SetRange("Next Operation No.", '');
                 ProdOrderRtngLine.FindLast;

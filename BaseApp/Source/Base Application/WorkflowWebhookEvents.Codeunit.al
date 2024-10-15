@@ -13,7 +13,7 @@ codeunit 1541 "Workflow Webhook Events"
         exit(UpperCase('WorkflowWebhookResponseReceivedEvent'));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowEventPredecessorsToLibrary', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventPredecessorsToLibrary', '', false, false)]
     local procedure AddWorkflowWebhookEventHierarchiesToLibrary(EventFunctionName: Code[128])
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
@@ -39,7 +39,7 @@ codeunit 1541 "Workflow Webhook Events"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowEventsToLibrary', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventsToLibrary', '', false, false)]
     local procedure AddWorkflowWebhookEventsToLibrary()
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
@@ -48,7 +48,7 @@ codeunit 1541 "Workflow Webhook Events"
           WorkflowWebhookResponseReceivedEventTxt, 0, false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1520, 'OnAddWorkflowTableRelationsToLibrary', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowTableRelationsToLibrary', '', false, false)]
     local procedure AddWorkflowWebhookTableRelationsToLibrary()
     var
         DummyCustomer: Record Customer;
@@ -119,7 +119,7 @@ codeunit 1541 "Workflow Webhook Events"
         OldWorkflowTableRelation.Delete(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1543, 'OnCancelWorkflow', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Management", 'OnCancelWorkflow', '', false, false)]
     local procedure HandleOnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     var
         WorkflowManagement: Codeunit "Workflow Management";
@@ -127,7 +127,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1543, 'OnContinueWorkflow', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Management", 'OnContinueWorkflow', '', false, false)]
     local procedure HandleOnContinueWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     var
         WorkflowManagement: Codeunit "Workflow Management";
@@ -135,7 +135,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1543, 'OnRejectWorkflow', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Management", 'OnRejectWorkflow', '', false, false)]
     local procedure HandleOnRejectWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     var
         WorkflowManagement: Codeunit "Workflow Management";
@@ -143,7 +143,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelCustomerApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCustomerApprovalRequest', '', false, false)]
     local procedure HandleOnCancelCustomerApprovalRequest(var Customer: Record Customer)
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -152,7 +152,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.FindAndCancel(Customer.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelItemApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelItemApprovalRequest', '', false, false)]
     local procedure HandleOnCancelItemApprovalRequest(var Item: Record Item)
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -161,7 +161,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.FindAndCancel(Item.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelGeneralJournalBatchApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalBatchApprovalRequest', '', false, false)]
     local procedure HandleOnCancelGeneralJournalBatchApprovalRequest(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -170,7 +170,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
     local procedure HandleOnCancelGeneralJournalLineApprovalRequest(var GenJournalLine: Record "Gen. Journal Line")
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -179,7 +179,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelVendorApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelVendorApprovalRequest', '', false, false)]
     local procedure HandleOnCancelVendorApprovalRequest(var Vendor: Record Vendor)
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -188,7 +188,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.FindAndCancel(Vendor.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnDeleteRecordInApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnDeleteRecordInApprovalRequest', '', false, false)]
     local procedure HandleOnDeleteRecordInApprovalRequest(RecordIDToApprove: RecordID)
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -196,7 +196,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement.DeleteWorkflowWebhookEntries(RecordIDToApprove);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnRenameRecordInApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRenameRecordInApprovalRequest', '', false, false)]
     local procedure HandleOnRenameRecordInApprovalRequest(OldRecordId: RecordID; NewRecordId: RecordID)
     var
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";

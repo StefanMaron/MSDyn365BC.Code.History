@@ -122,7 +122,7 @@ page 11003 "Data Export Record Definitions"
                     trigger OnAction()
                     begin
                         ImportFile(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Export)

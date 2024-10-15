@@ -855,7 +855,7 @@ codeunit 134205 "WF Demo Customer Approval"
         WorkflowUserGroupMember: Record "Workflow User Group Member";
         ApprovalEntry: Record "Approval Entry";
     begin
-        WorkflowUserGroupMember.FindSet;
+        WorkflowUserGroupMember.FindSet();
         repeat
             ApprovalEntry.Reset();
             ApprovalEntry.SetRange("Approval Code", Workflow.Code);

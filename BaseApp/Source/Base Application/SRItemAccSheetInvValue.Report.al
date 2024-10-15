@@ -309,7 +309,7 @@ report 11506 "SR Item Acc Sheet Inv. Value"
             if ValueEntry.Find('-') then begin
                 repeat
                     ValuePosted := ValuePosted + ValueEntry."Cost Posted to G/L";
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
             end;
 
             TotalValuePosted := TotalValuePosted + ValuePosted;

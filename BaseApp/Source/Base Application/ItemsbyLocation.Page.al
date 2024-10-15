@@ -1,4 +1,4 @@
-﻿page 491 "Items by Location"
+page 491 "Items by Location"
 {
     Caption = 'Items by Location';
     DataCaptionExpression = '';
@@ -116,7 +116,6 @@
         MATRIX_CurrSetLength: Integer;
         UnspecifiedLocationCodeTxt: Label 'UNSPECIFIED', Comment = 'Code for unspecified location';
 
-    [Scope('OnPrem')]
     procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next)
     var
         MatrixMgt: Codeunit "Matrix Management";

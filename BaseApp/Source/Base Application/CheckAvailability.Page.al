@@ -46,7 +46,6 @@ page 342 "Check Availability"
         InventoryQty: Decimal;
         TotalQuantity: Decimal;
 
-    [Scope('OnPrem')]
     procedure SetValues(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; InventoryQty2: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity2: Decimal; EarliestAvailDate: Date)
     begin
         Get(ItemNo);

@@ -706,7 +706,7 @@ codeunit 134118 "Price List Header UT"
     var
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Price List should be editable only if Status is Draft.
+        // [SCENARIO] Price List should be editable only if Status is 'Draft'.
         Initialize();
 
         PriceListHeader.Status := PriceListHeader.Status::Draft;
@@ -720,7 +720,29 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T053_CannotDeleteActivePriceList()
+    procedure T053_ActiveIsEditableIfAllowedEditing()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] Price List should be editable if Status is 'Draft' or 'Active' and "Allow Editing Active Price" is on.
+        Initialize();
+        // [GIVEN] Allow Editing Active Sales Price
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+
+        PriceListHeader."Price Type" := "Price Type"::Sale;
+        PriceListHeader.Status := PriceListHeader.Status::Draft;
+        Assert.IsTrue(PriceListHeader.IsEditable(), 'Draft');
+
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        Assert.IsTrue(PriceListHeader.IsEditable(), 'Active');
+
+        PriceListHeader.Status := PriceListHeader.Status::Inactive;
+        Assert.IsFalse(PriceListHeader.IsEditable(), 'Inactive')
+    end;
+
+    [Test]
+    procedure T055_CannotDeleteActivePriceList()
     var
         PriceListHeader: Record "Price List Header";
     begin
@@ -744,7 +766,34 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T055_UpdateStatusOnHeaderSourceAllCustomersSourceFilled()
+    procedure T056_CanDeleteActivePriceListIfEditingAllowed()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] Price List can be deleted if Status is Active, but "Allow Editing Active Price".
+        Initialize();
+        PriceListHeader.DeleteAll();
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+
+        PriceListHeader."Price Type" := "Price Type"::Purchase;
+        PriceListHeader.Code := 'X';
+        PriceListHeader.Status := PriceListHeader.Status::Draft;
+        PriceListHeader.Insert(true);
+        PriceListHeader.Delete(true);
+
+        PriceListHeader.Status := PriceListHeader.Status::Inactive;
+        PriceListHeader.Insert(true);
+        PriceListHeader.Delete(true);
+
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert(true);
+        PriceListHeader.Delete(true);
+        Assert.IsFalse(PriceListHeader.Find(), 'must be deleted');
+    end;
+
+    [Test]
+    procedure T060_UpdateStatusOnHeaderSourceAllCustomersSourceFilled()
     var
         PriceListHeader: Record "Price List Header";
     begin
@@ -765,7 +814,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T056_UpdateStatusOnHeaderSourceCustomersSourceBlank()
+    procedure T061_UpdateStatusOnHeaderSourceCustomersSourceBlank()
     var
         PriceListHeader: Record "Price List Header";
     begin
@@ -785,7 +834,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T057_UpdateStatusOnHeaderSourceAllJobTaskParentSourceBlank()
+    procedure T062_UpdateStatusOnHeaderSourceAllJobTaskParentSourceBlank()
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -811,7 +860,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T058_UpdateStatusOnHeaderSourceAllJobParentSourceFilled()
+    procedure T063_UpdateStatusOnHeaderSourceAllJobParentSourceFilled()
     var
         Job: Record Job;
         PriceListHeader: Record "Price List Header";
@@ -836,7 +885,7 @@ codeunit 134118 "Price List Header UT"
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
-    procedure T060_UpdateStatusOnHeaderAsDefault()
+    procedure T065_UpdateStatusOnHeaderAsDefault()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -870,7 +919,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T061_UpdateStatusOnHeaderAsDefaultWithBlankSourceNo()
+    procedure T066_UpdateStatusOnHeaderAsDefaultWithBlankSourceNo()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -896,7 +945,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T062_UpdateStatusOnHeaderAsDefaultWithBlankParentSourceNo()
+    procedure T067_UpdateStatusOnHeaderAsDefaultWithBlankParentSourceNo()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -922,7 +971,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T063_UpdateStatusOnHeaderAsDefaultWithBlankProductNo()
+    procedure T068_UpdateStatusOnHeaderAsDefaultWithBlankProductNo()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -948,6 +997,125 @@ codeunit 134118 "Price List Header UT"
 
         // [THEN] Error message: "Product No. must have a value"
         Assert.ExpectedError(ProductNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T069_UpdateStatusOnHeaderSourceAllLocationsSourceFilled()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Source No." is 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Locations", '');
+        PriceListHeader."Source No." := 'x';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        Assert.ExpectedError(SourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T070_UpdateStatusOnHeaderSourceLocationSourceBlank()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Source No." is <blank>
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Location, '');
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T090_ActivePriceListHasDraflLinesIfAllowedEditing()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] HasDraftLines() returns Yes for Active Price List having draft lines and "Allow Editing Active Price" is on.
+        Initialize();
+        // [GIVEN] Allow Editing Active Sales Price
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+
+        PriceListHeader.DeleteAll();
+
+        PriceListHeader."Price Type" := "Price Type"::Sale;
+        PriceListHeader.Code := 'X';
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert(true);
+
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Status := "Price Status"::Draft;
+        PriceListLine.Insert(true);
+
+        Assert.IsTrue(PriceListHeader.HasDraftLines(), 'HasDraftLines');
+    end;
+
+    [Test]
+    procedure T091_ActivePriceListHasNoDraflLinesIfDisallowedEditing()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] HasDraftLines() returns No for Active Price List having draft lines and "Allow Editing Active Price" is off.
+        Initialize();
+        // [GIVEN] Allow Editing Active Sales Price
+        LibraryPriceCalculation.DisallowEditingActiveSalesPrice();
+
+        PriceListHeader.DeleteAll();
+
+        PriceListHeader."Price Type" := "Price Type"::Sale;
+        PriceListHeader.Code := 'X';
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert(true);
+
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Status := "Price Status"::Draft;
+        PriceListLine.Insert(true);
+
+        Assert.IsFalse(PriceListHeader.HasDraftLines(), 'HasDraftLines');
+    end;
+
+    [Test]
+    procedure T092_DraftPriceListHasDraflLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] HasDraftLines() returns Yes for Draft Price List having draft lines.
+        Initialize();
+
+        PriceListHeader.DeleteAll();
+
+        PriceListHeader."Price Type" := "Price Type"::Sale;
+        PriceListHeader.Code := 'X';
+        PriceListHeader.Status := PriceListHeader.Status::Draft;
+        PriceListHeader.Insert(true);
+
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Status := "Price Status"::Draft;
+        PriceListLine.Insert(true);
+
+        Assert.IsFalse(PriceListHeader.HasDraftLines(), 'HasDraftLines');
     end;
 
     [Test]
@@ -1358,6 +1526,9 @@ codeunit 134118 "Price List Header UT"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price List Header UT");
+
+        LibraryPriceCalculation.DisAllowEditingActivePurchPrice();
+        LibraryPriceCalculation.DisAllowEditingActiveSalesPrice();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Price List Nos.", LibraryERM.CreateNoSeriesCode('SAL'));

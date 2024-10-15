@@ -138,7 +138,7 @@ codeunit 3010536 GlForeignCurrMgt
     begin
         // G/L Acc with Currency Code found
         GlAcc.SetFilter("Currency Code", '<>%1', '');
-        if not GlAcc.IsEmpty then
+        if not GlAcc.IsEmpty() then
             Message(Text002);
     end;
 }

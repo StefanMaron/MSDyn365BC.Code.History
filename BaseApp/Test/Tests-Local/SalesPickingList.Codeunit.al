@@ -117,7 +117,7 @@ codeunit 144023 "Sales Picking List"
         // Verify the XML
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         NoOfSalesLines := SalesLine.Count();
         Assert.AreEqual(2, NoOfSalesLines, 'Expecting exact 2 sales lines.');

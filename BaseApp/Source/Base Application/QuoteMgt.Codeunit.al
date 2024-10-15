@@ -146,7 +146,7 @@ codeunit 3010801 QuoteMgt
                     // write
                     Modify;
                     xSalesLine := SalesLine;
-                until Next = 0;
+                until Next() = 0;
 
             // CHeck no of begin/end levels
             if ActualLevel > 1 then
@@ -305,7 +305,7 @@ codeunit 3010801 QuoteMgt
                     // write
                     Modify;
                     xPostedInvLine := PostedInvLine;
-                until Next = 0;
+                until Next() = 0;
 
             // CHeck no of begin/end levels
             if ActualLevel > 1 then
@@ -440,7 +440,7 @@ codeunit 3010801 QuoteMgt
                     // write
                     Modify;
                     xPostedCredMemoLine := PostedCredMemoLine;
-                until Next = 0;
+                until Next() = 0;
 
             // CHeck no of begin/end levels
             if ActualLevel > 1 then

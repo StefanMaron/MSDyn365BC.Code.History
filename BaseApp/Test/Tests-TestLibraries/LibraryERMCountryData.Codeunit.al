@@ -312,9 +312,9 @@ codeunit 131305 "Library - ERM Country Data"
         VATProdPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATBusPostingGroup.FindSet;
+        VATBusPostingGroup.FindSet();
         repeat
-            VATProdPostingGroup.FindSet;
+            VATProdPostingGroup.FindSet();
             repeat
                 CreateVATPostingSetup(VATBusPostingGroup.Code, VATProdPostingGroup.Code);
             until VATProdPostingGroup.Next = 0;
@@ -351,7 +351,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         FindNormalVATPostingSetup(NormalVATPostingSetup);
         with VATPostingSetup do begin
-            FindSet;
+            FindSet();
             repeat
                 Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
                 Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
@@ -376,9 +376,9 @@ codeunit 131305 "Library - ERM Country Data"
         NormalGeneralPostingSetup: Record "General Posting Setup";
     begin
         PrepareNormalGenPostingSetup(NormalGeneralPostingSetup);
-        GenProdPostingGroup.FindSet;
+        GenProdPostingGroup.FindSet();
         repeat
-            GenBusPostGroup.FindSet;
+            GenBusPostGroup.FindSet();
             repeat
                 CreateGeneralPostingSetup(GenBusPostGroup.Code, GenProdPostingGroup.Code, NormalGeneralPostingSetup);
             until GenBusPostGroup.Next = 0;
@@ -465,7 +465,7 @@ codeunit 131305 "Library - ERM Country Data"
         GLAccount: Record "G/L Account";
     begin
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        if VATPostingSetup.IsEmpty then begin
+        if VATPostingSetup.IsEmpty() then begin
             LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
             VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
             LibraryERM.FindGLAccount(GLAccount);

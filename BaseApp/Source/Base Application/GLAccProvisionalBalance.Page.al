@@ -377,7 +377,7 @@ page 11500 "G/L Acc. Provisional Balance"
                 if (CurrencyCode <> '') and (GenJnlLine."Currency Code" = CurrencyCode) then
                     JournalAmtFCY := JournalAmtFCY + GenJnlLine.Amount - GenJnlLine."VAT Amount";
 
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
         GenJnlLine.SetRange("Account Type");
         GenJnlLine.SetRange("Account No.");
 
@@ -390,7 +390,7 @@ page 11500 "G/L Acc. Provisional Balance"
                 if (CurrencyCode <> '') and (GenJnlLine."Currency Code" = CurrencyCode) then
                     JournalAmtFCY := JournalAmtFCY - GenJnlLine.Amount - GenJnlLine."Bal. VAT Amount";
 
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
     end;
 }
 

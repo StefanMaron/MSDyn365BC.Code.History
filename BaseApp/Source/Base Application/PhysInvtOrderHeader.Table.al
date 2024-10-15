@@ -24,12 +24,10 @@ table 5875 "Phys. Invt. Order Header"
         {
             Caption = 'Description';
         }
-        field(11; Status; Option)
+        field(11; Status; Enum "Phys. Invt. Order Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Finished';
-            OptionMembers = Open,Finished;
         }
         field(20; "Order Date"; Date)
         {
@@ -66,7 +64,7 @@ table 5875 "Phys. Invt. Order Header"
                                     PhysInvtOrderLine.ResetQtyExpected;
                                     PhysInvtOrderLine.Modify();
                                 end;
-                            until PhysInvtOrderLine.Next = 0;
+                            until PhysInvtOrderLine.Next() = 0;
                         Modify;
                     end;
                 end;
@@ -481,7 +479,7 @@ table 5875 "Phys. Invt. Order Header"
                       PhysInvtOrderLine."Shortcut Dimension 2 Code");
                     PhysInvtOrderLine.Modify();
                 end;
-            until PhysInvtOrderLine.Next = 0;
+            until PhysInvtOrderLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

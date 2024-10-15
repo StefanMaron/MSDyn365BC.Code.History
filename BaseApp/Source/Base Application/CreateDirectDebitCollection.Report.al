@@ -171,7 +171,7 @@
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
         DirectDebitCollectionEntry.SetRange("Applies-to Entry No.", EntryNo);
-        if DirectDebitCollectionEntry.IsEmpty then
+        if DirectDebitCollectionEntry.IsEmpty() then
             exit(false);
 
         DirectDebitCollectionEntry.SetFilter(

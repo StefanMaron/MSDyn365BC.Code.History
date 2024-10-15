@@ -83,7 +83,7 @@ report 99000788 "Prod. Order - Shortage List"
                     {
                         DecimalPlaces = 0 : 5;
                     }
-                    column(CompItemSchdldNeedQty; CompItem."Scheduled Need (Qty.)")
+                    column(CompItemSchdldNeedQty; CompItem."Qty. on Component Lines")
                     {
                         DecimalPlaces = 0 : 5;
                     }
@@ -142,15 +142,15 @@ report 99000788 "Prod. Order - Shortage List"
                         CompItem.CalcFields(
                           Inventory, "Reserved Qty. on Inventory",
                           "Scheduled Receipt (Qty.)", "Reserved Qty. on Prod. Order",
-                          "Scheduled Need (Qty.)", "Res. Qty. on Prod. Order Comp.");
+                          "Qty. on Component Lines", "Res. Qty. on Prod. Order Comp.");
                         CompItem.Inventory :=
                           CompItem.Inventory -
                           CompItem."Reserved Qty. on Inventory";
                         CompItem."Scheduled Receipt (Qty.)" :=
                           CompItem."Scheduled Receipt (Qty.)" -
                           CompItem."Reserved Qty. on Prod. Order";
-                        CompItem."Scheduled Need (Qty.)" :=
-                          CompItem."Scheduled Need (Qty.)" -
+                        CompItem."Qty. on Component Lines" :=
+                          CompItem."Qty. on Component Lines" -
                           CompItem."Res. Qty. on Prod. Order Comp.";
 
                         CompItem.SetRange(
@@ -196,24 +196,24 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderComp.SetRange("Location Code", "Location Code");
                         TempProdOrderComp.SetRange("Due Date", "Due Date");
                         CalcProdOrderCompFields(TempProdOrderComp);
-                        CompItem."Scheduled Need (Qty.)" :=
-                          CompItem."Scheduled Need (Qty.)" +
+                        CompItem."Qty. on Component Lines" :=
+                          CompItem."Qty. on Component Lines" +
                           TempProdOrderComp."Remaining Qty. (Base)" -
                           TempProdOrderComp."Reserved Qty. (Base)";
 
                         TempProdOrderComp.SetRange(Status, Status);
                         TempProdOrderComp.SetFilter("Prod. Order No.", '<%1', "Prod. Order No.");
                         CalcProdOrderCompFields(TempProdOrderComp);
-                        CompItem."Scheduled Need (Qty.)" :=
-                          CompItem."Scheduled Need (Qty.)" +
+                        CompItem."Qty. on Component Lines" :=
+                          CompItem."Qty. on Component Lines" +
                           TempProdOrderComp."Remaining Qty. (Base)" -
                           TempProdOrderComp."Reserved Qty. (Base)";
 
                         TempProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
                         TempProdOrderComp.SetRange("Prod. Order Line No.", 0, "Prod. Order Line No." - 1);
                         CalcProdOrderCompFields(TempProdOrderComp);
-                        CompItem."Scheduled Need (Qty.)" :=
-                          CompItem."Scheduled Need (Qty.)" +
+                        CompItem."Qty. on Component Lines" :=
+                          CompItem."Qty. on Component Lines" +
                           TempProdOrderComp."Remaining Qty. (Base)" -
                           TempProdOrderComp."Reserved Qty. (Base)";
 
@@ -222,8 +222,8 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderComp.SetRange("Variant Code", "Variant Code");
                         TempProdOrderComp.SetRange("Location Code", "Location Code");
                         CalcProdOrderCompFields(TempProdOrderComp);
-                        CompItem."Scheduled Need (Qty.)" :=
-                          CompItem."Scheduled Need (Qty.)" +
+                        CompItem."Qty. on Component Lines" :=
+                          CompItem."Qty. on Component Lines" +
                           TempProdOrderComp."Remaining Qty. (Base)" -
                           TempProdOrderComp."Reserved Qty. (Base)";
 
@@ -237,7 +237,7 @@ report 99000788 "Prod. Order - Shortage List"
                           TempProdOrderComp."Reserved Qty. (Base)";
 
                         NeededQty :=
-                          CompItem."Scheduled Need (Qty.)" +
+                          CompItem."Qty. on Component Lines" +
                           CompItem."Qty. on Sales Order" -
                           CompItem."Qty. on Purch. Order" -
                           CompItem."Scheduled Receipt (Qty.)" -
@@ -309,7 +309,7 @@ report 99000788 "Prod. Order - Shortage List"
                 ProdOrderLine.CalcFields("Reserved Qty. (Base)");
                 RemainingQtyBase += ProdOrderLine."Remaining Qty. (Base)";
                 ReservedQtyBase += ProdOrderLine."Reserved Qty. (Base)";
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         ProdOrderLineFields."Remaining Qty. (Base)" := RemainingQtyBase;
         ProdOrderLineFields."Reserved Qty. (Base)" := ReservedQtyBase;
@@ -328,7 +328,7 @@ report 99000788 "Prod. Order - Shortage List"
                 ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 RemainingQtyBase += ProdOrderComp."Remaining Qty. (Base)";
                 ReservedQtyBase += ProdOrderComp."Reserved Qty. (Base)";
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
 
         ProdOrderCompFields."Remaining Qty. (Base)" := RemainingQtyBase;
         ProdOrderCompFields."Reserved Qty. (Base)" := ReservedQtyBase;

@@ -7,6 +7,9 @@ page 43 "Sales Invoice"
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER(Invoice));
 
+    AboutTitle = 'About sales invoice details';
+    AboutText = 'You can update and add to the sales invoice until you post it. If you leave the invoice without posting, you can return to it later from the list of ongoing invoices.';
+
     layout
     {
         area(content)
@@ -48,6 +51,8 @@ page 43 "Sales Invoice"
                     Importance = Promoted;
                     NotBlank = true;
                     ShowMandatory = true;
+                    AboutTitle = 'Who you are selling to';
+                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.​';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
@@ -263,6 +268,8 @@ page 43 "Sales Invoice"
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     StyleExpr = StatusStyleTxt;
+                    AboutTitle = 'Check the invoice status here';
+                    AboutText = 'You can only edit an open invoice. When status is Released, it means the invoice is up for next stage in processing, such as reserving the products being sold. Use Reopen if you must edit a released invoice.';
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -837,6 +844,12 @@ page 43 "Sales Invoice"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+                field("Language Code"; "Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -1395,12 +1408,12 @@ page 43 "Sales Invoice"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1420,7 +1433,7 @@ page 43 "Sales Invoice"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1442,6 +1455,8 @@ page 43 "Sales Invoice"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
+                    AboutTitle = 'When all is set, you post';
+                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.​ After posting, the sales invoice is moved to the Posted Sales Invoices list.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
@@ -1726,6 +1741,7 @@ page 43 "Sales Invoice"
         InstructionMgt: Codeunit "Instruction Mgt.";
         PreAssignedNo: Code[20];
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1740,6 +1756,11 @@ page 43 "Sales Invoice"
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
@@ -1878,6 +1899,11 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

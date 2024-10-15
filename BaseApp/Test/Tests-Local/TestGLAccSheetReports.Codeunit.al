@@ -1291,7 +1291,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount.CalcFields(Balance);
         LibraryReportDataset.LoadDataSetFile;
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
@@ -1325,7 +1325,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount.CalcFields(Balance, "Balance (FCY)");
         LibraryReportDataset.LoadDataSetFile;
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
@@ -1363,7 +1363,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount.CalcFields(Balance, "Additional-Currency Balance", "Additional-Currency Net Change");
         LibraryReportDataset.LoadDataSetFile;
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAcc', GLAccount."No.");
@@ -1402,7 +1402,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount.CalcFields(Balance);
         LibraryReportDataset.LoadDataSetFile;
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('No_GLAccount', GLAccount."No.");
@@ -1442,7 +1442,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         GLAccount.CalcFields(Balance);
         LibraryReportDataset.LoadDataSetFile;
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('GLAccountNo', GLAccount."No.");

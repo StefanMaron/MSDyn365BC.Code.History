@@ -219,7 +219,7 @@ report 11557 "SR Vendor Ranking"
                     if not VendAmt.FindSet then
                         CurrReport.Break();
                 end else
-                    if (VendAmt.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
+                    if (VendAmt.Next() = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
                         CurrReport.Break();
 
                 Vendor.Get(VendAmt."Vendor No.");

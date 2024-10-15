@@ -317,7 +317,7 @@ report 11505 "SR Item Acc Sheet Net Change"
             if ValueEntry.Find('-') then begin
                 repeat
                     ValuePosted := ValuePosted + ValueEntry."Cost Posted to G/L";
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
             end;
 
             TotalValuePosted := TotalValuePosted + ValuePosted;

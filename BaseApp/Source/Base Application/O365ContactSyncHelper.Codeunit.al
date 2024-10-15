@@ -35,7 +35,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
                 TransferExchangeContactToNavContactNoValidate(ExchangeSync, ExchangeContact, TempContact);
                 TempContact.Insert(); // Do not run the trigger so we preserve the dates.
 
-            until (ExchangeContact.Next = 0)
+            until (ExchangeContact.Next() = 0)
         else
             if not Success then
                 Error(GetLastErrorText);
@@ -46,7 +46,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
     [TryFunction]
     local procedure TryFindContacts(var ExchangeContact: Record "Exchange Contact"; var RecordsFound: Boolean; var Success: Boolean)
     begin
-        RecordsFound := ExchangeContact.FindSet;
+        RecordsFound := ExchangeContact.FindSet();
         Success := true;
     end;
 
@@ -115,7 +115,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
                             ExchangeContact.Insert
                     end;
 
-            until Contact.Next = 0;
+            until Contact.Next() = 0;
         end;
     end;
 

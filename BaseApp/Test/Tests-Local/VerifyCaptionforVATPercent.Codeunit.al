@@ -341,7 +341,7 @@ codeunit 144060 "Verify Caption for VAT Percent"
         VATPostingSetup.SetRange("VAT %", 1, 100);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         VATPostingSetup.Next;
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;

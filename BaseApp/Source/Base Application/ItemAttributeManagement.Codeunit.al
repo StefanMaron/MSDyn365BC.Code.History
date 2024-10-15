@@ -36,7 +36,7 @@ codeunit 7500 "Item Attribute Management"
                 if CurrentItemFilter = '' then
                     exit;
             end;
-        until FilterItemAttributesBuffer.Next = 0;
+        until FilterItemAttributesBuffer.Next() = 0;
 
         ItemFilter := CurrentItemFilter;
     end;
@@ -63,10 +63,10 @@ codeunit 7500 "Item Attribute Management"
                 end;
 
                 GetFilteredItems(ItemAttributeValueMapping, TempFilteredItem, AttributeValueIDFilter);
-                if TempFilteredItem.IsEmpty then
+                if TempFilteredItem.IsEmpty() then
                     exit;
             end;
-        until FilterItemAttributesBuffer.Next = 0;
+        until FilterItemAttributesBuffer.Next() = 0;
     end;
 
     local procedure GetItemAttributeValueFilter(var FilterItemAttributesBuffer: Record "Filter Item Attributes Buffer"; var ItemAttribute: Record "Item Attribute") AttributeFilter: Text
@@ -81,7 +81,7 @@ codeunit 7500 "Item Attribute Management"
 
         repeat
             AttributeFilter += StrSubstNo('%1|', ItemAttributeValue.ID);
-        until ItemAttributeValue.Next = 0;
+        until ItemAttributeValue.Next() = 0;
 
         exit(CopyStr(AttributeFilter, 1, StrLen(AttributeFilter) - 1));
     end;
@@ -96,7 +96,7 @@ codeunit 7500 "Item Attribute Management"
 
         repeat
             ItemNoFilter += StrSubstNo('%1|', ItemAttributeValueMapping."No.");
-        until ItemAttributeValueMapping.Next = 0;
+        until ItemAttributeValueMapping.Next() = 0;
 
         exit(CopyStr(ItemNoFilter, 1, StrLen(ItemNoFilter) - 1));
     end;
@@ -107,7 +107,7 @@ codeunit 7500 "Item Attribute Management"
     begin
         ItemAttributeValueMapping.SetFilter("Item Attribute Value ID", AttributeValueIDFilter);
 
-        if ItemAttributeValueMapping.IsEmpty then begin
+        if ItemAttributeValueMapping.IsEmpty() then begin
             TempFilteredItem.Reset();
             TempFilteredItem.DeleteAll();
             exit;
@@ -119,15 +119,15 @@ codeunit 7500 "Item Attribute Management"
                     Item.Get(ItemAttributeValueMapping."No.");
                     TempFilteredItem.TransferFields(Item);
                     TempFilteredItem.Insert();
-                until ItemAttributeValueMapping.Next = 0;
+                until ItemAttributeValueMapping.Next() = 0;
             exit;
         end;
 
         repeat
             ItemAttributeValueMapping.SetRange("No.", TempFilteredItem."No.");
-            if ItemAttributeValueMapping.IsEmpty then
+            if ItemAttributeValueMapping.IsEmpty() then
                 TempFilteredItem.Delete();
-        until TempFilteredItem.Next = 0;
+        until TempFilteredItem.Next() = 0;
         ItemAttributeValueMapping.SetRange("No.");
     end;
 
@@ -148,7 +148,7 @@ codeunit 7500 "Item Attribute Management"
                 NextItem."No." := TempFilteredItem."No.";
                 ParameterCount += 1;
             end else begin
-                if NextItem.Next = 0 then
+                if NextItem.Next() = 0 then
                     NextItem."No." := '';
                 if TempFilteredItem."No." = NextItem."No." then begin
                     if not FilterRangeStarted then
@@ -167,7 +167,7 @@ codeunit 7500 "Item Attribute Management"
                 end;
             end;
             PreviousNo := TempFilteredItem."No.";
-        until TempFilteredItem.Next = 0;
+        until TempFilteredItem.Next() = 0;
 
         // close range if needed
         if FilterRangeStarted then begin
@@ -184,14 +184,14 @@ codeunit 7500 "Item Attribute Management"
         GenerateAttributesToInsertAndToDelete(
           TempItemAttributeValueToInsert, TempItemAttributeValueToDelete, NewItemCategoryCode, OldItemCategoryCode);
 
-        if not TempItemAttributeValueToDelete.IsEmpty then
+        if not TempItemAttributeValueToDelete.IsEmpty() then
             if not GuiAllowed then
                 DeleteItemAttributeValueMapping(Item, TempItemAttributeValueToDelete)
             else
                 if Confirm(StrSubstNo(DeleteAttributesInheritedFromOldCategoryQst, OldItemCategoryCode)) then
                     DeleteItemAttributeValueMapping(Item, TempItemAttributeValueToDelete);
 
-        if not TempItemAttributeValueToInsert.IsEmpty then
+        if not TempItemAttributeValueToInsert.IsEmpty() then
             InsertItemAttributeValueMapping(Item, TempItemAttributeValueToInsert);
     end;
 
@@ -225,7 +225,7 @@ codeunit 7500 "Item Attribute Management"
                     TempResultingItemAttributeValue.TransferFields(TempFirstItemAttributeValue);
                     TempResultingItemAttributeValue.Insert();
                 end;
-            until TempFirstItemAttributeValue.Next = 0;
+            until TempFirstItemAttributeValue.Next() = 0;
     end;
 
     procedure DeleteItemAttributeValueMapping(Item: Record Item; var TempItemAttributeValueToRemove: Record "Item Attribute Value" temporary)
@@ -246,7 +246,7 @@ codeunit 7500 "Item Attribute Management"
                     ItemAttributeValuesToRemoveTxt += StrSubstNo('|%1', TempItemAttributeValueToRemove."Attribute ID")
                 else
                     ItemAttributeValuesToRemoveTxt := Format(TempItemAttributeValueToRemove."Attribute ID");
-            until TempItemAttributeValueToRemove.Next = 0;
+            until TempItemAttributeValueToRemove.Next() = 0;
             ItemAttributeValueMapping.SetFilter("Item Attribute ID", ItemAttributeValuesToRemoveTxt);
             ItemAttributeValueMapping.DeleteAll(RunTrigger);
         end;
@@ -264,7 +264,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping."Item Attribute Value ID" := TempItemAttributeValueToInsert.ID;
                 OnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempItemAttributeValueToInsert);
                 if ItemAttributeValueMapping.Insert(true) then;
-            until TempItemAttributeValueToInsert.Next = 0;
+            until TempItemAttributeValueToInsert.Next() = 0;
     end;
 
     procedure UpdateCategoryItemsAttributeValueMapping(var TempNewItemAttributeValue: Record "Item Attribute Value" temporary; var TempOldItemAttributeValue: Record "Item Attribute Value" temporary; ItemCategoryCode: Code[20]; OldItemCategoryCode: Code[20])
@@ -275,14 +275,14 @@ codeunit 7500 "Item Attribute Management"
         GenerateAttributeDifference(TempNewItemAttributeValue, TempOldItemAttributeValue, TempItemAttributeValueToInsert);
         GenerateAttributeDifference(TempOldItemAttributeValue, TempNewItemAttributeValue, TempItemAttributeValueToDelete);
 
-        if not TempItemAttributeValueToDelete.IsEmpty then
+        if not TempItemAttributeValueToDelete.IsEmpty() then
             if not GuiAllowed then
                 DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToDelete, ItemCategoryCode)
             else
                 if Confirm(StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ItemCategoryCode, OldItemCategoryCode)) then
                     DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToDelete, ItemCategoryCode);
 
-        if not TempItemAttributeValueToInsert.IsEmpty then
+        if not TempItemAttributeValueToInsert.IsEmpty() then
             InsertCategoryItemsAttributeValueMapping(TempItemAttributeValueToInsert, ItemCategoryCode);
     end;
 
@@ -297,22 +297,22 @@ codeunit 7500 "Item Attribute Management"
         if Item.FindSet then
             repeat
                 DeleteItemAttributeValueMappingWithTriggerOption(Item, TempItemAttributeValueToRemove, false);
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
         if ItemCategory.FindSet then
             repeat
                 DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToRemove, ItemCategory.Code);
-            until ItemCategory.Next = 0;
+            until ItemCategory.Next() = 0;
 
         if TempItemAttributeValueToRemove.FindSet then
             repeat
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", TempItemAttributeValueToRemove."Attribute ID");
                 ItemAttributeValueMapping.SetRange("Item Attribute Value ID", TempItemAttributeValueToRemove.ID);
-                if ItemAttributeValueMapping.IsEmpty then
+                if ItemAttributeValueMapping.IsEmpty() then
                     if ItemAttributeValue.Get(TempItemAttributeValueToRemove."Attribute ID", TempItemAttributeValueToRemove.ID) then
                         ItemAttributeValue.Delete();
-            until TempItemAttributeValueToRemove.Next = 0;
+            until TempItemAttributeValueToRemove.Next() = 0;
     end;
 
     procedure InsertCategoryItemsAttributeValueMapping(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; CategoryCode: Code[20])
@@ -324,13 +324,13 @@ codeunit 7500 "Item Attribute Management"
         if Item.FindSet then
             repeat
                 InsertItemAttributeValueMapping(Item, TempItemAttributeValueToInsert);
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
         if ItemCategory.FindSet then
             repeat
                 InsertCategoryItemsAttributeValueMapping(TempItemAttributeValueToInsert, ItemCategory.Code);
-            until ItemCategory.Next = 0;
+            until ItemCategory.Next() = 0;
     end;
 
     procedure InsertCategoryItemsBufferedAttributeValueMapping(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; var TempInsertedItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary; CategoryCode: Code[20])
@@ -342,14 +342,14 @@ codeunit 7500 "Item Attribute Management"
         if Item.FindSet then
             repeat
                 InsertBufferedItemAttributeValueMapping(Item, TempItemAttributeValueToInsert, TempInsertedItemAttributeValueMapping);
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
         if ItemCategory.FindSet then
             repeat
                 InsertCategoryItemsBufferedAttributeValueMapping(
                   TempItemAttributeValueToInsert, TempInsertedItemAttributeValueMapping, ItemCategory.Code);
-            until ItemCategory.Next = 0;
+            until ItemCategory.Next() = 0;
     end;
 
     local procedure InsertBufferedItemAttributeValueMapping(Item: Record Item; var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; var TempInsertedItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary)
@@ -368,7 +368,7 @@ codeunit 7500 "Item Attribute Management"
                     OnBeforeBufferedItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempInsertedItemAttributeValueMapping);
                     TempInsertedItemAttributeValueMapping.Insert();
                 end;
-            until TempItemAttributeValueToInsert.Next = 0;
+            until TempItemAttributeValueToInsert.Next() = 0;
     end;
 
     procedure SearchCategoryItemsForAttribute(CategoryCode: Code[20]; AttributeID: Integer): Boolean
@@ -386,7 +386,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
                 if ItemAttributeValueMapping.FindFirst then
                     exit(true);
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         IsHandled := false;
         OnSearchCategoryItemsForAttributeOnBeforeSearchByParentCategory(CategoryCode, AttributeID, IsHandled);
@@ -397,7 +397,7 @@ codeunit 7500 "Item Attribute Management"
             repeat
                 if SearchCategoryItemsForAttribute(ItemCategory.Code, AttributeID) then
                     exit(true);
-            until ItemCategory.Next = 0;
+            until ItemCategory.Next() = 0;
     end;
 
     procedure DoesValueExistInItemAttributeValues(Text: Text[250]; var ItemAttributeValue: Record "Item Attribute Value"): Boolean

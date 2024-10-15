@@ -150,7 +150,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     begin
         GLRegister.FindLast;
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.AreNotEqual(LastPostingDate, CustLedgerEntry."Posting Date", EntryError);
         until CustLedgerEntry.Next = 0;

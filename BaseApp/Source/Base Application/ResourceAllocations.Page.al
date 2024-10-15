@@ -247,7 +247,7 @@ page 6005 "Resource Allocations"
 
     local procedure ResourceNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

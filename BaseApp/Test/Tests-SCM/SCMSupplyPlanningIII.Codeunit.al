@@ -1,4 +1,4 @@
-codeunit 137073 "SCM Supply Planning -III"
+﻿codeunit 137073 "SCM Supply Planning -III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -18,6 +18,7 @@ codeunit 137073 "SCM Supply Planning -III"
         LocationYellow: Record Location;
         LocationRed: Record Location;
         LocationInTransit: Record Location;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -38,8 +39,8 @@ codeunit 137073 "SCM Supply Planning -III"
         ItemNotPlannedMsg: Label 'Not all items were planned. A total of 1 items were not planned.';
         ItemFilterTxt: Label '%1|%2', Comment = 'Item No1 | Item No2';
         SuggestedQtyErrMsg: Label 'Suggested Quantity on planning lines must not be less than Maximum Inventory.';
-        AvailabilityWarningConfirmationMsg: Label 'There are availability warnings on one or more lines.';
-        OrderDateChangeMsg: Label 'You have changed Order Date on the sales header';
+        AvailabilityWarningConfirmationMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
+        OrderDateChangeMsg: Label 'You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
         SameDateErrMsg: Label 'The dates must not be same.';
         ReservationEntryMustNotExistErr: Label 'Reservation Entry must not exist for Item %1.', Comment = '%1 - Item No';
         DeleteProductionForecastConfirmMessageQst: Label 'Demand forecast %1 has entries. Do you want to delete it anyway?', Comment = '%1 - Forcast No';
@@ -1057,7 +1058,6 @@ codeunit 137073 "SCM Supply Planning -III"
         ReservationEntry: Record "Reservation Entry";
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
-        OrderType: Option ItemOrder,ProjectOrder;
         Quantity: Integer;
         QuantityPer: Integer;
     begin
@@ -1076,7 +1076,8 @@ codeunit 137073 "SCM Supply Planning -III"
         Quantity := LibraryRandom.RandIntInRange(2, 10); // Quantity should not be one
         CreateSalesOrder(SalesHeader, Item."No.", Quantity);
         AssignTrackingOnSalesLine(SalesLine, SalesHeader."No.");
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::"Firm Planned", OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::"Firm Planned", "Create Production Order Type"::ItemOrder);
 
         SelectProdOrderLine(ProdOrderLine, Item."No.");
         ProdOrderLine.Validate("Due Date", CalcDate('<-2D>', WorkDate)); // Change Due Date on Firmed Prod Order Line.
@@ -1382,7 +1383,7 @@ codeunit 137073 "SCM Supply Planning -III"
         RequisitionLine: Record "Requisition Line";
         Qty: Decimal;
     begin
-        // [FEATURE] [Planning Worksheet] [SKU]
+        // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO 375977] Calculate Regenerative Plan should consider Components at Location if SKU exists for another Location
         Initialize;
 
@@ -1413,7 +1414,7 @@ codeunit 137073 "SCM Supply Planning -III"
         RequisitionLine: Record "Requisition Line";
         Qty: Decimal;
     begin
-        // [FEATURE] [Planning Worksheet] [SKU]
+        // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO] Calculate Regenerative Plan should not create Requisituion line if SKU does not exist while "Location Mandatory" is true
         Initialize;
 
@@ -1441,7 +1442,7 @@ codeunit 137073 "SCM Supply Planning -III"
         RequisitionLine: Record "Requisition Line";
         Qty: Decimal;
     begin
-        // [FEATURE] [Planning Worksheet] [SKU]
+        // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO] Calculate Regenerative Plan should create Requisituion line if SKU does not exist while "Location Mandatory" is false
         Initialize;
 
@@ -1461,6 +1462,80 @@ codeunit 137073 "SCM Supply Planning -III"
         RequisitionLine.SetRange("Location Code", '');
         RequisitionLine.FindFirst;
         Assert.AreEqual(Qty + 100, RequisitionLine.Quantity, QuantityNotCorrectErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateRegenerativePlanWithSKUOnComponentsLocation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        RequisitionLine: Record "Requisition Line";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Stockkeeping Unit]
+        // [SCENARIO 377474] Requisition should be planned for an item that has stockkeeping unit defined on manufacturing components location
+
+        // [GIVEN] Item "I" with reordering policy = "Fixed Reorder Qty."
+        CreateItem(Item, Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Stockkeeping unit for item "I", location "L", reordering policy = "Lot-for-Lot"
+        LibraryWarehouse.CreateLocation(Location);
+        CreateStockkeepingUnitWithReorderingPolicy(Location.Code, Item."No.", '', StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+
+        // [GIVEN] Create sales order: Item = "I", location = "L", Quantity = "Q"
+        Qty := LibraryRandom.RandInt(100);
+        CreateSalesOrderWithLocation(Item."No.", Qty, Location.Code);
+
+        // [GIVEN] Set "Components at Location" = "L" in Manufacturing Setup
+        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+
+        // [WHEN] Calculate regenerative plan from planning worksheet
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+
+        // [THEN] Requisition line is created: "Q" pcs of item "I"
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField(Quantity, Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateRegenerativePlanWithSKUOnComponentsLocationAndVariant()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Stockkeeping Unit]
+        // [SCENARIO 377474] Requisition should be planned for an item that has stockkeeping unit defined on manufacturing components location with variant
+
+        // [GIVEN] Item "I" with reordering policy = "Fixed Reorder Qty."
+        CreateItem(Item, Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Stockkeeping unit for item "I", location "L", variant "V", reordering policy = "Lot-for-Lot"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        CreateStockkeepingUnitWithReorderingPolicy(
+          Location.Code, Item."No.", ItemVariant.Code, StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+
+        // [GIVEN] Create sales order: Item = "I", location = "L", Variant = "V", Quantity = "Q"
+        Qty := LibraryRandom.RandInt(100);
+        CreateSalesOrderWithLocationAndVariant(Item."No.", Qty, Location.Code, ItemVariant.Code);
+
+        // [GIVEN] Set "Components at Location" = "L" in Manufacturing Setup
+        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+
+        // [WHEN] Calculate regenerative plan from planning worksheet
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+
+        // [THEN] Requisition line is created: "Q" pcs of item "I"
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField(Quantity, Qty);
     end;
 
     [Test]
@@ -2027,7 +2102,8 @@ codeunit 137073 "SCM Supply Planning -III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ChildItem."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Create Prod. Order for Sales Order
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::Released, 0);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ItemOrder);
 
         // [WHEN] Run regenerative plan from the planning worksheet, filtered by the component item, MPS=Yes, MRP=No
         LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
@@ -2112,7 +2188,7 @@ codeunit 137073 "SCM Supply Planning -III"
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
     begin
-        // [FEATURE] [Prod. Order]
+        // [FEATURE] [Production Order]
         // [SCENARIO 277381] When Released Prod. Order (Order Type is 'Item Order') is created from Sales Order, Gen. Bus. Posting group mustn't be inherited from Sales Order.
         Initialize;
 
@@ -2127,7 +2203,8 @@ codeunit 137073 "SCM Supply Planning -III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [WHEN] Create a Released Prod. Order from the Sales Order; Order Type is 'Item Order'
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::Released, 0);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ItemOrder);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", Item."No.");
         ProductionOrder.FindFirst;
@@ -2161,7 +2238,8 @@ codeunit 137073 "SCM Supply Planning -III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [WHEN] Create a Relerased Prod. Order from the Sales Order; Order Type is 'Project Order'
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::Released, 1);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::"Sales Header");
         ProductionOrder.SetRange("Source No.", SalesHeader."No.");
         ProductionOrder.FindFirst;
@@ -2298,6 +2376,32 @@ codeunit 137073 "SCM Supply Planning -III"
         ProductionOrder.SetRange("Source No.", RequisitionLine."No.");
         ProductionOrder.FindFirst;
         ProductionOrder.TestField("Gen. Bus. Posting Group", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CarryOutActionInsertProdOrderWithVariant()
+    var
+        RequisitionLine: Record "Requisition Line";
+        ProductionOrder: Record "Production Order";
+        CarryOutAction: Codeunit "Carry Out Action";
+    begin
+        // [FEATURE] [Production Order] [Item Variant]
+        // [SCENARIO 388994] Codeunit 99000813 InsertProdOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
+        Initialize;
+
+        // [GIVEN] Mock Requisition Line
+        CreateReqLine(RequisitionLine);
+        RequisitionLine.TestField("Gen. Business Posting Group");
+
+        // [WHEN] Call CarryOutAction.InsertProdOrder()
+        CarryOutAction.InsertProdOrder(RequisitionLine, 1);
+
+        // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
+        ProductionOrder.SetRange("Source No.", RequisitionLine."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Variant Code", RequisitionLine."Variant Code");
     end;
 
     local procedure Initialize()
@@ -2687,7 +2791,7 @@ codeunit 137073 "SCM Supply Planning -III"
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal)
@@ -2762,6 +2866,15 @@ codeunit 137073 "SCM Supply Planning -III"
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
         LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+    end;
+
+    local procedure CreateStockkeepingUnitWithReorderingPolicy(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ReorderingPolicy: Enum "Reordering Policy")
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ItemNo, VariantCode);
+        StockkeepingUnit.Validate("Reordering Policy", ReorderingPolicy);
+        StockkeepingUnit.Modify(true);
     end;
 
     local procedure CalcRegenPlanAndCarryOutActionMessage(var TempRequisitionLine: Record "Requisition Line" temporary; ItemNo: Code[20])
@@ -2971,7 +3084,7 @@ codeunit 137073 "SCM Supply Planning -III"
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -3146,6 +3259,15 @@ codeunit 137073 "SCM Supply Planning -III"
         SalesLine.Modify(true);
     end;
 
+    local procedure UpdateVariantOnSalesLine(DocumentNo: Code[20]; VariantCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SelectSalesOrderLine(SalesLine, DocumentNo);
+        SalesLine.Validate("Variant Code", VariantCode);
+        SalesLine.Modify(true);
+    end;
+
     local procedure CreateSalesOrderWithLocation(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
@@ -3163,6 +3285,15 @@ codeunit 137073 "SCM Supply Planning -III"
         SalesHeader.Validate("Shipment Date", ShipmentDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateSalesOrderWithLocationAndVariant(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; VariantCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateSalesOrder(SalesHeader, ItemNo, Quantity);
+        UpdateLocationOnSalesLine(SalesHeader."No.", LocationCode);
+        UpdateVariantOnSalesLine(SalesHeader."No.", VariantCode);
     end;
 
     local procedure CalcPlanForPlanAndReqWksh(Item: Record Item; CalcPlanPlanWksh: Boolean)
@@ -3351,25 +3482,38 @@ codeunit 137073 "SCM Supply Planning -III"
     local procedure CreateReqLine(var ReqLine: Record "Requisition Line")
     var
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        StockkeepingUnit: Record "Stockkeeping Unit";
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
+        RoutingHeader: Record "Routing Header";
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method", LibraryRandom.RandDec(100, 2),
           Item."Reordering Policy"::"Fixed Reorder Qty.", Item."Flushing Method", '', '');
         Item.Validate("Reorder Quantity", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", ItemVariant.Code);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify();
+
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader."No.");
+        StockkeepingUnit.Modify();
+
         LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
 
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", Item."No.");
-        ReqLine.FindFirst;
+        ReqLine.FindFirst();
 
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         ReqLine.Validate("Gen. Business Posting Group", GenBusinessPostingGroup.Code);

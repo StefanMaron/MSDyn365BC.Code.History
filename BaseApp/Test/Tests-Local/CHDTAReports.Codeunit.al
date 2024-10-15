@@ -165,7 +165,7 @@ codeunit 144351 "CH DTA Reports"
         with GenJournalLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet;
+            FindSet();
             Assert.AreEqual(Vendor1."No.", "Account No.", GenJournalLineInfoErr);
             Assert.AreEqual(Amount1, Amount, GenJournalLineInfoErr);
             Next;
@@ -1133,7 +1133,7 @@ codeunit 144351 "CH DTA Reports"
         with GenJournalLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(
                   "Applies-to Doc. No.", "Applies-to Ext. Doc. No.", FieldCaption("Applies-to Ext. Doc. No."));

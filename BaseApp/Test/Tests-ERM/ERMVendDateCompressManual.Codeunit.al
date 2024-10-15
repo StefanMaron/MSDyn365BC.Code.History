@@ -150,7 +150,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     begin
         GLRegister.FindLast;
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             Assert.AreNotEqual(LastPostingDate, VendorLedgerEntry."Posting Date", EntryError);
         until VendorLedgerEntry.Next = 0;

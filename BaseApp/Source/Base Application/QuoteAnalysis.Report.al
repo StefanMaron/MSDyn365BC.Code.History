@@ -444,7 +444,7 @@ report 3010801 "Quote Analysis"
                         repeat
                             TmpSalesLine := SalesLine2;
                             TmpSalesLine.Insert();
-                        until SalesLine2.Next = 0;
+                        until SalesLine2.Next() = 0;
                 end;
             DATABASE::"Sales Header Archive":
                 begin
@@ -465,7 +465,7 @@ report 3010801 "Quote Analysis"
                         repeat
                             TmpSalesLine.TransferFields(ArchSalesLine2);
                             TmpSalesLine.Insert();
-                        until ArchSalesLine2.Next = 0;
+                        until ArchSalesLine2.Next() = 0;
                 end;
         end;
 
@@ -480,7 +480,7 @@ report 3010801 "Quote Analysis"
                 TmpSalesLine2.UpdateVATOnLines(0, TmpSalesHeader, TmpSalesLine2, TempVATAmountLine0);
                 TmpSalesLine2.UpdateVATOnLines(1, TmpSalesHeader, TmpSalesLine2, TempVATAmountLine1);
                 TotalAmount := TotalAmount + TmpSalesLine2.Amount;
-            until TmpSalesLine.Next = 0;
+            until TmpSalesLine.Next() = 0;
         end;
         exit(TotalAmount);
     end;

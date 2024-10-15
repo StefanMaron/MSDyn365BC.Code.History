@@ -243,7 +243,7 @@ codeunit 144000 "VAT Rounding"
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         Assert.AreEqual(2, SalesInvoiceLine.Count, 'There should be one sales line.');
 
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         ExpectedAmount += SalesInvoiceLine.Amount;
         SalesInvoiceLine.Next;
         ExpectedAmount += SalesInvoiceLine.Amount;
@@ -533,7 +533,7 @@ codeunit 144000 "VAT Rounding"
     begin
         with SalesCrMemoLine do begin
             SetRange("Document No.", DocNo);
-            FindSet;
+            FindSet();
             repeat
                 AmtInclVAT += "Amount Including VAT";
             until Next = 0;

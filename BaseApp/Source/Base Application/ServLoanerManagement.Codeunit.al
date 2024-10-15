@@ -147,7 +147,7 @@ codeunit 5901 ServLoanerManagement
                         ServShptItemLine."Loaner No." := '';
                         ServShptItemLine.Modify();
                     end;
-            until ServShptHeader.Next = 0;
+            until ServShptHeader.Next() = 0;
     end;
 
     procedure Receive(var Loaner: Record Loaner)

@@ -38,7 +38,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
                     WhseInternalPutawayLine.TestField("From Zone Code");
                 if Location."Bin Mandatory" then
                     WhseInternalPutawayLine.TestField("From Bin Code");
-            until WhseInternalPutawayLine.Next = 0;
+            until WhseInternalPutawayLine.Next() = 0;
 
             Status := Status::Released;
             Modify;
@@ -68,14 +68,14 @@ codeunit 7316 "Whse. Int. Put-away Release"
             WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
             WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
             WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            if not WhseWkshLine.IsEmpty then
+            if not WhseWkshLine.IsEmpty() then
                 Error(Text001);
 
             WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
             WhseActivLine.SetRange("Whse. Document No.", "No.");
             WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Internal Put-away");
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Put-away");
-            if not WhseActivLine.IsEmpty then
+            if not WhseActivLine.IsEmpty() then
                 Error(Text002);
 
             WhsePutawayRqst.SetRange("Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
@@ -85,7 +85,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
                 repeat
                     WhsePutawayRqst.Status := Status::Open;
                     WhsePutawayRqst.Modify();
-                until WhsePutawayRqst.Next = 0;
+                until WhsePutawayRqst.Next() = 0;
 
             Status := Status::Open;
             Modify;

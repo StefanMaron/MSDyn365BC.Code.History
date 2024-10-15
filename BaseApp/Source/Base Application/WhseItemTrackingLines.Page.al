@@ -1,4 +1,4 @@
-﻿page 6550 "Whse. Item Tracking Lines"
+page 6550 "Whse. Item Tracking Lines"
 {
     // Function button Line exist in two overlayed versions to make dynamic show/hide/enable of
     // individual menu items possible.
@@ -24,7 +24,7 @@
                     group(Source)
                     {
                         Caption = 'Source';
-                        field(TextCaption; GetTextCaption)
+                        field(TextCaption; GetTextCaption())
                         {
                             ApplicationArea = ItemTracking;
                             Editable = false;
@@ -127,7 +127,7 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
@@ -139,9 +139,9 @@
                         if ColorOfQuantityArray[1] = 0 then
                             MaxQuantity := UndefinedQtyArray[1];
 
-                        LookUpTrackingSummary(Rec, ItemTrackingType::"Serial No.", MaxQuantity, -1, true);
-                        CurrPage.Update;
-                        CalculateSums;
+                        Rec.LookUpTrackingSummary(Rec, "Item Tracking Type"::"Serial No.", MaxQuantity, -1, true);
+                        CurrPage.Update();
+                        CalculateSums();
                     end;
 
                     trigger OnValidate()
@@ -149,14 +149,14 @@
                         SerialNoOnAfterValidate();
                     end;
                 }
-                field("New Serial No."; "New Serial No.")
+                field("New Serial No."; Rec."New Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = NewSerialNoEditable;
                     ToolTip = 'Specifies a new serial number that replaces the number in the Serial No. field, when you post the warehouse item reclassification journal.';
                     Visible = NewSerialNoVisible;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
@@ -168,9 +168,9 @@
                         if ColorOfQuantityArray[1] = 0 then
                             MaxQuantity := UndefinedQtyArray[1];
 
-                        LookUpTrackingSummary(Rec, ItemTrackingType::"Lot No.", MaxQuantity, -1, true);
-                        CurrPage.Update;
-                        CalculateSums;
+                        Rec.LookUpTrackingSummary(Rec, "Item Tracking Type"::"Lot No.", MaxQuantity, -1, true);
+                        CurrPage.Update();
+                        CalculateSums();
                     end;
 
                     trigger OnValidate()
@@ -178,62 +178,75 @@
                         LotNoOnAfterValidate();
                     end;
                 }
-                field("New Lot No."; "New Lot No.")
+                field("New Lot No."; Rec."New Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = NewLotNoEditable;
                     ToolTip = 'Specifies a new lot number that replaces the number in the Lot No. field, when you post the warehouse item reclassification journal.';
                     Visible = NewLotNoVisible;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a new package number that replaces the package number, when you post the warehouse item reclassification journal.';
+                    Visible = PackageTrackingVisible;
+                }
+                field("New Package No."; Rec."New Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    Editable = NewPackageNoEditable;
+                    ToolTip = 'Specifies a new package number that replaces the number in the Package No. field, when you post the warehouse item reclassification journal.';
+                    Visible = NewPackageNoVisible;
+                }
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationDateEditable;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
                     Visible = false;
                 }
-                field("New Expiration Date"; "New Expiration Date")
+                field("New Expiration Date"; Rec."New Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = NewExpirationDateEditable;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
                     Visible = NewExpirationDateVisible;
                 }
-                field("Warranty Date"; "Warranty Date")
+                field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the same as the field with the same name in the Item Tracking Lines window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
                     Visible = false;
                 }
-                field(Quantity; "Quantity (Base)")
+                field(Quantity; Rec."Quantity (Base)")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the same as the field in the Item Tracking Lines window.';
@@ -301,7 +314,7 @@
 
                     trigger OnAction()
                     begin
-                        TestField("Serial No.");
+                        Rec.TestField("Serial No.");
                     end;
                 }
                 action(Reclass_LotNoInfoCard)
@@ -317,7 +330,24 @@
 
                     trigger OnAction()
                     begin
-                        TestField("Lot No.");
+                        Rec.TestField("Lot No.");
+                    end;
+                }
+                action(Reclass_PackageNoInfoCard)
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Package No. Information Card';
+                    Image = LotInfo;
+                    RunObject = Page "Package No. Information List";
+                    RunPageLink = "Item No." = FIELD("Item No."),
+                                  "Variant Code" = FIELD("Variant Code"),
+                                  "Package No." = FIELD("Package No.");
+                    ToolTip = 'View or edit detailed information about the package number.';
+                    Visible = PackageTrackingVisible;
+
+                    trigger OnAction()
+                    begin
+                        Rec.TestField("Package No.");
                     end;
                 }
                 separator(Action44)
@@ -332,20 +362,20 @@
 
                     trigger OnAction()
                     var
-                        SerialNoInfoNew: Record "Serial No. Information";
-                        SerialNoInfoForm: Page "Serial No. Information Card";
+                        SerialNoInfo: Record "Serial No. Information";
+                        SerialNoInfoCard: Page "Serial No. Information Card";
                     begin
-                        TestField("New Serial No.");
+                        Rec.TestField("New Serial No.");
 
-                        Clear(SerialNoInfoForm);
-                        SerialNoInfoForm.InitWhse(Rec);
+                        Clear(SerialNoInfoCard);
+                        SerialNoInfoCard.InitWhse(Rec);
 
-                        SerialNoInfoNew.SetRange("Item No.", "Item No.");
-                        SerialNoInfoNew.SetRange("Variant Code", "Variant Code");
-                        SerialNoInfoNew.SetRange("Serial No.", "New Serial No.");
+                        SerialNoInfo.SetRange("Item No.", Rec."Item No.");
+                        SerialNoInfo.SetRange("Variant Code", Rec."Variant Code");
+                        SerialNoInfo.SetRange("Serial No.", Rec."New Serial No.");
 
-                        SerialNoInfoForm.SetTableView(SerialNoInfoNew);
-                        SerialNoInfoForm.Run;
+                        SerialNoInfoCard.SetTableView(SerialNoInfo);
+                        SerialNoInfoCard.Run();
                     end;
                 }
                 action("New L&ot No. Information")
@@ -358,20 +388,47 @@
 
                     trigger OnAction()
                     var
-                        LotNoInfoNew: Record "Lot No. Information";
-                        LotNoInfoForm: Page "Lot No. Information Card";
+                        LotNoInfo: Record "Lot No. Information";
+                        LotNoInfoCard: Page "Lot No. Information Card";
                     begin
-                        TestField("New Lot No.");
+                        Rec.TestField("New Lot No.");
 
-                        Clear(LotNoInfoForm);
-                        LotNoInfoForm.InitWhse(Rec);
+                        Clear(LotNoInfoCard);
+                        LotNoInfoCard.InitWhse(Rec);
 
-                        LotNoInfoNew.SetRange("Item No.", "Item No.");
-                        LotNoInfoNew.SetRange("Variant Code", "Variant Code");
-                        LotNoInfoNew.SetRange("Lot No.", "New Lot No.");
+                        LotNoInfo.SetRange("Item No.", Rec."Item No.");
+                        LotNoInfo.SetRange("Variant Code", Rec."Variant Code");
+                        LotNoInfo.SetRange("Lot No.", Rec."New Lot No.");
 
-                        LotNoInfoForm.SetTableView(LotNoInfoNew);
-                        LotNoInfoForm.Run;
+                        LotNoInfoCard.SetTableView(LotNoInfo);
+                        LotNoInfoCard.Run();
+                    end;
+                }
+                action("New P&ackage No. Information")
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'New P&ackage No. Information';
+                    Image = NewLotProperties;
+                    RunPageOnRec = false;
+                    ToolTip = 'Create a record with detailed information about the package number.';
+                    Visible = PackageTrackingVisible;
+
+                    trigger OnAction()
+                    var
+                        PackageNoInfo: Record "Package No. Information";
+                        PackageNoInfoCard: Page "Package No. Information Card";
+                    begin
+                        Rec.TestField("New Package No.");
+
+                        Clear(PackageNoInfoCard);
+                        PackageNoInfoCard.InitWhse(Rec);
+
+                        PackageNoInfo.SetRange("Item No.", Rec."Item No.");
+                        PackageNoInfo.SetRange("Variant Code", Rec."Variant Code");
+                        PackageNoInfo.SetRange("Package No.", Rec."New Package No.");
+
+                        PackageNoInfoCard.SetTableView(PackageNoInfo);
+                        PackageNoInfoCard.Run();
                     end;
                 }
             }
@@ -393,7 +450,7 @@
 
                     trigger OnAction()
                     begin
-                        TestField("Serial No.");
+                        Rec.TestField("Serial No.");
                     end;
                 }
                 action(Line_LotNoInforCard)
@@ -409,7 +466,23 @@
 
                     trigger OnAction()
                     begin
-                        TestField("Lot No.");
+                        Rec.TestField("Lot No.");
+                    end;
+                }
+                action(Line_PackageNoInforCard)
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Package No. Information Card';
+                    Image = LotInfo;
+                    RunObject = Page "Package No. Information List";
+                    RunPageLink = "Item No." = FIELD("Item No."),
+                                  "Variant Code" = FIELD("Variant Code"),
+                                  "Package No." = FIELD("Package No.");
+                    ToolTip = 'View or edit detailed information about the package number.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.TestField("Package No.");
                     end;
                 }
             }
@@ -418,30 +491,30 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateExpDateEditable;
-        CalculateSums;
+        UpdateExpDateEditable();
+        CalculateSums();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ExpirationDateOnFormat;
+        ExpirationDateOnFormat();
     end;
 
     trigger OnClosePage()
     begin
         if FormUpdated then
             if not UpdateUndefinedQty then
-                RestoreInitialTrkgLine
+                RestoreInitialTrkgLine()
             else
                 if not CopyToReservEntry then
-                    RestoreInitialTrkgLine;
+                    RestoreInitialTrkgLine();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
         FormUpdated := true;
-        Delete; // to ensure correct recalculation
-        CalculateSums;
+        Rec.Delete(); // to ensure correct recalculation
+        CalculateSums();
     end;
 
     trigger OnInit()
@@ -463,10 +536,10 @@
         WhseItemTrackingLine2: Record "Whse. Item Tracking Line";
     begin
         FormUpdated := true;
-        if ("Serial No." = '') and ("Lot No." = '') then
+        if not Rec.TrackingExists() then
             exit(false);
         if WhseItemTrackingLine2.FindLast then;
-        "Entry No." := WhseItemTrackingLine2."Entry No." + 1;
+        Rec."Entry No." := WhseItemTrackingLine2."Entry No." + 1;
         exit(true);
     end;
 
@@ -477,8 +550,10 @@
 
     trigger OnOpenPage()
     begin
-        UpdateUndefinedQty;
+        UpdateUndefinedQty();
         SaveItemTrkgLine(TempInitialTrkgLine);
+
+        SetPackageTrackingVisibility();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -506,7 +581,6 @@
         Text003: Label 'Placeholder';
 
     protected var
-        ItemTrackingType: Enum "Item Tracking Type";
         [InDataSet]
         Handle1Visible: Boolean;
         [InDataSet]
@@ -520,6 +594,8 @@
         [InDataSet]
         NewLotNoVisible: Boolean;
         [InDataSet]
+        NewPackageNoVisible: Boolean;
+        [InDataSet]
         NewExpirationDateVisible: Boolean;
         [InDataSet]
         ButtonLineReclassVisible: Boolean;
@@ -532,9 +608,13 @@
         [InDataSet]
         NewLotNoEditable: Boolean;
         [InDataSet]
+        NewPackageNoEditable: Boolean;
+        [InDataSet]
         NewExpirationDateEditable: Boolean;
         [InDataSet]
         ExpirationDateEditable: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     local procedure GetTextCaption(): Text[30]
     var
@@ -543,9 +623,9 @@
     begin
         case "Source Type" of
             DATABASE::"Posted Whse. Receipt Line":
-                exit(PostedWhseRcptLine.TableCaption);
+                exit(PostedWhseRcptLine.TableCaption());
             DATABASE::"Warehouse Shipment Line":
-                exit(WhseShipmentLine.TableCaption);
+                exit(WhseShipmentLine.TableCaption());
             else
                 exit(Text001);
         end;
@@ -559,15 +639,15 @@
         GetItem(WhseWorksheetLine."Item No.");
         ItemTrackingMgt.CheckWhseItemTrkgSetup(WhseWorksheetLine."Item No.");
 
-        SetControlsAsHandle;
-        Reclass := IsReclass(FormSourceType, WhseWorksheetLine."Worksheet Template Name");
-        SetControlsAsReclass;
+        SetControlsAsHandle();
+        Reclass := Rec.IsReclass(FormSourceType, WhseWorksheetLine."Worksheet Template Name");
+        SetControlsAsReclass();
 
         SetFilters(Rec, FormSourceType);
         ItemTrackingMgt.UpdateQuantities(
           WhseWorksheetLine, TotalWhseItemTrackingLine, SourceQuantityArray, UndefinedQtyArray, FormSourceType);
         OnAfterSetSource(WhseWorksheetLine, WhseWrkshLine, SourceType);
-        UpdateColorOfQty;
+        UpdateColorOfQty();
     end;
 
     local procedure SetControlsAsHandle()
@@ -588,6 +668,8 @@
         NewSerialNoEditable := Reclass;
         NewLotNoVisible := Reclass;
         NewLotNoEditable := Reclass;
+        NewPackageNoVisible := Reclass and PackageTrackingVisible;
+        NewPackageNoEditable := Reclass;
         NewExpirationDateVisible := Reclass;
         NewExpirationDateEditable := Reclass;
         ButtonLineReclassVisible := Reclass;
@@ -654,7 +736,7 @@
     local procedure BlockExpDate(): Boolean
     begin
         exit(
-          ("Buffer Status2" = "Buffer Status2"::"ExpDate blocked") or
+          (Rec."Buffer Status2" = Rec."Buffer Status2"::"ExpDate blocked") or
           (WhseWorksheetLine."Qty. (Base)" < 0) or
           Reclass or
           (FormSourceType in
@@ -668,13 +750,13 @@
         ItemTrackingMgt.CalculateSums(
           WhseWorksheetLine, TotalWhseItemTrackingLine,
           SourceQuantityArray, UndefinedQtyArray, FormSourceType);
-        UpdateColorOfQty;
+        UpdateColorOfQty();
     end;
 
     local procedure UpdateUndefinedQty() QtyIsValid: Boolean
     begin
         QtyIsValid := ItemTrackingMgt.UpdateUndefinedQty(TotalWhseItemTrackingLine, SourceQuantityArray, UndefinedQtyArray);
-        UpdateColorOfQty;
+        UpdateColorOfQty();
     end;
 
     local procedure UpdateColorOfQty()
@@ -711,7 +793,7 @@
             repeat
                 TempWhseItemTrkgLine := WhseItemTrkgLine2;
                 TempWhseItemTrkgLine.Insert();
-            until WhseItemTrkgLine2.Next = 0;
+            until WhseItemTrkgLine2.Next() = 0;
     end;
 
     local procedure RestoreInitialTrkgLine()
@@ -724,7 +806,7 @@
             repeat
                 WhseItemTrkgLine2 := TempInitialTrkgLine;
                 WhseItemTrkgLine2.Insert();
-            until TempInitialTrkgLine.Next = 0;
+            until TempInitialTrkgLine.Next() = 0;
     end;
 
     local procedure CopyToReservEntry(): Boolean
@@ -796,7 +878,7 @@
                 TempTrkgSpec."Entry No." := LastEntryNo + 1;
                 TempTrkgSpec.Insert();
                 LastEntryNo := TempTrkgSpec."Entry No.";
-            until TempInitialTrkgLine.Next = 0;
+            until TempInitialTrkgLine.Next() = 0;
 
         SetFilters(WhseItemTrkgLine2, FormSourceType);
         if WhseItemTrkgLine2.Find('-') then
@@ -805,14 +887,14 @@
                 TempTrkgSpec."Entry No." := LastEntryNo + 1;
                 TempTrkgSpec.Insert();
                 LastEntryNo := TempTrkgSpec."Entry No.";
-            until WhseItemTrkgLine2.Next = 0;
+            until WhseItemTrkgLine2.Next() = 0;
 
         SetSourceSpecification(SourceSpecification, SourceWhseItemTrkgLine, SourceType, SourceSubtype, SourceID, SourceProdOrderLine, SourceRefNo, QuantityBase);
         ItemTrackingMgt.SetGlobalParameters(SourceSpecification, TempTrkgSpec, DueDate);
         exit(ItemTrackingMgt.Run);
     end;
 
-    procedure InsertItemTrackingLine(WhseWrkshLine: Record "Whse. Worksheet Line"; WhseEntry: Record 7312; QtyToEmpty: Decimal)
+    procedure InsertItemTrackingLine(WhseWrkshLine: Record "Whse. Worksheet Line"; WhseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal)
     var
         WhseItemTrackingLine2: Record "Whse. Item Tracking Line";
         IsHandled: Boolean;
@@ -824,24 +906,23 @@
 
         UpdateUndefinedQty();
         SaveItemTrkgLine(TempInitialTrkgLine);
-        "Lot No." := WhseEntry."Lot No.";
-        "Serial No." := WhseEntry."Serial No.";
-        "Expiration Date" := WhseEntry."Expiration Date";
-        "Qty. per Unit of Measure" := WhseWrkshLine."Qty. per Unit of Measure";
-        Validate("Quantity (Base)", QtyToEmpty);
-        "Source Type" := FormSourceType;
-        "Source ID" := WhseWorksheetLine."Whse. Document No.";
-        "Source Ref. No." := WhseWorksheetLine."Whse. Document Line No.";
-        "Source Batch Name" := WhseWrkshLine."Worksheet Template Name";
-        "Location Code" := WhseWorksheetLine."Location Code";
-        "Item No." := WhseWorksheetLine."Item No.";
-        "Variant Code" := WhseWrkshLine."Variant Code";
-        if ("Expiration Date" <> 0D) and (FormSourceType = DATABASE::"Internal Movement Line") then
-            InitExpirationDate();
-        if WhseItemTrackingLine2.FindLast then;
-        "Entry No." := WhseItemTrackingLine2."Entry No." + 1;
+        Rec.CopyTrackingFromWhseEntry(WhseEntry);
+        Rec."Expiration Date" := WhseEntry."Expiration Date";
+        Rec."Qty. per Unit of Measure" := WhseWrkshLine."Qty. per Unit of Measure";
+        Rec.Validate("Quantity (Base)", QtyToEmpty);
+        Rec."Source Type" := FormSourceType;
+        Rec."Source ID" := WhseWorksheetLine."Whse. Document No.";
+        Rec."Source Ref. No." := WhseWorksheetLine."Whse. Document Line No.";
+        Rec."Source Batch Name" := WhseWrkshLine."Worksheet Template Name";
+        Rec."Location Code" := WhseWorksheetLine."Location Code";
+        Rec."Item No." := WhseWorksheetLine."Item No.";
+        Rec."Variant Code" := WhseWrkshLine."Variant Code";
+        if (Rec."Expiration Date" <> 0D) and (FormSourceType = DATABASE::"Internal Movement Line") then
+            Rec.InitExpirationDate();
+        if WhseItemTrackingLine2.FindLast() then;
+        Rec."Entry No." := WhseItemTrackingLine2."Entry No." + 1;
         OnBeforeItemTrackingLineInsert(Rec, WhseWrkshLine, WhseEntry);
-        Insert();
+        Rec.Insert();
     end;
 
     protected procedure SerialNoOnAfterValidate()
@@ -889,6 +970,13 @@
         SourceSpecification."Qty. per Unit of Measure" := SourceWhseItemTrkgLine."Qty. per Unit of Measure";
 
         OnAfterSetSourceSpecification(SourceSpecification, SourceWhseItemTrkgLine);
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

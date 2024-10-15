@@ -222,7 +222,7 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
         PmtGenJournalLine.Validate("Applies-to ID", UserId);
 
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             SetAppliesToIdOnVendorLedgerEntry(VendorLedgerEntry, AmtToApply);
         until VendorLedgerEntry.Next = 0;
@@ -302,7 +302,7 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
 
         VATEntry.SetCurrentKey("Transaction No.");
         VATEntry.SetRange("Source Code", SourceCodeSetup."General Journal");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         sign := -1;
         repeat
             if VATEntry."Transaction No." <> PrevTransactionNo then

@@ -1,4 +1,4 @@
-﻿table 15 "G/L Account"
+table 15 "G/L Account"
 {
     Caption = 'G/L Account';
     DataCaptionFields = "No.", Name;
@@ -54,12 +54,12 @@
                    (xRec."Account Type" = xRec."Account Type"::Posting)
                 then begin
                     GLEntry.SetRange("G/L Account No.", "No.");
-                    if not GLEntry.IsEmpty then
+                    if not GLEntry.IsEmpty() then
                         Error(
                           Text000,
                           FieldCaption("Account Type"));
                     GLBudgetEntry.SetRange("G/L Account No.", "No.");
-                    if not GLBudgetEntry.IsEmpty then
+                    if not GLBudgetEntry.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Account Type"));
@@ -599,7 +599,7 @@
                     exit;
                 GLAccountCategory.Get("Account Subcategory Entry No.");
                 TestField("Income/Balance", GLAccountCategory."Income/Balance");
-                "Account Category" := GLAccountCategory."Account Category";
+                "Account Category" := "G/L Account Category".FromInteger(GLAccountCategory."Account Category");
             end;
         }
         field(81; "Account Subcategory Descript."; Text[80])
@@ -635,7 +635,7 @@
         }
         field(9000; "API Account Type"; Enum "G/L Account Type")
         {
-            Caption = 'Account Type';
+            Caption = 'API Account Type';
             Editable = false;
         }
         field(11000; "VAT Amount"; Decimal)
@@ -946,7 +946,7 @@
 
             GLAccountSubAccount.Validate("Account Category", "Account Category");
             GLAccountSubAccount.Modify
-        until GLAccountSubAccount.Next = 0;
+        until GLAccountSubAccount.Next() = 0;
     end;
 
     procedure GetCurrencyCode(): Code[10]

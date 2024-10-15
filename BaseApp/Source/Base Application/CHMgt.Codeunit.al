@@ -350,7 +350,7 @@ codeunit 11503 CHMgt
         exit(50);
     end;
 
-    [EventSubscriber(ObjectType::Report, 393, 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
     local procedure SuggestVendorPaymentUpdatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
     begin
         // NewDescription = Description + ', ' + ExternalDocNo, where Description is truncated to fit full ExternalDocNo value
@@ -364,13 +364,13 @@ codeunit 11503 CHMgt
                 -MaxStrLen(GenJournalLine.Description));
     end;
 
-    [EventSubscriber(ObjectType::Table, 372, 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Payment Buffer", 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
     local procedure HandleOnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")
     begin
         PaymentBufferTarget."Reference No." := VendorLedgerEntrySource."Reference No.";
     end;
 
-    [EventSubscriber(ObjectType::Table, 372, 'OnCopyFieldsToGenJournalLine', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Payment Buffer", 'OnCopyFieldsToGenJournalLine', '', false, false)]
     local procedure HandleOnCopyFieldsToGenJournalLine(PaymentBufferSource: Record "Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -383,7 +383,7 @@ codeunit 11503 CHMgt
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterSetJournalLineFieldsFromApplication', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterSetJournalLineFieldsFromApplication', '', false, false)]
     local procedure HandleOnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -393,7 +393,7 @@ codeunit 11503 CHMgt
                 "Reference No." := '';
                 if "Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(VendorLedgerEntry, AccNo, "Applies-to ID") then
-                        if VendorLedgerEntry.Next = 0 then
+                        if VendorLedgerEntry.Next() = 0 then
                             CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry, GenJournalLine)
                         else
                             SendReferenceNoCollisionNotification;
@@ -404,20 +404,20 @@ codeunit 11503 CHMgt
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesLineSetFilters', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Totals", 'OnAfterSalesLineSetFilters', '', false, false)]
     local procedure HandleOnAfterSalesLineSetFilters(var TotalSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
     begin
         TotalSalesLine.SetFilter("Quote Variant", '<>%1', TotalSalesLine."Quote Variant"::Variant);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesCheckIfDocumentChanged', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Totals", 'OnAfterSalesCheckIfDocumentChanged', '', false, false)]
     local procedure HandleOnAfterSalesCheckIfDocumentChanged(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TotalsUpToDate: Boolean)
     begin
         if SalesLine."Quote Variant" <> xSalesLine."Quote Variant" then
             TotalsUpToDate := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnCalculateSalesSubPageTotalsOnAfterSetFilters', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Totals", 'OnCalculateSalesSubPageTotalsOnAfterSetFilters', '', false, false)]
     local procedure HandleOnCalculateSalesSubPageTotalsOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetFilter("Quote Variant", '<>%1', SalesLine."Quote Variant"::Variant);

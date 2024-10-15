@@ -356,7 +356,7 @@ codeunit 5350 "CRM Statistics Job"
         UnexpectedErrorDetected: Boolean;
     begin
 
-        if CRMSynchStatus.IsEmpty then begin
+        if CRMSynchStatus.IsEmpty() then begin
             CRMIntegrationManagement.InitializeCRMSynchStatus();
         end;
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");

@@ -62,7 +62,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         Commit();
         // execute
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
-        if not WhseWorksheetLine.IsEmpty then
+        if not WhseWorksheetLine.IsEmpty() then
             CODEUNIT.Run(CODEUNIT::"Whse. Create Pick", WhseWorksheetLine);
     end;
 
@@ -893,7 +893,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WarehouseEntry.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseEntry.SetRange("Source Line No.", ServiceLine."Line No.");
         WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
     end;
 
     [Normal]
@@ -916,7 +916,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -1167,7 +1167,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         // Verify that the value of the field Quantity of the Item Ledger Entry is equal to the value of the field Qty. to Ship of the
         // relevant Service Line.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         if TempServiceLineBeforePosting."Document Type"::"Credit Memo" = TempServiceLineBeforePosting."Document Type" then
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Credit Memo")
         else

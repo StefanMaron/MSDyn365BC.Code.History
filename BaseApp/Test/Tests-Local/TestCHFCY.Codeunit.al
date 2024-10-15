@@ -67,7 +67,6 @@ codeunit 144054 "Test CH FCY"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressFCYEntry()
     var
@@ -1011,4 +1010,3 @@ codeunit 144054 "Test CH FCY"
         AdjustExchangeRates.SAVEASXML(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

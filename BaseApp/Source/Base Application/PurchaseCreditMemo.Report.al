@@ -345,7 +345,7 @@ report 407 "Purchase - Credit Memo"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -546,7 +546,7 @@ report 407 "Purchase - Credit Memo"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -609,7 +609,7 @@ report 407 "Purchase - Credit Memo"
                                 repeat
                                     if (PurchCrMemoLine."VAT Identifier" <> VATIdentifier) and (PurchCrMemoLine.Quantity <> 0) then
                                         VATAmountText := Text013;
-                                until PurchCrMemoLine.Next = 0;
+                                until PurchCrMemoLine.Next() = 0;
                             end;
                             AllowInvDiscount := Format("Purch. Cr. Memo Line"."Allow Invoice Disc.");
                         end;
@@ -906,7 +906,7 @@ report 407 "Purchase - Credit Memo"
                     SegManagement.LogDocument(
                       16, "Purch. Cr. Memo Hdr."."No.", 0, 0, DATABASE::Vendor, "Purch. Cr. Memo Hdr."."Buy-from Vendor No.",
                       "Purch. Cr. Memo Hdr."."Purchaser Code", '', "Purch. Cr. Memo Hdr."."Posting Description", '');
-                until "Purch. Cr. Memo Hdr.".Next = 0;
+                until "Purch. Cr. Memo Hdr.".Next() = 0;
     end;
 
     trigger OnPreReport()

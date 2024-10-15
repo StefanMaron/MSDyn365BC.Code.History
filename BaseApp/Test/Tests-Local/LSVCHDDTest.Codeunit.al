@@ -289,7 +289,7 @@ codeunit 144001 "LSV CH DD Test"
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
-        LSVJnlLine.FindSet;
+        LSVJnlLine.FindSet();
     end;
 
     local procedure ValidateLSVJournalLines(LSVJnlLine: Record "LSV Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")

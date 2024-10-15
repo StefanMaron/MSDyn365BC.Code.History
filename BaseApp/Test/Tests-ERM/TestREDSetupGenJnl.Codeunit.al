@@ -1697,11 +1697,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     local procedure VerifyPostedDeferralHeadersNumber(GenJnlDocumentNo: Code[20]; ExpectedNumber: Integer)
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         with PostedDeferralHeader do begin
-            Reset;
-            SetRange("Deferral Doc. Type", DeferralUtilities.GetGLDeferralDocType);
+            Reset();
+            SetRange("Deferral Doc. Type", "Deferral Document Type"::"G/L");
             SetRange("Gen. Jnl. Document No.", GenJnlDocumentNo);
             Assert.AreEqual(ExpectedNumber, Count, PostedDeferralHeaderNumberErr);
         end;

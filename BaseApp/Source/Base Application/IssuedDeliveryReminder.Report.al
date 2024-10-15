@@ -211,7 +211,7 @@ report 5005273 "Issued Delivery Reminder"
                             repeat
                                 Continue := Type = Type::" ";
                                 StartLineNo := "Line No.";
-                            until (Next = 0) or not Continue;
+                            until (Next() = 0) or not Continue;
                         end;
                         if Find('+') then begin
                             EndLineNo := "Line No." + 1;

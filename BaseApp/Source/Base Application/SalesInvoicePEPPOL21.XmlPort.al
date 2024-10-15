@@ -1,4 +1,4 @@
-﻿xmlport 1600 "Sales Invoice - PEPPOL 2.1"
+xmlport 1600 "Sales Invoice - PEPPOL 2.1"
 {
     Caption = 'Sales Invoice - PEPPOL 2.1';
     Direction = Export;
@@ -47,7 +47,7 @@
                 trigger OnBeforePassVariable()
                 begin
                     if Note = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(TaxPointDate)
@@ -57,7 +57,7 @@
                 trigger OnBeforePassVariable()
                 begin
                     if TaxPointDate = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(DocumentCurrencyCode)
@@ -75,7 +75,7 @@
                 trigger OnBeforePassVariable()
                 begin
                     if AccountingCost = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(InvoicePeriod)
@@ -97,7 +97,7 @@
                       EndDate);
 
                     if (StartDate = '') and (EndDate = '') then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(OrderReference)
@@ -116,7 +116,7 @@
                       OrderReferenceID);
 
                     if OrderReferenceID = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(ContractDocumentReference)
@@ -145,7 +145,7 @@
                       DocumentType);
 
                     if ContractDocumentReferenceID = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             tableelement(additionaldocrefloop; Integer)
@@ -175,14 +175,14 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if mimeCode = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
                         trigger OnBeforePassVariable()
                         begin
                             if EmbeddedDocumentBinaryObject = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(ExternalReference)
@@ -206,7 +206,7 @@
                         EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
 
                 trigger OnPreXmlItem()
@@ -233,7 +233,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if SupplierEndpointID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(PartyIdentification)
@@ -252,7 +252,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if PartyIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(supplierpartyname)
@@ -293,7 +293,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CountrySubentity = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Country)
@@ -323,7 +323,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(ExemptionReason)
@@ -333,7 +333,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if ExemptionReason = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(suppliertaxscheme)
@@ -358,7 +358,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if PartyLegalEntityRegName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(partylegalentitycompanyid)
@@ -373,7 +373,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if PartyLegalEntityCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(RegistrationAddress)
@@ -402,7 +402,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if (SupplierRegAddrCityName = '') and (SupplierRegAddrCountry = '') then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -492,7 +492,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if CustomerEndpointID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(customerpartyidentification)
@@ -512,7 +512,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if CustomerPartyIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(custoemerpartyname)
@@ -557,7 +557,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CustomerCountrySubentity = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(customercountry)
@@ -591,7 +591,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyTaxSchemeCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custtaxscheme)
@@ -608,7 +608,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if CustTaxSchemeID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(custpartylegalentity)
@@ -623,7 +623,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyLegalEntityRegName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custpartylegalentitycompanyid)
@@ -638,7 +638,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyLegalEntityCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -735,7 +735,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PayeePartyID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(payeepartyname)
@@ -751,7 +751,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PayeePartyNameName = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(payeepartylegalentity)
@@ -771,7 +771,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PayeePartyLegalEntityCompanyID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -825,7 +825,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PayeePartyTaxScheme = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -838,7 +838,7 @@
                       PayeePartyTaxSchemeTaxSchemeID);
 
                     if TaxRepPartyPartyName = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(Delivery)
@@ -851,7 +851,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if ActualDeliveryDate = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(DeliveryLocation)
@@ -869,7 +869,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if DeliveryID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(deliveryaddress)
@@ -975,7 +975,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PrimaryAccountNumberID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PayeeFinancialAccount)
@@ -1060,7 +1060,7 @@
                                 trigger OnBeforePassVariable()
                                 begin
                                     if FinancialInstCountryIdCode = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -1179,7 +1179,7 @@
                 trigger OnAfterGetRecord()
                 begin
                     if not FindNextVATAmtRec(TempVATAmtLine, AllowanceChargeLoop.Number) then
-                        currXMLport.Break;
+                        currXMLport.Break();
 
                     PEPPOLMgt.GetAllowanceChargeInfo(
                       TempVATAmtLine,
@@ -1196,7 +1196,7 @@
                       AllowanceChargeTaxSchemeID);
 
                     if ChargeIndicator = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(TaxExchangeRate)
@@ -1244,7 +1244,7 @@
                       Date);
 
                     if (SourceCurrencyCode = '') and (TargetCurrencyCode = '') then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(TaxTotal)
@@ -1291,7 +1291,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if TransactionCurrencyTaxAmount = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(subtotaltaxcategory)
@@ -1330,7 +1330,7 @@
                     trigger OnAfterGetRecord()
                     begin
                         if not FindNextVATAmtRec(TempVATAmtLine, TaxSubtotalLoop.Number) then
-                            currXMLport.Break;
+                            currXMLport.Break();
 
                         PEPPOLMgt.GetTaxSubtotalInfo(
                           TempVATAmtLine,
@@ -1395,7 +1395,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if AllowanceTotalAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(ChargeTotalAmount)
@@ -1409,7 +1409,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if ChargeTotalAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PrepaidAmount)
@@ -1431,7 +1431,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if PayableRoundingAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PayableAmount)
@@ -1484,7 +1484,7 @@
                     trigger OnBeforePassVariable()
                     begin
                         if InvoiceLineNote = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(InvoicedQuantity)
@@ -1538,7 +1538,7 @@
                           InvLineInvoicePeriodEndDate);
 
                         if (InvLineInvoicePeriodStartDate = '') and (InvLineInvoicePeriodEndDate = '') then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(OrderLineReference)
@@ -1638,7 +1638,7 @@
                            (InvoiceLineDeliveryStreetName = '') and
                            (InvoiceLineActualDeliveryDate = '')
                         then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 tableelement(invlnallowancechargeloop; Integer)
@@ -1677,7 +1677,7 @@
                           InvLnAllowanceChargeAmtCurrID);
 
                         if InvLnAllowanceChargeIndicator = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
 
                     trigger OnPreXmlItem()
@@ -1717,7 +1717,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if Description = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(Name)
@@ -1736,7 +1736,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if SellersItemIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(StandardItemIdentification)
@@ -1755,7 +1755,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if StandardItemIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(OriginCountry)
@@ -1774,7 +1774,7 @@
                         trigger OnBeforePassVariable()
                         begin
                             if OriginCountryIdCode = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     tableelement(commodityclassificationloop; Integer)
@@ -1793,7 +1793,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if CommodityCode = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(ItemClassificationCode)
@@ -1807,7 +1807,7 @@
                             trigger OnBeforePassVariable()
                             begin
                                 if ItemClassificationCode = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
@@ -1820,7 +1820,7 @@
                               ItemClassificationCodeListID);
 
                             if (CommodityCode = '') and (ItemClassificationCode = '') then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
 
                         trigger OnPreXmlItem()
@@ -1890,7 +1890,7 @@
                               AdditionalItemPropertyValue);
 
                             if AdditionalItemPropertyName = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
 
                         trigger OnPreXmlItem()
@@ -1981,7 +1981,7 @@
                               PriceAllowChargeBaseAmtCurrID);
 
                             if PriceChargeIndicator = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
 
                         trigger OnPreXmlItem()
@@ -2005,7 +2005,7 @@
                 trigger OnAfterGetRecord()
                 begin
                     if not FindNextInvoiceLineRec(InvoiceLineLoop.Number) then
-                        currXMLport.Break;
+                        currXMLport.Break();
 
                     PEPPOLMgt.GetLineGeneralInfo(
                       SalesLine,
@@ -2027,7 +2027,7 @@
                 TaxCurrencyCodeListID: Text;
             begin
                 if not FindNextInvoiceRec(InvoiceHeaderLoop.Number) then
-                    currXMLport.Break;
+                    currXMLport.Break();
 
                 GetTotals;
 
@@ -2102,7 +2102,7 @@
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             ProcessedDocType::Service:
                 with ServiceInvoiceLine do begin
@@ -2112,7 +2112,7 @@
                             PEPPOLMgt.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                             SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
         end;
     end;

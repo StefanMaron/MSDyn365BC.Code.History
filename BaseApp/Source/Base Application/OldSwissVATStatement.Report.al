@@ -444,7 +444,7 @@ report 11518 "Old Swiss VAT Statement"
                                         then
                                             FoundBalanceEntries := true;
                                     end;
-                                until FoundBalanceEntries or (BalanceVATEntry2.Next = 0);
+                                until FoundBalanceEntries or (BalanceVATEntry2.Next() = 0);
 
                             if not FoundBalanceEntries then
                                 CurrReport.Break();
@@ -703,7 +703,7 @@ report 11518 "Old Swiss VAT Statement"
             trigger OnAfterGetRecord()
             begin
                 if NotFirstEntry then
-                    if TempVATCurrencyAdjustmentBuffer.Next = 0 then
+                    if TempVATCurrencyAdjustmentBuffer.Next() = 0 then
                         CurrReport.Break();
                 NotFirstEntry := true;
             end;

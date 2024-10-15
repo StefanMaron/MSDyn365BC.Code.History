@@ -2321,7 +2321,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.Run();
         LibraryVariableStorage.AssertEmpty();
     end;
-    
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -2562,7 +2562,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
     end;
 
-    local procedure CreateVendor(CurrencyCode: Code[10]; ApplicationMethod: Option): Code[20]
+    local procedure CreateVendor(CurrencyCode: Code[10]; ApplicationMethod: Enum "Application Method"): Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -2723,7 +2723,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.Modify(true);
     end;
 
-    local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Option; DimensionCode: Code[20]): Code[20]
+    local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type"; DimensionCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
         DimensionValue: Record "Dimension Value";
@@ -2790,7 +2790,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
     end;
 
     local procedure PrepareThreePaymentJournalBatches(var GenJournalBatch: array[3] of Record "Gen. Journal Batch"; BankAccountNo: Code[20])
@@ -3029,7 +3029,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure FindGeneralJournalLineFromBatchAndAmount(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatchName: Code[10]; GenJournaTemplateName: Code[10]; ExpectedAmount: Decimal)
@@ -3138,7 +3138,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.FindFirst;
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Amount (LCY)");
             TotalAmountLCY += Abs(VendorLedgerEntry."Amount (LCY)");
@@ -3167,7 +3167,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.TestField("Remaining Amount", 0);
@@ -3214,7 +3214,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GLEntry.SetRange(Description, GenJournalLine.Description);
         GLEntry.SetRange("Global Dimension 1 Code", ShortcutDimension1Code);
         GLEntry.SetRange("Global Dimension 2 Code", ShortcutDimension2Code);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::Invoice);
             GLEntry.TestField("Global Dimension 1 Code", ShortcutDimension1Code);
@@ -3380,7 +3380,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
     local procedure SaveGeneralTemplates(var GenJournalTemplate: Record "Gen. Journal Template"; var ToGenJournalTemplate: Record "Gen. Journal Template")
     begin
-        GenJournalTemplate.FindSet;
+        GenJournalTemplate.FindSet();
         repeat
             ToGenJournalTemplate.Init();
             ToGenJournalTemplate := GenJournalTemplate;
@@ -3390,7 +3390,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
     local procedure RestoreGeneralTemplates(var FromGenJournalTemplate: Record "Gen. Journal Template"; var GenJournalTemplate: Record "Gen. Journal Template")
     begin
-        FromGenJournalTemplate.FindSet;
+        FromGenJournalTemplate.FindSet();
         repeat
             GenJournalTemplate.Init();
             GenJournalTemplate := FromGenJournalTemplate;

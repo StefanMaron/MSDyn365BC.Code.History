@@ -82,7 +82,7 @@ page 5957 "Default Service Hours"
         if ServHour.Find('-') then begin
             repeat
                 Weekdays[ServHour.Day + 1] := true;
-            until ServHour.Next = 0;
+            until ServHour.Next() = 0;
             for i := 1 to 5 do begin
                 if not Weekdays[i] then
                     EntryMissing := true;

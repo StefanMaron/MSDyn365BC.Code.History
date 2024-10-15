@@ -776,7 +776,7 @@ codeunit 142062 "ERM Reports DACH"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         LibraryReportDataset.SetRange('Bank_Posting_GroupsCaption', 'Bank Posting Groups');
-        BankAccountPostingGroup.FindSet;
+        BankAccountPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Bank_Posting_GroupsCaption', 'Bank Posting Groups'));
@@ -791,7 +791,7 @@ codeunit 142062 "ERM Reports DACH"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         LibraryReportDataset.SetRange('Customer_Posting_GroupsCaption', 'Customer Posting Groups');
-        CustomerPostingGroup.FindSet;
+        CustomerPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Customer_Posting_GroupsCaption', 'Customer Posting Groups'));
@@ -816,7 +816,7 @@ codeunit 142062 "ERM Reports DACH"
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
     begin
         LibraryReportDataset.SetRange('Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups');
-        GenBusinessPostingGroup.FindSet;
+        GenBusinessPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups'));
@@ -835,7 +835,7 @@ codeunit 142062 "ERM Reports DACH"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         LibraryReportDataset.SetRange('Gen__Posting_SetupCaption', 'Gen. Posting Setup');
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Gen__Posting_SetupCaption', 'Gen. Posting Setup'));
@@ -873,7 +873,7 @@ codeunit 142062 "ERM Reports DACH"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         LibraryReportDataset.SetRange('Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups');
-        GenProductPostingGroup.FindSet;
+        GenProductPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups'));
@@ -965,7 +965,7 @@ codeunit 142062 "ERM Reports DACH"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         LibraryReportDataset.SetRange('Inventory_Posting_GroupsCaption', 'Inventory Posting Groups');
-        InventoryPostingGroup.FindSet;
+        InventoryPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Inventory_Posting_GroupsCaption', 'Inventory Posting Groups'));
@@ -1044,7 +1044,7 @@ codeunit 142062 "ERM Reports DACH"
         SourceCode: Record "Source Code";
     begin
         LibraryReportDataset.SetRange('SourceCaption', 'Source');
-        SourceCode.FindSet;
+        SourceCode.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'SourceCaption', 'Source'));
@@ -1078,7 +1078,7 @@ codeunit 142062 "ERM Reports DACH"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         LibraryReportDataset.SetRange('VAT_Posting_GroupsCaption', 'VAT Posting Groups');
-        VATBusinessPostingGroup.FindSet;
+        VATBusinessPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'VAT_Posting_GroupsCaption', 'VAT Posting Groups'));
@@ -1092,7 +1092,7 @@ codeunit 142062 "ERM Reports DACH"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         LibraryReportDataset.SetRange('VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups');
-        VATProductPostingGroup.FindSet;
+        VATProductPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups'));
@@ -1106,7 +1106,7 @@ codeunit 142062 "ERM Reports DACH"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryReportDataset.SetRange('VAT_SetupCaption', 'VAT Setup');
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'VAT_SetupCaption', 'VAT Setup'));
@@ -1186,7 +1186,7 @@ codeunit 142062 "ERM Reports DACH"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         LibraryReportDataset.SetRange('Vendor_Posting_GroupsCaption', 'Vendor Posting Groups');
-        VendorPostingGroup.FindSet;
+        VendorPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Vendor_Posting_GroupsCaption', 'Vendor Posting Groups'));

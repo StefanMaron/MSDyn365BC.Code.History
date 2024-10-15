@@ -199,7 +199,7 @@ report 11561 "SR Vendor Payment Advice"
                     trigger OnAfterGetRecord()
                     begin
                         if Number > 1 then
-                            if TempVendLedgEntry.Next = 0 then
+                            if TempVendLedgEntry.Next() = 0 then
                                 CurrReport.Break();
 
                         if TempVendLedgEntry."Currency Code" = '' then
@@ -246,7 +246,7 @@ report 11561 "SR Vendor Payment Advice"
                     trigger OnAfterGetRecord()
                     begin
                         if Number > 1 then
-                            if TempRelatedVendLedgEntry.Next = 0 then
+                            if TempRelatedVendLedgEntry.Next() = 0 then
                                 CurrReport.Break();
 
                         if TempRelatedVendLedgEntry."Currency Code" = '' then
@@ -526,7 +526,7 @@ report 11561 "SR Vendor Payment Advice"
                     TempGenJourLine.Mark(true)
                 else
                     TempGenJourLine.Mark(false);
-            until TempGenJourLine.Next = 0;
+            until TempGenJourLine.Next() = 0;
         end;
         TempGenJourLine.MarkedOnly(true);
     end;
@@ -555,7 +555,7 @@ report 11561 "SR Vendor Payment Advice"
                 if VendLedgEntryBuffer.Insert() then;
                 UpdateVendLedgEntryBufferRecursively(
                   RelatedVendLedgEntryBuffer, RelatedVendLedgEntryBuffer, VendLedgEntry."Entry No.");
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 }
 

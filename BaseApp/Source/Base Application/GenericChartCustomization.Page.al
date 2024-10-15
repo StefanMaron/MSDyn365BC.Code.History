@@ -849,7 +849,7 @@ page 9188 "Generic Chart Customization"
                     CurrentCaptionCode := GenericChartMgt.OptionalMeasure1Code
                 else
                     CurrentCaptionCode := IncStr(CurrentCaptionCode)
-            until TempGenericChartYAxis.Next = 0;
+            until TempGenericChartYAxis.Next() = 0;
         end
     end;
 

@@ -141,16 +141,16 @@ codeunit 141000 "Report Layout - Local"
         ReportFileName := DelChr(ReportCaption, '=', '/') + '.pdf'
     end;
 
-    local procedure IsFileEmpty(FilePath: Text) IsEmpty: Boolean
+    local procedure IsFileEmpty(FilePath: Text) FileEmpty: Boolean
     var
         File: File;
     begin
-        IsEmpty := not Exists(FilePath);
-        if not IsEmpty then begin
+        FileEmpty := not Exists(FilePath);
+        if not FileEmpty then begin
             File.Open(FilePath);
             File.TextMode(true);
-            IsEmpty := File.Len = 0;
-            File.Close
+            FileEmpty := File.Len = 0;
+            File.Close();
         end
     end;
 

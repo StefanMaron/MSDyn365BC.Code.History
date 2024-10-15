@@ -82,7 +82,7 @@ table 273 "Bank Acc. Reconciliation"
         {
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No.")));
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No.")));
             Caption = 'Total Balance on Bank Account';
             Editable = false;
             FieldClass = FlowField;
@@ -90,7 +90,7 @@ table 273 "Bank Acc. Reconciliation"
         field(8; "Total Applied Amount"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No.")));
             Caption = 'Total Applied Amount';
@@ -100,7 +100,7 @@ table 273 "Bank Acc. Reconciliation"
         field(9; "Total Transaction Amount"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Statement Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Statement Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                         "Bank Account No." = FIELD("Bank Account No."),
                                                                                         "Statement No." = FIELD("Statement No.")));
             Caption = 'Total Transaction Amount';
@@ -110,7 +110,7 @@ table 273 "Bank Acc. Reconciliation"
         field(10; "Total Unposted Applied Amount"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       "Account Type" = FILTER(<> "Bank Account")));
@@ -121,7 +121,7 @@ table 273 "Bank Acc. Reconciliation"
         field(11; "Total Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line".Difference WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line".Difference WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                 "Bank Account No." = FIELD("Bank Account No."),
                                                                                 "Statement No." = FIELD("Statement No.")));
             Caption = 'Total Difference';
@@ -169,7 +169,7 @@ table 273 "Bank Acc. Reconciliation"
         field(25; "Total Outstd Bank Transactions"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                         Open = CONST(true),
                                                                         "Check Ledger Entries" = CONST(0)));
             Caption = 'Total Outstd Bank Transactions';
@@ -179,7 +179,7 @@ table 273 "Bank Acc. Reconciliation"
         field(26; "Total Outstd Payments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                         Open = CONST(true),
                                                                         "Check Ledger Entries" = FILTER(> 0)));
             Caption = 'Total Outstd Payments';
@@ -189,7 +189,7 @@ table 273 "Bank Acc. Reconciliation"
         field(27; "Total Applied Amount Payments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       Type = CONST("Check Ledger Entry")));
@@ -199,7 +199,7 @@ table 273 "Bank Acc. Reconciliation"
         }
         field(28; "Bank Account Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("Bank Account No.")));
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -207,7 +207,7 @@ table 273 "Bank Acc. Reconciliation"
         field(29; "Total Positive Adjustments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       "Account Type" = FILTER(<> "Bank Account"),
@@ -219,7 +219,7 @@ table 273 "Bank Acc. Reconciliation"
         field(30; "Total Negative Adjustments"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       "Account Type" = FILTER(<> "Bank Account"),
@@ -231,7 +231,7 @@ table 273 "Bank Acc. Reconciliation"
         field(31; "Total Positive Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       Type = CONST(Difference),
@@ -243,7 +243,7 @@ table 273 "Bank Acc. Reconciliation"
         field(32; "Total Negative Difference"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();
-            CalcFormula = Sum ("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
+            CalcFormula = Sum("Bank Acc. Reconciliation Line"."Applied Amount" WHERE("Account Type" = FIELD("Statement Type"),
                                                                                       "Bank Account No." = FIELD("Bank Account No."),
                                                                                       "Statement No." = FIELD("Statement No."),
                                                                                       Type = CONST(Difference),
@@ -453,7 +453,7 @@ table 273 "Bank Acc. Reconciliation"
                       BankAccReconciliationLine."Shortcut Dimension 2 Code");
                     BankAccReconciliationLine.Modify();
                 end;
-            until BankAccReconciliationLine.Next = 0;
+            until BankAccReconciliationLine.Next() = 0;
         end;
     end;
 
@@ -509,6 +509,11 @@ table 273 "Bank Acc. Reconciliation"
         end;
 
         Commit();
+
+        if BankAccount.Get(BankAccReconciliation."Bank Account No.") then
+            if BankAccount."Disable Automatic Pmt Matching" then
+                exit;
+
         ProcessStatement(BankAccReconciliation);
     end;
 
@@ -718,7 +723,7 @@ table 273 "Bank Acc. Reconciliation"
         if not Confirm(MustHaveValueQst, true, BankAccount.FieldCaption("Bank Statement Import Format")) then
             exit(false);
 
-        if PAGE.RunModal(PAGE::"Payment Bank Account Card", BankAccount) = ACTION::LookupOK then
+        if PAGE.RunModal(PAGE::"Bank Account Card", BankAccount) = ACTION::LookupOK then
             if BankAccount."Bank Statement Import Format" <> '' then
                 exit(true);
 
@@ -734,13 +739,30 @@ table 273 "Bank Acc. Reconciliation"
         PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccountLedgerEntry);
     end;
 
+    [Scope('OnPrem')]
+    procedure MatchCandidateFilterDate(): Date
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.SetRange("Statement Type", "Statement Type");
+        BankAccReconciliationLine.SetRange("Statement No.", "Statement No.");
+        BankAccReconciliationLine.SetFilter("Bank Account No.", "Bank Account No.");
+        BankAccReconciliationLine.SetCurrentKey("Transaction Date");
+        BankAccReconciliationLine.Ascending := false;
+        if BankAccReconciliationLine.FindFirst() then
+            if BankAccReconciliationLine."Transaction Date" > "Statement Date" then
+                exit(BankAccReconciliationLine."Transaction Date");
+
+        exit("Statement Date");
+    end;
+
     local procedure CopyBankAccountsToTemp(var TempBankAccount: Record "Bank Account" temporary; var FromBankAccount: Record "Bank Account")
     begin
         if FromBankAccount.FindSet then
             repeat
                 TempBankAccount := FromBankAccount;
                 if TempBankAccount.Insert() then;
-            until FromBankAccount.Next = 0;
+            until FromBankAccount.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

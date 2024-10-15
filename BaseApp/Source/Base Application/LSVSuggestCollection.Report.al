@@ -32,7 +32,7 @@ report 3010831 "LSV Suggest Collection"
                 if CustLedgEntry.Find('-') then
                     repeat
                         WritePmtSuggestLines(CustLedgEntry);
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
 
                 // Check for credit memos of customers
                 if EntriesPerCust > 0 then begin
@@ -50,7 +50,7 @@ report 3010831 "LSV Suggest Collection"
             trigger OnPostDataItem()
             begin
                 Window.Close;
-                if TempCustLedgEntry.IsEmpty then begin
+                if TempCustLedgEntry.IsEmpty() then begin
                     if NoOfLinesInserted > 0 then begin
                         Message(Text007, NoOfLinesInserted, LsvSetup."LSV Currency Code", TotalAmt);
 
@@ -153,7 +153,7 @@ report 3010831 "LSV Suggest Collection"
     trigger OnPostReport()
     begin
         Commit();
-        if not TempCustLedgEntry.IsEmpty then
+        if not TempCustLedgEntry.IsEmpty() then
             if Confirm(Text036) then
                 PAGE.RunModal(0, TempCustLedgEntry);
     end;

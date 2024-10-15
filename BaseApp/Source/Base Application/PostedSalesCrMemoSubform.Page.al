@@ -1,4 +1,4 @@
-page 135 "Posted Sales Cr. Memo Subform"
+﻿page 135 "Posted Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -38,6 +38,7 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ToolTip = 'Specifies the position of the line on the page. This number is calculated automatically.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -46,6 +47,7 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -468,16 +470,16 @@ page 135 "Posted Sales Cr. Memo Subform"
     end;
 
     var
-        [InDataSet]
-        DescriptionIndent: Integer;
-        TotalSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
+        [InDataSet]
+        DescriptionIndent: Integer;
 
     protected var
+        TotalSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

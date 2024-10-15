@@ -25,7 +25,7 @@ report 3010542 "EZAG File"
 
                 // Write EZAG rec or add amount for combined pmt
                 NextGlLine.Copy("Gen. Journal Line");
-                if (NextGlLine.Next = 0) or
+                if (NextGlLine.Next() = 0) or
                    (SummaryPerVendor = false) or
                    (NextGlLine."Account No." <> "Account No.") or
                    (NextGlLine."Recipient Bank Account" <> "Recipient Bank Account") or
@@ -871,7 +871,7 @@ report 3010542 "EZAG File"
     [Scope('OnPrem')]
     procedure WriteTestFile(var _DtaSetup: Record "DTA Setup")
     var
-        TestVendBank: Record "Vendor Bank Account";
+        TestVendBankAcc: Record "Vendor Bank Account";
         TestVendor: Record Vendor;
         TestDocNo: Code[10];
         TestAmt: Decimal;
@@ -888,44 +888,43 @@ report 3010542 "EZAG File"
         DtaSetup.Get(_DtaSetup."Bank Code");
         DtaSetup.Copy(DtaSetup);
         xValuta := Format(CalcDate('<1W>', Today), 6, '<year><month,2><day,2>');
-        PrepareFile;
+        PrepareFile();
 
         TestDocNo := 'TEST0000';
         TestAmt := 1.0;
         TestFile := true;  // Bei ESR/ESR+ Ref. Nr von dummy record
 
-        with TestVendBank do begin
-            Reset;
-            if FindSet then
-                repeat
-                    if not (("Vendor No." = '') or
-                            ("ESR Type" = "ESR Type"::"5/15") or
-                            (("Payment Form" in ["Payment Form"::ESR, "Payment Form"::"ESR+"]) and ("ESR Account No." = '')))
-                    then begin
-                        if not TestVendor.Get("Vendor No.") then
-                            Error(Text055, "Vendor No.", Code);
+        TestVendBankAcc.Reset();
+        if TestVendBankAcc.FindSet() then
+            repeat
+                if not ((TestVendBankAcc."Vendor No." = '') or
+                        (TestVendBankAcc."ESR Type" = TestVendBankAcc."ESR Type"::"5/15") or
+                        ((TestVendBankAcc."Payment Form" in [TestVendBankAcc."Payment Form"::ESR, TestVendBankAcc."Payment Form"::"ESR+"]) and
+                         (TestVendBankAcc."ESR Account No." = '')))
+                then begin
+                    if not TestVendor.Get(TestVendBankAcc."Vendor No.") then
+                        Error(Text055, TestVendBankAcc."Vendor No.", TestVendBankAcc.Code);
 
-                        TestDocNo := IncStr(TestDocNo);
-                        TestTxt := CopyStr(Text056 + "Vendor No." + ' ' + Code + ' ' + Format("Payment Form"), 1, 60);
+                    TestDocNo := IncStr(TestDocNo);
+                    TestTxt := CopyStr(Text056 + TestVendBankAcc."Vendor No." + ' ' + TestVendBankAcc.Code + ' ' + Format(TestVendBankAcc."Payment Form"), 1, 60);
 
-                        case "ESR Type" of
-                            "ESR Type"::"9/27":
-                                VendEntry."Reference No." := '330002000000000097010075184';
-                            "ESR Type"::"9/16":
-                                VendEntry."Reference No." := '4097160015679962';
-                        end;
-
-                        WriteEzagRecord(
-                          "Vendor No.", Code, TestVendor."Currency Code", TestAmt,
-                          0D, TestDocNo, '', TestTxt, '');
+                    case TestVendBankAcc."ESR Type" of
+                        TestVendBankAcc."ESR Type"::"9/27":
+                            VendEntry."Reference No." := '330002000000000097010075184';
+                        TestVendBankAcc."ESR Type"::"9/16":
+                            VendEntry."Reference No." := '4097160015679962';
                     end;
-                until Next = 0;
-        end;
 
-        WriteTotalRecord;
+                    WriteEzagRecord(
+                        TestVendBankAcc."Vendor No.", TestVendBankAcc.Code, TestVendor."Currency Code", TestAmt,
+                        0D, TestDocNo, '', TestTxt, '');
+                end;
+            until TestVendBankAcc.Next() = 0;
 
-        Filename.Close;
-        Window.Close;
+        WriteTotalRecord();
+
+        Filename.Close();
+        Window.Close();
 
         Message(Text057, _DtaSetup."EZAG Filename", _DtaSetup."EZAG File Folder", TotalNoOfRecs);
     end;

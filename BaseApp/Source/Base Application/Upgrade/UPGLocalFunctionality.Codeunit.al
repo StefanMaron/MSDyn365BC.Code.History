@@ -66,98 +66,98 @@ codeunit 104100 "Upg Local Functionality"
                 PhysInvtOrderHeader.Init();
                 PhysInvtOrderHeader.TRANSFERFIELDS(UPGPhysInventoryOrderHeader, TRUE);
                 PhysInvtOrderHeader.Insert();
-            UNTIL UPGPhysInventoryOrderHeader.NEXT = 0;
+            UNTIL UPGPhysInventoryOrderHeader.Next() = 0;
 
         IF UPGPhysInventoryOrderLine.FINDSET THEN
             REPEAT
                 PhysInvtOrderLine.Init();
                 PhysInvtOrderLine.TRANSFERFIELDS(UPGPhysInventoryOrderLine, TRUE);
                 PhysInvtOrderLine.Insert();
-            UNTIL UPGPhysInventoryOrderLine.NEXT = 0;
+            UNTIL UPGPhysInventoryOrderLine.Next() = 0;
 
         IF UPGPhysInvtRecordingHeader.FINDSET THEN
             REPEAT
                 PhysInvtRecordHeader.Init();
                 PhysInvtRecordHeader.TRANSFERFIELDS(UPGPhysInvtRecordingHeader, TRUE);
                 PhysInvtRecordHeader.Insert();
-            UNTIL UPGPhysInvtRecordingHeader.NEXT = 0;
+            UNTIL UPGPhysInvtRecordingHeader.Next() = 0;
 
         IF UPGPhysInvtRecordingLine.FINDSET THEN
             REPEAT
                 PhysInvtRecordLine.Init();
                 PhysInvtRecordLine.TRANSFERFIELDS(UPGPhysInvtRecordingLine, TRUE);
                 PhysInvtRecordLine.Insert();
-            UNTIL UPGPhysInvtRecordingLine.NEXT = 0;
+            UNTIL UPGPhysInvtRecordingLine.Next() = 0;
 
         IF UPGPostPhysInvtOrderHeader.FINDSET THEN
             REPEAT
                 PstdPhysInvtOrderHdr.Init();
                 PstdPhysInvtOrderHdr.TRANSFERFIELDS(UPGPostPhysInvtOrderHeader, TRUE);
                 PstdPhysInvtOrderHdr.Insert();
-            UNTIL UPGPostPhysInvtOrderHeader.NEXT = 0;
+            UNTIL UPGPostPhysInvtOrderHeader.Next() = 0;
 
         IF UPGPostedPhysInvtOrderLine.FINDSET THEN
             REPEAT
                 PstdPhysInvtOrderLine.Init();
                 PstdPhysInvtOrderLine.TRANSFERFIELDS(UPGPostedPhysInvtOrderLine, TRUE);
                 PstdPhysInvtOrderLine.Insert();
-            UNTIL UPGPostedPhysInvtOrderLine.NEXT = 0;
+            UNTIL UPGPostedPhysInvtOrderLine.Next() = 0;
 
         IF UPGPostedPhysInvtRecHeader.FINDSET THEN
             REPEAT
                 PstdPhysInvtRecordHdr.Init();
                 PstdPhysInvtRecordHdr.TRANSFERFIELDS(UPGPostedPhysInvtRecHeader, TRUE);
                 PstdPhysInvtRecordHdr.Insert();
-            UNTIL UPGPostedPhysInvtRecHeader.NEXT = 0;
+            UNTIL UPGPostedPhysInvtRecHeader.Next() = 0;
 
         IF UPGPostedPhysInvtRecLine.FINDSET THEN
             REPEAT
                 PstdPhysInvtRecordLine.Init();
                 PstdPhysInvtRecordLine.TRANSFERFIELDS(UPGPostedPhysInvtRecLine, TRUE);
                 PstdPhysInvtRecordLine.Insert();
-            UNTIL UPGPostedPhysInvtRecLine.NEXT = 0;
+            UNTIL UPGPostedPhysInvtRecLine.Next() = 0;
 
         IF UPGPhysInventoryCommentLine.FINDSET THEN
             REPEAT
                 PhysInvtCommentLine.Init();
                 PhysInvtCommentLine.TRANSFERFIELDS(UPGPhysInventoryCommentLine, TRUE);
                 PhysInvtCommentLine.Insert();
-            UNTIL UPGPhysInventoryCommentLine.NEXT = 0;
+            UNTIL UPGPhysInventoryCommentLine.Next() = 0;
 
         IF UPGPostedPhysInvtTrackLine.FINDSET THEN
             REPEAT
                 PstdPhysInvtTracking.Init();
                 PstdPhysInvtTracking.TRANSFERFIELDS(UPGPostedPhysInvtTrackLine, TRUE);
                 PstdPhysInvtTracking.Insert();
-            UNTIL UPGPostedPhysInvtTrackLine.NEXT = 0;
+            UNTIL UPGPostedPhysInvtTrackLine.Next() = 0;
 
         IF UPGPhysInvtTrackingBuffer.FINDSET THEN
             REPEAT
                 PhysInvtTracking.Init();
                 PhysInvtTracking.TRANSFERFIELDS(UPGPhysInvtTrackingBuffer);
                 PhysInvtTracking.Insert();
-            UNTIL UPGPhysInvtTrackingBuffer.NEXT = 0;
+            UNTIL UPGPhysInvtTrackingBuffer.Next() = 0;
 
         IF UPGExpectPhysInvTrackLine.FINDSET THEN
             REPEAT
                 ExpPhysInvtTracking.Init();
                 ExpPhysInvtTracking.TRANSFERFIELDS(UPGExpectPhysInvTrackLine);
                 ExpPhysInvtTracking.Insert();
-            UNTIL UPGExpectPhysInvTrackLine.NEXT = 0;
+            UNTIL UPGExpectPhysInvTrackLine.Next() = 0;
 
         IF UPGPostExpPhInTrackLine.FINDSET THEN
             REPEAT
                 PstdExpPhysInvtTrack.Init();
                 PstdExpPhysInvtTrack.TRANSFERFIELDS(UPGPostExpPhInTrackLine);
                 PstdExpPhysInvtTrack.Insert();
-            UNTIL UPGPostExpPhInTrackLine.NEXT = 0;
+            UNTIL UPGPostExpPhInTrackLine.Next() = 0;
 
         IF UPGPhysInvtDiffListBuffer.FINDSET THEN
             REPEAT
                 PhysInvtCountBuffer.Init();
                 PhysInvtCountBuffer.TRANSFERFIELDS(UPGPhysInvtDiffListBuffer);
                 PhysInvtCountBuffer.Insert();
-            UNTIL UPGPhysInvtDiffListBuffer.NEXT = 0;
+            UNTIL UPGPhysInvtDiffListBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag);
     end;

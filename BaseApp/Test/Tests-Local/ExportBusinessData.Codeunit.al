@@ -1229,7 +1229,7 @@ codeunit 142006 "Export Business Data"
 
         // [WHEN] Indenting record Y.
         DataExportRecordSource.Reset();
-        DataExportRecordSource.FindSet;
+        DataExportRecordSource.FindSet();
         DataExportRecordSource.Next;
         DataExportRecordSource.Validate(Indentation, 1);
 
@@ -1293,7 +1293,7 @@ codeunit 142006 "Export Business Data"
 
         // [WHEN] Un-indent record Y.
         DataExportRecordSource.Reset();
-        DataExportRecordSource.FindSet;
+        DataExportRecordSource.FindSet();
         DataExportRecordSource.Next;
         DataExportRecordSource.Validate(Indentation, DataExportRecordSource.Indentation - 1);
 
@@ -2561,7 +2561,7 @@ codeunit 142006 "Export Business Data"
         NoOfLinesExpected: Integer;
         DataLine: Text;
     begin
-        TempEntryNo.FindSet;
+        TempEntryNo.FindSet();
         NoOfLinesExpected := TempEntryNo.Count();
         TempBlob.CreateOutStream(ExtractedFileOutStream);
         ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
@@ -2685,7 +2685,7 @@ codeunit 142006 "Export Business Data"
             SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
             SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
             SetRange("Table No.", DataExportRecordSource."Table No.");
-            FindSet;
+            FindSet();
             repeat
                 Index += 1;
                 if FieldIndexNo = Index then begin
@@ -2960,7 +2960,7 @@ codeunit 142006 "Export Business Data"
     begin
         RecRef.Open(TableNo);
         FieldRef := RecRef.Field(FieldNo);
-        RecRef.FindSet;
+        RecRef.FindSet();
         repeat
             Customer.Get(RecRef.Field(1));
             Assert.AreEqual(
@@ -2973,7 +2973,7 @@ codeunit 142006 "Export Business Data"
         TempCustBuffer: Record "Budget Buffer" temporary;
     begin
         ReadCustomersWithNetChangeFromDataFile(ZipFilePath, FileName, TempCustBuffer);
-        TempCustBuffer.FindSet;
+        TempCustBuffer.FindSet();
         repeat
             Customer.Get(TempCustBuffer."G/L Account No.");
             Customer.CalcFields("Net Change");
@@ -3018,7 +3018,7 @@ codeunit 142006 "Export Business Data"
         TempCustBuffer: Record "Budget Buffer" temporary;
     begin
         ReadCustomersWithNetChangeFromDataFile(ZipFilePath, FileName, TempCustBuffer);
-        TempCustBuffer.FindSet;
+        TempCustBuffer.FindSet();
         repeat
             Customer.Get(TempCustBuffer."G/L Account No.");
             Assert.AreEqual(
@@ -3162,7 +3162,7 @@ codeunit 142006 "Export Business Data"
 
         CustLedgEntry.SetFilter("Customer No.", Customer.GetFilter("No."));
         TempCust.Reset();
-        TempCust.FindSet;
+        TempCust.FindSet();
         repeat
             CustLedgEntry.SetFilter("Entry No.", TempCust."No.");
             Assert.IsFalse(CustLedgEntry.IsEmpty, IncorrectNoOfRelatedRecsErr);

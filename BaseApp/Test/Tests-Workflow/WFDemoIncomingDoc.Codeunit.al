@@ -51,7 +51,7 @@ codeunit 134178 "WF Demo Incoming Doc"
         if WorkflowStepArgument.FindSet() then
             repeat
                 WorkflowStep.SetRange(Argument, WorkflowStepArgument.ID);
-                WorkflowStep.FindSet;
+                WorkflowStep.FindSet();
                 repeat
                     Assert.AreEqual(
                         1, StrPos(WorkflowStep."Function Name", 'REJECT'),

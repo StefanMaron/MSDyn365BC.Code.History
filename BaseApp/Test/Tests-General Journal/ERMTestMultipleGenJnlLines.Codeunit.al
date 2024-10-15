@@ -1786,7 +1786,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure FindVATSetupWithZeroVATPct(var VATPostingSetup: Record "VAT Posting Setup")
@@ -1815,7 +1815,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         StandardGeneralJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
     end;
 
     local procedure GetLastGLEntryNumber(): Integer

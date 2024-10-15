@@ -226,7 +226,7 @@ report 11539 "SR Cust. Ranking"
                     if not CustAmt.Find('-') then
                         CurrReport.Break();
                 end else
-                    if (CustAmt.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
+                    if (CustAmt.Next() = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
                         CurrReport.Break();
 
                 Customer.Get(CustAmt."Customer No.");

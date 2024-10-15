@@ -267,7 +267,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         Assert.AreEqual(3, SalesLine.Count, 'There should be 3 item invoice lines.');
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine2.CopyFilters(SalesLine);
             SalesLine2.SetRange(Type, SalesLine2.Type::" ");
@@ -382,7 +382,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Quote Variant", '<>%1', SalesLine."Quote Variant"::Variant);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TotalAmount += Round(SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision");
             TotalQty += SalesLine.Quantity;
@@ -411,7 +411,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
@@ -496,7 +496,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.SetRange("Quote Variant", SalesLine."Quote Variant"::Variant)
         else
             SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('Type_SalesLine', Format(SalesLine.Type));
             LibraryReportDataset.SetRange('No1_SalesLine', SalesLine."Line No.");
@@ -521,7 +521,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('Sales_Line__Type', Format(SalesLine.Type));
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Special lines should be printed.');
@@ -534,7 +534,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     var
         SalesLine: Record "Sales Line";
     begin
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", TempSalesLine."Line No.");
             SalesLine.TestField(Type, TempSalesLine.Type);
@@ -555,7 +555,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::"End-Total");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.TestField("Subtotal Net");
             SalesLine.TestField("Subtotal Gross");

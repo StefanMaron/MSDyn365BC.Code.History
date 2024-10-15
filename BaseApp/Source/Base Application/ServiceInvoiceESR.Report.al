@@ -203,7 +203,7 @@ report 3010534 "Service - Invoice ESR"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -393,7 +393,7 @@ report 3010534 "Service - Invoice ESR"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()
@@ -884,7 +884,7 @@ report 3010534 "Service - Invoice ESR"
         ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next = 0 then begin
+            if ServiceShipmentBuffer.Next() = 0 then begin
                 ServiceShipmentBuffer.Get(
                   ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
                 ServiceShipmentBuffer.Delete();
@@ -927,7 +927,7 @@ report 3010534 "Service - Invoice ESR"
                     TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]
@@ -954,8 +954,8 @@ report 3010534 "Service - Invoice ESR"
                 if ServiceInvoiceLine2.Find('-') then
                     repeat
                         TotalQuantity := TotalQuantity + ServiceInvoiceLine2.Quantity;
-                    until ServiceInvoiceLine2.Next = 0;
-            until ServiceInvoiceHeader.Next = 0;
+                    until ServiceInvoiceLine2.Next() = 0;
+            until ServiceInvoiceHeader.Next() = 0;
 
         ServiceShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
         ServiceShipmentLine.SetRange("Order No.", "Service Invoice Header"."Order No.");
@@ -985,7 +985,7 @@ report 3010534 "Service - Invoice ESR"
                           Quantity,
                           ServiceShipmentHeader."Posting Date");
                 end;
-            until (ServiceShipmentLine.Next = 0) or (TotalQuantity = 0);
+            until (ServiceShipmentLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     [Scope('OnPrem')]

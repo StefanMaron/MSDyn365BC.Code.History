@@ -112,10 +112,10 @@ codeunit 26100 "Update VAT-CH"
         RowTotValue: Text[30];
     begin
         VATPostingSetup.SetFilter("Sales VAT Stat. Cipher", '<>%1', VATPostingSetup."Sales VAT Stat. Cipher");
-        if VATPostingSetup.IsEmpty then begin
+        if VATPostingSetup.IsEmpty() then begin
             VATPostingSetup.Reset();
             VATPostingSetup.SetFilter("Purch. VAT Stat. Cipher", '<>%1', VATPostingSetup."Purch. VAT Stat. Cipher");
-            if VATPostingSetup.IsEmpty then
+            if VATPostingSetup.IsEmpty() then
                 Error(Text006);
         end;
 
@@ -134,7 +134,7 @@ codeunit 26100 "Update VAT-CH"
                           "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
                         InsertCipher200 := true;
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Reduction in Payments");
@@ -143,7 +143,7 @@ codeunit 26100 "Update VAT-CH"
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
                       "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
-                until Next = 0;
+                until Next() = 0;
                 InsertCipher200 := true;
             end;
 
@@ -153,7 +153,7 @@ codeunit 26100 "Update VAT-CH"
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, true, false,
                       "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
-                until Next = 0;
+                until Next() = 0;
                 InsertCipher200 := true;
             end;
 
@@ -163,7 +163,7 @@ codeunit 26100 "Update VAT-CH"
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
                       "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Purchase, '');
-                until Next = 0;
+                until Next() = 0;
                 InsertCipher200 := true;
             end;
 
@@ -343,7 +343,7 @@ codeunit 26100 "Update VAT-CH"
                       CopyStr(FromCipher, 1, 10),
                       false, LinReverseSign, LinPrintSign, "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, LinGenPostingType,
                       '');
-                until Next = 0;
+                until Next() = 0;
                 InsertVatStatLine(
                   Format(TotTxtConst, -50), Format(FromCipher, 0), 'Z' + '' + Format(FromCipher, 0), true, TotReverseSign, TotPrintSign,
                   "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VatCipher);
@@ -362,7 +362,7 @@ codeunit 26100 "Update VAT-CH"
                       CopyStr(FromCipher, 1, 10),
                       false, LinReverseSign, LinPrintSign, "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Amount, "General Posting Type"::Purchase,
                       '');
-                until Next = 0;
+                until Next() = 0;
                 InsertVatStatLine(
                   Format(TotTxtConst, -50), FromCipher, CopyStr('Z' + '' + FromCipher, 1, 10), true, TotReverseSign, TotPrintSign,
                   "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VatCipher);

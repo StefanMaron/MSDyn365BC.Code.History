@@ -26,7 +26,7 @@ codeunit 104151 "ISO Code UPG.CH"
                 REPEAT
                     "ISO Code" := "ISO Currency Code";
                     MODIFY;
-                UNTIL NEXT = 0;
+                UNTIL Next() = 0;
         END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag);

@@ -174,7 +174,7 @@ report 3010834 "Write LSV File"
                   LsvJour."Collection Completed On");
 
                 MessageTxt := '';
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
         WriteTotalRecord(TotalAmt, LsvJour."Collection Completed On");
         RecordLong := '';

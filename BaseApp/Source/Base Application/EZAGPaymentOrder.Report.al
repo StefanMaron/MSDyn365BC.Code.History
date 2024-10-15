@@ -19,7 +19,7 @@ report 3010544 "EZAG Payment Order"
                 if SummaryPerVendor then begin
                     VendBank.Get("Account No.", "Recipient Bank Account");
                     NextGlLine.Copy("Journal Line");
-                    if (NextGlLine.Next = 0) or
+                    if (NextGlLine.Next() = 0) or
                        (NextGlLine."Account No." <> "Account No.") or
                        (NextGlLine."Recipient Bank Account" <> "Recipient Bank Account") or
                        (NextGlLine."Currency Code" <> "Currency Code") or

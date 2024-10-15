@@ -21,7 +21,7 @@ codeunit 86 "Sales-Quote to Order"
         SalesQuoteLine.SetRange("Document Type", "Document Type");
         SalesQuoteLine.SetRange("Document No.", "No.");
         SalesQuoteLine.SetRange("Quote Variant", SalesQuoteLine."Quote Variant"::Variant);
-        if not SalesQuoteLine.IsEmpty then
+        if not SalesQuoteLine.IsEmpty() then
             Error(Text90800);
         SalesQuoteLine.Reset();
 
@@ -309,7 +309,7 @@ codeunit 86 "Sales-Quote to Order"
                     if SalesOrderLine.Reserve = SalesOrderLine.Reserve::Always then
                         SalesOrderLine.AutoReserve();
                 end;
-            until SalesQuoteLine.Next = 0;
+            until SalesQuoteLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -25,7 +25,8 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if AnalysisReportMgt.LookupReportName(GetRangeMax("Analysis Area"), CurrentReportName) then begin
+                        CurrentAnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                        if AnalysisReportMgt.LookupAnalysisReportName(CurrentAnalysisAreaType, CurrentReportName) then begin
                             Text := CurrentReportName;
                             CurrentReportNameOnAfterValidate;
                             exit(true);
@@ -66,17 +67,19 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if AnalysisReportMgt.LookupColumnName(GetRangeMax("Analysis Area"), CurrentColumnTemplate) then begin
+                        CurrentAnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                        if AnalysisReportMgt.LookupAnalysisColumnName(CurrentAnalysisAreaType, CurrentColumnTemplate) then begin
                             Text := CurrentColumnTemplate;
-                            CurrentColumnTemplateOnAfterValidate;
+                            CurrentColumnTemplateOnAfterValidate();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        AnalysisReportMgt.GetColumnTemplate(GetRangeMax("Analysis Area"), CurrentColumnTemplate);
-                        CurrentColumnTemplateOnAfterValidate;
+                        CurrentAnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                        AnalysisReportMgt.GetColumnTemplate(CurrentAnalysisAreaType.AsInteger(), CurrentColumnTemplate);
+                        CurrentColumnTemplateOnAfterValidate();
                     end;
                 }
             }
@@ -87,7 +90,6 @@ page 7117 "Sales Analysis Report"
                 {
                     ApplicationArea = SalesAnalysis;
                     Caption = 'Source Type Filter';
-                    OptionCaption = ' ,Customer,Vendor,Item';
                     ToolTip = 'Specifies filters for what is shown in the analysis view.';
 
                     trigger OnValidate()
@@ -106,7 +108,7 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        AnalysisReportMgt.LookupSourceNo(Rec, CurrentSourceTypeFilter, CurrentSourceTypeNoFilter);
+                        AnalysisReportMgt.LookupSourceNo(Rec, CurrentSourceTypeFilter.AsInteger(), CurrentSourceTypeNoFilter);
                         CurrPage.Update(false);
                     end;
 
@@ -239,17 +241,18 @@ page 7117 "Sales Analysis Report"
                         Dim2Filter: Text;
                         Dim3Filter: Text;
                     begin
-                        AnalysisReport.SetParams(GetRangeMax("Analysis Area"), CurrentReportName, CurrentLineTemplate, CurrentColumnTemplate);
-                        DateFilter := GetFilter("Date Filter");
-                        ItemBudgetFilter := GetFilter("Item Budget Filter");
-                        LocationFilter := GetFilter("Location Filter");
-                        Dim1Filter := GetFilter("Dimension 1 Filter");
-                        Dim2Filter := GetFilter("Dimension 2 Filter");
-                        Dim3Filter := GetFilter("Dimension 3 Filter");
+                        CurrentAnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                        AnalysisReport.SetParameters(CurrentAnalysisAreaType, CurrentReportName, CurrentLineTemplate, CurrentColumnTemplate);
+                        DateFilter := Rec.GetFilter("Date Filter");
+                        ItemBudgetFilter := Rec.GetFilter("Item Budget Filter");
+                        LocationFilter := Rec.GetFilter("Location Filter");
+                        Dim1Filter := Rec.GetFilter("Dimension 1 Filter");
+                        Dim2Filter := Rec.GetFilter("Dimension 2 Filter");
+                        Dim3Filter := Rec.GetFilter("Dimension 3 Filter");
                         AnalysisReport.SetFilters(
                           DateFilter, ItemBudgetFilter, LocationFilter, Dim1Filter, Dim2Filter, Dim3Filter,
-                          CurrentSourceTypeFilter, CurrentSourceTypeNoFilter);
-                        AnalysisReport.Run;
+                          CurrentSourceTypeFilter.AsInteger(), CurrentSourceTypeNoFilter);
+                        AnalysisReport.Run();
                     end;
                 }
             }
@@ -329,7 +332,7 @@ page 7117 "Sales Analysis Report"
         AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, AnalysisColumn);
 
         AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
-        AnalysisReportMgt.SetSourceType(Rec, CurrentSourceTypeFilter);
+        AnalysisReportMgt.SetSourceType(Rec, CurrentSourceTypeFilter.AsInteger());
         AnalysisReportMgt.SetSourceNo(Rec, CurrentSourceTypeNoFilter);
 
         GLSetup.Get();
@@ -364,7 +367,8 @@ page 7117 "Sales Analysis Report"
         CurrentColumnTemplate: Code[10];
         NewCurrentReportName: Code[10];
         CurrentSourceTypeNoFilter: Text;
-        CurrentSourceTypeFilter: Option " ",Customer,Vendor,Item;
+        CurrentSourceTypeFilter: Enum "Analysis Source Type";
+        CurrentAnalysisAreaType: Enum "Analysis Area Type";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         Direction: Option Backward,Forward;
         NoOfColumns: Integer;
@@ -529,7 +533,7 @@ page 7117 "Sales Analysis Report"
             repeat
                 MatrixColumnCaptions[i] := AnalysisColumn2."Column Header";
                 i := i + 1;
-            until (AnalysisColumn2.Next = 0) or (i > ArrayLen(MatrixColumnCaptions));
+            until (AnalysisColumn2.Next() = 0) or (i > ArrayLen(MatrixColumnCaptions));
     end;
 
     local procedure ClearPoints()

@@ -43,9 +43,9 @@
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        TempOptionLookupBuffer.SetCurrentType(Rec.Type.AsInteger());
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, "Option Lookup Type"::Sales) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
                         UpdateTypeText();
@@ -91,6 +91,7 @@
                     ToolTip = 'Specifies the title of the position if the line is of type from..to. This number is calculated automatically.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -115,6 +116,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -128,7 +130,7 @@
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
-                        OnCrossReferenceNoOnLookup(Rec);
+                        OnItemReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
@@ -943,6 +945,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -1098,13 +1111,13 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveSalesLine.DeleteLineConfirm(Rec) then
+            if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveSalesLine.DeleteLine(Rec);
+            SalesLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
@@ -1119,7 +1132,7 @@
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
@@ -1160,8 +1173,6 @@
     end;
 
     var
-        TotalSalesHeader: Record "Sales Header";
-        TotalSalesLine: Record "Sales Line";
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
@@ -1170,13 +1181,9 @@
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         UpdateAllowedVar: Boolean;
         Text000: Label 'Unable to run this function while in View mode.';
-        InvDiscAmountEditable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
@@ -1185,6 +1192,8 @@
         TypeAsText: Text[30];
 
     protected var
+        TotalSalesHeader: Record "Sales Header";
+        TotalSalesLine: Record "Sales Line";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1194,6 +1203,9 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        InvDiscAmountEditable: Boolean;
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
@@ -1201,6 +1213,7 @@
         ItemReferenceVisible: Boolean;
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
+        VATAmount: Decimal;
         DescriptionIndent: Integer;
         DescriptionEmphasize: Boolean;
 
@@ -1320,7 +1333,7 @@
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         if SuppressTotals then
             exit;
@@ -1460,8 +1473,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+#if not CLEAN18
+    [Obsolete('Replaced by OnItemReferenceNoOnLookup event.', '18.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 }
 

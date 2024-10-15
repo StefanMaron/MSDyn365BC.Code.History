@@ -152,7 +152,7 @@ page 127 "Det. Cust. Ledg. Entr. Preview"
             repeat
                 Rec := TempDtldCustLedgEntry;
                 Insert;
-            until TempDtldCustLedgEntry.Next = 0;
+            until TempDtldCustLedgEntry.Next() = 0;
     end;
 }
 

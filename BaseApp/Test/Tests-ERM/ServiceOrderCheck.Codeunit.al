@@ -144,7 +144,7 @@ codeunit 136114 "Service Order Check"
         // 4. Cleanup: Receive Loaner from All the Service Item Line.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServLoanerManagement.ReceiveLoaner(ServiceItemLine);
         until ServiceItemLine.Next = 0;
@@ -1338,7 +1338,7 @@ codeunit 136114 "Service Order Check"
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
-        FromServiceLine.FindSet;
+        FromServiceLine.FindSet();
         repeat
             ToTempServiceLine.Init();
             ToTempServiceLine := FromServiceLine;
@@ -1598,7 +1598,7 @@ codeunit 136114 "Service Order Check"
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure GetGLServiceLines(var ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
@@ -1639,10 +1639,10 @@ codeunit 136114 "Service Order Check"
     var
         Loaner: Record Loaner;
     begin
-        Loaner.FindSet;
+        Loaner.FindSet();
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Validate("Loaner No.", Loaner."No.");
             ServiceItemLine.Modify(true);
@@ -1675,7 +1675,7 @@ codeunit 136114 "Service Order Check"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServLoanerManagement.ReceiveLoaner(ServiceItemLine);
         until ServiceItemLine.Next = 0;
@@ -1693,7 +1693,7 @@ codeunit 136114 "Service Order Check"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             TempServiceItemLine := ServiceItemLine;
             TempServiceItemLine.Insert();
@@ -1831,7 +1831,7 @@ codeunit 136114 "Service Order Check"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
@@ -1844,7 +1844,7 @@ codeunit 136114 "Service Order Check"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
         repeat
             ResLedgerEntry.SetRange("Order Line No.", ServiceInvoiceLine."Line No.");
@@ -1870,7 +1870,7 @@ codeunit 136114 "Service Order Check"
     var
         ServiceItemLine: Record "Service Item Line";
     begin
-        TempServiceItemLine.FindSet;
+        TempServiceItemLine.FindSet();
         repeat
             ServiceItemLine.Get(TempServiceItemLine."Document Type", TempServiceItemLine."Document No.", TempServiceItemLine."Line No.");
             ServiceItemLine.TestField("Loaner No.", TempServiceItemLine."Loaner No.");
@@ -1881,7 +1881,7 @@ codeunit 136114 "Service Order Check"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             ServiceItemLine.TestField("Loaner No.", '');
         until ServiceItemLine.Next = 0;
@@ -1894,7 +1894,7 @@ codeunit 136114 "Service Order Check"
         GetServiceLines(ServiceLine, ServiceLine."Document No.", ServiceLine."Document Type"::Order);
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", ServiceLine."Customer No.");
             ServiceLedgerEntry.TestField(Quantity, ServiceLine."Qty. Shipped (Base)");
@@ -1925,7 +1925,7 @@ codeunit 136114 "Service Order Check"
         WarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
         WarrantyLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
-        WarrantyLedgerEntry.FindSet;
+        WarrantyLedgerEntry.FindSet();
         GetServiceLines(ServiceLine, ServiceLine."Document No.", ServiceLine."Document Type"::Order);
         repeat
             WarrantyLedgerEntry.TestField("Customer No.", ServiceLine."Customer No.");
@@ -1939,7 +1939,7 @@ codeunit 136114 "Service Order Check"
         WarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
         WarrantyLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
-        WarrantyLedgerEntry.FindSet;
+        WarrantyLedgerEntry.FindSet();
         GetServiceLines(ServiceLine, ServiceLine."Document No.", ServiceLine."Document Type"::Order);
         repeat
             WarrantyLedgerEntry.TestField("Customer No.", ServiceLine."Customer No.");
@@ -1954,7 +1954,7 @@ codeunit 136114 "Service Order Check"
     begin
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
             VATEntry.TestField("Bill-to/Pay-to No.", ServiceInvoiceHeader."Bill-to Customer No.");
@@ -1967,7 +1967,7 @@ codeunit 136114 "Service Order Check"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         // Verify fields Invoice Discount and Line Discount of Service Invoice Line are equal to the value of the field Invoice Discount and Line Discount of the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         FindServiceInvoiceHeader(ServiceInvoiceHeader, TempServiceLine."Document No.");
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
@@ -1987,7 +1987,7 @@ codeunit 136114 "Service Order Check"
         GetServiceLines(ServiceLine, ServiceLine."Document No.", ServiceLine."Document Type"::Order);
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             ServiceShipmentLine.TestField("Customer No.", ServiceLine."Customer No.");
             ServiceShipmentLine.TestField(Quantity, ServiceLine.Quantity);
@@ -2052,7 +2052,7 @@ codeunit 136114 "Service Order Check"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         FindServiceShipmentLine(ServiceShipmentLine, OrderNo);
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
         repeat
             ServiceShipmentLine.TestField("Posting Date", PostingDate);
         until ServiceShipmentLine.Next = 0;
@@ -2063,7 +2063,7 @@ codeunit 136114 "Service Order Check"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         FindServiceInvoiceLine(ServiceInvoiceLine, OrderNo);
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             ServiceInvoiceLine.TestField("Posting Date", PostingDate);
         until ServiceInvoiceLine.Next = 0;

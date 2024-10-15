@@ -1118,17 +1118,15 @@ codeunit 144058 "Test CH Small Features"
         GlobalFooterTxt := FooterTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11515, 'OnAfterPrepareHeader', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPrepareHeader(RecRef: RecordRef; ReportId: Integer; var HeaderLabel: array[20] of Text[30]; var HeaderTxt: array[20] of Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CH Report Management", 'OnAfterPrepareHeader', '', false, false)]
+    local procedure OnAfterPrepareHeader(RecRef: RecordRef; ReportId: Integer; var HeaderLabel: array[20] of Text[30]; var HeaderTxt: array[20] of Text)
     begin
         HeaderLabel[20] := GlobalHeaderLabel;
         HeaderTxt[20] := GlobalHeaderTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11515, 'OnAfterPrepareFooter', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPrepareFooter(RecRef: RecordRef; ReportId: Integer; var FooterLabel: array[20] of Text[30]; var FooterTxt: array[20] of Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CH Report Management", 'OnAfterPrepareFooter', '', false, false)]
+    local procedure OnAfterPrepareFooter(RecRef: RecordRef; ReportId: Integer; var FooterLabel: array[20] of Text[30]; var FooterTxt: array[20] of Text)
     begin
         FooterLabel[20] := GlobalFooterLabel;
         FooterTxt[20] := GlobalFooterTxt;

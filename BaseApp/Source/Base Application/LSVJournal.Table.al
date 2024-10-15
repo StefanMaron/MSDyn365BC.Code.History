@@ -158,7 +158,7 @@ table 3010832 "LSV Journal"
     begin
         BankAcc.Get("LSV Bank Code");
 
-        DirectDebitCollection.CreateNew(Format("No."), "LSV Bank Code", "Partner Type");
+        DirectDebitCollection.CreateRecord(Format("No."), "LSV Bank Code", "Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"LSV Journal";
         DirectDebitCollection.Modify();
         Commit();

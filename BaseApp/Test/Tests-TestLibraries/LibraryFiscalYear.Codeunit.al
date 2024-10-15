@@ -150,7 +150,7 @@ codeunit 131302 "Library - Fiscal Year"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        AccountingPeriod.FindSet;
+        AccountingPeriod.FindSet();
         StartDate := AccountingPeriod."Starting Date";
         AccountingPeriod.Next(NumberOfPeriods);
         EndDate := AccountingPeriod."Starting Date" - 1;

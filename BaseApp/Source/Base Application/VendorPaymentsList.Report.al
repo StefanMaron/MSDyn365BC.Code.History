@@ -526,7 +526,7 @@ report 11507 "Vendor Payments List"
                 end;
                 SumAmount := SumAmount + DetailedVendorLedgerEntry."Amount (LCY)";
                 VendorLedgerEntryNo := DetailedVendorLedgerEntry."Vendor Ledger Entry No.";
-            until DetailedVendorLedgerEntry.Next = 0;
+            until DetailedVendorLedgerEntry.Next() = 0;
             VendorLedgerEntry.Get(VendorLedgerEntryNo);
             if SumAmount <> 0 then begin
                 Counter := Counter + 1;
@@ -556,7 +556,7 @@ report 11507 "Vendor Payments List"
                     end;
                 SumAmount := SumAmount - DetailedVendorLedgerEntry."Amount (LCY)";
                 VendorLedgerEntryNo := DetailedVendorLedgerEntry."Vendor Ledger Entry No.";
-            until DetailedVendorLedgerEntry.Next = 0;
+            until DetailedVendorLedgerEntry.Next() = 0;
             VendorLedgerEntry.Get(DetailedVendorLedgerEntry."Applied Vend. Ledger Entry No.");
             if SumAmount <> 0 then begin
                 Counter := Counter + 1;

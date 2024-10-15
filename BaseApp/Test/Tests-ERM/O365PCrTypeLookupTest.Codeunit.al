@@ -69,8 +69,8 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
         // [GIVEN] A Purchase Credit Memo
         PurchaseCreditMemo.OpenNew;
 
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
+        TempOptionLookupBuffer.FindSet();
         repeat
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
@@ -207,7 +207,7 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
         TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next = 0;

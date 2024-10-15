@@ -23,7 +23,7 @@ page 509 "Blanket Purchase Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -37,7 +37,7 @@ page 509 "Blanket Purchase Order"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -51,7 +51,7 @@ page 509 "Blanket Purchase Order"
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -234,7 +234,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
@@ -403,7 +403,7 @@ page 509 "Blanket Purchase Order"
                                 if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                     SetRange("Pay-to Vendor No.");
 
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field("Pay-to Address"; "Pay-to Address")
@@ -1040,7 +1040,7 @@ page 509 "Blanket Purchase Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()

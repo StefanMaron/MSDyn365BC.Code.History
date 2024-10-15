@@ -69,7 +69,7 @@ codeunit 99000853 "Calc. Low-level code"
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("No.", Item."No.");
 
-                    if ProdBOMLine.IsEmpty and BOMComp.IsEmpty then begin
+                    if ProdBOMLine.IsEmpty and BOMComp.IsEmpty() then begin
                         // handle items which are not part of any BOMs
                         Item.CalcFields("Assembly BOM");
                         if Item."Assembly BOM" then
@@ -84,12 +84,12 @@ codeunit 99000853 "Calc. Low-level code"
                                     if ProdBOMHeader2.Get(ProdBOMLine."Production BOM No.") then
                                         if ProdBOMHeader2.Status in [ProdBOMHeader2.Status::New, ProdBOMHeader2.Status::"Under Development"] then
                                             CalcLevelsForBOM(ProdBOMHeader);
-                                until ProdBOMLine.Next = 0;
+                                until ProdBOMLine.Next() = 0;
                         end;
                 end;
 
                 NoofItems := NoofItems + 1;
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         NoofItems := 0;
         Window.Update(1, Text003);
@@ -108,7 +108,7 @@ codeunit 99000853 "Calc. Low-level code"
                 ProdBOMHeader2 := ProdBOMHeader;
                 CalcLevelsForBOM(ProdBOMHeader2);
                 NoofItems := NoofItems + 1;
-            until ProdBOMHeader.Next = 0;
+            until ProdBOMHeader.Next() = 0;
 
         OnAfterFindTopLevel;
         Session.LogMessage('0000CIN', StrSubstNo(TimeTakenForRunTxt, CurrentDateTime() - Start), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Planning');

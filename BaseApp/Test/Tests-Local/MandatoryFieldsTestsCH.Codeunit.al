@@ -158,6 +158,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueErr);
         SalesReturnOrder."Sell-to Customer Name".SetValue(CustomerNo);
         SalesReturnOrder.SalesLines.New;
+        SalesReturnOrder.SalesLines.Type.SetValue("Sales Line Type"::" ");
         Assert.IsFalse(SalesReturnOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.IsFalse(SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.IsFalse(SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);

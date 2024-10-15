@@ -205,7 +205,7 @@ codeunit 11110 "Update VAT-AT"
                       'EULIEF',
                       CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
                       1, VATStatementLine."Gen. Posting Type"::Sale.AsInteger(), VATStatementLine."Amount Type"::Base.AsInteger(), '', false, true);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -342,7 +342,7 @@ codeunit 11110 "Update VAT-AT"
                       RowNoPrefix + Format(VATPercentage),
                       CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
                       1, GenPostingType.AsInteger(), AmountType.AsInteger(), '', false, GenPostingType = VATStatementLine."Gen. Posting Type"::Sale);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

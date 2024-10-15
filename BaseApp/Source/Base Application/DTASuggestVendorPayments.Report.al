@@ -33,13 +33,13 @@ report 3010546 "DTA Suggest Vendor Payments"
                     if VendEntry.Find('-') then
                         repeat
                             WritePmtSuggestLines;
-                        until VendEntry.Next = 0;
+                        until VendEntry.Next() = 0;
                     VendEntry.SetRange("Pmt. Disc. Tolerance Date");
                     VendEntry.SetRange("Pmt. Discount Date", FromCashDiscDate, ToCashDiscDate);
                     if VendEntry.Find('-') then
                         repeat
                             WritePmtSuggestLines;
-                        until VendEntry.Next = 0;
+                        until VendEntry.Next() = 0;
                     VendEntry.SetRange("Pmt. Discount Date");  // Reset
                     VendEntry.SetRange("Remaining Pmt. Disc. Possible");
                 end;
@@ -49,7 +49,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                 if VendEntry.Find('-') then
                     repeat
                         WritePmtSuggestLines;
-                    until VendEntry.Next = 0;
+                    until VendEntry.Next() = 0;
 
                 // CHeck, if open Credit Memos for Vendor
                 if PmtsPerVendor > 0 then begin
@@ -269,7 +269,7 @@ report 3010546 "DTA Suggest Vendor Payments"
     trigger OnPostReport()
     begin
         Commit();
-        if not VendorLedgEntryTemp.IsEmpty then
+        if not VendorLedgEntryTemp.IsEmpty() then
             if Confirm(Text029) then
                 PAGE.RunModal(0, VendorLedgEntryTemp);
     end;
@@ -573,7 +573,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                 BalAccLine.Validate("Amount (LCY)");  // Currency Factor calculated based on Amount and Amount LCY
                 BalAccLine.Modify();
 
-            until PmtLine.Next = 0;
+            until PmtLine.Next() = 0;
     end;
 }
 

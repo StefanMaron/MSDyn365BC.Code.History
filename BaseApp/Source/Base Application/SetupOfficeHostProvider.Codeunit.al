@@ -6,12 +6,12 @@ codeunit 1634 "Setup Office Host Provider"
         InitSetup;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure InitSetup()
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        if not OfficeAddinSetup.IsEmpty then
+        if not OfficeAddinSetup.IsEmpty() then
             exit;
 
         OfficeAddinSetup.Init();

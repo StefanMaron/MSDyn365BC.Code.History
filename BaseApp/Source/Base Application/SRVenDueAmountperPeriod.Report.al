@@ -151,7 +151,7 @@ report 11553 "SR Ven. Due Amount per Period"
                     if Number = 1 then
                         Currency2.FindSet
                     else
-                        if Currency2.Next = 0 then
+                        if Currency2.Next() = 0 then
                             CurrReport.Break();
 
                     Currency2.CalcFields("Vendor Ledg. Entries in Filter");
@@ -216,7 +216,7 @@ report 11553 "SR Ven. Due Amount per Period"
                     repeat
                         Currency2 := Currency;
                         Currency2.Insert();
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
             end;
         }
     }

@@ -167,7 +167,7 @@ codeunit 5063 ArchiveManagement
                         SalesLine."Document No.", SalesLine."Line No.", SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
 
                 OnAfterStoreSalesLineArchive(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         OnAfterStoreSalesDocument(SalesHeader, SalesHeaderArchive);
     end;
@@ -216,7 +216,7 @@ codeunit 5063 ArchiveManagement
                         PurchLine."Document No.", PurchLine."Line No.", PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
 
                 OnAfterStorePurchLineArchive(PurchHeader, PurchLine, PurchHeaderArchive, PurchLineArchive);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         OnAfterStorePurchDocument(PurchHeader, PurchHeaderArchive);
     end;
@@ -251,12 +251,12 @@ codeunit 5063 ArchiveManagement
             SalesShptHeader.Reset();
             SalesShptHeader.SetCurrentKey("Order No.");
             SalesShptHeader.SetRange("Order No.", SalesHeader."No.");
-            if not SalesShptHeader.IsEmpty then
+            if not SalesShptHeader.IsEmpty() then
                 Error(Text005, SalesHeader."Document Type", SalesHeader."No.");
             SalesInvHeader.Reset();
             SalesInvHeader.SetCurrentKey("Order No.");
             SalesInvHeader.SetRange("Order No.", SalesHeader."No.");
-            if not SalesInvHeader.IsEmpty then
+            if not SalesInvHeader.IsEmpty() then
                 Error(Text005, SalesHeader."Document Type", SalesHeader."No.");
         end;
 
@@ -391,7 +391,7 @@ codeunit 5063 ArchiveManagement
                     Modify(true);
                 end;
                 OnAfterRestoreSalesLine(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
-            until SalesLineArchive.Next = 0;
+            until SalesLineArchive.Next() = 0;
 
         OnAfterRestoreSalesLines(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
     end;
@@ -498,7 +498,7 @@ codeunit 5063 ArchiveManagement
                 SalesCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 SalesCommentLineArch."Version No." := VersionNo;
                 SalesCommentLineArch.Insert();
-            until SalesCommentLine.Next = 0;
+            until SalesCommentLine.Next() = 0;
     end;
 
     local procedure StorePurchDocumentComments(DocType: Option; DocNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer)
@@ -515,7 +515,7 @@ codeunit 5063 ArchiveManagement
                 PurchCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 PurchCommentLineArch."Version No." := VersionNo;
                 PurchCommentLineArch.Insert();
-            until PurchCommentLine.Next = 0;
+            until PurchCommentLine.Next() = 0;
     end;
 
     procedure ArchSalesDocumentNoConfirm(var SalesHeader: Record "Sales Header")
@@ -631,7 +631,7 @@ codeunit 5063 ArchiveManagement
                     DeferralLineArchive."Doc. No. Occurrence" := DocNoOccurrence;
                     DeferralLineArchive."Version No." := VersionNo;
                     DeferralLineArchive.Insert();
-                until DeferralLine.Next = 0;
+                until DeferralLine.Next() = 0;
         end;
     end;
 
@@ -669,7 +669,7 @@ codeunit 5063 ArchiveManagement
                     DeferralLine.Init();
                     DeferralLine.TransferFields(DeferralLineArchive);
                     DeferralLine.Insert();
-                until DeferralLineArchive.Next = 0;
+                until DeferralLineArchive.Next() = 0;
         end else
             // Removes any lines that may have been defaulted
             DeferralUtilities.RemoveOrSetDeferralSchedule('', DeferralDocType, '', '', DocType, DocNo, LineNo, 0, 0D, '', '', true);
@@ -690,7 +690,7 @@ codeunit 5063 ArchiveManagement
                 SalesCommentLine.Init();
                 SalesCommentLine.TransferFields(SalesCommentLineArchive);
                 SalesCommentLine.Insert();
-            until SalesCommentLineArchive.Next = 0;
+            until SalesCommentLineArchive.Next() = 0;
 
         SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
@@ -725,7 +725,7 @@ codeunit 5063 ArchiveManagement
                       SalesHeader."Currency Factor", SalesHeader."Posting Date",
                       AmtToDeferACY, AmtToDefer);
 
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure RoundPurchaseDeferralsForArchive(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -744,7 +744,7 @@ codeunit 5063 ArchiveManagement
                       DeferralHeader, PurchaseHeader."Currency Code",
                       PurchaseHeader."Currency Factor", PurchaseHeader."Posting Date",
                       AmtToDeferACY, AmtToDefer);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure PrepareDeferralsForSalesOrder(SalesHeader: Record "Sales Header")
@@ -756,7 +756,7 @@ codeunit 5063 ArchiveManagement
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             SalesLine.SetFilter("Qty. Invoiced (Base)", '<>%1', 0);
-            if SalesLine.IsEmpty then
+            if SalesLine.IsEmpty() then
                 exit;
             RoundSalesDeferralsForArchive(SalesHeader, SalesLine);
         end;
@@ -771,7 +771,7 @@ codeunit 5063 ArchiveManagement
             PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
             PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
             PurchaseLine.SetFilter("Qty. Invoiced (Base)", '<>%1', 0);
-            if PurchaseLine.IsEmpty then
+            if PurchaseLine.IsEmpty() then
                 exit;
             RoundPurchaseDeferralsForArchive(PurchaseHeader, PurchaseLine);
         end;

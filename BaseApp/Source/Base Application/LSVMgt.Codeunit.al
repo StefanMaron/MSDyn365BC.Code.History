@@ -157,7 +157,7 @@ codeunit 3010831 LSVMgt
                 GenJournalLine.Insert();
                 LsvLine."LSV Status" := LsvLine."LSV Status"::"Transferred to Pmt. Journal";
                 LsvLine.Modify();
-            until LsvLine.Next = 0;
+            until LsvLine.Next() = 0;
         LsvJournal.Validate("LSV Status");
         LsvJournal.Modify();
     end;
@@ -596,7 +596,7 @@ codeunit 3010831 LSVMgt
                     "Bal. Account Type" := BalanceAccountType;
                     Validate("Bal. Account No.", BalanceAccountNo);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

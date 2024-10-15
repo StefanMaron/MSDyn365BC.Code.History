@@ -246,7 +246,7 @@ report 11540 "SR Cust. - Balance to Date"
                         repeat
                             "Entry No." := DtldCustLedgEntry."Cust. Ledger Entry No.";
                             Mark(true);
-                        until DtldCustLedgEntry.Next = 0;
+                        until DtldCustLedgEntry.Next() = 0;
 
                     SetCurrentKey("Customer No.", Open);
                     SetRange("Customer No.", Customer."No.");
@@ -255,7 +255,7 @@ report 11540 "SR Cust. - Balance to Date"
                     if FindSet then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange(Open);
@@ -511,7 +511,7 @@ report 11540 "SR Cust. - Balance to Date"
                     TmpGLAcc."No." := CustPostGroup."Receivables Account";
                     TmpGLAcc.Insert();
                 end;
-            until CustPostGroup.Next = 0;
+            until CustPostGroup.Next() = 0;
 
             if TmpGLAcc.FindSet then
                 repeat
@@ -519,7 +519,7 @@ report 11540 "SR Cust. - Balance to Date"
                     GLAcc.SetFilter("Date Filter", '..%1', FixedDay);
                     GLAcc.CalcFields("Balance at Date");
                     TotalReceivables := TotalReceivables + GLAcc."Balance at Date";
-                until TmpGLAcc.Next = 0;
+                until TmpGLAcc.Next() = 0;
 
             if TotalReportLCY <> TotalReceivables then
                 Message(Text003, GLSetup."LCY Code", Abs(TotalReportLCY - TotalReceivables));

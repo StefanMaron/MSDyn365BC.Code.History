@@ -309,7 +309,7 @@ report 11568 "SR Cust. Paymt List Standard"
                 end;
                 SumAmount := SumAmount + DetailedCustLedgerEntry."Amount (LCY)";
                 CustLedgerEntryNo := DetailedCustLedgerEntry."Cust. Ledger Entry No.";
-            until DetailedCustLedgerEntry.Next = 0;
+            until DetailedCustLedgerEntry.Next() = 0;
             CustLedgerEntry.Get(CustLedgerEntryNo);
             if SumAmount <> 0 then begin
                 Counter := Counter + 1;
@@ -340,7 +340,7 @@ report 11568 "SR Cust. Paymt List Standard"
                 end;
                 SumAmount := SumAmount - DetailedCustLedgerEntry."Amount (LCY)";
                 CustLedgerEntryNo := DetailedCustLedgerEntry."Applied Cust. Ledger Entry No.";
-            until DetailedCustLedgerEntry.Next = 0;
+            until DetailedCustLedgerEntry.Next() = 0;
             CustLedgerEntry.Get(CustLedgerEntryNo);
             if SumAmount <> 0 then begin
                 Counter := Counter + 1;

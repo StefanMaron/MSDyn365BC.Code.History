@@ -51,6 +51,7 @@
                     ToolTip = 'Specifies the title of the position if the line is of type from..to. This number is calculated automatically.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -60,6 +61,7 @@
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;

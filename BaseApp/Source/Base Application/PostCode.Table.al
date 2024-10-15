@@ -16,7 +16,7 @@ table 225 "Post Code"
             begin
                 PostCode.SetRange("Search City", "Search City");
                 PostCode.SetRange(Code, Code);
-                if not PostCode.IsEmpty then
+                if not PostCode.IsEmpty() then
                     Error(Text000, FieldCaption(Code), Code);
             end;
         }
@@ -34,7 +34,7 @@ table 225 "Post Code"
                 if xRec."Search City" <> "Search City" then begin
                     PostCode.SetRange("Search City", "Search City");
                     PostCode.SetRange(Code, Code);
-                    if not PostCode.IsEmpty then
+                    if not PostCode.IsEmpty() then
                         Error(Text000, FieldCaption(City), City);
                 end;
             end;

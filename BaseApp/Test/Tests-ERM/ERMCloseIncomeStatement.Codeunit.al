@@ -809,7 +809,7 @@ codeunit 134228 "ERM Close Income Statement"
         with SelectedDimension do begin
             DeleteAll();
 
-            DimSetEntry.FindSet;
+            DimSetEntry.FindSet();
             repeat
                 "User ID" := UserId;
                 "Object Type" := 3;

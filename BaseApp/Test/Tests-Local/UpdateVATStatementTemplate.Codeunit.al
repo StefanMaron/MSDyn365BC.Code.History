@@ -145,7 +145,7 @@ codeunit 144011 "Update VAT Statement Template"
         VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
         VATStatementName.FindFirst;
 
-        TempVATPostingSetup.FindSet;
+        TempVATPostingSetup.FindSet();
         repeat
             VATStatementLine.SetRange("Statement Template Name", VATStatementTemplate.Name);
             VATStatementLine.SetRange("VAT Bus. Posting Group", TempVATPostingSetup."VAT Bus. Posting Group");

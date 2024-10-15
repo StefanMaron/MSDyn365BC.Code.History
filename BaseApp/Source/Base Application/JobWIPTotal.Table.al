@@ -162,7 +162,7 @@ table 1021 "Job WIP Total"
         SetRange("Job No.", JobTask."Job No.");
         SetRange("Job Task No.", JobTask."Job Task No.");
         SetRange("Posted to G/L", false);
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll(true);
     end;
 }

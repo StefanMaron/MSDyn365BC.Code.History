@@ -262,7 +262,7 @@ table 11005 "Data Export Record Field"
             TableNo := SelectedField.TableNo;
             repeat
                 NewLineNo := InsertLine(DataExportCode, DataExpRecTypeCode, SourceLineNo, NewLineNo, TableNo, SelectedField."No.");
-            until SelectedField.Next = 0;
+            until SelectedField.Next() = 0;
         end;
 
         // Keep the original selection
@@ -289,7 +289,7 @@ table 11005 "Data Export Record Field"
           DataExportRecordField."Source Line No.");
         DataExportRecordField.SetRange("Field No.", DataExportRecordField."Field No.");
         DataExportRecordField.SetFilter("Field Class", '%1|%2', "Field Class"::Normal, "Field Class"::FlowFilter);
-        if not DataExportRecordField.IsEmpty then begin
+        if not DataExportRecordField.IsEmpty() then begin
             DataExportRecordField.CalcFields("Field Name");
             Error(FieldAlreadyAddedErr, Format(DataExportRecordField."Field Name"));
         end;

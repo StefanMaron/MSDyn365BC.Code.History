@@ -1,4 +1,4 @@
-﻿codeunit 1280 "Map Currency Exchange Rate"
+codeunit 1280 "Map Currency Exchange Rate"
 {
     TableNo = "Data Exch.";
 
@@ -22,7 +22,7 @@
         DataExchField.SetAutoCalcFields("Data Exch. Def Code");
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        if DataExchField.IsEmpty then
+        if DataExchField.IsEmpty() then
             exit;
 
         Commit();
@@ -34,7 +34,7 @@
                     CurrentLineNo := DataExchField."Line No.";
                     if UpdateCurrencyExchangeRate(CurrencyExchangeRate, DataExchField) then;
                 end;
-            until DataExchField.Next = 0;
+            until DataExchField.Next() = 0;
 
         OnAfterMapCurrencyExchangeRates(DataExch, CurrencyExchangeRate);
     end;
@@ -182,14 +182,14 @@
         TempField: Record "Field" temporary;
     begin
         GetMandatoryFields(TempField);
-        TempField.FindSet;
+        TempField.FindSet();
 
         repeat
             DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
             DataExchFieldMapping.SetRange("Field ID", TempField."No.");
-            if DataExchFieldMapping.IsEmpty then
+            if DataExchFieldMapping.IsEmpty() then
                 Error(FieldNotMappedErr, TempField.FieldName);
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
     end;
 
     procedure GetSuggestedFields(var TempField: Record "Field" temporary)
@@ -223,9 +223,8 @@
         TempField.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
-    [Scope('OnPrem')]
-    procedure HandleCurrencyExchangeRateRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
+    local procedure HandleCurrencyExchangeRateRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup";
         RecRef: RecordRef;
@@ -249,7 +248,7 @@
                 with CurrExchRateUpdateSetup do
                     ServiceConnection.InsertServiceConnection(
                       ServiceConnection, RecRef.RecordId, Description, ServiceURL, PAGE::"Curr. Exch. Rate Service Card");
-            until CurrExchRateUpdateSetup.Next = 0;
+            until CurrExchRateUpdateSetup.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

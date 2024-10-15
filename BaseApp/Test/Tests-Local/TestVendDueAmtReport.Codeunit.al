@@ -290,7 +290,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
             DetailedVendLedgEntry.SetRange("Posting Date", PostingDate[Count]);
 
             TotalAmountLCY[Count] := 0;
-            DetailedVendLedgEntry.FindSet;
+            DetailedVendLedgEntry.FindSet();
             repeat
                 TotalAmountLCY[Count] += DetailedVendLedgEntry."Amount (LCY)";
             until DetailedVendLedgEntry.Next = 0;

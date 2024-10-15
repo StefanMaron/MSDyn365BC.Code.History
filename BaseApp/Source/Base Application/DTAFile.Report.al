@@ -31,7 +31,7 @@ report 3010541 "DTA File"
 
                 // Write DTA Rec. - or add amt. for summary pmt.
                 NextGlLine.Copy("Gen. Journal Line");
-                if (NextGlLine.Next = 0) or
+                if (NextGlLine.Next() = 0) or
                    (SummaryPerVendor = false) or
                    (NextGlLine."Account No." <> "Account No.") or
                    (NextGlLine."Recipient Bank Account" <> "Recipient Bank Account") or
@@ -641,7 +641,7 @@ report 3010541 "DTA File"
                           TestDate, TestDocNo, '', TestTxt, '');
                     end;
 
-                until Next = 0;
+                until Next() = 0;
         end;
 
         WriteTotalRecord;

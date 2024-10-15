@@ -7,6 +7,11 @@ codeunit 5000 "BaseApp Install"
         DisableBlankProfile();
     end;
 
+    trigger OnInstallAppPerCompany()
+    begin
+        AddWordTemplateTables();
+    end;
+
     procedure DisableBlankProfile()
     var
         AllProfile: Record "All Profile";
@@ -16,5 +21,12 @@ codeunit 5000 "BaseApp Install"
                 AllProfile.Enabled := false;
                 AllProfile.Modify();
             end;
+    end;
+
+    local procedure AddWordTemplateTables()
+    var
+        UpgradeBaseApp: Codeunit "Upgrade - BaseApp";
+    begin
+        UpgradeBaseApp.UpgradeWordTemplateTables();
     end;
 }

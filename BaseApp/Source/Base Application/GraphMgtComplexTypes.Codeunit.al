@@ -276,7 +276,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         repeat
             GetDimensionJObject(DimensionSetEntry, JsonObject);
             JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
-        until DimensionSetEntry.Next = 0;
+        until DimensionSetEntry.Next() = 0;
 
         exit(JSONManagement.WriteCollectionToString);
     end;
@@ -383,7 +383,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         FieldRef.Validate(Value);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         InsertOrUpdatePostalAddress;

@@ -48,7 +48,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.Address = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(PstCd; CompanyInformation."Post Code")
@@ -57,7 +57,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(TwnNm; CompanyInformation.City)
@@ -66,7 +66,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.City = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(Ctry; CompanyInformation."Country/Region Code")
@@ -75,14 +75,14 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Country/Region Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
                                 if SwissExport then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(initgptyid)
@@ -124,7 +124,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         trigger OnBeforePassField()
                         begin
                             if SwissExport then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(PmtTpInf)
@@ -146,14 +146,14 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             trigger OnBeforePassVariable()
                             begin
                                 if not SwissExport then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
                         trigger OnBeforePassVariable()
                         begin
                             if not (PaymentExportDataGroup."Swiss Payment Type" = PaymentExportDataGroup."Swiss Payment Type"::"5") and SwissExport then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ReqdExctnDt; PaymentExportDataGroup."Transfer Date")
@@ -173,7 +173,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.Address = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(PstCd; CompanyInformation."Post Code")
@@ -182,7 +182,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(TwnNm; CompanyInformation.City)
@@ -191,7 +191,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation.City = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(Ctry; CompanyInformation."Country/Region Code")
@@ -200,14 +200,14 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if CompanyInformation."Country/Region Code" = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
                                 if SwissExport then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(dbtrid)
@@ -224,10 +224,10 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             trigger OnBeforePassVariable()
                             begin
                                 if SwissExport then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
 
                                 if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -258,7 +258,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         trigger OnBeforePassVariable()
                         begin
                             if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ChrgBr; PaymentExportDataGroup."SEPA Charge Bearer Text")
@@ -278,7 +278,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassField()
                                 begin
                                     if not SwissExport then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             fieldelement(EndToEndId; PaymentExportData."End-to-End ID")
@@ -313,7 +313,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                                                                                       PaymentExportData."Swiss Payment Type"::"2.1",
                                                                                                       PaymentExportData."Swiss Payment Type"::"2.2"])
                                 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Amt)
@@ -340,7 +340,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                            (PaymentExportData."Swiss Payment Type" = PaymentExportData."Swiss Payment Type"::"2.2") or
                                            (PaymentExportData."Recipient Bank BIC" = '')
                                         then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 textelement(ClrSysMmbId)
@@ -364,7 +364,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassVariable()
                                     begin
                                         if not SwissExport or (PaymentExportData."Swiss Payment Type" <> PaymentExportData."Swiss Payment Type"::"2.2") then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(Nm; PaymentExportData."Recipient Bank Name")
@@ -377,7 +377,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                            (PaymentExportData."Swiss Payment Type" <> PaymentExportData."Swiss Payment Type"::"6") or
                                            (PaymentExportData."Recipient Bank Name" = '')
                                         then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 textelement(PstlAdr)
@@ -388,7 +388,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                         trigger OnBeforePassField()
                                         begin
                                             if PaymentExportData."Recipient Bank Address" = '' then
-                                                currXMLport.Skip;
+                                                currXMLport.Skip();
                                         end;
                                     }
                                     fieldelement(PstCd; PaymentExportData."Recipient Bank Post Code")
@@ -397,7 +397,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                         trigger OnBeforePassField()
                                         begin
                                             if PaymentExportData."Recipient Bank Post Code" = '' then
-                                                currXMLport.Skip;
+                                                currXMLport.Skip();
                                         end;
                                     }
                                     fieldelement(TwnNm; PaymentExportData."Recipient Bank City")
@@ -406,7 +406,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                         trigger OnBeforePassField()
                                         begin
                                             if PaymentExportData."Recipient Bank City" = '' then
-                                                currXMLport.Skip;
+                                                currXMLport.Skip();
                                         end;
                                     }
                                     fieldelement(Ctry; PaymentExportData."Recipient Bank Country/Region")
@@ -415,7 +415,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                         trigger OnBeforePassField()
                                         begin
                                             if PaymentExportData."Recipient Bank Country/Region" = '' then
-                                                currXMLport.Skip;
+                                                currXMLport.Skip();
                                         end;
                                     }
 
@@ -426,13 +426,13 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                            ((PaymentExportData."Recipient Bank Address" = '') and (PaymentExportData."Recipient Bank Post Code" = '') and
                                             (PaymentExportData."Recipient Bank Name" = '') and (PaymentExportData."Recipient Bank Country/Region" = ''))
                                         then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
 
                                         if SwissExport and
                                            (PaymentExportData."Swiss Payment Type" = PaymentExportData."Swiss Payment Type"::"6") and
                                            (PaymentExportData."Recipient Bank BIC" <> '') and (PaymentExportData."Recipient Bank Acc. No." <> '')
                                         then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                             }
@@ -442,7 +442,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 if (PaymentExportData."Recipient Bank BIC" = '') and
                                    (not SwissExport or (PaymentExportData."Recipient Bank Name" = ''))
                                 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Cdtr)
@@ -459,7 +459,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Address" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(PstCd; PaymentExportData."Recipient Post Code")
@@ -468,7 +468,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Post Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(TwnNm; PaymentExportData."Recipient City")
@@ -477,7 +477,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient City" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 fieldelement(Ctry; PaymentExportData."Recipient Country/Region Code")
@@ -486,7 +486,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Country/Region Code" = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
 
@@ -497,7 +497,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                        (PaymentExportData."Recipient City" = '') and
                                        (PaymentExportData."Recipient Country/Region Code" = '')
                                     then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -515,7 +515,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassField()
                                     begin
                                         if PaymentExportData."Recipient Bank Acc. No." = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                                 textelement(Othr)
@@ -527,7 +527,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     trigger OnBeforePassVariable()
                                     begin
                                         if PaymentExportData."Recipient Acc. No." = '' then
-                                            currXMLport.Skip;
+                                            currXMLport.Skip();
                                     end;
                                 }
                             }
@@ -543,7 +543,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if RemittanceText1 = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                             textelement(remittancetext2)
@@ -622,7 +622,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if RmtStrdRef = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
@@ -634,7 +634,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 CdtrRefInf_CdOrPrtry_Cd := '';
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
                                 if not TempPaymentExportRemittanceText.FindSet then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                                 RemittanceText1 := TempPaymentExportRemittanceText.Text;
                                 if TempPaymentExportRemittanceText.Next <> 0 then
                                     RemittanceText2 := TempPaymentExportRemittanceText.Text;
@@ -644,7 +644,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 UpdateRemittanceInfo(PaymentExportData);
 
                                 if (RemittanceText1 = '') and (RemittanceText2 = '') and (RmtStrdRef = '') then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -715,7 +715,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;
-        until PaymentExportData.Next = 0;
+        until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
     end;
 

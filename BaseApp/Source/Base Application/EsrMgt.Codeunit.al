@@ -254,7 +254,7 @@ codeunit 3010531 EsrMgt
             repeat
                 GenJournalLine.Validate(Amount, GenJournalLine.Amount);
                 GenJournalLine.Modify();
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
 
         // *** Bal account per line or as combined entry
         if MultiplePostingDates then begin
@@ -268,7 +268,7 @@ codeunit 3010531 EsrMgt
 
                     GenJournalLine.Validate("Bal. Account No.", ESRSetup."Bal. Account No.");
                     GenJournalLine.Modify();
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
         end else begin
             // Add bal. acc. line at end
             GenJournalLine.Init();

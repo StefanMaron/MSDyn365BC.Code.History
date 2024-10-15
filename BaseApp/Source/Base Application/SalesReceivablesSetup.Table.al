@@ -205,8 +205,8 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Archive Quotes and Orders';
             Enabled = false;
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -351,42 +351,42 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Insert Std. Sales Lines Mode';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
             Caption = 'Insert Std. Lines on Quotes';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
             Caption = 'Insert Std. Lines on Orders';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
             Caption = 'Insert Std. Lines on Invoices';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
             Caption = 'Insert Std. Lines on Cr. Memos';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(200; "Quote Validity Calculation"; DateFormula)
         {
@@ -500,6 +500,11 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Price List Nos.';
             TableRelation = "No. Series";
             DataClassification = CustomerContent;
+        }
+        field(7002; "Allow Editing Active Price"; Boolean)
+        {
+            Caption = 'Allow Editing Active Price';
+            DataClassification = SystemMetadata;
         }
         field(7101; "Customer Group Dimension Code"; Code[20])
         {

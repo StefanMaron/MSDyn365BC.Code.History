@@ -134,7 +134,7 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         if Difference <> 0 then
                             TransferRemainingAmountToAccount;
                     end;
@@ -897,7 +897,7 @@ page 1290 "Payment Reconciliation Journal"
                     trigger OnAction()
                     begin
                         SetFilter(Difference, '<>0');
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(ShowAllLines)
@@ -913,7 +913,7 @@ page 1290 "Payment Reconciliation Journal"
                     trigger OnAction()
                     begin
                         SetRange(Difference);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(SortForReviewDescending)
@@ -1256,7 +1256,7 @@ page 1290 "Payment Reconciliation Journal"
                     BankAccReconciliationLine."Sorting Order" -= ScoreRange;
 
                 BankAccReconciliationLine.Modify();
-            until BankAccReconciliationLine.Next = 0;
+            until BankAccReconciliationLine.Next() = 0;
 
             OnUpdateSorting(BankAccReconciliation, SubscriberInvoked);
             if not SubscriberInvoked then

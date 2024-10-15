@@ -1839,11 +1839,11 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         DataExchMapping: Record "Data Exch. Mapping";
     begin
         DataExchLineDef.SetFilter(Namespace, GetNamespace05302);
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
         DataExchMapping.SetRange("Mapping Codeunit", CODEUNIT::"SEPA CAMT 053 Bank Rec. Lines");
         repeat
             DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
-            if not DataExchMapping.IsEmpty then
+            if not DataExchMapping.IsEmpty() then
                 exit(DataExchLineDef."Data Exch. Def Code");
         until DataExchLineDef.Next = 0;
         Assert.Fail('Data Exchange Definition is not found');
@@ -2778,7 +2778,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         Assert.RecordIsNotEmpty(BankPmtApplRule);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1240, 'OnBeforeFileImport', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Read Data Exch. from File", 'OnBeforeFileImport', '', false, false)]
     local procedure OnBeforeFileImport(var TempBlob: Codeunit "Temp Blob"; var FileName: Text)
     begin
         TempBlob := TempBlobGlobal;

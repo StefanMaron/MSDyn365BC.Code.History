@@ -288,7 +288,7 @@ page 3010834 "LSV Journal"
         if TempLSVJournalLine.FindSet then
             repeat
                 TotalAmount := TotalAmount + TempLSVJournalLine."Collection Amount";
-            until TempLSVJournalLine.Next = 0;
+            until TempLSVJournalLine.Next() = 0;
     end;
 
     local procedure CurrJourNumberOnAfterValidate()

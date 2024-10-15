@@ -248,7 +248,7 @@ report 11004 "Vendor Total-Balance"
                                         AdjPeriodAmount := AdjPeriodAmount +
                                           DetailedVendorLedgEntry."Debit Amount (LCY)" +
                                           DetailedVendorLedgEntry."Credit Amount (LCY)";
-                                until DetailedVendorLedgEntry2.Next = 0;
+                                until DetailedVendorLedgEntry2.Next() = 0;
                             end else begin
                                 VendorLedgEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                                 if VendorLedgEntry."Closed by Entry No." <> 0 then begin
@@ -263,11 +263,11 @@ report 11004 "Vendor Total-Balance"
                                     if VendorLedgEntry2.FindSet then
                                         repeat
                                             AdjPeriodAmount := AdjPeriodAmount + GetAdjAmount(VendorLedgEntry2."Entry No.");
-                                        until VendorLedgEntry2.Next = 0;
+                                        until VendorLedgEntry2.Next() = 0;
                                 end;
                             end;
 
-                        until DetailedVendorLedgEntry.Next = 0;
+                        until DetailedVendorLedgEntry.Next() = 0;
                     PeriodDebitAmount := PeriodDebitAmount - AdjPeriodAmount;
                     PeriodCreditAmount := PeriodCreditAmount - AdjPeriodAmount;
                 end;
@@ -311,7 +311,7 @@ report 11004 "Vendor Total-Balance"
                                         AdjYearAmount := AdjYearAmount +
                                           DetailedVendorLedgEntry."Debit Amount (LCY)" +
                                           DetailedVendorLedgEntry."Credit Amount (LCY)";
-                                until DetailedVendorLedgEntry2.Next = 0;
+                                until DetailedVendorLedgEntry2.Next() = 0;
                             end else begin
                                 VendorLedgEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                                 if VendorLedgEntry."Closed by Entry No." <> 0 then begin
@@ -326,10 +326,10 @@ report 11004 "Vendor Total-Balance"
                                     if VendorLedgEntry2.FindSet then
                                         repeat
                                             AdjYearAmount := AdjYearAmount + GetAdjAmount(VendorLedgEntry2."Entry No.");
-                                        until VendorLedgEntry2.Next = 0;
+                                        until VendorLedgEntry2.Next() = 0;
                                 end;
                             end;
-                        until DetailedVendorLedgEntry.Next = 0;
+                        until DetailedVendorLedgEntry.Next() = 0;
                     YearDebitAmount := YearDebitAmount - AdjYearAmount;
                     YearCreditAmount := YearCreditAmount - AdjYearAmount;
                 end;
@@ -407,7 +407,7 @@ report 11004 "Vendor Total-Balance"
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod.Find('=<');
         YearStartDate := AccountingPeriod."Starting Date";
-        if AccountingPeriod.Next = 0 then
+        if AccountingPeriod.Next() = 0 then
             Error(Text1140000);
 
         YearText := Format(YearStartDate) + '..' + Format(EndDate);
@@ -487,7 +487,7 @@ report 11004 "Vendor Total-Balance"
                    ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))
                 then
                     AdjAmount := AdjAmount + DetailedVendorLedgEntry."Debit Amount (LCY)" + DetailedVendorLedgEntry."Credit Amount (LCY)";
-            until DetailedVendorLedgEntry2.Next = 0;
+            until DetailedVendorLedgEntry2.Next() = 0;
         exit(AdjAmount);
     end;
 }

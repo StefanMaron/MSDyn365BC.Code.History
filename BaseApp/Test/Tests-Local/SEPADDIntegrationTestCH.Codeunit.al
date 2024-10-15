@@ -41,7 +41,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         CreateLSVJournalLines(LSVJnl);
 
         // Setup
-        DirectDebitCollection.CreateNew(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
+        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
 
         // Exercise
@@ -70,7 +70,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         // Setup
         CreateMandateForCustomer(SEPADirectDebitMandate, Customer."No.");
         AddMandateIDToLSVJournalLines(LSVJnl."No.", SEPADirectDebitMandate.ID);
-        DirectDebitCollection.CreateNew(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
+        DirectDebitCollection.CreateRecord(Format(LSVJnl."No."), LSVJnl."LSV Bank Code", LSVJnl."Partner Type");
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
 
         // Exercise
@@ -344,7 +344,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         LSVJnlLine: Record "LSV Journal Line";
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
-        LSVJnlLine.FindSet;
+        LSVJnlLine.FindSet();
 
         repeat
             LSVJnlLine.Validate("Direct Debit Mandate ID", MandateID);
@@ -369,7 +369,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         LSVJnlLine: Record "LSV Journal Line";
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
-        LSVJnlLine.FindSet;
+        LSVJnlLine.FindSet();
 
         repeat
             with DirectDebitCollEntry do begin
@@ -428,13 +428,13 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     begin
         CustLedgEntry.SetRange("Customer No.", CustomerNo);
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-        CustLedgEntry.FindSet;
+        CustLedgEntry.FindSet();
     end;
 
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
-        LSVJnlLine.FindSet;
+        LSVJnlLine.FindSet();
     end;
 
     local procedure ValidateLSVJournalLines(LSVJnlLine: Record "LSV Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")

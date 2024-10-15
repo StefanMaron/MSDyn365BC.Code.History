@@ -75,7 +75,7 @@ table 9805 "Table Filter"
         SetRange("Table Number", Field.TableNo);
         SetRange("Field Number", Field."No.");
         SetFilter("Line No.", '<>%1', "Line No.");
-        if not IsEmpty then
+        if not IsEmpty() then
             Error(Text001, Field."No.", Field."Field Caption");
         Copy(TableFilter);
     end;

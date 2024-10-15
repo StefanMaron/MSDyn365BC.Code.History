@@ -79,7 +79,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
                     BankAccReconciliationLine."Statement Line No." += StatementLineNoOffset;
                     BankAccReconciliationLine.Insert();
                 end;
-            until TempBankAccReconLine.Next = 0;
+            until TempBankAccReconLine.Next() = 0;
     end;
 
     procedure GetLastStatementLineNo(BankAccRecon: Record "Bank Acc. Reconciliation"): Integer

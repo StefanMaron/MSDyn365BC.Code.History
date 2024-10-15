@@ -1231,7 +1231,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         // Find Posted Vendor Ledger Entries.
         VendorLedgerEntry.SetRange("Applying Entry", false);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.Validate("Amount to Apply", AmountToApply);
             VendorLedgerEntry.Modify(true);
@@ -1269,7 +1269,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Watch Remaining Amount expected value should remain same after Delta amount application on same entry.
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst;
@@ -1284,7 +1284,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Watch Remaining Amount expected value should be change after Delta amount application.
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             VendorLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst;
@@ -1491,7 +1491,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             Amount += VendorLedgerEntry."Remaining Amount";
@@ -1532,7 +1532,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             NewGenJournalLine := GenJournalLine;
             NewGenJournalLine.Insert();
@@ -1547,7 +1547,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
 
     local procedure SetApplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.Validate("Applying Entry", true);
@@ -1563,7 +1563,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
             VendorLedgerEntry.FindFirst;

@@ -1906,7 +1906,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     begin
         StandardItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         StandardItemJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardItemJournalLine.FindSet;
+        StandardItemJournalLine.FindSet();
     end;
 
     [ConfirmHandler]

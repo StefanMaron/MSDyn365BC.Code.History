@@ -2,6 +2,7 @@ table 11505 "Swiss QRBill Layout"
 {
     ObsoleteState = Removed;
     ObsoleteReason = 'moved to Swiss QR-Bill extension table 11513 Swiss QR-Bill Layout';
+    ObsoleteTag = '18.0';
 
     fields
     {

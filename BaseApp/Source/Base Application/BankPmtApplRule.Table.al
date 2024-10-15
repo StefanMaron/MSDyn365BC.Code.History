@@ -54,6 +54,11 @@ table 1252 "Bank Pmt. Appl. Rule"
         {
             Caption = 'Review Required';
         }
+
+        field(41; "Apply Immediatelly"; Boolean)
+        {
+            Caption = 'Apply Immediatelly';
+        }
     }
 
     keys
@@ -98,7 +103,7 @@ table 1252 "Bank Pmt. Appl. Rule"
             repeat
                 TransferFields(BankPmtApplRule);
                 Insert;
-            until BankPmtApplRule.Next = 0;
+            until BankPmtApplRule.Next() = 0;
     end;
 
     procedure GetBestMatchScore(ParameterBankPmtApplRule: Record "Bank Pmt. Appl. Rule"): Integer
@@ -230,7 +235,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         RulePriority: Integer;
     begin
-        if not BankPmtApplRule.IsEmpty then
+        if not BankPmtApplRule.IsEmpty() then
             exit;
 
         // Insert High Confidence rules
@@ -240,84 +245,96 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Related Party Matched"::"Not Considered",
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::Yes);
+          BankPmtApplRule."Direct Debit Collect. Matched"::Yes,
+          true);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          true);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         // Insert Medium Confidence rules
         RulePriority := 1;
@@ -326,63 +343,72 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         // Insert Low Confidence rules
         RulePriority := 1;
@@ -391,38 +417,43 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Related Party Matched"::Fully,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
     end;
 
-    local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option)
+    local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; ApplyAutomatically: Boolean)
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
@@ -433,6 +464,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocumentMatch;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountMatch;
         BankPmtApplRule."Direct Debit Collect. Matched" := DirectDebitCollectionMatch;
+        BankPmtApplRule."Apply Immediatelly" := ApplyAutomatically;
 
         if BankPmtApplRule."Match Confidence" in [BankPmtApplRule."Match Confidence"::None, BankPmtApplRule."Match Confidence"::Low, BankPmtApplRule."Match Confidence"::Medium] then
             BankPmtApplRule."Review Required" := true;

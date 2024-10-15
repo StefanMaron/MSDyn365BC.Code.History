@@ -1,19 +1,21 @@
-codeunit 1814 "Assisted Setup Subscribers"
+﻿codeunit 1814 "Assisted Setup Subscribers"
 {
 
     var
         ApprovalWorkflowSetupTxt: Label 'Set up approval workflows';
         ApprovalWorkflowSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115466', Locked = true;
         ApprovalWorkflowSetupDescriptionTxt: Label 'Create approval workflows that automatically notify an approver when a user tries to create or change certain values on documents, journal lines, or cards, such as an amount above a specified limit.';
-        EmailSetupTxt: Label 'Set up email';
-        SMTPSetupDescriptionTxt: Label 'Set up the email account that you use to send business documents to customers and vendors.';
-        EmailAccountSetupDescriptionTxt: Label 'Set up email accounts that you use to send business documents to customers and vendors.';
+        EmailSetupTxt: Label 'Set up outgoing email';
+        EmailSetupShortTxt: Label 'Outgoing email';
+        SMTPSetupDescriptionTxt: Label 'Choose the email account your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
+        EmailAccountSetupDescriptionTxt: Label 'Set up the email accounts your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
         OfficeAddinSetupTxt: Label 'Set up your Business Inbox in Outlook';
         OfficeAddinSetupDescriptionTxt: Label 'Configure Exchange so that users can complete business tasks without leaving their Outlook inbox.';
         ODataWizardTxt: Label 'Set up reporting data';
         ODataWizardHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115254', Locked = true;
         ODataWizardDescriptionTxt: Label 'Create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
         DataMigrationTxt: Label 'Migrate business data';
+        DataMigrationShortTxt: Label 'Migrate data';
         DataMigrationDescriptionTxt: Label 'Import existing data to Business Central from your former system.';
         SetupExchangeRatesTxt: Label 'Set up exchange rates';
         SetupExchangeRatesHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115182', Locked = true;
@@ -38,7 +40,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
         CRMConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115256', Locked = true;
         CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights.';
-        CDSConnectionSetupTxt: Label 'Set up Dataverse connection';
+        CDSConnectionSetupTxt: Label 'Set up a connection to Microsoft Dataverse';
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
         CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
         AzureAdSetupTxt: Label 'Set up Azure Active Directory';
@@ -99,182 +101,226 @@ codeunit 1814 "Assisted Setup Subscribers"
         CompanyAlreadySetUpQst: Label 'This company is already set up. To change settings for it, go to the Company Information page.\\Go there now?';
         EmailAlreadySetUpQst: Label 'One or more email accounts are already set up. To change settings for email, go to the Email Accounts page.\\Go there now?';
         Info: ModuleInfo;
-        UpdateUsersFromOfficeTxt: Label 'Update users from Office';
+        UpdateUsersFromOfficeTxt: Label 'Fetch users from Microsoft 365';
+        UpdateUsersFromOfficeShortTxt: Label 'Update users';
+        UpdateUsersFromOfficeDescriptionTxt: Label 'Get the latest information about users and licenses for Business Central from Microsoft 365.';
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', false, false)]
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
     var
         EnvironmentInfo: Codeunit "Environment Information";
         CRMProductName: Codeunit "CRM Product Name";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AssistedCompanySetup: Codeunit "Assisted Company Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         // Getting Started
-        if AssistedCompanySetupIsVisible then
-            if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then
-                AssistedCompanySetup.AddAssistedCompanySetup();
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then
+            AssistedCompanySetup.AddAssistedCompanySetup();
 
-        AssistedSetup.Add(GetAppId(), PAGE::"VAT Setup Wizard", VATSetupWizardTxt, AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, VATSetupWizardLinkTxt);
+        GuidedExperience.InsertAssistedSetup(VATSetupWizardTxt, CopyStr(VATSetupWizardTxt, 1, 50), '', 0, ObjectType::Page, Page::"VAT Setup Wizard",
+            AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, VATSetupWizardLinkTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"VAT Setup Wizard", Language.GetDefaultApplicationLanguageId(), VATSetupWizardTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"VAT Setup Wizard", Language.GetDefaultApplicationLanguageId(), VATSetupWizardTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-        AssistedSetup.Add(GetAppId(), Page::"Azure AD User Update Wizard", UpdateUsersFromOfficeTxt, AssistedSetupGroup::GettingStarted);
+        GuidedExperience.InsertAssistedSetup(UpdateUsersFromOfficeTxt, CopyStr(UpdateUsersFromOfficeShortTxt, 1, 50), UpdateUsersFromOfficeDescriptionTxt, 5, ObjectType::Page,
+            Page::"Azure AD User Update Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(Page::"Azure AD User Update Wizard", Language.GetDefaultApplicationLanguageId(), UpdateUsersFromOfficeTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Azure AD User Update Wizard", Language.GetDefaultApplicationLanguageId(), UpdateUsersFromOfficeTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Data Migration Wizard", DataMigrationTxt, AssistedSetupGroup::ReadyForBusiness, VideoImportbusinessdataTxt, VideoCategory::ReadyForBusiness, HelpImportbusinessdataTxt, DataMigrationDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(DataMigrationTxt, CopyStr(DataMigrationShortTxt, 1, 50), DataMigrationDescriptionTxt, 15, ObjectType::Page,
+            Page::"Data Migration Wizard", AssistedSetupGroup::ReadyForBusiness, VideoImportbusinessdataTxt, VideoCategory::ReadyForBusiness, HelpImportbusinessdataTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Data Migration Wizard", Language.GetDefaultApplicationLanguageId(), DataMigrationTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Data Migration Wizard", Language.GetDefaultApplicationLanguageId(), DataMigrationTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Curr. Exch. Rate Service List", SetupExchangeRatesTxt, AssistedSetupGroup::GettingStarted, SetupExchangeRatesVideoTxt, VideoCategory::GettingStarted, SetupExchangeRatesHelpTxt, SetupExchangeRatesDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(SetupExchangeRatesTxt, CopyStr(SetupExchangeRatesTxt, 1, 50), SetupExchangeRatesDescriptionTxt, 0, ObjectType::Page,
+            Page::"Curr. Exch. Rate Service List", AssistedSetupGroup::GettingStarted, SetupExchangeRatesVideoTxt, VideoCategory::GettingStarted, SetupExchangeRatesHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Curr. Exch. Rate Service List", Language.GetDefaultApplicationLanguageId(), SetupExchangeRatesTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Curr. Exch. Rate Service List", Language.GetDefaultApplicationLanguageId(), SetupExchangeRatesTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
         // Analysis
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Cash Flow Forecast Wizard", CashFlowForecastTxt, AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, HelpSetupCashFlowForecastTxt, CashFlowForecastDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(CashFlowForecastTxt, CopyStr(CashFlowForecastTxt, 1, 50), CashFlowForecastDescriptionTxt, 0, ObjectType::Page,
+            Page::"Cash Flow Forecast Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, HelpSetupCashFlowForecastTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Cash Flow Forecast Wizard", Language.GetDefaultApplicationLanguageId(), CashFlowForecastTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Cash Flow Forecast Wizard", Language.GetDefaultApplicationLanguageId(), CashFlowForecastTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
         // Customize for your need
         InitializeCustomize();
 
         // Setup Group
-        AssistedSetup.Add(GetAppId(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::FinancialReporting, '', VideoCategory::FinancialReporting, ODataWizardHelpTxt, ODataWizardDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(ODataWizardTxt, CopyStr(ODataWizardTxt, 1, 50), ODataWizardDescriptionTxt, 0, ObjectType::Page,
+            Page::"OData Setup Wizard", AssistedSetupGroup::FinancialReporting, '', VideoCategory::FinancialReporting, ODataWizardHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"OData Setup Wizard", Language.GetDefaultApplicationLanguageId(), ODataWizardTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"OData Setup Wizard", Language.GetDefaultApplicationLanguageId(), ODataWizardTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Item Approval WF Setup Wizard", ItemAppWorkflowTxt, AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '', ItemAppWorkflowDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(ItemAppWorkflowTxt, CopyStr(ItemAppWorkflowTxt, 1, 50), ItemAppWorkflowDescriptionTxt, 0, ObjectType::Page,
+                Page::"Item Approval WF Setup Wizard", AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '');
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Item Approval WF Setup Wizard", Language.GetDefaultApplicationLanguageId(), ItemAppWorkflowTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Item Approval WF Setup Wizard", Language.GetDefaultApplicationLanguageId(), ItemAppWorkflowTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        if NOT EnvironmentInfo.IsSaaS then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Azure AD App Setup Wizard", AzureAdSetupTxt, AssistedSetupGroup::Connect);
+        if NOT EnvironmentInfo.IsSaaS() then begin
+            GuidedExperience.InsertAssistedSetup(AzureAdSetupTxt, CopyStr(AzureAdSetupTxt, 1, 50), '', 0, ObjectType::Page,
+                Page::"Azure AD App Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Uncategorized, '');
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Azure AD App Setup Wizard", Language.GetDefaultApplicationLanguageId(), AzureAdSetupTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
-
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Pmt. App. Workflow Setup Wzrd.", PmtJnlAppWorkflowTxt, AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '', PmtJnlAppWorkflowDescriptionTxt);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Pmt. App. Workflow Setup Wzrd.", Language.GetDefaultApplicationLanguageId(), PmtJnlAppWorkflowTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
-
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"CRM Connection Setup Wizard", STRSUBSTNO(CRMConnectionSetupTxt, CRMProductName.SHORT),
-            AssistedSetupGroup::Connect, VideoUrlSetupCRMConnectionTxt, VideoCategory::Connect, CRMConnectionSetupHelpTxt, CRMConnectionSetupDescriptionTxt);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"CRM Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), STRSUBSTNO(CRMConnectionSetupTxt, CRMProductName.SHORT));
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Azure AD App Setup Wizard", Language.GetDefaultApplicationLanguageId(), AzureAdSetupTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"CDS Connection Setup Wizard", CDSConnectionSetupTxt, AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt, CDSConnectionSetupDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(PmtJnlAppWorkflowTxt, CopyStr(PmtJnlAppWorkflowTxt, 1, 50), PmtJnlAppWorkflowDescriptionTxt, 0, ObjectType::Page,
+                Page::"Pmt. App. Workflow Setup Wzrd.", AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '');
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Pmt. App. Workflow Setup Wzrd.", Language.GetDefaultApplicationLanguageId(), PmtJnlAppWorkflowTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        if EnvironmentInfo.IsSaaS then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Invite External Accountant", InviteExternalAccountantTxt, AssistedSetupGroup::ReadyForBusiness, '', VideoCategory::ReadyForBusiness, InviteExternalAccountantHelpTxt, InviteExternalAccountantDescTxt);
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+            GuidedExperience.InsertAssistedSetup(STRSUBSTNO(CRMConnectionSetupTxt, CRMProductName.SHORT()),
+                CopyStr(STRSUBSTNO(CRMConnectionSetupTxt, CRMProductName.SHORT()), 1, 50), CRMConnectionSetupDescriptionTxt, 0, ObjectType::Page,
+                Page::"CRM Connection Setup Wizard", AssistedSetupGroup::Connect, VideoUrlSetupCRMConnectionTxt, VideoCategory::Connect, CRMConnectionSetupHelpTxt);
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Invite External Accountant", Language.GetDefaultApplicationLanguageId(), InviteExternalAccountantTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"CRM Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), STRSUBSTNO(CRMConnectionSetupTxt, CRMProductName.SHORT()));
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Payment Services", SetupPaymentServicesTxt, AssistedSetupGroup::ReadyForBusiness, '', VideoCategory::ReadyForBusiness, SetupPaymentServicesHelpTxt, SetupPaymentServicesDescriptionTxt);
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+            GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTxt, CopyStr(CDSConnectionSetupTxt, 1, 50), CDSConnectionSetupDescriptionTxt, 0, ObjectType::Page,
+                Page::"CDS Connection Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt);
+            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
+            GLOBALLANGUAGE(CurrentGlobalLanguage);
+        end;
+
+        if EnvironmentInfo.IsSaaS() then begin
+            GuidedExperience.InsertAssistedSetup(InviteExternalAccountantTxt, CopyStr(InviteExternalAccountantTxt, 1, 50), InviteExternalAccountantDescTxt, 0, ObjectType::Page,
+                Page::"Invite External Accountant", AssistedSetupGroup::ReadyForBusiness, '', VideoCategory::ReadyForBusiness, InviteExternalAccountantHelpTxt);
+            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Invite External Accountant", Language.GetDefaultApplicationLanguageId(), InviteExternalAccountantTxt);
+            GLOBALLANGUAGE(CurrentGlobalLanguage);
+        end;
+
+        GuidedExperience.InsertAssistedSetup(SetupPaymentServicesTxt, CopyStr(SetupPaymentServicesTxt, 1, 50), SetupPaymentServicesDescriptionTxt, 0, ObjectType::Page,
+            Page::"Payment Services", AssistedSetupGroup::ReadyForBusiness, '', VideoCategory::ReadyForBusiness, SetupPaymentServicesHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Payment Services", Language.GetDefaultApplicationLanguageId(), SetupPaymentServicesTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Payment Services", Language.GetDefaultApplicationLanguageId(), SetupPaymentServicesTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-        if ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Company Consolidation Wizard", SetupConsolidationReportingTxt, AssistedSetupGroup::FinancialReporting);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Company Consolidation Wizard", Language.GetDefaultApplicationLanguageId(), SetupConsolidationReportingTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
+        GuidedExperience.InsertAssistedSetup(SetupConsolidationReportingTxt, CopyStr(SetupConsolidationReportingTxt, 1, 50), '', 0, ObjectType::Page,
+            Page::"Company Consolidation Wizard", AssistedSetupGroup::FinancialReporting, '', VideoCategory::Uncategorized, '');
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Company Consolidation Wizard", Language.GetDefaultApplicationLanguageId(), SetupConsolidationReportingTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-        UpdateStatus;
+        UpdateStatus();
     end;
 
     local procedure InitializeCustomize()
     var
         EmailFeature: Codeunit "Email Feature";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Approval Workflow Setup Wizard", ApprovalWorkflowSetupTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupApprovalsTxt, VideoCategory::ApprovalWorkflows, ApprovalWorkflowSetupHelpTxt, ApprovalWorkflowSetupDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(ApprovalWorkflowSetupTxt, CopyStr(ApprovalWorkflowSetupTxt, 1, 50), ApprovalWorkflowSetupDescriptionTxt, 0, ObjectType::Page,
+                Page::"Approval Workflow Setup Wizard", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupApprovalsTxt, VideoCategory::ApprovalWorkflows, ApprovalWorkflowSetupHelpTxt);
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Approval Workflow Setup Wizard", Language.GetDefaultApplicationLanguageId(), ApprovalWorkflowSetupTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Approval Workflow Setup Wizard", Language.GetDefaultApplicationLanguageId(), ApprovalWorkflowSetupTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
 
-            AssistedSetup.Add(GetAppId(), PAGE::"Cust. Approval WF Setup Wizard", CustomerAppWorkflowTxt, AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '', CustomerAppWorkflowDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(CustomerAppWorkflowTxt, CopyStr(CustomerAppWorkflowTxt, 1, 50), CustomerAppWorkflowDescriptionTxt, 0, ObjectType::Page,
+                Page::"Cust. Approval WF Setup Wizard", AssistedSetupGroup::ApprovalWorkflows, '', VideoCategory::ApprovalWorkflows, '');
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Cust. Approval WF Setup Wizard", Language.GetDefaultApplicationLanguageId(), CustomerAppWorkflowTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Cust. Approval WF Setup Wizard", Language.GetDefaultApplicationLanguageId(), CustomerAppWorkflowTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
         if EmailFeature.IsEnabled() then begin
-            AssistedSetup.Add(GetAppId(), Page::"Email Account Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt, EmailAccountSetupDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(EmailSetupTxt, CopyStr(EmailSetupShortTxt, 1, 50), EmailAccountSetupDescriptionTxt, 5, ObjectType::Page,
+                Page::"Email Account Wizard", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt);
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
-            AssistedSetup.Remove(Page::"Email Setup Wizard");
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Setup Wizard");
         end else begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Email Setup Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupEmailTxt, SMTPSetupDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(EmailSetupTxt, CopyStr(EmailSetupTxt, 1, 50), SMTPSetupDescriptionTxt, 5, ObjectType::Page,
+                Page::"Email Setup Wizard", AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupEmailTxt);
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
-            AssistedSetup.Remove(Page::"Email Account Wizard");
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Email Account Wizard");
         end;
         GlobalLanguage(CurrentGlobalLanguage);
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Setup Email Logging", SetupEmailLoggingTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
+            GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTxt, CopyStr(SetupEmailLoggingTxt, 1, 50), SetupEmailLoggingDescriptionTxt, 0, ObjectType::Page,
+                Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTxt);
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTxt);
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Custom Report Layouts", CustomizeDocumentLayoutsTxt, AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt, CustomizeDocumentLayoutsDescTxt);
+        GuidedExperience.InsertAssistedSetup(CustomizeDocumentLayoutsTxt, CopyStr(CustomizeDocumentLayoutsTxt, 1, 50), CustomizeDocumentLayoutsDescTxt, 0, ObjectType::Page,
+            Page::"Custom Report Layouts", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Custom Report Layouts", Language.GetDefaultApplicationLanguageId(), CustomizeDocumentLayoutsTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Custom Report Layouts", Language.GetDefaultApplicationLanguageId(), CustomizeDocumentLayoutsTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
 
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Exchange Setup Wizard", OfficeAddinSetupTxt, AssistedSetupGroup::DoMoreWithBC, VideoRunyourbusinesswithOffice365Txt, VideoCategory::DoMoreWithBC, HelpSetuptheOfficeaddinTxt, OfficeAddinSetupDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(OfficeAddinSetupTxt, CopyStr(OfficeAddinSetupTxt, 1, 50), OfficeAddinSetupDescriptionTxt, 0, ObjectType::Page,
+            Page::"Exchange Setup Wizard", AssistedSetupGroup::DoMoreWithBC, VideoRunyourbusinesswithOffice365Txt, VideoCategory::DoMoreWithBC, HelpSetuptheOfficeaddinTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Exchange Setup Wizard", Language.GetDefaultApplicationLanguageId(), OfficeAddinSetupTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Exchange Setup Wizard", Language.GetDefaultApplicationLanguageId(), OfficeAddinSetupTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnReRunOfCompletedSetup', '', false, false)]
-    local procedure OnReRunOfCompletedSetup(ExtensionId: Guid; PageID: Integer; var Handled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnReRunOfCompletedAssistedSetup', '', false, false)]
+    local procedure OnReRunOfCompletedSetup(ExtensionId: Guid; ObjectType: ObjectType; ObjectID: Integer; var Handled: Boolean)
     begin
         if ExtensionId <> GetAppId() then
             exit;
-        case PageID of
+        case ObjectID of
             Page::"Assisted Company Setup Wizard":
                 begin
                     if Confirm(CompanyAlreadySetUpQst, true) then
@@ -293,15 +339,6 @@ codeunit 1814 "Assisted Setup Subscribers"
                     Handled := true;
                 end;
         end;
-    end;
-
-    local procedure AssistedCompanySetupIsVisible(): Boolean
-    var
-        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-    begin
-        IF AssistedCompanySetupStatus.GET(COMPANYNAME) THEN
-            EXIT(AssistedCompanySetupStatus.Enabled);
-        EXIT(FALSE);
     end;
 
     local procedure GetAppId(): Guid
@@ -356,44 +393,44 @@ codeunit 1814 "Assisted Setup Subscribers"
         SMTPMailSetup: Record "SMTP Mail Setup";
         EmailAccount: Codeunit "Email Account";
         EmailFeature: Codeunit "Email Feature";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         if EmailFeature.IsEnabled() then begin
             if not EmailAccount.IsAnyAccountRegistered() then
                 exit;
-            AssistedSetup.Complete(Page::"Email Account Wizard");
+            GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Account Wizard");
             exit;
         end;
 
         if not SMTPMailSetup.GetSetup then
             exit;
-        AssistedSetup.Complete(Page::"Email Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Setup Wizard");
     end;
 
     local procedure UpdateSetUpApprovalWorkflow()
     var
         ApprovalUserSetup: Record "User Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         ApprovalUserSetup.SETFILTER("Approver ID", '<>%1', '');
         IF ApprovalUserSetup.ISEMPTY THEN
             EXIT;
 
-        AssistedSetup.Complete(PAGE::"Approval Workflow Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Approval Workflow Setup Wizard");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnAfterRun', '', false, false)]
-    local procedure CompleteEmailAssistedSetup(ExtensionID: Guid; PageID: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnAfterRunAssistedSetup', '', false, false)]
+    local procedure CompleteEmailAssistedSetup(ExtensionID: Guid; ObjectType: ObjectType; ObjectID: Integer)
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if PageID <> Page::"Email Account Wizard" then
+        if ObjectID <> Page::"Email Account Wizard" then
             exit;
 
         if not EmailAccountIsSetup() then
             exit;
 
-        AssistedSetup.Complete(Page::"Email Account Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Email Account Wizard");
     end;
 
     local procedure EmailAccountIsSetup(): Boolean

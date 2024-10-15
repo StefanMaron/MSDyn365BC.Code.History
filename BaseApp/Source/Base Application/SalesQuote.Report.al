@@ -248,7 +248,7 @@ report 204 "Sales - Quote"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -439,7 +439,7 @@ report 204 "Sales - Quote"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -1020,7 +1020,7 @@ report 204 "Sales - Quote"
                 LogSalesQuote(SalesHeader, DATABASE::Contact, SalesHeader."Bill-to Contact No.")
             else
                 LogSalesQuote(SalesHeader, DATABASE::Customer, SalesHeader."Bill-to Customer No.");
-        until SalesHeader.Next = 0;
+        until SalesHeader.Next() = 0;
     end;
 
     local procedure LogSalesQuote(SalesHeader: Record "Sales Header"; AccountTableNo: Integer; AccountNo: Code[20])

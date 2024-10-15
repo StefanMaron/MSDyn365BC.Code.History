@@ -88,13 +88,11 @@
             Caption = 'Posted Date-Time';
             Editable = false;
         }
-        field(15; "Document Type"; Option)
+        field(15; "Document Type"; Enum "Incoming Related Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
             InitValue = " ";
-            OptionCaption = 'Journal,Sales Invoice,Sales Credit Memo,Purchase Invoice,Purchase Credit Memo, ';
-            OptionMembers = Journal,"Sales Invoice","Sales Credit Memo","Purchase Invoice","Purchase Credit Memo"," ";
         }
         field(16; "Document No."; Code[20])
         {
@@ -326,82 +324,98 @@
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11531; "Swiss QRBill Vendor Address 1"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11532; "Swiss QRBill Vendor Address 2"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11533; "Swiss QRBill Vendor Post Code"; Code[20])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11534; "Swiss QRBill Vendor City"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11535; "Swiss QRBill Vendor Country"; Code[10])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11536; "Swiss QRBill Debitor Name"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11537; "Swiss QRBill Debitor Address1"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11538; "Swiss QRBill Debitor Address2"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11539; "Swiss QRBill Debitor PostCode"; Code[20])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11540; "Swiss QRBill Debitor City"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11541; "Swiss QRBill Debitor Country"; Code[10])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11542; "Swiss QRBill Reference Type"; Option)
         {
             OptionMembers = "Without Reference","Creditor Reference (ISO 11649)","QR Reference";
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11543; "Swiss QRBill Reference No."; Code[50])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11544; "Swiss QRBill Unstr. Message"; Text[140])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
         field(11545; "Swiss QRBill Bill Info"; Text[140])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -446,11 +460,11 @@
         ClearRelatedRecords;
 
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not IncomingDocumentAttachment.IsEmpty then
+        if not IncomingDocumentAttachment.IsEmpty() then
             IncomingDocumentAttachment.DeleteAll();
 
         ActivityLog.SetRange("Record ID", RecordId);
-        if not ActivityLog.IsEmpty then
+        if not ActivityLog.IsEmpty() then
             ActivityLog.DeleteAll();
 
         ClearErrorMessages;
@@ -590,7 +604,7 @@
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
     end;
 
-    local procedure CreateWithDataExchange(DocumentType: Option)
+    local procedure CreateWithDataExchange(DocumentType: Enum "Incoming Related Document Type")
     var
         ErrorMessage: Record "Error Message";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -674,16 +688,16 @@
         DocumentTypeOption -= 1;
 
         case DocumentTypeOption of
-            "Document Type"::"Purchase Invoice":
-                CreatePurchInvoice;
-            "Document Type"::"Purchase Credit Memo":
-                CreatePurchCreditMemo;
-            "Document Type"::"Sales Invoice":
-                CreateSalesInvoice;
-            "Document Type"::"Sales Credit Memo":
-                CreateSalesCreditMemo;
-            "Document Type"::Journal:
-                CreateGenJnlLine;
+            "Document Type"::"Purchase Invoice".AsInteger():
+                CreatePurchInvoice();
+            "Document Type"::"Purchase Credit Memo".AsInteger():
+                CreatePurchCreditMemo();
+            "Document Type"::"Sales Invoice".AsInteger():
+                CreateSalesInvoice();
+            "Document Type"::"Sales Credit Memo".AsInteger():
+                CreateSalesCreditMemo();
+            "Document Type"::Journal.AsInteger():
+                CreateGenJnlLine();
         end;
 
         OnAfterCreateManually(Rec);
@@ -711,7 +725,7 @@
         GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatch);
         GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not GenJnlLine.IsEmpty then
+        if not GenJnlLine.IsEmpty() then
             exit; // instead; go to the document
 
         GenJnlLine.SetRange("Incoming Document Entry No.");
@@ -872,20 +886,6 @@
         CopyFilters(IncomingDocument);
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with CreateIncomingDocument function', '15.3')]
-    procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
-    var
-        IncomingDocument: Record "Incoming Document";
-    begin
-        if (FileName = '') or (FilePath = '') then
-            exit;
-        IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(FileName, '');
-        AddAttachmentFromServerFile(FileName, FilePath);
-        CopyFilters(IncomingDocument);
-    end;
-
     local procedure TestIfAlreadyExists()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -937,7 +937,15 @@
         exit(not IsEmpty);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by GetRelatedPostedDocType().', '18.0')]
     procedure GetPostedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Integer
+    begin
+        exit(GetRelatedDocType(PostingDate, DocNo, IsPosted).AsInteger());
+    end;
+#endif
+
+    procedure GetRelatedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Enum "Incoming Related Document Type"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -1080,7 +1088,7 @@
     begin
         TestReadyForProcessing();
         SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not SalesHeader.IsEmpty then begin
+        if not SalesHeader.IsEmpty() then begin
             ShowRecord();
             exit;
         end;
@@ -1116,7 +1124,7 @@
     begin
         TestReadyForProcessing();
         PurchHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if not PurchHeader.IsEmpty then begin
+        if not PurchHeader.IsEmpty() then begin
             ShowRecord();
             exit;
         end;
@@ -1448,7 +1456,7 @@
 
         IncomingDocument.Get(EntryNo);
         IncomingDocument.SetPostedDocFields(PostingDate, DocumentNo);
-        IncomingDocument."Document Type" := GetPostedDocType(PostingDate, DocumentNo, IsPosted);
+        IncomingDocument."Document Type" := GetRelatedDocType(PostingDate, DocumentNo, IsPosted);
     end;
 
     [Scope('OnPrem')]
@@ -1486,7 +1494,7 @@
         repeat
             TempErrorMessage := TempErrorMessageRef;
             TempErrorMessage.Insert();
-        until TempErrorMessageRef.Next = 0;
+        until TempErrorMessageRef.Next() = 0;
     end;
 
     procedure RemoveFromJobQueue(ShowMessages: Boolean)
@@ -1805,7 +1813,7 @@
         GenJournalLine: Record "Gen. Journal Line";
         RecCaption: Text;
     begin
-        if RelatedRecordRef.IsEmpty then
+        if RelatedRecordRef.IsEmpty() then
             exit('');
 
         case RelatedRecordRef.Number of
@@ -1927,7 +1935,7 @@
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2067,7 +2075,7 @@
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         if GetURL = '' then
-            if IncomingDocumentAttachment.IsEmpty then
+            if IncomingDocumentAttachment.IsEmpty() then
                 exit(false);
         exit(true);
     end;

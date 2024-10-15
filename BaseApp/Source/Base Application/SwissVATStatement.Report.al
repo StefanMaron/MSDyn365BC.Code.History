@@ -887,7 +887,7 @@ report 26100 "Swiss VAT Statement"
                         repeat
                             GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
@@ -919,7 +919,7 @@ report 26100 "Swiss VAT Statement"
                                 ErrorText := ErrorText + '...';
                                 VATStmtLine2.FieldError("Row No.", ErrorText);
                             end;
-                        until VATStmtLine2.Next = 0;
+                        until VATStmtLine2.Next() = 0;
                 end;
         end;
         exit(true);
@@ -996,8 +996,8 @@ report 26100 "Swiss VAT Statement"
                                         AddCurrAmt := AddCurrAmt + VatEntry2."Add.-Currency Unrealized Base";
                                     end;
                             end;
-                    until VatEntry2.Next = 0;
-            until BalVATEntry.Next = 0;
+                    until VatEntry2.Next() = 0;
+            until BalVATEntry.Next() = 0;
         if UseAmtsInAddCurr then
             Amount := Amount + AddCurrAmt;
         CalcTotalAmount(VatStmtLineRgstrAmt, TotalAmount);
@@ -1064,7 +1064,7 @@ report 26100 "Swiss VAT Statement"
             GLReg.Reset();
             GLReg.SetRange("Source Code", SourceCodeSetup."VAT Settlement");
             GLReg.SetRange("No.", ClosedRgstrNo);
-            if GLReg.IsEmpty then
+            if GLReg.IsEmpty() then
                 Error(Text007, ClosedRgstrNo, SourceCodeSetup."VAT Settlement");
             StartDate := 0D;
             EndDateReq := 0D;
@@ -1137,7 +1137,7 @@ report 26100 "Swiss VAT Statement"
             repeat
                 FieldRef := RecordRef.Field(Fields."No.");
                 FieldRef.TestField;
-            until Fields.Next = 0;
+            until Fields.Next() = 0;
     end;
 
     local procedure GetVATRateTxt(VATRate: Decimal): Text

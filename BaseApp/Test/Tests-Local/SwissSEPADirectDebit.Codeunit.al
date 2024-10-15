@@ -279,7 +279,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         Customer: Record Customer;
     begin
         Customer.Get(CustLedgerEntry."Customer No.");
-        DirectDebitCollection.CreateNew(
+        DirectDebitCollection.CreateRecord(
           LibraryUtility.GenerateGUID, BankAccountNo, Customer."Partner Type");
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

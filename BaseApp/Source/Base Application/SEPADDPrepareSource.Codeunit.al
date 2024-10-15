@@ -12,14 +12,14 @@ codeunit 1232 "SEPA DD-Prepare Source"
 
     local procedure CopyLines(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     begin
-        if not FromDirectDebitCollectionEntry.IsEmpty then begin
+        if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();
-                until FromDirectDebitCollectionEntry.Next = 0
+                until FromDirectDebitCollectionEntry.Next() = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
     end;
@@ -51,7 +51,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
                         ToDirectDebitCollectionEntry.Validate("Mandate ID", LSVJnlLine."Direct Debit Mandate ID");
                     ToDirectDebitCollectionEntry.Validate("Transfer Amount", LSVJnlLine."Collection Amount");
                     ToDirectDebitCollectionEntry.Insert(true);
-                until LSVJnlLine.Next = 0;
+                until LSVJnlLine.Next() = 0;
         end;
 
         OnAfterCreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);

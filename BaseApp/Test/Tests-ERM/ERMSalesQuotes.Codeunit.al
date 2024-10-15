@@ -1630,7 +1630,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: TestPage "Sales Order";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         WorkDescription: Text;
         OldStockoutWarning: Boolean;
     begin

@@ -1255,7 +1255,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVJournalList.GotoRecord(LSVJnl);
         LSVJournal.Trap;
         LSVJournalList."LSV Journal Line".Invoke;
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             LSVJournal.New;
             LSVJournal."Customer No.".SetValue(CustLedgerEntry."Customer No.");
@@ -1340,7 +1340,7 @@ codeunit 144040 "Test LSV DD Payment Export"
         CustLedgEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Amount (LCY)", "Remaining Amount");
         CustLedgEntry.SetRange("Customer No.", CustomerNo);
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-        CustLedgEntry.FindSet;
+        CustLedgEntry.FindSet();
         repeat
             CollectionAmount += CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
         until CustLedgEntry.Next = 0;
@@ -1349,12 +1349,12 @@ codeunit 144040 "Test LSV DD Payment Export"
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
-        LSVJnlLine.FindSet;
+        LSVJnlLine.FindSet();
     end;
 
     local procedure VerifyLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        CustLedgEntry.FindSet;
+        CustLedgEntry.FindSet();
         repeat
             LSVJnlLine.SetRange("Customer No.", CustLedgEntry."Customer No.");
             LSVJnlLine.SetRange("Collection Amount",

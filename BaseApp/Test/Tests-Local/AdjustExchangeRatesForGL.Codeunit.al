@@ -447,7 +447,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         LibraryPurchase.CreateVendor(Vendor);
 
         CurrencyExchangeRate.SetRange("Currency Code", GLAccount."Currency Code");
-        CurrencyExchangeRate.FindSet;
+        CurrencyExchangeRate.FindSet();
         repeat
             PostFCYJournal(GLAccount, CurrencyExchangeRate."Starting Date",
               GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.");

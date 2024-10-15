@@ -99,7 +99,7 @@ page 6710 "OData Column Choose SubForm"
                 InitColumnsForPage(ObjectID);
 
         Clear(Rec);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure GetColumns(var TempTenantWebServiceColumns: Record "Tenant Web Service Columns" temporary)
@@ -110,7 +110,7 @@ page 6710 "OData Column Choose SubForm"
                 TempTenantWebServiceColumns.TransferFields(Rec);
                 TempTenantWebServiceColumns.Insert();
 
-            until Next = 0;
+            until Next() = 0;
         Reset;
     end;
 
