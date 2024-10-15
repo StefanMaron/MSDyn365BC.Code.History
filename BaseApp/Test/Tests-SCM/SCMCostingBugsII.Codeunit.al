@@ -1701,7 +1701,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Transfer 80 pcs from location "B" to "A".
-        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[2].Code, Location[1].Code, 80);
+        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[2].Code, Location[1].Code, 80, 0);
 
         // [GIVEN] Update unit cost on the purchase line to 20.0 LCY.
         PurchaseHeader.Find();
@@ -1712,7 +1712,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [GIVEN] Transfer 80 pcs from location "A" back to "B".
         // [GIVEN] The outbound entry on location "A" is applied to two inbound entries - 1 pc to the positive adjustment and 79 pcs to the purchase.
-        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[1].Code, Location[2].Code, 80);
+        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[1].Code, Location[2].Code, 80, 0);
 
         // [WHEN] Run the cost adjustment.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -2295,6 +2295,72 @@ codeunit 137621 "SCM Costing Bugs II"
         VerifyValueEntry(Item."No.", 0, 0);
     end;
 
+    [Test]
+    procedure ValuationDateInChainOfOutboundEntriesWithOneAppliedFrom()
+    var
+        CompItem, ProdItem : Record Item;
+        LocationFrom, LocationTo : Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        RecordCount: Integer;
+    begin
+        // [FEATURE] [Costing] [Valuation Date]
+        // [SCENARIO 474048] Update Valuation Date caused by posting consumption onto chain of outbound entries.
+        Initialize();
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+
+        // [GIVEN] Component item "C" and production item "P".
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ProdItem, CompItem, 1, '');
+
+        // [GIVEN] Post 100 pcs of item "C" to inventory at location "A". Posting date = Jan. 1.
+        CreateAndPostItemJournalLineWithPostingDate(CompItem."No.", LocationFrom.Code, 100, WorkDate());
+
+        // [GIVEN] Create production order for item "P" at location "A". Due date = Jan. 5.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 10);
+        ProductionOrder.Validate("Location Code", LocationFrom.Code);
+        ProductionOrder.Validate("Due Date", WorkDate() + 5);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Post output of "P"; new item ledger entry = "X".
+        PostOutput(ProductionOrder."No.", ProdItem."No.", ProductionOrder.Quantity, 0);
+        FindLastItemLedgerEntry(ItemLedgerEntry, ProdItem."No.", LocationFrom.Code, true);
+
+        // [GIVEN] Create and post item reclassification of item "P" from location "A" to location "B".
+        CreateAndPostItemReclassificationJournalLine(ProdItem."No.", LocationFrom.Code, LocationTo.Code, 10, ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Post three negative item entries at location "B", quantity = -1, posting dates = Jan. 10, Jan. 11, Jan. 12.
+        CreateAndPostItemJournalLineWithPostingDate(ProdItem."No.", LocationTo.Code, -1, WorkDate() + 10);
+        CreateAndPostItemJournalLineWithPostingDate(ProdItem."No.", LocationTo.Code, -1, WorkDate() + 11);
+        FindLastItemLedgerEntry(ItemLedgerEntry, ProdItem."No.", LocationTo.Code, false);
+        CreateAndPostItemJournalLineWithPostingDate(ProdItem."No.", LocationTo.Code, -1, WorkDate() + 12);
+
+        // [GIVEN] Post positive item entry at location "B", quantity = 1, applied to the negative entry for Jan. 11.
+        CreateAndPostItemJournalLineWithAppliesFromEntry(ProdItem."No.", LocationTo.Code, 1, ItemLedgerEntry."Entry No.");
+
+        // [WHEN] Post consumption for the production order, posting date = Jan. 20.
+        CreateConsumptionJournalLine(ItemJournalLine, ProductionOrder."No.", CompItem."No.", 10);
+        ItemJournalLine.Validate("Posting Date", WorkDate() + 20);
+        ItemJournalLine.Validate("Location Code", LocationFrom.Code);
+        ItemJournalLine.Modify(true);
+        LibraryManufacturing.PostConsumptionJournal;
+
+        // [THEN] "Valuation Date" on all posted value entries for item "P" is updated to Jan. 20.
+        ValueEntry.SetRange("Item No.", ProdItem."No.");
+        RecordCount := ValueEntry.Count();
+        ValueEntry.SetRange("Valuation Date", WorkDate() + 20);
+        Assert.RecordCount(ValueEntry, RecordCount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2396,7 +2462,17 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemReclassificationJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; NewLocationCode: Code[10]; Qty: Decimal)
+    local procedure CreateAndPostItemJournalLineWithAppliesFromEntry(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; AppliesFromEntry: Integer)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        ItemJournalLine.Validate("Applies-from Entry", AppliesFromEntry);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostItemReclassificationJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; NewLocationCode: Code[10]; Qty: Decimal; AppliesToEntry: Integer)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
@@ -2407,6 +2483,7 @@ codeunit 137621 "SCM Costing Bugs II"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Transfer, ItemNo, Qty);
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("New Location Code", NewLocationCode);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
