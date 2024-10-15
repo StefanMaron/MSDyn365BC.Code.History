@@ -40,21 +40,23 @@ codeunit 5772 "Whse.-Purch. Release"
         if PurchLine.FindSet() then begin
             First := true;
             repeat
-                if ((PurchHeader."Document Type" = "Purchase Document Type"::Order) and (PurchLine.Quantity >= 0)) or
-                    ((PurchHeader."Document Type" = "Purchase Document Type"::"Return Order") and (PurchLine.Quantity < 0))
-                then
-                    WhseType := WhseType::Inbound
-                else
-                    WhseType := WhseType::Outbound;
-                OnReleaseOnAfterSetWhseType(PurchHeader, PurchLine, WhseType);
-                if First or (PurchLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(PurchHeader, PurchLine, WhseType);
+                if PurchLine.IsInventoriableItem() then begin
+                    if ((PurchHeader."Document Type" = "Purchase Document Type"::Order) and (PurchLine.Quantity >= 0)) or
+                        ((PurchHeader."Document Type" = "Purchase Document Type"::"Return Order") and (PurchLine.Quantity < 0))
+                    then
+                        WhseType := WhseType::Inbound
+                    else
+                        WhseType := WhseType::Outbound;
+                    OnReleaseOnAfterSetWhseType(PurchHeader, PurchLine, WhseType);
+                    if First or (PurchLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                        CreateWarehouseRequest(PurchHeader, PurchLine, WhseType);
 
-                OnReleaseOnAfterCreateWhseRequest(PurchHeader, PurchLine, WhseType.AsInteger());
+                    OnReleaseOnAfterCreateWhseRequest(PurchHeader, PurchLine, WhseType.AsInteger());
 
-                First := false;
-                OldLocationCode := PurchLine."Location Code";
-                OldWhseType := WhseType;
+                    First := false;
+                    OldLocationCode := PurchLine."Location Code";
+                    OldWhseType := WhseType;
+                end;
             until PurchLine.Next() = 0;
         end;
 
