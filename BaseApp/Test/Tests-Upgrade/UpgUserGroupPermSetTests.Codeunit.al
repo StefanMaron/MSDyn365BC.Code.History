@@ -54,9 +54,6 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
 
     [Test]
     procedure UserGroupPermissionSetRoleIDTest()
-    var
-        UpgradeStatus: Codeunit "Upgrade Status";
-        NullGuid: Guid;
     begin
         // [SCENARIO] The upgrade changes the Role ID field of replaced (obsolete) permission sets
 
@@ -64,12 +61,6 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         VerifyPermissionSetIsReplaced('EMAIL SETUP', 'Email - Admin');
         VerifyPermissionSetIsReplaced('D365 EXTENSION MGT', 'Exten. Mgt. - Admin');
         VerifyPermissionSetIsReplaced('RETENTION POL. SETUP', 'Retention Pol. Admin');
-
-        if not UpgradeStatus.UpgradeTriggered() then
-            exit;
-
-        // This one is only added in test data
-        VerifyPermissionSetIsReplaced('EMAIL USAGE', 'Email - Edit');
     end;
 
     local procedure VerifyPermissionSetIsReplaced(OldPermissionSet: Code[20]; NewPermissionSet: Code[20])

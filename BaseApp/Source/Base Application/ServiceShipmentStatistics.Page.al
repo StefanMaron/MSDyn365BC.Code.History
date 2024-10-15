@@ -57,8 +57,15 @@ page 6032 "Service Shipment Statistics"
     }
 
     trigger OnAfterGetRecord()
+    var
+        IsHandled: Boolean;
     begin
         ClearAll;
+
+        IsHandled := false;
+        OnAfterGetRecordOnAfterClearAll(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
 
         ServShptLine.SetRange("Document No.", "No.");
 
@@ -70,6 +77,8 @@ page 6032 "Service Shipment Statistics"
                 TotalVolume := TotalVolume + (ServShptLine.Quantity * ServShptLine."Unit Volume");
                 if ServShptLine."Units per Parcel" > 0 then
                     TotalParcels := TotalParcels + Round(ServShptLine.Quantity / ServShptLine."Units per Parcel", 1, '>');
+
+                OnAfterGetRecordOnAfterAddLineTotals(Rec, ServShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
             until ServShptLine.Next() = 0;
     end;
 
@@ -80,5 +89,15 @@ page 6032 "Service Shipment Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterClearAll(ServiceShipmentHeader: Record "Service Shipment Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterAddLineTotals(ServiceShipmentHeader: Record "Service Shipment Header"; ServiceShipmentLine: Record "Service Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

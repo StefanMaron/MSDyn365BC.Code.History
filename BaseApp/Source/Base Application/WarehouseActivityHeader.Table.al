@@ -963,6 +963,12 @@ table 5766 "Warehouse Activity Header"
         "Destination No." := '';
     end;
 
+    procedure Lock()
+    begin
+        LockTable();
+        if FindLast() then;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
