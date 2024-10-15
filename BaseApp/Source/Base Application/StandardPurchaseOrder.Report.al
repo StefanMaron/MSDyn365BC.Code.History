@@ -669,6 +669,9 @@
                                 Clear(BreakdownLabel);
                                 Clear(BreakdownAmt);
                             end;
+                        end else begin
+                            "Purchase Header".CalcFields("Amount Including VAT", Amount);
+                            TaxAmount := "Purchase Header"."Amount Including VAT" - "Purchase Header".Amount;
                         end;
                 end;
 
@@ -1022,6 +1025,7 @@
                 TotalSubTotal := 0;
                 TotalInvoiceDiscountAmount := 0;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 Clear(BreakdownTitle);
                 Clear(BreakdownLabel);
