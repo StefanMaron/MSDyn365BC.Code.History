@@ -63,6 +63,7 @@
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TempValueEntryRelation: Record "Value Entry Relation" temporary;
         TempItemEntryRelation: Record "Item Entry Relation" temporary;
+        TempJobPlanningLine: Record "Job Planning Line" temporary;
         WhseJnlLine: Record "Warehouse Journal Line";
         TouchedItemLedgerEntries: Record "Item Ledger Entry" temporary;
         TempItemApplnEntryHistory: Record "Item Application Entry History" temporary;
@@ -5151,11 +5152,16 @@
         JobPlanningLine.SetRange("Job Contract Entry No.", FromJobContractEntryNo);
         JobPlanningLine.FindFirst;
 
-        if JobPlanningLine."Remaining Qty. (Base)" >= ToItemJnlLine."Quantity (Base)" then
-            JobPlanningLine."Remaining Qty. (Base)" := JobPlanningLine."Remaining Qty. (Base)" - ToItemJnlLine."Quantity (Base)"
+        TempJobPlanningLine := JobPlanningLine;
+        if not TempJobPlanningLine.Insert() then
+            TempJobPlanningLine.Find();
+
+        if TempJobPlanningLine."Remaining Qty. (Base)" >= ToItemJnlLine."Quantity (Base)" then
+            TempJobPlanningLine."Remaining Qty. (Base)" := TempJobPlanningLine."Remaining Qty. (Base)" - ToItemJnlLine."Quantity (Base)"
         else
-            JobPlanningLine."Remaining Qty. (Base)" := 0;
-        JobPlanningLineReserve.TransferJobLineToItemJnlLine(JobPlanningLine, ToItemJnlLine, ToItemJnlLine."Quantity (Base)");
+            TempJobPlanningLine."Remaining Qty. (Base)" := 0;
+        TempJobPlanningLine.Modify();
+        JobPlanningLineReserve.TransferJobLineToItemJnlLine(TempJobPlanningLine, ToItemJnlLine, ToItemJnlLine."Quantity (Base)");
     end;
 
     procedure SetupTempSplitItemJnlLine(ItemJnlLine2: Record "Item Journal Line"; SignFactor: Integer; var NonDistrQuantity: Decimal; var NonDistrAmount: Decimal; var NonDistrAmountACY: Decimal; var NonDistrDiscountAmount: Decimal; Invoice: Boolean): Boolean

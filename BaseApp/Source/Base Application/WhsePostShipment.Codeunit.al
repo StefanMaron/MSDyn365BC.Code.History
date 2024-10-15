@@ -214,6 +214,7 @@ codeunit 5763 "Whse.-Post Shipment"
                                 SalesRelease.Reopen(SalesHeader);
                                 SalesRelease.SetSkipCheckReleaseRestrictions;
                                 SalesHeader.SetHideValidationDialog(true);
+                                SalesHeader.SetCalledFromWhseDoc(true);
                                 SalesHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
                                 SalesRelease.Run(SalesHeader);
                                 ModifyHeader := true;
@@ -263,6 +264,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             PurchRelease.Reopen(PurchHeader);
                             PurchRelease.SetSkipCheckReleaseRestrictions;
                             PurchHeader.SetHideValidationDialog(true);
+                            PurchHeader.SetCalledFromWhseDoc(true);
                             PurchHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
                             PurchRelease.Run(PurchHeader);
                             ModifyHeader := true;
