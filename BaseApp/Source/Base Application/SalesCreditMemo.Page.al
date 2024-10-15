@@ -1597,11 +1597,13 @@ page 44 "Sales Credit Memo"
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
         PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
-        PreAssignedNo := "No.";
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1624,7 +1626,10 @@ page 44 "Sales Credit Memo"
         Rec.SetTrackInfoForCancellation();
 
         if OfficeMgt.IsAvailable() then begin
-            SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+            if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                SalesCrMemoHeader.SetRange("No.", Rec."Last Posting No.")
+            else
+                SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
             IsHandled := false;
             OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader, IsHandled);
             if not IsHandled then
@@ -1632,7 +1637,7 @@ page 44 "Sales Credit Memo"
                     PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                ShowPostedConfirmationMessage(PreAssignedNo);
+                ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1731,13 +1736,16 @@ page 44 "Sales Credit Memo"
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsHandled: Boolean;
     begin
-        SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            SalesCrMemoHeader.SetRange("No.", Rec."Last Posting No.")
+        else
+            SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

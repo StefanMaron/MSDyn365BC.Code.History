@@ -391,6 +391,7 @@ page 1314 "AccountantPortal Activity Cues"
     var
         ActivitiesCue: Record "Activities Cue";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        ApprovalActivitiesCue: Record "Approvals Activities Cue";
         AcctWebServicesMgt: Codeunit "Acct. WebServices Mgt.";
         CuesAndKpis: Codeunit "Cues And KPIs";
         StringConversionManagement: Codeunit StringConversionManagement;
@@ -492,6 +493,12 @@ page 1314 "AccountantPortal Activity Cues"
         TempString := Format("Inc. Doc. Awaiting Verfication");
         IncDocAwaitingVerifAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Inc. Doc. Awaiting Verfication"), "Inc. Doc. Awaiting Verfication", IncDocAwaitingVerifStyle);
+
+        ApprovalActivitiesCue.SetRange("User ID Filter", UserId);
+        ApprovalActivitiesCue.CalcFields("Requests to Approve");
+        TempString := Format(ApprovalActivitiesCue."Requests to Approve");
+        RequestsToApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
+        CuesAndKpis.SetCueStyle(Database::"Approvals Activities Cue", ApprovalActivitiesCue.FieldNo("Requests to Approve"), ApprovalActivitiesCue."Requests to Approve", RequestsToApproveStyle);
     end;
 
     local procedure GetCompanyContactName()

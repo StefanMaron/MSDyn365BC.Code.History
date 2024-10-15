@@ -814,10 +814,12 @@ page 9301 "Sales Invoice List"
     local procedure PostDocument(PostingCodeunitID: Integer)
     var
         PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
-        PreAssignedNo := "No.";
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -827,16 +829,20 @@ page 9301 "Sales Invoice List"
             exit;
 
         if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            ShowPostedConfirmationMessage(PreAssignedNo);
+            ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+        else begin
+            SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+            SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        end;
         if SalesInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
