@@ -951,9 +951,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     SetFilterReservEntry(ReservationEntry, NewWarehouseActivityLine);
                     CopyReservEntriesToTemp(TempReservationEntry, ReservationEntry);
                     if IsInvtMovement then
-                        PrepareItemTrackingFromWhse(
-                          NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.",
-                          '', NewWarehouseActivityLine."Source Line No.", 1, false);
+                        if NewWarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+                            PrepareItemTrackingFromWhse(
+                              NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.",
+                              '', NewWarehouseActivityLine."Source Line No.", NewWarehouseActivityLine."Source Subline No.", 1, false)
+                        else
+                            PrepareItemTrackingFromWhse(
+                              NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.",
+                              '', 0, NewWarehouseActivityLine."Source Line No.", 1, false);
                     ItemTrackingManagement.SumUpItemTrackingOnlyInventoryOrATO(TempReservationEntry, TempTrackingSpecification, true, true);
                 end;
 
@@ -1889,7 +1894,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         TempReservationEntry.DeleteAll();
 
         PrepareItemTrackingFromWhse(
-          Database::"Internal Movement Line", 0, InternalMovementLine."No.", '', InternalMovementLine."Line No.", -1, false);
+          Database::"Internal Movement Line", 0, InternalMovementLine."No.", '', 0, InternalMovementLine."Line No.", -1, false);
 
         OnAfterPrepareItemTrackingForInternalMovement(InternalMovementLine, TempReservationEntry);
     end;
@@ -1902,10 +1907,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
         TempReservationEntry.DeleteAll();
 
         PrepareItemTrackingFromWhse(
-          Database::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine."Line No.", -1, true);
+          Database::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, WhseWorksheetLine."Worksheet Template Name", 0, WhseWorksheetLine."Line No.", -1, true);
     end;
 
-    local procedure PrepareItemTrackingFromWhse(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceBatchName: Code[20]; SourceLineNo: Integer; SignFactor: Integer; FromWhseWorksheet: Boolean)
+    local procedure PrepareItemTrackingFromWhse(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceBatchName: Code[20]; SourceProdOrderLine: Integer; SourceLineNo: Integer; SignFactor: Integer; FromWhseWorksheet: Boolean)
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         EntryNo: Integer;
@@ -1916,6 +1921,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
         WhseItemTrackingLine.SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, true);
         if FromWhseWorksheet then
             WhseItemTrackingLine.SetRange("Source Batch Name", SourceBatchName);
+        if SourceProdOrderLine <> 0 then
+            WhseItemTrackingLine.SetRange("Source Prod. Order Line", SourceProdOrderLine);
         if WhseItemTrackingLine.Find('-') then
             repeat
                 TempReservationEntry.TransferFields(WhseItemTrackingLine);

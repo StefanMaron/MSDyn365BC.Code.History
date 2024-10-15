@@ -587,14 +587,12 @@ codeunit 134329 "ERM Purchase Return Order"
         JobQueueEntry.FindFirst();
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId, true);
 
-        // [THEN] Error message contains one record for Purchase Header
+        // [THEN] Error message contains zero record for Purchase Header
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage."Message", PurchaseHeader.FieldCaption("Vendor Cr. Memo No."));
-        LibraryVariableStorage.AssertEmpty();
+        Assert.RecordCount(ErrorMessage, 0);
         // [THEN] Purchase Return Order is not posted
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."No.");
+        Assert.AreEqual(PurchaseHeader."Job Queue Status", PurchaseHeader."Job Queue Status"::Error, 'Wrong JQ status in purchase header');
     end;
 
     [Test]

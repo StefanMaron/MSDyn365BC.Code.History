@@ -154,7 +154,7 @@ page 10452 "Service Order Stats. Dyn"
                     Editable = false;
                     ToolTip = 'Specifies the amount of the cost adjustment on the service order, in dollars.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(0);
                     end;
@@ -346,7 +346,7 @@ page 10452 "Service Order Stats. Dyn"
                     Editable = false;
                     ToolTip = 'Specifies the amount of the cost adjustment on the service order, in dollars.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;

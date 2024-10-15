@@ -444,7 +444,7 @@ codeunit 57 "Document Totals"
         end;
 
         if SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
-            if SalesHeader."Prices Including VAT" then begin
+            if SalesHeader."Prices Including VAT" and SalesHeader.SalesLinesExist() then begin
                 CalculateTotalSalesLineAndVATAmountForCurrentSalesLine(SalesHeader, VATAmount2, SalesLine, TempTotalSalesLine);
                 if (VATAmount <> VATAmount2) then begin
                     SalesLine.Amount += VATAmount - VATAmount2;
