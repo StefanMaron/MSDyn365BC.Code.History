@@ -2008,7 +2008,7 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Intrastat';
                     action("Intrastat Setup")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = Page "Intrastat Setup";
                     }
@@ -2020,13 +2020,13 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Transaction Types")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transaction Types';
                         RunObject = Page "Transaction Types";
                     }
                     action("Intrastat Journal Templates")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = Page "Intrastat Journal Templates";
                     }
