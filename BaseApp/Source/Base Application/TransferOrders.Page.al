@@ -1,4 +1,4 @@
-﻿page 5742 "Transfer Orders"
+page 5742 "Transfer Orders"
 {
     ApplicationArea = Location;
     Caption = 'Transfer Orders';

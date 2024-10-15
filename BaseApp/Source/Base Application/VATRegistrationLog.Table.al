@@ -122,7 +122,7 @@ table 249 "VAT Registration Log"
 
     procedure InitVATRegLog(var VATRegistrationLog: Record "VAT Registration Log"; CountryCode: Code[10]; AcountType: Option; AccountNo: Code[20]; VATRegNo: Text[20])
     begin
-        VATRegistrationLog.Init;
+        VATRegistrationLog.Init();
         VATRegistrationLog."Account Type" := AcountType;
         VATRegistrationLog."Account No." := AccountNo;
         VATRegistrationLog."Country/Region Code" := CountryCode;

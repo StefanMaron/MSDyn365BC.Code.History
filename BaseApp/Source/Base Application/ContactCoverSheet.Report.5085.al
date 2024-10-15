@@ -22,7 +22,7 @@ report 5085 "Contact Cover Sheet"
                     TempSegmentLine.SetRange("Contact No.", "Contact No.");
                     if not TempSegmentLine.FindFirst then begin
                         TempSegmentLine.Copy("Segment Line");
-                        TempSegmentLine.Insert;
+                        TempSegmentLine.Insert();
                     end;
                 end;
             }
@@ -30,7 +30,7 @@ report 5085 "Contact Cover Sheet"
             trigger OnPreDataItem()
             begin
                 if not RunFromSegment then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(Contact; Contact)
@@ -43,22 +43,22 @@ report 5085 "Contact Cover Sheet"
             begin
                 TempSegmentLine.SetRange("Contact No.", "No.");
                 if not TempSegmentLine.FindFirst then begin
-                    TempSegmentLine.Reset;
+                    TempSegmentLine.Reset();
                     if TempSegmentLine.FindLast then
                         LastTempSegLine := TempSegmentLine."Line No."
                     else
                         LastTempSegLine := 0;
-                    TempSegmentLine.Init;
+                    TempSegmentLine.Init();
                     TempSegmentLine."Line No." := LastTempSegLine + 10000;
                     TempSegmentLine."Contact No." := "No.";
-                    TempSegmentLine.Insert;
+                    TempSegmentLine.Insert();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
                 if RunFromSegment then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(TempSegmentLine; "Segment Line")
@@ -220,7 +220,7 @@ report 5085 "Contact Cover Sheet"
 
     trigger OnInitReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAddress.Company(CompanyAddress, CompanyInformation);
         Document_Date := Format(WorkDate, 0, 4);
     end;

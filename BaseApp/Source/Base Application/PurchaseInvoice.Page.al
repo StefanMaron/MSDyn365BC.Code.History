@@ -1,4 +1,4 @@
-﻿page 51 "Purchase Invoice"
+page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -789,7 +789,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
@@ -1453,8 +1453,6 @@
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         DocAmountEnable: Boolean;
-        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
@@ -1478,6 +1476,10 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1528,7 +1530,7 @@
             NavigateAfterPost::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
-                    PurchaseHeader.Init;
+                    PurchaseHeader.Init();
                     PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
                     OnPostDocumentOnBeforePurchaseHeaderInsert(PurchaseHeader);
                     PurchaseHeader.Insert(true);
@@ -1592,7 +1594,7 @@
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         VendorInvoiceNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
     end;
 

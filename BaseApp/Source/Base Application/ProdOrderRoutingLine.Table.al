@@ -59,11 +59,9 @@ table 5409 "Prod. Order Routing Line"
                 SetRecalcStatus();
             end;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Capacity Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
 
             trigger OnValidate()
             begin
@@ -356,7 +354,7 @@ table 5409 "Prod. Order Routing Line"
                         ProdOrderRtngQltyMeas."Min. Value" := StdTaskQltyMeasure."Min. Value";
                         ProdOrderRtngQltyMeas."Max. Value" := StdTaskQltyMeasure."Max. Value";
                         ProdOrderRtngQltyMeas."Mean Tolerance" := StdTaskQltyMeasure."Mean Tolerance";
-                        ProdOrderRtngQltyMeas.Insert;
+                        ProdOrderRtngQltyMeas.Insert();
                         OnAfterTransferFromStdTaskQltyMeasure(ProdOrderRtngQltyMeas, StdTaskQltyMeasure);
                     until StdTaskQltyMeasure.Next() = 0;
 
@@ -383,7 +381,7 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 "Direct Unit Cost" :=
                   Round(
                     ("Unit Cost per" - "Overhead Rate") /
@@ -441,7 +439,7 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 "Unit Cost per" :=
                   Round(
                     "Direct Unit Cost" * (1 + "Indirect Cost %" / 100) + "Overhead Rate",
@@ -912,7 +910,7 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderRtngQltyMeas.SetRange("Routing Reference No.", "Routing Reference No.");
         ProdOrderRtngQltyMeas.SetRange("Routing No.", "Routing No.");
         ProdOrderRtngQltyMeas.SetRange("Operation No.", "Operation No.");
-        ProdOrderRtngQltyMeas.DeleteAll;
+        ProdOrderRtngQltyMeas.DeleteAll();
 
         ProdOrderRtngCommentLine.SetRange(Status, Status);
         ProdOrderRtngCommentLine.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -926,7 +924,7 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderCapNeed.SetRange("Routing No.", "Routing No.");
         ProdOrderCapNeed.SetRange("Routing Reference No.", "Routing Reference No.");
         ProdOrderCapNeed.SetRange("Operation No.", "Operation No.");
-        ProdOrderCapNeed.DeleteAll;
+        ProdOrderCapNeed.DeleteAll();
 
         OnAfterDeleteRelations(Rec, SkipUpdateOfCompBinCodes);
     end;
@@ -1328,7 +1326,7 @@ table 5409 "Prod. Order Routing Line"
             RtngLine2.SetRange("Next Operation No.", '');
             if RtngLine2.FindFirst then begin
                 RtngLine2."Next Operation No." := RtngLine."Operation No.";
-                RtngLine2.Modify;
+                RtngLine2.Modify();
             end;
         end;
     end;
@@ -1338,7 +1336,7 @@ table 5409 "Prod. Order Routing Line"
         if Status <> Status::Released then
             exit(false);
 
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");

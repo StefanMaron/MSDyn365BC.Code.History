@@ -236,10 +236,10 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         // Remove all currencies except one
         Currency.SetFilter(Code, '<>%1', Currency.Code);
-        Currency.DeleteAll;
+        Currency.DeleteAll();
 
         TempCurrencyExchangeRate.SetFilter("Currency Code", '<>%1', Currency.Code);
-        TempCurrencyExchangeRate.DeleteAll;
+        TempCurrencyExchangeRate.DeleteAll();
 
         // Execute
         CODEUNIT.Run(CODEUNIT::"Map Currency Exchange Rate", DataExch);
@@ -282,7 +282,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         DataExchField.SetRange("Column No.", DataExchFieldMapping."Column No.");
         DataExchField.FindFirst;
         DataExchField.Value := '-';
-        DataExchField.Modify;
+        DataExchField.Modify();
 
         // Execute
         CODEUNIT.Run(CODEUNIT::"Map Currency Exchange Rate", DataExch);
@@ -290,7 +290,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         // Verify
         Assert.AreEqual(NumberOfCurrencies - 1, CurrencyExchangeRate.Count, 'Currency with value missing should be ignored');
         TempCurrencyExchangeRate.FindFirst;
-        TempCurrencyExchangeRate.Delete;
+        TempCurrencyExchangeRate.Delete();
         VerifyCurrencyExchangeRateMatch(TempCurrencyExchangeRate);
     end;
 
@@ -364,7 +364,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
             TempTwoDaysBeforeCurrencyExchangeRate."Starting Date" :=
               CalcDate('<-2D>', TempTwoDaysBeforeCurrencyExchangeRate."Starting Date");
             TempTwoDaysBeforeCurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInRange(1, 1000, 2));
-            TempTwoDaysBeforeCurrencyExchangeRate.Insert;
+            TempTwoDaysBeforeCurrencyExchangeRate.Insert();
         until TempCurrencyExchangeRate.Next = 0;
 
         Clear(DataExch);
@@ -586,8 +586,8 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Currency Exch. Rate Unit Tests");
-        Currency.DeleteAll;
-        CurrencyExchangeRate.DeleteAll;
+        Currency.DeleteAll();
+        CurrencyExchangeRate.DeleteAll();
         DataExch.DeleteAll(true);
         DataExchDef.DeleteAll(true);
         CurrExchRateUpdateSetup.DeleteAll(true);
@@ -607,21 +607,21 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         Initialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Currency Exch. Rate Unit Tests");
     end;
 
     local procedure MockCurrExchRateUpdateSetup(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; Enabled: Boolean)
     begin
-        CurrExchRateUpdateSetup.Init;
+        CurrExchRateUpdateSetup.Init();
         CurrExchRateUpdateSetup.Code := LibraryUtility.GenerateGUID;
         CurrExchRateUpdateSetup.Enabled := Enabled;
-        CurrExchRateUpdateSetup.Insert;
+        CurrExchRateUpdateSetup.Insert();
     end;
 
     local procedure CreateCurrencyExchRateSyncSetup(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; WebServiceURL: Text)
     begin
-        CurrExchRateUpdateSetup.Init;
+        CurrExchRateUpdateSetup.Init();
         CurrExchRateUpdateSetup.Validate(Code,
           LibraryUtility.GenerateRandomCode(CurrExchRateUpdateSetup.FieldNo(Code), DATABASE::"Curr. Exch. Rate Update Setup"));
         CurrExchRateUpdateSetup.Insert(true);
@@ -651,7 +651,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
     var
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchMapping.Validate("Table ID", DATABASE::"Currency Exchange Rate");
@@ -671,7 +671,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchColumnDef.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchColumnDef.Validate("Column No.", ColumnNo);
@@ -684,7 +684,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
     var
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping.Validate("Data Exch. Def Code", DataExchColumnDef."Data Exch. Def Code");
         DataExchFieldMapping.Validate("Data Exch. Line Def Code", DataExchColumnDef."Data Exch. Line Def Code");
         DataExchFieldMapping.Validate("Column No.", DataExchColumnDef."Column No.");
@@ -781,7 +781,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
             LibraryERM.CreateCurrency(Currency);
 
             // This exchange rate will be used to generate Data Exchange data and to assert values
-            TempExpectedCurrencyExchangeRate.Init;
+            TempExpectedCurrencyExchangeRate.Init();
             TempExpectedCurrencyExchangeRate.Validate("Currency Code", Currency.Code);
             TempExpectedCurrencyExchangeRate.Validate("Starting Date", StartDate);
             TempExpectedCurrencyExchangeRate.Insert(true);
@@ -798,7 +798,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
     local procedure CreateDataExchange(var DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExch.Insert(true);
@@ -815,7 +815,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         if not DataExchFieldMapping.FindFirst then
             exit;
 
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.Validate("Data Exch. No.", DataExch."Entry No.");
         DataExchField.Validate("Column No.", DataExchFieldMapping."Column No.");
         DataExchField.Validate("Node ID", GetNodeID(CurrentNodeID));
@@ -836,7 +836,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        TempExpectedCurrencyExchangeRate.Reset;
+        TempExpectedCurrencyExchangeRate.Reset();
         TempExpectedCurrencyExchangeRate.FindSet;
 
         repeat

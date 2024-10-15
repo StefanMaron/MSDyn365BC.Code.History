@@ -124,10 +124,10 @@ page 5920 "Service Document Log"
                         DeleteServOrderLog.RunModal;
 
                         if DeleteServOrderLog.GetOnPostReportStatus then begin
-                            ServOrderLog.Reset;
+                            ServOrderLog.Reset();
                             DeleteServOrderLog.GetServDocLog(ServOrderLog);
                             CopyFilters(ServOrderLog);
-                            DeleteAll;
+                            DeleteAll();
                             Reset;
                             SetCurrentKey("Change Date", "Change Time");
                             Ascending(false);

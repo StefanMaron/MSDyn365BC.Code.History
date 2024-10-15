@@ -123,7 +123,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
-        VATStatementLine.Reset;
+        VATStatementLine.Reset();
         VATStatementLine.SetCurrentKey("Elec. Tax Decl. Category Code");
         VATStatementLine.SetRange("Elec. Tax Decl. Category Code", Code);
         if VATStatementLine.FindFirst then
@@ -141,7 +141,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
     var
         ElecTaxDeclVATCategory: Record "Elec. Tax Decl. VAT Category";
     begin
-        ElecTaxDeclVATCategory.Reset;
+        ElecTaxDeclVATCategory.Reset();
         ElecTaxDeclVATCategory.SetRange(Category);
 
         case Category of
@@ -218,7 +218,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
     var
         ElecTaxDeclVATCategory: Record "Elec. Tax Decl. VAT Category";
     begin
-        ElecTaxDeclVATCategory.Reset;
+        ElecTaxDeclVATCategory.Reset();
         ElecTaxDeclVATCategory.SetFilter(Code, '<>%1', Code);
         ElecTaxDeclVATCategory.SetRange(Category, Category);
         ElecTaxDeclVATCategory.SetRange("By Us (Domestic)", "By Us (Domestic)");

@@ -15,7 +15,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
-        LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryCosting: Codeunit "Library - Costing";
@@ -312,7 +311,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Acc. Periods: Posting");
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
@@ -449,7 +448,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         PurchaseHeader.CalcFields(Amount);
-        LibrarySmallBusiness.UpdatePurchHeaderDocTotal(PurchaseHeader);
     end;
 
     local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; EndingDate: Date)

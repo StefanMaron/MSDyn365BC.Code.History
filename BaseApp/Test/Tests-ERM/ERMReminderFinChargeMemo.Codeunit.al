@@ -20,7 +20,6 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryERM: Codeunit "Library - ERM";
         LibraryFinanceChargeMemo: Codeunit "Library - Finance Charge Memo";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
@@ -253,7 +252,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         MockTwoIssuedRemindersSingleCustomer(IssuedReminderHeader);
 
         // [WHEN] Print 2 Issued Reminders.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(0);
         IssuedReminderHeader.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
         IssuedReminderHeader.PrintRecords(true, false, true);
@@ -1195,7 +1194,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [WHEN] Reminder is being printed
         IssuedReminderHeader.SetRecFilter;
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
         // [THEN] VAT Registration No. caption printed in company information section
@@ -1220,7 +1219,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [WHEN] Finance Charge Memo is being printed
         IssuedFinanceChargeMemoHeader.SetRecFilter;
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo", true, false, IssuedFinanceChargeMemoHeader);
 
         // [THEN] VAT Registration No. caption printed in company information section
@@ -1258,32 +1257,6 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         VerifyCanceledReminderCustLedgerEntries(IssuedReminderHeader."No.");
     end;
 
-    [Test]
-    [HandlerFunctions('ReminderToExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure ReminderSaveToExcel()
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        IssuedReminderNo: Code[20];
-    begin
-        // [FEATURE] [Reminder] [Excel]
-        // [SCENARIO 340259] Run report "Reminder" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-
-        // [GIVEN] Issued Reminder.
-        IssuedReminderNo := IssueReminder(CreateReminderWithReminderTerms(CreateOneLevelReminderTerms), WorkDate());
-        Commit();
-
-        // [WHEN] Run report "Reminder", save report output to Excel file.
-        IssuedReminderHeader.SetRange("No.", IssuedReminderNo);
-        REPORT.Run(REPORT::"Reminder", true, false, IssuedReminderHeader);
-
-        // [THEN] Report output is saved to Excel file.
-        LibraryReportValidation.OpenExcelFile();
-        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Reminder'), '');
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1303,7 +1276,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminder/Fin.Charge Memo");
     end;
@@ -1473,7 +1446,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         ReminderCommentLine: Record "Reminder Comment Line";
     begin
-        ReminderCommentLine.Init;
+        ReminderCommentLine.Init();
         ReminderCommentLine.Validate(
           "Line No.", LibraryUtility.GetNewRecNo(ReminderCommentLine, ReminderCommentLine.FieldNo("Line No.")));
         ReminderCommentLine.Validate("No.", ReminderNo);
@@ -1532,7 +1505,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         FinChargeCommentLine: Record "Fin. Charge Comment Line";
     begin
-        FinChargeCommentLine.Init;
+        FinChargeCommentLine.Init();
         FinChargeCommentLine.Validate(
           "Line No.", LibraryUtility.GetNewRecNo(FinChargeCommentLine, FinChargeCommentLine.FieldNo("Line No.")));
         FinChargeCommentLine.Validate("No.", FinChargeNo);
@@ -1628,7 +1601,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         GenJournalLine.Validate("Posting Date", CustLedgerEntry."Posting Date");
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Reminder);
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgerEntry."Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1649,7 +1622,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         GenJournalLine.Validate("Posting Date", CustLedgerEntry."Posting Date");
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::"Finance Charge Memo");
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgerEntry."Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1727,16 +1700,16 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedReminderLine: Record "Issued Reminder Line";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader."No." :=
           LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup."Additional Fee Account" := '';
-        CustomerPostingGroup.Modify;
+        CustomerPostingGroup.Modify();
         IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;
         IssuedReminderHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
-        IssuedReminderHeader.Insert;
-        IssuedReminderLine.Init;
+        IssuedReminderHeader.Insert();
+        IssuedReminderLine.Init();
         IssuedReminderLine."Line No." := LibraryUtility.GetNewRecNo(IssuedReminderLine, IssuedReminderLine.FieldNo("Line No."));
         IssuedReminderLine."Line Type" := IssuedReminderLine."Line Type"::"Reminder Line";
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
@@ -1744,7 +1717,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedReminderLine."Remaining Amount" := LibraryRandom.RandIntInRange(10, 100);
         IssuedReminderLine.Amount := IssuedReminderLine."Remaining Amount";
         IssuedReminderLine.Type := IssuedReminderLine.Type::"G/L Account";
-        IssuedReminderLine.Insert;
+        IssuedReminderLine.Insert();
     end;
 
     local procedure MockIssuedFinanceChargeMemo(var IssuedFinanceChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
@@ -1752,24 +1725,24 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedFinanceChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        IssuedFinanceChargeMemoHeader.Init;
+        IssuedFinanceChargeMemoHeader.Init();
         IssuedFinanceChargeMemoHeader."No." :=
           LibraryUtility.GenerateRandomCode(IssuedFinanceChargeMemoHeader.FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header");
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup."Additional Fee Account" := '';
-        CustomerPostingGroup.Modify;
+        CustomerPostingGroup.Modify();
         IssuedFinanceChargeMemoHeader."Customer Posting Group" := CustomerPostingGroup.Code;
         IssuedFinanceChargeMemoHeader."Customer No." := LibrarySales.CreateCustomerNo();
         IssuedFinanceChargeMemoHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
-        IssuedFinanceChargeMemoHeader.Insert;
-        IssuedFinanceChargeMemoLine.Init;
+        IssuedFinanceChargeMemoHeader.Insert();
+        IssuedFinanceChargeMemoLine.Init();
         IssuedFinanceChargeMemoLine."Line No." := LibraryUtility.GetNewRecNo(IssuedFinanceChargeMemoLine, IssuedFinanceChargeMemoLine.FieldNo("Line No."));
         IssuedFinanceChargeMemoLine."Finance Charge Memo No." := IssuedFinanceChargeMemoHeader."No.";
         IssuedFinanceChargeMemoLine."Due Date" := IssuedFinanceChargeMemoHeader."Due Date";
         IssuedFinanceChargeMemoLine."Remaining Amount" := LibraryRandom.RandIntInRange(10, 100);
         IssuedFinanceChargeMemoLine.Amount := IssuedFinanceChargeMemoLine."Remaining Amount";
         IssuedFinanceChargeMemoLine.Type := IssuedFinanceChargeMemoLine.Type::"G/L Account";
-        IssuedFinanceChargeMemoLine.Insert;
+        IssuedFinanceChargeMemoLine.Insert();
     end;
 
     local procedure UpdateCustomerPostingGroupAddFeePerLineAccount(CustomerPostingGroupCode: Code[20])
@@ -1779,7 +1752,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         if CustomerPostingGroup."Add. Fee per Line Account" = '' then begin
             CustomerPostingGroup.Validate("Add. Fee per Line Account", LibraryERM.CreateGLAccountWithSalesSetup);
-            CustomerPostingGroup.Modify;
+            CustomerPostingGroup.Modify();
         end;
     end;
 
@@ -1940,18 +1913,18 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Canceled Issued Reminder Nos.", NewNos);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     local procedure SetSalesSetupCancelledIssuedFinChargeMemosNos(NewNos: Code[20])
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Canc. Iss. Fin. Ch. Mem. Nos.", NewNos);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     local procedure SuggestFinanceChargeMemoLines(FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
@@ -1980,7 +1953,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryVariableStorage.Enqueue(UseSameDocumentNo);
         LibraryVariableStorage.Enqueue(UseSamePostingDate);
         LibraryVariableStorage.Enqueue(NewPostingDate);
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Cancel Issued Reminders", true, false, IssuedReminderHeader);
     end;
 
@@ -2000,7 +1973,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryVariableStorage.Enqueue(UseSameDocumentNo);
         LibraryVariableStorage.Enqueue(UseSamePostingDate);
         LibraryVariableStorage.Enqueue(NewPostingDate);
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Cancel Issued Fin.Charge Memos", true, false, IssuedFinChargeMemoHeader);
     end;
 
@@ -2208,7 +2181,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     [Scope('OnPrem')]
     procedure NavigatePagehandler(var Navigate: TestPage Navigate)
     begin
-        Commit;  // Required to run the Document Entries report.
+        Commit();  // Required to run the Document Entries report.
         Navigate.Print.Invoke;
     end;
 
@@ -2285,13 +2258,6 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         if not UseSamePostingDate then
             CancelIssuedFinChargeMemos.NewPostingDate.SetValue(NewPostingDate);
         CancelIssuedFinChargeMemos.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReminderToExcelRequestPageHandler(var Reminder: TestRequestPage "Reminder")
-    begin
-        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [PageHandler]

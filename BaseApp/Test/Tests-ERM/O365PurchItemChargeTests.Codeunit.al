@@ -29,9 +29,8 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableItemChargeSetup();
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Receipt on Invoice" := true;
-        PurchasesPayablesSetup."Check Doc. Total Amounts" := false;
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -186,7 +185,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Disable "receipt on invoice" in the Purchases & Payables Setup
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Receipt on Invoice" := false;
         PurchasesPayablesSetup.Modify(true);
 
@@ -235,7 +234,6 @@ codeunit 135300 "O365 Purch Item Charge Tests"
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
-            PurchaseLine."Direct Unit Cost" := GenerateRandDecimalBetweenOneAndFive;
             PurchaseLine.Modify(true);
         end;
     end;
@@ -251,7 +249,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', 1);
             PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
-            PurchaseLine."Direct Unit Cost" := GenerateRandDecimalBetweenOneAndFive;
+            PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine.Modify(true);
 
             PurchaseLine.ShowItemChargeAssgnt;

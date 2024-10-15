@@ -1,4 +1,4 @@
-﻿page 507 "Blanket Sales Order"
+page 507 "Blanket Sales Order"
 {
     Caption = 'Blanket Sales Order';
     PageType = Document;
@@ -966,6 +966,26 @@
                     DocPrint.PrintSalesHeader(Rec);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesHeader: Record "Sales Header";
+                begin
+                    SalesHeader := Rec;
+                    SalesHeader.SetRecFilter();
+                    DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
+                end;
+            }
             group("Request Approval")
             {
                 Caption = 'Request Approval';
@@ -1038,7 +1058,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        xRec.Init;
+        xRec.Init();
         "Responsibility Center" := UserMgt.GetSalesFilter;
         if (not DocNoVisible) and ("No." = '') then
             SetSellToCustomerFromFilter;
@@ -1069,9 +1089,11 @@
         OpenApprovalEntriesExist: Boolean;
         ShowWorkflowStatus: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
+
+    protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
-        EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     local procedure ApproveCalcInvDisc()
     begin

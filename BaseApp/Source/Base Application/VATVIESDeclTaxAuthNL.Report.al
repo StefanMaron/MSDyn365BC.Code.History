@@ -14,7 +14,7 @@ report 11409 "VAT- VIES Decl. Tax Auth NL"
 
             trigger OnAfterGetRecord()
             begin
-                TempICL.Init;
+                TempICL.Init();
                 TempICL."Entry No." := RecordEntryNo;
                 RecordEntryNo := RecordEntryNo + 1;
                 TempICL."EU 3-Party Trade" := "EU 3-Party Trade";
@@ -27,7 +27,7 @@ report 11409 "VAT- VIES Decl. Tax Auth NL"
                 if "VAT Registration No." <> '' then begin
                     TempICL."VAT Registration No." := "VAT Registration No.";
                     TempICL."Country/Region Code" := "Country/Region Code";
-                    TempICL.Insert;
+                    TempICL.Insert();
                 end else
                     AddError(StrSubstNo(Text1000003, "Document No."));
             end;
@@ -544,17 +544,17 @@ report 11409 "VAT- VIES Decl. Tax Auth NL"
 
     trigger OnPostReport()
     begin
-        TempICL.DeleteAll;
+        TempICL.DeleteAll();
     end;
 
     trigger OnPreReport()
     begin
         "Date Filter" := "VAT Entry".GetFilter("Posting Date");
 
-        TempICL.DeleteAll;
+        TempICL.DeleteAll();
         RecordEntryNo := 1;
 
-        Company.Get;
+        Company.Get();
         if Company."VAT Registration No." = '' then
             AddError(Text1000000);
 
@@ -667,7 +667,7 @@ report 11409 "VAT- VIES Decl. Tax Auth NL"
     [Scope('OnPrem')]
     procedure DetermineCurrency()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if "Reporting Currency" = true then
             CurrencyReportCode := GLSetup."Additional Reporting Currency"
         else

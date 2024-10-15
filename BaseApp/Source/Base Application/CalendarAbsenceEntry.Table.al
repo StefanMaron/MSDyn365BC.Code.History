@@ -6,12 +6,10 @@ table 99000760 "Calendar Absence Entry"
 
     fields
     {
-        field(1; "Capacity Type"; Option)
+        field(1; "Capacity Type"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type';
             Editable = false;
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
         }
         field(2; "No."; Code[20])
         {

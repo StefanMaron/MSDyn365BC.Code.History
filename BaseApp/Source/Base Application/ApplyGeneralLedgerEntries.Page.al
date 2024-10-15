@@ -441,11 +441,11 @@ page 11309 "Apply General Ledger Entries"
         GLEntry.SetCurrentKey("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         if GLEntry.Find('-') then begin
-            NoOfRecords := GLEntry.Count;
+            NoOfRecords := GLEntry.Count();
             Window.Open(Text11300);
             repeat
                 TempGLEntryBuf.TransferFields(GLEntry);
-                TempGLEntryBuf.Insert;
+                TempGLEntryBuf.Insert();
                 LineCount := LineCount + 1;
                 Window.Update(1, Round(LineCount / NoOfRecords * 10000, 1));
             until GLEntry.Next = 0;
@@ -513,7 +513,7 @@ page 11309 "Apply General Ledger Entries"
         if TempGLEntryBuf.Find('-') then
             repeat
                 TempGLEntryBuf2 := TempGLEntryBuf;
-                TempGLEntryBuf2.Insert;
+                TempGLEntryBuf2.Insert();
             until TempGLEntryBuf.Next = 0;
 
         if TempGLEntryBuf.Find('-') then

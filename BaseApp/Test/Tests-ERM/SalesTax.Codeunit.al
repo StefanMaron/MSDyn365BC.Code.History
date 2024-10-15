@@ -425,12 +425,12 @@ codeunit 134064 "Sales Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         // [GIVEN] System is set up to use default accounts on jurisdiction creation
-        TaxSetup.Get;
+        TaxSetup.Get();
         TaxSetup."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo;
-        TaxSetup.Modify;
+        TaxSetup.Modify();
 
         // [WHEN] A Jurisdiction is created
-        TaxJurisdiction.Init;
+        TaxJurisdiction.Init();
         TaxJurisdiction.Validate(Code, LibraryUtility.GenerateRandomCode(TaxJurisdiction.FieldNo(Code), DATABASE::"Tax Jurisdiction"));
         TaxJurisdiction.Insert(true);
 
@@ -447,10 +447,10 @@ codeunit 134064 "Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         // [GIVEN] System is set up to create default tax detail lines on jurisdiction creation
-        TaxSetup.Get;
+        TaxSetup.Get();
         TaxSetup."Auto. Create Tax Details" := true;
         TaxSetup."Non-Taxable Tax Group Code" := CreateTaxGroup;
-        TaxSetup.Modify;
+        TaxSetup.Modify();
 
         // [WHEN] A Jurisdiction is created
         CreateTaxJurisdiction(TaxJurisdiction);
@@ -469,9 +469,9 @@ codeunit 134064 "Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         // [GIVEN] System is not set up to create default tax detail lines on jurisdiction creation
-        TaxSetup.Get;
+        TaxSetup.Get();
         TaxSetup."Auto. Create Tax Details" := false;
-        TaxSetup.Modify;
+        TaxSetup.Modify();
 
         // [WHEN] A Jurisdiction is created
         CreateTaxJurisdiction(TaxJurisdiction);
@@ -492,7 +492,7 @@ codeunit 134064 "Sales Tax"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Tax");
     end;
 
@@ -549,7 +549,7 @@ codeunit 134064 "Sales Tax"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Init;
+        TaxArea.Init();
         TaxArea.Validate(Code, LibraryUtility.GenerateRandomCode(TaxArea.FieldNo(Code), DATABASE::"Tax Area"));
         TaxArea.Insert(true);
         exit(TaxArea.Code);
@@ -559,7 +559,7 @@ codeunit 134064 "Sales Tax"
     var
         TaxAreaLine: Record "Tax Area Line";
     begin
-        TaxAreaLine.Init;
+        TaxAreaLine.Init();
         TaxAreaLine.Validate("Tax Area", TaxArea);
         TaxAreaLine.Validate("Tax Jurisdiction Code", TaxJurisdiction);
         TaxAreaLine.Insert(true);
@@ -569,7 +569,7 @@ codeunit 134064 "Sales Tax"
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxType: Option; EffectiveDate: Date; CalcTaxonTax: Boolean)
     begin
-        TaxDetail.Init;
+        TaxDetail.Init();
         TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdictionCode);
         TaxDetail.Validate("Tax Group Code", TaxGroupCode);
         TaxDetail.Validate("Tax Type", TaxType);
@@ -586,7 +586,7 @@ codeunit 134064 "Sales Tax"
     var
         TaxGroup: Record "Tax Group";
     begin
-        TaxGroup.Init;
+        TaxGroup.Init();
         TaxGroup.Validate(Code, LibraryUtility.GenerateRandomCode(TaxGroup.FieldNo(Code), DATABASE::"Tax Group"));
         TaxGroup.Insert(true);
         exit(TaxGroup.Code);
@@ -598,8 +598,8 @@ codeunit 134064 "Sales Tax"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
-        GLAccount.Modify;
-        TaxJurisdiction.Init;
+        GLAccount.Modify();
+        TaxJurisdiction.Init();
         TaxJurisdiction.Validate(Code, LibraryUtility.GenerateRandomCode(TaxJurisdiction.FieldNo(Code), DATABASE::"Tax Jurisdiction"));
         TaxJurisdiction.Insert(true);
         TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");

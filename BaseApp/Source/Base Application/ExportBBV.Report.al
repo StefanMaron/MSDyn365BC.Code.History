@@ -175,9 +175,9 @@ report 11000008 "Export BBV"
 
             trigger OnPreDataItem()
             begin
-                LockTable;
+                LockTable();
                 Exported := false;
-                TempfileAccumulatives.DeleteAll;
+                TempfileAccumulatives.DeleteAll();
             end;
         }
     }
@@ -225,7 +225,7 @@ report 11000008 "Export BBV"
 
     trigger OnPreReport()
     begin
-        AccountingSetup.Get;
+        AccountingSetup.Get();
     end;
 
     var
@@ -243,10 +243,10 @@ report 11000008 "Export BBV"
         Text1000011: Label 'N';
         Text1000012: Label 'S';
         Text1000013: Label '32A';
-        Text1000014: Label '<Year,2><Month,2><Day,2>';
+        Text1000014: Label '<Year,2><Month,2><Day,2>', Locked = true;
         Text1000015: Label '57A';
         Text1000016: Label '71A';
-        Text1000017: Label '<Integer>';
+        Text1000017: Label '<Integer>', Locked = true;
         Text1000018: Label 'Invalid sign used in Fillingcharacter';
         TempfileAccumulatives: Record "Payment History Export Buffer" temporary;
         Currencycode: Code[10];
@@ -609,12 +609,12 @@ report 11000008 "Export BBV"
         if TempfileAccumulatives.Get(Currencycode) then begin
             TempfileAccumulatives.Amount := TempfileAccumulatives.Amount + Amount;
             TempfileAccumulatives."No. of Net Change" := TempfileAccumulatives."No. of Net Change" + 1;
-            TempfileAccumulatives.Modify;
+            TempfileAccumulatives.Modify();
         end else begin
             TempfileAccumulatives."Currency Code" := Currencycode;
             TempfileAccumulatives.Amount := Amount;
             TempfileAccumulatives."No. of Net Change" := 1;
-            TempfileAccumulatives.Insert;
+            TempfileAccumulatives.Insert();
         end;
     end;
 }

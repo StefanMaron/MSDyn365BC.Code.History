@@ -127,11 +127,11 @@ report 11401 "CMR - Sales Shipment"
 
             trigger OnAfterGetRecord()
             begin
-                SalesShipmentLine.Reset;
+                SalesShipmentLine.Reset();
                 SalesShipmentLine.SetRange("Document No.", "No.");
                 SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
                 if not SalesShipmentLine.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "Location Code" <> '' then begin
                     Location.Get("Location Code");
@@ -139,16 +139,16 @@ report 11401 "CMR - Sales Shipment"
                       SenderAddr, Location.Name, Location."Name 2", '', Location.Address, Location."Address 2",
                       Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
                     if not Country.Get(Location."Country/Region Code") then
-                        Country.Init;
+                        Country.Init();
                     ShipFrom := DelChr(AddText(Location.City) + AddText(Country.Name), '>', ', ');
                     EstdIn := Location.City;
                 end else begin
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     FormatAddr.FormatAddr(
                       SenderAddr, CompanyInfo.Name, CompanyInfo."Name 2", '', CompanyInfo.Address, CompanyInfo."Address 2",
                       CompanyInfo.City, CompanyInfo."Post Code", CompanyInfo.County, CompanyInfo."Country/Region Code");
                     if not Country.Get(CompanyInfo."Country/Region Code") then
-                        Country.Init;
+                        Country.Init();
                     ShipFrom := DelChr(AddText(CompanyInfo.City) + AddText(Country.Name), '>', ', ');
                     EstdIn := CompanyInfo.City;
                 end;
@@ -158,10 +158,10 @@ report 11401 "CMR - Sales Shipment"
                   "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
 
                 if not ShippingAgent.Get("Shipping Agent Code") then
-                    ShippingAgent.Init;
+                    ShippingAgent.Init();
 
                 if not Country.Get("Ship-to Country/Region Code") then
-                    Country.Init;
+                    Country.Init();
 
                 ShipTo := DelChr(AddText("Ship-to City") + AddText(Country.Name), '>', ', ');
             end;

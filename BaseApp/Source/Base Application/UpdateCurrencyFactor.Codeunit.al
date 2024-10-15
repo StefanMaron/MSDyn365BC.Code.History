@@ -11,22 +11,22 @@ codeunit 325 "Update Currency Factor"
 
     procedure ModifyPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
     end;
 
     procedure ModifyPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
     end;
 
     procedure ModifyPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        PurchInvHeader.Modify;
+        PurchInvHeader.Modify();
     end;
 
     procedure ModifyPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
-        PurchCrMemoHdr.Modify;
+        PurchCrMemoHdr.Modify();
     end;
 }
 

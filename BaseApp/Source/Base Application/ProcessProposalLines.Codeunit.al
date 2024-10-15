@@ -81,7 +81,7 @@ codeunit 11000000 "Process Proposal Lines"
                 then begin
                     ProposalLine."Error Message" := Errortext;
                     ProposalLine.Warning := Warningstext;
-                    ProposalLine.Modify;
+                    ProposalLine.Modify();
                 end;
             until ProposalLine.Next = 0;
 
@@ -106,7 +106,7 @@ codeunit 11000000 "Process Proposal Lines"
 
         ErrorNumber := 0;
         NumberPosted := 0;
-        GenJnlLine.DeleteAll;
+        GenJnlLine.DeleteAll();
 
         if ProposalLine.Find('-') then begin
             repeat
@@ -122,13 +122,13 @@ codeunit 11000000 "Process Proposal Lines"
                     then begin
                         ProposalLine."Error Message" := Errortext;
                         ProposalLine.Warning := Warningstext;
-                        ProposalLine.Modify;
+                        ProposalLine.Modify();
                     end;
                     ErrorNumber := ErrorNumber + 1;
                 end
             until ProposalLine.Next = 0;
             FinancialInterfaceTelebank.PostFDBR(GenJnlLine);
-            GenJnlLine.DeleteAll;
+            GenJnlLine.DeleteAll();
         end;
 
         if NumberPosted = 0 then
@@ -460,7 +460,7 @@ codeunit 11000000 "Process Proposal Lines"
 
         PaymentHistory."Our Bank" := ProposalLine."Our Bank No.";
         NoSeriesManagement.InitSeries(TranMode."Run No. Series", '', Today, PaymentHistory."Run No.", PaymentHistory."No. Series");
-        PaymentHistory.Init;
+        PaymentHistory.Init();
 
         PaymentHistory.Status := PaymentHistory.Status::New;
         PaymentHistory."Creation Date" := Today;

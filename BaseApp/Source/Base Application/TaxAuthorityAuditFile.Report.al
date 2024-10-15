@@ -142,10 +142,10 @@ report 11412 "Tax Authority - Audit File"
 
     trigger OnInitReport()
     begin
-        TempAuditFileBuffer.Reset;
-        GLSetup.Get;
+        TempAuditFileBuffer.Reset();
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if StrLen(CompanyInfo."VAT Registration No.") > 15 then
             Error(Text007, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption);
     end;
@@ -159,7 +159,7 @@ report 11412 "Tax Authority - Audit File"
     begin
         ServerFileName := FileMgmt.ServerTempFileName('.xaf');
 
-        TotalCount := TempAuditFileBuffer.Count;
+        TotalCount := TempAuditFileBuffer.Count();
         StepEntries := Round(TotalCount / 1000, 1, '>');
         NextStep := StepEntries;
         CountEntries := 0;
@@ -192,6 +192,8 @@ report 11412 "Tax Authority - Audit File"
             FileMgmt.CopyServerFile(ServerFileName, FileName, true);
 
         Window.Close;
+        TempAuditFileBuffer.Reset();
+        TempAuditFileBuffer.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -212,7 +214,7 @@ report 11412 "Tax Authority - Audit File"
             Error(Text005);
 
         // Filter Accounting Period
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod."Starting Date" := StartDate;
         if not AccountingPeriod.Find('=<') then
             Error(Text012);
@@ -234,7 +236,7 @@ report 11412 "Tax Authority - Audit File"
         Window.Open(Text009);
         LocGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         LocGLEntry.SetRange("Posting Date", StartDate, ClosingDate(EndDate));
-        TotalCount := LocGLEntry.Count;
+        TotalCount := LocGLEntry.Count();
         StepEntries := Round(TotalCount / 1000, 1, '>');
         NextStep := StepEntries;
         CountEntries := 0;
@@ -243,7 +245,7 @@ report 11412 "Tax Authority - Audit File"
     var
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
-        TempAuditFileBuffer: Record "Audit File Buffer" temporary;
+        TempAuditFileBuffer: Record "Audit File Buffer";
         AccountingPeriod: Record "Accounting Period";
         Window: Dialog;
         XmlWriter: DotNet XmlWriter;
@@ -281,7 +283,7 @@ report 11412 "Tax Authority - Audit File"
         TempAuditFileBuffer.Rectype := TempAuditFileBuffer.Rectype::"G/L Account";
         TempAuditFileBuffer.Code := AcctNo;
         if not TempAuditFileBuffer.Get(TempAuditFileBuffer.Rectype, TempAuditFileBuffer.Code) then
-            TempAuditFileBuffer.Insert;
+            TempAuditFileBuffer.Insert();
     end;
 
     local procedure BufferCustomerVendor()
@@ -302,7 +304,7 @@ report 11412 "Tax Authority - Audit File"
             TempAuditFileBuffer.Code := "G/L Entry"."Source No.";
             CustSupID := GetFormatedCustSupID(TempAuditFileBuffer.Rectype, TempAuditFileBuffer.Code);
             if not TempAuditFileBuffer.Get(TempAuditFileBuffer.Rectype, TempAuditFileBuffer.Code) then
-                TempAuditFileBuffer.Insert;
+                TempAuditFileBuffer.Insert();
         end;
     end;
 
@@ -327,12 +329,9 @@ report 11412 "Tax Authority - Audit File"
 
         // Line data
         TempAuditFileBuffer.RecordID := Format("G/L Entry"."Entry No.", 20);
-        TempAuditFileBuffer."Account ID" :=
-          CopyStr("G/L Entry"."G/L Account No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
-        TempAuditFileBuffer."Source ID" :=
-          CopyStr(CustSupID, 1, MaxStrLen(TempAuditFileBuffer."Source ID"));
-        TempAuditFileBuffer."Document ID" :=
-          CopyStr("G/L Entry"."Document No.", 1, MaxStrLen(TempAuditFileBuffer."Document ID"));
+        TempAuditFileBuffer.AccountID := CopyStr("G/L Entry"."G/L Account No.", 1, 15);
+        TempAuditFileBuffer.CustSupID := CopyStr(CustSupID, 1, 15);
+        TempAuditFileBuffer.DocumentID := CopyStr("G/L Entry"."Document No.", 1, 15);
         TempAuditFileBuffer.EffectiveDate := "G/L Entry"."Document Date";
         TempAuditFileBuffer.LineDescription := "G/L Entry".Description;
         TempAuditFileBuffer.DebitAmount := "G/L Entry"."Debit Amount";
@@ -345,7 +344,7 @@ report 11412 "Tax Authority - Audit File"
                 TempAuditFileBuffer."VAT %" := VATPostingSetup."VAT %";
             TempAuditFileBuffer.VATAmount := "G/L Entry"."VAT Amount";
         end;
-        TempAuditFileBuffer.Insert;
+        TempAuditFileBuffer.Insert();
     end;
 
     local procedure StartElement(QualifiedName: Text[80])
@@ -393,7 +392,7 @@ report 11412 "Tax Authority - Audit File"
     var
         GLAcc: Record "G/L Account";
     begin
-        TempAuditFileBuffer.Reset;
+        TempAuditFileBuffer.Reset();
         TempAuditFileBuffer.SetRange(Rectype, TempAuditFileBuffer.Rectype::"G/L Account");
         StartElement('generalLedger');
         WriteElement('taxonomy', '');
@@ -428,7 +427,7 @@ report 11412 "Tax Authority - Audit File"
         BankAcc: Record "Bank Account";
         Country: Record "Country/Region";
     begin
-        TempAuditFileBuffer.Reset;
+        TempAuditFileBuffer.Reset();
         TempAuditFileBuffer.SetFilter(Rectype, '%1|%2|%3', TempAuditFileBuffer.Rectype::Customer,
           TempAuditFileBuffer.Rectype::Vendor, TempAuditFileBuffer.Rectype::"Bank Account");
         StartElement('customersSuppliers');
@@ -520,7 +519,7 @@ report 11412 "Tax Authority - Audit File"
     begin
         OldJournalID := '';
         FirstLoop := true;
-        TempAuditFileBuffer.Reset;
+        TempAuditFileBuffer.Reset();
         TempAuditFileBuffer.SetRange(Rectype, TempAuditFileBuffer.Rectype::Transaction);
 
         StartElement('transactions');
@@ -558,10 +557,10 @@ report 11412 "Tax Authority - Audit File"
                 end;
                 StartElement('line');
                 WriteElement('recordID', TempAuditFileBuffer.RecordID);
-                WriteElement('accountID', TempAuditFileBuffer."Account ID");
-                if TempAuditFileBuffer."Source ID" <> '' then
-                    WriteElement('custSupID', TempAuditFileBuffer."Source ID");
-                WriteElement('documentID', TempAuditFileBuffer."Document ID");
+                WriteElement('accountID', TempAuditFileBuffer.AccountID);
+                if TempAuditFileBuffer.CustSupID <> '' then
+                    WriteElement('custSupID', TempAuditFileBuffer.CustSupID);
+                WriteElement('documentID', TempAuditFileBuffer.DocumentID);
                 WriteElement('effectiveDate', FormatDate(TempAuditFileBuffer.EffectiveDate));
                 WriteElement('description', TempAuditFileBuffer.LineDescription);
                 if TempAuditFileBuffer.DebitAmount <> 0 then
@@ -619,8 +618,7 @@ report 11412 "Tax Authority - Audit File"
 
         // Line data
         TempAuditFileBuffer.RecordID := Format(FindBeginBalanceEntryNo("G/L Account"."No."), 20);
-        TempAuditFileBuffer."Account ID" :=
-          CopyStr("G/L Account"."No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
+        TempAuditFileBuffer.AccountID := CopyStr("G/L Account"."No.", 1, 15);
         TempAuditFileBuffer.EffectiveDate := StartDate;
         TempAuditFileBuffer.LineDescription := 'Transactie beginbalans';
         if "G/L Account"."Balance at Date" > 0 then
@@ -628,7 +626,7 @@ report 11412 "Tax Authority - Audit File"
         else
             TempAuditFileBuffer.CreditAmount := Abs("G/L Account"."Balance at Date");
 
-        TempAuditFileBuffer.Insert;
+        TempAuditFileBuffer.Insert();
 
         TotalEntries := TotalEntries + 1;
         TotalDebit := TotalDebit + TempAuditFileBuffer.DebitAmount;
@@ -676,7 +674,7 @@ report 11412 "Tax Authority - Audit File"
     var
         LocGLEntry: Record "G/L Entry";
     begin
-        LocGLEntry.Reset;
+        LocGLEntry.Reset();
         LocGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         LocGLEntry.SetRange("G/L Account No.", GLAccountNo);
         LocGLEntry.SetFilter("Posting Date", '..%1', ClosingDate(StartDate - 1));

@@ -70,7 +70,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                     if CurrentLineNo <> ChildDataExchField."Line No." then begin
                         CurrentLineNo := ChildDataExchField."Line No.";
                         TempChildDataExchField.Copy(ChildDataExchField);
-                        TempChildDataExchField.Insert;
+                        TempChildDataExchField.Insert();
                     end;
                 until ChildDataExchField.Next = 0;
                 TempChildDataExchField.FindSet;
@@ -94,7 +94,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                             end;
                         until ChildDataExchColumnDef.Next = 0;
                 until TempChildDataExchField.Next = 0;
-                TempChildDataExchField.DeleteAll;
+                TempChildDataExchField.DeleteAll();
 
                 // Remove parent line (which is now a subset of the child lines created above)
                 DeleteLines(ParentDataExchField);
@@ -131,7 +131,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
     var
         NewChildDataExchField: Record "Data Exch. Field";
     begin
-        NewChildDataExchField.Init;
+        NewChildDataExchField.Init();
         NewChildDataExchField.Copy(ParentLookupDataExchField);
         NewChildDataExchField."Line No." := ChildDataExchField."Line No.";
         NewChildDataExchField."Data Exch. Line Def Code" := ChildDataExchField."Data Exch. Line Def Code";

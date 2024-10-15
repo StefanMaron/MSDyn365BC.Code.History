@@ -55,12 +55,12 @@ report 811 "Assembly BOM - Subassemblies"
 
             trigger OnAfterGetRecord()
             begin
-                BOMComp.Reset;
+                BOMComp.Reset();
                 BOMComp.SetCurrentKey(Type, "No.");
                 BOMComp.SetRange(Type, BOMComp.Type::Item);
                 BOMComp.SetRange("No.", "No.");
                 if not BOMComp.FindFirst then // Not part of a BOM
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

@@ -468,12 +468,12 @@ table 11000002 "Payment History Line"
     var
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        PaymentJnlExportErrorText.Reset;
+        PaymentJnlExportErrorText.Reset();
         PaymentJnlExportErrorText.SetRange("Journal Template Name", '');
         PaymentJnlExportErrorText.SetRange("Journal Batch Name", "Our Bank");
         PaymentJnlExportErrorText.SetRange("Document No.", "Run No.");
         PaymentJnlExportErrorText.SetRange("Journal Line No.", "Line No.");
-        PaymentJnlExportErrorText.DeleteAll;
+        PaymentJnlExportErrorText.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -590,7 +590,7 @@ table 11000002 "Payment History Line"
 
     local procedure FindRelatedDetailLines(var DetailLine: Record "Detail Line")
     begin
-        DetailLine.Reset;
+        DetailLine.Reset();
         DetailLine.SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines", Date);
         DetailLine.SetRange("Our Bank", "Our Bank");
         DetailLine.SetFilter(Status, '%1|%2|%3',

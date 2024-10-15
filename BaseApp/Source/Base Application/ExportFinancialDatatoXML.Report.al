@@ -45,7 +45,7 @@ report 11420 "Export Financial Data to XML"
                 trigger OnPreDataItem()
                 begin
                     if (PrevStartDate = 0D) or (PrevEndDate = 0D) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CopyFilters("G/L Account");
                     SetRange("Date Filter", PrevStartDate, PrevEndDate);
                     if ElementValue[Integer.Number] = ElementValue[Integer.Number] ::Budget then begin
@@ -232,7 +232,7 @@ report 11420 "Export Financial Data to XML"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CheckDates;
         ServerFileName := FileManagement.ServerTempFileName('xml');
         XMLDoc := XMLDoc.XmlDocument;
@@ -266,7 +266,7 @@ report 11420 "Export Financial Data to XML"
         FileName: Text;
         i: Integer;
         j: Integer;
-        Text001: Label '<-1Y>';
+        Text001: Label '<-1Y>', Locked = true;
         Text002: Label '%1 and %2 do not belong to the same fiscal year.';
         Text003: Label 'Current period ending date cannot be before starting date.';
         Text004: Label 'Comparative period ending date cannot be before starting date.';
@@ -399,7 +399,7 @@ report 11420 "Export Financial Data to XML"
     [Scope('OnPrem')]
     procedure SetEndingDate()
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
         if AccountingPeriod.FindFirst then
             EndDate := AccountingPeriod."Starting Date" - 1;

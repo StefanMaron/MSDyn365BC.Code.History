@@ -36,7 +36,7 @@ codeunit 136128 "Service Navigate Form"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Navigate Form");
     end;
 
@@ -196,7 +196,7 @@ codeunit 136128 "Service Navigate Form"
         Navigate.UpdateNavigateForm(false);
         Navigate.FindRecordsOnOpen;
 
-        TempDocumentEntry.DeleteAll;
+        TempDocumentEntry.DeleteAll();
         Navigate.ReturnDocumentEntry(TempDocumentEntry);
     end;
 

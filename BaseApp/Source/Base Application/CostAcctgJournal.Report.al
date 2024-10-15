@@ -96,13 +96,13 @@ report 1128 "Cost Acctg. Journal"
                 trigger OnAfterGetRecord()
                 begin
                     if Errorline[Number] = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not WithError then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, 20);
                 end;

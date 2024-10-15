@@ -595,7 +595,7 @@ page 9253 "Dim. Value Combinations Matrix"
 
         if not DimValueComb.Get(Dim1Code, Dim1ValueCode, Dim2Code, Dim2ValueCode) then
             if not DimValueComb.Get(Dim2Code, Dim2ValueCode, Dim1Code, Dim1ValueCode) then begin
-                DimValueComb.Init;
+                DimValueComb.Init();
                 DimValueComb."Dimension 1 Code" := Dim1Code;
                 DimValueComb."Dimension 1 Value Code" := Dim1ValueCode;
                 DimValueComb."Dimension 2 Code" := Dim2Code;

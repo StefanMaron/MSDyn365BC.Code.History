@@ -43,7 +43,7 @@ codeunit 705 "Stream Management"
         LastId: Integer;
     begin
         ZipArchive := ZipArchive.ZipArchive(Stream);
-        NrFiles := ZipArchive.Entries.Count;
+        NrFiles := ZipArchive.Entries.Count();
         FileList := ZipArchive.Entries;
         for I := 0 to NrFiles - 1 do begin
             if NameValueBufferOut.FindLast then
@@ -54,7 +54,7 @@ codeunit 705 "Stream Management"
             NameValueBufferOut.Name := CopyStr(ZipArchiveEntry.Name, 1, 250);
             NameValueBufferOut."Value BLOB".CreateOutStream(out);
             CopyStream(out, FileStream);
-            NameValueBufferOut.Insert;
+            NameValueBufferOut.Insert();
         end;
     end;
 }

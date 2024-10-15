@@ -19,7 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -38,7 +38,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             PaymentHistoryLine.SetRange("Run No.", "Run No.");
             if PaymentHistoryLine.FindSet then
                 repeat
-                    TempGenJnlLine.Init;
+                    TempGenJnlLine.Init();
                     TempGenJnlLine."Journal Template Name" := '';
                     TempGenJnlLine."Journal Batch Name" := '';
                     TempGenJnlLine."Bal. Account No." := "Our Bank";
@@ -78,7 +78,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                               CopyStr(AppliedDocNoList, DescriptionLen + 1, DescriptionLen + MaxStrLen(TempGenJnlLine."Message to Recipient"));
                     end;
 
-                    TempGenJnlLine.Insert;
+                    TempGenJnlLine.Insert();
                 until PaymentHistoryLine.Next = 0;
         end;
 

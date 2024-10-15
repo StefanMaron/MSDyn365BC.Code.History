@@ -115,7 +115,7 @@ table 11406 "Post Code Range"
         PostCode.Code := "Post Code";
         PostCode.City := City;
         PostCode."Search City" := City;
-        if not PostCode.Insert then;
+        if not PostCode.Insert() then;
     end;
 
     var

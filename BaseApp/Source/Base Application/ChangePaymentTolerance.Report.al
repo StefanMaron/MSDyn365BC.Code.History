@@ -58,7 +58,7 @@ report 34 "Change Payment Tolerance"
                                 Currencies.GetCurrency(CurrencyCode);
                             Clear(Currencies);
                             if CurrencyCode = '' then begin
-                                GLSetup.Get;
+                                GLSetup.Get();
                                 PaymentTolerancePct := GLSetup."Payment Tolerance %";
                                 MaxPmtToleranceAmount := GLSetup."Max. Payment Tolerance Amount";
                             end else begin
@@ -72,7 +72,7 @@ report 34 "Change Payment Tolerance"
                         begin
                             if not AllCurrencies then
                                 if CurrencyCode = '' then begin
-                                    GLSetup.Get;
+                                    GLSetup.Get();
                                     PaymentTolerancePct := GLSetup."Payment Tolerance %";
                                     MaxPmtToleranceAmount := GLSetup."Max. Payment Tolerance Amount";
                                     DecimalPlaces := CheckApplnRounding(GLSetup."Amount Decimal Places");
@@ -111,7 +111,7 @@ report 34 "Change Payment Tolerance"
                                     DecimalPlaces := CheckApplnRounding(Currency."Amount Decimal Places");
                                     FormatString := Text002 + Currency."Amount Decimal Places" + Text003;
                                 end else begin
-                                    GLSetup.Get;
+                                    GLSetup.Get();
                                     DecimalPlaces := CheckApplnRounding(GLSetup."Amount Decimal Places");
                                     FormatString := Text002 + GLSetup."Amount Decimal Places" + Text003;
                                 end;
@@ -152,19 +152,19 @@ report 34 "Change Payment Tolerance"
                         Currency."Max. Payment Tolerance Amount" := MaxPmtToleranceAmount;
                     Currency."Max. Payment Tolerance Amount" := Round(
                         Currency."Max. Payment Tolerance Amount", Currency."Amount Rounding Precision");
-                    Currency.Modify;
+                    Currency.Modify();
                 until Currency.Next = 0;
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Payment Tolerance %" <> PaymentTolerancePct then
                 GLSetup."Payment Tolerance %" := PaymentTolerancePct;
             if GLSetup."Max. Payment Tolerance Amount" <> MaxPmtToleranceAmount then
                 GLSetup."Max. Payment Tolerance Amount" := MaxPmtToleranceAmount;
             GLSetup."Max. Payment Tolerance Amount" := Round(
                 GLSetup."Max. Payment Tolerance Amount", GLSetup."Amount Rounding Precision");
-            GLSetup.Modify;
+            GLSetup.Modify();
         end else
             if CurrencyCode = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
                 if GLSetup."Payment Tolerance %" <> PaymentTolerancePct then
                     GLSetup."Payment Tolerance %" := PaymentTolerancePct;
@@ -172,7 +172,7 @@ report 34 "Change Payment Tolerance"
                     GLSetup."Max. Payment Tolerance Amount" := MaxPmtToleranceAmount;
                 GLSetup."Max. Payment Tolerance Amount" := Round(
                     GLSetup."Max. Payment Tolerance Amount", GLSetup."Amount Rounding Precision");
-                GLSetup.Modify;
+                GLSetup.Modify();
             end else
                 if CurrencyCode <> '' then begin
                     Currency.Get(CurrencyCode);
@@ -183,7 +183,7 @@ report 34 "Change Payment Tolerance"
                         Currency."Max. Payment Tolerance Amount" := MaxPmtToleranceAmount;
                     Currency."Max. Payment Tolerance Amount" := Round(
                         Currency."Max. Payment Tolerance Amount", Currency."Amount Rounding Precision");
-                    Currency.Modify;
+                    Currency.Modify();
                 end;
 
         if AllCurrencies then begin
@@ -196,7 +196,7 @@ report 34 "Change Payment Tolerance"
                         ChangeVendLedgEntries;
                     until Currency.Next = 0;
                 CurrencyCode := '';
-                GLSetup.Get;
+                GLSetup.Get();
                 AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
                 ChangeCustLedgEntries;
                 ChangeVendLedgEntries;
@@ -222,8 +222,8 @@ report 34 "Change Payment Tolerance"
         FormatString: Text[80];
         TextFormat: Text[250];
         TextInput: Text[250];
-        Text002: Label '<Precision,';
-        Text003: Label '><Standard Format,0>';
+        Text002: Label '<Precision,', Locked = true;
+        Text003: Label '><Standard Format,0>', Locked = true;
         Text004: Label 'The field can have a maximum of %1 decimal places.';
         [InDataSet]
         CurrencyCodeEnable: Boolean;
@@ -257,7 +257,7 @@ report 34 "Change Payment Tolerance"
         NewMaxPmtToleranceAmount: Decimal;
     begin
         Customer.SetCurrentKey("No.");
-        Customer.LockTable;
+        Customer.LockTable();
         if not Customer.Find('-') then
             exit;
 
@@ -275,7 +275,7 @@ report 34 "Change Payment Tolerance"
                 NewPaymentTolerancePct := PaymentTolerancePct;
                 NewMaxPmtToleranceAmount := MaxPmtToleranceAmount;
 
-                CustLedgEntry.LockTable;
+                CustLedgEntry.LockTable();
                 if CustLedgEntry.Find('-') then begin
                     repeat
                         CustLedgEntry.CalcFields("Remaining Amount");
@@ -296,7 +296,7 @@ report 34 "Change Payment Tolerance"
                         end;
                         if Abs(CustLedgEntry."Remaining Amount") < Abs(CustLedgEntry."Max. Payment Tolerance") then
                             CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry."Remaining Amount";
-                        CustLedgEntry.Modify;
+                        CustLedgEntry.Modify();
                     until CustLedgEntry.Next = 0;
                 end;
             end;
@@ -311,7 +311,7 @@ report 34 "Change Payment Tolerance"
         NewMaxPmtToleranceAmount: Decimal;
     begin
         Vendor.SetCurrentKey("No.");
-        Vendor.LockTable;
+        Vendor.LockTable();
         if not Vendor.Find('-') then
             exit;
         repeat
@@ -329,7 +329,7 @@ report 34 "Change Payment Tolerance"
                 NewPaymentTolerancePct := PaymentTolerancePct;
                 NewMaxPmtToleranceAmount := MaxPmtToleranceAmount;
 
-                VendLedgEntry.LockTable;
+                VendLedgEntry.LockTable();
                 if VendLedgEntry.Find('-') then begin
                     repeat
                         VendLedgEntry.CalcFields("Remaining Amount");
@@ -350,7 +350,7 @@ report 34 "Change Payment Tolerance"
                         end;
                         if Abs(VendLedgEntry."Remaining Amount") < Abs(VendLedgEntry."Max. Payment Tolerance") then
                             VendLedgEntry."Max. Payment Tolerance" := VendLedgEntry."Remaining Amount";
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                     until VendLedgEntry.Next = 0;
                 end;
             end;
@@ -374,7 +374,7 @@ report 34 "Change Payment Tolerance"
             MaxPmtToleranceAmount := Currency."Max. Payment Tolerance Amount";
             DecimalPlaces := CheckApplnRounding(Currency."Amount Decimal Places");
         end else begin
-            GLSetup.Get;
+            GLSetup.Get();
             PaymentTolerancePct := GLSetup."Payment Tolerance %";
             MaxPmtToleranceAmount := GLSetup."Max. Payment Tolerance Amount";
             DecimalPlaces := CheckApplnRounding(GLSetup."Amount Decimal Places");

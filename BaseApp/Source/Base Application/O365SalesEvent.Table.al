@@ -40,7 +40,7 @@ table 2163 "O365 Sales Event"
         O365SalesEvent: Record "O365 Sales Event";
     begin
         if not O365C2GraphEventSettings.Get then
-            O365C2GraphEventSettings.Insert;
+            O365C2GraphEventSettings.Insert();
 
         case EventType of
             O365SalesEvent.Type::"Draft Reminder":

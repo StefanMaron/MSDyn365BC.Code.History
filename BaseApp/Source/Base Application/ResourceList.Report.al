@@ -82,7 +82,7 @@ report 1101 "Resource - List"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         if Dimension.Get(GLSetup."Shortcut Dimension 1 Code") then
             GetShorDimCodeCaption1 := Dimension."Code Caption"

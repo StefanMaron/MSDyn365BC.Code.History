@@ -13,7 +13,7 @@ table 7333 "Whse. Internal Pick Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                WhseSetup.Get;
+                WhseSetup.Get();
                 if "No." <> xRec."No." then begin
                     NoSeriesMgt.TestManual(WhseSetup."Whse. Internal Pick Nos.");
                     "No. Series" := '';
@@ -80,11 +80,9 @@ table 7333 "Whse. Internal Pick Header"
             Caption = 'Assignment Time';
             Editable = false;
         }
-        field(6; "Sorting Method"; Option)
+        field(6; "Sorting Method"; Enum "Warehouse Internal Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Shelf or Bin,Due Date';
-            OptionMembers = " ",Item,"Shelf or Bin","Due Date";
 
             trigger OnValidate()
             begin
@@ -210,7 +208,7 @@ table 7333 "Whse. Internal Pick Header"
 
     trigger OnInsert()
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Internal Pick Nos.");
             NoSeriesMgt.InitSeries(
@@ -241,7 +239,7 @@ table 7333 "Whse. Internal Pick Header"
     var
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         with WhseInternalPickHeader do begin
             WhseInternalPickHeader := Rec;
             WhseSetup.TestField("Whse. Internal Pick Nos.");
@@ -275,6 +273,8 @@ table 7333 "Whse. Internal Pick Header"
                     end;
                 "Sorting Method"::"Due Date":
                     SetCurrentKey("No.", "Due Date");
+                else
+                    OnSortWhseDocOnCaseSortingMethodElse(Rec);
             end;
 
             if Find('-') then begin
@@ -339,7 +339,7 @@ table 7333 "Whse. Internal Pick Header"
 
     procedure LookupWhseInternalPickHeader(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             WhseInternalPickHeader.FilterGroup := 2;
             WhseInternalPickHeader.SetRange("Location Code");
@@ -367,7 +367,7 @@ table 7333 "Whse. Internal Pick Header"
     var
         Location: Record Location;
     begin
-        Commit;
+        Commit();
         Location.FilterGroup := 2;
         Location.SetRange(Code);
         if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then
@@ -387,17 +387,17 @@ table 7333 "Whse. Internal Pick Header"
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         WhseInternalPickLine.SetRange("No.", "No.");
-        WhseInternalPickLine.DeleteAll;
+        WhseInternalPickLine.DeleteAll();
 
         WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
         WhsePickRqst.SetRange("Document No.", "No.");
         if not WhsePickRqst.IsEmpty then
-            WhsePickRqst.DeleteAll;
+            WhsePickRqst.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Pick");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Whse. Internal Pick Line", 0, "No.", '', 0, 0, '', false);
@@ -406,12 +406,17 @@ table 7333 "Whse. Internal Pick Header"
     procedure CheckPickRequired(LocationCode: Code[10])
     begin
         if LocationCode = '' then begin
-            WhseSetup.Get;
+            WhseSetup.Get();
             WhseSetup.TestField("Require Pick");
         end else begin
             GetLocation(LocationCode);
             Location.TestField("Require Pick");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocOnCaseSortingMethodElse(WhseInternalPickHeader: Record "Whse. Internal Pick Header")
+    begin
     end;
 }
 

@@ -272,7 +272,7 @@ table 11000001 "Payment History"
         PaymentHistory: Record "Payment History";
         LastDaySerialNo: Integer;
     begin
-        LockTable;
+        LockTable();
         PaymentHistory.SetCurrentKey("Export Protocol", "Sent On", "Day Serial Nr.");
         PaymentHistory.SetRange("Export Protocol", "Export Protocol");
         PaymentHistory.SetRange("Sent On", Today);

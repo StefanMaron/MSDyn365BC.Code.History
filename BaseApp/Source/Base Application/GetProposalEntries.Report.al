@@ -26,9 +26,9 @@ report 11000000 "Get Proposal Entries"
                            ("Pmt. Discount Date" >= "Value Date")
                         then begin
                             if "Pmt. Discount Date" > PmtDiscExpiryDate then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else // No Payment Discount possible
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     Clear(DetailLine);
@@ -49,7 +49,7 @@ report 11000000 "Get Proposal Entries"
                 trigger OnPreDataItem()
                 begin
                     if TransactionmodeTable."Account Type" <> TransactionmodeTable."Account Type"::Customer then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -71,15 +71,15 @@ report 11000000 "Get Proposal Entries"
                            ("Pmt. Discount Date" >= "Value Date")
                         then begin
                             if "Pmt. Discount Date" > PmtDiscExpiryDate then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else // No Payment Discount possible
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                     Vend.Get("Vendor No.");
                     if Vend."Privacy Blocked" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if Vend.Blocked <> Vend.Blocked::" " then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     Clear(DetailLine);
                     DetailLine."Account Type" := DetailLine."Account Type"::Vendor;
@@ -99,7 +99,7 @@ report 11000000 "Get Proposal Entries"
                 trigger OnPreDataItem()
                 begin
                     if TransactionmodeTable."Account Type" <> TransactionmodeTable."Account Type"::Vendor then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Employee Ledger Entry"; "Employee Ledger Entry")
@@ -135,7 +135,7 @@ report 11000000 "Get Proposal Entries"
                 trigger OnPreDataItem()
                 begin
                     if TransactionmodeTable."Account Type" <> TransactionmodeTable."Account Type"::Employee then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -161,7 +161,7 @@ report 11000000 "Get Proposal Entries"
                 TrMode.Get(DetailLine."Account Type", DetailLine."Transaction Mode");
 
                 if TrMode."Combine Entries" then begin
-                    ProposalLine.Reset;
+                    ProposalLine.Reset();
                     ProposalLine.SetCurrentKey("Our Bank No.", Process, "Account Type", "Account No.", Bank, "Transaction Mode", "Currency Code",
                       "Transaction Date");
                     ProposalLine.SetRange("Our Bank No.", DetailLine."Our Bank");
@@ -185,7 +185,7 @@ report 11000000 "Get Proposal Entries"
                     else
                         ProposalLine."Line No." := 10000;
                     ProposalLine."Our Bank No." := DetailLine."Our Bank";
-                    ProposalLine.Init;
+                    ProposalLine.Init();
                     ProposalLine.Validate("Account Type", DetailLine."Account Type");
                     ProposalLine.Validate("Account No.", DetailLine."Account No.");
                     ProposalLine.Validate(Bank, DetailLine.Bank);
@@ -199,7 +199,7 @@ report 11000000 "Get Proposal Entries"
 
                 DetailLine."Connect Lines" := ProposalLine."Line No.";
                 DetailLine.UpdateConnection;
-                DetailLine.Modify;
+                DetailLine.Modify();
                 ProposalLine.Get(DetailLine."Our Bank", DetailLine."Connect Lines");
                 if not ProcessProposalLines.CheckAProposalLine(ProposalLine) then begin
                     if ProposalLine."Error Message" = '' then
@@ -283,7 +283,7 @@ report 11000000 "Get Proposal Entries"
                           ProposalLine."Transaction Date", ProposalLine."Currency Code", ProposalLine."Foreign Currency", ProposalLine.Amount),
                         GetCurrencyAmountRoundingPrecision(ProposalLine."Foreign Currency")));
 
-                ProposalLine.Modify;
+                ProposalLine.Modify();
 
                 NumeratorDetailLines := NumeratorDetailLines + 1;
                 BatchStatus.Update(2, Round(NumeratorDetailLines / NumberOfDetailLines * 10000, 1));
@@ -422,9 +422,9 @@ report 11000000 "Get Proposal Entries"
         EmployeeLedgerEntry.SetRange(Open, true);
         EmployeeLedgerEntry.SetFilter("Transaction Mode Code", '<>%1', '');
 
-        NumberOfEntries := CustEntries.Count + VendEntries.Count + EmployeeLedgerEntry.Count;
+        NumberOfEntries := CustEntries.Count + VendEntries.Count + EmployeeLedgerEntry.Count();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -524,7 +524,7 @@ report 11000000 "Get Proposal Entries"
                 if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then begin
                     ProposalLine.Validate("Foreign Currency", '');
                     ProposalLine.Validate("Foreign Amount", 0);
-                    ProposalLine.Modify;
+                    ProposalLine.Modify();
                 end;
             until ProposalLine.Next = 0;
     end;

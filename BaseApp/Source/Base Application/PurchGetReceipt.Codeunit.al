@@ -42,7 +42,7 @@ codeunit 74 "Purch.-Get Receipt"
             SetFilter("Qty. Rcd. Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(PurchRcptLine2);
             if Find('-') then begin
-                PurchLine.LockTable;
+                PurchLine.LockTable();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
                 PurchLine.SetRange("Document No.", PurchHeader."No.");
                 PurchLine."Document Type" := PurchHeader."Document Type";
@@ -111,8 +111,8 @@ codeunit 74 "Purch.-Get Receipt"
         if not PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, PurchRcptLine."Order No.", PurchRcptLine."Order Line No.") then
             exit;
 
-        ItemChargeAssgntPurch.LockTable;
-        ItemChargeAssgntPurch.Reset;
+        ItemChargeAssgntPurch.LockTable();
+        ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetRange("Document Type", PurchOrderLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchOrderLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchOrderLine."Line No.");
@@ -192,7 +192,7 @@ codeunit 74 "Purch.-Get Receipt"
                         end;
 
                         if InsertChargeAssgnt and (ItemChargeAssgntPurch2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntPurch2.Insert;
+                            ItemChargeAssgntPurch2.Insert();
                             QtyToAssign := QtyToAssign - ItemChargeAssgntPurch2."Qty. to Assign";
                         end;
                     end;
@@ -219,7 +219,7 @@ codeunit 74 "Purch.-Get Receipt"
         PurchSetup: Record "Purchases & Payables Setup";
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Calc. Inv. Discount" then
             PurchCalcDiscount.CalculateInvoiceDiscountOnLine(PurchLine);
     end;
@@ -250,7 +250,7 @@ codeunit 74 "Purch.-Get Receipt"
     begin
         if Round(RoundingAmount) <> 0 then begin
             PurchaseLine."Prepmt Amt to Deduct" -= Round(RoundingAmount);
-            PurchaseLine.Modify;
+            PurchaseLine.Modify();
         end;
     end;
 

@@ -55,25 +55,16 @@ table 11404 "Audit File Buffer"
         {
             Caption = 'AccountID';
             DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with Account ID';
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
         }
         field(50; CustSupID; Text[15])
         {
             Caption = 'CustSupID';
             DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with Source ID';
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
         }
         field(55; DocumentID; Text[15])
         {
             Caption = 'DocumentID';
             DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with Document ID';
-            ObsoleteState = Pending;
-            ObsoleteTag = '17.0';
         }
         field(60; EffectiveDate; Date)
         {
@@ -122,18 +113,6 @@ table 11404 "Audit File Buffer"
         {
             AutoFormatType = 1;
             Caption = 'VATAmount';
-            DataClassification = SystemMetadata;
-        }
-        field(90; "Account ID"; Text[20])
-        {
-            DataClassification = SystemMetadata;
-        }
-        field(91; "Source ID"; Code[35])
-        {
-            DataClassification = SystemMetadata;
-        }
-        field(92; "Document ID"; Text[20])
-        {
             DataClassification = SystemMetadata;
         }
     }

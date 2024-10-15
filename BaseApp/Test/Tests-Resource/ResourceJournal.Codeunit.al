@@ -535,7 +535,7 @@ codeunit 136403 "Resource Journal"
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
-        TempResource.Init;
+        TempResource.Init();
         TempResource.Validate("No.", LibraryUtility.GenerateRandomCode(TempResource.FieldNo("No."), DATABASE::Resource));
         TempResource.Validate(Name, TempResource."No.");  // Validate Name as No. because value is not important.
         TempResource.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Value is not important here.

@@ -5,7 +5,7 @@ codeunit 11000010 "Check SEPA ISO20022"
     trigger OnRun()
     begin
         // Check whether the currency being used is Euro
-        GLSetup.Get;
+        GLSetup.Get();
         case GLSetup."Local Currency" of
             GLSetup."Local Currency"::Euro:
                 begin
@@ -90,7 +90,7 @@ codeunit 11000010 "Check SEPA ISO20022"
         end;
 
         // Check Company Information
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if CompanyInfo."VAT Registration No." = '' then begin
             "Error Message" := StrSubstNo(Text001, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption);
             exit;

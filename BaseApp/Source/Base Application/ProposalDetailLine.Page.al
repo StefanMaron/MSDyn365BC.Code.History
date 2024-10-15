@@ -274,7 +274,7 @@ page 11000002 "Proposal Detail Line"
                                                                 1,
                                                                 MaxStrLen("Description 2"))
                                                         else begin
-                                                            CompanyInfo.Get;
+                                                            CompanyInfo.Get();
                                                             "Description 2" :=
                                                               CopyStr(CompanyInfo.Name, 1, MaxStrLen("Description 2"));
                                                         end;
@@ -288,7 +288,7 @@ page 11000002 "Proposal Detail Line"
                                                                 1,
                                                                 MaxStrLen("Description 2"))
                                                         else begin
-                                                            CompanyInfo.Get;
+                                                            CompanyInfo.Get();
                                                             "Description 2" :=
                                                               CopyStr(CompanyInfo.Name, 1, MaxStrLen("Description 2"));
                                                         end;
@@ -297,7 +297,7 @@ page 11000002 "Proposal Detail Line"
                                                     begin
                                                         // Employees do not have the "Our Account No." field
                                                         // so we just take the company name.
-                                                        CompanyInfo.Get;
+                                                        CompanyInfo.Get();
                                                         "Description 2" := CopyStr(CompanyInfo.Name, 1, MaxStrLen("Description 2"));
                                                     end;
                                             end;
@@ -305,7 +305,7 @@ page 11000002 "Proposal Detail Line"
                                             "Description 4" := '';
                                         end;
                                 until "Detail line2".Next = 0;
-                                LockTable;
+                                LockTable();
                                 Modify;
                             end;
                         end;

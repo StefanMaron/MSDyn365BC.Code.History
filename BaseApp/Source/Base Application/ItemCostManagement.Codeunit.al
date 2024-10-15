@@ -100,7 +100,7 @@ codeunit 5804 ItemCostManagement
             Item."Rolled-up Cap. Overhead Cost" := "Rolled-up Cap. Overhead Cost";
             Item."Last Unit Cost Calc. Date" := "Last Unit Cost Calc. Date";
             OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
-            Item.Modify;
+            Item.Modify();
         end;
     end;
 
@@ -458,14 +458,14 @@ codeunit 5804 ItemCostManagement
     local procedure GetInvtSetup()
     begin
         if not InvtSetupRead then
-            InvtSetup.Get;
+            InvtSetup.Get();
         InvtSetupRead := true;
     end;
 
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

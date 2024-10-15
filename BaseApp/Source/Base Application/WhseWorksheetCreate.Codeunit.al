@@ -34,7 +34,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, "Location Code");
             WhseShptHeader.Get("No.");
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             WhseWkshLine.SetHideValidationDialog(true);
             WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
             WhseWkshLine."Source Type" := "Source Type";
@@ -89,7 +89,7 @@ codeunit 7311 "Whse. Worksheet-Create"
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             WhseWkshLine.SetHideValidationDialog(true);
             WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
             WhseWkshLine."Location Code" := "Location Code";
@@ -135,7 +135,7 @@ codeunit 7311 "Whse. Worksheet-Create"
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             WhseWkshLine.SetHideValidationDialog(true);
             WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
             WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Production;
@@ -178,7 +178,7 @@ codeunit 7311 "Whse. Worksheet-Create"
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, "Location Code");
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             TransferAllButWhseDocDetailsFromAssemblyLine(WhseWkshLine, AssemblyLine);
             WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Assembly;
             WhseWkshLine."Whse. Document No." := "Document No.";
@@ -277,7 +277,7 @@ codeunit 7311 "Whse. Worksheet-Create"
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
             WhseWkshLine."Source Type" := "Source Type";
             WhseWkshLine."Source Subtype" := "Source Subtype";
@@ -328,7 +328,7 @@ codeunit 7311 "Whse. Worksheet-Create"
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init;
+            WhseWkshLine.Init();
             WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
             WhseWkshLine."Location Code" := "Location Code";
             WhseWkshLine."Item No." := "Item No.";
@@ -360,8 +360,6 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         Item: Record Item;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        SNRequired: Boolean;
-        LNRequired: Boolean;
     begin
         with WhseWkshLine do begin
             if "Shelf No." = '' then begin
@@ -370,10 +368,9 @@ codeunit 7311 "Whse. Worksheet-Create"
                 "Shelf No." := Item."Shelf No.";
             end;
             OnCreateWhseWkshLineOnBeforeInsert(WhseWkshLine);
-            if Insert then begin
+            if Insert() then begin
                 Created := true;
-                ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-                if SNRequired or LNRequired then
+                if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
                     ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
             end;
         end;
@@ -381,14 +378,14 @@ codeunit 7311 "Whse. Worksheet-Create"
 
     local procedure FindLastWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; WkshTemplateName: Code[10]; WkshName: Code[10]; LocationCode: Code[10])
     begin
-        WhseWkshLine.Reset;
+        WhseWkshLine.Reset();
         WhseWkshLine."Worksheet Template Name" := WkshTemplateName;
         WhseWkshLine.Name := WkshName;
         WhseWkshLine."Location Code" := LocationCode;
         WhseWkshLine.SetRange("Worksheet Template Name", WkshTemplateName);
         WhseWkshLine.SetRange(Name, WkshName);
         WhseWkshLine.SetRange("Location Code", LocationCode);
-        WhseWkshLine.LockTable;
+        WhseWkshLine.LockTable();
         if WhseWkshLine.FindLast then;
     end;
 

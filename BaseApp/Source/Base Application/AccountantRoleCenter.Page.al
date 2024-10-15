@@ -37,7 +37,10 @@ page 9027 "Accountant Role Center"
             part(Control9; "Help And Chart Wrapper")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the view of your business assistance';
+            }
+            part(Control10; "Product Video Topics")
+            {
+                ApplicationArea = All;
             }
             part(Control100; "Cash Flow Forecast Chart")
             {

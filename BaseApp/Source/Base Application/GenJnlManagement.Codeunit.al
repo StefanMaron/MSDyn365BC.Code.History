@@ -24,7 +24,7 @@ codeunit 230 GenJnlManagement
     begin
         JnlSelected := true;
 
-        GenJnlTemplate.Reset;
+        GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange("Page ID", PageID);
         GenJnlTemplate.SetRange(Recurring, RecurringJnl);
         if not RecurringJnl then
@@ -153,13 +153,13 @@ codeunit 230 GenJnlManagement
         GenJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not GenJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not GenJnlBatch.FindFirst then begin
-                GenJnlBatch.Init;
+                GenJnlBatch.Init();
                 GenJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 GenJnlBatch.SetupNewBatch;
                 GenJnlBatch.Name := Text004;
                 GenJnlBatch.Description := Text005;
                 GenJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := GenJnlBatch.Name
         end;
@@ -202,18 +202,18 @@ codeunit 230 GenJnlManagement
         if IsHandled then
             exit;
 
-        JournalUserPreferences.Reset;
+        JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToSet);
         if JournalUserPreferences.FindFirst then begin
             JournalUserPreferences."Is Simple View" := SetToSimpleMode;
-            JournalUserPreferences.Modify;
+            JournalUserPreferences.Modify();
         end else begin
             Clear(JournalUserPreferences);
             JournalUserPreferences."Page ID" := PageIdToSet;
             JournalUserPreferences."Is Simple View" := SetToSimpleMode;
             JournalUserPreferences."User ID" := UserSecurityId;
-            JournalUserPreferences.Insert;
+            JournalUserPreferences.Insert();
         end;
     end;
 
@@ -221,21 +221,21 @@ codeunit 230 GenJnlManagement
     var
         JournalUserPreferences: Record "Journal User Preferences";
     begin
-        // Get journal page mode preference for a page; By defaults this returns TRUE unless a preference
+        // Get journal page mode preference for a page; By defaults this returns FALSE unless a preference
         // is set
-        JournalUserPreferences.Reset;
+        JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
         if JournalUserPreferences.FindFirst then
             exit(JournalUserPreferences."Is Simple View");
-        exit(true);
+        exit(false);
     end;
 
     procedure GetLastViewedJournalBatchName(PageIdToCheck: Integer): Code[10]
     var
         JournalUserPreferences: Record "Journal User Preferences";
     begin
-        JournalUserPreferences.Reset;
+        JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
         if JournalUserPreferences.FindFirst then
@@ -247,12 +247,12 @@ codeunit 230 GenJnlManagement
     var
         JournalUserPreferences: Record "Journal User Preferences";
     begin
-        JournalUserPreferences.Reset;
+        JournalUserPreferences.Reset();
         JournalUserPreferences.SetFilter("User ID", '%1', UserSecurityId);
         JournalUserPreferences.SetFilter("Page ID", '%1', PageIdToCheck);
         if JournalUserPreferences.FindFirst then begin
             JournalUserPreferences."Journal Batch Name" := GenJnlBatch;
-            JournalUserPreferences.Modify;
+            JournalUserPreferences.Modify();
         end;
     end;
 
@@ -260,7 +260,7 @@ codeunit 230 GenJnlManagement
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        Commit;
+        Commit();
         GenJnlBatch."Journal Template Name" := GenJnlLine.GetRangeMax("Journal Template Name");
         GenJnlBatch.Name := GenJnlLine.GetRangeMax("Journal Batch Name");
         GenJnlBatch.FilterGroup(2);
@@ -386,20 +386,20 @@ codeunit 230 GenJnlManagement
     begin
         JnlSelected := true;
 
-        GenJnlTemplate.Reset;
+        GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange("Page ID", PageID);
         GenJnlTemplate.SetRange(Type, PageTemplate);
 
         case GenJnlTemplate.Count of
             0:
                 begin
-                    GenJnlTemplate.Init;
+                    GenJnlTemplate.Init();
                     GenJnlTemplate.Type := PageTemplate;
                     GenJnlTemplate.Name := Format(GenJnlTemplate.Type, MaxStrLen(GenJnlTemplate.Name));
                     GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
                     GenJnlTemplate.Validate(Type);
-                    GenJnlTemplate.Insert;
-                    Commit;
+                    GenJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 GenJnlTemplate.Find('-');
@@ -423,13 +423,13 @@ codeunit 230 GenJnlManagement
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         if not GenJnlBatch.Get(CurrentJnlTemplateName, Text004) then begin
-            GenJnlBatch.Init;
+            GenJnlBatch.Init();
             GenJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
             GenJnlBatch.SetupNewBatch;
             GenJnlBatch.Name := Text004;
             GenJnlBatch.Description := Text005;
             GenJnlBatch.Insert(true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -438,14 +438,14 @@ codeunit 230 GenJnlManagement
     var
         CBGStatement: Record "CBG Statement";
     begin
-        CBGStatement.Init;
+        CBGStatement.Init();
         CBGStatement."Journal Template Name" := GenJnlTemplate.Name;
         CBGStatement.Insert(true);
         if GenJnlTemplate."Page ID" = PAGE::"Bank/Giro Journal" then
             CBGStatement.Type := CBGStatement.Type::"Bank/Giro"
         else
             CBGStatement.Type := CBGStatement.Type::Cash;
-        CBGStatement.Modify;
+        CBGStatement.Modify();
         PAGE.Run(GenJnlTemplate."Page ID", CBGStatement);
     end;
 
@@ -478,7 +478,7 @@ codeunit 230 GenJnlManagement
         if StrLen(TemplateName) > 9 then
             TemplateName := Format(TemplateName, 9);
 
-        GenJnlTemplate.Init;
+        GenJnlTemplate.Init();
         PotentialTemplateName := TemplateName;
         PotentialTemplateNameIncrement := 0;
 
@@ -499,7 +499,7 @@ codeunit 230 GenJnlManagement
         case GenJnlTemplate.Count of
             0:
                 begin
-                    GenJnlTemplate.Init;
+                    GenJnlTemplate.Init();
                     GenJnlTemplate.Type := TemplateType;
                     GenJnlTemplate.Recurring := RecurringJnl;
                     if not RecurringJnl then begin
@@ -514,8 +514,8 @@ codeunit 230 GenJnlManagement
                         GenJnlTemplate.Description := Text003;
                     end;
                     GenJnlTemplate.Validate(Type);
-                    GenJnlTemplate.Insert;
-                    Commit;
+                    GenJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 GenJnlTemplate.FindFirst;
@@ -527,7 +527,7 @@ codeunit 230 GenJnlManagement
     [Scope('OnPrem')]
     procedure TemplateSelectionSimple(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Option; RecurringJnl: Boolean): Boolean
     begin
-        GenJnlTemplate.Reset;
+        GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange(Type, TemplateType);
         GenJnlTemplate.SetRange(Recurring, RecurringJnl);
         exit(FindTemplateFromSelection(GenJnlTemplate, TemplateType, RecurringJnl));

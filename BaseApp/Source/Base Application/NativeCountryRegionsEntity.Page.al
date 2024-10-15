@@ -97,7 +97,7 @@ page 2863 "Native Country/Regions Entity"
         if TempFieldSet.Get(DATABASE::"Country/Region", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Country/Region";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

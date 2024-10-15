@@ -3,6 +3,9 @@ page 1012 "Job Item Prices"
     Caption = 'Job Item Prices';
     PageType = List;
     SourceTable = "Job Item Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

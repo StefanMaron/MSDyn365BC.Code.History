@@ -71,7 +71,7 @@ codeunit 763 "Aged Acc. Receivable"
                 repeat
                     AddMeasure(CustPostingGroup.Code, GroupIndex, "Data Type"::Decimal, "Chart Type"::StackedColumn);
 
-                    TempEntryNoAmountBuf.Reset;
+                    TempEntryNoAmountBuf.Reset();
                     TempEntryNoAmountBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
                     if TempEntryNoAmountBuf.FindSet then
                         repeat
@@ -82,7 +82,7 @@ codeunit 763 "Aged Acc. Receivable"
                         until TempEntryNoAmountBuf.Next = 0;
                     GroupIndex += 1;
                 until CustPostingGroup.Next = 0;
-            TempEntryNoAmountBuf.Reset;
+            TempEntryNoAmountBuf.Reset();
         end;
     end;
 
@@ -131,7 +131,7 @@ codeunit 763 "Aged Acc. Receivable"
             TempEntryNoAmtBuf."Business Unit Code" := CustRemainAmtByDueDate.Customer_Posting_Group;
             TempEntryNoAmtBuf.Amount := CustRemainAmtByDueDate.Sum_Remaining_Amt_LCY;
             TempEntryNoAmtBuf."Start Date" := CustRemainAmtByDueDate.Due_Date;
-            TempEntryNoAmtBuf.Insert;
+            TempEntryNoAmtBuf.Insert();
         end;
 
         if CustPostingGroup.FindSet then
@@ -181,7 +181,7 @@ codeunit 763 "Aged Acc. Receivable"
 
     procedure InitParameters(BusChartBuf: Record "Business Chart Buffer"; var PeriodLength: Text[1]; var NoOfPeriods: Integer; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
     begin
-        TempEntryNoAmountBuf.DeleteAll;
+        TempEntryNoAmountBuf.DeleteAll();
         PeriodLength := GetPeriod(BusChartBuf);
         NoOfPeriods := GetNoOfPeriods(BusChartBuf);
     end;
@@ -376,7 +376,7 @@ codeunit 763 "Aged Acc. Receivable"
     procedure RoundAmount(Amount: Decimal): Decimal
     begin
         if not GLSetupLoaded then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             GLSetupLoaded := true;
         end;
 

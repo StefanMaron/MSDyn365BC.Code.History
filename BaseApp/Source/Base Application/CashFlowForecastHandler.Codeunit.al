@@ -45,12 +45,12 @@ codeunit 850 "Cash Flow Forecast Handler"
 
         if not Initialize then begin
             ErrorMessage.CopyFromTemp(TempErrorMessage);
-            Commit;
+            Commit();
             exit(false);
         end;
 
         CalculateVATAndLedgerForecast;
-        Commit;
+        Commit();
         exit(true);
     end;
 
@@ -62,7 +62,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         // Get forecast using time series
         if not PrepareForecast(TempTimeSeriesBuffer) then begin
             ErrorMessage.CopyFromTemp(TempErrorMessage);
-            Commit;
+            Commit();
             exit(false);
         end;
 
@@ -225,7 +225,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         HasMinimumHistoryLoc: Boolean;
         NumberOfPeriodsWithHistoryLoc: Integer;
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         PeriodType := CashFlowSetup."Period Type";
         SetFiltersOnRecords(CustLedgerEntry, VendorLedgerEntry);
         // check if there is a minimum history needed for forecast
@@ -289,7 +289,7 @@ codeunit 850 "Cash Flow Forecast Handler"
           );
         AppendRecords(TimeSeriesBuffer, TempVATTimeSeriesBuffer, XTAXRECEIVABLESTxt);
 
-        TempVATTimeSeriesBuffer.DeleteAll;
+        TempVATTimeSeriesBuffer.DeleteAll();
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
         // Prepare VAT History
         TimeSeriesPrepareAndGetData(
@@ -309,7 +309,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         CashFlowAzureAIBuffer: Record "Cash Flow Azure AI Buffer";
         ForecastedRemainingAmount: Decimal;
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         PeriodType := CashFlowSetup."Period Type";
         // History Records
         if TimeSeriesBuffer.FindSet then
@@ -380,8 +380,8 @@ codeunit 850 "Cash Flow Forecast Handler"
     var
         CashFlowAzureAIBuffer: Record "Cash Flow Azure AI Buffer";
     begin
-        CashFlowAzureAIBuffer.Reset;
-        CashFlowAzureAIBuffer.DeleteAll;
+        CashFlowAzureAIBuffer.Reset();
+        CashFlowAzureAIBuffer.DeleteAll();
     end;
 
     local procedure SetFiltersOnRecords(var CustLedgerEntry: Record "Cust. Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -412,7 +412,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         if TempTimeSeriesBuffer.FindSet and TempCreditMemoTimeSeriesBuffer.FindSet then
             repeat
                 TempTimeSeriesBuffer.Value := TempTimeSeriesBuffer.Value + TempCreditMemoTimeSeriesBuffer.Value;
-                TempTimeSeriesBuffer.Modify;
+                TempTimeSeriesBuffer.Modify();
             until (TempTimeSeriesBuffer.Next = 0) and (TempCreditMemoTimeSeriesBuffer.Next = 0);
     end;
 
@@ -436,13 +436,13 @@ codeunit 850 "Cash Flow Forecast Handler"
             repeat
                 if TargetTimeSeriesBuffer.Get(Label, SourceTimeSeriesBuffer."Period No.") then begin
                     TargetTimeSeriesBuffer.Validate(Value, (TargetTimeSeriesBuffer.Value + SourceTimeSeriesBuffer.Value));
-                    TargetTimeSeriesBuffer.Modify;
+                    TargetTimeSeriesBuffer.Modify();
                 end else begin
                     TargetTimeSeriesBuffer.Validate(Value, SourceTimeSeriesBuffer.Value);
                     TargetTimeSeriesBuffer.Validate("Period Start Date", SourceTimeSeriesBuffer."Period Start Date");
                     TargetTimeSeriesBuffer.Validate("Period No.", SourceTimeSeriesBuffer."Period No.");
                     TargetTimeSeriesBuffer.Validate("Group ID", Label);
-                    TargetTimeSeriesBuffer.Insert;
+                    TargetTimeSeriesBuffer.Insert();
                 end;
             until SourceTimeSeriesBuffer.Next = 0;
     end;
@@ -728,10 +728,10 @@ codeunit 850 "Cash Flow Forecast Handler"
                 if (NextForecastDate > TaxablePeriodEndDate) or (TimeSeriesForecast."Period No." = LastPeriodNo) then begin
                     TimeSeriesForecast.Value := CurrentSum;
                     TimeSeriesForecast."Period Start Date" := CashFlowSetup.GetTaxPaymentDueDate(TimeSeriesForecast."Period Start Date");
-                    TimeSeriesForecast.Modify;
+                    TimeSeriesForecast.Modify();
                     CurrentSum := 0;
                 end else
-                    TimeSeriesForecast.Delete;
+                    TimeSeriesForecast.Delete();
             until (TimeSeriesForecast.Next = 0);
         end;
         TimeSeriesForecast.SetRange("Group ID");

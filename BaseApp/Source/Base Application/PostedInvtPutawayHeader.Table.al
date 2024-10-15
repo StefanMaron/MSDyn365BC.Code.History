@@ -96,11 +96,9 @@ table 7340 "Posted Invt. Put-away Header"
             OptionCaption = '0,1,2,3,4,5,6,7,8,9,10';
             OptionMembers = "0","1","2","3","4","5","6","7","8","9","10";
         }
-        field(7310; "Destination Type"; Option)
+        field(7310; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(7311; "Destination No."; Code[20])
         {
@@ -160,12 +158,12 @@ table 7340 "Posted Invt. Put-away Header"
         CheckLocation;
 
         PostedInvtPutAwayLine.SetRange("No.", "No.");
-        PostedInvtPutAwayLine.DeleteAll;
+        PostedInvtPutAwayLine.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Invt. Put-Away");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -184,22 +182,23 @@ table 7340 "Posted Invt. Put-away Header"
 
     local procedure GetNoSeriesCode(): Code[20]
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         exit(InvtSetup."Posted Invt. Put-away Nos.");
     end;
 
     local procedure TestNoSeries()
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         InvtSetup.TestField("Posted Invt. Put-away Nos.");
     end;
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "Source No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     local procedure CheckLocation()

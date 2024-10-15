@@ -132,16 +132,16 @@ report 11402 "CMR - Transfer Shipment"
                 FormatAddr.TransferShptTransferTo(ToAddr, "Transfer Shipment Header");
 
                 if not Country.Get("Trsf.-from Country/Region Code") then
-                    Country.Init;
+                    Country.Init();
                 TransferFrom := DelChr(AddText("Transfer-from City") + AddText(Country.Name), '>', ', ');
                 EstdIn := "Transfer-from City";
 
                 if not Country.Get("Trsf.-to Country/Region Code") then
-                    Country.Init;
+                    Country.Init();
                 TransferTo := DelChr(AddText("Transfer-to City") + AddText(Country.Name), '>', ', ');
 
                 if not ShippingAgent.Get("Shipping Agent Code") then
-                    ShippingAgent.Init;
+                    ShippingAgent.Init();
             end;
         }
     }

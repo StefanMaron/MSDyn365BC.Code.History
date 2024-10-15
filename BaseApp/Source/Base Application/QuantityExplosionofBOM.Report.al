@@ -104,7 +104,7 @@ report 99000753 "Quantity Explosion of BOM"
                     while BomComponent[Level].Next = 0 do begin
                         Level := Level - 1;
                         if Level < 1 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     NextLevel := Level;
@@ -117,7 +117,7 @@ report 99000753 "Quantity Explosion of BOM"
                                 if CompItem."Production BOM No." <> '' then begin
                                     ProdBOM.Get(CompItem."Production BOM No.");
                                     if ProdBOM.Status = ProdBOM.Status::Closed then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     NextLevel := Level + 1;
                                     if Level > 1 then
                                         if (NextLevel > 50) or (BomComponent[Level]."No." = NoList[Level - 1]) then
@@ -144,7 +144,7 @@ report 99000753 "Quantity Explosion of BOM"
                             begin
                                 ProdBOM.Get(BomComponent[Level]."No.");
                                 if ProdBOM.Status = ProdBOM.Status::Closed then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 NextLevel := Level + 1;
                                 if Level > 1 then
                                     if (NextLevel > 50) or (BomComponent[Level]."No." = NoList[Level - 1]) then

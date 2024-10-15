@@ -26,7 +26,7 @@ report 11403 "Create Elec. VAT Declaration"
                 ElecTaxDeclarationHeader."Created By" := UserId;
                 ElecTaxDeclarationHeader.Status := ElecTaxDeclarationHeader.Status::Created;
                 ElecTaxDeclarationHeader."Schema Version" := ElecTaxDeclarationMgt.GetSchemaVersion;
-                ElecTaxDeclarationHeader.Modify;
+                ElecTaxDeclarationHeader.Modify();
 
                 UseVATRegNo := CompanyInfo.GetVATIdentificationNo(ElecTaxDeclarationSetup."Part of Fiscal Entity");
 
@@ -214,7 +214,7 @@ report 11403 "Create Elec. VAT Declaration"
 
     trigger OnInitReport()
     begin
-        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Get();
 
         if ElecTaxDeclarationSetup."VAT Contact Type" = ElecTaxDeclarationSetup."VAT Contact Type"::Agent then begin
             ElecTaxDeclarationSetup.TestField("Agent Contact ID");
@@ -228,7 +228,7 @@ report 11403 "Create Elec. VAT Declaration"
             ElecTaxDeclarationSetup.TestField("Tax Payer Contact Phone No.");
         end;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
 
         if ElecTaxDeclarationSetup."Part of Fiscal Entity" then begin
@@ -236,7 +236,7 @@ report 11403 "Create Elec. VAT Declaration"
             Message(Text001);
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Local Currency", GLSetup."Local Currency"::Euro);
     end;
 

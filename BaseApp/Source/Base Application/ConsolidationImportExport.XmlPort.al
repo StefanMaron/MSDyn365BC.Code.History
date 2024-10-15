@@ -265,93 +265,93 @@ xmlport 1 "Consolidation Import/Export"
 
     procedure SetGLAccount(var TempGLAccount: Record "G/L Account")
     begin
-        "G/L Account".Reset;
-        "G/L Account".DeleteAll;
+        "G/L Account".Reset();
+        "G/L Account".DeleteAll();
         if TempGLAccount.Find('-') then
             repeat
                 "G/L Account" := TempGLAccount;
-                "G/L Account".Insert;
+                "G/L Account".Insert();
             until TempGLAccount.Next = 0;
     end;
 
     procedure GetGLAccount(var TempGLAccount: Record "G/L Account")
     begin
-        TempGLAccount.Reset;
-        TempGLAccount.DeleteAll;
-        "G/L Account".Reset;
+        TempGLAccount.Reset();
+        TempGLAccount.DeleteAll();
+        "G/L Account".Reset();
         if "G/L Account".Find('-') then
             repeat
                 TempGLAccount := "G/L Account";
-                TempGLAccount.Insert;
+                TempGLAccount.Insert();
             until "G/L Account".Next = 0;
     end;
 
     procedure SetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
-        "G/L Entry".Reset;
-        "G/L Entry".DeleteAll;
+        "G/L Entry".Reset();
+        "G/L Entry".DeleteAll();
         if TempGLEntry.Find('-') then
             repeat
                 "G/L Entry" := TempGLEntry;
-                "G/L Entry".Insert;
+                "G/L Entry".Insert();
             until TempGLEntry.Next = 0;
     end;
 
     procedure GetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
-        TempGLEntry.Reset;
-        TempGLEntry.DeleteAll;
-        "G/L Entry".Reset;
+        TempGLEntry.Reset();
+        TempGLEntry.DeleteAll();
+        "G/L Entry".Reset();
         if "G/L Entry".Find('-') then
             repeat
                 TempGLEntry := "G/L Entry";
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until "G/L Entry".Next = 0;
     end;
 
     procedure SetEntryDim(var TempDimBuf: Record "Dimension Buffer" temporary)
     begin
-        "Dimension Buffer".Reset;
-        "Dimension Buffer".DeleteAll;
+        "Dimension Buffer".Reset();
+        "Dimension Buffer".DeleteAll();
         if TempDimBuf.Find('-') then
             repeat
                 "Dimension Buffer" := TempDimBuf;
-                "Dimension Buffer".Insert;
+                "Dimension Buffer".Insert();
             until TempDimBuf.Next = 0;
     end;
 
     procedure GetEntryDim(var TempDimBuf: Record "Dimension Buffer" temporary)
     begin
-        TempDimBuf.Reset;
-        TempDimBuf.DeleteAll;
-        "Dimension Buffer".Reset;
+        TempDimBuf.Reset();
+        TempDimBuf.DeleteAll();
+        "Dimension Buffer".Reset();
         if "Dimension Buffer".Find('-') then
             repeat
                 TempDimBuf := "Dimension Buffer";
-                TempDimBuf.Insert;
+                TempDimBuf.Insert();
             until "Dimension Buffer".Next = 0;
     end;
 
     procedure SetExchRate(var TempExchRate: Record "Currency Exchange Rate")
     begin
-        "Currency Exchange Rate".Reset;
-        "Currency Exchange Rate".DeleteAll;
+        "Currency Exchange Rate".Reset();
+        "Currency Exchange Rate".DeleteAll();
         if TempExchRate.Find('-') then
             repeat
                 "Currency Exchange Rate" := TempExchRate;
-                "Currency Exchange Rate".Insert;
+                "Currency Exchange Rate".Insert();
             until TempExchRate.Next = 0;
     end;
 
     procedure GetExchRate(var TempExchRate: Record "Currency Exchange Rate")
     begin
-        TempExchRate.Reset;
-        TempExchRate.DeleteAll;
-        "Currency Exchange Rate".Reset;
+        TempExchRate.Reset();
+        TempExchRate.DeleteAll();
+        "Currency Exchange Rate".Reset();
         if "Currency Exchange Rate".Find('-') then
             repeat
                 TempExchRate := "Currency Exchange Rate";
-                TempExchRate.Insert;
+                TempExchRate.Insert();
             until "Currency Exchange Rate".Next = 0;
     end;
 

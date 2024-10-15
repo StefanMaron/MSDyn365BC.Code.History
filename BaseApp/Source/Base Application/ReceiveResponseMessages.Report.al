@@ -27,17 +27,17 @@ report 11408 "Receive Response Messages"
                 StatusErrorDescription: Text;
             begin
                 if "Message ID" = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Window.Update(1, WindowStatusDeletingMsg);
                 ElecTaxDeclResponseMsg.SetRange("Declaration Type", "Declaration Type");
                 ElecTaxDeclResponseMsg.SetRange("Declaration No.", "No.");
-                ElecTaxDeclResponseMsg.DeleteAll;
-                ElecTaxDeclResponseMsg.Reset;
+                ElecTaxDeclResponseMsg.DeleteAll();
+                ElecTaxDeclResponseMsg.Reset();
 
                 ErrorLog.SetRange("Declaration Type", "Declaration Type");
                 ErrorLog.SetRange("Declaration No.", "No.");
-                ErrorLog.DeleteAll;
+                ErrorLog.DeleteAll();
 
                 Window.Update(1, WindowStatusRequestingMsg);
                 Request := Request.getStatussenProcesRequest;
@@ -63,7 +63,7 @@ report 11408 "Receive Response Messages"
                         30);
 
                 Window.Update(1, WindowStatusProcessingMsg);
-                ElecTaxDeclResponseMsg.Reset;
+                ElecTaxDeclResponseMsg.Reset();
                 if not ElecTaxDeclResponseMsg.FindLast then
                     ElecTaxDeclResponseMsg."No." := 0;
                 NextNo := ElecTaxDeclResponseMsg."No." + 1;
@@ -177,7 +177,7 @@ report 11408 "Receive Response Messages"
     begin
         Window.Open(DialogTxt);
 
-        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Get();
         ElecTaxDeclarationSetup.TestField("Use Certificate Setup", false);
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
     end;

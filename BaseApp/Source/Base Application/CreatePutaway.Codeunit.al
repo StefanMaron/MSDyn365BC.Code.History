@@ -70,7 +70,7 @@ codeunit 7313 "Create Put-away"
             CrossDockInfo := 0;
             MessageText := '';
             EverythingHandled := false;
-            TempWhseActivLine.DeleteAll;
+            TempWhseActivLine.DeleteAll();
 
             GetLocation("Location Code");
             if not Location."Bin Mandatory" then begin
@@ -88,7 +88,7 @@ codeunit 7313 "Create Put-away"
                     exit;
                 end;
 
-                PutAwayTemplLine.Reset;
+                PutAwayTemplLine.Reset();
                 PutAwayTemplLine.SetRange("Put-away Template Code", PutAwayTemplHeader.Code);
                 if not PutAwayTemplLine.Find('-') then begin
                     MessageText := StrSubstNo(Text001, PutAwayTemplLine.TableCaption);
@@ -234,13 +234,13 @@ codeunit 7313 "Create Put-away"
     begin
         if TempWhseActivLine.Find('-') then begin
             repeat
-                WhseActivLine.Init;
+                WhseActivLine.Init();
                 WhseActivLine := TempWhseActivLine;
                 WhseActivLine."Activity Type" := WhseActivHeader.Type;
                 WhseActivLine."No." := WhseActivHeader."No.";
                 WhseActivLine."Bin Code" := PostedWhseRcptLine."Bin Code";
                 WhseActivLine."Zone Code" := PostedWhseRcptLine."Zone Code";
-                WhseActivLine.Insert;
+                WhseActivLine.Insert();
                 OnAfterWhseActivLineInsert(WhseActivLine);
             until TempWhseActivLine.Next = 0;
             exit(true);
@@ -263,7 +263,7 @@ codeunit 7313 "Create Put-away"
             if (WhseActivHeader."No." = '') and InsertHeader then
                 InsertWhseActivHeader("Location Code");
 
-            WhseActivLine.Init;
+            WhseActivLine.Init();
             WhseActivLine."Activity Type" := WhseActivHeader.Type;
             WhseActivLine."No." := WhseActivHeader."No.";
             WhseActivLine."Line No." := LineNo;
@@ -341,12 +341,11 @@ codeunit 7313 "Create Put-away"
             end;
             if "Serial No." <> '' then
                 WhseActivLine.TestField("Qty. per Unit of Measure", 1);
-            WhseActivLine."Serial No." := "Serial No.";
-            WhseActivLine."Lot No." := "Lot No.";
+            WhseActivLine.CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine);
             WhseActivLine."Warranty Date" := "Warranty Date";
             WhseActivLine."Expiration Date" := "Expiration Date";
             OnBeforeWhseActivLineInsert(WhseActivLine, PostedWhseRcptLine);
-            WhseActivLine.Insert;
+            WhseActivLine.Insert();
             OnAfterWhseActivLineInsert(WhseActivLine);
         end;
     end;
@@ -380,8 +379,8 @@ codeunit 7313 "Create Put-away"
 
     local procedure InsertWhseActivHeader(LocationCode: Code[10])
     begin
-        WhseActivHeader.LockTable;
-        WhseActivHeader.Init;
+        WhseActivHeader.LockTable();
+        WhseActivHeader.Init();
         WhseActivHeader.Type := WhseActivHeader.Type::"Put-away";
         WhseActivHeader."Location Code" := LocationCode;
         WhseActivHeader.Validate("Assigned User ID", AssignedID);
@@ -389,10 +388,10 @@ codeunit 7313 "Create Put-away"
         WhseActivHeader."Breakbulk Filter" := BreakbulkFilter;
         OnBeforeWhseActivHeaderInsert(WhseActivHeader, PostedWhseRcptLine);
         WhseActivHeader.Insert(true);
-        Commit;
+        Commit();
         OnAfterWhseActivHeaderInsert(WhseActivHeader);
         InsertTempWhseActivHeader(WhseActivHeader);
-        WhseActivLine.LockTable;
+        WhseActivLine.LockTable();
     end;
 
     local procedure FindBinContent(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WarehouseClassCode: Code[10]): Boolean
@@ -537,7 +536,7 @@ codeunit 7313 "Create Put-away"
         NewBinContent: Record "Bin Content";
     begin
         with PostedWhseRcptLine do begin
-            NewBinContent.Init;
+            NewBinContent.Init();
             NewBinContent."Location Code" := Bin."Location Code";
             NewBinContent."Bin Code" := Bin.Code;
             NewBinContent."Item No." := "Item No.";
@@ -552,7 +551,7 @@ codeunit 7313 "Create Put-away"
             NewBinContent."Bin Ranking" := Bin."Bin Ranking";
             NewBinContent."Cross-Dock Bin" := Bin."Cross-Dock Bin";
             OnCreateBinContentOnBeforeNewBinContentInsert(NewBinContent, PostedWhseRcptLine);
-            NewBinContent.Insert;
+            NewBinContent.Insert();
         end;
     end;
 
@@ -704,9 +703,9 @@ codeunit 7313 "Create Put-away"
 
     local procedure InsertTempWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header")
     begin
-        TempWhseActivHeader.Init;
+        TempWhseActivHeader.Init();
         TempWhseActivHeader := WhseActivHeader;
-        TempWhseActivHeader.Insert;
+        TempWhseActivHeader.Insert();
     end;
 
     procedure GetFirstPutAwayDocument(var WhseActivHeader: Record "Warehouse Activity Header"): Boolean
@@ -746,31 +745,30 @@ codeunit 7313 "Create Put-away"
 
     procedure UpdateTempWhseItemTrkgLines(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer)
     begin
-        TempWhseItemTrkgLine.Init;
+        TempWhseItemTrkgLine.Init();
         EntryNo += 1;
         TempWhseItemTrkgLine."Entry No." := EntryNo;
         TempWhseItemTrkgLine."Source Type" := SourceType;
         TempWhseItemTrkgLine."Source ID" := PostedWhseRcptLine."No.";
         TempWhseItemTrkgLine."Source Ref. No." := PostedWhseRcptLine."Line No.";
-        TempWhseItemTrkgLine."Serial No." := PostedWhseRcptLine."Serial No.";
-        TempWhseItemTrkgLine."Lot No." := PostedWhseRcptLine."Lot No.";
+        TempWhseItemTrkgLine.CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine);
         TempWhseItemTrkgLine."Quantity (Base)" := QtyToPickBase;
         OnUpdateTempWhseItemTrkgLines(TempWhseItemTrkgLine, PostedWhseRcptLine);
-        TempWhseItemTrkgLine.Insert;
+        TempWhseItemTrkgLine.Insert();
     end;
 
     procedure GetQtyHandledBase(var TempRec: Record "Whse. Item Tracking Line" temporary) QtyHandledBase: Decimal
     begin
-        TempRec.Reset;
-        TempRec.DeleteAll;
+        TempRec.Reset();
+        TempRec.DeleteAll();
         QtyHandledBase := 0;
         if TempWhseItemTrkgLine.Find('-') then
             repeat
                 QtyHandledBase += TempWhseItemTrkgLine."Quantity (Base)";
                 TempRec := TempWhseItemTrkgLine;
-                TempRec.Insert;
+                TempRec.Insert();
             until TempWhseItemTrkgLine.Next = 0;
-        TempWhseItemTrkgLine.DeleteAll;
+        TempWhseItemTrkgLine.DeleteAll();
         exit(QtyHandledBase);
     end;
 

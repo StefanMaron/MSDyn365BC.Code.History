@@ -63,7 +63,7 @@ codeunit 2 "Company-Initialize"
 
         Window.Close;
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -189,6 +189,10 @@ codeunit 2 "Company-Initialize"
         Text1000000: Label 'CASHJNL';
         Text1000001: Label 'BANKJNL';
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
+        PEPPOL21_ElectronicFormatTxt: Label 'PEPPOL 2.1', Locked = true;
+        PEPPOL21_ElectronicFormatDescriptionTxt: Label 'PEPPOL 2.1 Format (Pan-European Public Procurement Online)';
+        PEPPOL20_ElectronicFormatTxt: Label 'PEPPOL 2.0', Locked = true;
+        PEPPOL20_ElectronicFormatDescriptionTxt: Label 'PEPPOL 2.0 Format (Pan-European Public Procurement Online)';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
 
@@ -534,6 +538,54 @@ codeunit 2 "Company-Initialize"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Sales Inv. - PEPPOL 2.1", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL21_ElectronicFormatTxt, PEPPOL21_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Sales Inv. - PEPPOL 2.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Sales Cr.M. - PEPPOL2.0", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Export Serv. Inv. - PEPPOL 2.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PEPPOL20_ElectronicFormatTxt, PEPPOL20_ElectronicFormatDescriptionTxt,
+          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+
+        ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
           CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
 
@@ -543,19 +595,11 @@ codeunit 2 "Company-Initialize"
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+          CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+          CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
     end;
 
     local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[50])
@@ -563,20 +607,20 @@ codeunit 2 "Company-Initialize"
         SourceCode: Record "Source Code";
     begin
         SourceCodeDefCode := Code;
-        SourceCode.Init;
+        SourceCode.Init();
         SourceCode.Code := Code;
         SourceCode.Description := Description;
-        SourceCode.Insert;
+        SourceCode.Insert();
     end;
 
     local procedure InsertStandardText("Code": Code[20]; Description: Text[50])
     var
         StandardText: Record "Standard Text";
     begin
-        StandardText.Init;
+        StandardText.Init();
         StandardText.Code := Code;
         StandardText.Description := Description;
-        StandardText.Insert;
+        StandardText.Insert();
     end;
 
     local procedure PageName(PageID: Integer): Text[50]
@@ -668,7 +712,7 @@ codeunit 2 "Company-Initialize"
         if ClientAddIn.Get(ControlAddInName, PublicKeyToken, Version) then
             exit;
 
-        ClientAddIn.Init;
+        ClientAddIn.Init();
         ClientAddIn."Add-in Name" := ControlAddInName;
         ClientAddIn."Public Key Token" := PublicKeyToken;
         ClientAddIn.Version := Version;
@@ -676,14 +720,14 @@ codeunit 2 "Company-Initialize"
         ClientAddIn.Description := Description;
         if Exists(ResourceFilePath) then
             ClientAddIn.Resource.Import(ResourceFilePath);
-        if ClientAddIn.Insert then;
+        if ClientAddIn.Insert() then;
     end;
 
     local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[50]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        JobWIPMethod.Init;
+        JobWIPMethod.Init();
         JobWIPMethod.Code := Code;
         JobWIPMethod.Description := Description;
         JobWIPMethod."WIP Cost" := true;
@@ -693,7 +737,7 @@ codeunit 2 "Company-Initialize"
         JobWIPMethod.Valid := true;
         JobWIPMethod."System Defined" := true;
         JobWIPMethod."System-Defined Index" := SystemDefinedIndex;
-        JobWIPMethod.Insert;
+        JobWIPMethod.Insert();
     end;
 
     local procedure InsertBankExportImportSetup(CodeTxt: Text[20]; NameTxt: Text[100]; DirectionOpt: Option; CodeunitID: Integer; XMLPortID: Integer; CheckCodeunitID: Integer)
@@ -763,20 +807,20 @@ codeunit 2 "Company-Initialize"
             exit;
 
         AssistedCompanySetupStatus.SetRange("Company Name", Rec.Name);
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         UserGroupMember.SetRange("Company Name", Rec.Name);
-        UserGroupMember.DeleteAll;
+        UserGroupMember.DeleteAll();
         UserGroupAccessControl.SetRange("Company Name", Rec.Name);
-        UserGroupAccessControl.DeleteAll;
+        UserGroupAccessControl.DeleteAll();
         ApplicationAreaSetup.SetRange("Company Name", Rec.Name);
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
         CustomReportLayout.SetRange("Company Name", Rec.Name);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
         ReportLayoutSelection.SetRange("Company Name", Rec.Name);
-        ReportLayoutSelection.DeleteAll;
+        ReportLayoutSelection.DeleteAll();
 
         if ExperienceTierSetup.Get(Rec.Name) then
-            ExperienceTierSetup.Delete;
+            ExperienceTierSetup.Delete();
     end;
 }
 

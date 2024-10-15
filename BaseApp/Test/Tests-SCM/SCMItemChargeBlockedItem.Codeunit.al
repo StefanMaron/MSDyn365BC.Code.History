@@ -489,7 +489,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Receipt on Invoice", ReceiptOnInvoice);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -498,7 +498,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Shipment on Invoice", ShipmentOnInvoice);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -539,8 +539,6 @@ codeunit 137930 "SCM Item Charge Blocked Item"
           ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignPurchApplToDocType, ItemLedgerEntry."Document No.",
           ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.");
         PurchaseHeader.CalcFields("Amount Including VAT");
-        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
-        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreateSalesInvoiceWithItemChargeAssignment(var SalesHeader: Record "Sales Header"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssignSalesApplToDocType: Integer)

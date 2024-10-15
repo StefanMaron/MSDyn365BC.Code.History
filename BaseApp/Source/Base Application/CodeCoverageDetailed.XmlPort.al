@@ -62,7 +62,7 @@ xmlport 9991 "Code Coverage Detailed"
     trigger OnPreXmlPort()
     begin
         if currXMLport.ImportFile then begin
-            "Code Coverage".Reset;
+            "Code Coverage".Reset();
             CodeCoverageMgt.Clear;
         end;
     end;

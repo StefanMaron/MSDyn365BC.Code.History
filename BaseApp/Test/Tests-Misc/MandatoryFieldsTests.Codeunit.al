@@ -364,8 +364,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(PurchaseInvoice."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
-        Assert.IsTrue(PurchaseInvoice.DocAmount.ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseInvoice."Due Date".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.PurchLines.New;
         Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -396,7 +394,6 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseOrder.OpenNew;
         Assert.IsTrue(PurchaseOrder."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseOrder."Due Date".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         PurchaseOrder.PurchLines.New;
         Assert.IsFalse(PurchaseOrder.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -428,7 +425,6 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseCreditMemo.OpenNew;
         Assert.IsTrue(PurchaseCreditMemo."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseCreditMemo."Vendor Cr. Memo No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseCreditMemo.DocAmount.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseCreditMemo.PurchLines.New;
         Assert.IsFalse(PurchaseCreditMemo.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -452,7 +448,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         PurchasesPayablesSetup.FindFirst;
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)
@@ -461,7 +457,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure DeleteAllTemplates()

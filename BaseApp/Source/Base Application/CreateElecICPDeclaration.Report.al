@@ -103,7 +103,7 @@ report 11404 "Create Elec. ICP Declaration"
                 ElecTaxDeclarationHeader."Created By" := UserId;
                 ElecTaxDeclarationHeader.Status := ElecTaxDeclarationHeader.Status::Created;
                 ElecTaxDeclarationHeader."Schema Version" := ElecTaxDeclarationMgt.GetSchemaVersion;
-                ElecTaxDeclarationHeader.Modify;
+                ElecTaxDeclarationHeader.Modify();
 
                 UseVATRegNo := CompanyInfo.GetVATIdentificationNo(ElecTaxDeclarationSetup."Part of Fiscal Entity");
 
@@ -204,16 +204,16 @@ report 11404 "Create Elec. ICP Declaration"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Address);
         CompanyInfo.TestField("Post Code");
         CompanyInfo.TestField(City);
         CompanyInfo.TestField("VAT Registration No.");
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Local Currency", GLSetup."Local Currency"::Euro);
 
-        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Get();
         if ElecTaxDeclarationSetup."ICP Contact Type" = ElecTaxDeclarationSetup."ICP Contact Type"::Agent then begin
             ElecTaxDeclarationSetup.TestField("Agent Contact ID");
             ElecTaxDeclarationSetup.TestField("Agent Contact Name");

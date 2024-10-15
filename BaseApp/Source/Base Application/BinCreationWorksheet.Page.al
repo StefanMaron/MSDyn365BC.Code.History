@@ -173,7 +173,7 @@ page 7372 "Bin Creation Worksheet"
                         BinCreateLine.Copy(Rec);
                         SetFilter("Bin Code", '<>%1', '');
                         CODEUNIT.Run(CODEUNIT::"Bin Create", Rec);
-                        BinCreateLine.Reset;
+                        BinCreateLine.Reset();
                         Copy(BinCreateLine);
                         FilterGroup(2);
                         SetRange("Worksheet Template Name", "Worksheet Template Name");

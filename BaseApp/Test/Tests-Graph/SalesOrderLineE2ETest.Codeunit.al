@@ -123,7 +123,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -184,7 +184,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [THEN] the line should be changed in the table and the response JSON text should contain our changed field
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Line No.", LineNo);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
@@ -213,7 +213,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         SalesLine.FindFirst;
         LineNo := SalesLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that order
         TargetURL := LibraryGraphMgt
@@ -225,7 +225,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should no longer exist in the database
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesLine.SetRange("Line No.", LineNo);
@@ -265,7 +265,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         OrderId := SalesHeader.Id;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, ItemQuantity);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an order through the client UI
         TargetURL := LibraryGraphMgt
@@ -330,7 +330,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -375,7 +375,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         OrderLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
@@ -428,7 +428,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct2, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -471,7 +471,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -504,7 +504,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -541,7 +541,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesQuantity := 0;
         OrderLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -575,7 +575,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [GIVEN] An  order for customer with order discount pct
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -610,7 +610,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         Initialize();
         CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
 
-        Commit;
+        Commit();
 
         // [WHEN] we GET the lines
         TargetURL := LibraryGraphMgt
@@ -647,7 +647,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         Initialize();
         CreateSalesOrderWithLines(SalesHeader);
 
-        Commit;
+        Commit();
 
         OrderLineJSON := '{"description":"test"}';
 
@@ -691,7 +691,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         OrderLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -796,7 +796,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         OrderLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
@@ -872,7 +872,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        ExpectedNumberOfLines := SalesLine.Count;
+        ExpectedNumberOfLines := SalesLine.Count();
     end;
 
     local procedure CreateSalesOrderWithLines(var SalesHeader: Record "Sales Header"): Text
@@ -883,7 +883,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibrarySales.CreateSalesOrder(SalesHeader);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        Commit;
+        Commit();
         exit(SalesHeader.Id);
     end;
 
@@ -912,7 +912,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesOrder.SalesLines.Last;
         SalesOrder.SalesLines.Next;
-        SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesOrder.SalesLines.FilteredTypeField.SETVALUE(SalesLine.Type::Item);
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
 
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);

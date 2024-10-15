@@ -1,4 +1,4 @@
-﻿page 145 "Posted Purchase Receipts"
+page 145 "Posted Purchase Receipts"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Receipts';
@@ -298,7 +298,7 @@
         if PurchRcptHeader.FindSet then
             repeat
                 TempPurchRcptHeader := PurchRcptHeader;
-                TempPurchRcptHeader.Insert;
+                TempPurchRcptHeader.Insert();
             until PurchRcptHeader.Next = 0;
     end;
 

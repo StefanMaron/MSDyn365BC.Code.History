@@ -73,7 +73,7 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document"; AttachmentURL: Text)
     begin
         Clear(IncomingDocument);
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument.SetURL(AttachmentURL);
         IncomingDocument.Insert(true);
     end;

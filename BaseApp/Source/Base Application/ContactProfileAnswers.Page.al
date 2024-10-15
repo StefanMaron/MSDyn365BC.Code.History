@@ -221,7 +221,7 @@ page 5114 "Contact Profile Answers"
             TestField(Type, Type::Answer);
 
         if Set then begin
-            ContProfileAnswer.Init;
+            ContProfileAnswer.Init();
             ContProfileAnswer."Contact No." := Cont."No.";
             ContProfileAnswer."Contact Company No." := Cont."Company No.";
             ContProfileAnswer.Validate("Profile Questionnaire Code", CurrentQuestionsChecklistCode);

@@ -153,7 +153,7 @@ table 420 "Handled IC Inbox Trans."
         ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"Handled IC Inbox Transaction");
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
-        ICCommentLine.DeleteAll;
+        ICCommentLine.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

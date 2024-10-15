@@ -198,7 +198,7 @@ report 11000023 "Import Rabobank ASCII"
             Error(Text1000007 + Text1000008, BankAcct."Bank Account No.", BankAcct."No.", ImpAcctNoPrincipal);
 
         if CBGStatement.Currency = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."LCY Code" <> ImpCurrencyCode then
                 Error(Text1000009, GLSetup."LCY Code", CBGStatement."Journal Template Name", ImpCurrencyCode);
         end else
@@ -208,7 +208,7 @@ report 11000023 "Import Rabobank ASCII"
         CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
         CBGStatementLine."No." := CBGStatement."No.";
         CBGStatementLine."Line No." := CBGStatementLine."Line No." + 10000;
-        CBGStatementLine.Init;
+        CBGStatementLine.Init();
         CBGStatementLine.InitRecord(CBGStatementLine);
         CBGStatementLine.Validate(Date, ImpCurrencyDate);
 
@@ -229,17 +229,17 @@ report 11000023 "Import Rabobank ASCII"
 
         CBGStatementLine.Insert(true);
         CBGStatementLine.Validate(Date, ImpCurrencyDate);
-        CBGStatementLine.Modify;
+        CBGStatementLine.Modify();
     end;
 
-    local procedure ProcessComment(Comment: Text[100]; Type: Integer)
+    local procedure ProcessComment(Comment: Text[100]; Type: Enum "CBG Statement Information Type")
     begin
         if Comment <> '' then begin
             CBGStatementLineDesc."Journal Template Name" := CBGStatementLine."Journal Template Name";
             CBGStatementLineDesc."CBG Statement No." := CBGStatementLine."No.";
             CBGStatementLineDesc."CBG Statement Line No." := CBGStatementLine."Line No.";
             CBGStatementLineDesc."Line No." := CBGStatementLineDesc."Line No." + 10000;
-            CBGStatementLineDesc.Init;
+            CBGStatementLineDesc.Init();
             CBGStatementLineDesc."Information Type" := Type;
             CBGStatementLineDesc.Description := Comment;
             CBGStatementLineDesc.Insert(true);

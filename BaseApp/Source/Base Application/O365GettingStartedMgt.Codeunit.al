@@ -41,7 +41,7 @@ codeunit 1309 "O365 Getting Started Mgt."
         if not WizardHasBeenShownToUser then begin
             O365GettingStarted.OnO365DemoCompanyInitialize;
             if Launch then begin
-                Commit;
+                Commit();
                 PAGE.RunModal(PageToStart);
             end;
             exit(true);
@@ -52,7 +52,7 @@ codeunit 1309 "O365 Getting Started Mgt."
 
         if UserInitiated then begin
             if Launch then begin
-                Commit;
+                Commit();
                 PAGE.RunModal(PageToStart);
             end;
             exit(true);
@@ -63,7 +63,7 @@ codeunit 1309 "O365 Getting Started Mgt."
                 exit(false);
 
             if Launch then begin
-                Commit;
+                Commit();
                 if TourCompleted and not EnvironmentInfo.IsSandbox then
                     PAGE.RunModal(PAGE::"O365 Tour Complete")
                 else

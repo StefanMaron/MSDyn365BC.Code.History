@@ -32,13 +32,13 @@ report 11414 "Import Post Codes"
         Line: Text;
         Continue: Boolean;
     begin
-        PostCodeRange.Reset;
+        PostCodeRange.Reset();
 
         if not PostCodeRange.IsEmpty then
             if not Confirm(Text000, false, PostCodeRange.TableCaption) then
                 CurrReport.Quit;
 
-        PostCodeRange.DeleteAll;
+        PostCodeRange.DeleteAll();
 
         ImportFileName := FileMgt.UploadFile('', '*.txt');
         ImportFile.TextMode := true;
@@ -121,7 +121,7 @@ report 11414 "Import Post Codes"
         if not Evaluate(Year, ReadText(Header, 37, 4)) then
             Error(Text005, ReadText(Header, 37, 4));
 
-        PostCodeUpdateLogEntry2.LockTable;
+        PostCodeUpdateLogEntry2.LockTable();
         if not PostCodeUpdateLogEntry2.FindLast then;
 
         PostCodeUpdateLogEntry."No." := PostCodeUpdateLogEntry2."No." + 1;
@@ -130,7 +130,7 @@ report 11414 "Import Post Codes"
         PostCodeUpdateLogEntry.Time := Time;
         PostCodeUpdateLogEntry."User ID" := UserId;
         PostCodeUpdateLogEntry.Type := PostCodeUpdateLogEntry.Type::"Full Data Set";
-        PostCodeUpdateLogEntry.Insert;
+        PostCodeUpdateLogEntry.Insert();
     end;
 
     [Scope('OnPrem')]

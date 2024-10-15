@@ -84,7 +84,7 @@ codeunit 11000001 "Financial Interface Telebank"
 
         PaymentHistLine."Document No." := "New Document No.";
         PaymentHistLine."Posting Date" := NewPostingDate;
-        PaymentHistLine.Modify;
+        PaymentHistLine.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -149,7 +149,7 @@ codeunit 11000001 "Financial Interface Telebank"
         PaymentHistLine.Status := NewStatus;
         PaymentHistLine."Document No." := "New Document No.";
         PaymentHistLine."Posting Date" := NewPostingDate;
-        PaymentHistLine.Modify;
+        PaymentHistLine.Modify();
 
         "Detail line".SetCurrentKey("Our Bank", Status, "Connect Batches");
         "Detail line".SetRange("Our Bank", PaymentHistLine."Our Bank");
@@ -243,7 +243,7 @@ codeunit 11000001 "Financial Interface Telebank"
         PaymentHistLine.Status := PaymentHistLine.Status::Posted;
         PaymentHistLine."Document No." := "Use Document No.";
         PaymentHistLine."Posting Date" := UsePostingDate;
-        PaymentHistLine.Modify;
+        PaymentHistLine.Modify();
 
         SetApplyCVLedgerEntries(PaymentHistLine, CBGStatementline."Applies-to ID", true, false);
     end;
@@ -255,13 +255,13 @@ codeunit 11000001 "Financial Interface Telebank"
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1
         else
             GenJnlLine."Line No." := 1;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
     end;
 
     [Scope('OnPrem')]
     procedure ProcessGLJL(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         // GenJnlPostLineCu.RUN(FDBR);
     end;
 
@@ -312,7 +312,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                         CustLedgerEntry.CalcFields("Payments in Process");
                                         CustLedgerEntry.Validate("Amount to Apply", -CustLedgerEntry."Payments in Process");
                                     end;
-                                    CustLedgerEntry.Modify;
+                                    CustLedgerEntry.Modify();
                                 end;
                         end;
                     DetailLine."Account Type"::Vendor:
@@ -335,7 +335,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                         VendorLedgerEntry.CalcFields("Payments in Process");
                                         VendorLedgerEntry.Validate("Amount to Apply", -VendorLedgerEntry."Payments in Process")
                                     end;
-                                    VendorLedgerEntry.Modify;
+                                    VendorLedgerEntry.Modify();
                                 end;
                         end;
                     DetailLine."Account Type"::Employee:
@@ -359,7 +359,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                         if EmployeeLedgerEntry.Open or Post then
                                             EmployeeLedgerEntry.Validate("Amount to Apply", -EmployeeLedgerEntry."Payments in Process");
                                     end;
-                                    EmployeeLedgerEntry.Modify;
+                                    EmployeeLedgerEntry.Modify();
                                 end;
                         end;
                 end;
@@ -377,7 +377,7 @@ codeunit 11000001 "Financial Interface Telebank"
         PaymentHistLine: Record "Payment History Line";
         ErrorMessages: Page "Error Messages";
     begin
-        TempErrorMessage.DeleteAll;
+        TempErrorMessage.DeleteAll();
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
         PaymentHistLine.SetRange("Our Bank", CBGStatement."Account No.");

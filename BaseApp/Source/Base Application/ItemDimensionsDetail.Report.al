@@ -3,7 +3,7 @@ report 7150 "Item Dimensions - Detail"
     DefaultLayout = RDLC;
     RDLCLayout = './ItemDimensionsDetail.rdlc';
     ApplicationArea = Dimensions;
-    Caption = 'Item Dimensions - Detail';
+    Caption = 'Dimensions - Detail';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -146,16 +146,16 @@ report 7150 "Item Dimensions - Detail"
                             begin
                                 if DimCode[4] <> '' then begin
                                     if not CalcLine(4) and not PrintEmptyLines then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end else
                                     if not PrintDetail(4) then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
                             begin
                                 if DimCode[3] = '' then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 FindFirstDim[4] := true;
                                 FindFirstValueEntry[4] := true;
                             end;
@@ -189,16 +189,16 @@ report 7150 "Item Dimensions - Detail"
                         begin
                             if DimCode[3] <> '' then begin
                                 if not CalcLine(3) and not PrintEmptyLines then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end else
                                 if not PrintDetail(3) then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if DimCode[2] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FindFirstDim[3] := true;
                             FindFirstValueEntry[3] := true;
                         end;
@@ -232,16 +232,16 @@ report 7150 "Item Dimensions - Detail"
                     begin
                         if DimCode[2] <> '' then begin
                             if not CalcLine(2) and not PrintEmptyLines then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else
                             if not PrintDetail(2) then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if DimCode[1] = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         FindFirstDim[2] := true;
                         FindFirstValueEntry[2] := true;
                     end;
@@ -274,13 +274,13 @@ report 7150 "Item Dimensions - Detail"
                 trigger OnAfterGetRecord()
                 begin
                     if not CalcLine(1) and not PrintEmptyLines then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if DimCode[1] = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     FindFirstDim[1] := true;
                     FindFirstValueEntry[1] := true;
                 end;
@@ -300,7 +300,7 @@ report 7150 "Item Dimensions - Detail"
                 else
                     ViewLastUpdatedText := Text004;
 
-                ItemAnalysisViewEntry.Reset;
+                ItemAnalysisViewEntry.Reset();
                 ItemAnalysisViewEntry.SetRange("Analysis Area", "Analysis Area");
                 ItemAnalysisViewEntry.SetRange("Analysis View Code", Code);
                 ItemAnalysisViewEntry.SetFilter("Posting Date", DateFilter);
@@ -341,7 +341,7 @@ report 7150 "Item Dimensions - Detail"
                 ItemAnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
 
                 ItemAnalysisViewEntry.FilterGroup(2);
-                TempAnalysisSelectedDim.Reset;
+                TempAnalysisSelectedDim.Reset();
                 TempAnalysisSelectedDim.SetCurrentKey(
                   "User ID", "Object Type", "Object ID", "Analysis Area", "Analysis View Code", Level);
                 TempAnalysisSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
@@ -362,7 +362,7 @@ report 7150 "Item Dimensions - Detail"
                     until TempAnalysisSelectedDim.Next = 0;
                 ItemAnalysisViewEntry.FilterGroup(0);
 
-                TempAnalysisSelectedDim.Reset;
+                TempAnalysisSelectedDim.Reset();
                 TempAnalysisSelectedDim.SetCurrentKey(
                   "User ID", "Object Type", "Object ID", "Analysis Area", "Analysis View Code", Level);
                 TempAnalysisSelectedDim.SetFilter(Level, '<>%1', TempAnalysisSelectedDim.Level::" ");
@@ -502,44 +502,44 @@ report 7150 "Item Dimensions - Detail"
         AnalysisDimSelectionBuf.CompareDimText(
           3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, ColumnDim, Text002);
 
-        TempAnalysisSelectedDim.Reset;
+        TempAnalysisSelectedDim.Reset();
         TempAnalysisSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         TempAnalysisSelectedDim.SetFilter("Dimension Code", TempItem.TableCaption);
         if TempAnalysisSelectedDim.Find('-') then
             Item.SetFilter("No.", TempAnalysisSelectedDim."Dimension Value Filter");
         if Item.Find('-') then
             repeat
-                TempItem.Init;
+                TempItem.Init();
                 TempItem := Item;
-                TempItem.Insert;
+                TempItem.Insert();
             until Item.Next = 0;
 
-        TempLocation.Init;
-        TempLocation.Insert;
+        TempLocation.Init();
+        TempLocation.Insert();
         TempAnalysisSelectedDim.SetFilter("Dimension Code", Location.TableCaption);
         if TempAnalysisSelectedDim.Find('-') then
             Location.SetFilter(Code, TempAnalysisSelectedDim."Dimension Value Filter");
         if Location.Find('-') then
             repeat
-                TempLocation.Init;
+                TempLocation.Init();
                 TempLocation := Location;
-                TempLocation.Insert;
+                TempLocation.Insert();
             until Location.Next = 0;
 
         AnalysisSelectedDim.GetSelectedDim(
           UserId, 3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, TempAnalysisSelectedDim);
-        TempAnalysisSelectedDim.Reset;
+        TempAnalysisSelectedDim.Reset();
         TempAnalysisSelectedDim.SetCurrentKey(
           "User ID", "Object Type", "Object ID", "Analysis Area", "Analysis View Code", Level);
         TempAnalysisSelectedDim.SetFilter(Level, '<>%1', TempAnalysisSelectedDim.Level::" ");
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
         if TempAnalysisSelectedDim.Find('-') then
             repeat
-                TempDimVal.Init;
+                TempDimVal.Init();
                 TempDimVal.Code := '';
                 TempDimVal."Dimension Code" := TempAnalysisSelectedDim."Dimension Code";
                 TempDimVal.Name := Text003;
-                TempDimVal.Insert;
+                TempDimVal.Insert();
                 DimVal.SetRange("Dimension Code", TempAnalysisSelectedDim."Dimension Code");
                 if TempAnalysisSelectedDim."Dimension Value Filter" <> '' then
                     DimVal.SetFilter(Code, TempAnalysisSelectedDim."Dimension Value Filter")
@@ -547,9 +547,9 @@ report 7150 "Item Dimensions - Detail"
                     DimVal.SetRange(Code);
                 if DimVal.Find('-') then
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
             until TempAnalysisSelectedDim.Next = 0;
     end;
@@ -615,7 +615,7 @@ report 7150 "Item Dimensions - Detail"
             SetItemAnalysisViewEntryFilter(DimCode[Level], DimValCode[Level]);
             HasEntries := ItemAnalysisViewEntry.Find('-');
         end else
-            CurrReport.Break;
+            CurrReport.Break();
         exit(HasEntries);
     end;
 
@@ -625,8 +625,8 @@ report 7150 "Item Dimensions - Detail"
     begin
         if FindFirstValueEntry[Level] then begin
             FindFirstValueEntry[Level] := false;
-            TempValueEntry.Reset;
-            TempValueEntry.DeleteAll;
+            TempValueEntry.Reset();
+            TempValueEntry.DeleteAll();
             if ItemAnalysisViewEntry.Find('-') then begin
                 repeat
                     ItemAViewEntryToValueEntries.GetValueEntries(ItemAnalysisViewEntry, TempValueEntry);
@@ -679,12 +679,12 @@ report 7150 "Item Dimensions - Detail"
         AnalysisSelectedDim.SetRange("Analysis View Code", ItemAnalysisViewCode);
         if AnalysisSelectedDim.Find('-') then begin
             repeat
-                TempAnalysisDimSelectionBuf.Init;
+                TempAnalysisDimSelectionBuf.Init();
                 TempAnalysisDimSelectionBuf.Code := AnalysisSelectedDim."Dimension Code";
                 TempAnalysisDimSelectionBuf.Selected := true;
                 TempAnalysisDimSelectionBuf."Dimension Value Filter" := AnalysisSelectedDim."Dimension Value Filter";
                 TempAnalysisDimSelectionBuf.Level := AnalysisSelectedDim.Level;
-                TempAnalysisDimSelectionBuf.Insert;
+                TempAnalysisDimSelectionBuf.Insert();
             until AnalysisSelectedDim.Next = 0;
             TempAnalysisDimSelectionBuf.SetDimSelection(
               3, REPORT::"Item Dimensions - Detail", AnalysisArea, ItemAnalysisViewCode, ColumnDim, TempAnalysisDimSelectionBuf);
@@ -698,7 +698,7 @@ report 7150 "Item Dimensions - Detail"
         case IterationDimCode of
             TempItem.TableCaption:
                 begin
-                    TempItem.Reset;
+                    TempItem.Reset();
                     TempItem.SetFilter("No.", IterationFilter);
                     if FindFirst then
                         SearchResult := TempItem.Find('-')
@@ -712,7 +712,7 @@ report 7150 "Item Dimensions - Detail"
                 end;
             TempLocation.TableCaption:
                 begin
-                    TempLocation.Reset;
+                    TempLocation.Reset();
                     TempLocation.SetFilter(Code, IterationFilter);
                     if FindFirst then
                         SearchResult := TempLocation.Find('-')
@@ -728,7 +728,7 @@ report 7150 "Item Dimensions - Detail"
                     end;
                 end;
             else begin
-                    TempDimVal.Reset;
+                    TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
                     if FindFirst then

@@ -115,7 +115,7 @@ report 11405 "Submit Elec. Tax Declaration"
                 "Time Submitted" := Time;
                 "Submitted By" := UserId;
                 Modify;
-                Commit;
+                Commit();
 
                 Window.Close;
                 Message(StrSubstNo(SubmitSuccessMsg, "No."));
@@ -183,10 +183,10 @@ report 11405 "Submit Elec. Tax Declaration"
     begin
         SaveToFile := '';
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
 
-        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Get();
         ElecTaxDeclarationSetup.TestField("Use Certificate Setup", false);
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
 
@@ -223,7 +223,7 @@ report 11405 "Submit Elec. Tax Declaration"
                     AppendElement(Parent, ElecTaxDeclarationLine, NewNode);
 
                     // Append child lines recursively
-                    ElecTaxDeclarationLine.Reset;
+                    ElecTaxDeclarationLine.Reset();
                     ElecTaxDeclarationLine.SetCurrentKey("Declaration Type", "Declaration No.", "Parent Line No.");
                     ElecTaxDeclarationLine.SetRange("Declaration Type", ElecTaxDeclarationLine."Declaration Type");
                     ElecTaxDeclarationLine.SetRange("Declaration No.", ElecTaxDeclarationLine."Declaration No.");

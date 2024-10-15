@@ -99,7 +99,7 @@ table 11000000 "Proposal Line"
                 if DetailLine.FindSet then
                     repeat
                         DetailLine.Date := "Transaction Date";
-                        DetailLine.Modify;
+                        DetailLine.Modify();
                     until DetailLine.Next = 0;
             end;
         }
@@ -611,7 +611,7 @@ table 11000000 "Proposal Line"
         while "Detail line".Find('-') do begin
             "Detail line"."Our Bank" := "Our Bank No.";
             "Detail line"."Connect Lines" := "Line No.";
-            "Detail line".Modify;
+            "Detail line".Modify();
         end;
     end;
 
@@ -683,7 +683,7 @@ table 11000000 "Proposal Line"
     [Scope('OnPrem')]
     procedure DetailFilter(var "Detail line": Record "Detail Line"; ProposalFilterRecord: Record "Proposal Line")
     begin
-        "Detail line".Reset;
+        "Detail line".Reset();
         "Detail line".SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines");
         "Detail line".SetRange("Our Bank", ProposalFilterRecord."Our Bank No.");
         "Detail line".SetRange(Status, "Detail line".Status::Proposal);

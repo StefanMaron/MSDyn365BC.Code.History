@@ -79,7 +79,7 @@ codeunit 138054 "O365 Test Update Cust. Addr."
         Customer.Address := Format(CreateGuid);
         Customer.City := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.City));
         Customer."Post Code" := PostCode;
-        Customer.Modify;
+        Customer.Modify();
 
         Addr1 := Format(CreateGuid);
         City := CopyStr(Format(CreateGuid), 1, MaxStrLen(City));
@@ -116,11 +116,11 @@ codeunit 138054 "O365 Test Update Cust. Addr."
     begin
         PostCode.SetRange(Code, NewPostCode);
         if PostCode.FindFirst then
-            PostCode.DeleteAll;
-        PostCode.Init;
+            PostCode.DeleteAll();
+        PostCode.Init();
         PostCode.Validate(Code, NewPostCode);
         PostCode.Validate(City, NewCity);
-        if PostCode.Insert then;
+        if PostCode.Insert() then;
     end;
 
     [ModalPageHandler]

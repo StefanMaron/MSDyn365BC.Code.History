@@ -921,7 +921,7 @@ codeunit 139016 "File Mgt. Tests"
         ClientFileName := FileMgt.ClientTempFileName('');
         ClientDirectoryName := FileMgt.GetDirectoryName(ClientFileName);
         FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, ClientDirectoryName);
-        InitialFilesCount := TempNameValueBuffer.Count;
+        InitialFilesCount := TempNameValueBuffer.Count();
 
         // [WHEN] Create client file
         ClientFileName := FileMgt.ClientTempFileName('');

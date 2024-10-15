@@ -39,7 +39,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
             CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
             CFWorksheetLine.SetRange("Cash Flow Forecast No.", "No.");
-            CounterBefore := CFWorksheetLine.Count;
+            CounterBefore := CFWorksheetLine.Count();
             CFWorksheetLine.CalcSums("Amount (LCY)");
             AmountBefore := CFWorksheetLine."Amount (LCY)";
 
@@ -48,7 +48,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
             // Validate results
             CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
             CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-            CounterAfter := CFForecastEntry.Count;
+            CounterAfter := CFForecastEntry.Count();
             CFForecastEntry.CalcSums("Amount (LCY)");
             AmountAfter := CFForecastEntry."Amount (LCY)";
 
@@ -74,7 +74,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
             CFAccountComment."No." := "No.";
             CFAccountComment."Line No." := 1;
             CFAccountComment.Comment := "No.";
-            CFAccountComment.Insert;
+            CFAccountComment.Insert();
 
             ConsiderAllSources(ConsiderSource);
             CFHelper.FillJournal(ConsiderSource, "No.", false);
@@ -86,7 +86,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
             Delete(true);
 
             // Validate results
-            CFAccountComment.Reset;
+            CFAccountComment.Reset();
             CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
             CFAccountComment.SetRange("No.", "No.");
             Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption));
@@ -111,7 +111,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
         // Exercise
         CFWorksheetLine.Validate("G/L Budget Name", '');
-        CFWorksheetLine.Modify;
+        CFWorksheetLine.Modify();
 
         // Verify
         asserterror LibraryCF.PostJournalLines(CFWorksheetLine);
@@ -133,7 +133,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
 
         // Exercise
         CFWorksheetLine.Validate("Source Type", LibraryRandom.RandIntInRange(1, CFWorksheetLine."Source Type"::"G/L Budget" - 1));
-        CFWorksheetLine.Modify;
+        CFWorksheetLine.Modify();
         LibraryCF.PostJournalLines(CFWorksheetLine);
 
         // Verify

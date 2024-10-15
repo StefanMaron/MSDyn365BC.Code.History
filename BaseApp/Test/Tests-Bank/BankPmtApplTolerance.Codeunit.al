@@ -1545,7 +1545,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
     end;
 

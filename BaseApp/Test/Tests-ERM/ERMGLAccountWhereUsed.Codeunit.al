@@ -38,7 +38,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         // [GIVEN] Customer Posting Group with "Invoice Rounding Account" = "G"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        CustomerPostingGroup.Modify;
+        CustomerPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
         CalcGLAccWhereUsed.CheckGLAcc(CustomerPostingGroup."Invoice Rounding Account");
@@ -61,7 +61,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         // [GIVEN] Vendor Posting Group with "Invoice Rounding Account" = "G"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
         VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        VendorPostingGroup.Modify;
+        VendorPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
         CalcGLAccWhereUsed.CheckGLAcc(VendorPostingGroup."Invoice Rounding Account");
@@ -86,10 +86,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [GIVEN] Job Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
-        JobPostingGroup.Init;
+        JobPostingGroup.Init();
         JobPostingGroup.Code := LibraryUtility.GenerateGUID;
         JobPostingGroup."WIP Costs Account" := GLAccount."No.";
-        JobPostingGroup.Insert;
+        JobPostingGroup.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -149,7 +149,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         GLAccount.Modify(true);
@@ -178,10 +178,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [GIVEN] Employee Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
-        EmployeePostingGroup.Init;
+        EmployeePostingGroup.Init();
         EmployeePostingGroup.Code := LibraryUtility.GenerateGUID;
         EmployeePostingGroup."Payables Account" := GLAccount."No.";
-        EmployeePostingGroup.Insert;
+        EmployeePostingGroup.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -239,7 +239,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate("Bal. Account No.", GLAccount."No.");
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -267,7 +267,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate("Bal. Account Type", GenJournalTemplate."Bal. Account Type"::"Bank Account");
         GenJournalTemplate."Bal. Account No." := GLAccount."No.";
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -293,7 +293,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -338,7 +338,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
           GenJournalBatch.Name,
           GenJournalLine."Line No.");
         GenJnlAllocation.Validate("Account No.", GLAccount."No.");
-        GenJnlAllocation.Modify;
+        GenJnlAllocation.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -378,7 +378,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
         GeneralPostingSetup.Validate("Sales Account", GLAccount."No.");
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -396,7 +396,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
     end;
 
     [Test]
-    [HandlerFunctions('WhereUsedHandler')]
+    [HandlerFunctions('MultilineGLAccountWhereUsedListModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckBankAccountPostingGroup()
     var
@@ -408,15 +408,19 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [GIVEN] Bank Account Posting Group with G/L Account "G"
         LibraryERM.CreateGLAccount(GLAccount);
-        BankAccountPostingGroup.Init;
+        BankAccountPostingGroup.Init();
         BankAccountPostingGroup.Code := LibraryUtility.GenerateGUID;
         BankAccountPostingGroup."G/L Account No." := GLAccount."No.";
-        BankAccountPostingGroup.Insert;
+        BankAccountPostingGroup.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
 
         // [THEN] Bank Account Posting Group is shown on "G/L Account Where-Used List"
+        ValidateWhereUsedRecord(
+          BankAccountPostingGroup.TableCaption,
+          BankAccountPostingGroup.FieldCaption("G/L Bank Account No."),
+          StrSubstNo('%1=%2', BankAccountPostingGroup.FieldCaption(Code), BankAccountPostingGroup.Code));
         ValidateWhereUsedRecord(
           BankAccountPostingGroup.TableCaption,
           BankAccountPostingGroup.FieldCaption("G/L Account No."),
@@ -442,7 +446,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -474,7 +478,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         FAPostingGroup.Validate("Acquisition Cost Account", GLAccount."No.");
-        FAPostingGroup.Modify;
+        FAPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -503,7 +507,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAAllocation(FAAllocation, FAPostingGroup.Code, FAAllocation."Allocation Type"::Acquisition);
         FAAllocation.Validate("Account No.", GLAccount."No.");
-        FAAllocation.Modify;
+        FAAllocation.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -541,7 +545,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
         InventoryPostingSetup.Validate("Inventory Account", GLAccount."No.");
-        InventoryPostingSetup.Modify;
+        InventoryPostingSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -573,7 +577,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", GLAccount."No.");
-        ServiceContractAccountGroup.Modify;
+        ServiceContractAccountGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -600,7 +604,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateICPartner(ICPartner);
         ICPartner.Validate("Receivables Account", GLAccount."No.");
-        ICPartner.Modify;
+        ICPartner.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -627,7 +631,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account No.", GLAccount."No.");
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -750,7 +754,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Exch. Rate Losses Acc.", GLAccount."No.");
-        BusinessUnit.Modify;
+        BusinessUnit.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -775,10 +779,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [GIVEN] Cash Flow Setup with G/L Account "G"
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.Validate("Tax Bal. Account Type", CashFlowSetup."Tax Bal. Account Type"::"G/L Account");
         CashFlowSetup.Validate("Tax Bal. Account No.", GLAccount."No.");
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
@@ -803,10 +807,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
         BindSubscription(ERMGLAccountWhereUsed);
 
         // [GIVEN] Some extension table "Table With Link to G/L Account" with link to G/L Account "G"
-        TableWithLinkToGLAccount.Init;
+        TableWithLinkToGLAccount.Init();
         TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID;
         TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo;
-        TableWithLinkToGLAccount.Insert;
+        TableWithLinkToGLAccount.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         CalcGLAccWhereUsed.CheckGLAcc(TableWithLinkToGLAccount."Account No.");
@@ -832,10 +836,10 @@ codeunit 134093 "ERM G/L Account Where-Used"
         BindSubscription(ERMGLAccountWhereUsed);
 
         // [GIVEN] Some extension table "Table With Link to G/L Account" with link to G/L Account "G"
-        TableWithLinkToGLAccount.Init;
+        TableWithLinkToGLAccount.Init();
         TableWithLinkToGLAccount.Code := LibraryUtility.GenerateGUID;
         TableWithLinkToGLAccount."Account No." := LibraryERM.CreateGLAccountNo;
-        TableWithLinkToGLAccount.Insert;
+        TableWithLinkToGLAccount.Insert();
 
         // [WHEN] Run Where-Used function for G/L Account "G"
         TableWithLinkToGLAccountPage.Trap;
@@ -862,18 +866,18 @@ codeunit 134093 "ERM G/L Account Where-Used"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Freight G/L Acc. No.", AccountNo);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     local procedure UpdatPurchSetupDebitAccforNonItemLines(AccountNo: Code[20])
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Debit Acc. for Non-Item Lines", AccountNo);
-        PurchSetup.Modify;
+        PurchSetup.Modify();
     end;
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
@@ -892,6 +896,20 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
         GLAccountWhereUsedList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MultilineGLAccountWhereUsedListModalPageHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
+    begin
+        GLAccountWhereUsedList.First();
+        repeat
+            LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
+            LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
+            LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
+        until (not GLAccountWhereUsedList.Next());
+
+        GLAccountWhereUsedList.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -924,7 +942,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
     local procedure OnAfterFillTableBuffer(var TableBuffer: Record "Integer")
     begin
         TableBuffer.Number := DATABASE::"Table With Link To G/L Account";
-        TableBuffer.Insert;
+        TableBuffer.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 100, 'OnShowExtensionPage', '', false, false)]

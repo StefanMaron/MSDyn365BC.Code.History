@@ -1,4 +1,4 @@
-﻿page 5802 "Value Entries"
+page 5802 "Value Entries"
 {
     AdditionalSearchTerms = 'costing,inventory cost,inventory valuation';
     ApplicationArea = Basic, Suite;
@@ -497,7 +497,7 @@
                 end;
             GetFilter("Global Dimension 1 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 1 Code";
                     SourceFilter := GetFilter("Global Dimension 1 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
@@ -507,7 +507,7 @@
                 end;
             GetFilter("Global Dimension 2 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 2 Code";
                     SourceFilter := GetFilter("Global Dimension 2 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);

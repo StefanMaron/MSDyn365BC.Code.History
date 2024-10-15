@@ -92,9 +92,9 @@ table 5311 "Outlook Synch. Dependency"
     begin
         CheckUserSetup;
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -111,9 +111,9 @@ table 5311 "Outlook Synch. Dependency"
     begin
         CheckUserSetup;
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
         Condition := '';
         "Table Relation" := '';
     end;
@@ -128,7 +128,7 @@ table 5311 "Outlook Synch. Dependency"
     var
         OSynchDependency: Record "Outlook Synch. Dependency";
     begin
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", DependSynchEntityCode);
         OSynchDependency.SetRange("Depend. Synch. Entity Code", SynchEntityCode);
         if OSynchDependency.Find('-') then
@@ -150,7 +150,7 @@ table 5311 "Outlook Synch. Dependency"
         OSynchUserSetup: Record "Outlook Synch. User Setup";
         OSynchSetupDetail: Record "Outlook Synch. Setup Detail";
     begin
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("Synch. Entity Code", "Synch. Entity Code");
         if not OSynchUserSetup.Find('-') then
             exit;

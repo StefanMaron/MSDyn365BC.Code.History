@@ -10,7 +10,7 @@ codeunit 2130 "O365 Excel Import Management"
 
     procedure ImportData(var ExcelBuffer: Record "Excel Buffer"; var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; StartRowNo: Integer; ObjectType: Option Customer,Item): Integer
     begin
-        ExcelBuffer.Reset;
+        ExcelBuffer.Reset();
         case ObjectType of
             ObjectType::Customer:
                 exit(ImportCustomers(ExcelBuffer, O365FieldExcelMapping, StartRowNo));
@@ -31,7 +31,7 @@ codeunit 2130 "O365 Excel Import Management"
             ExcelBuffer.SetRange("Row No.", i);
             InitNewCustomerRecordRef(RecRef, i);
             FillRecordRefFromExcelBuffer(ExcelBuffer, O365FieldExcelMapping, RecRef);
-            RecRef.Insert;
+            RecRef.Insert();
         end;
 
         CreateCustomersFromBuffer(TempCustomer);
@@ -50,7 +50,7 @@ codeunit 2130 "O365 Excel Import Management"
             ExcelBuffer.SetRange("Row No.", i);
             InitNewItemRecordRef(RecRef, i);
             FillRecordRefFromExcelBuffer(ExcelBuffer, O365FieldExcelMapping, RecRef);
-            RecRef.Insert;
+            RecRef.Insert();
         end;
 
         CreateItemsFromBuffer(TempItem);
@@ -59,7 +59,7 @@ codeunit 2130 "O365 Excel Import Management"
 
     local procedure GetLastRowNo(var ExcelBuffer: Record "Excel Buffer"): Integer
     begin
-        ExcelBuffer.Reset;
+        ExcelBuffer.Reset();
         ExcelBuffer.FindLast;
         exit(ExcelBuffer."Row No.");
     end;
@@ -71,7 +71,7 @@ codeunit 2130 "O365 Excel Import Management"
         O365FieldExcelMapping.SetRange("Excel Column No.", ExcelBuffer."Column No.");
         if O365FieldExcelMapping.FindFirst then begin
             FieldRef := RecRef.Field(O365FieldExcelMapping."Field ID");
-            if Format(FieldRef.Type) = 'Decimal' then
+            if FieldRef.Type = FieldType::Decimal then
                 TryEvaluateTextToDecimal(ExcelBuffer."Cell Value as Text");
             FieldRef.Value := CopyStr(ExcelBuffer."Cell Value as Text", 1, FieldRef.Length);
         end;
@@ -90,7 +90,7 @@ codeunit 2130 "O365 Excel Import Management"
         DummyCustomer: Record Customer;
         FieldRef: FieldRef;
     begin
-        RecRef.Init;
+        RecRef.Init();
         FieldRef := RecRef.Field(DummyCustomer.FieldNo("No."));
         FieldRef.Value := Format(RowNo);
     end;
@@ -100,7 +100,7 @@ codeunit 2130 "O365 Excel Import Management"
         DummyItem: Record Item;
         FieldRef: FieldRef;
     begin
-        RecRef.Init;
+        RecRef.Init();
         FieldRef := RecRef.Field(DummyItem.FieldNo("No."));
         FieldRef.Value := Format(RowNo);
     end;
@@ -205,7 +205,7 @@ codeunit 2130 "O365 Excel Import Management"
                 O365FieldExcelMapping.CalcFields("Field Name");
                 if LowerCase(O365FieldExcelMapping."Field Name") = LowerCase(ExcelBuffer."Cell Value as Text") then begin
                     O365FieldExcelMapping."Excel Column No." := ExcelBuffer."Column No.";
-                    O365FieldExcelMapping.Modify;
+                    O365FieldExcelMapping.Modify();
                     exit(true);
                 end;
             until O365FieldExcelMapping.Next = 0;
@@ -217,7 +217,7 @@ codeunit 2130 "O365 Excel Import Management"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         O365SalesInitialSetup.TestField("Default Customer Template");
         ConfigTemplateHeader.Get(O365SalesInitialSetup."Default Customer Template");
     end;
@@ -226,7 +226,7 @@ codeunit 2130 "O365 Excel Import Management"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         O365SalesInitialSetup.TestField("Default Item Template");
         ConfigTemplateHeader.Get(O365SalesInitialSetup."Default Item Template");
     end;

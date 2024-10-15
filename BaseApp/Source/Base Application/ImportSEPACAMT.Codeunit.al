@@ -97,7 +97,7 @@ codeunit 11404 "Import SEPA CAMT"
 
     local procedure CreateCBGStatementLineTemplate(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement"; DataExch: Record "Data Exch.")
     begin
-        CBGStatementLine.Init;
+        CBGStatementLine.Init();
         CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
         CBGStatementLine."No." := CBGStatement."No.";
         CBGStatementLine."Data Exch. Entry No." := DataExch."Entry No.";

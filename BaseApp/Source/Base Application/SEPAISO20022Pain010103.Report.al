@@ -24,8 +24,8 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             trigger OnPreDataItem()
             begin
                 if "Payment History".FindSet(true) then;
-                CompanyInfo.Get;
-                GLSetup.Get;
+                CompanyInfo.Get();
+                GLSetup.Get();
             end;
         }
     }

@@ -282,16 +282,16 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Customer then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if ("CBG Statement Line"."Applies-to ID" = '') and
                            ("CBG Statement Line"."Account No." <> '') and
                            ("CBG Statement Line"."Applies-to Doc. No." <> '') and
                            ("CBG Statement Line"."Applies-to Doc. Type" <> "CBG Statement Line"."Applies-to Doc. Type"::" ")
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
@@ -343,9 +343,9 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Customer then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(VendEntryApplyID; "Vendor Ledger Entry")
@@ -390,16 +390,16 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if ("CBG Statement Line"."Applies-to ID" = '') and
                            ("CBG Statement Line"."Account No." <> '') and
                            ("CBG Statement Line"."Applies-to Doc. No." <> '') and
                            ("CBG Statement Line"."Applies-to Doc. Type" <> "CBG Statement Line"."Applies-to Doc. Type"::" ")
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
@@ -451,9 +451,9 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(EmplEntryApplyID; "Employee Ledger Entry")
@@ -495,15 +495,15 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Employee then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if ("CBG Statement Line"."Applies-to ID" = '') and
                            ("CBG Statement Line"."Account No." <> '') and
                            ("CBG Statement Line"."Applies-to Doc. No." <> '')
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
@@ -552,9 +552,9 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement Line"."Account Type" <> "CBG Statement Line"."Account Type"::Employee then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Payment History Line"; "Payment History Line")
@@ -636,7 +636,7 @@ report 11400 "CBG Posting - Test"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Customer then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem(VendEntryDetail; "Vendor Ledger Entry")
@@ -683,7 +683,7 @@ report 11400 "CBG Posting - Test"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Vendor then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem(EmplEntryDetail; "Employee Ledger Entry")
@@ -727,7 +727,7 @@ report 11400 "CBG Posting - Test"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Employee then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                     }
@@ -735,9 +735,9 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if "CBG Statement".Type <> "CBG Statement".Type::"Bank/Giro" then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Integer"; "Integer")
@@ -747,9 +747,9 @@ report 11400 "CBG Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ApplyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if not HeaderPrinted then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         HeaderPrinted := false;
                     end;
                 }

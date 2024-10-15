@@ -54,7 +54,7 @@ table 11000003 "Detail Line"
                                       CustLedgEntry."Document No.",
                                       Cust."Our Account No."), 1, MaxStrLen(Description))
                             else begin
-                                CompanyInfo.Get;
+                                CompanyInfo.Get();
                                 Description :=
                                   CopyStr(
                                     StrSubstNo(
@@ -92,7 +92,7 @@ table 11000003 "Detail Line"
                                       VendLedgEntry."External Document No.",
                                       Vend."Our Account No."), 1, MaxStrLen(Description))
                             else begin
-                                CompanyInfo.Get;
+                                CompanyInfo.Get();
                                 Description :=
                                   CopyStr(
                                     StrSubstNo(
@@ -121,7 +121,7 @@ table 11000003 "Detail Line"
                             EmployeeLedgerEntry.TestField("Employee No.", "Account No.");
                             "Currency Code (Entry)" := EmployeeLedgerEntry."Currency Code";
                             Empl.Get(EmployeeLedgerEntry."Employee No.");
-                            CompanyInfo.Get;
+                            CompanyInfo.Get();
                             Description :=
                               CopyStr(
                                 StrSubstNo(
@@ -250,6 +250,9 @@ table 11000003 "Detail Line"
                                 "Remaining Amount" := -CustLedgEntry."Remaining Amount"
                             else
                                 "Remaining Amount" := 0;
+
+                            if IsDifferentSign("Remaining Amount", "Amount (Entry)") then
+                                Error(StrSubstNo(AmountSignErr, CustLedgEntry.TableCaption, CustLedgEntry.FieldCaption("Entry No."), CustLedgEntry."Entry No."));
                         end;
                     "Account Type"::Vendor:
                         begin
@@ -257,6 +260,9 @@ table 11000003 "Detail Line"
                                 "Remaining Amount" := -VendLedgEntry."Remaining Amount"
                             else
                                 "Remaining Amount" := 0;
+
+                            if IsDifferentSign("Remaining Amount", "Amount (Entry)") then
+                                Error(StrSubstNo(AmountSignErr, VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Entry No."), VendLedgEntry."Entry No."));
                         end;
                     "Account Type"::Employee:
                         begin
@@ -264,19 +270,15 @@ table 11000003 "Detail Line"
                                 "Remaining Amount" := -EmployeeLedgerEntry."Remaining Amount"
                             else
                                 "Remaining Amount" := 0;
+
+                            if IsDifferentSign("Remaining Amount", "Amount (Entry)") then
+                                Error(StrSubstNo(AmountSignErr, EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry.FieldCaption("Entry No."), EmployeeLedgerEntry."Entry No."));
                         end;
                 end;
 
-                if (("Remaining Amount" < 0) and ("Amount (Entry)" > 0)) or
-                   (("Remaining Amount" > 0) and ("Amount (Entry)" < 0))
-                then
-                    Error(Text1000003);
-
                 Difference := "Remaining Amount" - (CalculateTotalAmount("Currency Code (Entry)") + "Amount (Entry)");
                 if Abs(Difference) > Abs(CalculateVariation) then
-                    if (("Remaining Amount" < 0) and (Difference > 0)) or
-                       (("Remaining Amount" > 0) and (Difference < 0))
-                    then
+                    if IsDifferentSign("Remaining Amount", Difference) then
                         Message(Text1000004, DelChr(Format(Abs(Difference)) + ' ' + "Currency Code (Entry)", '<>', ' '));
 
                 if not AmountValidate then begin
@@ -362,6 +364,7 @@ table 11000003 "Detail Line"
         AmountValidate: Boolean;
         EntryCurrency: Record Currency;
         BankCur: Record Currency;
+        AmountSignErr: Label 'The sign does not correspond with the outstanding %1 %2 %3.', Comment = '%1 - table caption, %2 - field caption, %3 - field value';
 
     procedure CalculateBalance(UseCurrency: Code[10]) Balance: Decimal
     begin
@@ -475,7 +478,7 @@ table 11000003 "Detail Line"
                             Prop."Transaction Date" := "Detail line".Date;
                     end else
                         Prop."Transaction Date" := Date;
-                    Prop.Modify;
+                    Prop.Modify();
                 end;
         end;
     end;
@@ -549,7 +552,7 @@ table 11000003 "Detail Line"
                         CustEntry.GetRecord(CustLedgEntry);
                         Validate("Serial No. (Entry)", CustLedgEntry."Entry No.");
                     end;
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                 end;
             "Account Type"::Vendor:
                 begin
@@ -566,7 +569,7 @@ table 11000003 "Detail Line"
                         VenEntry.GetRecord(VendLedgEntry);
                         Validate("Serial No. (Entry)", VendLedgEntry."Entry No.");
                     end;
-                    VendLedgEntry.Reset;
+                    VendLedgEntry.Reset();
                 end;
             "Account Type"::Employee:
                 begin
@@ -583,9 +586,14 @@ table 11000003 "Detail Line"
                         EmployeeLedgerEntries2.GetRecord(EmployeeLedgerEntry);
                         Validate("Serial No. (Entry)", EmployeeLedgerEntry."Entry No.");
                     end;
-                    EmployeeLedgerEntry.Reset;
+                    EmployeeLedgerEntry.Reset();
                 end;
         end;
+    end;
+
+    local procedure IsDifferentSign(FirstAmount: Decimal; SecondAmount: Decimal): Boolean
+    begin
+        exit(((FirstAmount < 0) and (SecondAmount > 0)) or ((FirstAmount > 0) and (SecondAmount < 0)));
     end;
 
     [IntegrationEvent(false, false)]

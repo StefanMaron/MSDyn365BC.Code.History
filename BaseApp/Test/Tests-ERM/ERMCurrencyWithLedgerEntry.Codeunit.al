@@ -146,7 +146,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Currency With Ledger Entry");
     end;
 

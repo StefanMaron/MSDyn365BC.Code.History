@@ -52,23 +52,23 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
         if InventorySetup."Item Nos." <> ItemNoSeries then begin
             InventorySetup.Validate("Item Nos.", ItemNoSeries);
-            InventorySetup.Modify;
+            InventorySetup.Modify();
         end;
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Invoice/Cr.M");
     end;
 
@@ -80,9 +80,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll;
+                ResLedgerEntry.DeleteAll();
             DATABASE::"Warehouse Entry":
-                WarehouseEntry.DeleteAll;
+                WarehouseEntry.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -1337,14 +1337,14 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         LibrarySmallBusiness.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CheckExistOrAddCurrencyExchageRate(CurrencyCode: Code[10])
@@ -1517,7 +1517,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     var
         Currency: Record Currency;
     begin
-        Currency.Init;
+        Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
         Currency.FindFirst;
         CheckExistOrAddCurrencyExchageRate(Currency.Code);

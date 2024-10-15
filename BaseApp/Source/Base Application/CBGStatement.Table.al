@@ -332,7 +332,7 @@ table 11400 "CBG Statement"
     [Scope('OnPrem')]
     procedure LineFilter(var CBGStatementLine: Record "CBG Statement Line")
     begin
-        CBGStatementLine.Reset;
+        CBGStatementLine.Reset();
         CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
         CBGStatementLine.SetRange("No.", "No.");
     end;
@@ -343,7 +343,7 @@ table 11400 "CBG Statement"
         DocumentType: Option;
     begin
         DocumentType := GenJnlLine."Document Type";
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Journal Template Name" := "Journal Template Name";
         GenJnlLine."Journal Batch Name" := DefaultJnlBatchNameTxt;
@@ -396,7 +396,7 @@ table 11400 "CBG Statement"
             then begin
                 "Closing Balance" := "Opening Balance" - "Net Change Debit" + "Net Change Credit";
                 Modify;
-                Commit;
+                Commit();
             end else
                 Error(Text1000008);
     end;
@@ -427,7 +427,7 @@ table 11400 "CBG Statement"
         StatusCounter := 0;
         LineFilter(CBGStatementLine);
         CBGStatementLine.SetCurrentKey("Journal Template Name", "No.");
-        NumberOfLines := CBGStatementLine.Count;
+        NumberOfLines := CBGStatementLine.Count();
 
         GenJournalTemplate.Get("Journal Template Name");
         GenJournalTemplate.TestField("Source Code");
@@ -436,7 +436,7 @@ table 11400 "CBG Statement"
             repeat
                 Counter := CBGStatementLine."Line No.";
                 AmountVV := CBGStatementLine."Debit Incl. VAT" - CBGStatementLine."Credit Incl. VAT";
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 CBGStatementLine.CreateGenJournalLine(GenJnlLine);
                 AmountLV := GenJnlLine."Amount (LCY)";
                 GenJnlLine."Line No." := Counter;
@@ -454,7 +454,7 @@ table 11400 "CBG Statement"
                         GenJnlLine.Validate("Shortcut Dimension 2 Code", CBGStatementLine."Shortcut Dimension 2 Code");
                     if CBGStatementLine."Dimension Set ID" <> 0 then
                         GenJnlLine."Dimension Set ID" := CBGStatementLine."Dimension Set ID";
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                     OnAfterInsertGenJnlLine(Rec, CBGStatementLine, GenJnlLine);
                 end;
                 if CBGStatementLine.Identification <> '' then begin
@@ -481,10 +481,10 @@ table 11400 "CBG Statement"
                     GenJnlLine.Validate("Shortcut Dimension 2 Code", "Shortcut Dimension 2 Code");
                 if "Dimension Set ID" <> 0 then
                     GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
 
                 if GenJnlLine.Find('-') then begin
-                    NumberOfLines := GenJnlLine.Count;
+                    NumberOfLines := GenJnlLine.Count();
                     repeat
                         GenJnlPostLine.RunWithCheck(GenJnlLine);
                     until GenJnlLine.Next = 0;
@@ -495,13 +495,13 @@ table 11400 "CBG Statement"
         if "Account Type" = "Account Type"::"Bank Account" then
             if BankAcct.Get("Account No.") then begin
                 BankAcct."Balance Last Statement" := "Closing Balance";
-                BankAcct.Modify;
+                BankAcct.Modify();
             end;
 
         OnAfterProcessStatementASGenJournal(Rec);
 
         Delete(true);
-        Commit;
+        Commit();
         UpdateAnalysisView.UpdateAll(0, true);
         Status.Close;
     end;
@@ -547,10 +547,10 @@ table 11400 "CBG Statement"
             UpdateLines := true;
         end;
         if CBGStatementLinesExist then begin
-            CBGStatementLine.LockTable;
+            CBGStatementLine.LockTable();
             Modify;
 
-            CBGStatementLine.Reset;
+            CBGStatementLine.Reset();
             CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
             CBGStatementLine.SetRange("No.", "No.");
             if CBGStatementLine.FindSet then
@@ -566,7 +566,7 @@ table 11400 "CBG Statement"
     [Scope('OnPrem')]
     procedure CBGStatementLinesExist(): Boolean
     begin
-        CBGStatementLine.Reset;
+        CBGStatementLine.Reset();
         CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
         CBGStatementLine.SetRange("No.", "No.");
         exit(CBGStatementLine.FindFirst);

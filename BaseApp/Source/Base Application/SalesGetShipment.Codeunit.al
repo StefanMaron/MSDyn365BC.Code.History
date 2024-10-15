@@ -44,7 +44,7 @@ codeunit 64 "Sales-Get Shipment"
             SetFilter("Qty. Shipped Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(SalesShptLine2);
             if FindSet then begin
-                SalesLine.LockTable;
+                SalesLine.LockTable();
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
                 OnCreateInvLinesOnAfterSalesShptLineSetFilters(SalesShptLine2, SalesHeader);
@@ -116,8 +116,8 @@ codeunit 64 "Sales-Get Shipment"
         if not SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.") then
             exit;
 
-        ItemChargeAssgntSales.LockTable;
-        ItemChargeAssgntSales.Reset;
+        ItemChargeAssgntSales.LockTable();
+        ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", SalesOrderLine."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesOrderLine."Document No.");
         ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
@@ -197,7 +197,7 @@ codeunit 64 "Sales-Get Shipment"
                         end;
 
                         if InsertChargeAssgnt and (ItemChargeAssgntSales2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntSales2.Insert;
+                            ItemChargeAssgntSales2.Insert();
                             QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
                         end;
                     end;
@@ -224,7 +224,7 @@ codeunit 64 "Sales-Get Shipment"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Calc. Inv. Discount" then begin
             SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine);
             OnAfterCalcInvoiceDiscount(SalesLine);
@@ -257,7 +257,7 @@ codeunit 64 "Sales-Get Shipment"
     begin
         if Round(RoundingAmount) <> 0 then begin
             SalesLine."Prepmt Amt to Deduct" -= Round(RoundingAmount);
-            SalesLine.Modify;
+            SalesLine.Modify();
         end;
     end;
 

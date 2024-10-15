@@ -616,7 +616,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
 
         MainDefinitionFile.Close;
         AlternativeNamespaceDefinitionFile.Close;
@@ -701,7 +701,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
 
         MainDefinitionFile.Close;
         InfiniteLoopDefinitionFile.Close;
@@ -802,7 +802,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
 
         MainDefinitionFile.Close;
         AlternativeNamespaceDefinitionFile.Close;
@@ -868,7 +868,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
 
         MainDefinitionFile.Close;
         AlternativeNamespaceDefinitionFile.Close;
@@ -937,7 +937,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
 
         MainDefinitionFile.Close;
         AlternativeNamespaceDefinitionFile.Close;
@@ -983,7 +983,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement.ModifyAll(Selected, true);
         XMLSchemaElement.FindFirst;
         XMLSchemaElement.Validate(Selected, false);
-        XMLSchemaElement.Modify;
+        XMLSchemaElement.Modify();
         if DataExchDef.Get(XMLSchema.Code) then
             DataExchDef.Delete(true);
 
@@ -1171,10 +1171,10 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaRestriction: Record "XML Schema Restriction";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM - Test XML Schema Viewer");
-        XMLSchema.DeleteAll;
-        XMLSchemaElement.DeleteAll;
-        ReferencedXMLSchema.DeleteAll;
-        XMLSchemaRestriction.DeleteAll;
+        XMLSchema.DeleteAll();
+        XMLSchemaElement.DeleteAll();
+        ReferencedXMLSchema.DeleteAll();
+        XMLSchemaRestriction.DeleteAll();
     end;
 
     local procedure LoadSchemaFile(var XMLSchema: Record "XML Schema")
@@ -1182,16 +1182,16 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XSDParser: Codeunit "XSD Parser";
     begin
         XSDParser.LoadSchema(XMLSchema);
-        XMLSchema.Modify;
+        XMLSchema.Modify();
     end;
 
     local procedure CreateXMLSchemaRecord(var XMLSchema: Record "XML Schema"; var OutStream: OutStream)
     begin
-        XMLSchema.Init;
+        XMLSchema.Init();
         XMLSchema.Code := 'TEST';
         XMLSchema.Description := 'Test schema';
         XMLSchema.XSD.CreateOutStream(OutStream);
-        XMLSchema.Insert;
+        XMLSchema.Insert();
     end;
 
     local procedure CreateSchemaFile(var OutStr: OutStream)

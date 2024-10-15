@@ -66,7 +66,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
         NumberOfDocumentNumbers := NumberOfDocumentNumbers + 1;
         if CBGStatementLine.Find('-') then begin
-            NumberOfLines := CBGStatementLine.Count;
+            NumberOfLines := CBGStatementLine.Count();
             StatusWindowOpen;
             repeat
                 LineCounter := LineCounter + 1;
@@ -136,7 +136,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                 case CBGStatementLine."Account Type" of
                     CBGStatementLine."Account Type"::Customer:
                         begin
-                            CustLedgerEntry.Reset;
+                            CustLedgerEntry.Reset();
                             CustLedgerEntry.SetCurrentKey("Customer No.", Open);
                             CustLedgerEntry.SetRange("Customer No.", CBGStatementLine."Account No.");
                             CustLedgerEntry.SetRange(Open, true);
@@ -167,7 +167,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                         end;
                     CBGStatementLine."Account Type"::Vendor:
                         begin
-                            VendorLedgerEntry.Reset;
+                            VendorLedgerEntry.Reset();
                             VendorLedgerEntry.SetCurrentKey("Vendor No.", Open);
                             VendorLedgerEntry.SetRange("Vendor No.", CBGStatementLine."Account No.");
                             VendorLedgerEntry.SetRange(Open, true);
@@ -198,7 +198,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                         end;
                     CBGStatementLine."Account Type"::Employee:
                         begin
-                            EmployeeLedgerEntry.Reset;
+                            EmployeeLedgerEntry.Reset();
                             EmployeeLedgerEntry.SetCurrentKey("Employee No.", Open);
                             EmployeeLedgerEntry.SetRange("Employee No.", CBGStatementLine."Account No.");
                             EmployeeLedgerEntry.SetRange(Open, true);
@@ -284,10 +284,10 @@ codeunit 11000006 "CBG Statement Reconciliation"
         if TempReconciliationBuffer.Find('-') then
             repeat
                 NameResultTemp := TempReconciliationBuffer;
-                NameResultTemp.Insert;
+                NameResultTemp.Insert();
             until TempReconciliationBuffer.Next = 0;
 
-        TempReconciliationBuffer.Reset;
+        TempReconciliationBuffer.Reset();
         TempReconciliationBuffer.SetRange("Source Type", "Source Type");
         TempReconciliationBuffer.SetRange("Data Type", TempReconciliationBuffer."Data Type"::Street);
         TempReconciliationBuffer.SetRange(Word, CopyStr(Address, 1, MaxStrLen(TempReconciliationBuffer.Word)));
@@ -297,11 +297,11 @@ codeunit 11000006 "CBG Statement Reconciliation"
                 NameResultTemp.SetRange("Source No.", TempReconciliationBuffer."Source No.");
                 if NameResultTemp.FindFirst then begin
                     AddressResultTemp := NameResultTemp;
-                    AddressResultTemp.Insert;
+                    AddressResultTemp.Insert();
                 end;
             until TempReconciliationBuffer.Next = 0;
 
-        TempReconciliationBuffer.Reset;
+        TempReconciliationBuffer.Reset();
         TempReconciliationBuffer.SetRange("Source Type", "Source Type");
         TempReconciliationBuffer.SetRange("Data Type", TempReconciliationBuffer."Data Type"::City);
         TempReconciliationBuffer.SetRange(Word, CopyStr(City, 1, MaxStrLen(TempReconciliationBuffer.Word)));
@@ -311,7 +311,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                 AddressResultTemp.SetRange("Source No.", TempReconciliationBuffer."Source No.");
                 if AddressResultTemp.FindFirst then begin
                     CityResultTemp := AddressResultTemp;
-                    CityResultTemp.Insert;
+                    CityResultTemp.Insert();
                 end;
             until TempReconciliationBuffer.Next = 0;
 
@@ -327,9 +327,9 @@ codeunit 11000006 "CBG Statement Reconciliation"
         RecNumerator: Integer;
     begin
         BankAccountCharsToKeep := 'ABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789';
-        TempReconciliationBuffer.Reset;
+        TempReconciliationBuffer.Reset();
         if not TempReconciliationBuffer.Find('-') then begin
-            NumberRec := Customer.Count + Vendor.Count + CustomerBankAccount.Count + VendorBankAccount.Count + Employee.Count;
+            NumberRec := Customer.Count + Vendor.Count + CustomerBankAccount.Count + VendorBankAccount.Count + Employee.Count();
 
             if Customer.Find('-') then
                 repeat
@@ -474,7 +474,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                 Message(strFinalresult);
             end;
             StatusWindowOpened := false;
-            TempReconciliationBuffer.Reset;
+            TempReconciliationBuffer.Reset();
             TempReconciliationBuffer.DeleteAll(false);
             ResetNumbers;
         end;
@@ -514,17 +514,17 @@ codeunit 11000006 "CBG Statement Reconciliation"
 
     local procedure AddPossibleBankAccount(AccountNumber: Text[80])
     begin
-        TempBankAccount.Init;
+        TempBankAccount.Init();
         TempBankAccount.Validate(TempBankAccount."No.", Format(TempBankAccount.Count + 1));
         TempBankAccount.IBAN := LocalFunctionalityMgt.CharacterFilter(AccountNumber, BankAccountCharsToKeep);
-        TempBankAccount.Insert;
+        TempBankAccount.Insert();
     end;
 
     local procedure ProcessPostDesRecDescription(CBGStatementLine: Record "CBG Statement Line")
     var
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
-        TempBankAccount.DeleteAll;
+        TempBankAccount.DeleteAll();
         Clear(TempBankAccount);
         Clear(Name);
         Clear(Address);
@@ -550,6 +550,8 @@ codeunit 11000006 "CBG Statement Reconciliation"
                         City := CBGStatementLineAddInfo.Description;
                     CBGStatementLineAddInfo."Information Type"::"Payment Identification":
                         Identification := CBGStatementLineAddInfo.Description;
+                    else
+                        OnProcessPostDesRecDescriptionCaseElse(CBGStatementLineAddInfo)
                 end;
             until CBGStatementLineAddInfo.Next = 0;
     end;
@@ -647,6 +649,11 @@ codeunit 11000006 "CBG Statement Reconciliation"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAccountOnBeforeFindNAC(var CBGStatementLine: Record "CBG Statement Line"; var NumberOfLinesChanged: Integer; var RecChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPostDesRecDescriptionCaseElse(CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.")
     begin
     end;
 }

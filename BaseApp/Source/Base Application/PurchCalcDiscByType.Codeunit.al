@@ -47,7 +47,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
     begin
         with PurchHeader do begin
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             DiscountNotificationMgt.NotifyAboutMissingSetup(
                 PurchSetup.RecordId, "Gen. Bus. Posting Group",
                 PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Line Discounts");
@@ -155,7 +155,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
         then
             exit(false);
 
-        PurchPayablesSetup.Get;
+        PurchPayablesSetup.Get();
         if (not ApplicationAreaMgmtFacade.IsFoundationEnabled and
             (not PurchPayablesSetup."Calc. Inv. Discount" and
              (PurchHeader."Invoice Discount Calculation" = PurchHeader."Invoice Discount Calculation"::None)))
@@ -189,7 +189,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if not PurchasesPayablesSetup."Calc. Inv. Discount" then
             exit(true);
 

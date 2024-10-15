@@ -20,7 +20,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         TempVATReportLineRelation: Record "VAT Report Line Relation" temporary;
         VATReportLine: Record "VAT Report Line";
     begin
-        TempVATReportLineRelation.Init;
+        TempVATReportLineRelation.Init();
         TempVATReportLineRelation."VAT Report No." := 'Test';
         TempVATReportLineRelation."VAT Report Line No." := 1;
         TempVATReportLineRelation."Table No." := DATABASE::"VAT Entry";
@@ -72,7 +72,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         VATStatement: TestPage "VAT Statement";
     begin
         // [FEATURE] [UI] [UT]
-        // [SCENARIO 295559] PAG 317 "VAT Statement" field "Box No." is not visible (NL)
+        // [SCENARIO 295559] PAG 317 "VAT Statement" field "Box No." is visible
         if VATStatementName.FindFirst then begin
             VATStatementLine."Statement Name" := VATStatementName.Name;
             VATStatementLine."Statement Template Name" := '';
@@ -81,9 +81,9 @@ codeunit 134057 "ERM VAT Report Line Relation"
 
         VATStatement.Trap;
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
-        asserterror Assert.IsFalse(VATStatement."Box No.".Visible, 'VATStatement."Box No." should not be visible'); // NL
+        Assert.IsTrue(VATStatement."Box No.".Visible, 'VATStatement."Box No." should be visible');
+        Assert.IsTrue(VATStatement."Box No.".Editable, 'VATStatement."Box No." should be editable');
         VATStatement.Close;
-        Assert.ExpectedErrorCode('TestFieldNotFound');
     end;
 
     local procedure TearDown(VATReportNo: Code[20])
@@ -91,7 +91,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
         VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
     end;
 }
 

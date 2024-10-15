@@ -76,7 +76,7 @@ codeunit 132908 TestCompanyChangePages
         // [GIVEN] Current company is 'A', "Display Name" is 'X'
         SetDisplayName(CompanyDisplayNameTxt);
         // [GIVEN] There is no Assisted Company Setup Status record
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] "My Settings" page is open
         MySettings.OpenView;
         // [WHEN] Click on "Company" control and pick 'X'
@@ -126,9 +126,9 @@ codeunit 132908 TestCompanyChangePages
         // [GIVEN] Current company is 'A',
         SetDisplayName('');
         // [GIVEN] the new company 'B', that is in progress of setup
-        Company.Init;
+        Company.Init();
         Company.Name := LibraryUtility.GenerateGUID;
-        Company.Insert;
+        Company.Insert();
         // [GIVEN] There is Assisted Company Setup Status record for 'B', where "Company Setup Session ID" is active
         SetAssistedCompanySetupStatus(Company.Name, SessionId, 0);
 
@@ -305,22 +305,22 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [Language] [UT]
         // [SCENARIO 217007] Existing config. package should be picked up even if language does not match the global language
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] GLOBALLANGUAGE is 1033 (ENU)
         GlobalLang := GlobalLanguage;
         // [GIVEN] ConfigurationPackageFile 'DEU.STANDARD', where "Language Code" = 1031 (DEU)
-        ConfigurationPackageFile[1].DeleteAll;
+        ConfigurationPackageFile[1].DeleteAll();
         ConfigurationPackageFile[1].Code := 'DEU.STANDARD';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang - 1;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
         // [GIVEN] ConfigurationPackageFile 'DAN.EVALUATION', where "Language Code" = 1030 (DAN)
         ConfigurationPackageFile[1].Code := 'DAN.EVALUATION';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang + 1;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
         // [GIVEN] ConfigurationPackageFile 'DAN.STANDARD', where "Language Code" = 1030 (DAN)
         ConfigurationPackageFile[1].Code := 'DAN.STANDARD';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang + 1;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
 
         // [WHEN] run FindConfigurationPackageFile
         AssistedCompanySetup.FindConfigurationPackageFile(ConfigurationPackageFile[2], 1);
@@ -341,22 +341,22 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [Language] [UT]
         // [SCENARIO 217007] Existing config. package should be picked if language matches the global language
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] GLOBALLANGUAGE is 1033 (ENU)
         GlobalLang := GlobalLanguage;
         // [GIVEN] ConfigurationPackageFile 'DEU.STANDARD', where "Language Code" = 1031 (DEU)
-        ConfigurationPackageFile[1].DeleteAll;
+        ConfigurationPackageFile[1].DeleteAll();
         ConfigurationPackageFile[1].Code := 'DEU.STANDARD';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang - 1;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
         // [GIVEN] ConfigurationPackageFile 'ENU.EVALUATION', where "Language Code" = 1033 (ENU)
         ConfigurationPackageFile[1].Code := 'ENU.EVALUATION';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
         // [GIVEN] ConfigurationPackageFile 'ENU.STANDARD', where "Language Code" = 1033 (ENU)
         ConfigurationPackageFile[1].Code := 'ENU.STANDARD';
         ConfigurationPackageFile[1]."Language ID" := GlobalLang;
-        ConfigurationPackageFile[1].Insert;
+        ConfigurationPackageFile[1].Insert();
 
         // [WHEN] run FindConfigurationPackageFile
         AssistedCompanySetup.FindConfigurationPackageFile(ConfigurationPackageFile[2], 1);
@@ -380,15 +380,15 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [Import Config. Package Files] [UT]
         // [GIVEN] AssistedCompanySetupStatus, where "Task ID" = 'x'
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         TaskID := CreateGuid;
         AssistedCompanySetupStatus."Company Name" := CompanyName;
         AssistedCompanySetupStatus."Task ID" := TaskID;
-        AssistedCompanySetupStatus.Insert;
+        AssistedCompanySetupStatus.Insert();
         if not GeneralLedgerSetup.Get then
-            GeneralLedgerSetup.Insert; // to avoid RUN(CODEUNIT::"Company-Initialize")
+            GeneralLedgerSetup.Insert(); // to avoid RUN(CODEUNIT::"Company-Initialize")
         // [GIVEN] There are no ConfigurationPackageFile records
-        ConfigurationPackageFile.DeleteAll;
+        ConfigurationPackageFile.DeleteAll();
 
         // [WHEN] Run Codeunit 1805
         CODEUNIT.Run(CODEUNIT::"Import Config. Package Files", ConfigurationPackageFile);
@@ -468,7 +468,7 @@ codeunit 132908 TestCompanyChangePages
         // [SCENARIO] Company with "None" data, has no application areas set, none configuration package applied
         // [GIVEN] No ApplicationAreaSetup, no AssistedCompanySetupStatus
         ClearExpTierAndAppAreaSetup;
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
 
         // [WHEN] SetUpNewCompany() with "CompanyData::None"
         AssistedCompanySetup.SetUpNewCompany(CompanyName, NewCompanyData::None);
@@ -499,9 +499,9 @@ codeunit 132908 TestCompanyChangePages
         // [SCENARIO] Company with "Standard Data" has "Suite" experience, 'STANDARD' configuration package applied
         // [GIVEN] No ApplicationAreaSetup, no AssistedCompanySetupStatus
         ClearExpTierAndAppAreaSetup;
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] No G/L Entries (to be able to enable Assisted Company Setup)
-        GLEntry.DeleteAll;
+        GLEntry.DeleteAll();
         // [GIVEN] Config. Package "STANDARD" is in config. package files
         InsertConfigPackageFile('ENU.STANDARD');
 
@@ -538,9 +538,9 @@ codeunit 132908 TestCompanyChangePages
         // [SCENARIO] Company with "Evaluation Data" has "Basic" experience, 'EVALUATION' configuration package applied
         // [GIVEN] No ApplicationAreaSetup, no AssistedCompanySetupStatus
         ClearExpTierAndAppAreaSetup;
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] No G/L Entries (to be able to enable Assisted Company Setup)
-        GLEntry.DeleteAll;
+        GLEntry.DeleteAll();
         // [GIVEN] Config. Package "EVALUATION" is in config. package files
         InsertConfigPackageFile('ENU.EVALUATION');
 
@@ -748,7 +748,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryVariableStorage.Enqueue(StrSubstNo('  %1  ', CompanyName));
 
         // [WHEN] Run the report "Copy Company". Set "T1" as "New Company Name".
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Copy Company", true);
 
         // [THEN] All leading and trailing spaces are trimmed for "T1". "New Company Name" = "abc def".
@@ -768,9 +768,9 @@ codeunit 132908 TestCompanyChangePages
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         GLEntry: Record "G/L Entry";
     begin
-        ApplicationAreaSetup.DeleteAll;
-        AssistedCompanySetupStatus.DeleteAll;
-        GLEntry.DeleteAll; // to be able to enable Assisted Company Setup
+        ApplicationAreaSetup.DeleteAll();
+        AssistedCompanySetupStatus.DeleteAll();
+        GLEntry.DeleteAll(); // to be able to enable Assisted Company Setup
 
         InsertConfigPackageFile(PackageCode);
     end;
@@ -779,7 +779,7 @@ codeunit 132908 TestCompanyChangePages
     var
         ConfigPackageError: Record "Config. Package Error";
     begin
-        ConfigPackageError.DeleteAll;
+        ConfigPackageError.DeleteAll();
     end;
 
     local procedure ClearExpTierAndAppAreaSetup()
@@ -787,8 +787,8 @@ codeunit 132908 TestCompanyChangePages
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        ApplicationAreaSetup.DeleteAll;
-        ExperienceTierSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
+        ExperienceTierSetup.DeleteAll();
     end;
 
     local procedure InitCompanySetupWithPackage(PackageCode: Code[20])
@@ -796,13 +796,13 @@ codeunit 132908 TestCompanyChangePages
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         Company: Record Company;
     begin
-        AssistedCompanySetupStatus.DeleteAll;
+        AssistedCompanySetupStatus.DeleteAll();
         AssistedCompanySetupStatus."Company Name" := CompanyName;
-        AssistedCompanySetupStatus.Insert;
+        AssistedCompanySetupStatus.Insert();
 
         Company.Get(CompanyName);
         Company."Evaluation Company" := false;
-        Company.Modify;
+        Company.Modify();
 
         InsertConfigPackageFile(PackageCode);
     end;
@@ -811,10 +811,10 @@ codeunit 132908 TestCompanyChangePages
     var
         ConfigurationPackageFile: Record "Configuration Package File";
     begin
-        ConfigurationPackageFile.DeleteAll;
+        ConfigurationPackageFile.DeleteAll();
         ConfigurationPackageFile.Code := PackageCode;
         ConfigurationPackageFile."Language ID" := GlobalLanguage;
-        ConfigurationPackageFile.Insert;
+        ConfigurationPackageFile.Insert();
     end;
 
     [Normal]
@@ -824,7 +824,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         Company.Get(CompanyName);
         Company."Display Name" := DisplayName;
-        Company.Modify;
+        Company.Modify();
     end;
 
     local procedure SetAssistedCompanySetupStatus(Name: Text; SessionID: Integer; SessionDelta: Integer)
@@ -846,7 +846,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         with AssistedCompanySetupStatus do begin
             SetRange("Company Name", Name);
-            DeleteAll;
+            DeleteAll();
             Init;
             "Company Name" := CopyStr(Name, 1, MaxStrLen("Company Name"));
             "Company Setup Session ID" := SessionID;
@@ -858,19 +858,19 @@ codeunit 132908 TestCompanyChangePages
     local procedure MockJobQueueLogEntries(TaskID: Guid; var JobQueueLogEntry: Record "Job Queue Log Entry")
     begin
         // creates three entries, two of which belong to the TaskID, where one is 'Success', and second is 'In Process'
-        JobQueueLogEntry.DeleteAll;
+        JobQueueLogEntry.DeleteAll();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := CreateGuid;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := TaskID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := TaskID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
     end;
 
     local procedure MockTaskScheduling(var TestCompanyChangePages: Codeunit TestCompanyChangePages; var ExpectedTaskID: Guid; var ExpectedSessionID: Integer; Delta: Integer)
@@ -886,14 +886,14 @@ codeunit 132908 TestCompanyChangePages
         ConfigPackageError: Record "Config. Package Error";
     begin
         ConfigPackageError."Package Code" := PackageCode;
-        ConfigPackageError.Insert;
+        ConfigPackageError.Insert();
     end;
 
     local procedure MockJobQueueErrorLogEntry(PackageCode: Code[20])
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        JobQueueLogEntry.DeleteAll;
+        JobQueueLogEntry.DeleteAll();
         JobQueueLogEntry."Entry No." := 1;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
@@ -906,7 +906,7 @@ codeunit 132908 TestCompanyChangePages
               LibraryUtility.GenerateRandomText(10), PackageCode),
             1,
             MaxStrLen(JobQueueLogEntry."Error Message"));
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
     end;
 
     [Scope('OnPrem')]

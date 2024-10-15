@@ -24,12 +24,10 @@ table 11307 "G/L Entry Application Buffer"
             ClosingDates = true;
             DataClassification = SystemMetadata;
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -150,12 +148,10 @@ table 11307 "G/L Entry Application Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Gen. Product Posting Group";
         }
-        field(51; "Bal. Account Type"; Option)
+        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(52; "Transaction No."; Integer)
         {
@@ -376,7 +372,7 @@ table 11307 "G/L Entry Application Buffer"
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -400,7 +396,7 @@ table 11307 "G/L Entry Application Buffer"
         if OrgGLEntry."Closed by Entry No." <> 0 then begin
             GLEntry.Get(OrgGLEntry."Closed by Entry No.");
             TempGLEntryApplicationBuffer.TransferFields(GLEntry);
-            TempGLEntryApplicationBuffer.Insert;
+            TempGLEntryApplicationBuffer.Insert();
         end else begin
             GLEntry.SetCurrentKey("Closed by Entry No.");
             GLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
@@ -408,7 +404,7 @@ table 11307 "G/L Entry Application Buffer"
                 repeat
                     if GLEntry."Entry No." <> OrgGLEntry."Entry No." then begin
                         TempGLEntryApplicationBuffer.TransferFields(GLEntry);
-                        TempGLEntryApplicationBuffer.Insert;
+                        TempGLEntryApplicationBuffer.Insert();
                     end;
                 until GLEntry.Next = 0;
         end;
@@ -524,7 +520,7 @@ table 11307 "G/L Entry Application Buffer"
         GLEntry."Closed at Date" := ClosedbyDate;
         GLEntry."Closed by Amount" := ClosedbyAmt;
         GLEntry."Applies-to ID" := AppliesToID;
-        GLEntry.Modify;
+        GLEntry.Modify();
     end;
 
     [Scope('OnPrem')]

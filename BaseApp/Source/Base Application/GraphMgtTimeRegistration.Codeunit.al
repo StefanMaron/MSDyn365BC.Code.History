@@ -46,7 +46,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
     var
         TimeSheetHeader: Record "Time Sheet Header";
     begin
-        TimeSheetHeader.Reset;
+        TimeSheetHeader.Reset();
         TimeSheetHeader.SetRange("Starting Date", StartingDate);
         TimeSheetHeader.SetRange("Resource No.", ResouceNo);
         if not TimeSheetHeader.FindFirst then begin
@@ -63,7 +63,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
         TimeSheetDetail: Record "Time Sheet Detail";
         TimeSheetLineNo: Integer;
     begin
-        TimeSheetLine.Reset;
+        TimeSheetLine.Reset();
         TimeSheetLine.SetRange(Type, TimeSheetDetail.Type::Resource);
         TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Open);
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeaderNo);
@@ -73,7 +73,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
                     exit;
             until TimeSheetLine.Next = 0;
 
-        TimeSheetLine.Reset;
+        TimeSheetLine.Reset();
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeaderNo);
         if TimeSheetLine.FindLast then
             TimeSheetLineNo := TimeSheetLine."Line No." + 10000

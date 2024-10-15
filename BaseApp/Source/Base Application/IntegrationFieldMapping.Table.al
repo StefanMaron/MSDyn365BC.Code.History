@@ -66,6 +66,21 @@ table 5336 "Integration Field Mapping"
                     Error(NotNullIsApplicableForGUIDErr);
             end;
         }
+        field(13; "Transformation Rule"; Code[20])
+        {
+            Caption = 'Transformation Rule';
+            DataClassification = SystemMetadata;
+            TableRelation = "Transformation Rule";
+        }
+        field(14; "Transformation Direction"; Enum "CDS Transformation Direction")
+        {
+            Caption = 'Transformation Direction';
+
+            trigger OnValidate()
+            begin
+                PutTransferDirection();
+            end;
+        }
     }
 
     keys
@@ -82,6 +97,16 @@ table 5336 "Integration Field Mapping"
 
     var
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';
+
+    trigger OnInsert()
+    begin
+        PutTransferDirection();
+    end;
+
+    trigger OnModify()
+    begin
+        PutTransferDirection();
+    end;
 
     procedure CreateRecord(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
     begin
@@ -106,6 +131,17 @@ table 5336 "Integration Field Mapping"
         IntegrationTableMapping.Get("Integration Table Mapping Name");
         if TypeHelper.GetField(IntegrationTableMapping."Integration Table ID", "Integration Table Field No.", Field) then
             exit(Field.Type = Field.Type::GUID);
+    end;
+
+    local procedure PutTransferDirection()
+    begin
+        if Direction <> Direction::Bidirectional then
+            case Direction of
+                Direction::ToIntegrationTable:
+                    "Transformation Direction" := "Transformation Direction"::ToIntegrationTable;
+                Direction::FromIntegrationTable:
+                    "Transformation Direction" := "Transformation Direction"::FromIntegrationTable;
+            end;
     end;
 }
 

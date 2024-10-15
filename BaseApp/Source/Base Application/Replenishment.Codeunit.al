@@ -48,7 +48,7 @@ codeunit 7308 Replenishment
         MovementQtyBase: Decimal;
     begin
         with ToBinContent do begin
-            FromBinContent.Reset;
+            FromBinContent.Reset();
             FromBinContent.SetCurrentKey(
               "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin",
               "Qty. per Unit of Measure", "Bin Ranking");
@@ -100,14 +100,14 @@ codeunit 7308 Replenishment
         QtyAvailToTakeBase: Decimal;
         MovementQtyBase: Decimal;
     begin
-        ItemUnitOfMeasure.Reset;
+        ItemUnitOfMeasure.Reset();
         ItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
         ItemUnitOfMeasure.SetRange("Item No.", ToBinContent."Item No.");
         ItemUnitOfMeasure.SetFilter(
           "Qty. per Unit of Measure", '>%1', ToBinContent."Qty. per Unit of Measure");
         if ItemUnitOfMeasure.Find('-') then
             repeat
-                FromBinContent.Reset;
+                FromBinContent.Reset();
                 FromBinContent.SetCurrentKey(
                   "Location Code", "Item No.", "Variant Code", "Cross-Dock Bin",
                   "Qty. per Unit of Measure", "Bin Ranking");
@@ -150,7 +150,7 @@ codeunit 7308 Replenishment
 
     local procedure CreateWhseWkshLine(ToBinContent: Record "Bin Content"; FromBinContent: Record "Bin Content"; MovementQtyBase: Decimal)
     begin
-        TempWhseWkshLine.Init;
+        TempWhseWkshLine.Init();
         TempWhseWkshLine."Worksheet Template Name" := WhseWkshTemplateName;
         TempWhseWkshLine.Name := WhseWkshName;
         TempWhseWkshLine."Location Code" := LocationCode;
@@ -174,7 +174,7 @@ codeunit 7308 Replenishment
         TempWhseWkshLine."Whse. Document Type" := TempWhseWkshLine."Whse. Document Type"::"Whse. Mov.-Worksheet";
         TempWhseWkshLine."Whse. Document No." := WhseWkshName;
         TempWhseWkshLine."Whse. Document Line No." := TempWhseWkshLine."Line No.";
-        TempWhseWkshLine.Insert;
+        TempWhseWkshLine.Insert();
 
         NextLineNo := NextLineNo + 10000;
     end;
@@ -183,11 +183,11 @@ codeunit 7308 Replenishment
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        TempWhseWkshLine.Reset;
+        TempWhseWkshLine.Reset();
         TempWhseWkshLine.SetFilter(Quantity, '>0');
         if TempWhseWkshLine.Find('-') then begin
             repeat
-                WhseWkshLine.Init;
+                WhseWkshLine.Init();
                 WhseWkshLine := TempWhseWkshLine;
                 if DoNotFillQtytoHandle then begin
                     WhseWkshLine."Qty. to Handle" := 0;
@@ -197,7 +197,7 @@ codeunit 7308 Replenishment
                     WhseWkshLine."From Zone Code" := '';
                     WhseWkshLine."From Bin Code" := '';
                 end;
-                WhseWkshLine.Insert;
+                WhseWkshLine.Insert();
             until TempWhseWkshLine.Next = 0;
             exit(true);
         end;
@@ -245,7 +245,7 @@ codeunit 7308 Replenishment
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        TempWhseWkshLine.DeleteAll;
+        TempWhseWkshLine.DeleteAll();
         WhseWkshLine.SetRange("Worksheet Template Name", WhseWkshTemplateName2);
         WhseWkshLine.SetRange(Name, WhseWkshName2);
         WhseWkshLine.SetRange("Location Code", LocationCode2);
@@ -264,8 +264,6 @@ codeunit 7308 Replenishment
     local procedure PickAccordingToFEFO(ItemNo: Code[20]; VariantCode: Code[10]): Boolean
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        LNRequired: Boolean;
-        SNRequired: Boolean;
         EntriesExist: Boolean;
         IsHandled: Boolean;
         Result: Boolean;
@@ -278,8 +276,7 @@ codeunit 7308 Replenishment
         if not Location."Pick According to FEFO" then
             exit(false);
 
-        ItemTrackingMgt.CheckWhseItemTrkgSetup(ItemNo, SNRequired, LNRequired, false);
-        if not (SNRequired or LNRequired) then
+        if not ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo) then
             exit(false);
 
         if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, '', '', false, EntriesExist) <> 0D then

@@ -12,7 +12,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
 
     local procedure DeleteNotificationContextEntries()
     begin
-        TempNotificationContext.DeleteAll;
+        TempNotificationContext.DeleteAll();
     end;
 
     local procedure GetFirstRecordIDText(): Text
@@ -38,7 +38,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
             Ignore := false;
             OnCheckIgnoringNotification(TempNotificationContext."Notification ID", Ignore);
             if Ignore then
-                TempNotificationContext.Delete;
+                TempNotificationContext.Delete();
         until TempNotificationContext.Next = 0;
     end;
 
@@ -46,14 +46,14 @@ codeunit 130231 "Test Proxy Notification Mgt."
     local procedure InsertEntryOnAfterInsertNotificationContext(NotificationContext: Record "Notification Context")
     begin
         TempNotificationContext.TransferFields(NotificationContext);
-        TempNotificationContext.Insert;
+        TempNotificationContext.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1511, 'OnAfterDeleteNotificationContext', '', false, false)]
     local procedure DeleteEntryOnAfterDeleteNotificationContext(NotificationContext: Record "Notification Context")
     begin
         if TempNotificationContext.Get(NotificationContext."Notification ID") then
-            TempNotificationContext.Delete;
+            TempNotificationContext.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 130220, 'OnBeforeTestFunctionRun', '', false, false)]

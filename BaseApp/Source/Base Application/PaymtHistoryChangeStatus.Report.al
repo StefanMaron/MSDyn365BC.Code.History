@@ -29,7 +29,7 @@ report 11000003 "Paymt. History - Change Status"
                         Newstatus::Transmitted, Newstatus::"Request for Cancellation":
                             begin
                                 PaymentHistLine.Status := Newstatus;
-                                PaymentHistLine.Modify;
+                                PaymentHistLine.Modify();
                             end;
                         Newstatus::Rejected, Newstatus::Cancelled:
                             begin

@@ -65,8 +65,11 @@ table 10 "Shipment Method"
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SetLastModifiedDateTime;
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     procedure TranslateDescription(var ShipmentMethod: Record "Shipment Method"; Language: Code[10])

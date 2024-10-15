@@ -361,7 +361,7 @@ report 11000002 "Payment History Overview"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Customer then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -489,7 +489,7 @@ report 11000002 "Payment History Overview"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Vendor then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem("Employee Ledger Entry"; "Employee Ledger Entry")
@@ -599,7 +599,7 @@ report 11000002 "Payment History Overview"
                             trigger OnPreDataItem()
                             begin
                                 if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Employee then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 

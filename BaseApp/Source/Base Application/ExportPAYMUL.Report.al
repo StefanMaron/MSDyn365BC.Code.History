@@ -142,7 +142,7 @@ report 11000009 "Export PAYMUL"
 
             trigger OnPreDataItem()
             begin
-                LockTable;
+                LockTable();
                 LINCounter := 0;
             end;
         }
@@ -197,7 +197,7 @@ report 11000009 "Export PAYMUL"
 
     trigger OnPreReport()
     begin
-        AccountingSetup.Get;
+        AccountingSetup.Get();
         TotalNumberOfMessages := 0;
         MessageIdentifier := '1';
         ReservedChars := '''+:?';

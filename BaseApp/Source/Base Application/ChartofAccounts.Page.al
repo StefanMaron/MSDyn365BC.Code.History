@@ -1,4 +1,4 @@
-﻿page 16 "Chart of Accounts"
+page 16 "Chart of Accounts"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Chart of Accounts';
@@ -569,7 +569,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

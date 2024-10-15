@@ -251,7 +251,7 @@ page 1816 "Job Creation Wizard"
         // If user clicked "Back", the Job will already exist, so don't try to create it again.
         if "No." = '' then begin
             Insert(true);
-            Commit;
+            Commit();
         end;
 
         if not FromExistingJob then

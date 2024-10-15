@@ -41,12 +41,10 @@ table 5765 "Warehouse Request"
             IF ("Source Type" = FILTER(901)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   "No." = FIELD("Source No."));
         }
-        field(4; "Source Document"; Option)
+        field(4; "Source Document"; Enum "Warehouse Request Source Document")
         {
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,Prod. Output,Service Order,,,,,,,Assembly Consumption,Assembly Order';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output","Service Order",,,,,,,"Assembly Consumption","Assembly Order";
         }
         field(5; "Document Status"; Option)
         {
@@ -74,18 +72,14 @@ table 5765 "Warehouse Request"
             Editable = false;
             TableRelation = "Shipping Agent";
         }
-        field(10; "Shipping Advice"; Option)
+        field(10; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
             Editable = false;
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
-        field(11; "Destination Type"; Option)
+        field(11; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(12; "Destination No."; Code[20])
         {
@@ -168,9 +162,23 @@ table 5765 "Warehouse Request"
     begin
         SetSourceFilter(SourceType, SourceSubtype, SourceNo);
         if not IsEmpty then
-            DeleteAll;
+            DeleteAll();
 
         OnAfterDeleteRequest(SourceType, SourceSubtype, SourceNo);
+    end;
+
+    procedure SetDestinationType(ProdOrder: Record "Production Order")
+    begin
+        case ProdOrder."Source Type" of
+            ProdOrder."Source Type"::Item:
+                "Destination Type" := "Destination Type"::Item;
+            ProdOrder."Source Type"::Family:
+                "Destination Type" := "Destination Type"::Family;
+            ProdOrder."Source Type"::"Sales Header":
+                "Destination Type" := "Destination Type"::"Sales Order";
+        end;
+
+        OnAfterSetDestinationType(Rec, ProdOrder);
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20])

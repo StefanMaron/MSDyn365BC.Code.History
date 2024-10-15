@@ -29,11 +29,9 @@ table 11000006 "CBG Statement Line Add. Info."
         {
             Caption = 'Description';
         }
-        field(6; "Information Type"; Option)
+        field(6; "Information Type"; Enum "CBG Statement Information Type")
         {
             Caption = 'Information Type';
-            OptionCaption = 'Description and Sundries,Account No. Balancing Account,Name Acct. Holder,Address Acct. Holder,City Acct. Holder,Payment Identification';
-            OptionMembers = "Description and Sundries","Account No. Balancing Account","Name Acct. Holder","Address Acct. Holder","City Acct. Holder","Payment Identification";
         }
     }
 

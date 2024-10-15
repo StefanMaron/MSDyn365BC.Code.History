@@ -26,7 +26,7 @@ report 11415 "Import Post Codes Update"
 
     trigger OnInitReport()
     begin
-        PostCodeUpdateLogEntry.Reset;
+        PostCodeUpdateLogEntry.Reset();
         PostCodeUpdateLogEntry.SetCurrentKey(Type);
         PostCodeUpdateLogEntry.SetRange(Type, PostCodeUpdateLogEntry.Type::"Full Data Set");
 
@@ -63,7 +63,7 @@ report 11415 "Import Post Codes Update"
             else begin
                 ChangeType := ReadInteger(Line, 1, 1);
 
-                OldPostCodeRange.Init;
+                OldPostCodeRange.Init();
                 OldPostCodeRange."Post Code" := FormatPostCode(CopyStr(ReadText(Line, 18, 6), 1, 20));
                 OldPostCodeRange.Type := ReadInteger(Line, 24, 1) + 1;
                 OldPostCodeRange."From No." := ReadInteger(Line, 25, 5);
@@ -71,7 +71,7 @@ report 11415 "Import Post Codes Update"
                 OldPostCodeRange.City := CopyStr(ReadText(Line, 53, 24), 1, 30);
                 OldPostCodeRange."Street Name" := CopyStr(ReadText(Line, 118, 43), 1, 50);
 
-                NewPostCodeRange.Init;
+                NewPostCodeRange.Init();
                 NewPostCodeRange."Post Code" := FormatPostCode(CopyStr(ReadText(Line, 202, 6), 1, 20));
                 NewPostCodeRange.Type := ReadInteger(Line, 208, 1) + 1;
                 NewPostCodeRange."From No." := ReadInteger(Line, 209, 5);
@@ -142,11 +142,11 @@ report 11415 "Import Post Codes Update"
         if not Evaluate(Year, ReadText(Header, 46, 4)) then
             Error(InvalidYearErr, ReadText(Header, 46, 4));
 
-        PostCodeUpdateLogEntry.Init;
+        PostCodeUpdateLogEntry.Init();
         PostCodeUpdateLogEntry."Period Start Date" := DMY2Date(1, Month, Year);
 
-        PostCodeUpdateLogEntry2.Reset;
-        PostCodeUpdateLogEntry2.LockTable;
+        PostCodeUpdateLogEntry2.Reset();
+        PostCodeUpdateLogEntry2.LockTable();
 
         if PostCodeUpdateLogEntry2.FindLast then begin
             if PostCodeUpdateLogEntry."Period Start Date" <= PostCodeUpdateLogEntry2."Period Start Date" then
@@ -161,7 +161,7 @@ report 11415 "Import Post Codes Update"
         PostCodeUpdateLogEntry.Time := SYSTEM.Time;
         PostCodeUpdateLogEntry."User ID" := UserId;
         PostCodeUpdateLogEntry.Type := PostCodeUpdateLogEntry.Type::Update;
-        PostCodeUpdateLogEntry.Insert;
+        PostCodeUpdateLogEntry.Insert();
     end;
 
     local procedure InsertRange()

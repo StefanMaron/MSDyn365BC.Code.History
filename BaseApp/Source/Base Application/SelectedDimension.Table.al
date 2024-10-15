@@ -69,7 +69,7 @@ table 369 "Selected Dimension"
         if Find('-') then
             repeat
                 TempSelectedDim := Rec;
-                TempSelectedDim.Insert;
+                TempSelectedDim.Insert();
             until Next = 0;
     end;
 }

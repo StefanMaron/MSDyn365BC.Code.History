@@ -516,7 +516,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
     begin
         CurrentAnalysisArea := CurrentAnalysisArea::Inventory;
 
-        GLSetup.Get;
+        GLSetup.Get();
         ItemAnalysisMgt.AnalysisViewSelection(
           CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);

@@ -6,7 +6,7 @@ codeunit 5652 "Insurance Jnl.-Post Line"
 
     trigger OnRun()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         RunWithCheck(Rec);
     end;
 
@@ -53,15 +53,11 @@ codeunit 5652 "Insurance Jnl.-Post Line"
             MakeInsCoverageLedgEntry.CopyFromInsuranceCard(InsCoverageLedgEntry, Insurance);
         end;
         if NextEntryNo = 0 then begin
-            InsCoverageLedgEntry.LockTable;
-            if InsCoverageLedgEntry2.FindLast then
-                NextEntryNo := InsCoverageLedgEntry2."Entry No.";
-            InsuranceReg.LockTable;
-            if InsuranceReg.FindLast then
-                InsuranceReg."No." := InsuranceReg."No." + 1
-            else
-                InsuranceReg."No." := 1;
-            InsuranceReg.Init;
+            InsCoverageLedgEntry.LockTable();
+            NextEntryNo := InsCoverageLedgEntry2.GetLastEntryNo() + 1;
+            InsuranceReg.LockTable();
+            InsuranceReg."No." := InsuranceReg.GetLastEntryNo() + 1;
+            InsuranceReg.Init();
             InsuranceReg."From Entry No." := NextEntryNo + 1;
             InsuranceReg."Creation Date" := Today;
             InsuranceReg."Creation Time" := Time;
@@ -72,13 +68,13 @@ codeunit 5652 "Insurance Jnl.-Post Line"
         NextEntryNo := NextEntryNo + 1;
         InsCoverageLedgEntry."Entry No." := NextEntryNo;
         InsCoverageLedgEntry."Dimension Set ID" := InsuranceJnlLine."Dimension Set ID";
-        InsCoverageLedgEntry.Insert;
+        InsCoverageLedgEntry.Insert();
         if InsuranceReg."To Entry No." = 0 then begin
             InsuranceReg."To Entry No." := NextEntryNo;
-            InsuranceReg.Insert;
+            InsuranceReg.Insert();
         end else begin
             InsuranceReg."To Entry No." := NextEntryNo;
-            InsuranceReg.Modify;
+            InsuranceReg.Modify();
         end;
     end;
 }

@@ -142,7 +142,7 @@ report 11000004 Docket
                     trigger OnPreDataItem()
                     begin
                         if "Payment History Line"."Account Type" <> "Detail Line"."Account Type"::Customer then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(Vendor; Vendor)
@@ -192,7 +192,7 @@ report 11000004 Docket
                     trigger OnPreDataItem()
                     begin
                         if "Payment History Line"."Account Type" <> "Detail Line"."Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(Employee; Employee)
@@ -246,7 +246,7 @@ report 11000004 Docket
                     trigger OnPreDataItem()
                     begin
                         if "Payment History Line"."Account Type" <> "Detail Line"."Account Type"::Employee then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Bank Account"; "Bank Account")
@@ -510,7 +510,7 @@ report 11000004 Docket
                         trigger OnPreDataItem()
                         begin
                             if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Customer then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -638,7 +638,7 @@ report 11000004 Docket
                         trigger OnPreDataItem()
                         begin
                             if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Vendor then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Employee Ledger Entry"; "Employee Ledger Entry")
@@ -748,7 +748,7 @@ report 11000004 Docket
                         trigger OnPreDataItem()
                         begin
                             if "Detail Line"."Account Type" <> "Detail Line"."Account Type"::Employee then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -769,7 +769,7 @@ report 11000004 Docket
                 if not CurrReport.Preview then begin
                     PaymHist := "Payment History";
                     PaymHist."Print Docket" := false;
-                    PaymHist.Modify;
+                    PaymHist.Modify();
                 end;
             end;
         }
@@ -794,7 +794,7 @@ report 11000004 Docket
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
     end;
 

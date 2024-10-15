@@ -60,11 +60,11 @@ table 5301 "Outlook Synch. Entity Element"
                         OSynchField.SetRange("Element No.", "Element No.");
                         OSynchField.DeleteAll(true);
 
-                        OSynchFilter.Reset;
+                        OSynchFilter.Reset();
                         OSynchFilter.SetRange("Record GUID", "Record GUID");
-                        OSynchFilter.DeleteAll;
+                        OSynchFilter.DeleteAll();
 
-                        OSynchDependency.Reset;
+                        OSynchDependency.Reset();
                         OSynchDependency.SetRange("Synch. Entity Code", "Synch. Entity Code");
                         OSynchDependency.SetRange("Element No.", "Element No.");
                         OSynchDependency.DeleteAll(true);
@@ -144,12 +144,12 @@ table 5301 "Outlook Synch. Entity Element"
                         exit;
                     end;
 
-                OSynchField.Reset;
+                OSynchField.Reset();
                 OSynchField.SetRange("Synch. Entity Code", "Synch. Entity Code");
                 OSynchField.SetRange("Element No.", "Element No.");
                 OSynchField.DeleteAll(true);
 
-                OSynchDependency.Reset;
+                OSynchDependency.Reset();
                 OSynchDependency.SetRange("Synch. Entity Code", "Synch. Entity Code");
                 OSynchDependency.SetRange("Element No.", "Element No.");
                 OSynchDependency.DeleteAll(true);
@@ -198,7 +198,7 @@ table 5301 "Outlook Synch. Entity Element"
 
     trigger OnDelete()
     begin
-        OSynchSetupDetail.Reset;
+        OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchSetupDetail.SetRange("Element No.", "Element No.");
         if not OSynchSetupDetail.IsEmpty then
@@ -206,16 +206,16 @@ table 5301 "Outlook Synch. Entity Element"
 
         OSynchSetupDetail.DeleteAll(true);
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchField.SetRange("Element No.", "Element No.");
         OSynchField.DeleteAll(true);
 
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", "Element No.");
         OSynchDependency.DeleteAll(true);
@@ -250,7 +250,7 @@ table 5301 "Outlook Synch. Entity Element"
         TestField("Table Relation");
         TestField("Outlook Collection");
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchField.SetRange("Element No.", "Element No.");
 
@@ -265,7 +265,7 @@ table 5301 "Outlook Synch. Entity Element"
         TestField("Table Relation");
         TestField("Outlook Collection");
 
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", "Element No.");
 
@@ -286,7 +286,7 @@ table 5301 "Outlook Synch. Entity Element"
     var
         OSynchUserSetup: Record "Outlook Synch. User Setup";
     begin
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("Synch. Entity Code", "Synch. Entity Code");
         if not OSynchUserSetup.FindSet then
             exit;
@@ -303,7 +303,7 @@ table 5301 "Outlook Synch. Entity Element"
     var
         OSynchEntityElement: Record "Outlook Synch. Entity Element";
     begin
-        OSynchEntityElement.Reset;
+        OSynchEntityElement.Reset();
         OSynchEntityElement.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchEntityElement.SetRange("Outlook Collection", "Outlook Collection");
         if OSynchEntityElement.FindFirst then

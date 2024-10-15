@@ -1328,6 +1328,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Mock Master Table - Field Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3239175751 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Key]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table Obsolete Removed Table - Field Key - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 4170263786 - Field 415504711 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Id]]></Val>
@@ -1607,283 +1616,220 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Prediction Data - Field Feature X - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 4129991821 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2953732973 - Field 4178501170 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Encoding]]></Val>
+      <Val><![CDATA[Ref. file name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field Encoding - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - Field Ref. file name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 1238212037 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2953732973 - Field 3509350143 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[StmtDateFieldValue]]></Val>
+      <Val><![CDATA[Row no.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field StmtDateFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - Field Row no. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2145207175 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2953732973 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[IBANFieldValue]]></Val>
+      <Val><![CDATA[Key]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field IBANFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - Field Key - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3223997585 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2953732973 - Field 869342929 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BankAccountNoFieldValue]]></Val>
+      <Val><![CDATA[Field ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field BankAccountNoFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - Field Field ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 4289616350 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2953732973 - Field 423064287 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ClsBalFieldValue]]></Val>
+      <Val><![CDATA[Expected value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field ClsBalFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - Field Expected value - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3959531212 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - Field 4178501170 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CcyFieldValue]]></Val>
+      <Val><![CDATA[Ref. file name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field CcyFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - Field Ref. file name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2428404124 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - Field 3135334477 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CrdtFieldValue]]></Val>
+      <Val><![CDATA[Table ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field CrdtFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - Field Table ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 1473528566 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - Field 3622305091 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DbitFieldValue]]></Val>
+      <Val><![CDATA[Table name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field DbitFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - Field Table name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2276745551 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - Field 869342929 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BalCrdtDbtFieldValue]]></Val>
+      <Val><![CDATA[Field ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field BalCrdtDbtFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - Field Field ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 529420952 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - Field 2925250871 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CrdtDateFieldValue]]></Val>
+      <Val><![CDATA[Field name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field CrdtDateFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - Field Field name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2131409554 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 2278798786 - NamedType 3114637384" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DbitDateFieldValue]]></Val>
+      <Val><![CDATA[A value of '0' is not allowed for field '%1'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field DbitDateFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference data - field list - NamedType Text001)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 1198475255 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 899398805 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CrdtTextFieldValue]]></Val>
+      <Val><![CDATA[Entry no.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field CrdtTextFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Entry no. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2042981665 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 4059806340 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DbitTextFieldValue]]></Val>
+      <Val><![CDATA[Test codeunit ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field DbitTextFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Test codeunit ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3711355756 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 998124610 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AddtlNtryInfFieldValue]]></Val>
+      <Val><![CDATA[Test method name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field AddtlNtryInfFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Test method name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2778833344 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 4178501170 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UstrdFieldValue1]]></Val>
+      <Val><![CDATA[Ref. file name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field UstrdFieldValue1 - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Ref. file name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3416529961 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 3135334477 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UstrdFieldValue2]]></Val>
+      <Val><![CDATA[Table ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field UstrdFieldValue2 - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Table ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 4054226578 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 3622305091 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UstrdFieldValue3]]></Val>
+      <Val><![CDATA[Table name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field UstrdFieldValue3 - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Table name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 1321692000 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 3509350143 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NumberOfStatements]]></Val>
+      <Val><![CDATA[Row no.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field NumberOfStatements - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Row no. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 169471163 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[HasStatementDateTag]]></Val>
+      <Val><![CDATA[Key]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field HasStatementDateTag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Key - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 2381625391 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 869342929 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[HasClosingBalanceTag]]></Val>
+      <Val><![CDATA[Field ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field HasClosingBalanceTag - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Field ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 300878090 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 2925250871 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CdFieldValue]]></Val>
+      <Val><![CDATA[Field name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field CdFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Field name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3808095790 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 423064287 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[HasCdtDbtIndTagInBal]]></Val>
+      <Val><![CDATA[Expected value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field HasCdtDbtIndTagInBal - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Expected value - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 3211917032 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 2893379879 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[HasCdtDbtIndTagInNtry]]></Val>
+      <Val><![CDATA[Actual value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field HasCdtDbtIndTagInNtry - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Actual value - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1986421444 - Field 204440125 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Table 254484929 - Field 1353916356 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Namespace]]></Val>
+      <Val><![CDATA[Passed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field Namespace - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 1433630718 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SkipTxDtlsAmt]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field SkipTxDtlsAmt - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 1934770495 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RelatedPartyIBAN]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field RelatedPartyIBAN - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 2948879738 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RelatedPartyBankAccount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field RelatedPartyBankAccount - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 1538589202 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RelatedPartyName]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field RelatedPartyName - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 4262229209 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RelatedPartyAddress]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field RelatedPartyAddress - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 985391234 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RelatedPartyCity]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field RelatedPartyCity - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1986421444 - Field 2312133105 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[EndToEndIdFieldValue]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SEPA CAMT File Parameters - Field EndToEndIdFieldValue - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Reference Data Log - Field Passed - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 332201752 - Field 4282497461 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -2235,6 +2181,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With PK 16 Fields - Field Field16 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 4010737240 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Key]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Key - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 4010737240 - Field 1975823043 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Obsolete Field Removed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table Table With Removed Field - Field Obsolete Field Removed - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 4010737240 - Field 498980640 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Obsolete Field Pending]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Obsolete Field Pending - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 4010737240 - Field 668379323 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Normal Field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Normal Field - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 3406196827 - Field 415504711 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -3008,7 +2990,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Locked]D;]A;(LookupHint=Codeunit Active Directory Mock Events - NamedType TestEmailTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Active Directory Mock Events - NamedType TestEmailTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2695478199 - NamedType 4043932775" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3261,6 +3243,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assert - NamedType TextEndSubstringIsBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3923843657 - NamedType 1866849693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Standard]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Must be similar to "Data Type" option in table 101900 Demonstration Data Setup]D;]A;(LookupHint=Codeunit Assis. Comp. Setup Plat. Tests - NamedType StandardTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4033808984 - NamedType 1493571964" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3728,7 +3719,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Account Schedule - NamedType RoundingFormatTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Account Schedule - NamedType RoundingFormatTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1247750089 - NamedType 1758105492" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4055,15 +4046,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - CRM Integration - NamedType TempMappingNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3701101974 - NamedType 449689522" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Table %1 already verified in VerifyShorcutDimCodesUpdatedOnDimSetIDValidation]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = table name]D;]A;(LookupHint=Codeunit Library - Dimension - NamedType TableWithDimSetIDAlreadyVerifiedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 647530252 - NamedType 2011886100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are no %1 within the filters specified.]]></Val>
@@ -4071,24 +4053,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM - NamedType NoRecordsInFilterError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3077960804 - NamedType 3310932644" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PCS]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM Country Data - NamedType PCS)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3077960804 - NamedType 1971898887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BOX]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM Country Data - NamedType BOX)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 842842907 - NamedType 1592273577" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4277,7 +4241,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Finance Charge Memo - NamedType PrecisionText)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Finance Charge Memo - NamedType PrecisionText)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 900169137 - NamedType 1138884913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4480,7 +4444,7 @@
   </Item>
   <Item ItemId=";Codeunit 1399880884 - NamedType 3817947005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to reserve specific serial or lot numbers?]]></Val>
+      <Val><![CDATA[Do you want to reserve specific tracking numbers?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -5609,7 +5573,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Service - NamedType ServicePeriodOneMonth)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Service - NamedType ServicePeriodOneMonth)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2816402641 - NamedType 2003139243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6294,78 +6258,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MockOnPostNotificationRequest - NamedType ReceivedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 3466006618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected value!. Expected: %1'. In XML file: %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType UnexpectedValue)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 1233217938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Count is wrong. Node: %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType NodeCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 2476981281" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Count is wrong for value %1 in nodes %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType NodeCountWithValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 58721717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The selected node %1 was not found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType NodeNotFoundError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 3911886874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected node %1 value. Expected: %2, actual %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType UnexpectedNodeValue)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 3411920628" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 attribute is missing from the node %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType MissingAttributeError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 2290393126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected attribute %1 value.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType UnexpectedAttributeValue)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 272653017 - NamedType 3454685443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unepexted %1 attribute in the node %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit NL XML Read Helper - NamedType UnexpectedAttributeError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1147849543 - NamedType 2779639592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

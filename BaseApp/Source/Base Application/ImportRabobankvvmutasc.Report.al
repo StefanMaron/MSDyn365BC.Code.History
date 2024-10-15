@@ -195,7 +195,7 @@ report 11000022 "Import Rabobank vvmut.asc"
         CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
         CBGStatementLine."No." := CBGStatement."No.";
         CBGStatementLine."Line No." := CBGStatementLine."Line No." + 10000;
-        CBGStatementLine.Init;
+        CBGStatementLine.Init();
         CBGStatementLine.InitRecord(CBGStatementLine);
 
         CBGStatementLine.Validate(Date, ImpCurrencyDate);
@@ -221,7 +221,7 @@ report 11000022 "Import Rabobank vvmut.asc"
 
         CBGStatementLine.Insert(true);
         CBGStatementLine.Validate(Date, ImpCurrencyDate);
-        CBGStatementLine.Modify;
+        CBGStatementLine.Modify();
     end;
 
     local procedure ProcessClosingBalance()
@@ -244,7 +244,7 @@ report 11000022 "Import Rabobank vvmut.asc"
             CBGStatementLineDesc."CBG Statement No." := CBGStatementLine."No.";
             CBGStatementLineDesc."CBG Statement Line No." := CBGStatementLine."Line No.";
             CBGStatementLineDesc."Line No." := CBGStatementLineDesc."Line No." + 10000;
-            CBGStatementLineDesc.Init;
+            CBGStatementLineDesc.Init();
             CBGStatementLineDesc.Description := Comment;
             CBGStatementLineDesc."Information Type" := Type;
             CBGStatementLineDesc.Insert(true);

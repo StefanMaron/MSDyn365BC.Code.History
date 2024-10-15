@@ -1,4 +1,4 @@
-﻿page 132 "Posted Sales Invoice"
+page 132 "Posted Sales Invoice"
 {
     Caption = 'Posted Sales Invoice';
     InsertAllowed = false;
@@ -608,7 +608,7 @@
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = false;
+                Visible = NOT IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -836,6 +836,24 @@
                     SalesInvHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesInvHeader);
                     SalesInvHeader.EmailRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesInvoiceHeader: Record "Sales Invoice Header";
+                begin
+                    SalesInvoiceHeader := Rec;
+                    SalesInvoiceHeader.SetRecFilter();
+                    PrintToDocumentAttachment(SalesInvoiceHeader);
                 end;
             }
             action("&Navigate")

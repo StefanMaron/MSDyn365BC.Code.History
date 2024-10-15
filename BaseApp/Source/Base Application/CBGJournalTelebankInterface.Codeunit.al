@@ -45,7 +45,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
                             CBGStatementLine."Journal Template Name" := "Journal Template Name";
                             CBGStatementLine."No." := "No.";
                         end;
-                        CBGStatementLine.Init;
+                        CBGStatementLine.Init();
                         CBGStatementLine.InitRecord(CBGStatementLine);
                         CBGStatementLine.Validate(Identification, PaymentHistLine.Identification);
                         CBGStatementLine.Insert(true);

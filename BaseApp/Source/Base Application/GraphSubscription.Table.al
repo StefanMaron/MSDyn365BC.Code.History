@@ -68,7 +68,7 @@ table 5455 "Graph Subscription"
         GraphSubscriptionMgt: Codeunit "Graph Subscription Management";
         GraphWebhookSyncToNAV: Codeunit "Graph Webhook Sync To NAV";
     begin
-        GraphSubscription.Reset;
+        GraphSubscription.Reset();
         GraphSubscription.Id := CreateGuid;
         GraphSubscription.ChangeType := GraphWebhookSyncToNAV.GetGraphSubscriptionChangeTypes;
         GraphSubscription.ExpirationDateTime := CurrentDateTime + GraphSubscriptionMgt.GetMaximumExpirationDateTimeOffset;

@@ -36,7 +36,7 @@ codeunit 5979 "Service-Post and Send"
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);
 
         OnAfterPostAndBeforeSend(ServiceHeader);
-        Commit;
+        Commit();
 
         ServicePost.SendPostedDocumentRecord(ServiceHeader, TempDocumentSendingProfile);
     end;
@@ -50,10 +50,10 @@ codeunit 5979 "Service-Post and Send"
         if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
             DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
-        Commit;
+        Commit();
         TempDocumentSendingProfile.Copy(DocumentSendingProfile);
         TempDocumentSendingProfile.SetDocumentUsage(ServiceHeader);
-        TempDocumentSendingProfile.Insert;
+        TempDocumentSendingProfile.Insert();
         if PAGE.RunModal(PAGE::"Post and Send Confirmation", TempDocumentSendingProfile) <> ACTION::Yes then
             exit(false);
 

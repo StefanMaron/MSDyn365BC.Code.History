@@ -1,4 +1,4 @@
-﻿page 99000827 "Recurring Output Journal"
+page 99000827 "Recurring Output Journal"
 {
     ApplicationArea = Manufacturing;
     AutoSplitKey = true;
@@ -103,7 +103,6 @@
                 field(Type; Type)
                 {
                     ApplicationArea = Manufacturing;
-                    OptionCaption = 'Work Center,Machine Center';
                     ToolTip = 'Specifies the journal type, which is either Work Center or Machine Center.';
                 }
                 field("No."; "No.")
@@ -595,7 +594,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

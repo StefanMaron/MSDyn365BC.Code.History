@@ -153,7 +153,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         WorkDescription := SalesHeader.GetWorkDescription;
 
         if SalesHeader."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get(SalesHeader."Currency Code") then;
@@ -264,7 +264,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         MailManagement.ValidateEmailAddressField(CustomerEmail);
 
         if CustomerEmail <> '' then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if (SalesHeader."Sell-to Customer No." <> '') and Customer.WritePermission then
                 if Customer.Get(SalesHeader."Sell-to Customer No.") then
                     if CustomerEmail <> Customer."E-Mail" then begin
@@ -280,7 +280,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (Address <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer.Address = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -295,7 +295,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (Address2 <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer."Address 2" = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -310,7 +310,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (City <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer.City = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -325,7 +325,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (PostCode <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer."Post Code" = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -340,7 +340,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (County <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer.County = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -355,7 +355,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Customer: Record Customer;
     begin
         if (CountryCode <> '') and (CustomerNo <> '') then begin
-            Customer.LockTable;
+            Customer.LockTable();
             if Customer.WritePermission and Customer.Get(CustomerNo) then
                 if Customer."Country/Region Code" = '' then begin
                     Customer.SetForceUpdateContact(true);
@@ -467,7 +467,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         CurrencySymbol: Text[10];
     begin
         if SalesLine."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get(SalesLine."Currency Code") then;
@@ -589,7 +589,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         MarketingSetup: Record "Marketing Setup";
         Customer: Record Customer;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         Contact.SetHideValidationDialog(true);
         case Contact.Type of
             Contact.Type::Company:
@@ -679,8 +679,8 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         Evaluate(DocumentType, CreateCustomerNotification.GetData('SalesHeaderType'));
 
         if SalesHeader.Get(DocumentType, CreateCustomerNotification.GetData('SalesHeaderNo')) then begin
-            SalesHeader.Init;
-            SalesHeader.Modify;
+            SalesHeader.Init();
+            SalesHeader.Modify();
         end;
 
         if Customer.Get(CreateCustomerNotification.GetData('CustomerNo')) then begin
@@ -818,7 +818,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         if UOM.Get(CodeToSet) then
             exit(UOM.Code);
 
-        UOM.Init;
+        UOM.Init();
         UOM.Validate(Code, CodeToSet);
         UOM.Validate(Description, DescriptionToSet);
         UOM.Insert(true);
@@ -854,11 +854,11 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
                 if SalesHeader."Prices Including VAT" and not Item."Price Includes VAT" then begin
                     PriceExclVAT := Round(SalesLine."Unit Price" / (1 + (SalesLine."VAT %" / 100)), GLSetup."Unit-Amount Rounding Precision");
                     Item.Validate("Unit Price", PriceExclVAT);
-                    Item.Modify;
+                    Item.Modify();
                     exit;
                 end;
                 Item.Validate("Unit Price", SalesLine."Unit Price");
-                Item.Modify;
+                Item.Modify();
             end;
     end;
 
@@ -872,7 +872,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         if Item.WritePermission then
             if Item.Get(SalesLine."No.") then begin
                 Item.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
-                Item.Modify;
+                Item.Modify();
             end;
     end;
 

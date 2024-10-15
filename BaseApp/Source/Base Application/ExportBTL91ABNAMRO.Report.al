@@ -164,8 +164,8 @@ report 11000007 "Export BTL91-ABN AMRO"
 
             trigger OnPreDataItem()
             begin
-                LockTable;
-                TempfileAccumulatives.DeleteAll;
+                LockTable();
+                TempfileAccumulatives.DeleteAll();
             end;
         }
     }
@@ -223,7 +223,7 @@ report 11000007 "Export BTL91-ABN AMRO"
             "Exchange bank" := 'ABNA'
         else
             "Exchange bank" := 'ABNT';
-        AccountingSetup.Get;
+        AccountingSetup.Get();
     end;
 
     var
@@ -233,12 +233,12 @@ report 11000007 "Export BTL91-ABN AMRO"
         Text1000005: Label 'Check whether payment histories are present\';
         Text1000006: Label 'and/or %1 is activated';
         Text1000007: Label 'The maximum transaction number of 9999 is reached';
-        Text1000008: Label '<standard format,2>';
+        Text1000008: Label '<standard format,2>', Locked = true;
         Text1000009: Label 'X';
-        Text1000010: Label '<Year,2><Month,2><Day,2>';
+        Text1000010: Label '<Year,2><Month,2><Day,2>', Locked = true;
         Text1000013: Label '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./- ';
         Text1000014: Label 'Invalid sign used in Fillingcharacter';
-        Text1000015: Label '<Integer>';
+        Text1000015: Label '<Integer>', Locked = true;
         TempfileAccumulatives: Record "Payment History Export Buffer" temporary;
         TotAmount: Decimal;
         UseAmount: Decimal;
@@ -480,12 +480,12 @@ report 11000007 "Export BTL91-ABN AMRO"
         if TempfileAccumulatives.Get(Currencycode) then begin
             TempfileAccumulatives.Amount := TempfileAccumulatives.Amount + Amount;
             TempfileAccumulatives."No. of Net Change" := TempfileAccumulatives."No. of Net Change" + 1;
-            TempfileAccumulatives.Modify;
+            TempfileAccumulatives.Modify();
         end else begin
             TempfileAccumulatives."Currency Code" := Currencycode;
             TempfileAccumulatives.Amount := Amount;
             TempfileAccumulatives."No. of Net Change" := 1;
-            TempfileAccumulatives.Insert;
+            TempfileAccumulatives.Insert();
         end;
     end;
 }

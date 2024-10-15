@@ -15,7 +15,7 @@ codeunit 11402 "Post Code Lookup - Table"
     begin
         PostCode := StrSubstNo('%1 %2', CopyStr(PostCode, 1, 4), CopyStr(PostCode, 5, 2));
 
-        PostCodeRange.Reset;
+        PostCodeRange.Reset();
         PostCodeRange.SetRange("Post Code", PostCode);
 
         if HouseNo <> '' then begin

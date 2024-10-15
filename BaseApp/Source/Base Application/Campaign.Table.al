@@ -13,7 +13,7 @@ table 5071 Campaign
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    RMSetup.Get;
+                    RMSetup.Get();
                     NoSeriesMgt.TestManual(RMSetup."Campaign Nos.");
                     "No. Series" := '';
                 end;
@@ -345,27 +345,27 @@ table 5071 Campaign
 
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::Campaign);
         RMCommentLine.SetRange("No.", "No.");
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
 
         CampaignEntry.SetCurrentKey("Campaign No.");
         CampaignEntry.SetRange("Campaign No.", "No.");
-        CampaignEntry.DeleteAll;
+        CampaignEntry.DeleteAll();
 
         CampaignMgmt.DeactivateCampaign(Rec, false);
 
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
         SalesPrice.SetRange("Sales Code", "No.");
-        SalesPrice.DeleteAll;
+        SalesPrice.DeleteAll();
 
         SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
         SalesLineDisc.SetRange("Sales Code", "No.");
-        SalesLineDisc.DeleteAll;
+        SalesLineDisc.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Campaign Nos.");
             NoSeriesMgt.InitSeries(RMSetup."Campaign Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -409,10 +409,10 @@ table 5071 Campaign
     begin
         with Campaign do begin
             Campaign := Rec;
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Campaign Nos.");
             if NoSeriesMgt.SelectSeries(RMSetup."Campaign Nos.", OldCampaign."No. Series", "No. Series") then begin
-                RMSetup.Get;
+                RMSetup.Get();
                 RMSetup.TestField("Campaign Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Campaign;
@@ -430,10 +430,11 @@ table 5071 Campaign
             DimMgt.SaveDefaultDim(DATABASE::Campaign, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure UpdateDates()
     var
         SalesPrice: Record "Sales Price";
@@ -444,28 +445,28 @@ table 5071 Campaign
         Modify;
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
         SalesPrice.SetRange("Sales Code", "No.");
-        SalesPrice.LockTable;
+        SalesPrice.LockTable();
         if SalesPrice.Find('-') then
             repeat
                 SalesPrice2 := SalesPrice;
-                SalesPrice.Delete;
+                SalesPrice.Delete();
                 SalesPrice2.Validate("Starting Date", "Starting Date");
                 SalesPrice2.Insert(true);
                 SalesPrice2.Validate("Ending Date", "Ending Date");
-                SalesPrice2.Modify;
+                SalesPrice2.Modify();
             until SalesPrice.Next = 0;
 
         SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
         SalesLineDisc.SetRange("Sales Code", "No.");
-        SalesLineDisc.LockTable;
+        SalesLineDisc.LockTable();
         if SalesLineDisc.Find('-') then
             repeat
                 SalesLineDisc2 := SalesLineDisc;
-                SalesLineDisc.Delete;
+                SalesLineDisc.Delete();
                 SalesLineDisc2.Validate("Starting Date", "Starting Date");
                 SalesLineDisc2.Insert(true);
                 SalesLineDisc2.Validate("Ending Date", "Ending Date");
-                SalesLineDisc2.Modify;
+                SalesLineDisc2.Modify();
             until SalesLineDisc.Next = 0;
     end;
 

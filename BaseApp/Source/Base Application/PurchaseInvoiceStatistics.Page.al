@@ -1,4 +1,4 @@
-﻿page 400 "Purchase Invoice Statistics"
+page 400 "Purchase Invoice Statistics"
 {
     Caption = 'Purchase Invoice Statistics';
     Editable = false;

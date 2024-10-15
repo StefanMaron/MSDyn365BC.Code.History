@@ -24,7 +24,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
             trigger OnPreDataItem()
             begin
                 if "Payment History".FindSet(true) then;
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }
@@ -437,7 +437,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         PaymentHistoryLine: Record "Payment History Line";
         LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
     begin
-        PaymentHistoryLine.Reset;
+        PaymentHistoryLine.Reset();
         PaymentHistoryLine.SetFilter("Sequence Type", '>%1', PaymentHistoryLine."Sequence Type"::" ");
         LocalFunctionalityMgt.GetPmtHistLineCountAndAmt(PaymentHistoryLine, TotalAmount, LineCount, "Payment History");
     end;

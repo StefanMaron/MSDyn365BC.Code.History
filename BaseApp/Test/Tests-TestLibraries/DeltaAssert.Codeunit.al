@@ -29,7 +29,7 @@ codeunit 130001 "Delta Assert"
             FieldRef := RecRef.Field(FieldNo);
         end;
 
-        if Format(FieldRef.Class) = 'FlowField' then
+        if FieldRef.Class = FieldClass::FlowField then
             FieldRef.CalcField;
 
         exit(FieldRef.Value);
@@ -73,7 +73,7 @@ codeunit 130001 "Delta Assert"
         if Watches.FindLast then
             Watches."No." := Watches."No." + 1;
 
-        Watches.Init;
+        Watches.Init();
         Watches.Insert(true);
         Watches.Validate(TableNo, Table);
         Watches.Validate(FieldNo, Field);
@@ -112,7 +112,7 @@ codeunit 130001 "Delta Assert"
         LibAssert.IsFalse(Watches.IsEmpty, 'No watches added.');
 
         // Check all watches
-        Watches.Reset;
+        Watches.Reset();
         Watches.FindSet;
         repeat
             AssertWatch(Watches);

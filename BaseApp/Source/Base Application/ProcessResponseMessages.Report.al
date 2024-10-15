@@ -26,7 +26,7 @@ report 11406 "Process Response Messages"
                 if not ElecTaxDeclHeader.Get("Declaration Type", "Declaration No.") then
                     Error(HeaderNotFoundErr, "Declaration Type", "Declaration No.");
 
-                ErrorLog.Reset;
+                ErrorLog.Reset();
                 ErrorLog.SetRange("Declaration Type", "Declaration Type");
                 ErrorLog.SetRange("Declaration No.", "Declaration No.");
                 if not ErrorLog.FindLast then
@@ -42,7 +42,7 @@ report 11406 "Process Response Messages"
                     for Index := 0 to NodeList.Count - 1 do begin
                         XmlNode := NodeList.ItemOf(Index);
 
-                        ErrorLog.Init;
+                        ErrorLog.Init();
                         ErrorLog."No." := NextErrorNo;
                         ErrorLog."Declaration Type" := "Declaration Type";
                         ErrorLog."Declaration No." := "Declaration No.";

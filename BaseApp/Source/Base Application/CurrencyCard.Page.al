@@ -279,15 +279,15 @@ page 495 "Currency Card"
         {
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 Sales';
+                Caption = 'Common Data Service';
                 Image = Administration;
-                Visible = CRMIntegrationEnabled;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoTransactionCurrency)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Transaction Currency';
                     Image = CoupledCurrency;
-                    ToolTip = 'Open the coupled Dynamics 365 Sales transaction currency.';
+                    ToolTip = 'Open the coupled Common Data Service transaction currency.';
 
                     trigger OnAction()
                     var
@@ -304,7 +304,7 @@ page 495 "Currency Card"
                     Image = Refresh;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
-                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
+                    ToolTip = 'Send updated data to Common Data Service.';
 
                     trigger OnAction()
                     var
@@ -327,7 +327,7 @@ page 495 "Currency Card"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -336,7 +336,7 @@ page 495 "Currency Card"
                         Image = LinkAccount;
                         //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                         //PromotedCategory = Process;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales Transaction Currency.';
+                        ToolTip = 'Create or modify the coupling to a Common Data Service Transaction Currency.';
 
                         trigger OnAction()
                         var
@@ -354,7 +354,7 @@ page 495 "Currency Card"
                         Image = UnLinkAccount;
                         //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                         //PromotedCategory = Process;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales Transaction Currency.';
+                        ToolTip = 'Delete the coupling to a Common Data Service Transaction Currency.';
 
                         trigger OnAction()
                         var
@@ -386,8 +386,8 @@ page 495 "Currency Card"
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        if CRMIntegrationEnabled then begin
-            CRMIsCoupledToRecord := CRMIntegrationEnabled and CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if Code <> xRec.Code then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
@@ -396,11 +396,13 @@ page 495 "Currency Card"
     trigger OnOpenPage()
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
     end;
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
 }
 

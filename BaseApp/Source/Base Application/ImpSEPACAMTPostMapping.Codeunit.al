@@ -91,7 +91,7 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
         InsertCBGStatementLineAddInfoMultiline(CBGStatementLine, Value);
     end;
 
-    local procedure InsertCBGStatementLineAddInfo(ReferenceCBGStatementLine: Record "CBG Statement Line"; AddInfo: Text; InformationType: Option)
+    local procedure InsertCBGStatementLineAddInfo(ReferenceCBGStatementLine: Record "CBG Statement Line"; AddInfo: Text; InformationType: Enum "CBG Statement Information Type")
     var
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin

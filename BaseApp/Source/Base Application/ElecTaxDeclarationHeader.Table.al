@@ -30,7 +30,7 @@ table 11409 "Elec. Tax Declaration Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ElecTaxDeclarationSetup.Get;
+                    ElecTaxDeclarationSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -67,7 +67,7 @@ table 11409 "Elec. Tax Declaration Header"
                 end;
 
                 if ("Our Reference" <> xRec."Our Reference") and ("Our Reference" <> '') then begin
-                    ElecTaxDeclarationHeader.Reset;
+                    ElecTaxDeclarationHeader.Reset();
                     ElecTaxDeclarationHeader.SetCurrentKey("Our Reference");
                     ElecTaxDeclarationHeader.SetRange("Our Reference", "Our Reference");
                     if ElecTaxDeclarationHeader.FindFirst then
@@ -88,11 +88,9 @@ table 11409 "Elec. Tax Declaration Header"
                 UpdateDates;
             end;
         }
-        field(41; "Declaration Period"; Option)
+        field(41; "Declaration Period"; Enum "Elec. Tax Declaration Period")
         {
             Caption = 'Declaration Period';
-            OptionCaption = ' ,January,February,March,April,May,June,July,August,September,October,November,December,,,,,,,,,First Quarter,,,Second Quarter,,,Third Quarter,,,Fourth Quarter,,,,,,,,,,Year,January-February,April-May,July-August,October-November';
-            OptionMembers = " ",January,February,March,April,May,June,July,August,September,October,November,December,,,,,,,,,"First Quarter",,,"Second Quarter",,,"Third Quarter",,,"Fourth Quarter",,,,,,,,,,Year,"January-February","April-May","July-August","October-November";
 
             trigger OnValidate()
             begin
@@ -190,27 +188,27 @@ table 11409 "Elec. Tax Declaration Header"
         if Status = Status::Submitted then
             Error(Text000, TableCaption, FieldCaption(Status), Status);
 
-        ElecTaxDeclarationLine.Reset;
+        ElecTaxDeclarationLine.Reset();
         ElecTaxDeclarationLine.SetRange("Declaration Type", "Declaration Type");
         ElecTaxDeclarationLine.SetRange("Declaration No.", "No.");
-        ElecTaxDeclarationLine.DeleteAll;
+        ElecTaxDeclarationLine.DeleteAll();
 
-        ElecTaxDeclErrorLog.Reset;
+        ElecTaxDeclErrorLog.Reset();
         ElecTaxDeclErrorLog.SetRange("Declaration Type", "Declaration Type");
         ElecTaxDeclErrorLog.SetRange("Declaration No.", "No.");
-        ElecTaxDeclErrorLog.DeleteAll;
+        ElecTaxDeclErrorLog.DeleteAll();
 
-        ElecTaxDeclResponseMsg.Reset;
+        ElecTaxDeclResponseMsg.Reset();
         ElecTaxDeclResponseMsg.SetCurrentKey("Declaration Type", "Declaration No.");
         ElecTaxDeclResponseMsg.SetRange("Declaration Type", "Declaration Type");
         ElecTaxDeclResponseMsg.SetRange("Declaration No.", "No.");
-        ElecTaxDeclResponseMsg.DeleteAll;
+        ElecTaxDeclResponseMsg.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            ElecTaxDeclarationSetup.Get;
+            ElecTaxDeclarationSetup.Get();
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -240,7 +238,7 @@ table 11409 "Elec. Tax Declaration Header"
     begin
         with ElecTaxDeclarationHeader do begin
             ElecTaxDeclarationHeader := Rec;
-            ElecTaxDeclarationSetup.Get;
+            ElecTaxDeclarationSetup.Get();
             Rec.TestNoSeries;
             if NoSeriesMgt.SelectSeries(Rec.GetNoSeriesCode, OldElecTaxDeclarationHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -283,7 +281,18 @@ table 11409 "Elec. Tax Declaration Header"
         end;
 
         case "Declaration Period" of
-            "Declaration Period"::January .. "Declaration Period"::December:
+            "Declaration Period"::January,
+            "Declaration Period"::February,
+            "Declaration Period"::March,
+            "Declaration Period"::April,
+            "Declaration Period"::May,
+            "Declaration Period"::June,
+            "Declaration Period"::July,
+            "Declaration Period"::August,
+            "Declaration Period"::September,
+            "Declaration Period"::October,
+            "Declaration Period"::November,
+             "Declaration Period"::December:
                 "Declaration Period From Date" := DMY2Date(1, "Declaration Period", "Declaration Year");
             "Declaration Period"::"First Quarter", "Declaration Period"::Year, "Declaration Period"::"January-February":
                 "Declaration Period From Date" := DMY2Date(1, 1, "Declaration Year");
@@ -295,16 +304,37 @@ table 11409 "Elec. Tax Declaration Header"
                 "Declaration Period From Date" := DMY2Date(1, 10, "Declaration Year");
         end;
 
+        OnAfterUpdateDeclarationPeriodFromDate(Rec);
+
         case "Declaration Period" of
-            "Declaration Period"::January .. "Declaration Period"::December:
+            "Declaration Period"::January,
+            "Declaration Period"::February,
+            "Declaration Period"::March,
+            "Declaration Period"::April,
+            "Declaration Period"::May,
+            "Declaration Period"::June,
+            "Declaration Period"::July,
+            "Declaration Period"::August,
+            "Declaration Period"::September,
+            "Declaration Period"::October,
+            "Declaration Period"::November,
+             "Declaration Period"::December:
                 "Declaration Period To Date" := CalcDate('<+CM>', "Declaration Period From Date");
-            "Declaration Period"::"First Quarter" .. "Declaration Period"::"Fourth Quarter":
+            "Declaration Period"::"First Quarter",
+            "Declaration Period"::"Second Quarter",
+            "Declaration Period"::"Third Quarter",
+            "Declaration Period"::"Fourth Quarter":
                 "Declaration Period To Date" := CalcDate('<+CQ>', "Declaration Period From Date");
             "Declaration Period"::Year:
                 "Declaration Period To Date" := CalcDate('<+CY>', "Declaration Period From Date");
-            "Declaration Period"::"January-February" .. "Declaration Period"::"October-November":
+            "Declaration Period"::"January-February",
+            "Declaration Period"::"April-May",
+            "Declaration Period"::"July-August",
+            "Declaration Period"::"October-November":
                 "Declaration Period To Date" := CalcDate('<+1M + CM>', "Declaration Period From Date");
         end;
+
+        OnAfterUpdateDeclarationPeriodToDate(Rec);
 
         if "Declaration Period To Date" >= Today then
             Error(Text008);
@@ -316,7 +346,7 @@ table 11409 "Elec. Tax Declaration Header"
                 Error(Text009, FieldCaption("Declaration Year"), "Declaration Year", "Declaration Year" + 1);
         end;
 
-        ElecTaxDeclaration2.Reset;
+        ElecTaxDeclaration2.Reset();
         ElecTaxDeclaration2.SetRange("Declaration Type", "Declaration Type");
         ElecTaxDeclaration2.SetFilter("No.", '<>%1', "No.");
         ElecTaxDeclaration2.SetRange("Declaration Year", "Declaration Year");
@@ -349,7 +379,7 @@ table 11409 "Elec. Tax Declaration Header"
     begin
         ElecTaxDeclarationLine.SetRange("Declaration Type", "Declaration Type");
         ElecTaxDeclarationLine.SetRange("Declaration No.", "No.");
-        ElecTaxDeclarationLine.DeleteAll;
+        ElecTaxDeclarationLine.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -364,7 +394,7 @@ table 11409 "Elec. Tax Declaration Header"
             repeat
                 DeleteLine(ElecTaxDeclarationLine2);
             until ElecTaxDeclarationLine2.Next = 0;
-        ElecTaxDeclarationLine.Delete;
+        ElecTaxDeclarationLine.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -380,7 +410,7 @@ table 11409 "Elec. Tax Declaration Header"
     procedure OnPreExport()
     begin
         if "Declaration Type" = "Declaration Type"::"ICP Declaration" then begin
-            ElecTaxDeclarationLine.Reset;
+            ElecTaxDeclarationLine.Reset();
             ElecTaxDeclarationLine.SetRange("Declaration Type", "Declaration Type");
             ElecTaxDeclarationLine.SetRange("Declaration No.", "No.");
             ElecTaxDeclarationLine.SetRange("Line Type", ElecTaxDeclarationLine."Line Type"::Element);
@@ -401,6 +431,16 @@ table 11409 "Elec. Tax Declaration Header"
                 exit('Omzetbelasting');
         end;
         Error(UnknownDeclTypeErr, "Declaration Type");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDeclarationPeriodFromDate(var ElecTaxDeclaration: Record "Elec. Tax Declaration Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDeclarationPeriodToDate(var ElecTaxDeclaration: Record "Elec. Tax Declaration Header")
+    begin
     end;
 }
 

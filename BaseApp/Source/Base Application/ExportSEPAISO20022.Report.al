@@ -34,7 +34,7 @@ report 11000011 "Export SEPA ISO20022"
             trigger OnPreDataItem()
             begin
                 if FindSet(true) then;
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }
@@ -127,7 +127,7 @@ report 11000011 "Export SEPA ISO20022"
         XMLDOMMgt.AddElement(XMLNodeCurr, 'MsgId', MessageId, '', XMLNewChild);
         XMLDOMMgt.AddElement(XMLNodeCurr, 'CreDtTm', Format(CurrentDateTime, 19, 9), '', XMLNewChild);
 
-        PaymentHistoryLine.Reset;
+        PaymentHistoryLine.Reset();
         PaymentHistoryLine.SetCurrentKey("Our Bank", Status, "Run No.", Order, Date);
         PaymentHistoryLine.SetRange("Our Bank", "Payment History"."Our Bank");
         PaymentHistoryLine.SetRange("Run No.", "Payment History"."Run No.");

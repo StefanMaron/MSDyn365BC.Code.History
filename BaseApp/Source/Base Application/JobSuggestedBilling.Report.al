@@ -117,7 +117,7 @@ report 1011 "Job Suggested Billing"
                         if Amt[I] <> 0 then
                             PrintJobTask := true;
                     if not PrintJobTask then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     for I := 1 to 6 do
                         TotalAmt[I] := TotalAmt[I] + Amt[I];
                 end;
@@ -158,7 +158,7 @@ report 1011 "Job Suggested Billing"
                         if TotalAmt[I] <> 0 then
                             PrintJobTask := true;
                     if not PrintJobTask then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     Clear(JobBuffer);
                     CurrencyCode := '';
@@ -178,9 +178,9 @@ report 1011 "Job Suggested Billing"
                         JobBuffer[2]."Amount 2" := JobBuffer[2]."Amount 2" + JobBuffer[1]."Amount 2";
                         JobBuffer[2]."Amount 3" := JobBuffer[2]."Amount 3" + JobBuffer[1]."Amount 3";
                         JobBuffer[2]."Amount 4" := JobBuffer[2]."Amount 4" + JobBuffer[1]."Amount 4";
-                        JobBuffer[2].Modify;
+                        JobBuffer[2].Modify();
                     end else
-                        JobBuffer[1].Insert;
+                        JobBuffer[1].Insert();
                 end;
             }
 
@@ -190,7 +190,7 @@ report 1011 "Job Suggested Billing"
                     TotalAmt[I] := 0;
                 Clear(Cust2);
                 if "Bill-to Customer No." = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if Cust2.Get("Bill-to Customer No.") then;
             end;
         }
@@ -242,14 +242,14 @@ report 1011 "Job Suggested Billing"
             begin
                 if Number = 1 then begin
                     if not JobBuffer[1].Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if JobBuffer[1].Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 Clear(Cust);
                 Clear(TotalAmt);
                 if not Cust.Get(JobBuffer[1]."Account No. 1") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 TotalAmt[1] := JobBuffer[1]."Amount 1";
                 TotalAmt[2] := JobBuffer[1]."Amount 2";
                 TotalAmt[3] := JobBuffer[1]."Amount 3";
@@ -298,8 +298,8 @@ report 1011 "Job Suggested Billing"
         JobTaskFilter := "Job Task".GetFilters;
         CurrencyField[2] := CurrencyField[1];
         CurrencyField[3] := CurrencyField[1];
-        JobBuffer[1].DeleteAll;
-        GLSetup.Get;
+        JobBuffer[1].DeleteAll();
+        GLSetup.Get();
     end;
 
     var

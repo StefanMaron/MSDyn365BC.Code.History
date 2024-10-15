@@ -132,10 +132,10 @@ report 1009 "Job Actual To Budget"
                         Clear(Amt);
                         if Number = 1 then begin
                             if not JobDiffBuffer.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if JobDiffBuffer.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         Amt[1] := JobDiffBuffer.Quantity;
                         Amt[4] := JobDiffBuffer."Total Cost";
                         Amt[7] := JobDiffBuffer."Line Amount";
@@ -145,7 +145,7 @@ report 1009 "Job Actual To Budget"
                             Amt[2] := JobDiffBuffer2.Quantity;
                             Amt[5] := JobDiffBuffer2."Total Cost";
                             Amt[8] := JobDiffBuffer2."Line Amount";
-                            JobDiffBuffer2.Delete;
+                            JobDiffBuffer2.Delete();
                         end;
                         Amt[3] := Amt[1] - Amt[2];
                         Amt[6] := Amt[4] - Amt[5];
@@ -156,7 +156,7 @@ report 1009 "Job Actual To Budget"
                             if Amt[I] <> 0 then
                                 PrintJobTask := true;
                         if not PrintJobTask then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         for I := 2 to 9 do begin
                             JTTotalAmt[I] := JTTotalAmt[I] + Amt[I];
                             JobTotalAmt[I] := JobTotalAmt[I] + Amt[I];
@@ -221,10 +221,10 @@ report 1009 "Job Actual To Budget"
                         Clear(Amt);
                         if Number = 1 then begin
                             if not JobDiffBuffer2.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if JobDiffBuffer2.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         Amt[2] := JobDiffBuffer2.Quantity;
                         Amt[5] := JobDiffBuffer2."Total Cost";
                         Amt[8] := JobDiffBuffer2."Line Amount";
@@ -237,7 +237,7 @@ report 1009 "Job Actual To Budget"
                             if Amt[I] <> 0 then
                                 PrintJobTask := true;
                         if not PrintJobTask then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         for I := 2 to 9 do begin
                             JTTotalAmt[I] := JTTotalAmt[I] + Amt[I];
                             JobTotalAmt[I] := JobTotalAmt[I] + Amt[I];
@@ -278,13 +278,13 @@ report 1009 "Job Actual To Budget"
                 trigger OnAfterGetRecord()
                 begin
                     if "Job Task Type" <> "Job Task Type"::Posting then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Clear(JobCalcBatches);
                     JobCalcBatches.CalculateActualToBudget(
                       Job, "Job Task", JobDiffBuffer, JobDiffBuffer2, CurrencyField);
                     if not JobDiffBuffer.Find('-') then
                         if not JobDiffBuffer2.Find('-') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     for I := 1 to 9 do
                         JTTotalAmt[I] := 0;
                 end;

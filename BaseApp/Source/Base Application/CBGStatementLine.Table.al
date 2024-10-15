@@ -640,7 +640,7 @@ table 11401 "CBG Statement Line"
 
         JrnlTemplate.Get("Journal Template Name");
 
-        CBGStatementLine.Reset;
+        CBGStatementLine.Reset();
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
         if (CBGStatement.Type = CBGStatement.Type::"Bank/Giro") and CBGStatementLine.IsEmpty then
@@ -832,7 +832,7 @@ table 11401 "CBG Statement Line"
         CBGStatement: Record "CBG Statement";
     begin
         TestField("Account No.");
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Journal Template Name" := "Journal Template Name";
         GenJnlLine."Journal Batch Name" := Text1000016;// STRSUBSTNO('%1',"No.");
         GenJnlLine."Line No." := 0;
@@ -1465,7 +1465,7 @@ table 11401 "CBG Statement Line"
     begin
         DataExchField.SetRange("Data Exch. No.", "Data Exch. Entry No.");
         DataExchField.SetRange("Line No.", "Data Exch. Line No.");
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
     end;
 
     local procedure ClearCustApplnEntryFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -1474,7 +1474,7 @@ table 11401 "CBG Statement Line"
         CustLedgerEntry."Accepted Payment Tolerance" := 0;
         CustLedgerEntry."Amount to Apply" := 0;
         CustLedgerEntry."Applies-to ID" := '';
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure ClearVendApplnEntryFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1483,14 +1483,14 @@ table 11401 "CBG Statement Line"
         VendorLedgerEntry."Accepted Payment Tolerance" := 0;
         VendorLedgerEntry."Amount to Apply" := 0;
         VendorLedgerEntry."Applies-to ID" := '';
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure ClearEmployeeApplnEntryFields(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
         EmployeeLedgerEntry."Amount to Apply" := 0;
         EmployeeLedgerEntry."Applies-to ID" := '';
-        EmployeeLedgerEntry.Modify;
+        EmployeeLedgerEntry.Modify();
     end;
 
     procedure ValidateApplyRequirements(CBGStatementLine: Record "CBG Statement Line")

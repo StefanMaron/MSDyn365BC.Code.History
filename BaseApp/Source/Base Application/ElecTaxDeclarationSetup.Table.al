@@ -105,7 +105,7 @@ table 11408 "Elec. Tax Declaration Setup"
             trigger OnValidate()
             begin
                 if "Part of Fiscal Entity" <> xRec."Part of Fiscal Entity" then begin
-                    ElecTaxDeclarationHeader.Reset;
+                    ElecTaxDeclarationHeader.Reset();
                     ElecTaxDeclarationHeader.SetFilter(Status, '%1|%2', ElecTaxDeclarationHeader.Status::Created,
                       ElecTaxDeclarationHeader.Status::Submitted);
                     if ElecTaxDeclarationHeader.FindFirst then

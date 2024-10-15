@@ -8,7 +8,7 @@ page 9087 "Sales Line FactBox"
     {
         area(content)
         {
-            field(ItemNo; ShowNo)
+            field(ItemNo; ShowNo())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item No.';
@@ -43,7 +43,7 @@ page 9087 "Sales Line FactBox"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -66,7 +66,7 @@ page 9087 "Sales Line FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent);
+                        ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent());
                         CurrPage.Update(true);
                     end;
                 }
@@ -130,11 +130,11 @@ page 9087 "Sales Line FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemSub;
+                        CurrPage.SaveRecord();
+                        ShowItemSub();
                         CurrPage.Update(true);
                         if (Reserve = Reserve::Always) and ("No." <> xRec."No.") then begin
-                            AutoReserve;
+                            AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -148,8 +148,8 @@ page 9087 "Sales Line FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ShowPrices;
-                        CurrPage.Update;
+                        PickPrice();
+                        CurrPage.Update();
                     end;
                 }
                 field(SalesLineDiscounts; SalesInfoPaneMgt.CalcNoOfSalesLineDisc(Rec))
@@ -161,8 +161,8 @@ page 9087 "Sales Line FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ShowLineDisc;
-                        CurrPage.Update;
+                        PickDiscount();
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -175,34 +175,18 @@ page 9087 "Sales Line FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ClearSalesHeader;
+        ClearSalesHeader();
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalcFields("Reserved Quantity", "Attached Doc Count");
-        SalesInfoPaneMgt.ResetItemNo;
+        SalesInfoPaneMgt.ResetItemNo();
     end;
 
     var
-        SalesHeader: Record "Sales Header";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         SalesInfoPaneMgt: Codeunit "Sales Info-Pane Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-
-    local procedure ShowPrices()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLinePrice(SalesHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLineLineDisc(SalesHeader, Rec);
-    end;
 
     local procedure ShowNo(): Code[20]
     begin

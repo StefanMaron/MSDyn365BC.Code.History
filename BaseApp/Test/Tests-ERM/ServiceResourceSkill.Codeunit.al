@@ -33,7 +33,7 @@ codeunit 136126 "Service Resource Skill"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Resource Skill");
     end;
 
@@ -249,7 +249,7 @@ codeunit 136126 "Service Resource Skill"
         ResourceSkill: Record "Resource Skill";
     begin
         ResourceSkill.Get(ResourceSkill.Type::Item, ItemNo, Code);
-        SkillCode.Init;
+        SkillCode.Init();
         SkillCode.SetFilter(Code, '<> %1', ResourceSkill."Skill Code");
         SkillCode.FindFirst;
 

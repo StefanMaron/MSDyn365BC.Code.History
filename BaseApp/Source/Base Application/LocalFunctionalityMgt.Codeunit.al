@@ -106,7 +106,7 @@ codeunit 11400 "Local Functionality Mgt."
     var
         PaymentHistoryLine: Record "Payment History Line";
     begin
-        PaymentHistoryLine.Reset;
+        PaymentHistoryLine.Reset();
         PaymentHistoryLine.SetCurrentKey(Date, "Sequence Type");
         PaymentHistoryLine.SetRange(Date, GroupPaymentHistoryLine.Date);
         PaymentHistoryLine.SetRange("Sequence Type", GroupPaymentHistoryLine."Sequence Type");

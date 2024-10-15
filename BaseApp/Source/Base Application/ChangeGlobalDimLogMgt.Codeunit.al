@@ -11,26 +11,26 @@ codeunit 484 "Change Global Dim. Log Mgt."
 
     procedure AreAllCompleted(): Boolean
     begin
-        TempChangeGlobalDimLogEntry.Reset;
+        TempChangeGlobalDimLogEntry.Reset();
         TempChangeGlobalDimLogEntry.SetFilter(Status, '<>%1', TempChangeGlobalDimLogEntry.Status::Completed);
         exit(TempChangeGlobalDimLogEntry.IsEmpty);
     end;
 
     procedure ClearBuffer()
     begin
-        TempChangeGlobalDimLogEntry.Reset;
-        TempChangeGlobalDimLogEntry.DeleteAll;
+        TempChangeGlobalDimLogEntry.Reset();
+        TempChangeGlobalDimLogEntry.DeleteAll();
     end;
 
     procedure IsBufferClear(): Boolean
     begin
-        TempChangeGlobalDimLogEntry.Reset;
+        TempChangeGlobalDimLogEntry.Reset();
         exit(TempChangeGlobalDimLogEntry.IsEmpty);
     end;
 
     procedure IsStarted(): Boolean
     begin
-        TempChangeGlobalDimLogEntry.Reset;
+        TempChangeGlobalDimLogEntry.Reset();
         TempChangeGlobalDimLogEntry.SetFilter(Status, '<>%1', TempChangeGlobalDimLogEntry.Status::" ");
         exit(not TempChangeGlobalDimLogEntry.IsEmpty);
     end;
@@ -38,7 +38,7 @@ codeunit 484 "Change Global Dim. Log Mgt."
     procedure ExcludeTable(TableId: Integer)
     begin
         if TempChangeGlobalDimLogEntry.Get(TableId) then
-            TempChangeGlobalDimLogEntry.Delete;
+            TempChangeGlobalDimLogEntry.Delete();
         if AreAllCompleted then
             ClearBuffer;
     end;
@@ -63,10 +63,10 @@ codeunit 484 "Change Global Dim. Log Mgt."
         ChangeGlobalDimLogEntry.FindSet;
         repeat
             TempChangeGlobalDimLogEntry := ChangeGlobalDimLogEntry;
-            TempChangeGlobalDimLogEntry.Insert;
+            TempChangeGlobalDimLogEntry.Insert();
         until ChangeGlobalDimLogEntry.Next = 0;
         TempChangeGlobalDimLogEntry.SetRange("Total Records", 0);
-        TempChangeGlobalDimLogEntry.DeleteAll;
+        TempChangeGlobalDimLogEntry.DeleteAll();
         exit(not IsBufferClear);
     end;
 

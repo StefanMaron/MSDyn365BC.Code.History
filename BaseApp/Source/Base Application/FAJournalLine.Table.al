@@ -31,11 +31,9 @@ table 5621 "FA Journal Line"
                 "FA Posting Group" := FADeprBook."FA Posting Group";
             end;
         }
-        field(5; "FA Posting Type"; Option)
+        field(5; "FA Posting Type"; Enum "FA Journal Line FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = 'Acquisition Cost,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance,Salvage Value';
-            OptionMembers = "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
 
             trigger OnValidate()
             begin
@@ -62,7 +60,7 @@ table 5621 "FA Journal Line"
                 FA.TestField(Inactive, false);
                 Description := FA.Description;
                 if "Depreciation Book Code" = '' then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     "Depreciation Book Code" := FASetup."Default Depr. Book";
                     if not FADeprBook.Get("FA No.", "Depreciation Book Code") then
                         "Depreciation Book Code" := '';
@@ -342,7 +340,7 @@ table 5621 "FA Journal Line"
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
     begin
-        LockTable;
+        LockTable();
         FAJnlTemplate.Get("Journal Template Name");
         "Source Code" := FAJnlTemplate."Source Code";
         FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");

@@ -5,6 +5,9 @@ page 7014 "Purchase Line Discounts"
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Purchase Line Discount";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

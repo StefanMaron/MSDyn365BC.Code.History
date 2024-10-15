@@ -31,6 +31,7 @@ report 11413 "Create Intrastat Decl. Disk"
                     TestField("Country/Region Code");
                     TestField("Transaction Type");
                     TestField("Transport Method");
+                    TestField("Entry/Exit Point");
                     TestField("Net Weight");
                     TestField("Total Weight");
 
@@ -130,10 +131,10 @@ report 11413 "Create Intrastat Decl. Disk"
                     case Number of
                         6:
                             if not ZeroReceipt then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         7:
                             if not ZeroShipment then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
 
                     ItemDirection := Number;
@@ -230,7 +231,7 @@ report 11413 "Create Intrastat Decl. Disk"
             var
                 LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.TestField("VAT Registration No.");
                 CompanyInfo.TestField(Name);
 

@@ -28,7 +28,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Active not recurring job 'X' is executed
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
         JobQueueEntry."Recurring Job" := false;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
         // [WHEN] Job is done and no changes were done
         BindSubscription(MockSynchJobRunner);  // returns flag of no changes by sync
@@ -78,7 +78,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Active recurring job 'X' is executed with Inactivity Timeout Period = 0
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
         JobQueueEntry.Validate("Inactivity Timeout Period", 0);
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
         // [WHEN] Job is done and no changes were done
         BindSubscription(MockSynchJobRunner);
@@ -130,23 +130,23 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Job 'ITEM1', where Status "On Hold with Inactivity period"
         CreateJobQueueEntry(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout");
         JobQueueEntry[1]."Last Ready State" := CurrentDateTime; // last run very recently
-        JobQueueEntry[1].Modify;
+        JobQueueEntry[1].Modify();
         // [GIVEN] Integration Table Mapping 'CUSTOMER', where "Table ID" = 'Customer'
         // [GIVEN] Job 'CUSTOMER', where Status "On Hold with Inactivity period"
         CreateJobQueueEntry(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
         // last run at a time in the past which makes it ready for another run, had the job queue been active.
         JobQueueEntry[2]."Last Ready State" := CurrentDateTime - 60000 * JobQueueEntry[3]."No. of Minutes between Runs";
-        JobQueueEntry[2].Modify;
+        JobQueueEntry[2].Modify();
         // [GIVEN] Integration Table Mapping 'ITEM', where "Table ID" = 'Item'
         // [GIVEN] Job 'ITEM2', where Status "On Hold with Inactivity period"
         CreateJobQueueEntry(JobQueueEntry[3], DATABASE::Item, JobQueueEntry[3].Status::"On Hold with Inactivity Timeout");
         // last run at a time in the past which makes it ready for another run, had the job queue been active.
         JobQueueEntry[3]."Last Ready State" := CurrentDateTime - 60000 * JobQueueEntry[3]."No. of Minutes between Runs";
-        JobQueueEntry[3].Modify;
+        JobQueueEntry[3].Modify();
 
         // [WHEN] Item 'X' has been inserted
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert; // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
+        Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM1' does not get status "Ready", as it has only recently executed.
         JobQueueEntry[1].Find;
@@ -178,14 +178,14 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Job 'ITEM', where Status "On Hold with Inactivity period"
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         JobQueueEntry."Last Ready State" := CurrentDateTime;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
         // [GIVEN] Upgrade is in progress
         DataUpgradeMgt.SetUpgradeInProgress;
 
         // [WHEN] Item 'X' has been inserted
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert; // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
+        Item.Insert(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM', where status "On Hold with Inactivity period"
         JobQueueEntry.Find;
@@ -210,10 +210,10 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Jobs 'A' and 'B', executed and got Status "On Hold with Inactivity period"
         CreateJobQueueEntry(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout");
         JobQueueEntry[1]."Last Ready State" := CurrentDateTime;
-        JobQueueEntry[1].Modify;
+        JobQueueEntry[1].Modify();
         CreateJobQueueEntry(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
         JobQueueEntry[2]."Last Ready State" := CurrentDateTime;
-        JobQueueEntry[2].Modify;
+        JobQueueEntry[2].Modify();
 
         // [GIVEN] Job 'C', where Status "On Hold"
         CreateJobQueueEntry(JobQueueEntry[3], DATABASE::Resource, JobQueueEntry[3].Status::"On Hold");
@@ -224,7 +224,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Job 'E', where Status "Error", "User ID" = USERID
         CreateJobQueueEntry(JobQueueEntry[5], DATABASE::Vendor, JobQueueEntry[5].Status::Error);
         JobQueueEntry[5]."User ID" := UserId;
-        JobQueueEntry[5].Modify;
+        JobQueueEntry[5].Modify();
 
         // [GIVEN] Job 'F', where Status "Error", and "User ID" is set for User that does not exist
         CreateJobQueueEntryWithDeletedUserID(JobQueueEntry[6], DATABASE::Vendor, JobQueueEntry[6].Status::Error);
@@ -299,7 +299,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         // [GIVEN] Active recurring job 'X' is executed, Inactivity Timeout Period = 0s
         CreateJobQueueEntry(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready);
         JobQueueEntry."Inactivity Timeout Period" := 0;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
         // [WHEN] SetStatus("On Hold with Inactivity Timeout")
         JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold with Inactivity Timeout");
@@ -314,18 +314,18 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        JobQueueEntry.DeleteAll;
-        JobQueueLogEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer; JobStatus: Option)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Table ID" := TableNo;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
         with JobQueueEntry do begin
             ID := CreateGuid;
@@ -353,7 +353,7 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     begin
         CreateJobQueueEntry(JobQueueEntry, TableNo, JobStatus);
         JobQueueEntry."User ID" := LibraryPermissions.GetNonExistingUserID;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
     end;
 
     local procedure VerifyJobQueueEntryUnchanged(ExpectedJobQueueEntry: Record "Job Queue Entry")

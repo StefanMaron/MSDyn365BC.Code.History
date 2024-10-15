@@ -1,4 +1,4 @@
-﻿page 234 "Apply Employee Entries"
+page 234 "Apply Employee Entries"
 {
     Caption = 'Apply Employee Entries';
     DataCaptionFields = "Employee No.";
@@ -490,7 +490,7 @@
 
         AppliesToIDVisible := ApplnType <> ApplnType::"Applies-to Doc. No.";
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if CalcType = CalcType::GenJnlLine then
             CalcApplnAmount;
@@ -782,7 +782,7 @@
     local procedure FindAmountRounding()
     begin
         if ApplnCurrencyCode = '' then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision;
         end else
@@ -926,7 +926,7 @@
         if AppliedEmplLedgEntry.FindSet(false, false) then begin
             repeat
                 TempAppliedEmplLedgEntry := AppliedEmplLedgEntry;
-                TempAppliedEmplLedgEntry.Insert;
+                TempAppliedEmplLedgEntry.Insert();
             until AppliedEmplLedgEntry.Next = 0;
         end else
             exit;
@@ -947,7 +947,7 @@
 
             AppliedAmount := AppliedAmount + TempAppliedEmplLedgEntry."Amount to Apply";
 
-            TempAppliedEmplLedgEntry.Delete;
+            TempAppliedEmplLedgEntry.Delete();
             TempAppliedEmplLedgEntry.SetRange(Positive);
 
         until not TempAppliedEmplLedgEntry.FindFirst;

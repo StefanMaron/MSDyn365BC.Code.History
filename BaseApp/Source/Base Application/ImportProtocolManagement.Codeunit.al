@@ -9,7 +9,7 @@ codeunit 11000005 "Import Protocol Management"
         ImportProtocol.SetRange(Current, true);
         ImportProtocol.ModifyAll(Current, false);
         ImportProtocol.SetRange(Current);
-        Commit;
+        Commit();
 
         Clear(ImportProtocolList);
         ImportProtocolList.SetTableView(ImportProtocol);
@@ -19,8 +19,8 @@ codeunit 11000005 "Import Protocol Management"
             ImportProtocol.TestField("Import ID");
             ImportProtocol.SetRange(Code, ImportProtocol.Code);
             ImportProtocol.Validate(Current, true);
-            ImportProtocol.Modify;
-            Commit;
+            ImportProtocol.Modify();
+            Commit();
 
             case ImportProtocol."Import Type" of
                 ImportProtocol."Import Type"::Report:
@@ -39,14 +39,14 @@ codeunit 11000005 "Import Protocol Management"
     [Scope('OnPrem')]
     procedure GetCurrentImportProtocol(var ImportProtocol: Record "Import Protocol"): Boolean
     begin
-        ImportProtocol.Reset;
+        ImportProtocol.Reset();
         ImportProtocol.SetCurrentKey(Current);
         ImportProtocol.SetRange(Current, true);
         if not ImportProtocol.Find('-') then
             exit(false);
 
         ImportProtocol.Current := false;
-        ImportProtocol.Modify;
+        ImportProtocol.Modify();
         exit(true);
     end;
 }

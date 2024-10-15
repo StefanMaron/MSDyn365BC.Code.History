@@ -245,7 +245,7 @@ codeunit 133780 "Exchange Contact Sync Test"
     begin
         // [SCENARIO] Test Deletion of Exchange Sync record.
         if LocalExchangeSync.Get(UserId) then
-            LocalExchangeSync.Delete;
+            LocalExchangeSync.Delete();
 
         // This is required for the test framework to properly handle the cleanup in the labs.
         LibraryO365Sync.SetupExchangeSync(DummyExchangeSync);
@@ -253,7 +253,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         DummyExchangeSync.Delete(true);
 
         // [GIVEN] ExchangeSync record.
-        LocalExchangeSync.Init;
+        LocalExchangeSync.Init();
         LocalExchangeSync."User ID" := UserId;
         LocalExchangeSync.SetExchangeAccountPassword(PasswordTxt);
         LocalExchangeSync.Insert(true);
@@ -270,7 +270,7 @@ codeunit 133780 "Exchange Contact Sync Test"
             'Unexpected Record in Isolated Storage');
 
         // This is required for the test framework to properly handle the cleanup in the labs.
-        LocalExchangeSync.Init;
+        LocalExchangeSync.Init();
         LibraryO365Sync.SetupExchangeSync(LocalExchangeSync);
         LibraryO365Sync.SetupExchangeTableConnection(LocalExchangeSync, ConnectionID);
     end;
@@ -287,10 +287,10 @@ codeunit 133780 "Exchange Contact Sync Test"
         // [SCENARIO] Test Open Exchange Sync page from ContactList.
         LibraryO365Sync.SetupExchangeSync(LocalExchangeSync);
         // Delete all contacts to avoid contacts being sync.
-        Contact.DeleteAll;
+        Contact.DeleteAll();
 
         if LocalExchangeSync.Get(UserId) then
-            LocalExchangeSync.Delete;
+            LocalExchangeSync.Delete();
 
         // [GIVEN] ContactList Page with no ExchangeSync record.
         ContactList.Trap;
@@ -660,7 +660,7 @@ codeunit 133780 "Exchange Contact Sync Test"
     begin
         LibraryO365Sync.SetupNavUser;
 
-        Contact.DeleteAll;
+        Contact.DeleteAll();
 
         LibraryO365Sync.SetupExchangeSync(ExchangeSync);
 
@@ -668,21 +668,21 @@ codeunit 133780 "Exchange Contact Sync Test"
         InitializeExchangeContactsThatWontSync(ExchangeSync);
 
         if not Territory.Get('Terr1') then begin
-            Territory.Init;
+            Territory.Init();
             Territory.Code := 'Terr1';
-            Territory.Insert;
+            Territory.Insert();
         end;
 
         if not SalespersonPurchaser.Get('SP') then begin
-            SalespersonPurchaser.Init;
+            SalespersonPurchaser.Init();
             SalespersonPurchaser.Code := 'SP';
-            SalespersonPurchaser.Insert;
+            SalespersonPurchaser.Insert();
         end;
         if not CountryRegion.Get('1') then begin
-            CountryRegion.Init;
+            CountryRegion.Init();
             CountryRegion.Code := '1';
             CountryRegion.Name := Company1Txt;
-            CountryRegion.Insert;
+            CountryRegion.Insert();
         end;
 
         CreateCompanyContact;
@@ -731,11 +731,11 @@ codeunit 133780 "Exchange Contact Sync Test"
         ExchangeSync: Record "Exchange Sync";
         Contact: Record Contact;
     begin
-        Contact.DeleteAll;
-        Territory.Delete;
-        SalespersonPurchaser.Delete;
-        ExchangeSync.DeleteAll;
-        CountryRegion.Delete;
+        Contact.DeleteAll();
+        Territory.Delete();
+        SalespersonPurchaser.Delete();
+        ExchangeSync.DeleteAll();
+        CountryRegion.Delete();
     end;
 
     local procedure PrepareExchangeContactWithCompanyName(var Contact: Record Contact; CompanyName: Text[50])
@@ -754,7 +754,7 @@ codeunit 133780 "Exchange Contact Sync Test"
 
     local procedure PrepareContactWithType(var Contact: Record Contact; ContactType: Integer; ContactName: Text[50])
     begin
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '';
         Contact.Validate(Type, ContactType);
         Contact.Validate(Name, ContactName);
@@ -777,13 +777,13 @@ codeunit 133780 "Exchange Contact Sync Test"
         ActivityLog: Record "Activity Log";
     begin
         LibraryO365Sync.SetupExchangeSync(ExchangeSync);
-        ActivityLog.DeleteAll;
+        ActivityLog.DeleteAll();
     end;
 
     [Scope('OnPrem')]
     procedure FindNavContact(Email: Text[80]; var Contact: Record Contact): Boolean
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.SetRange("E-Mail", Email);
         if Contact.FindFirst then
             exit(true);
@@ -795,10 +795,10 @@ codeunit 133780 "Exchange Contact Sync Test"
     var
         LocalContact: Record Contact;
     begin
-        LocalContact.Init;
+        LocalContact.Init();
         LocalContact.SetRange("E-Mail", Email);
         if LocalContact.FindFirst then
-            LocalContact.Delete;
+            LocalContact.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -814,7 +814,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         ExchangeContact: Record "Exchange Contact";
     begin
         if ExchangeContact.Get(Email) then
-            ExchangeContact.Delete;
+            ExchangeContact.Delete();
     end;
 
     [Normal]
@@ -860,7 +860,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('1') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '1';
 
         CreateContactWithCompany(Contact);
@@ -876,7 +876,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('6') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '6';
 
         CreateContactWithCompany(Contact);
@@ -892,7 +892,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('5') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         CreateContactWithCompany(Contact);
         Contact."No." := '5';
 
@@ -915,7 +915,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('2') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '2';
         CreateContact(Contact);
         Contact.Validate(Type, Contact.Type::Company);
@@ -932,7 +932,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('3') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '3';
         CreateContactWithCompany(Contact);
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -952,7 +952,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         if Contact.Get('4') then
             exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact."No." := '4';
         CreateContactWithCompany(Contact);
         Contact.Validate("First Name", FirstName4Txt);
@@ -965,7 +965,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         UtcDateTime := GetUtcDateTime(CreateDateTime(Today, Time + 360000));
         Contact.Validate("Last Date Modified", DT2Date(UtcDateTime));
         Contact.Validate("Last Time Modified", DT2Time(UtcDateTime));
-        Contact.Insert;
+        Contact.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -977,7 +977,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         end;
 
         // This record should sync
-        ExchangeContact.Init;
+        ExchangeContact.Init();
         ExchangeContact.Validate(GivenName, O365FirstName1Txt);
         ExchangeContact.Validate(MiddleName, O365MiddleName1Txt);
         ExchangeContact.Validate(Surname, O365SurName1Txt);
@@ -1008,7 +1008,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         end;
 
         // This record should not sync as we will create it before last sync date time.
-        ExchangeContact.Init;
+        ExchangeContact.Init();
         ExchangeContact.Validate(GivenName, O365FirstName1Txt);
         ExchangeContact.Validate(MiddleName, O365MiddleName1Txt);
         ExchangeContact.Validate(Surname, O365SurName1Txt);
@@ -1035,7 +1035,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         end;
 
         // Note this is the same email as ContactWithSameEmail
-        ExchangeContact.Init;
+        ExchangeContact.Init();
         ExchangeContact.Validate(EMailAddress1, NavEmail4emailcomTxt);
         ExchangeContact.Validate(GivenName, O365FirstName3Txt);
         ExchangeContact.Insert(true);
@@ -1050,7 +1050,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         end;
 
         // Note this is the same email as ContactPriorToLastSyncDate
-        ExchangeContact.Init;
+        ExchangeContact.Init();
         ExchangeContact.Validate(EMailAddress1, NavEmailContact5Txt);
         ExchangeContact.Validate(GivenName, O365FirstName3Txt);
         ExchangeContact.Insert(true);

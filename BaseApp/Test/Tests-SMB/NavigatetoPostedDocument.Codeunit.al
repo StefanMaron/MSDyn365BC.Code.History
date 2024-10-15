@@ -540,17 +540,17 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Job Planning Line":
-                JobPlanningLine.DeleteAll;
+                JobPlanningLine.DeleteAll();
             DATABASE::"Troubleshooting Setup":
-                TroubleshootingSetup.DeleteAll;
+                TroubleshootingSetup.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Service Document Log":
-                ServiceDocumentLog.DeleteAll;
+                ServiceDocumentLog.DeleteAll();
             DATABASE::"Service Item Component":
-                ServiceItemComponent.DeleteAll;
+                ServiceItemComponent.DeleteAll();
             DATABASE::"Warehouse Receipt Line":
-                WarehouseReceiptLine.DeleteAll;
+                WarehouseReceiptLine.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -561,7 +561,7 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         if not UserPersonalization.Get(UserSecurityId) then begin
             UserPersonalization.Validate("User SID", UserSecurityId);
-            UserPersonalization.Insert;
+            UserPersonalization.Insert();
         end;
     end;
 
@@ -605,7 +605,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate(Quantity, 1);
         ServiceLine."Service Item Line No." := LibraryRandom.RandInt(1000);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
     end;
 
     local procedure EnableConfirmAfterPosting()
