@@ -2,12 +2,15 @@ namespace Microsoft.Finance.FinancialReports;
 
 page 103 "Account Schedule Names"
 {
+    AboutTitle = 'About (Financial Report) Row Definitions';
+    AboutText = 'Row definitions in financial reports provide a place for calculations that can''t be made directly in the chart of accounts. For example, you can create subtotals for groups of accounts and then include that total in other totals. You can also calculate intermediate steps that aren''t shown in the final report.';
+    AdditionalSearchTerms = 'Account Schedules';
+    AnalysisModeEnabled = false;
     ApplicationArea = Basic, Suite;
-    Caption = 'Row Definitions';
+    Caption = '(Financial Report) Row Definitions';
     PageType = List;
     SourceTable = "Acc. Schedule Name";
-    AdditionalSearchTerms = 'Account Schedules';
-    UsageCategory = Lists;
+    UsageCategory = ReportsAndAnalysis;
 
     layout
     {
@@ -19,12 +22,11 @@ page 103 "Account Schedule Names"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the row definition.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description for the row definition.';
+                    ToolTip = 'Specifies a description of the financial report row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
                 }
 #if not CLEAN22
                 field("Default Column Layout"; Rec."Default Column Layout")
@@ -45,7 +47,7 @@ page 103 "Account Schedule Names"
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the name of the analysis view you want the row definitions to be based on.';
+                    ToolTip = 'Specifies the name of the analysis view you want the row definition to use. This field is optional.';
                 }
             }
         }
@@ -234,19 +236,17 @@ page 103 "Account Schedule Names"
                     ObsoleteTag = '22.0';
                 }
 #endif
-                actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule)
-                {
-                }
-                actionref(ExportAccountSchedule_Promoted; ExportAccountSchedule)
-                {
-                }
-                actionref(ImportAccountSchedule_Promoted; ImportAccountSchedule)
-                {
-                }
-                actionref("Export Schedules to ASC format_Promoted"; "Export Schedules to ASC format")
-                {
-                }
             }
+            group(CopyExportImport)
+            {
+                Caption = 'Copy/Export/Import';
+
+                actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule) { }
+                actionref(ExportAccountSchedule_Promoted; ExportAccountSchedule) { }
+                actionref(ImportAccountSchedule_Promoted; ImportAccountSchedule) { }
+                actionref("Export Schedules to ASC format_Promoted"; "Export Schedules to ASC format") { }
+            }
+
             group(Category_Category4)
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';

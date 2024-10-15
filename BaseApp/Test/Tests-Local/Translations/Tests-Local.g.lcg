@@ -5036,6 +5036,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Statement - NamedType TotalVATAmtTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2971784732 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit Test VAT Statement - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2971784732 - NamedType 130415622" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong symbol in the end of file]]></Val>

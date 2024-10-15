@@ -10,6 +10,9 @@ codeunit 1883 "Sandbox Cleanup local"
     var
         SIISetup: Record "SII Setup";
     begin
+        if CompanyName() <> CompanyName then
+            SIISetup.ChangeCompany(CompanyName);
+
         SIISetup.ModifyAll(Enabled, false);
     end;
 }

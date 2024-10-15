@@ -232,7 +232,7 @@ codeunit 394 "FinChrgMemo-Make"
                         TempCurrency2.Code := CurrencyCode;
                         if TempCurrency2.Insert() then;
                     end;
-                OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
+                OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking, CurrencyCode, TempCurrency2);
             until CustLedgEntry.Next() = 0;
     end;
 
@@ -246,7 +246,7 @@ codeunit 394 "FinChrgMemo-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinChrgMemoLineCreated(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
+    local procedure OnAfterFinChrgMemoLineCreated(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean; CurrencyCode: Code[10]; var TempCurrency: Record Currency temporary)
     begin
     end;
 

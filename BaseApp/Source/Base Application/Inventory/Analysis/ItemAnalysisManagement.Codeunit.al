@@ -101,6 +101,8 @@ codeunit 7153 "Item Analysis Management"
                 DimCodeBuf."Period End" := Period2.GetRangeMax("Period End");
         end;
         DimCodeBuf.Name := Period."Period Name";
+
+        OnAfterCopyPeriodToBuf(Period, DimCodeBuf, DateFilter);
     end;
 
     local procedure CopyLocationToBuf(var Location: Record Location; var DimCodeBuf: Record "Dimension Code Buffer")
@@ -399,6 +401,9 @@ codeunit 7153 "Item Analysis Management"
             LineDimCode := Item.TableCaption();
             ColumnDimCode := Text000;
         end;
+
+        OnBeforeSetLineAndColumnDim(ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+
         LineDimType := DimCodeToType(LineDimCode, ItemAnalysisView);
         ColumnDimType := DimCodeToType(ColumnDimCode, ItemAnalysisView);
 
@@ -841,6 +846,11 @@ codeunit 7153 "Item Analysis Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLineAndColumnDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetLineAndColumnDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type")
     begin
     end;
@@ -912,6 +922,11 @@ codeunit 7153 "Item Analysis Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNextRecordOnCaseElse(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; var ResultSteps: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPeriodToBuf(var Period: Record Date; var DimensionCodeBuffer: Record "Dimension Code Buffer"; DateFilter: Text[30])
     begin
     end;
 }

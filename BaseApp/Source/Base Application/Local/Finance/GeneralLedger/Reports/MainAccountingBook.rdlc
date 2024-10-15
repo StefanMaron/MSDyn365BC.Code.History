@@ -2357,8 +2357,8 @@ Fields!GLBalance_Control76.Value), "")</Value>
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Height>1.74036in</Height>
-                              <Width>6.98677in</Width>
+                              <Height>1.7404in</Height>
+                              <Width>6.98676in</Width>
                               <Style />
                             </Tablix>
                             <Tablix Name="table2">
@@ -3139,8 +3139,8 @@ Fields!GLBalance_Control76.Value), "")</Value>
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>1.74056in</Top>
-                              <Height>0.66628in</Height>
-                              <Width>6.98677in</Width>
+                              <Height>0.66629in</Height>
+                              <Width>6.98676in</Width>
                               <ZIndex>1</ZIndex>
                               <Visibility>
                                 <Hidden>=iif(countrows("table2") = rownumber("table2"), false, true)</Hidden>
@@ -3196,7 +3196,7 @@ Fields!GLBalance_Control76.Value), "")</Value>
               </Paragraph>
             </Paragraphs>
             <Top>2.40668in</Top>
-            <Left>1.58234in</Left>
+            <Left>2.08234in</Left>
             <Height>0.16656in</Height>
             <Width>1.99867in</Width>
             <ZIndex>1</ZIndex>
@@ -3225,9 +3225,9 @@ Fields!GLBalance_Control76.Value), "")</Value>
               </Paragraph>
             </Paragraphs>
             <Top>2.40668in</Top>
-            <Left>3.58101in</Left>
+            <Left>4.12129in</Left>
             <Height>0.16656in</Height>
-            <Width>1.02354in</Width>
+            <Width>0.98326in</Width>
             <ZIndex>2</ZIndex>
             <Style>
               <VerticalAlign>Middle</VerticalAlign>
@@ -3254,9 +3254,9 @@ Fields!GLBalance_Control76.Value), "")</Value>
               </Paragraph>
             </Paragraphs>
             <Top>2.40668in</Top>
-            <Left>4.60535in</Left>
+            <Left>5.13637in</Left>
             <Height>0.16656in</Height>
-            <Width>0.94354in</Width>
+            <Width>0.91252in</Width>
             <ZIndex>3</ZIndex>
             <Style>
               <VerticalAlign>Middle</VerticalAlign>
@@ -3283,9 +3283,9 @@ Fields!GLBalance_Control76.Value), "")</Value>
               </Paragraph>
             </Paragraphs>
             <Top>2.40668in</Top>
-            <Left>5.54636in</Left>
+            <Left>6.08125in</Left>
             <Height>0.16656in</Height>
-            <Width>0.9075in</Width>
+            <Width>0.87261in</Width>
             <ZIndex>4</ZIndex>
             <Style>
               <VerticalAlign>Middle</VerticalAlign>
@@ -3607,7 +3607,7 @@ Fields!GLBalance_Control76.Value), "")</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>1.33245in</Top>
-              <Left>3.49768in</Left>
+              <Left>4.09768in</Left>
               <Height>0.42301cm</Height>
               <Width>1.02354in</Width>
               <ZIndex>11</ZIndex>
@@ -3637,9 +3637,9 @@ Fields!GLBalance_Control76.Value), "")</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>1.33245in</Top>
-              <Left>4.49702in</Left>
+              <Left>5.13637in</Left>
               <Height>0.42301cm</Height>
-              <Width>0.99934in</Width>
+              <Width>0.85999in</Width>
               <ZIndex>12</ZIndex>
               <Style>
                 <PaddingLeft>2pt</PaddingLeft>
@@ -3662,12 +3662,12 @@ Fields!GLBalance_Control76.Value), "")</Value>
                     </TextRun>
                   </TextRuns>
                   <Style>
-                    <TextAlign>Right</TextAlign>
+                    <TextAlign>Left</TextAlign>
                   </Style>
                 </Paragraph>
               </Paragraphs>
               <Top>1.33245in</Top>
-              <Left>5.49636in</Left>
+              <Left>5.99636in</Left>
               <Height>0.84cm</Height>
               <Width>0.97in</Width>
               <ZIndex>13</ZIndex>
@@ -3695,7 +3695,7 @@ Fields!GLBalance_Control76.Value), "")</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>1.33245in</Top>
-              <Left>0.66622in</Left>
+              <Left>1.19122in</Left>
               <Height>0.42301cm</Height>
               <Width>0.83278in</Width>
               <ZIndex>14</ZIndex>
@@ -3723,7 +3723,7 @@ Fields!GLBalance_Control76.Value), "")</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>1.33245in</Top>
-              <Left>1.49901in</Left>
+              <Left>2.06151in</Left>
               <Height>0.42301cm</Height>
               <Width>1.99868in</Width>
               <ZIndex>15</ZIndex>

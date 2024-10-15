@@ -773,6 +773,67 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATAmountLine.TestField("EC Amount", 0.29);
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler,ConfirmHandlerNo,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ECAmountShouldBeCalculatedCorrectly()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        CustomerNo: Code[20];
+        DocumentNo: Code[20];
+        ItemNo: array[2] of Code[20];
+        ItemUnitPrice: Decimal;
+        ExpectedECAmount: Decimal;
+    begin
+        // [SCENARIO 537969] TotalVatMinusECAmount and TotalECAmount columns are incorrectly calculated if you Send to Excel a Posted Sales Invoice including Equivalence Charge in the Spanish version.
+        Initialize();
+
+        // [GIVEN] General Posting Setup with EC % = 4 and VAT % = 18 specified
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Item with Unit Price = 100
+        ItemUnitPrice := LibraryRandom.RandDec(100, 2);
+        ItemNo[1] :=
+          CreateItemWithUnitPriceProdPostingGroups(
+            ItemUnitPrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ItemNo[2] :=
+          CreateItemWithUnitPriceProdPostingGroups(
+            ItemUnitPrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        CustomerNo :=
+          CreateCustomerWithPostingGroup(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+#if not CLEAN23
+        CopySalesPrices();
+#endif
+
+        // [GIVEN] Posted Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
+        CreateSalesDocumentWithPriceInclVAT(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
+          CustomerNo, SalesLine.Type::Item, ItemNo[1], true, 0);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo[2], LibraryRandom.RandDec(10, 0));
+
+        // [WHEN] Post Sales Document
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        Report.Run(Report::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Verify: TotalECAmount in Report
+        ExpectedECAmount := FindSalesInvoiceLine(SalesInvoiceLine, DocumentNo);
+        VerifyTotalECAmountInStandardSalesInvoiceReport(ExpectedECAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -997,7 +1058,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
+SalesLine, SalesHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateSalesQuoteWithVATPostingSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
@@ -1207,6 +1268,22 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__EC_Amount__Control1100006', ExpectedECAmount)
     end;
 
+    local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20]) ECAmount: Decimal
+    begin
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.FindSet();
+        repeat
+            ECAmount += Round(SalesInvoiceLine."VAT Base Amount" * SalesInvoiceLine."EC %" / 100);
+        until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure VerifyTotalECAmountInStandardSalesInvoiceReport(ExpectedECAmount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('TotalECAmount', ExpectedECAmount)
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
@@ -1232,6 +1309,26 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         SalesPrepmtDocumentTest.ShowDimensions.SetValue(true);
         SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
+    begin
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

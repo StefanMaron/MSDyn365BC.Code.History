@@ -714,6 +714,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GetSellToBuyFrom(GenJnlLine, VATEntry);
         VATEntry."No Taxable Type" := VATPostingSetup."No Taxable Type";
         VATEntry."Ignore In SII" := VATPostingSetup."Ignore In SII";
+        VATEntry."One Stop Shop Reporting" := VATPostingSetup."One Stop Shop Reporting";
 
         if GenJnlLine."VAT Difference" = 0 then
             VATDifferenceLCY := 0

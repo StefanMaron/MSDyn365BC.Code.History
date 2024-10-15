@@ -2513,6 +2513,148 @@ codeunit 147524 "SII Documents No Taxable"
           SIIXMLCreator.FormatNumber(LibrarySII.CalcSalesNoTaxableAmount(CustLedgerEntry)));
     end;
 
+    [Test]
+    procedure SalesInvoiceWithOneStopShopOption()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A sales invoice with One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Sales invoice
+        PostSalesDocWithOneStopShop(CustLedgerEntry, "Sales Document Type"::Invoice, 0);
+
+        // [WHEN] Create xml for sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesNoTaxLocalTok, '',
+          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+    end;
+
+    [Test]
+    procedure SalesCrMemoWithOneStopShopOption()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A sales credit memo with One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Sales credit memo
+        PostSalesDocWithOneStopShop(CustLedgerEntry, "Sales Document Type"::"Credit Memo", 0);
+
+        // [WHEN] Create xml for sales credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesNoTaxLocalTok, '',
+          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+    end;
+
+    [Test]
+    procedure ReplacementSalesCrMemoWithOneStopShopOption()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A replacement sales credit memo with One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Sales credit memo with "Correction Type" = "Replacement"
+        PostSalesDocWithOneStopShop(
+          CustLedgerEntry, "Sales Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement);
+
+        // [WHEN] Create xml for sales credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has a sii:ImporteTAIReglasLocalizacion node with the VAT amount
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesNoTaxLocalTok, '',
+          SIIXMLCreator.FormatNumber(GetVATAmountFromCustLedgEntry(CustLedgerEntry)));
+    end;
+
+    [Test]
+    procedure SalesInvoiceWithMixedOneStopShopOptions()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A sales invoice with several lines and different One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] Sales invoice with two lines
+        // [GIVEN] One line has VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Other line has VAT Posting Setup with "One Stop Shop" option enabled
+        PostSalesDocWithMixedOneStopShopOptions(CustLedgerEntry, "Sales Document Type"::Invoice, 0);
+
+        // [WHEN] Create xml for sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has both sii:BaseImponible and sii:ImporteTAIReglasLocalizacion nodes
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:ImporteTAIReglasLocalizacion', 1);
+    end;
+
+    [Test]
+    procedure SalesCrMemoWithMixedOneStopShopOptions()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A sales credit memo with several lines and different One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] Sales credit memo with two lines
+        // [GIVEN] One line has VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Other line has VAT Posting Setup with "One Stop Shop" option enabled
+        PostSalesDocWithMixedOneStopShopOptions(CustLedgerEntry, "Sales Document Type"::"Credit Memo", 0);
+
+        // [WHEN] Create xml for sales credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has both sii:BaseImponible and sii:ImporteTAIReglasLocalizacion nodes
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:ImporteTAIReglasLocalizacion', 1);
+    end;
+
+    [Test]
+    procedure ReplacementSalesCrMemoWithMixedOneStopShopOptions()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 504302] A replacement sales credit memo with several lines and different One Stop Shop option is correctly reported to the SII
+
+        Initialize();
+        // [GIVEN] Sales credit memo with "Correction Type" = "Replacement" and two lines
+        // [GIVEN] One line has VAT Posting Setup with "One Stop Shop" option enabled
+        // [GIVEN] Other line has VAT Posting Setup with "One Stop Shop" option enabled
+        PostSalesDocWithMixedOneStopShopOptions(
+          CustLedgerEntry, "Sales Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement);
+
+        // [WHEN] Create xml for sales credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has both sii:BaseImponible and sii:ImporteTAIReglasLocalizacion nodes
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:ImporteTAIReglasLocalizacion', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2973,6 +3115,72 @@ codeunit 147524 "SII Documents No Taxable"
         NoTaxableEntry.SetRange("Document No.", DocNo);
         NoTaxableEntry.CalcSums(Base);
         exit(VATEntry.Base + VATEntry.Amount + NoTaxableEntry.Base);
+    end;
+
+    local procedure PostSalesDocWithOneStopShop(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Correction Type", CorrType);
+        SalesHeader.Modify(true);
+        VATBusinessPostingGroup.Get(SalesHeader."VAT Bus. Posting Group");
+        LibrarySII.CreateVATPostingSetup(
+          VATPostingSetup, VATProductPostingGroup, VATBusinessPostingGroup,
+          VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(50), false);
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+        VATPostingSetup.Validate("One Stop Shop Reporting", true);
+        VATPostingSetup.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    procedure PostSalesDocWithMixedOneStopShopOptions(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        SalesLine: Record "Sales Line";
+        OneStopShopOption: Boolean;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Correction Type", CorrType);
+        SalesHeader.Modify(true);
+        VATBusinessPostingGroup.Get(SalesHeader."VAT Bus. Posting Group");
+        for OneStopShopOption := false to true do begin
+            LibrarySII.CreateVATPostingSetup(
+              VATPostingSetup, VATProductPostingGroup, VATBusinessPostingGroup,
+              VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(50), false);
+            VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+            VATPostingSetup.Validate("One Stop Shop Reporting", OneStopShopOption);
+            VATPostingSetup.Modify(true);
+            LibrarySales.CreateSalesLine(
+              SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+            SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+            SalesLine.Modify(true);
+        end;
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure GetVATAmountFromCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"): Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document Type", CustLedgEntry."Document Type");
+        VATEntry.SetRange("Document No.", CustLedgEntry."Document No.");
+        VATEntry.SetRange("Posting Date", CustLedgEntry."Posting Date");
+        VATEntry.FindFirst();
+        exit(VATEntry.Amount);
     end;
 }
 

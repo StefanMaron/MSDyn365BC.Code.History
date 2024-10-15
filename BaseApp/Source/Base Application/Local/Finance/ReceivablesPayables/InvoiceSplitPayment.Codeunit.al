@@ -533,7 +533,7 @@ codeunit 7000005 "Invoice-Split Payment"
                 GenJnlLine."Amount (LCY)" := RemainingAmountLCY;
             end;
 
-            OnBeforeSplitPurchInvCreateBills(GenJnlLine, PurchHeader);
+            OnBeforeSplitPurchInvCreateBills(GenJnlLine, PurchHeader, Installment, CurrDocNo, PaymentTerms, RemainingAmount, RemainingAmountLCY);
 
             if PaymentMethod."Create Bills" and ((GenJnlLine.Amount <> 0) or (GenJnlLine."Amount (LCY)" <> 0)) then begin
                 BillNo += 1;
@@ -1019,7 +1019,7 @@ codeunit 7000005 "Invoice-Split Payment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSplitPurchInvCreateBills(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeSplitPurchInvCreateBills(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header"; Installment: Record Installment; CurrDocNo: Integer; PaymentTerms: Record "Payment Terms"; RemainingAmount: Decimal; RemainingAmountLCY: Decimal)
     begin
     end;
 

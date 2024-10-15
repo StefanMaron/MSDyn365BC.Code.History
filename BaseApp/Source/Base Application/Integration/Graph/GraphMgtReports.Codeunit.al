@@ -257,11 +257,13 @@ codeunit 5488 "Graph Mgt - Reports"
         Vendor: Record Vendor;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         DummyGuid: Guid;
         PeriodLengthFilter: Text[10];
         PeriodStartDate: Date;
         DisplayOrder: Integer;
     begin
+        GeneralLedgerSetup.Get();
         DisplayOrder := 1;
         case ReportType of
             ReportType::"Aged Accounts Receivable":
@@ -272,10 +274,9 @@ codeunit 5488 "Graph Mgt - Reports"
                         CustLedgerEntry.SetRange(Open, true);
 
                         AgedReportEntity.Init();
+                        SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
                         if not CustLedgerEntry.IsEmpty() then
-                            GetAgedAmounts(AgedReportEntity, Customer)
-                        else
-                            SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
+                            GetAgedAmounts(AgedReportEntity, Customer);
 
                         if IsNullGuid(Customer.SystemId) then
                             AgedReportEntity.AccountId := CreateGuid()
@@ -285,6 +286,8 @@ codeunit 5488 "Graph Mgt - Reports"
                         AgedReportEntity."No." := Customer."No.";
                         AgedReportEntity.Name := Customer.Name;
                         AgedReportEntity."Currency Code" := Customer."Currency Code";
+                        if AgedReportEntity."Currency Code" = '' then
+                            AgedReportEntity."Currency Code" := GeneralLedgerSetup."LCY Code";
                         if PeriodLengthFilter = '' then
                             PeriodLengthFilter := AgedReportEntity."Period Length";
                         PeriodStartDate := AgedReportEntity."Period Start Date";
@@ -346,9 +349,11 @@ codeunit 5488 "Graph Mgt - Reports"
     local procedure SetPeriodLengthAndStartDateOnAgedRep(var AgedReportEntity: Record "Aged Report Entity")
     var
         PeriodLength: DateFormula;
+        PeriodStartDate: array[5] of Date;
         PeriodStartFilter: Text;
         PeriodLengthFilter: Text[10];
         FilterPeriodStart: Date;
+        I: Integer;
     begin
         PeriodStartFilter := Format(AgedReportEntity.GetFilter("Period Start Date"));
         PeriodLengthFilter := Format(AgedReportEntity.GetFilter("Period Length"));
@@ -365,6 +370,17 @@ codeunit 5488 "Graph Mgt - Reports"
 
         Evaluate(PeriodLength, '<->' + Format(PeriodLengthFilter));
         AgedReportEntity."Period Length" := DelChr(Format(PeriodLengthFilter), '<>', '<>');
+
+        PeriodStartDate[1] := DMY2Date(31, 12, 9999);
+        PeriodStartDate[2] := AgedReportEntity."Period Start Date";
+
+        for I := 3 to 4 do
+            PeriodStartDate[I] := CalcDate(PeriodLength, PeriodStartDate[I - 1]);
+        PeriodStartDate[5] := DMY2Date(1, 1, 1753);
+
+        AgedReportEntity."Period 1 Label" := Format(PeriodStartDate[3]) + '-' + Format(PeriodStartDate[2]);
+        AgedReportEntity."Period 2 Label" := Format(PeriodStartDate[4]) + '-' + Format(PeriodStartDate[3]);
+        AgedReportEntity."Period 3 Label" := '-' + Format(PeriodStartDate[4]);
     end;
 
     local procedure GetAgedAmounts(var AgedReportEntity: Record "Aged Report Entity"; CurrentAccount: Variant)
@@ -379,7 +395,7 @@ codeunit 5488 "Graph Mgt - Reports"
         FilterPeriodStart: Date;
         PeriodStartFilter: Text;
         PeriodLengthFilter: Text[10];
-        i: Integer;
+        I: Integer;
         LineTotalAmountDue: Decimal;
         IsVendor: Boolean;
     begin
@@ -405,22 +421,22 @@ codeunit 5488 "Graph Mgt - Reports"
         PeriodStartDate[1] := DMY2Date(31, 12, 9999);
         PeriodStartDate[2] := AgedReportEntity."Period Start Date";
 
-        for i := 3 to 4 do
-            PeriodStartDate[i] := CalcDate(PeriodLength, PeriodStartDate[i - 1]);
+        for I := 3 to 4 do
+            PeriodStartDate[I] := CalcDate(PeriodLength, PeriodStartDate[I - 1]);
         PeriodStartDate[5] := DMY2Date(1, 1, 1753);
 
         LineTotalAmountDue := 0;
-        for i := 1 to 4 do
+        for I := 1 to 4 do
             case RecRef.Number of
                 DATABASE::Customer:
                     begin
                         RecRef.SetTable(Customer);
                         DetailedCustLedgEntry.SetCurrentKey("Customer No.", "Initial Entry Due Date");
                         DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
-                        DetailedCustLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i + 1], PeriodStartDate[i] - 1);
+                        DetailedCustLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[I + 1], PeriodStartDate[I] - 1);
 
                         if DetailedCustLedgEntry.FindFirst() then
-                            CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedCustLedgEntry, i);
+                            CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedCustLedgEntry, I);
                     end;
                 DATABASE::Vendor:
                     begin
@@ -428,10 +444,10 @@ codeunit 5488 "Graph Mgt - Reports"
                         IsVendor := true;
                         DetailedVendorLedgEntry.SetCurrentKey("Vendor No.", "Initial Entry Due Date");
                         DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
-                        DetailedVendorLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i + 1], PeriodStartDate[i] - 1);
+                        DetailedVendorLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[I + 1], PeriodStartDate[I] - 1);
 
                         if DetailedVendorLedgEntry.FindFirst() then
-                            CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedVendorLedgEntry, i);
+                            CalculateLineTotalAmount(AgedReportEntity, LineTotalAmountDue, DetailedVendorLedgEntry, I);
                     end;
             end;
 

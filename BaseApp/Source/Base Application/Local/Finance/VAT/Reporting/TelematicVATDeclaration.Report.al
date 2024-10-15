@@ -247,6 +247,10 @@ report 10715 "Telematic VAT Declaration"
 
     [Scope('OnPrem')]
     procedure CalcTotLine(VATStatementLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoTaxableEntry: Record "No Taxable Entry";
+        IsNoTaxableEntry: Boolean;
     begin
         if Level = 0 then begin
             TotalAmount := 0;
@@ -271,23 +275,36 @@ report 10715 "Telematic VAT Declaration"
             VATStatementLine2.Type::"VAT Entry Totaling":
                 begin
                     VATEntry.Reset();
-                    if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") then begin
-                        VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine2."VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine2."VAT Prod. Posting Group");
+                    NoTaxableEntry.Reset();
+                    IsNoTaxableEntry := false;
+
+                    if VATPostingSetup.Get(VATStatementLine2."VAT Bus. Posting Group", VATStatementLine2."VAT Prod. Posting Group") and
+                       (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"No Taxable VAT")
+                    then begin
+                        IsNoTaxableEntry := true;
+                        SetFilterOnNoTaxableEntry(NoTaxableEntry, VATStatementLine2);
+                        if NoTaxableEntry.FindFirst() then;
                     end
                     else begin
-                        VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                        VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine2."Tax Jurisdiction Code");
-                        VATEntry.SetRange("Use Tax", VATStatementLine2."Use Tax");
+                        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") then begin
+                            VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine2."VAT Bus. Posting Group");
+                            VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine2."VAT Prod. Posting Group");
+                        end
+                        else begin
+                            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+                            VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine2."Tax Jurisdiction Code");
+                            VATEntry.SetRange("Use Tax", VATStatementLine2."Use Tax");
+                        end;
+                        VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
+                        if "VAT Declaration Line".GetFilter("Date Filter") <> '' then
+                            if PeriodSelected = PeriodSelected::"Before and Within Period" then
+                                VATEntry.SetRange("Posting Date", 0D, "VAT Declaration Line".GetRangeMax("Date Filter"))
+                            else
+                                "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+                        SetSelectionFilterOnVATEntry(VATEntry, Selection);
+                        if VATEntry.FindFirst() then;
                     end;
-                    VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
-                    if "VAT Declaration Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelected = PeriodSelected::"Before and Within Period" then
-                            VATEntry.SetRange("Posting Date", 0D, "VAT Declaration Line".GetRangeMax("Date Filter"))
-                        else
-                            "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."Posting Date");
-                    SetSelectionFilterOnVATEntry(VATEntry, Selection);
-                    if VATEntry.FindFirst() then;
+
                     case VATStatementLine2."Amount Type" of
                         VATStatementLine2."Amount Type"::Amount:
                             begin
@@ -305,7 +322,11 @@ report 10715 "Telematic VAT Declaration"
                                 end;
                             end;
                         VATStatementLine2."Amount Type"::Base:
-                            begin
+                            if IsNoTaxableEntry then begin
+                                NoTaxableEntry.CalcSums(Base);
+                                Amount := NoTaxableEntry.Base;
+                            end
+                            else begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                                 if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT" then begin
@@ -671,6 +692,27 @@ report 10715 "Telematic VAT Declaration"
                 VATEntry.SetRange(Closed, true);
             else
                 VATEntry.SetRange(Closed);
+        end;
+    end;
+
+    local procedure SetFilterOnNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; VATStatementLine: Record "VAT Statement Line")
+    begin
+        NoTaxableEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
+        NoTaxableEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
+        NoTaxableEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
+        if "VAT Declaration Line".GetFilter("Date Filter") <> '' then
+            if PeriodSelected = PeriodSelected::"Before and Within Period" then
+                NoTaxableEntry.SetRange("Posting Date", 0D, "VAT Declaration Line".GetRangeMax("Date Filter"))
+            else
+                "VAT Declaration Line".CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+
+        case Selection of
+            Selection::Open:
+                NoTaxableEntry.SetRange(Closed, false);
+            Selection::Closed:
+                NoTaxableEntry.SetRange(Closed, true);
+            Selection::"Open and Closed":
+                NoTaxableEntry.SetRange(Closed);
         end;
     end;
 }

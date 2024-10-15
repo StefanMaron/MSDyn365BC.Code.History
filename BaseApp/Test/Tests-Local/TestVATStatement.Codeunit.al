@@ -32,6 +32,7 @@ codeunit 147590 "Test VAT Statement"
         TotalVATAmtTok: Label 'TotalVATAmt';
         TotalBaseTok: Label 'TotalBase';
         TotalECAmtTok: Label 'TotalECAmt';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('TemplateSelectionModalPageHandler')]
@@ -1784,6 +1785,185 @@ codeunit 147590 "Test VAT Statement"
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(VatEntry."Non-Deductible VAT Base");
         VATStatementPreview.VATStatementLineSubForm.Next();
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(VatEntry."Non-Deductible VAT Amount");
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferenceTXTRequestPageHandler,TransferenceTXTModalPageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure TestTransferenceTXTCheckVATTotalingForNoTaxableEntries()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        SalesHeader: array[3] of Record "Sales Header";
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        AEATTransferenceFormat: array[3] of Record "AEAT Transference Format";
+        VATAmount: array[3] of Decimal;
+        Box: array[3] of Code[5];
+        FileName: Text[1024];
+        PadString: Text[1];
+        Length: Integer;
+    begin
+        // [SCENARIO 537453] Amount of No Taxable Entry table are not taken into account in the Telematic VAT Declaration in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Generate Random Boxes value.
+        Box[1] := Format(LibraryRandom.RandInt(1));
+        Box[2] := Format(LibraryRandom.RandIntInRange(2, 2));
+        Box[3] := Format(LibraryRandom.RandIntInRange(3, 3));
+
+        // [GIVEN] Generate Random Length and padstring.
+        Length := LibraryRandom.RandIntInRange(15, 15);
+        PadString := Format(LibraryRandom.RandIntInRange(0, 0));
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup[1]);
+        VATPostingSetup[1].Validate("EC %", 0);
+        VATPostingSetup[1].Modify(true);
+
+        // [GIVEN] Create multiple VAT Posting Setup with VAT Calculation Type = "No Taxable".
+        CreateVATPostingSetupNoTaxable(VATPostingSetup[2]);
+        CreateVATPostingSetupNoTaxable(VATPostingSetup[3]);
+
+        // [GIVEN] Create and Post Sales Invoice with VAT and No Taxable VAT.
+        VATAmount[1] := GetVATAmount(CreatePostSalesInvoice(SalesHeader[1], VATPostingSetup[1]));
+        VATAmount[2] := GetTaxableAmount(CreatePostSalesInvoice(SalesHeader[2], VATPostingSetup[2]));
+        VATAmount[3] := GetTaxableAmount(CreatePostSalesInvoice(SalesHeader[3], VATPostingSetup[3]));
+
+        // [GIVEN] Create a VAT statement.
+        CreateVATStatement(VATStatementName);
+
+        // [GIVEN] Create VAT Statement Line with VAT Posting Setup for "Box 1".
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine,
+          VATStatementName,
+          Format(LibraryRandom.RandIntInRange(1, 1)),
+          VATPostingSetup[1],
+          VATStatementLine."Gen. Posting Type"::Sale,
+          VATStatementLine."Amount Type"::Amount,
+          Box[1]);
+
+        // [GIVEN] Create VAT Statement Line with No taxable VAT Posting Setup for "Box 2".
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine,
+          VATStatementName,
+          Format(LibraryRandom.RandIntInRange(2, 2)),
+          VATPostingSetup[2],
+          VATStatementLine."Gen. Posting Type"::Sale,
+          VATStatementLine."Amount Type"::Base,
+          Box[2]);
+
+        // [GIVEN] Create VAT Statement Line with No taxable VAT Posting Setup for "Box 3".
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine,
+          VATStatementName,
+          Format(LibraryRandom.RandIntInRange(3, 3)),
+          VATPostingSetup[3],
+          VATStatementLine."Gen. Posting Type"::Sale,
+          VATStatementLine."Amount Type"::Base,
+          Box[3]);
+
+        // [GIVEN] Create Transreference Format Line for "Box 1".
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(
+          AEATTransferenceFormat[1],
+          VATStatementName.Name,
+          LibraryRandom.RandIntInRange(1, 1),
+          LibraryRandom.RandIntInRange(1, 1),
+          Length,
+          AEATTransferenceFormat[1].Type::Numerical,
+          AEATTransferenceFormat[1].Subtype::"Integer and Decimal Part",
+          '',
+          Box[1]);
+
+        // [GIVEN] Create Transreference Format Line for "Box 2".
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(
+          AEATTransferenceFormat[2],
+          VATStatementName.Name,
+          LibraryRandom.RandIntInRange(2, 2),
+          LibraryRandom.RandIntInRange(20, 20),
+          Length,
+          AEATTransferenceFormat[2].Type::Numerical,
+          AEATTransferenceFormat[2].Subtype::"Integer and Decimal Part",
+          '',
+          Box[2]);
+
+        // [GIVEN] Create Transreference Format Line for "Box 3".
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(
+          AEATTransferenceFormat[3],
+          VATStatementName.Name,
+          LibraryRandom.RandIntInRange(3, 3),
+          LibraryRandom.RandIntInRange(40, 40),
+          Length,
+          AEATTransferenceFormat[3].Type::Numerical,
+          AEATTransferenceFormat[3].Subtype::"Integer and Decimal Part",
+          '',
+          Box[3]);
+
+        // [WHEN] Run Telematic VAT Declaration Report. 
+        VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
+        VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
+        FileName := CopyStr(RunTelematicVATDeclaration(VATStatementLine, 0, 1, false), 1, 1024);
+
+        // [VERIFY] Verify amount of No Taxable Entries are taken into account in the Telematic VAT Declaration.
+        Assert.AreEqual(
+          PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          Format(
+            LibraryTextFileValidation.ReadValueFromLine(
+              FileName,
+              AEATTransferenceFormat[1]."No.",
+              AEATTransferenceFormat[1].Position,
+              Length)),
+          StrSubstNo(
+                ValueMustBeEqualErr,
+                AEATTransferenceFormat[1].FieldCaption(value),
+                PadDecimalToString(VATAmount[1], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                AEATTransferenceFormat[1].TableCaption()));
+
+        Assert.AreEqual(
+          PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          Format(
+            LibraryTextFileValidation.ReadValueFromLine(
+              FileName,
+              AEATTransferenceFormat[1]."No.",
+              AEATTransferenceFormat[2].Position,
+              Length)),
+          StrSubstNo(
+                ValueMustBeEqualErr,
+                AEATTransferenceFormat[2].FieldCaption(value),
+                PadDecimalToString(VATAmount[2], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                AEATTransferenceFormat[2].TableCaption()));
+
+        Assert.AreEqual(
+          PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+          Format(
+            LibraryTextFileValidation.ReadValueFromLine(
+              FileName,
+              AEATTransferenceFormat[1]."No.",
+              AEATTransferenceFormat[3].Position, Length)),
+          StrSubstNo(
+                ValueMustBeEqualErr,
+                AEATTransferenceFormat[3].FieldCaption(value),
+                PadDecimalToString(VATAmount[3], LibraryRandom.RandIntInRange(2, 2), Length, PadString, false),
+                AEATTransferenceFormat[3].TableCaption()));
+    end;
+
+    local procedure GetVATAmount(DocNo: Code[20]): Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.CalcSums(Amount);
+
+        exit((VATEntry.Amount));
+    end;
+
+    local procedure GetTaxableAmount(DocNo: Code[20]): Decimal
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.CalcSums(Base);
+
+        exit((NoTaxableEntry.Base));
     end;
 
     local procedure Initialize()

@@ -28,6 +28,7 @@ page 176 "Standard Purchase Code Subform"
 
                     trigger OnValidate()
                     begin
+                        UpdateTypeText();
                         TypeOnAfterValidate();
                     end;
                 }
@@ -234,6 +235,7 @@ page 176 "Standard Purchase Code Subform"
     trigger OnAfterGetCurrRecord()
     begin
         CurrPageIsEditable := CurrPage.Editable;
+        UpdateTypeText();
     end;
 
     trigger OnAfterGetRecord()
@@ -257,6 +259,11 @@ page 176 "Standard Purchase Code Subform"
         UpdateTypeText();
 
         Clear(ShortcutDimCode);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()

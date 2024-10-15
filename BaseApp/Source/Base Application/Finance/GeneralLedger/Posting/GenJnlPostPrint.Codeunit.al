@@ -38,9 +38,6 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     local procedure "Code"()
     var
-        GLReg: Record "G/L Register";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         ConfirmManagement: Codeunit "Confirm Management";
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         HideDialog: Boolean;
@@ -94,23 +91,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
             OnAfterPostJournalBatch(GenJnlLine);
 
-            GLReg2.SetRange("No.", GLReg2."No." + 1, GenJnlLine."Line No.");
-            if GLReg.Get(GenJnlLine."Line No.") then begin
-                if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then begin
-                    CustLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
-                    REPORT.Run(GenJnlTemplate."Cust. Receipt Report ID", false, false, CustLedgEntry);
-                end;
-                if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then begin
-                    VendLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
-                    REPORT.Run(GenJnlTemplate."Vendor Receipt Report ID", false, false, VendLedgEntry);
-                end;
-                if GenJnlTemplate."Posting Report ID" <> 0 then begin
-                    GLReg.SetRecFilter();
-                    OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, IsHandled);
-                    if not IsHandled then
-                        REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg2);
-                end;
-            end;
+            PrintJournal();
 
             if not HideDialog then
                 if GenJnlLine."Line No." = 0 then
@@ -134,6 +115,37 @@ codeunit 232 "Gen. Jnl.-Post+Print"
             OnGenJnlLineSetFilter(GenJnlLine);
             GenJnlLine.FilterGroup(0);
             GenJnlLine."Line No." := 1;
+        end;
+    end;
+
+    local procedure PrintJournal()
+    var
+        GLReg: Record "G/L Register";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintJournalBatch(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        GLReg2.SetRange("No.", GLReg2."No." + 1, GenJnlLine."Line No.");
+        if GLReg.Get(GenJnlLine."Line No.") then begin
+            if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then begin
+                CustLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
+                REPORT.Run(GenJnlTemplate."Cust. Receipt Report ID", false, false, CustLedgEntry);
+            end;
+            if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then begin
+                VendLedgEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
+                REPORT.Run(GenJnlTemplate."Vendor Receipt Report ID", false, false, VendLedgEntry);
+            end;
+            if GenJnlTemplate."Posting Report ID" <> 0 then begin
+                GLReg.SetRecFilter();
+                OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, IsHandled);
+                if not IsHandled then
+                    REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg2);
+            end;
         end;
     end;
 
@@ -169,6 +181,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

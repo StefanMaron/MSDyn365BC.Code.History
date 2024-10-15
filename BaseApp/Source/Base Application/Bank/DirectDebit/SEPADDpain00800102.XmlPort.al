@@ -2,6 +2,7 @@
 
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Company;
+using System.Telemetry;
 
 xmlport 1010 "SEPA DD pain.008.001.02"
 {
@@ -333,7 +334,12 @@ xmlport 1010 "SEPA DD pain.008.001.02"
     }
 
     trigger OnPreXmlPort()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPADDExportFile: Codeunit "SEPA DD-Export File";
     begin
+        FeatureTelemetry.LogUptake('0000N21', SEPADDExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N22', SEPADDExportFile.FeatureName(), 'XmlPort SEPA DD pain.008.001.02');
         InitData();
     end;
 

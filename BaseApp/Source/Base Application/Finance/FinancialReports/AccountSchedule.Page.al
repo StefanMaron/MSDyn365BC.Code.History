@@ -4,13 +4,17 @@ using Microsoft.CostAccounting.Account;
 
 page 104 "Account Schedule"
 {
+    AboutTitle = 'About (Financial Report) Row Definition';
+    AboutText = 'A row definition in financial reports provide a place for calculations that can''t be made directly in the chart of accounts. For example, you can create subtotals for groups of accounts and then include that total in other totals. You can also calculate intermediate steps that aren''t shown in the final report.';
     AutoSplitKey = true;
-    Caption = 'Row Definition';
+    AnalysisModeEnabled = false;
+    Caption = '(Financial Report) Row Definition';
     DataCaptionFields = "Schedule Name";
     MultipleNewLines = true;
     PageType = Worksheet;
     SourceTable = "Acc. Schedule Line";
     RefreshOnActivate = true;
+    UsageCategory = None;
 
     layout
     {
@@ -21,8 +25,6 @@ page 104 "Account Schedule"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Name';
                 Lookup = true;
-                ToolTip = 'Specifies the name of the row definition.';
-
                 trigger OnLookup(var Text: Text): Boolean
                 begin
                     exit(AccSchedManagement.LookupName(CurrentSchedName, Text));

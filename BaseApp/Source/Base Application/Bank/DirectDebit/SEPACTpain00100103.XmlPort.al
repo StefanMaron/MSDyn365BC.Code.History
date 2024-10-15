@@ -4,6 +4,7 @@ using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Receivables;
+using System.Telemetry;
 
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
@@ -355,7 +356,12 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     }
 
     trigger OnPreXmlPort()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
+        FeatureTelemetry.LogUptake('0000N1X', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N1Y', SEPACTExportFile.FeatureName(), 'XmlPort SEPA CT pain.001.001.03');
         InitData();
     end;
 

@@ -33,6 +33,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
         MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        TaxAmountErr: Label 'Tax Amount must be equal to %1', Comment = '%1= Expected Tax Amount';
 
     local procedure Initialize()
     var
@@ -1208,6 +1209,80 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         VerifyFilteredBusinessUnitSpecificEntries(GLAccount."No.", Amount, BusinessUnit);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OpenSalesStatisticsPage')]
+    procedure VerifyTotalTaxAmountSameonStats()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        SalesStatistics: TestPage "Sales Statistics";
+        UnitPrice: array[4] of Decimal;
+        Quantity: array[4] of Integer;
+        ExpectedTaxAmount: Decimal;
+        ActualTaxAmount: Decimal;
+    begin
+        // [SCENARIO 524113] Correct VAT in Statistics FactBox when "Price Including VAT" is activated.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with VAT Percentage 20
+        CreateVATPostingSetup(VATPostingSetup, 20);
+
+        // [GIVEN] Create Static Unit Price to get the 0.01 difference
+        AssignStaticValues524113(UnitPrice, Quantity);
+
+        // [GIVEN] Create Four Sales Credit Memo Lines
+        CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(SalesCreditMemo, VATPostingSetup, UnitPrice, Quantity);
+
+        // [GIVEN] Save Total Tax Amount on Page as actual result
+        ActualTaxAmount := SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal();
+
+        // [WHEN] Open Sales Statistics page to get the VAT Amount
+        SalesStatistics.Trap();
+        SalesCreditMemo.Statistics.Invoke();
+        ExpectedTaxAmount := LibraryVariableStorage.DequeueDecimal();
+
+        // [THEN] Verify the Total Tax Amount on Sales Credit Memo and Sales Statistics page.
+        Assert.AreEqual(ExpectedTaxAmount, ActualTaxAmount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OpenSalesStatisticsPage')]
+    procedure VerifyTotalTaxAmountSameonSalesCreditMemoAndSalesStatistics()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        SalesStatistics: TestPage "Sales Statistics";
+        UnitPrice: array[3] of Decimal;
+        Quantity: array[3] of Integer;
+        ExpectedTaxAmount: Decimal;
+        ActualTaxAmount: Decimal;
+    begin
+        // [SCENARIO 502847] Correct VAT in Statistics FactBox when "Price Including VAT" is activated.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with VAT Percentage 7
+        CreateVATPostingSetup(VATPostingSetup, 7);
+
+        // [GIVEN] Create Static Unit Price to get the 0.01 difference
+        AssignStaticValues502847(UnitPrice, Quantity);
+
+        // [GIVEN] Create Four Sales Credit Memo Lines
+        CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(SalesCreditMemo, VATPostingSetup, UnitPrice, Quantity);
+
+        // [GIVEN] Save Total Tax Amount on Page as actual result
+        ActualTaxAmount := SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal();
+
+        // [WHEN] Open Sales Statistics page to get the VAT Amount
+        SalesStatistics.Trap();
+        SalesCreditMemo.Statistics.Invoke();
+        ExpectedTaxAmount := LibraryVariableStorage.DequeueDecimal();
+
+        // [THEN] Verify the Total Tax Amount on Sales Credit Memo and Sales Statistics page.
+        Assert.AreEqual(ExpectedTaxAmount, ActualTaxAmount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)
     begin
         CreateCustomer(Customer);
@@ -1497,7 +1572,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
-        CrMemoDiscountAmount := LibraryRandom.RandDecInRange(1, 100, 2);
+        CrMemoDiscountAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
         if GeneralLedgerSetup.UseVat() then begin
             Customer."Prices Including VAT" := true;
@@ -2066,6 +2141,83 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         asserterror LibraryReportDataset.AssertCurrentRowValueEquals('GLBalance', Amount);
     end;
 
+    local procedure AssignStaticValues524113(var UnitPrice: array[4] of Decimal; Quantity: array[4] of Integer)
+    var
+        i: Integer;
+    begin
+        UnitPrice[1] := 68.28;
+        UnitPrice[2] := 4.90;
+        UnitPrice[3] := -4.90;
+        UnitPrice[4] := 0.05;
+
+        for i := 1 to ArrayLen(Quantity) do
+            Quantity[i] := 1;
+    end;
+
+    local procedure AssignStaticValues502847(var UnitPrice: array[4] of Decimal; Quantity: array[4] of Integer)
+    begin
+        UnitPrice[1] := 56;
+        UnitPrice[2] := 20;
+        UnitPrice[3] := 50;
+
+        Quantity[1] := 3;
+        Quantity[2] := 4;
+        Quantity[3] := 1;
+    end;
+
+    local procedure CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(var SalesCreditMemo: TestPage "Sales Credit Memo";
+                                                                               VATPostingSetup: Record "VAT Posting Setup";
+                                                                               UnitPrice: array[4] of Decimal;
+                                                                               Quantity: array[4] of Integer)
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        i: Integer;
+    begin
+        CreateItemWithVATPostingSetup(Item, VATPostingSetup);
+        CreateCustomerWithVATBusPostingGroup(Customer, VATPostingSetup."VAT Bus. Posting Group");
+
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
+
+        for i := 1 to ArrayLen(UnitPrice) do
+            CreateInvoiceWithMultipleLineThroughTestPage(SalesCreditMemo, Item."No.", UnitPrice[i], Quantity[i]);
+    end;
+
+    local procedure CreateCustomerWithVATBusPostingGroup(var Customer: Record Customer; VATBusPostingGroup: Code[20])
+    begin
+        CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify();
+    end;
+
+    local procedure CreateItemWithVATPostingSetup(var Item: Record Item; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPercentage: Decimal)
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPercentage);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.Modify();
+    end;
+
+    local procedure CreateInvoiceWithMultipleLineThroughTestPage(var SalesCreditMemo: TestPage "Sales Credit Memo"; ItemNo: Code[20]; UnitPrice: Decimal; Quantity: Integer)
+    begin
+        SalesCreditMemo.SalesLines.Last();
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines."No.".SetValue(ItemNo);
+        SalesCreditMemo.SalesLines.Quantity.SetValue(Quantity);
+        SalesCreditMemo.SalesLines."Unit Price".SetValue(UnitPrice);
+
+        SalesCreditMemo.SalesLines.Next();
+        SalesCreditMemo.SalesLines.Previous();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ConsolidationTrialBalanceReportHandler(var ConsolidationmTrialBalance: TestRequestPage "Consolidated Trial Balance")
@@ -2103,6 +2255,13 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempCommonField.SetFilter(
           "No.", '<>%1&<>%2&<>%3&<>%4&<>%5', DummySalesLine.FieldNo("Currency Code"), DummySalesLine.FieldNo("Qty. to Invoice"),
           DummySalesLine.FieldNo("Qty. to Ship"), DummySalesLine.FieldNo("Quantity Shipped"), DummySalesLine.FieldNo("Quantity Invoiced"));
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OpenSalesStatisticsPage(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(SalesStatistics.VATAmount.AsDecimal());
     end;
 }
 
