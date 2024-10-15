@@ -612,8 +612,10 @@
                 DimMgt: Codeunit DimensionManagement;
             begin
                 SetCurrentFieldNum(FieldNo("Dimension Set ID"));
-                if "Dimension Set ID" <> xRec."Dimension Set ID" then
+                if "Dimension Set ID" <> xRec."Dimension Set ID" then begin
+                    AssemblyLineMgt.SetHideValidationDialog(HideValidationDialog);
                     AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Dimension Set ID"), false, CurrFieldNo, CurrentFieldNum);
+                end;
                 ClearCurrentFieldNum(FieldNo("Dimension Set ID"));
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
