@@ -52,9 +52,9 @@ table 1453 "MS - Yodlee Bank Session"
         IF "Cob. Token Last Date Updated" = 0DT THEN
             EXIT('');
 
-        // Cobrand token is valid for 100 minutes. Provide a 20 minutes buffer till it becomes "invalid" (empty)
-        IF CURRENTDATETIME() - "Cob. Token Last Date Updated" >= 1000 * 60 * 80 THEN // duration is milliseconds
-            EXIT('');
+        // Cobrand token is valid for 30 minutes. Provide a 10 minutes buffer till it becomes "invalid" (empty)
+        if CURRENTDATETIME() - "Cob. Token Last Date Updated" >= 1000 * 60 * 20 then // duration is milliseconds
+            exit('');
 
         CALCFIELDS("Cobrand Session Token");
         "Cobrand Session Token".CREATEINSTREAM(AuxInStream);

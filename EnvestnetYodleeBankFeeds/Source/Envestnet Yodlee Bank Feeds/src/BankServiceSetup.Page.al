@@ -28,7 +28,6 @@ page 1450 "MS - Yodlee Bank Service Setup"
                         Caption = 'Cobrand Name';
                         Editable = EditableByNotEnabled;
                         ExtendedDatatype = Masked;
-                        ShowMandatory = true;
                         ToolTip = 'Specifies the cobrand name.';
 
                         trigger OnValidate();
@@ -43,7 +42,6 @@ page 1450 "MS - Yodlee Bank Service Setup"
                         Caption = 'Cobrand Login';
                         Editable = EditableByNotEnabled;
                         ExtendedDatatype = Masked;
-                        ShowMandatory = true;
                         ToolTip = 'Specifies the cobrand username.';
 
                         trigger OnValidate();
@@ -52,13 +50,56 @@ page 1450 "MS - Yodlee Bank Service Setup"
                             PreconfiguredCredentials := HasDefaultCredentials();
                         end;
                     }
+                    field(AdminLoginName; AdminLoginName)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Admin Login';
+                        Editable = EditableByNotEnabled;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the admin login name.';
+
+                        trigger OnValidate();
+                        begin
+                            Rec.SaveAdminLoginName(Rec."Admin Login Name", AdminLoginName);
+                            PreconfiguredCredentials := Rec.HasDefaultCredentials();
+                        end;
+                    }
+                    field(ClientId; ClientId)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Client Id';
+                        Editable = EditableByNotEnabled;
+                        ExtendedDatatype = Masked;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the client id.';
+
+                        trigger OnValidate();
+                        begin
+                            Rec.SaveClientId(Rec."Client Id", ClientId);
+                            PreconfiguredCredentials := Rec.HasDefaultCredentials();
+                        end;
+                    }
+                    field(ClientSecret; ClientSecret)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Client Secret';
+                        Editable = EditableByNotEnabled;
+                        ExtendedDatatype = Masked;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the client secret.';
+
+                        trigger OnValidate();
+                        begin
+                            Rec.SaveClientSecret(Rec."Client Secret", ClientSecret);
+                            PreconfiguredCredentials := Rec.HasDefaultCredentials();
+                        end;
+                    }
                     field(CobrandPwd; CobrandPassword)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cobrand Password';
                         Editable = EditableByNotEnabled;
                         ExtendedDatatype = Masked;
-                        ShowMandatory = true;
                         ToolTip = 'Specifies the cobrand password.';
 
                         trigger OnValidate();
@@ -94,7 +135,6 @@ page 1450 "MS - Yodlee Bank Service Setup"
                             Caption = 'Consumer Password';
                             Editable = EditableByNotEnabled;
                             ExtendedDatatype = Masked;
-                            ShowMandatory = true;
                             ToolTip = 'Specifies the consumer password.';
 
                             trigger OnValidate();
@@ -229,9 +269,18 @@ page 1450 "MS - Yodlee Bank Service Setup"
                     IF NOT ISNULLGUID("Cobrand Password") THEN
                         MSYodleeBankServiceSetup.DeleteFromIsolatedStorage("Cobrand Password");
 
-                    CLEAR("Cobrand Name");
-                    CLEAR("Cobrand Password");
-                    MODIFY(TRUE);
+                    if not ISNULLGUID(Rec."Client Id") then
+                        MSYodleeBankServiceSetup.DeleteFromIsolatedStorage(Rec."Client Id");
+
+                    if not ISNULLGUID(Rec."Client Secret") then
+                        MSYodleeBankServiceSetup.DeleteFromIsolatedStorage(Rec."Client Secret");
+
+                    CLEAR(Rec."Cobrand Name");
+                    CLEAR(Rec."Cobrand Password");
+                    CLEAR(Rec."Client Id");
+                    CLEAR(Rec."Client Secret");
+                    CLEAR(Rec."Admin Login Name");
+                    Rec.MODIFY(true);
 
                     AdvancedViewOnOpen := NOT HasDefaultCredentials();
                     AdvancedView := NOT HasDefaultCredentials();
@@ -438,6 +487,9 @@ page 1450 "MS - Yodlee Bank Service Setup"
     var
         CobrandEnvName: Text[50];
         CobrandLogin: Text[50];
+        AdminLoginName: Text[50];
+        ClientId: Text[50];
+        ClientSecret: Text[50];
         CobrandPassword: Text[50];
         ConsumerPassword: Text[50];
         EditableByNotEnabled: Boolean;
@@ -480,7 +532,22 @@ page 1450 "MS - Yodlee Bank Service Setup"
         ELSE
             CobrandLogin := '';
 
-        IF HasCobrandEnvironmentName("Cobrand Environment Name") THEN
+        if Rec.HasAdminLoginName(Rec."Admin Login Name") then
+            AdminLoginName := '*************'
+        else
+            AdminLoginName := '';
+
+        if Rec.HasClientSecret(Rec."Client Secret") then
+            ClientSecret := '*************'
+        else
+            ClientSecret := '';
+
+        if Rec.HasClientId(Rec."Client Id") then
+            ClientId := '*************'
+        else
+            ClientId := '';
+
+        if Rec.HasCobrandEnvironmentName(Rec."Cobrand Environment Name") then
             CobrandEnvName := '*************'
         ELSE
             CobrandEnvName := '';
