@@ -338,6 +338,7 @@ codeunit 99000774 "Calculate Routing Line"
                     if (RemainNeedQtyBase < 0) or (Round(RemainNeedQtyBase, CurrentRounding) = 0) then
                         RemainNeedQtyBase := 0;
                 end;
+                OnCreateLoadForwardOnAfterScheduleProdOrderRoutingLineManually(ProdOrderRoutingLine, TimeType, RunStartingDateTime, ProdStartingDate, ProdStartingTime, RemainNeedQtyBase);
 
                 if (RemainNeedQtyBase = 0) and ((not FirstEntry) or (not Write)) and (AvQtyBase * LoadFactor >= 0) then
                     StopLoop := true
@@ -2296,6 +2297,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinitelyLoadCapBackOnAfterCalcShouldProcessLastProdOrderCapNeed(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; AvailCap: Decimal; CalendarEntry: Record "Calendar Entry"; ProdEndingTime: Time; ProdEndingDate: Date; TimeType: Enum "Routing Time Type"; var FirstInBatch: Boolean; var FirstEntry: Boolean; var UpdateDates: Boolean; var RemainNeedQty: Decimal; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrder: Record "Production Order"; var NextCapNeedLineNo: Integer; Workcenter: Record "Work Center"; LotSize: Decimal; var ShouldProcessLastProdOrderCapNeed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLoadForwardOnAfterScheduleProdOrderRoutingLineManually(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RoutingTimeType: Enum "Routing Time Type"; var RunStartingDateTime: DateTime; var ProdStartingDate: Date; var ProdStartingTime: Time; var RemainNeedQtyBase: Decimal)
     begin
     end;
 }

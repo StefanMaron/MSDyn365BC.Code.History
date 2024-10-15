@@ -149,6 +149,22 @@ page 38 "Item Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item in the item entry.';
                 }
+                field(RunningBalance; CalcRunningInvBalance.GetItemBalance(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Inventory';
+                    ToolTip = 'Specifies the inventory at date including this entry.';
+                    DecimalPlaces = 0 : 5;
+                    Visible = false;
+                }
+                field(RunningBalanceLoc; CalcRunningInvBalance.GetItemBalanceLoc(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Inventory by Location';
+                    ToolTip = 'Specifies the inventory at date including this entry, for this location.';
+                    DecimalPlaces = 0 : 5;
+                    Visible = false;
+                }
                 field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
@@ -561,6 +577,7 @@ page 38 "Item Ledger Entries"
     end;
 
     var
+        CalcRunningInvBalance: Codeunit "Calc. Running Inv. Balance";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         PackageTrackingVisible: Boolean;

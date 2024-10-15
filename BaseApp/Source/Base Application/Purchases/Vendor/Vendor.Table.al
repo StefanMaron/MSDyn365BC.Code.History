@@ -2374,6 +2374,7 @@ table 23 Vendor
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
         OnBeforeOpenVendorLedgerEntries(Rec, DetailedVendorLedgEntry);
         DetailedVendorLedgEntry.SetRange("Vendor No.", "No.");
@@ -2384,7 +2385,10 @@ table 23 Vendor
             DetailedVendorLedgEntry.SetFilter("Posting Date", '<=%1', GetRangeMax("Date Filter"));
         end;
         CopyFilter("Currency Filter", DetailedVendorLedgEntry."Currency Code");
-        VendorLedgerEntry.DrillDownOnEntries(DetailedVendorLedgEntry);
+        IsHandled := false;
+        OnOpenVendorLedgerEntriesOnBeforeDrillDownEntries(DetailedVendorLedgEntry, FilterOnDueEntries, IsHandled);
+        if not IsHandled then
+            VendorLedgerEntry.DrillDownOnEntries(DetailedVendorLedgEntry);
     end;
 
     local procedure IsContactUpdateNeeded(): Boolean
@@ -2891,6 +2895,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendorNoOpenCardOnBeforeSelectVendor(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenVendorLedgerEntriesOnBeforeDrillDownEntries(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; FilterOnDueEntries: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

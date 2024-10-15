@@ -5720,6 +5720,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType PurchLineGetLineAmountToHandleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 1237446333" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. Received (Base) is not as expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType QtyReceivedBaseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 537587431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Qty. to Invoice (Base) must be equal to Qty. to Invoice in Purchase Line]]></Val>

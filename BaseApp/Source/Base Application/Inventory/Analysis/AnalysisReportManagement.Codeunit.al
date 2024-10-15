@@ -303,7 +303,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisLine.SetFilter("Source No. Filter", CurrentSourceTypeNoFilter);
     end;
 
-    procedure LookupSourceNo(var AnalysisLine: Record "Analysis Line"; CurrentSourceTypeFilter: Option " ",Customer,Vendor,Item; var CurrentSourceTypeNoFilter: Text)
+    procedure DoLookupSourceNo(var AnalysisLine: Record "Analysis Line"; CurrentSourceTypeFilter: Enum "Analysis Source Type"; var CurrentSourceTypeNoFilter: Text)
     var
         CustList: Page "Customer List";
         VendList: Page "Vendor List";
@@ -330,8 +330,15 @@ codeunit 7110 "Analysis Report Management"
                     if ItemList.RunModal() = ACTION::LookupOK then
                         CurrentSourceTypeNoFilter := ItemList.GetSelectionFilter();
                 end;
+            else
+                OnDoLookupSourceNoOnElseCurrentSourceTypeFilter(CurrentSourceTypeFilter, CurrentSourceTypeNoFilter);
         end;
         SetSourceNo(AnalysisLine, CurrentSourceTypeNoFilter);
+    end;
+
+    procedure LookupSourceNo(var AnalysisLine: Record "Analysis Line"; CurrentSourceTypeFilter: Option " ",Customer,Vendor,Item; var CurrentSourceTypeNoFilter: Text)
+    begin
+        DoLookupSourceNo(AnalysisLine, Enum::"Analysis Source Type".FromInteger(CurrentSourceTypeFilter), CurrentSourceTypeNoFilter);
     end;
 
     local procedure AccPeriodStartEnd(Formula: Code[20]; Date: Date; var StartDate: Date; var EndDate: Date)
@@ -1861,6 +1868,11 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyColumnsToTempOnBeforeAnalysisColumnFindset(var AnalysisColumn: Record "Analysis Column"; ColumnName: Code[10]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDoLookupSourceNoOnElseCurrentSourceTypeFilter(CurrentSourceTypeFilter: Enum "Analysis Source Type"; var CurrentSourceTypeNoFilter: Text)
     begin
     end;
 }

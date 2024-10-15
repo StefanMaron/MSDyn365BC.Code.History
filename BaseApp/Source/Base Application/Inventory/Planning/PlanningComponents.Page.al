@@ -9,7 +9,7 @@ page 99000862 "Planning Components"
 {
     AutoSplitKey = true;
     Caption = 'Planning Components';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DelayedInsert = true;
     MultipleNewLines = true;
     PageType = List;

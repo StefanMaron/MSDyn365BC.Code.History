@@ -93,12 +93,23 @@ table 5095 "Duplicate Search String Setup"
     var
         "Field": Record "Field";
         FieldSelection: Codeunit "Field Selection";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupFieldName(Field, IsHandled);
+        if IsHandled then
+            exit;
+
         Field.SetRange(TableNo, DATABASE::Contact);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.SetRange(Class, Field.Class::Normal);
         if FieldSelection.Open(Field) then
             Validate("Field No.", Field."No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupFieldName(var Field: Record "Field"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -27,6 +27,7 @@ codeunit 73 "Purch.-Explode BOM"
 
         FromBOMComp.SetRange("Parent Item No.", Rec."No.");
         NoOfBOMComp := FromBOMComp.Count();
+        OnRunOnAfterSetNoOfBOMComp(FromBOMComp, Rec, NoOfBOMComp);
         if NoOfBOMComp = 0 then
             Error(
               Text001,
@@ -111,6 +112,7 @@ codeunit 73 "Purch.-Explode BOM"
                 Error(Text003);
 
             FromBOMComp.Find('-');
+            OnExplodeBOMCompLinesOnBeforeLoopFromBOMComp(PurchLine, NextLineNo);
             repeat
                 SkipComponent := false;
                 OnExplodeBOMCompLinesOnBeforeCreatePurchLine(PurchLine, FromBOMComp, SkipComponent);
@@ -260,6 +262,16 @@ codeunit 73 "Purch.-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPurchaseLine(PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSetNoOfBOMComp(FromBOMComponent: Record "BOM Component"; PurchaseLine: Record "Purchase Line"; var NoOfBOMComp: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeBOMCompLinesOnBeforeLoopFromBOMComp(PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer)
     begin
     end;
 }

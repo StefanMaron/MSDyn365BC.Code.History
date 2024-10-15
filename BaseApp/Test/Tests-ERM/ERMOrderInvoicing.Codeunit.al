@@ -12,6 +12,8 @@ codeunit 134372 "ERM Order Invoicing"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -112,6 +114,40 @@ codeunit 134372 "ERM Order Invoicing"
         ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
         ServiceInvoiceLine.FindFirst();
         Assert.AreEqual(ServiceHeader."No.", ServiceInvoiceLine."Order No.", WrongReturnOrderNoErr);
+    end;
+
+    [Test]
+    procedure PostServiceOrderWithServiceLineWithItemTypeServiceAndLocationBinMandatory()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] When Item is with Type = Service and Location Mandatory = true, the service could be posted without Bin Code
+        Initialize();
+
+        // [GIVEN] Location with Bin Mandatory = true
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Item with Type = Service
+        LibraryInventory.CreateServiceTypeItem(Item);
+
+        // [GIVEN] Created service item
+        LibraryService.CreateServiceItem(ServiceItem, '');
+
+        // [GIVEN] Create a service order with one service line
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        ServiceLine.Modify(true);
+
+        // [WHEN] [THEN]  Post the service order as shipped and invoiced should be successful
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
     [Test]
