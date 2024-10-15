@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Standard Audit File - Tax Localization for Norway Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 4101635234 - NamedType 3959011560" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more G/L accounts do not have a mapping setup. Open the SAF-T Mapping Setup page for the selected mapping range and map each G/L account either to the  standard account or the grouping code.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Check Tests - NamedType MappingNotDoneErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4101635234 - NamedType 2290190938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more dimensions do not have a SAF-T analysis code. Open the Dimensions page and specify a SAF-T analysis code for each dimension.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Check Tests - NamedType DimensionWithoutAnalysisCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4101635234 - NamedType 1752140215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more VAT posting setup do not have a %1. Open the VAT Posting Setup page and specify %1 for each VAT posting setup combination.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Check Tests - NamedType VATPostingSetupWithoutTaxCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4101635234 - NamedType 367979656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more source codes do not have a SAF-T source code. Open the Source Codes page and specify a SAF-T source code for each source code.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Check Tests - NamedType SourceCodeWithoutSAFTCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4101635234 - NamedType 1936075235" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not specified]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Check Tests - NamedType FieldValueIsNotSpecifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1529448322 - NamedType 1908741162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Earliest Start Date/Time field is not filled in. Do you want to proceed and start the export immediately?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Job Queue Tests - NamedType SetStartDateTimeAsCurrentQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2537827799 - NamedType 4232242651" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected element name. Expected element name: %1. Actual element name: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Expetced XML Element Name;%2=Actual XML Element Name]D;]A;(LookupHint=Codeunit SAF-T Test Helper - NamedType UnexpectedElementNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2537827799 - NamedType 2890512375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value]D;]A;(LookupHint=Codeunit SAF-T Test Helper - NamedType UnexpectedElementValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3129724570 - NamedType 922495134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to match a chart of accounts with SAF-T standard account codes?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Unit Tests - NamedType MatchChartOfAccountsQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3129724570 - NamedType 2213276311" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to create a chart of accounts based on SAF-T standard account codes?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Unit Tests - NamedType CreateChartOfAccountsQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3129724570 - NamedType 3003812014" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 of %2 standard accounts have been automatically matched to the chart of accounts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1,%2 = both integer values]D;]A;(LookupHint=Codeunit SAF-T Unit Tests - NamedType StandardAccountsMatchedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2271899501 - NamedType 1484253947" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DEFAULT]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Wizard Tests - NamedType DefaultLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3755439939 - NamedType 3625992881" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Since you did not schedule the SAF-T file generation, it will be generated immediately which can take a while. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T XML Tests - NamedType GenerateSAFTFileImmediatelyQst)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

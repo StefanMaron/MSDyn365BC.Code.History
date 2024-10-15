@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Payroll Data Import Definition (NO) Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 1574107339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[HULDT-LILLEVIK]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Payroll Integration Test - NamedType DataExchNameTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 4098239920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AMOUNT_IN_CENTS]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Payroll Integration Test - NamedType AmountInCentsTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 2128612129" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BLANK_DIM_CODE]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Payroll Integration Test - NamedType BlankDimCodeTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 463377109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[EVAL_TXT_TO_INT]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Payroll Integration Test - NamedType EvaluateTextToIntegerTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4153178391 - NamedType 3656526069" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 Field: "%2" different from expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payroll Integration Test - NamedType AssertMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>
