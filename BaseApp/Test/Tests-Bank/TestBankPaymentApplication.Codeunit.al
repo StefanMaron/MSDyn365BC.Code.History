@@ -1244,24 +1244,27 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
+        CurrencyExchRate: Record "Currency Exchange Rate";
         CurrencyCode: Code[10];
     begin
         // [FEATURE] [Sales] [Currency]
-        // [SCENARIO 381276] Payment in local currency should be applied to Sales Invoice in foreign currency with different exchange rate
-
-        Initialize;
+        // [SCENARIO 388597] Currency Exchange Rate on Transaction Date is used when apply Payment to Sales Invoice in foreign currency on Bank Account Reconciliation page.
+        Initialize();
 
         // [GIVEN] Currency "X" with "Posting Date" = 01.01 and "Exchange Rate" = 1/100
         // [GIVEN] Currency "X" with "Posting Date" = 02.01 and "Exchange Rate" = 1/99
-        CurrencyCode := SetupCurrencyWithExchRates;
+        CurrencyCode := SetupCurrencyWithExchRates();
 
         // [GIVEN] Sales Invoice with "Posting Date" = 01.01, "Currency Code" = "X" and Amount = 10 ("Amount (LCY)" = 1000)
         CreateCustAndPostSalesInvoice(CustLedgEntry, CurrencyCode);
 
         // [GIVEN] Bank Account Reconciliation in local currency, "Posting Date" = 02.01 and Amount = 1000
         LibraryERM.CreateBankAccount(BankAcc);
-        CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
-        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate + 1, CustLedgEntry."Remaining Amt. (LCY)");
+        CustLedgEntry.CalcFields("Remaining Amount");
+        CurrencyExchRate.Get(CurrencyCode, WorkDate() + 1);
+        CreateBankPmtReconcWithLine(
+            BankAcc, BankAccRecon, BankAccReconLine, WorkDate() + 1,
+            Round(CustLedgEntry."Remaining Amount" / CurrencyExchRate."Exchange Rate Amount"));
         BankAccReconLine.Modify(true);
 
         // [GIVEN] Sales Invoice applied to Bank Account Reconciliation
@@ -1271,7 +1274,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] Sales Invoice fully applied to Payment
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         CustLedgEntry.TestField(Open, false);
     end;
 
@@ -1283,24 +1286,27 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        CurrencyExchRate: Record "Currency Exchange Rate";
         CurrencyCode: Code[10];
     begin
         // [FEATURE] [Purchase] [Currency]
-        // [SCENARIO 381276] Payment in local currency should be applied to Purchase Invoice in foreign currency with different exchange rate
-
-        Initialize;
+        // [SCENARIO 388597] Currency Exchange Rate on Transaction Date is used when apply Payment to Purchase Invoice in foreign currency on Bank Account Reconciliation page.
+        Initialize();
 
         // [GIVEN] Currency "X" with "Posting Date" = 01.01 and "Exchange Rate" = 1/100
         // [GIVEN] Currency "X" with "Posting Date" = 02.01 and "Exchange Rate" = 1/99
-        CurrencyCode := SetupCurrencyWithExchRates;
+        CurrencyCode := SetupCurrencyWithExchRates();
 
         // [GIVEN] Purchase Invoice with "Posting Date" = 01.01, "Currency Code" = "X" and Amount = 10 ("Amount (LCY)" = 1000)
         CreateVendAndPostPurchInvoice(VendLedgEntry, CurrencyCode);
 
         // [GIVEN] Bank Account Reconciliation in local currency, "Posting Date" = 02.01 and Amount = 1000
         LibraryERM.CreateBankAccount(BankAcc);
-        VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate + 1, VendLedgEntry."Remaining Amt. (LCY)");
+        VendLedgEntry.CalcFields("Remaining Amount");
+        CurrencyExchRate.Get(CurrencyCode, WorkDate() + 1);
+        CreateBankPmtReconcWithLine(
+            BankAcc, BankAccRecon, BankAccReconLine, WorkDate() + 1,
+            Round(VendLedgEntry."Remaining Amount" / CurrencyExchRate."Exchange Rate Amount"));
         BankAccReconLine.Modify(true);
 
         // [GIVEN] Purchase Invoice applied to Bank Account Reconciliation
@@ -1310,7 +1316,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] Purchase Invoice fully applied to Payment
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         VendLedgEntry.TestField(Open, false);
     end;
 

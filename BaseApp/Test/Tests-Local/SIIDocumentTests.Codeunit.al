@@ -2367,6 +2367,92 @@ codeunit 147520 SIIDocumentTests
           XMLDoc, XPathPurchBaseImponibleTok, '/sii:CuotaSoportada', SIIXMLCreator.FormatNumber(Round(VATRate * Amount / 100)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FechaOperacionNextDateAfterPostingDateSalesCreditMemoWithSchemeCode14AndVersion11bis()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 391434] FechaOperacion xml node has value after the posting date
+        // [SCENARIO 391434] in the sales credit memo with the "Special Scheme Code" equals 14 and SII version equals 1.1bis
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit memo with "Special Scheme Code" = "14", "Posting Date" = January 20
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"14 Invoice Work Certification");
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLineWithShipmentDate(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), WorkDate(), 1);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo",
+          LibrarySales.PostSalesDocument(SalesHeader, true, false));
+
+        // [GIVEN] SII Version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag contains January 20 (the day after posting date)
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(SalesHeader."Posting Date" + 1), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FechaOperacionNextDateAfterPostingDateSalesReturnOrderWithSchemeCode14AndVersion11bis()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderForReceipt: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        CustomerNo: Code[20];
+        OldWorkDate: Date;
+    begin
+        // [FEATURE] [Sales] [Receipt]
+        // [SCENARIO 391434] FechaOperacion xml node has value after the posting date
+        // [SCENARIO 391434] in the sales credit memo with receipt from return order with the "Special Scheme Code" equals 14 and SII version equals 1.1bis
+
+        Initialize();
+
+        // [GIVEN] Posted return order on 01.07.2017
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        OldWorkDate := WorkDate();
+        LibrarySales.CreateSalesHeader(SalesHeaderForReceipt, SalesHeaderForReceipt."Document Type"::"Return Order", CustomerNo);
+        LibrarySales.CreateSalesLineWithShipmentDate(
+          SalesLine, SalesHeaderForReceipt, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), WorkDate(), 1);
+        LibrarySales.PostSalesDocument(SalesHeaderForReceipt, true, false);
+
+        // [GIVEN] Sales invoice with "Posting Date" = 02.02.2017
+        // [GIVEN] "Get Shipment Lines" action is called for Sales Invoice
+        WorkDate := WorkDate() + 1;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"14 Invoice Work Certification");
+        SalesHeader.Modify(true);
+        GetReturnReceiptLines(SalesHeaderForReceipt, SalesHeader);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, SalesHeader."Document Type", LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [GIVEN] SII Version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag contains 03.07.2017 (the date after the posting date of credit memo)
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(SalesHeader."Posting Date" + 1), 0);
+
+        // Tear down
+        WorkDate := OldWorkDate;
+    end;
+    
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2668,6 +2754,19 @@ codeunit 147520 SIIDocumentTests
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesGetShipment.SetSalesHeader(SalesHeaderTo);
         SalesGetShipment.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure GetReturnReceiptLines(SalesHeaderFrom: Record "Sales Header"; SalesHeaderTo: Record "Sales Header")
+    var
+        ReturnRcptHeader: Record "Return Receipt Header";
+        ReturnRcptLine: Record "Return Receipt Line";
+        SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+    begin
+        ReturnRcptHeader.SetRange("Return Order No.", SalesHeaderFrom."No.");
+        ReturnRcptHeader.FindFirst();
+        ReturnRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
+        SalesGetReturnReceipts.SetSalesHeader(SalesHeaderTo);
+        SalesGetReturnReceipts.CreateInvLines(ReturnRcptLine);
     end;
 
     local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrectionType: Option)
