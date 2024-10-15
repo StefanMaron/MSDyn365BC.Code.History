@@ -768,6 +768,7 @@ report 393 "Suggest Vendor Payments"
                         if IsNotAppliedEntry(GenJnlLine, VendLedgEntry) then
                             if SummarizePerVend then begin
                                 TempPaymentBuffer."Vendor Ledg. Entry No." := 0;
+                                TempPaymentBuffer."Applies-to Ext. Doc. No." := '';
                                 if TempPaymentBuffer.Find then begin
                                     TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + PayableVendLedgEntry.Amount;
                                     TempPaymentBuffer.Modify();

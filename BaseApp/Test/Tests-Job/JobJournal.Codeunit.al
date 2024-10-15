@@ -24,6 +24,7 @@ codeunit 136305 "Job Journal"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryMarketing: Codeunit "Library - Marketing";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
         BlankJobNoError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field,%8=Field value,%9=Field,%10=Field value,%11=Field,%12=Field value,%13=Field,%14=Field value';
@@ -2243,6 +2244,100 @@ codeunit 136305 "Job Journal"
         DeleteJobJournalTemplate(JobJournalBatch."Journal Template Name");
     end;
 
+    [Test]
+    procedure UpdateContactInfoAfterChangeBilltoContactNoinJobCardByValidatePageField()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] When user change Bill-to Contact No. in Job Card then contact info must be updated
+        Initialize();
+
+        // [GIVEN] Customer with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Job with "Bill-to Contact No." = "C1"
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify(true);
+        JobCard.Trap();
+        Page.Run(Page::"Job Card", Job);
+
+        // [WHEN] User set "Bill-to Contact No." = "C2" by validate page field
+        JobCard."Bill-to Contact No.".SetValue(Contact2."No.");
+
+        // [THEN] "Job Card"."Phone No." = "333333333"
+        JobCard.ContactPhoneNo.AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Job Card"."Mobile Phone No." = "444444444"
+        JobCard.ContactMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Job Card"."Email" = "contact2@mail.com"
+        JobCard.ContactEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListPageHandler')]
+    procedure UpdateContactInfoAfterChangeBilltoContactNoinJobCardByLookup()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] When user change Bill-to Contact No. in Job Card then contact info must be updated
+        Initialize();
+
+        // [GIVEN] Customer with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Job with "Bill-to Contact No." = "C1"
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify(true);
+        JobCard.Trap();
+        Page.Run(Page::"Job Card", Job);
+
+        // [WHEN] User set "Bill-to Contact No." = "C2" by validate page field
+        LibraryVariableStorage.Enqueue(Contact2."No.");
+        JobCard."Bill-to Contact No.".Lookup();
+
+        // [THEN] "Job Card"."Phone No." = "333333333"
+        JobCard.ContactPhoneNo.AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Job Card"."Mobile Phone No." = "444444444"
+        JobCard.ContactMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Job Card"."Email" = "contact2@mail.com"
+        JobCard.ContactEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2872,6 +2967,14 @@ codeunit 136305 "Job Journal"
         JobJournalLine.Modify(true);
     end;
 
+    local procedure UpdateContactInfo(var Contact: Record Contact; PhoneNo: Text[30]; MobilePhoneNo: Text[30]; Email: Text[80])
+    begin
+        Contact.Validate("Phone No.", PhoneNo);
+        Contact.Validate("Mobile Phone No.", MobilePhoneNo);
+        Contact.Validate("E-Mail", Email);
+        Contact.Modify(true);
+    end;
+
     local procedure VerifyAmountsOnJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; LineAmount: Decimal; LineDiscountAmount: Decimal)
     begin
         JobPlanningLine.TestField("Line Discount Amount", LineDiscountAmount);
@@ -3149,6 +3252,14 @@ codeunit 136305 "Job Journal"
         // Verify auto calc field is reset
         JobJnlLine.Find;
         JobJnlLine.TestField("Reserved Qty. (Base)", 0);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.GoToKey(LibraryVariableStorage.DequeueText());
+        ContactList.OK().Invoke();
     end;
 }
 

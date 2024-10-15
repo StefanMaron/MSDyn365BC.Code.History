@@ -2050,6 +2050,38 @@ codeunit 136208 "Marketing Interaction"
         Assert.AreEqual(FilePath, ExportFilePath, FilePathsAreNotEqualErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateInteractionIgnoreContactCorresType()
+    var
+        Contact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+        SegmentLine: Record "Segment Line";
+    begin
+        // [SCENARIO 397610] When creating Interaction Template`s "Ignore Contact Corres."" Type setting should not be ignored
+        Initialize;
+
+        // [GIVEN] Contact "A" with "Correspondence Type" = Email
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Correspondence Type", "Correspondence Type"::Email);
+        Contact.Modify(true);
+
+        // [GIVEN] Interaction template "IT" with "Ignore Contact Corres. Type" := true and "Correspondence Type (Default)" = Fax
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Ignore Contact Corres. Type" := true;
+        InteractionTemplate."Correspondence Type (Default)" := InteractionTemplate."Correspondence Type (Default)"::Fax;
+        InteractionTemplate.Modify();
+
+        // [WHEN] Segment Line is created for Person Contact "A" and with Interaction Template "IT"
+        SegmentLine.Init();
+        SegmentLine.Validate("Contact No.", Contact."No.");
+        SegmentLine.Insert();
+        SegmentLine.Validate("Interaction Template Code", InteractionTemplate.Code);
+
+        // [THEN] SegmentLine."Correspondence Type" = "Fax"
+        SegmentLine.TestField("Correspondence Type", InteractionTemplate."Correspondence Type (Default)");
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
