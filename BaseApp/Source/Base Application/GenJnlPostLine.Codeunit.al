@@ -1,4 +1,4 @@
-codeunit 12 "Gen. Jnl.-Post Line"
+﻿codeunit 12 "Gen. Jnl.-Post Line"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "G/L Entry" = rimd,
@@ -1647,7 +1647,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
-        CurrentDateTime: DateTime;
     begin
         OnBeforeStartPosting(GenJnlLine);
 
@@ -1681,13 +1680,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GLReg.Init();
             GLReg."From Entry No." := NextEntryNo;
             GLReg."From VAT Entry No." := NextVATEntryNo;
-            if GetCurrentDateTimeInUserTimeZone(CurrentDateTime) then begin
-                GLReg."Creation Date" := DT2Date(CurrentDateTime);
-                GLReg."Creation Time" := DT2Time(CurrentDateTime);
-            end else begin
-                GLReg."Creation Date" := Today();
-                GLReg."Creation Time" := Time();
-            end;
+            GLReg."Creation Date" := Today();
+            GLReg."Creation Time" := Time();
             GLReg."Source Code" := "Source Code";
             GLReg."Journal Batch Name" := "Journal Batch Name";
             GLReg."User ID" := UserId;
@@ -1703,14 +1697,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         OnAfterStartPosting(GenJnlLine);
-    end;
-
-    [TryFunction]
-    local procedure GetCurrentDateTimeInUserTimeZone(var CurrentDateTime: DateTime)
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        CurrentDateTime := TypeHelper.GetCurrentDateTimeInUserTimeZone();
     end;
 
     procedure ContinuePosting(GenJnlLine: Record "Gen. Journal Line")
@@ -7599,8 +7585,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-    if GenJnlCheckLine.DateNotAllowed(PostingDate) then
-        Error(InvalidPostingDateErr, PostingDate);
+        if GenJnlCheckLine.DateNotAllowed(PostingDate) then
+            Error(InvalidPostingDateErr, PostingDate);
 
     end;
 

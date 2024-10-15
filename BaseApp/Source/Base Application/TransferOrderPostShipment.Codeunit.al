@@ -94,7 +94,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 WhseRqst.LockTable();
             TransShptLine.LockTable();
             TransLine.SetRange(Quantity);
-            TransLine.SetRange("Qty. to Ship");
+            TransLine.SetFilter("Qty. to Ship", '<>0');
             OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
             if TransLine.Find('-') then
                 repeat

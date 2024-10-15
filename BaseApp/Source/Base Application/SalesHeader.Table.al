@@ -1232,26 +1232,6 @@
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
-
-            trigger OnValidate()
-            var
-                NewVATRegNo: Text[20];
-                OldCustNo: Code[20];
-            begin
-                // NAVCZ
-                NewVATRegNo := "VAT Registration No.";
-                if "Bill-to Customer No." <> '' then begin
-                    OldCustNo := Cust."No.";
-                    GetCust("Bill-to Customer No.");
-                    NewVATRegNo := Cust."VAT Registration No.";
-                    if OldCustNo <> '' then
-                        GetCust(OldCustNo)
-                    else
-                        Clear(Cust);
-                end;
-                "VAT Registration No." := NewVATRegNo;
-                // NAVCZ
-            end;
         }
         field(79; "Sell-to Customer Name"; Text[100])
         {

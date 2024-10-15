@@ -57,6 +57,7 @@ codeunit 1299 "Web Request Helper"
     end;
 
     [TryFunction]
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetWebResponse(var HttpWebRequest: DotNet HttpWebRequest; var HttpWebResponse: DotNet HttpWebResponse; var ResponseInStream: InStream; var HttpStatusCode: DotNet HttpStatusCode; var ResponseHeaders: DotNet NameValueCollection; ProgressDialogEnabled: Boolean)
     var
@@ -118,6 +119,7 @@ codeunit 1299 "Web Request Helper"
     end;
 
     [TryFunction]
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
     begin
@@ -125,6 +127,7 @@ codeunit 1299 "Web Request Helper"
     end;
 
     [TryFunction]
+    [NonDebuggable]
     [Scope('OnPrem')]
     local procedure GetResponseTextInternal(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text; IgnoreCharSet: Boolean)
     var

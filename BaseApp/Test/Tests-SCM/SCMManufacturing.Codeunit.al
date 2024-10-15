@@ -82,6 +82,8 @@ codeunit 137404 "SCM Manufacturing"
         ItemNoProdOrderErr: Label '%1 must be equal to';
         DueDateEmptyErr: Label 'Due Date must have a value in Production Order';
         CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
+        ExpectedWhsePickRequest: Label 'Expected a Warehouse Pick Request associated with the Production Order Component Line, since the line has a positive remaining quantity';
+        DidntExpectWhsePickRequest: Label 'Did not expect a Warehouse Pick Request associated with the Production Order Component Line, since the line doesn''t have a postitive remaining quantity';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -660,6 +662,30 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify Expected Capacity Need on Production Order Statistics.
         VerifyProductionOrderStatistics(ProductionOrder."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhsePickRequestUpdatedOnUpdatingProdOrderCompLine()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Warehouse Pick Request] 
+        // [SCENARIO] Verify that WhsePickRequest gets deleted and recreated when "Remaining Quantity" on the ProdOrderCompLine changes between 0 and positive values
+
+        // [GIVEN] Released Production Order with location code set to a location that requires pick
+        Initialize();
+        CreateProdOrderCompLineWithLocationRequirePick(ProductionOrder, ProdOrderComponent);
+
+        // Set positive remaining qty and verify that whse pick request exists
+        VerifyWhsePickRequestOnPositiveRemQty(ProductionOrder, ProdOrderComponent);
+
+        // Set 0 remaining qty and check that request is deleted
+        VerifyNoWhsePickRequestOnZeroRemQty(ProductionOrder, ProdOrderComponent);
+
+        // Set positive remaining qty again and verify that whse pick exists again
+        VerifyWhsePickRequestOnPositiveRemQty(ProductionOrder, ProdOrderComponent);
     end;
 
     [Test]
@@ -5909,6 +5935,52 @@ codeunit 137404 "SCM Manufacturing"
         ItemJournalLine.SetRange("Item No.", ComponentNo);
         ItemJournalLine.FindFirst;
         ItemJournalLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure CreateProdOrderCompLineWithLocationRequirePick(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        Location: Record Location;
+    begin
+        CreateWhiteLocation(Location);
+        CreateReleasedProductionOrder(ProductionOrder);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify();
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        FindProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+    end;
+
+    local procedure VerifyWhsePickRequestOnPositiveRemQty(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+        // [When] Production Order Component Line has a positive Remaining Quantity (Set through Quantity Per)
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Modify(true);
+
+        // [Then] There is a warehouse pick request associated with the Production Order Component Line
+        Assert.IsTrue(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), ExpectedWhsePickRequest);
+    end;
+
+    local procedure VerifyNoWhsePickRequestOnZeroRemQty(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+        // [When] Production Order Component Line has a 0 Remaining Quantity (Set through Quantity Per)
+        ProdOrderComponent.Validate("Quantity per", 0);
+        ProdOrderComponent.Modify(true);
+
+        // [Then] There is no warehouse pick request associated with the Production Order Component Line
+        Assert.IsFalse(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), DidntExpectWhsePickRequest);
+    end;
+
+    local procedure WhsePickRequestExistsForReleasedProdOrder(DocNo: Code[20]; LocationCode: Code[10]): Boolean
+    var
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        WhsePickRequest.SetRange("Document Type", "Warehouse Pick Request Document Type"::Production);
+        WhsePickRequest.SetRange("Document No.", DocNo);
+        WhsePickRequest.SetRange("Document Subtype", "Production Order Status"::Released);
+        WhsePickRequest.SetRange("Location Code", LocationCode);
+        exit(not WhsePickRequest.IsEmpty());
     end;
 
     local procedure VerifyGlobalDimensionCodesInItemJournalBatch(ItemJournalBatch: Record "Item Journal Batch"; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])

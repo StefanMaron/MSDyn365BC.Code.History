@@ -1187,26 +1187,6 @@
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
-
-            trigger OnValidate()
-            var
-                NewVATRegNo: Text[20];
-                OldVendNo: Code[20];
-            begin
-                // NAVCZ
-                NewVATRegNo := "VAT Registration No.";
-                if "Pay-to Vendor No." <> '' then begin
-                    OldVendNo := Vend."No.";
-                    GetVend("Pay-to Vendor No.");
-                    NewVATRegNo := Vend."VAT Registration No.";
-                    if OldVendNo <> '' then
-                        GetVend(OldVendNo)
-                    else
-                        Clear(Vend);
-                end;
-                "VAT Registration No." := NewVATRegNo;
-                // NAVCZ
-            end;
         }
         field(79; "Buy-from Vendor Name"; Text[100])
         {
