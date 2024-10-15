@@ -752,6 +752,7 @@ codeunit 57 "Document Totals"
 
     procedure CalculatePostedPurchCreditMemoTotals(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var VATAmount: Decimal; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
+        CurrPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -761,6 +762,15 @@ codeunit 57 "Document Totals"
         if PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.") then begin
             PurchCrMemoHdr.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := PurchCrMemoHdr."Amount Including VAT" - PurchCrMemoHdr.Amount;
+
+            CurrPurchCrMemoLine.SetRange("Document No.", PurchCrMemoLine."Document No.");
+            CurrPurchCrMemoLine.SetFilter("VAT Calculation Type", '<>%1', CurrPurchCrMemoLine."VAT Calculation Type"::"Reverse Charge VAT");
+            CurrPurchCrMemoLine.SetFilter("Non Deductible VAT %", '>0');
+            if CurrPurchCrMemoLine.FindSet() then
+                repeat
+                    PurchCrMemoHdr.Amount += CurrPurchCrMemoLine.GetNonDeductibleVATAmount();
+                    VATAmount -= CurrPurchCrMemoLine.GetNonDeductibleVATAmount();
+                until CurrPurchCrMemoLine.Next() = 0;
         end;
         OnAfterCalculatePostedPurchCreditMemoTotals(PurchCrMemoHdr, VATAmount, PurchCrMemoLine);
     end;
