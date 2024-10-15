@@ -247,7 +247,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         CurrencyExchangeRate.SetRange("Currency Code", "Currency Code");
         CurrencyExchangeRate.SetRange("Starting Date", 0D, CurrencyDate);
         if CurrencyExchangeRate.IsEmpty() then
-            Error(CurrExchRateNotExistsErr)
+            Error(CurrExchRateNotExistsErr, CurrencyExchangeRate.TableCaption, "Currency Code", CurrencyDate);
     end;
 
     procedure UpdateVATCurrencyFactorCZLByCurrencyFactorCZL()

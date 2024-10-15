@@ -2130,6 +2130,16 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+            trigger OnValidate()
+            begin
+                if (Rec."Invoice Received Date" <> 0D) and
+                   (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor))
+                then
+                    TestField("Document Type", "Document Type"::Invoice);
+            end;
+        }
         field(180; "Keep Description"; Boolean)
         {
             Caption = 'Keep Description';
@@ -6473,7 +6483,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
-        "Payment Method Code" := PurchHeader."Payment Method Code"; 
+        "Payment Method Code" := PurchHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -6497,6 +6507,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
+        "Invoice Received Date" := PurchHeader."Invoice Received Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
@@ -6574,7 +6585,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
-        "Payment Method Code" := SalesHeader."Payment Method Code"; 
+        "Payment Method Code" := SalesHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
