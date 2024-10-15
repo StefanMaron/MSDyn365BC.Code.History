@@ -764,10 +764,12 @@ page 9302 "Sales Credit Memos"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
-        PreAssignedNo := "No.";
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -780,15 +782,18 @@ page 9302 "Sales Credit Memos"
             CurrPage.Close()
         else
             if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-                ShowPostedConfirmationMessage(PreAssignedNo);
+                ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            SalesCrMemoHeader.SetRange("No.", Rec."Last Posting No.")
+        else
+            SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
