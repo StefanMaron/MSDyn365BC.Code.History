@@ -1,4 +1,4 @@
-codeunit 1814 "Assisted Setup Subscribers"
+﻿codeunit 1814 "Assisted Setup Subscribers"
 {
 
     var
@@ -217,6 +217,7 @@ codeunit 1814 "Assisted Setup Subscribers"
     local procedure InitializeCustomize()
     var
         EmailFeature: Codeunit "Email Feature";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AssistedSetup: Codeunit "Assisted Setup";
         Language: Codeunit Language;
@@ -250,12 +251,15 @@ codeunit 1814 "Assisted Setup Subscribers"
         end;
         GlobalLanguage(CurrentGlobalLanguage);
 
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            AssistedSetup.Add(GetAppId(), PAGE::"Setup Email Logging", SetupEmailLoggingTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            AssistedSetup.AddTranslation(PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            AssistedSetup.Remove(Page::"Setup Email Logging")
+        else
+            if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+                AssistedSetup.Add(GetAppId(), PAGE::"Setup Email Logging", SetupEmailLoggingTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
+                GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+                AssistedSetup.AddTranslation(PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTxt);
+                GLOBALLANGUAGE(CurrentGlobalLanguage);
+            end;
 
         AssistedSetup.Add(GetAppId(), PAGE::"Custom Report Layouts", CustomizeDocumentLayoutsTxt, AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt, CustomizeDocumentLayoutsDescTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
