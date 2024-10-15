@@ -515,7 +515,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, ApplyingVendLedgEntry, IsHandled);
+        OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, ApplyingVendLedgEntry, IsHandled, VendEntryApplID);
         if IsHandled then
             exit;
 
@@ -723,7 +723,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean);
+    local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; var VendEntryApplID: Code[50]);
     begin
     end;
 

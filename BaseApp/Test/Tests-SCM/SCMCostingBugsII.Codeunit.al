@@ -2476,6 +2476,54 @@ codeunit 137621 "SCM Costing Bugs II"
         Assert.RecordCount(ValueEntry, RecordCount);
     end;
 
+    [Test]
+    procedure CollectingItemLedgerEntryTypesUsedUT()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemLedgerEntryTypesUsed: Dictionary of [Enum "Item Ledger Entry Type", Boolean];
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 502401] Making a dictionary of used item ledger entry types.
+        Initialize();
+        ItemNo := LibraryUtility.GenerateGUID();
+
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                TempItemLedgerEntry := ItemLedgerEntry;
+                TempItemLedgerEntry.Insert();
+            until ItemLedgerEntry.Next() = 0;
+        ItemLedgerEntry.DeleteAll();
+
+        MockItemLedgerEntry("Item Ledger Entry Type"::Consumption, '');
+        MockItemLedgerEntry("Item Ledger Entry Type"::"Positive Adjmt.", '');
+        MockItemLedgerEntry("Item Ledger Entry Type"::Purchase, ItemNo);
+        MockItemLedgerEntry("Item Ledger Entry Type"::Transfer, ItemNo);
+
+        ItemLedgerEntry.CollectItemLedgerEntryTypesUsed(ItemLedgerEntryTypesUsed, ItemNo);
+        Assert.IsFalse(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Consumption), '');
+        Assert.IsFalse(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::"Positive Adjmt."), '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Purchase), '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Transfer), '');
+        Assert.IsFalse(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::"Negative Adjmt."), '');
+
+        ItemLedgerEntry.CollectItemLedgerEntryTypesUsed(ItemLedgerEntryTypesUsed, '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Consumption), '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::"Positive Adjmt."), '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Purchase), '');
+        Assert.IsTrue(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::Transfer), '');
+        Assert.IsFalse(ItemLedgerEntryTypesUsed.Get("Item Ledger Entry Type"::"Negative Adjmt."), '');
+
+        // tear down
+        ItemLedgerEntry.DeleteAll();
+        if TempItemLedgerEntry.FindSet() then
+            repeat
+                ItemLedgerEntry := TempItemLedgerEntry;
+                ItemLedgerEntry.Insert();
+            until TempItemLedgerEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2936,6 +2984,17 @@ codeunit 137621 "SCM Costing Bugs II"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
+    end;
+
+    local procedure MockItemLedgerEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Entry Type" := ItemLedgerEntryType;
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure PostProductionOrderAndFinish(ProductionOrder: Record "Production Order"; ComponentItem: Record Item; QtyToConsume: Decimal; QtyToProduce: Decimal)

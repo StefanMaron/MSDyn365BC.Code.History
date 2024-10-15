@@ -2,6 +2,7 @@ codeunit 134770 "New Document from Vendor Card"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -14,6 +15,7 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
+        VendorNoForEventSubscriber: Code[20];
 
     [Test]
     [Scope('OnPrem')]
@@ -197,6 +199,72 @@ codeunit 134770 "New Document from Vendor Card"
           Vendor.Contact, PurchaseReturnOrder."Buy-from Contact".Value, 'Vendor contact is not carried over to the document');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrdersFromVendorCard_CreateNewOrderFromPurchaseOrderList_AutomaticOrderNos()
+    var
+        Vendor: Record Vendor;
+        NewDocumentFromVendorCard: Codeunit "New Document from Vendor Card";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 504336] Simulate the scenario where new purchase order is created from the vendor card via Purchase Order list and New action.
+        // [SCENARIO 504336] No. of Purchase Order is automatically assigned, so it is not visible in the page.
+        Initialize();
+
+        BindSubscription(NewDocumentFromVendorCard); // Uses OnOpenPurchaseOrder event subscriber to simulate page filters.
+
+        // [GIVEN] Create Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+        NewDocumentFromVendorCard.SetVendorNoForEventSubscriber(Vendor); // Set Vendor No. for event subscriber to simulate page filters.
+
+        // [GIVEN] Create New Purchase Order, with "Buy-from Vendor No." filter in filtergroup = 2 to simulate page filters.
+        PurchaseOrder.OpenNew();
+
+        // [WHEN] Set any field on the page to insert record.
+        PurchaseOrder."Buy-from Address".SetValue(Vendor.Address);
+
+        // [THEN] Vendor No. and Vendor Name are carried over to the document
+        Assert.AreEqual(Vendor."No.", PurchaseOrder."Buy-from Vendor No.".Value(), 'Vendor No. is not carried over to the document');
+        Assert.AreEqual(Vendor.Name, PurchaseOrder."Buy-from Vendor Name".Value(), 'Vendor Name is not carried over to the document');
+
+        UnbindSubscription(NewDocumentFromVendorCard);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrdersFromVendorCard_CreateNewOrderFromPurchaseOrderList_ManualOrderNos()
+    var
+        Vendor: Record Vendor;
+        NewDocumentFromVendorCard: Codeunit "New Document from Vendor Card";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 504336] Simulate the scenario where new purchase order is created from the vendor card via Purchase Order list and New action.
+        // [SCENARIO 504336] No. of Purchase Order can be manually set, so it is visible in the page.
+        Initialize();
+
+        // [GIVEN] Set Manual Nos. on Purchase Order No. Series
+        UpdateManualNosOnPurchaseOrderNoSeries(true);
+
+        BindSubscription(NewDocumentFromVendorCard); // Uses OnOpenPurchaseOrder event subscriber to simulate page filters.
+
+        // [GIVEN] Create Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+        NewDocumentFromVendorCard.SetVendorNoForEventSubscriber(Vendor); // Set Vendor No. for event subscriber to simulate page filters.
+
+        // [GIVEN] Create New Purchase Order, with "Buy-from Vendor No." filter in filtergroup = 2 to simulate page filters.
+        PurchaseOrder.OpenNew();
+
+        // [WHEN] Set any field on the page to insert record.
+        PurchaseOrder."Buy-from Address".SetValue(Vendor.Address);
+
+        // [THEN] Vendor No. and Vendor Name are carried over to the document
+        Assert.AreEqual(Vendor."No.", PurchaseOrder."Buy-from Vendor No.".Value(), 'Vendor No. is not carried over to the document');
+        Assert.AreEqual(Vendor.Name, PurchaseOrder."Buy-from Vendor Name".Value(), 'Vendor Name is not carried over to the document');
+
+        UnbindSubscription(NewDocumentFromVendorCard);
+        UpdateManualNosOnPurchaseOrderNoSeries(false);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor Card");
@@ -210,6 +278,31 @@ codeunit 134770 "New Document from Vendor Card"
         isInitialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"New Document from Vendor Card");
+    end;
+
+    local procedure UpdateManualNosOnPurchaseOrderNoSeries(ManualNos: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NoSeries: Record "No. Series";
+    begin
+        PurchasesPayablesSetup.Get();
+        NoSeries.Get(PurchasesPayablesSetup."Order Nos.");
+        NoSeries.Validate("Manual Nos.", ManualNos);
+        NoSeries.Modify(true);
+    end;
+
+    internal procedure SetVendorNoForEventSubscriber(Vendor: Record Vendor)
+    begin
+        VendorNoForEventSubscriber := Vendor."No.";
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnOpenPageEvent', '', false, false)]
+    local procedure OnOpenPurchaseOrder(var Rec: Record "Purchase Header")
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Document Type", Rec."Document Type"::Order);
+        Rec.SetRange("Buy-from Vendor No.", VendorNoForEventSubscriber);
+        Rec.FilterGroup(0);
     end;
 }
 

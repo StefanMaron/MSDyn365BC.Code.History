@@ -335,6 +335,37 @@ codeunit 147508 "Payment Order Elec. Export"
         GenJnlLine.TestField("Bill No.", CarteraDoc."Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('CarteraDocumentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentOrderWithExportElectronicPaymentEnabledShouldOnlyAllowedVendorBankWithElectPmt()
+    var
+        PaymentOrder: Record "Payment Order";
+        PaymentOrders: TestPage "Payment Orders";
+        BankAccNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 504169] "In order to use Electronic Payments, one of the Bank Accounts for the vendor must have the field Use For Electronic Payments selected" error message when trying to select documents in a Payment Order in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Create Vendor 10000 has Vendor Bank Account "ANT"
+        VendorNo := CreateVendorWithBankAccount(true);
+
+        // [GIVEN] Create and Post Purchase Invoice for Vendor 10000
+        CreateAndPostPurchaseInvoice(VendorNo);
+
+        // [GIVEN] Create Payment Order "PO1" with Bank
+        BankAccNo := CreateBankAccount(FindSEPACTExportFormat());
+        CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo, true);
+
+        // [GIVEN] Select Payment Order "PO1" from "Payment Orders" page.
+        PaymentOrders.OpenView();
+        PaymentOrders.GotoRecord(PaymentOrder);
+
+        // [VERIFY] Verify: Run Insert Action from Payment Orders Lines executed with no error
+        PaymentOrders.Docs.Insert.Invoke();
+    end;
+
     local procedure CreateBankAccount(PaymentExportFormat: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
@@ -579,6 +610,13 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         LibraryVariableStorage.Dequeue(MessageText);
         Assert.IsTrue(StrPos(Message, MessageText) <> 0, 'Unexpected message');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CarteraDocumentsPageHandler(var CarteraDocuments: TestPage "Cartera Documents")
+    begin
+        CarteraDocuments.OK().Invoke();
     end;
 }
 

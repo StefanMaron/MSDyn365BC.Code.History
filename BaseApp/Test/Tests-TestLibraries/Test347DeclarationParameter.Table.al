@@ -25,7 +25,7 @@ table 143000 "Test 347 Declaration Parameter"
         field(8; PostingDate; Date)
         {
         }
-        field(9; GLAccForPaymentsInCash; Text[30])
+        field(9; GLAccForPaymentsInCash; Text[250])
         {
         }
     }

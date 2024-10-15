@@ -191,6 +191,10 @@ table 10740 "No Taxable Entry"
         {
             Caption = 'VAT Date';
         }
+        field(10708; "Ignore In SII"; Boolean)
+        {
+            Caption = 'Ignore In SII';
+        }
     }
 
     keys
@@ -398,6 +402,7 @@ table 10740 "No Taxable Entry"
         SetRange("VAT Calculation Type", NoTaxableEntry."VAT Calculation Type");
         SetRange("EU Service", NoTaxableEntry."EU Service");
         SetRange("Not In 347", NoTaxableEntry."Not In 347");
+        SetRange("Ignore In SII", NoTaxableEntry."Ignore In SII");
         SetRange("No Taxable Type", NoTaxableEntry."No Taxable Type");
         SetRange("Delivery Operation Code", NoTaxableEntry."Delivery Operation Code");
         if FindFirst() then begin

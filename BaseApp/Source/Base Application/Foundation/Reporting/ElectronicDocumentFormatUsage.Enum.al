@@ -13,6 +13,6 @@ enum 61 "Electronic Document Format Usage"
     value(3; "Service Invoice") { Caption = 'Service Invoice'; }
     value(4; "Service Credit Memo") { Caption = 'Service Credit Memo'; }
     value(5; "Service Validation") { Caption = 'Service Validation'; }
-    value(6; "Job Quote") { Caption = 'Job Quote'; }
-    value(7; "Job Task Quote") { Caption = 'Job Task Quote'; }
+    value(6; "Job Quote") { Caption = 'Project Quote'; }
+    value(7; "Job Task Quote") { Caption = 'Project Task Quote'; }
 }

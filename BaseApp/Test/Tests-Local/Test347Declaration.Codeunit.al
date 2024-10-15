@@ -952,6 +952,53 @@ codeunit 147316 "Test 347 Declaration"
         Assert.AreEqual('2347', CopyStr(Line, 1, 4), 'The second line must start from 2347');
     end;
 
+    [Test]
+    [HandlerFunctions('Make347DeclarationReportHandler')]
+    procedure CashAmountForSalesDocumentWhenPaymentAndRefund()
+    var
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        InvoiceNo: Code[20];
+        CrMemoNo: Code[20];
+        PaymentBalAccNo: Code[20];
+        RefundBalAccNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[500];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+        TotalAmount: Decimal;
+        CashAmount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 497540] Total and cash amount for paid Sales Invoice and refunded Sales Credit Memo.
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with Unrealized VAT and VAT Cash Regime options set.
+        Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
+
+        // [GIVEN] Sales Invoice with amount "A1" and payment fully applied to invoice.
+        Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
+        InvoiceNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), InvoiceAmount);
+        PaymentBalAccNo := CreateAndPostPaymentJnlLine("Gen. Journal Account Type"::Customer, Customer."No.", WorkDate(), -InvoiceAmount, InvoiceNo);
+
+        // [GIVEN] Sales Credit Memo with amount "A2" < "A1" and refund fully applied to credit memo.
+        CrMemoAmount := Round(InvoiceAmount / 4);
+        CrMemoNo := Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate(), CrMemoAmount, '');
+        RefundBalAccNo := CreateAndPostRefundJnlLine("Gen. Journal Account Type"::Customer, Customer."No.", WorkDate(), CrMemoAmount, CrMemoNo);
+
+        // [WHEN] Run Make 347 Declaration report with GL Accounts for Payments in Cash specified.
+        Test347DeclarationParameter.GLAccForPaymentsInCash := StrSubstNo('%1;%2', PaymentBalAccNo, RefundBalAccNo);
+        FileName := RunMake347DeclarationReport();
+
+        // [THEN] Total amount is "A1" - "A2" on positions 83-98.
+        // [THEN] Amount received in cash is "A1" - "A2" on positions 101-115.
+        Line := ReadLineIn347ReportFile(FileName, Customer."No.");
+        TotalAmount := ReadCVAmount(Line);
+        CashAmount := ReadCashAmount(Line);
+        Assert.AreEqual(InvoiceAmount - CrMemoAmount, TotalAmount, 'Total amount is incorrect.');
+        Assert.AreEqual(InvoiceAmount - CrMemoAmount, CashAmount, 'Cash amount is incorrect.');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1034,7 +1081,7 @@ codeunit 147316 "Test 347 Declaration"
         Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
     end;
 
-    local procedure CreateAndPostPaymentJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; ApplToDocNo: Code[20])
+    local procedure CreateAndPostPaymentJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; ApplToDocNo: Code[20]) BalAccountNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1049,6 +1096,21 @@ codeunit 147316 "Test 347 Declaration"
             Modify(true);
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        BalAccountNo := GenJournalLine."Bal. Account No.";
+    end;
+
+    local procedure CreateAndPostRefundJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; RefundAmount: Decimal; ApplToDocNo: Code[20]) BalAccountNo: Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, "Gen. Journal Document Type"::Refund, AccountType, AccountNo, RefundAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::"Credit Memo");
+        GenJournalLine.Validate("Applies-to Doc. No.", ApplToDocNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        BalAccountNo := GenJournalLine."Bal. Account No.";
     end;
 
     local procedure GetSalesInvoiceNo(CustomerNo: Code[20]): Code[20]
@@ -1093,6 +1155,14 @@ codeunit 147316 "Test 347 Declaration"
     begin
         Evaluate(VATCashRegimeYearlyAmount, LibraryTextFileValidation.ReadValue(Line, 83, 16));
         exit(VATCashRegimeYearlyAmount / 100);
+    end;
+
+    local procedure ReadCashAmount(Line: Text[1024]): Decimal
+    var
+        CashAmount: Integer;
+    begin
+        Evaluate(CashAmount, LibraryTextFileValidation.ReadValue(Line, 101, 15));
+        exit(CashAmount / 100);
     end;
 
     local procedure ReadLineIn347ReportFile(FileName: Text[1024]; CustomerVendorNo: Code[20]): Text[500]

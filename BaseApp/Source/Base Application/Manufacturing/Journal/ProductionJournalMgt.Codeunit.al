@@ -537,6 +537,7 @@ codeunit 5510 "Production Journal Mgt"
         ItemJnlLine2.SetRange("Order No.", ProdOrderNo);
         if ProdOrderLineNo <> 0 then
             ItemJnlLine2.SetRange("Order Line No.", ProdOrderLineNo);
+        OnDeleteJnlLinesOnAfterSetFilters(ItemJnlLine2);
         if ItemJnlLine2.Find('-') then begin
             repeat
                 if ReservEntryExist(ItemJnlLine2, ReservEntry) then
@@ -771,6 +772,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateJnlLinesOnAfterSetProdOrderLineFilters(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteJnlLinesOnAfterSetFilters(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

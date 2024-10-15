@@ -483,28 +483,48 @@
         TaskIdCalculateCue: Integer;
         PBTTelemetryCategoryLbl: Label 'PBT', Locked = true;
         PBTTelemetryMsgTxt: Label 'PBT errored with code %1 and text %2. The call stack is as follows %3.', Locked = true;
+        PBTTimeoutSystemErrorCode: Label 'ChildSessionTaskTimeout', Locked = true;
+        PBTTimeoutNotificationTxt: Label 'Calculation of %1 was cancelled because it took too long. Run ''Refresh Data'' force refresh data in the foreground.', Locked = true;
         IntegrationErrorsCue: Text;
         CoupledErrorsCue: Text;
+        PBTList: Dictionary of [Integer, Text];
 
     procedure CalculateCueFieldValues()
+    var
+        TaskId: Integer;
     begin
-        if (TaskIdCalculateCue <> 0) then
-            CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
-        CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"O365 Activities Dictionary");
+        if PBTList.Count() > 0 then
+            foreach TaskId in PBTList.Keys do begin
+                CurrPage.CancelBackgroundTask(TaskId);
+                PBTList.Remove(TaskId);
+            end;
+
+        SchedulePBT(Rec.FieldName("Overdue Sales Invoice Amount"), Rec.FieldCaption("Overdue Sales Invoice Amount"));
+        SchedulePBT(Rec.FieldName("Overdue Purch. Invoice Amount"), Rec.FieldCaption("Overdue Purch. Invoice Amount"));
+        SchedulePBT(Rec.FieldName("Sales This Month"), Rec.FieldCaption("Sales This Month"));
+        SchedulePBT(Rec.FieldName("Top 10 Customer Sales YTD"), Rec.FieldCaption("Top 10 Customer Sales YTD"));
+        SchedulePBT(Rec.FieldName("Average Collection Days"), Rec.FieldCaption("Average Collection Days"));
+        SchedulePBT(Rec.FieldName("S. Ord. - Reserved From Stock"), Rec.FieldCaption("S. Ord. - Reserved From Stock"));
     end;
 
     trigger OnPageBackgroundTaskError(TaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
+    var
+        PBTErrorNotification: Notification;
     begin
         Session.LogMessage('00009V0', StrSubstNo(PBTTelemetryMsgTxt, ErrorCode, ErrorText, ErrorCallStack), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PBTTelemetryCategoryLbl);
 
-        if (TaskId <> TaskIdCalculateCue) then
+        if not PBTList.ContainsKey(TaskId) then
             exit;
 
-        if ActivitiesMgt.IsCueDataStale() then
-            if not TASKSCHEDULER.CanCreateTask() then
-                CODEUNIT.Run(CODEUNIT::"Activities Mgt.")
-            else
-                TASKSCHEDULER.CreateTask(CODEUNIT::"Activities Mgt.", 0, true, CompanyName, CurrentDateTime);
+        if ErrorCode = PBTTimeoutSystemErrorCode then begin
+            PBTErrorNotification.Message(StrSubstNo(PBTTimeoutNotificationTxt, PBTList.Get(TaskId)));
+            PBTErrorNotification.Send();
+        end else
+            if ActivitiesMgt.IsCueDataStale() then
+                if not TASKSCHEDULER.CanCreateTask() then
+                    CODEUNIT.Run(CODEUNIT::"Activities Mgt.")
+                else
+                    TASKSCHEDULER.CreateTask(CODEUNIT::"Activities Mgt.", 0, true, CompanyName, CurrentDateTime);
 
         IsHandled := true;
     end;
@@ -513,13 +533,33 @@
     var
         O365ActivitiesDictionary: Codeunit "O365 Activities Dictionary";
     begin
-        if (TaskId = TaskIdCalculateCue) then begin
+        // As PBT runs synchronously when running in test, the task is called even before PBTList is updated.
+        // So, we use (TaskIdCalculateCue = TaskId) to check if the task is the one we are interested in.
+        if PBTList.ContainsKey(TaskId) or (TaskIdCalculateCue = TaskId) then begin
             Rec.LockTable(true);
             Rec.Get();
             O365ActivitiesDictionary.FillActivitiesCue(Results, Rec);
-            Rec."Last Date/Time Modified" := CurrentDateTime;
+            if PBTList.ContainsKey(TaskId) then begin
+                PBTList.Remove(TaskId);
+                if PBTList.Count() = 0 then
+                    Rec."Last Date/Time Modified" := CurrentDateTime;
+            end;
             Rec.Modify(true);
+            Commit();
         end
+    end;
+
+    local procedure SchedulePBT(FieldName: Text; FieldCaption: Text)
+    var
+        Input: Dictionary of [Text, Text];
+        TimeoutinMs: Integer;
+    begin
+        TimeoutinMs := 2000; // Default timeout;
+        OnGetBackgroundTaskTimeout(TimeoutInMs);
+        Clear(Input);
+        Input.Add(FieldName, '');
+        CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"O365 Activities Dictionary", Input, TimeoutInMs);
+        PBTList.Add(TaskIdCalculateCue, FieldCaption);
     end;
 
     local procedure SetActivityGroupVisibility()
@@ -628,6 +668,11 @@
         if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
             exit;
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBackgroundTaskTimeout(var TimeoutInMs: Integer)
+    begin
     end;
 }
 

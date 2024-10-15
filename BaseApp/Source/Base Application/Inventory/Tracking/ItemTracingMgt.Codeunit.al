@@ -844,7 +844,7 @@ codeunit 6520 "Item Tracing Mgt."
         OnBeforeIsSpecificTracking(ItemNo, ItemTrackingSetup, IsSpecific, IsHandled);
         if IsHandled then
             exit(IsSpecific);
-        ItemTrackingCode.SetLoadFields("SN Specific Tracking", "Lot Specific Tracking");
+        ItemTrackingCode.SetLoadFields("SN Specific Tracking", "Lot Specific Tracking", "Package Specific Tracking");
         GetItemTrackingCode(ItemTrackingCode, ItemNo);
         ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
         exit(ItemTrackingSetup.SpecificTracking(ItemNo));

@@ -309,6 +309,8 @@ codeunit 10750 "SII XML Creator"
 
     local procedure CalculateNonExemptVATEntries(var TempVATEntryOut: Record "VAT Entry" temporary; TempVATEntry: Record "VAT Entry" temporary; SplitByEUService: Boolean; VATAmount: Decimal)
     begin
+        if TempVATEntry."Ignore In SII" then
+            exit;
         TempVATEntryOut.SetRange("VAT %", TempVATEntry."VAT %");
         TempVATEntryOut.SetRange("EC %", TempVATEntry."EC %");
         if SplitByEUService then
@@ -857,6 +859,7 @@ codeunit 10750 "SII XML Creator"
     begin
         TempVATEntry.Reset();
         TempVATEntry.SetCurrentKey("VAT %", "EC %");
+        TempVATEntry.SetRange("Ignore In SII", false);
         if TempVATEntry.FindSet() then
             repeat
                 FillDetalleIVANode(XMLNode, TempVATEntry, true, 1, true, 0, RegimeCodes, 'CuotaSoportada');
@@ -992,7 +995,7 @@ codeunit 10750 "SII XML Creator"
         if SIIManagement.NoTaxableEntriesExistPurchase(
              NoTaxableEntry,
              SIIManagement.GetVendFromLedgEntryByGLSetup(VendLedgEntry), VendLedgEntry."Document Type".AsInteger(),
-             VendLedgEntry."Document No.", VendLedgEntry."Posting Date")
+             VendLedgEntry."Document No.", VendLedgEntry."Posting Date", false)
         then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
             exit(NoTaxableEntry."Amount (LCY)");
@@ -1033,6 +1036,7 @@ codeunit 10750 "SII XML Creator"
         SIIManagement.FindVatEntriesFromLedger(RecRef, VATEntry);
         if not DomesticCustomer then
             VATEntry.SetRange("EU Service", IsService);
+        VATEntry.SetRange("Ignore In SII", false);
         if VATEntry.FindSet() then begin
             if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then
                 NonExemptTransactionType := NonExemptTransactionType::S1
@@ -1193,6 +1197,8 @@ codeunit 10750 "SII XML Creator"
     var
         VATAmount: Decimal;
     begin
+        if VATEntry."Ignore In SII" then
+            exit;
         VATAmount := VATEntry.Amount + VATEntry."Unrealized Amount";
         CuotaDeducibleValue += VATAmount;
         VATAmount += VATEntry."Non-Deductible VAT Amount";
@@ -1279,12 +1285,9 @@ codeunit 10750 "SII XML Creator"
           XMLNode, 'FechaExpedicionFacturaEmisor', GetSalesExpeditionDate(CustLedgerEntry), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaExpedida', '', 'siiLR', SiiLRTxt, XMLNode);
-        if SIIDocUploadState."Sales Cr. Memo Type" = SIIDocUploadState."Sales Cr. Memo Type"::" " then
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoFactura', 'R1', 'sii', SiiTxt, TempXMLNode)
-        else
-            XMLDOMManagement.AddElementWithPrefix(
-              XMLNode, 'TipoFactura', CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2), 'sii', SiiTxt, TempXMLNode);
-
+        XMLDOMManagement.AddElementWithPrefix(
+            XMLNode, 'TipoFactura', GetInvCrMemoTypeFromCustLedgEntry(SIIDocUploadState, CustLedgerEntry),
+             'sii', SiiTxt, TempXMLNode);
         if (CorrectionType = SalesCrMemoHeader."Correction Type"::Replacement) or
            (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice)
         then
@@ -1513,12 +1516,14 @@ codeunit 10750 "SII XML Creator"
         FillMacrodatoNode(XMLNode, TotalAmount);
 
         // calculate Credit memo differences grouped by VAT %
+        FillNoTaxableVATEntriesPurch(TempVATEntryPerPercent, VendorLedgerEntry);
         CalcNonExemptVATEntriesWithCuotaDeducible(TempVATEntryPerPercent, CuotaDeducibleDecValue, VendorLedgerEntry, 1);
         CuotaDeducibleDecValue := Abs(CuotaDeducibleDecValue);
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseFactura', '', 'sii', SiiTxt, XMLNode);
 
         // calculate old and new VAT totals grouped by VAT %
+        FillNoTaxableVATEntriesPurch(TempOldVATEntryPerPercent, OldVendorLedgerEntry);
         CalcNonExemptVATEntriesWithCuotaDeducible(TempOldVATEntryPerPercent, CuotaDeducibleDecValue, OldVendorLedgerEntry, -1);
         CuotaDeducibleDecValue := Abs(CuotaDeducibleDecValue);
 
@@ -1660,6 +1665,7 @@ codeunit 10750 "SII XML Creator"
         DomesticXMLNode: DotNet XmlNode;
         DesgloseTipoOperacionXMLNode: DotNet XmlNode;
         EUXMLNode: DotNet XmlNode;
+        VATXMLNode: DotNet XmlNode;
         OldCustLedgerEntryRecRef: RecordRef;
         CustLedgerEntryRecRef: RecordRef;
         RegimeCodes: array[3] of Code[2];
@@ -1747,12 +1753,12 @@ codeunit 10750 "SII XML Creator"
         if NormalVATEntriesFound or ExemptExists then
             AddTipoDesgloseDetailHeader(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, XMLNode, false, DomesticCustomer, false);
+              EUXMLNode, VATXMLNode, false, DomesticCustomer, false);
 
         if ExemptExists then begin
             for i := 1 to ArrayLen(ExemptionBaseAmounts) do
                 ExemptionBaseAmounts[i] := -ExemptionBaseAmounts[i]; // reverse sign for replacement credit memo
-            HandleExemptEntries(XMLNode, ExemptionCausePresent, ExemptionBaseAmounts);
+            HandleExemptEntries(VATXMLNode, ExemptionCausePresent, ExemptionBaseAmounts);
         end;
 
         // calculate old VAT totals grouped by VAT %
@@ -1765,26 +1771,26 @@ codeunit 10750 "SII XML Creator"
 
         // loop over and fill diffs
         if NormalVATEntriesFound then begin
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'NoExenta', '', 'sii', SiiTxt, XMLNode);
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoNoExenta', Format(NonExemptTransactionType), 'sii', SiiTxt, TempXMLNode);
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseIVA', '', 'sii', SiiTxt, XMLNode);
+            XMLDOMManagement.AddElementWithPrefix(VATXMLNode, 'NoExenta', '', 'sii', SiiTxt, VATXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(VATXMLNode, 'TipoNoExenta', Format(NonExemptTransactionType), 'sii', SiiTxt, TempXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(VATXMLNode, 'DesgloseIVA', '', 'sii', SiiTxt, VATXMLNode);
             repeat
                 CalcTotalDiffAmounts(
                   BaseAmountDiff, VATAmountDiff, ECPercentDiff, ECAmountDiff, TempOldVATEntryPerPercent, TempVATEntryPerPercent);
 
-                XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DetalleIVA', '', 'sii', SiiTxt, XMLNode);
+                XMLDOMManagement.AddElementWithPrefix(VATXMLNode, 'DetalleIVA', '', 'sii', SiiTxt, VATXMLNode);
                 XMLDOMManagement.AddElementWithPrefix(
-                  XMLNode, 'TipoImpositivo',
+                  VATXMLNode, 'TipoImpositivo',
                   FormatNumber(CalcTipoImpositivo(NonExemptTransactionType, RegimeCodes, BaseAmountDiff, TempVATEntryPerPercent."VAT %")),
                   'sii', SiiTxt, TempXMLNode);
                 XMLDOMManagement.AddElementWithPrefix(
-                  XMLNode, 'BaseImponible', FormatNumber(Abs(BaseAmountDiff)), 'sii', SiiTxt, TempXMLNode);
+                  VATXMLNode, 'BaseImponible', FormatNumber(Abs(BaseAmountDiff)), 'sii', SiiTxt, TempXMLNode);
 
                 XMLDOMManagement.AddElementWithPrefix(
-                  XMLNode, 'CuotaRepercutida', FormatNumber(Abs(VATAmountDiff) - Abs(ECAmountDiff)), 'sii', SiiTxt, TempXMLNode);
+                  VATXMLNode, 'CuotaRepercutida', FormatNumber(Abs(VATAmountDiff) - Abs(ECAmountDiff)), 'sii', SiiTxt, TempXMLNode);
 
-                GenerateRecargoEquivalenciaNodes(XMLNode, ECPercentDiff, ECAmountDiff);
-                XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
+                GenerateRecargoEquivalenciaNodes(VATXMLNode, ECPercentDiff, ECAmountDiff);
+                XMLDOMManagement.FindNode(VATXMLNode, '..', VATXMLNode);
             until TempVATEntryPerPercent.Next() = 0;
         end;
 
@@ -2199,6 +2205,9 @@ codeunit 10750 "SII XML Creator"
         if VATPostingSetup."No Taxable Type" <> 0 then
             exit;
 
+        if VATPostingSetup."Ignore In SII" then
+            exit;
+
         if GetExemptionCode(VATEntry, ExemptionCode) then begin
             CalculateExemptVATEntries(ExemptionCausePresent, ExemptionBaseAmounts, VATEntry, ExemptionCode);
             if SIIInitialDocUpload.DateWithinInitialUploadPeriod(PostingDate) then
@@ -2368,7 +2377,7 @@ codeunit 10750 "SII XML Creator"
             HasEntries[i] :=
               SIIManagement.GetNoTaxableSalesAmount(
                 Amount[i], CustNo, CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
-                CustLedgerEntry."Posting Date", IsService, true, IsLocalRule);
+                CustLedgerEntry."Posting Date", IsService, true, IsLocalRule, false);
         end;
         ExportNonTaxableVATEntries(
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode,
@@ -2457,7 +2466,7 @@ codeunit 10750 "SII XML Creator"
         if SIIManagement.NoTaxableEntriesExistSales(
              NoTaxableEntry,
              SIIManagement.GetCustFromLedgEntryByGLSetup(CustLedgerEntry), CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
-             CustLedgerEntry."Posting Date", IsService, false, false)
+             CustLedgerEntry."Posting Date", IsService, false, false, false)
         then begin
             if NoTaxableEntry.FindSet() then
                 repeat
@@ -2865,6 +2874,18 @@ codeunit 10750 "SII XML Creator"
         PostingDate := CustLedgerEntry."Posting Date";
         OnAfterGetSalesExpeditionDate(CustLedgerEntry, PostingDate);
         exit(FormatDate(PostingDate));
+    end;
+
+    local procedure GetInvCrMemoTypeFromCustLedgEntry(SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"): Text
+    begin
+        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then begin
+            if SIIDocUploadState."Sales Invoice Type" = SIIDocUploadState."Sales Invoice Type"::" " then
+                exit('F1');
+            exit(CopyStr(Format(SIIDocUploadState."Sales Invoice Type"), 1, 2));
+        end;
+        if SIIDocUploadState."Sales Cr. Memo Type" = SIIDocUploadState."Sales Cr. Memo Type"::" " then
+            exit('R1');
+        exit(CopyStr(Format(SIIDocUploadState."Sales Cr. Memo Type"), 1, 2));
     end;
 
     [Scope('OnPrem')]

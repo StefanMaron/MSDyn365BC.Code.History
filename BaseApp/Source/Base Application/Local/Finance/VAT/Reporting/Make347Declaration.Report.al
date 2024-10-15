@@ -246,7 +246,7 @@ report 10707 "Make 347 Declaration"
                                 VATRegistrationNo := CustomerLoc."No."
                             else
                                 VATRegistrationNo := CustomerLoc."VAT Registration No.";
-                            IdentifyCashPayments(CustomerLoc."No.", VATRegistrationNo);
+                            IdentifyCashTransactions(CustomerLoc."No.", VATRegistrationNo);
                         until CustomerLoc.Next() = 0;
                 end;
             end;
@@ -1053,13 +1053,13 @@ report 10707 "Make 347 Declaration"
         Name347 := PadStr(FormatTextName(Name347, false), 40, ' ');
     end;
 
-    local procedure IdentifyCashPayments(CustomerNo: Code[20]; VATRegistrationNo: Text[20])
+    local procedure IdentifyCashTransactions(CustomerNo: Code[20]; VATRegistrationNo: Text[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DocumentPostingDate: Date;
     begin
         CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
-        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetFilter("Document Type", '%1|%2', "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Refund);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         if CustLedgerEntry.FindSet() then
             repeat
@@ -1137,7 +1137,7 @@ report 10707 "Make 347 Declaration"
         end;
     end;
 
-    local procedure IdentifyCashPaymentsFromGL(CustLedgerEntryParam: Record "Cust. Ledger Entry"): Boolean
+    local procedure IdentifyCashTransactionsFromGL(CustLedgerEntryParam: Record "Cust. Ledger Entry"): Boolean
     var
         GLEntryLoc: Record "G/L Entry";
     begin
@@ -1145,7 +1145,7 @@ report 10707 "Make 347 Declaration"
         GLEntryLoc.SetCurrentKey("Transaction No.");
         GLEntryLoc.SetRange("Transaction No.", CustLedgerEntryParam."Transaction No.");
         GLEntryLoc.SetRange("Document No.", CustLedgerEntryParam."Document No.");
-        GLEntryLoc.SetRange("Document Type", GLEntryLoc."Document Type"::Payment);
+        GLEntryLoc.SetFilter("Document Type", '%1|%2', "Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Refund);
         GLEntryLoc.SetFilter("Bal. Account Type", '<>%1', GLEntryLoc."Bal. Account Type"::"Bank Account");
         if GLEntryLoc.FindSet() then
             repeat
@@ -1317,8 +1317,8 @@ report 10707 "Make 347 Declaration"
     var
         CustLedgerEntryRelated: Record "Cust. Ledger Entry";
     begin
-        ;
-        CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Payment);
+        if not (CustLedgerEntry."Document Type" in ["Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Refund]) then
+            Error('The Document Type must be Payment or Refund.');
         PostingDate := CustLedgerEntry."Posting Date";
         // If payment for Bill then we need get Posting Date of the Document related to the Bill
         CustLedgerEntryRelated.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
@@ -1344,7 +1344,7 @@ report 10707 "Make 347 Declaration"
                 exit(true);
         end else
             if (CustLedgerEntry."Bal. Account No." = '') or (CustLedgerEntry."Bal. Account Type" <> CustLedgerEntry."Bal. Account Type"::"G/L Account") then
-                if IdentifyCashPaymentsFromGL(CustLedgerEntry) then
+                if IdentifyCashTransactionsFromGL(CustLedgerEntry) then
                     exit(true);
 
         exit(false);

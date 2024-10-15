@@ -207,7 +207,7 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the difference between the original cost and the total adjusted cost of the items in the sales document.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(0);
                     end;

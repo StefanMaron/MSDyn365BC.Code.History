@@ -632,13 +632,13 @@ page 1003 "Job Task Card"
             group(ActionGroupFS)
             {
                 Caption = 'Dynamics 365 Field Service';
-                Visible = FSIntegrationEnabled;
+                Enabled = FSActionGroupEnabled;
                 action(CRMGoToProduct)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Project Task in Field Service';
                     Image = CoupledItem;
-                    ToolTip = 'Open the coupled Dynamics 365 Field Service project task.';
+                    ToolTip = 'Open the coupled Dynamics 365 Field Service entity.';
 
                     trigger OnAction()
                     var
@@ -775,6 +775,7 @@ page 1003 "Job Task Card"
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
         FSIntegrationEnabled: Boolean;
+        FSActionGroupEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         PerTaskBillingFieldsVisible: Boolean;
         BillToInformationEditable: Boolean;
@@ -825,6 +826,8 @@ page 1003 "Job Task Card"
 
         if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
+
+        FSActionGroupEnabled := FSIntegrationEnabled and (Rec."Job Task Type" = Rec."Job Task Type"::Posting) and Job."Apply Usage Link";
     end;
 
     local procedure UpdateShipToBillToGroupVisibility()

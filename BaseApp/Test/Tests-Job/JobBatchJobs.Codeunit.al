@@ -401,6 +401,44 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckLineAmountLcyOnJobJournalLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        //[506709] [Job Journal Line] [Line Amount LCY]
+        // when updating the Line Amount field on the Job Journal Line, the Line Amount (LCY) field must be updated as well.
+        Initialize();
+
+        // [GIVEN] Create Job, Job Task
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("Job Task Type", JobTask."Job Task Type"::Posting);
+        JobTask.Modify();
+
+        // [GIVEN] Create Job Journal Line with Type = G/L Account and random qty, unit cost, unit price
+        LibraryJob.CreateJobJournalLineForType(JobJournalLine."Line Type"::" ", JobJournalLine.Type::"G/L Account", JobTask, JobJournalLine);
+        JobJournalLine.Validate("No.", LibraryJob.FindConsumable(JobJournalLine.Type));
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Line Amount and Line Amount (LCY) must be equal (no currency)
+        JobJournalLine.TestField("Line Amount");
+        JobJournalLine.TestField("Line Amount (LCY)");
+        JobJournalLine.TestField("Currency Code", '');
+        Assert.AreNearlyEqual(JobJournalLine."Line Amount", JobJournalLine."Line Amount (LCY)", 0.01, 'Line Amount and Line Amount (LCY) must be equal.');
+
+        // [WHEN] Update Line Amount
+        JobJournalLine.Validate("Line Amount", LibraryRandom.RandDec(200, 2));
+
+        // [THEN] Line Amount and Line Amount (LCY) must be equal (no currency)
+        Assert.AreNearlyEqual(JobJournalLine."Line Amount", JobJournalLine."Line Amount (LCY)", 0.01, 'Line Amount and Line Amount (LCY) must be equal.');
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure JobSplitPlanningLine()

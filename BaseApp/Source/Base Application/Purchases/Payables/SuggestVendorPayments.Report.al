@@ -842,6 +842,7 @@ report 393 "Suggest Vendor Payments"
                             end else begin
                                 TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendLedgEntry."Document Type";
                                 TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No." := VendLedgEntry."Document No.";
+                                TempVendorPaymentBuffer."Ledg. Entry System Id" := VendLedgEntry.SystemId;
                                 TempVendorPaymentBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 TempVendorPaymentBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 TempVendorPaymentBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
@@ -958,6 +959,7 @@ report 393 "Suggest Vendor Payments"
             if VendLedgEntry3."Recipient Bank Account" <> '' then
                 GenJnlLine."Recipient Bank Account" := VendLedgEntry3."Recipient Bank Account";
         end;
+        GenJnlLine."Applies-to Invoice Id" := TempVendorPaymentBuffer."Ledg. Entry System Id";
         GenJnlLine."Payment Method Code" := TempVendorPaymentBuffer."Payment Method Code";
         GenJnlLine."Remit-to Code" := TempVendorPaymentBuffer."Remit-to Code";
 

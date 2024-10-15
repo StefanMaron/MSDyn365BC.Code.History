@@ -186,6 +186,7 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type to use when posting to this account.';
+                    ValuesAllowed = " ", Purchase, Sale;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
@@ -248,7 +249,7 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Currency Posting';
-                    ToolTip = 'Specifies which source currencies can be posted to this account.';
+                    ToolTip = 'Specifies how the system will validate posting of entries containing currencies. Blank will allow all currencies to be posted to the account. Same Code will only allow the currency specified in Source Currency Code. Multiple currencies will allow only posting of currencies selected in Source currency code. Local currency only allow posting without a Currency code.';
 #if not CLEAN24
                     Visible = SourceCurrencyVisible;
 #endif

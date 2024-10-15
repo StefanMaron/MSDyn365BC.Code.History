@@ -141,7 +141,7 @@ page 103 "Account Schedule Names"
                 Caption = 'Export Row Definition';
                 Image = Export;
                 Scope = Repeater;
-                ToolTip = 'Export settings for the selected rows definition to a RapidStart configuration package. Exporting a rows definitions lets you share it with another business unit.';
+                ToolTip = 'Export settings for the selected row definition to a RapidStart configuration package. Exporting a row definition lets you share it with another business unit.';
 
                 trigger OnAction()
                 begin

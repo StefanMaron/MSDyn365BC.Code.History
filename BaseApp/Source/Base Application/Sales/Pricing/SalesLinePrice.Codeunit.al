@@ -228,7 +228,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPrice(SalesLine, PriceListLine, AmountType, IsHandled, SalesHeader);
+        OnBeforeSetPrice(SalesLine, PriceListLine, AmountType, IsHandled, SalesHeader, CurrPriceType);
         if IsHandled then
             exit;
 
@@ -362,7 +362,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; CurrPriceType: Enum "Price Type")
     begin
     end;
 
@@ -372,7 +372,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
+    local procedure OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
 

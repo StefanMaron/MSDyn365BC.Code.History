@@ -36,6 +36,8 @@ codeunit 147522 "SII Document Processing"
         MarkAsAcceptedErr: Label 'Marked as accepted';
         CertificateUsedInSIISetupQst: Label 'A certificate is used in the SII Setup. Do you really want to delete the certificate?';
         FieldMustHaveValueInSIISetupErr: Label '%1 must have a value in SII VAT Setup', Comment = '%1 = field caption';
+        StatusErr: Label 'Valor o tipo incorrecto del campo: IDType';
+        DifferentValueErr: Label 'Expected Value are different than the actual value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1843,6 +1845,36 @@ codeunit 147522 "SII Document Processing"
           SIIHistory[2]."Document State Id", SIIHistory[2].Status::Failed, MarkAsNotAcceptedErr, SIIHistory[1]."Upload Type"::Regular, false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceOrderPostedWithShipAndInvoiceWithIDType06()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SIIHistory: TestPage "SII History";
+        SIIDocumentStatus: Enum "SII Document Status";
+    begin
+        // [SCENARIO 523982] "Valor o tipo incorrecto del campo: IDType" error message in SII History if you Ship & Invoice a Service Order for a foreign customer in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Service Order with Export Customer
+        CreateServiceDocWithExportCustomer(ServiceHeader, ServiceHeader."Document Type"::Order);
+
+        // [THEN] Post Service Order Document with Ship and Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Opened "SII History" page and Verify Status
+        SIIHistory.OpenView();
+        SIIHistory.Status.AssertEquals(Format(SIIDocumentStatus::Pending));
+        SIIHistory.Retry.Invoke();
+        Assert.AreNotEqual(SIIHistory.Status.Value, StatusErr, DifferentValueErr);
+
+        // [THEN] Verify: ID Type is on Posted Service Invoice document
+        ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        Assert.AreEqual(ServiceHeader."ID Type", ServiceInvoiceHeader."ID Type", DifferentValueErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2172,6 +2204,73 @@ codeunit 147522 "SII Document Processing"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"SII Job Upload Pending Docs.");
         Assert.RecordCount(JobQueueEntry, ExpectedCount);
+    end;
+
+    local procedure CreateServiceDocWithExportCustomer(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type")
+    var
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        CreateCustWithVATSetup(Customer);
+        CreateVATPostingSetupWithClause(Customer, VATProductPostingGroup);
+
+        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, Customer."No.", '');
+        ServiceHeader.Validate("ID Type", ServiceHeader."ID Type"::"06-Other Probative Document");
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        ServiceItem.Validate("Item No.", LibrarySII.CreateItemNoWithSpecificVATSetup(VATProductPostingGroup.Code));
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLineWithQuantity(
+            ServiceLine,
+            ServiceHeader,
+            ServiceLine.Type::Item,
+            LibrarySII.CreateItemNoWithSpecificVATSetup(VATProductPostingGroup.Code),
+            LibraryRandom.RandIntInRange(1, 1));
+        ServiceLine.Validate("Service Item No.", ServiceItem."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        ServiceLine.Modify(true);
+    end;
+
+    procedure CreateCustWithVATSetup(var Customer: Record Customer)
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, CreateCountryRegionEU(), LibrarySII.GetLocalVATRegNo());
+        Customer.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCountryRegionEU(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+        CountryRegion.Modify(true);
+        exit(CountryRegion.Code);
+    end;
+
+    local procedure CreateVATPostingSetupWithClause(Customer: Record Customer; var VATProductPostingGroup: Record "VAT Product Posting Group")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+    begin
+        VATPostingSetup.Init();
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(21, 21));
+        VATPostingSetup.Validate("VAT Clause Code", LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21"));
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Insert(true);
     end;
 
     [ConfirmHandler]

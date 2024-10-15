@@ -300,7 +300,11 @@ codeunit 7000000 CarteraManagement
             repeat
                 if Vendor.Get(CarteraDoc."Account No.") then
                     if Vendor.Blocked = Vendor.Blocked::" " then
-                        CarteraDoc.Mark(true);
+                        if not (PmtOrd."Export Electronic Payment") then
+                            CarteraDoc.Mark(true)
+                        else
+                            if (CheckUseForElectronicPayments(Vendor."No.")) then
+                                CarteraDoc.Mark(true);
             until CarteraDoc.Next() = 0;
         CarteraDoc.MarkedOnly(true);
         OnInsertPayableDocsOnAfterSetFilters(CarteraDoc, CarteraDoc2);
@@ -1155,6 +1159,15 @@ codeunit 7000000 CarteraManagement
         TempGenJournalLine.Validate(Amount, AmountFCY);
         TempGenJournalLine.Insert();
         exit(TempGenJournalLine."Amount (LCY)");
+    end;
+
+    local procedure CheckUseForElectronicPayments(No: Code[20]): Boolean
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorBankAccount.SetRange("Vendor No.", No);
+        VendorBankAccount.SetRange("Use For Electronic Payments", true);
+        exit(not VendorBankAccount.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

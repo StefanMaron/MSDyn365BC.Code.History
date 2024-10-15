@@ -1153,12 +1153,15 @@ page 254 "Purchase Journal"
 
                     trigger OnAction()
                     var
+                        BackupRec: Record "Gen. Journal Line";
                         GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
                         if (Rec."Account Type" <> Rec."Account Type"::"Allocation Account") and (Rec."Bal. Account Type" <> Rec."Bal. Account Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '') then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
 
-                        GenJournalAllocAccMgt.CreateLines(Rec);
+                        BackupRec.Copy(Rec);
+                        BackupRec.SetRecFilter();
+                        GenJournalAllocAccMgt.CreateLines(BackupRec);
                         Rec.Delete();
                         CurrPage.Update(false);
                     end;
@@ -1647,7 +1650,6 @@ page 254 "Purchase Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
         GenJnlBatchApprovalStatus: Text[20];
@@ -1665,7 +1667,6 @@ page 254 "Purchase Journal"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
-        DocumentAmount: Decimal;
         NegativeDocAmountErr: Label 'You must specify a positive amount as the document amount. If the journal line is for a document type that has a negative amount, the amount will be tracked correctly.';
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Account Type or Balancing Account Type.';
         UseAllocationAccountNumber: Boolean;
@@ -1703,6 +1704,8 @@ page 254 "Purchase Journal"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsSimplePage: Boolean;
+        CurrentJnlBatchName: Code[10];
+        DocumentAmount: Decimal;
 
     local procedure UpdateBalance()
     begin

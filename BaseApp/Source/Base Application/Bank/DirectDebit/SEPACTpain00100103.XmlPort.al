@@ -7,8 +7,8 @@ using Microsoft.Sales.Receivables;
 
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
-    Caption = 'SEPA CT pain.001.001.03';
-    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+    Caption = 'SEPA CT pain.001.001.09';
+    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
     Direction = Export;
     Encoding = UTF8;
     FormatEvaluate = Xml;
@@ -89,8 +89,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         {
                         }
                     }
-                    fieldelement(ReqdExctnDt; PaymentExportDataGroup."Transfer Date")
+                    textelement(ReqdExctnDt)
                     {
+                        fieldelement(Dt; PaymentExportDataGroup."Transfer Date")
+                        {
+                        }
                     }
                     textelement(Dbtr)
                     {

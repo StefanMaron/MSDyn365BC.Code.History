@@ -86,6 +86,7 @@ report 7000082 "Settle Docs. in Posted PO"
                             GenJnlLine."Applies-to Bill No." := VendLedgEntry."Bill No.";
                             GenJnlLine."Source Code" := SourceCode;
                             GenJnlLine."System-Created Entry" := true;
+                            GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                             GenJnlLine.Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
                             OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                             GenJnlLine.Insert();
@@ -130,6 +131,7 @@ report 7000082 "Settle Docs. in Posted PO"
                             GenJnlLine."Applies-to Bill No." := VendLedgEntry."Bill No.";
                             GenJnlLine."Source Code" := SourceCode;
                             GenJnlLine."System-Created Entry" := true;
+                            GenJnlLine.Validate("Recipient Bank Account", VendLedgEntry."Recipient Bank Account");
                             GenJnlLine.Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
                             OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                             GenJnlLine.Insert();

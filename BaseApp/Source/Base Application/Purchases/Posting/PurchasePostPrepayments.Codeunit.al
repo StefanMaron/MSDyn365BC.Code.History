@@ -26,6 +26,7 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System.Utilities;
+using System.Telemetry;
 
 codeunit 444 "Purchase-Post Prepayments"
 {
@@ -65,6 +66,7 @@ codeunit 444 "Purchase-Post Prepayments"
         TempPurchaseLine: Record "Purchase Line" temporary;
         GenJournalTemplate: Record "Gen. Journal Template";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
@@ -72,6 +74,7 @@ codeunit 444 "Purchase-Post Prepayments"
         Text015: Label '%1% VAT';
         Text016: Label 'The new prepayment amount must be between %1 and %2.';
         Text017: Label 'At least one line must have %1 > 0 to distribute prepayment amount.';
+        PrepaymentPurchaseTok: Label 'Prepayment Purchase', Locked = true;
         text019: Label 'Invoice,Credit Memo';
         SuppressCommit: Boolean;
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
@@ -145,6 +148,9 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchHeader := PurchHeader2;
         GLSetup.GetRecordOnce();
         PurchSetup.Get();
+
+        FeatureTelemetry.LogUptake('0000KQD', PrepaymentPurchaseTok, Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000KQE', PrepaymentPurchaseTok, PrepaymentPurchaseTok);
         CheckPrepmtDoc(PurchHeader, DocumentType);
 
         UpdateDocNos(PurchHeader, DocumentType, GenJnlLineDocNo, PostingNoSeriesCode, ModifyHeader);
@@ -513,6 +519,8 @@ codeunit 444 "Purchase-Post Prepayments"
     var
         PurchLine: Record "Purchase Line";
     begin
+        OnBeforeCheckOpenPrepaymentLines(PurchHeader, DocumentType);
+
         ApplyFilter(PurchHeader, DocumentType, PurchLine);
         if PurchLine.Find('-') then
             repeat
@@ -523,6 +531,8 @@ codeunit 444 "Purchase-Post Prepayments"
                     PurchLine.Modify();
                 end;
             until PurchLine.Next() = 0;
+
+        OnAfterCheckOpenPrepaymentLines(PurchHeader, DocumentType, Found);
         exit(Found);
     end;
 
@@ -918,7 +928,13 @@ codeunit 444 "Purchase-Post Prepayments"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAmt: Decimal;
         NextLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchLines(PurchHeader, DocumentType, ToPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ApplyFilter(PurchHeader, DocumentType, FromPurchLine);
         if FromPurchLine.Find('-') then begin
             repeat
@@ -1969,4 +1985,20 @@ codeunit 444 "Purchase-Post Prepayments"
     local procedure OnBeforeInsertExtendedText(TabNo: Integer; DocNo: Code[20]; GLAccNo: Code[20]; DocDate: Date; LanguageCode: Code[10]; var PrevLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchLines(PurchaseHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var ToPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOpenPrepaymentLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckOpenPrepaymentLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; var Found: Boolean)
+    begin
+    end;
+
 }

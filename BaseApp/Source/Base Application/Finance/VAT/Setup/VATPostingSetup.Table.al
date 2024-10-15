@@ -334,6 +334,10 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Purch. Special Scheme Code';
         }
+        field(10709; "Ignore In SII"; Boolean)
+        {
+            Caption = 'Ignore In SII';
+        }
     }
 
     keys

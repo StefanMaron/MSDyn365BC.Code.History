@@ -509,6 +509,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Table,%2=Field]D;]A;(LookupHint=Codeunit Cartera Paym. Settlement - NamedType PaymentOrderSuccessfullyPostedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1452483504 - NamedType 3677629754" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Vendor Bank Account Code in Vendor Ledger Entry,%2=Vendor bank account,%3=Table Caption]D;]A;(LookupHint=Codeunit Cartera Paym. Settlement - NamedType RecipientErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1452483504 - NamedType 4290104312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 documents have been rejected.]]></Val>
@@ -3875,6 +3884,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType CertificateUsedInSIISetupQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 1229675165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Value are different than the actual value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType DifferentValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 3025232406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value in SII VAT Setup]]></Val>
@@ -3927,6 +3945,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType SoapenvUrlTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 3152294443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Valor o tipo incorrecto del campo: IDType]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType StatusErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 3521925554" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4314,6 +4341,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Invoice/Cr. Memo Type - NamedType XPathPurchFacturaRecibidaTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3993814364 - NamedType 130813385" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/sii:Entrega/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Invoice/Cr. Memo Type - NamedType XPathSalesBaseImponibleTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3993814364 - NamedType 476980421" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

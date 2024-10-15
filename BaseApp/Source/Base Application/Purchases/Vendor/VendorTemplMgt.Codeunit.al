@@ -333,7 +333,13 @@ codeunit 1385 "Vendor Templ. Mgt."
     procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     var
         NoSeries: Codeunit "No. Series";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitVendorNo(Vendor, VendorTempl, IsHandled);
+        if IsHandled then
+            exit;
+
         if VendorTempl."No. Series" = '' then
             exit;
 
@@ -557,6 +563,11 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsOpenBlankCardConfirmed(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; var IsHandled: Boolean)
     begin
     end;
 

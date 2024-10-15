@@ -1919,6 +1919,7 @@ table 5767 "Warehouse Activity Line"
                     WarehouseActivityLine.Validate("Lot No.", TempTrackingSpecification."Lot No.");
                     OnLookUpTrackingSummaryOnAfterAssignSerialNoTracking(WarehouseActivityLine, TempTrackingSpecification);
                     WarehouseActivityLine.Validate("Expiration Date", TempTrackingSpecification."Expiration Date");
+                    WarehouseActivityLine.Validate("Warranty Date", TempTrackingSpecification."Warranty Date");
                     WarehouseActivityLine.Modify();
                 end;
             TrackingType::"Lot No.":
@@ -3088,7 +3089,8 @@ table 5767 "Warehouse Activity Line"
         EntriesExist: Boolean;
     begin
         if (FieldNo = FieldNo("Lot No.")) and ("Lot No." <> '') or
-           (FieldNo = FieldNo("Serial No.")) and ("Serial No." <> '')
+           (FieldNo = FieldNo("Serial No.")) and ("Serial No." <> '') or
+           (FieldNo = FieldNo("Package No.")) and ("Package No." <> '')
         then
             ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 

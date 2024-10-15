@@ -836,12 +836,12 @@ page 950 "Time Sheet"
         end;
     end;
 
-    local procedure GetDialogText(ActionType: Option Submit,Reopen): Text[100]
+    local procedure GetDialogText(ActionType: Option Submit,Reopen): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
+        exit(TimeSheetApprovalMgt.GetTimeSheetActionDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,Reopen)
@@ -863,7 +863,7 @@ page 950 "Time Sheet"
 
     local procedure ShowDialog(ActionType: Option Submit,Reopen): Integer
     begin
-        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetTimeSheetActionDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

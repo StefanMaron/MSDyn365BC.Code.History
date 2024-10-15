@@ -496,10 +496,12 @@ page 6219 "Sustainability Journal"
 
     trigger OnOpenPage()
     var
+        SustainabilityJnlTemplate: Record "Sustainability Jnl. Template";
         SustainabilityJnlBatch: Record "Sustainability Jnl. Batch";
         SustainabilityJournalMgt: Codeunit "Sustainability Journal Mgt.";
     begin
-        SustainabilityJnlBatch := SustainabilityJournalMgt.GetASustainabilityJournalBatch(IsRecurringView);
+        SustainabilityJnlTemplate := SustainabilityJournalMgt.SelectTemplate(IsRecurringView);
+        SustainabilityJnlBatch := SustainabilityJournalMgt.SelectBatch(SustainabilityJnlTemplate, CurrentJournalBatchName);
 
         ResetFilterOnLinesWithNewBatch(SustainabilityJnlBatch);
     end;
