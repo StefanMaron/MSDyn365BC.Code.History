@@ -154,8 +154,10 @@ table 5404 "Item Unit of Measure"
 
     trigger OnDelete()
     begin
-        TestItemUOM();
-        CheckNoEntriesWithUoM();
+        if Rec.Code <> '' then begin
+            TestItemUOM();
+            CheckNoEntriesWithUoM();
+        end;
     end;
 
     trigger OnRename()
