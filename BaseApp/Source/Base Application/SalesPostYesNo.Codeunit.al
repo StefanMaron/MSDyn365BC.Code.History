@@ -52,7 +52,7 @@ codeunit 81 "Sales-Post (Yes/No)"
 
         OnAfterConfirmPost(SalesHeader);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Post with Job Queue" and not PostAndSend then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
         else
@@ -129,7 +129,7 @@ codeunit 81 "Sales-Post (Yes/No)"
             Copy(RecVar);
             Receive := "Document Type" = "Document Type"::"Return Order";
             Ship := "Document Type" = "Document Type"::Order;
-            Invoice := not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]);
+            Invoice := true;
         end;
 
         OnRunPreviewOnAfterSetPostingFlags(SalesHeader);
