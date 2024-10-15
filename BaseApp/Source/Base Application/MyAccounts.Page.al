@@ -37,6 +37,7 @@ page 9153 "My Accounts"
 
                     trigger OnDrillDown()
                     var
+                        [SecurityFiltering(SecurityFilter::Filtered)]
                         GLEntry: Record "G/L Entry";
                         GLAccountsFilterText: Text;
                     begin
@@ -87,6 +88,7 @@ page 9153 "My Accounts"
     end;
 
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAccount: Record "G/L Account";
 
     local procedure SyncFieldsWithGLAccount()
