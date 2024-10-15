@@ -73,6 +73,8 @@ table 1293 "Payment Application Proposal"
         field(24; "Applied Amount"; Decimal)
         {
             Caption = 'Applied Amount';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -113,6 +115,7 @@ table 1293 "Payment Application Proposal"
         {
             AutoFormatExpression = "Currency Code";
             Caption = 'Applied Pmt. Discount';
+            AutoFormatType = 1;
         }
         field(30; Quality; Integer)
         {
@@ -169,6 +172,8 @@ table 1293 "Payment Application Proposal"
         field(52; "Remaining Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Remaining Pmt. Disc. Possible';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -187,6 +192,8 @@ table 1293 "Payment Application Proposal"
         field(60; "Applied Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Applied Amt. Incl. Discount';
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
 
             trigger OnValidate()
             begin
@@ -200,11 +207,15 @@ table 1293 "Payment Application Proposal"
         {
             Caption = 'Remaining Amount';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
         field(62; "Remaining Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Remaining Amt. Incl. Discount';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
         field(63; Type; Option)
         {
@@ -221,6 +232,8 @@ table 1293 "Payment Application Proposal"
         {
             Caption = 'Stmt To Rem. Amount Difference';
             Editable = false;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
         }
         field(11700; "Specific Symbol"; Code[10])
         {

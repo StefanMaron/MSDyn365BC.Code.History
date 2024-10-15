@@ -1,4 +1,4 @@
-table 295 "Reminder Header"
+﻿table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -335,7 +335,7 @@ table 295 "Reminder Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
-                                                                        "Line Type" = FILTER(<> "Not Due")));
+                                                                        "Line Type" = CONST("Reminder Line")));
             Caption = 'Remaining Amount';
             DecimalPlaces = 2 : 2;
             Editable = false;

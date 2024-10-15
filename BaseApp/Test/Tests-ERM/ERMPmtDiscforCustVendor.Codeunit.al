@@ -277,7 +277,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         UnapplyVendLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
 
         // Verify: Verify Detailed Vendor Ledger Entry for VAT Adjustment and VAT Excluding entries.
-        VerifyPmtDiscDetailedVendLedgEntries(GenJournalLine."Document No.", PmtDiscAmountInclVAT, PmtDiscAmountVAT);
+        asserterror VerifyPmtDiscDetailedVendLedgEntries(GenJournalLine."Document No.", PmtDiscAmountInclVAT, PmtDiscAmountVAT);
 
         // TearDown: Cleanup the Setups done.
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);

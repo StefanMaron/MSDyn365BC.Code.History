@@ -1,4 +1,4 @@
-﻿table 37 "Sales Line"
+table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -4743,6 +4743,10 @@
         RemLineAmountToInvoice: Decimal;
     begin
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceChargeLine() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
             if "Unit Price" < 0 then
@@ -7378,14 +7382,14 @@
         SetFilter("Shipment Date", AvailabilityFilter);
         if DocumentType = "Document Type"::"Return Order" then
             if Positive then
-                SetFilter("Quantity (Base)", '>0')
-            else
-                SetFilter("Quantity (Base)", '<0')
+            SetFilter("Quantity (Base)", '>0')
         else
-            if Positive then
-                SetFilter("Quantity (Base)", '<0')
-            else
-                SetFilter("Quantity (Base)", '>0');
+            SetFilter("Quantity (Base)", '<0')
+        else
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
 
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);

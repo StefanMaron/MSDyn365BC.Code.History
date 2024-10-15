@@ -256,4 +256,13 @@ table 31006 "Sales Adv. Letter Entry CZZ"
                 VATAmountLine.InsertLine();
             until SalesAdvLetterEntryCZZ.Next() = 0;
     end;
+
+    procedure CalcDocumentAmount(): Decimal
+    var
+        SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ";
+    begin
+        SalesAdvLetterEntryCZZ.SetRange("Document No.", "Document No.");
+        SalesAdvLetterEntryCZZ.CalcSums(Amount);
+        exit(SalesAdvLetterEntryCZZ.Amount)
+    end;
 }

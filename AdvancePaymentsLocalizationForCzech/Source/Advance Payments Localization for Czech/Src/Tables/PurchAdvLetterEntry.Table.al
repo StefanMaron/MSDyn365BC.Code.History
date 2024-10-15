@@ -266,4 +266,13 @@ table 31009 "Purch. Adv. Letter Entry CZZ"
                 VATAmountLine.InsertLine();
             until PurchAdvLetterEntryCZZ.Next() = 0;
     end;
+
+    procedure CalcDocumentAmount(): Decimal
+    var
+        PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ";
+    begin
+        PurchAdvLetterEntryCZZ.SetRange("Document No.", "Document No.");
+        PurchAdvLetterEntryCZZ.CalcSums(Amount);
+        exit(PurchAdvLetterEntryCZZ.Amount)
+    end;
 }
