@@ -138,16 +138,21 @@ report 298 "Batch Post Sales Credit Memos"
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if not VATReportingDateMgt.IsVATDateEnabled() then begin
+                ReplaceVATDateReq := ReplacePostingDate;
+                VATDateReq := PostingDateReq;
+            end;
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
             SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
+            ReplaceVATDateReq := false;
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
             VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq);
+            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq, ReplaceVATDateReq, VATDateReq);
         end;
     }
 
@@ -176,7 +181,7 @@ report 298 "Batch Post Sales Credit Memos"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)
+    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date; var ReplaceVATDateReq: Boolean; var VATDateReq: Date)
     begin
     end;
 

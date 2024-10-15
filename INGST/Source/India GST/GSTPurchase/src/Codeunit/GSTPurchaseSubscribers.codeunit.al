@@ -1414,6 +1414,7 @@ codeunit 18080 "GST Purchase Subscribers"
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
         PurchaseLine.SetFilter("Qty. to Invoice", '<>%1', 0);
         PurchaseLine.SetRange("GST Group Type", PurchaseLine."GST Group Type"::Goods);
+        PurchaseLine.SetFilter("GST Group Code", '<>%1', '');
         if PurchaseLine.FindFirst() then begin
             PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
             PurchaseHeader.TestField("Bill of Entry Date");
