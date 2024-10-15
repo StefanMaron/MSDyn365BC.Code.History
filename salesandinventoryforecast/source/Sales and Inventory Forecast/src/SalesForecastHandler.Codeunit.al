@@ -250,6 +250,8 @@ codeunit 1850 "Sales Forecast Handler"
     begin
         Clear(Status);
         MSSalesForecastSetup.GetSingleInstance();
+        MSSalesForecastSetup.CheckEnabled();
+
         if MSSalesForecastSetup.URIOrKeyEmpty() then begin
             Status := Status::"Missing API";
             exit(false);

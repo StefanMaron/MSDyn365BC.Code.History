@@ -409,6 +409,12 @@ table 273 "Bank Acc. Reconciliation"
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
         BankReconciliationFeatureNameTelemetryTxt: Label 'Bank reconciliation', Locked = true;
+        PaymentRecJournalFeatureNameTelemetryTxt: Label 'Payment Reconciliation', Locked = true;
+
+    internal procedure GetPaymentRecJournalTelemetryFeatureName(): Text
+    begin
+        exit(PaymentRecJournalFeatureNameTelemetryTxt);
+    end;
 
     internal procedure GetBankReconciliationTelemetryFeatureName(): Text
     begin
