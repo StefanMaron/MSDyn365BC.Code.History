@@ -7,6 +7,7 @@
     var
         PreviousDate: Date;
         i: Integer;
+        ShouldClearPreviousConsolidation: Boolean;
     begin
         OnBeforeOnRun(Rec);
 
@@ -42,7 +43,9 @@
         Window.Open(Text001 + Text002 + Text003 + Text004);
         Window.Update(1, BusUnit.Code);
 
-        if not TestMode then begin
+        ShouldClearPreviousConsolidation := not TestMode;
+        OnRunOnAfterCalcShouldClearPreviousConsolidation(ShouldClearPreviousConsolidation);
+        if ShouldClearPreviousConsolidation then begin
             UpdatePhase(Text018);
             ClearPreviousConsolidation;
         end;
@@ -265,8 +268,7 @@
             OnAfterBusUnitModify(Rec, BusUnit);
         end;
 
-        if AnalysisViewEntriesDeleted then
-            Message(Text005);
+        ShowAnalysisViewEntryMessage();
     end;
 
     var
@@ -397,6 +399,19 @@
         StoredCheckSum := NewCheckSum;
         StartingDate := NewStartingDate;
         EndingDate := NewEndingDate;
+    end;
+
+    local procedure ShowAnalysisViewEntryMessage()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowAnalysisViewEntryMessage(AnalysisViewEntriesDeleted, IsHandled);
+        if IsHandled then
+            exit;
+
+        if AnalysisViewEntriesDeleted then
+            Message(Text005);
     end;
 
     procedure InsertGLAccount(NewGLAccount: Record "G/L Account")
@@ -1422,6 +1437,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowAnalysisViewEntryMessage(var AnalysisViewEntriesDeleted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnClearPreviousConsolidationOnBeforeCheckAmountArray(var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date)
     begin
@@ -1524,6 +1544,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTempGLEntryProcedure(var TempGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRunOnAfterCalcShouldClearPreviousConsolidation(var ShouldClearPreviousConsolidation: Boolean)
     begin
     end;
 

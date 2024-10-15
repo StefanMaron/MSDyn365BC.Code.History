@@ -53,7 +53,6 @@ codeunit 5601 "FA Insert G/L Account"
         FAPostingGr: Record "FA Posting Group";
         FAPostingGr2: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
-        FADimMgt: Codeunit FADimensionManagement;
         FAGetGLAccNo: Codeunit "FA Get G/L Account No.";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         NextEntryNo: Integer;
@@ -145,10 +144,8 @@ codeunit 5601 "FA Insert G/L Account"
                     FAGLPostBuf."FA Allocation Type" := "Allocation Type";
                     FAGLPostBuf."FA Allocation Line No." := "Line No.";
                     OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAlloc, FAGLPostBuf);
-                    if NewAmount <> 0 then begin
-                        FADimMgt.CheckFAAllocDim(FAAlloc, FAGLPostBuf."Dimension Set ID");
+                    if NewAmount <> 0 then
                         InsertBufferEntry();
-                    end;
                 until Next() = 0;
 
             if Abs(TotalAllocAmount) < Abs(AllocAmount) then begin

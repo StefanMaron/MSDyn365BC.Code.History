@@ -1,4 +1,4 @@
-table 5405 "Production Order"
+﻿table 5405 "Production Order"
 {
     Caption = 'Production Order';
     DataCaptionFields = "No.", Description;
@@ -137,8 +137,8 @@ table 5405 "Production Order"
         field(12; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Source No."),
-                                                       Code = FIELD("Variant Code"));
+            TableRelation = IF ("Source Type" = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("Source No."),
+                                                                                        Code = FIELD("Variant Code"));
 
             trigger OnValidate()
             var
@@ -989,15 +989,21 @@ table 5405 "Production Order"
 #endif
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if not IsHandled then begin
 #if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+            RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
 #endif
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            "Shortcut Dimension 1 Code" := '';
+            "Shortcut Dimension 2 Code" := '';
+            "Dimension Set ID" :=
+              DimMgt.GetRecDefaultDimID(
+                Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        end;
 
         OnAfterCreateDim(Rec, DefaultDimSource);
     end;
@@ -1574,6 +1580,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckStatusNotFinished(ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 

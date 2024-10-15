@@ -80,20 +80,9 @@ codeunit 44 ReportManagement
         OnAfterHasCustomLayout(ObjectType, ObjectID, LayoutType);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'CustomDocumentMerger', '', false, false)]
-    local procedure CustomDocumentMerger(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnCustomDocumentMerger(ObjectID, ReportAction, XmlData, LayoutData, DocumentStream, IsHandled);
-        if (IsHandled) then
-            exit;
-    end;
-
 #if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'MergeDocument', '', false, false)]
-    [Obsolete('Replaced by CustomDocumentMerger for support of AL driver report renders.', '20.0')]
+    [Obsolete('Replaced by CustomDocumentMergerEx for support of AL driver report renders.', '20.0')]
     local procedure MergeDocument(ObjectType: Option "Report","Page"; ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; FileName: Text; var DocumentStream: OutStream)
     var
         DocumentReportMgt: Codeunit "Document Report Mgt.";
@@ -109,6 +98,18 @@ codeunit 44 ReportManagement
             exit;
 
         DocumentReportMgt.MergeWordLayout(ObjectID, ReportAction, XmlData, FileName, DocumentStream);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'CustomDocumentMerger', '', false, false)]
+    [Obsolete('Replaced by CustomDocumentMergerEx for support of AL driver report renders.', '20.0')]
+    local procedure CustomDocumentMerger(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnCustomDocumentMerger(ObjectID, ReportAction, XmlData, LayoutData, DocumentStream, IsHandled);
+        if (IsHandled) then
+            exit;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ReportGetCustomRdlc', '', false, false)]
@@ -129,6 +130,15 @@ codeunit 44 ReportManagement
         DocumentReportManagement.GetWordLayoutStream(ReportId, LayoutStream, Success);
     end;
 #endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'CustomDocumentMergerEx', '', false, false)]
+    local procedure CustomDocumentMergerEx(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; ObjectPayload: JsonObject; XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream; var Success: Boolean)
+    begin
+        if (Success) then
+            exit;
+
+        OnCustomDocumentMergerEx(ObjectID, ReportAction, ObjectPayload, XmlData, LayoutData, DocumentStream, Success);
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'SelectedBuiltinLayoutType', '', false, false)]
     local procedure SelectedBuiltinLayoutType(ObjectID: Integer; var LayoutType: Option "None",RDLC,Word,Excel,Custom)
@@ -252,11 +262,21 @@ codeunit 44 ReportManagement
     var
         IsHandled: Boolean;
     begin
-        InApplication := false;
+        if InApplication = true then // Handled in another subscriber
+            exit;
         IsHandled := false;
         OnApplicationReportMergeStrategy(ObjectId, LayoutCode, InApplication, IsHandled);
-        if IsHandled then
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'WordDocumentMergerAppMode', '', false, false)]
+    local procedure WordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        if InApplication = true then // Handled in another subscriber
             exit;
+        IsHandled := false;
+        OnWordDocumentMergerAppMode(ObjectId, LayoutCode, InApplication, IsHandled);
     end;
 
     [IntegrationEvent(false, false)]
@@ -311,11 +331,32 @@ codeunit 44 ReportManagement
     /// <param name="printDocumentStream">Output stream that will contain printed documents for cloud printers</param>
     /// <param name="IsHandled">Will be set to true if the procedure call handled the merge.</param>
     [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by the report event OnCustomDocumentMerger. Subscribe to it to change the merging behavior.', '20.0')]
+    [Obsolete('Replaced by the report event OnCustomDocumentMergerEx. Subscribe to it to change the merging behavior.', '20.0')]
     local procedure OnMergeDocumentReport(ObjectType: Option "Report","Page"; ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; FileName: Text; var printDocumentStream: OutStream; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnCustomDocumentMergerEx.', '21.0')]
+    local procedure OnCustomDocumentMerger(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; LayoutData: InStream; var printDocumentStream: OutStream; var IsHandled: Boolean)
+    begin
+    end;
 #endif
+
+    /// <summary>
+    /// Invoke the OnCustomDocumentMergeEx trigger, which handled user defiend report renders given a dataset and a layout. The Render must be implemented in AL and return the output stream as defined by the format given in ReportAction.
+    /// </summary>
+    /// <param name="ObjectId">The report object id.</param>
+    /// <param name="ReportAction">The report action, which can be one of SaveAsPdf, SaveAsWord, SaveAsExcel, Preview, Print or SaveAsHtml.</param>
+    /// <param name="ObjectPayload">The JSON payload that defines metadata for the present report run.</param>
+    /// <param name="XmlData">The xml data set in an input stream</param>
+    /// <param name="LayoutData">The layout input stream. The actual format stored in the stream is defined by the layoutmodel json property (custom formats by the layoutmimetype property in the payload).</param>
+    /// <param name="DocumentStream">Output stream that will contain the rendered output documents.</param>
+    /// <param name="IsHandled">Will be set to true if the procedure call handled the merge.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnCustomDocumentMergerEx(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; ObjectPayload: JsonObject; XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream; var IsHandled: Boolean)
+    begin
+    end;
 
     /// <summary>
     /// Fetch the currently selected layout code and layout type from application.
@@ -323,7 +364,7 @@ codeunit 44 ReportManagement
     /// <param name="ObjectId">The object id.</param>
     /// <param name="LayoutCode">The report layout code if an application override has been set for the current run.</param>
     /// <param name="LayoutType">The Layout type contained in the target stream.</param>
-    /// <param name="IsHandled">Will be set to true if the subscribed handled the action.</param>
+    /// <param name="IsHandled">Will be set to true if the subscriber handled the action.</param>
     /// <remarks>Internal event that will be removed when the report runtime API has been updated</remarks>
     [IntegrationEvent(false, false)]
     local procedure OnSelectReportLayoutCode(ObjectId: Integer; var LayoutCode: Text; var LayoutType: Option "None",RDLC,Word,Excel,Custom; var IsHandled: Boolean)
@@ -343,21 +384,30 @@ codeunit 44 ReportManagement
     begin
     end;
 
+    /// <summary>
+    /// Select between platform or application report rendering. 
+    /// If this trigger return InApplication = true, then run the report and layout in a custom report render using the OnCustomDocumentMergerEx event.
+    /// </summary>
+    /// <param name="ObjectId">The object id.</param>
+    /// <param name="LayoutCode">The report layout code if an application override has been set for the current run.</param>
+    /// <param name="InApplication">True if the applicaction should render the report.</param>
+    /// <param name="IsHandled">Will be set to true if the subscriber handled the action.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnCustomDocumentMerger(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; LayoutData: InStream; var printDocumentStream: OutStream; var IsHandled: Boolean)
+    local procedure OnApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
     begin
     end;
 
     /// <summary>
-    /// Select between platform or application document report rendering (Word).
+    /// Select between platform or application report rendering for Word reports only. 
+    /// If this trigger return InApplication = true, then run the report and layout in the legacy OnMergeDocumentReport event.
     /// </summary>
     /// <param name="ObjectId">The object id.</param>
     /// <param name="LayoutCode">The report layout code if an application override has been set for the current run.</param>
-    /// <param name="InApplication">True if the applicaction should render the report in backward compatibility mode.</param>
-    /// <param name="IsHandled">Will be set to true if the subscribed handled the action.</param>
-    /// <remarks>Internal event that will be removed when the report runtime API has been updated.</remarks>
+    /// <param name="InApplication">True if the applicaction should render the report.</param>
+    /// <param name="IsHandled">Will be set to true if the subscriber handled the action.</param>
+    /// <remarks>This event is for backward compatibility only and will be depricated.</remarks>
     [IntegrationEvent(false, false)]
-    local procedure OnApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
+    local procedure OnWordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
     begin
     end;
 }

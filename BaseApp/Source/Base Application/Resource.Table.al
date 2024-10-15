@@ -788,12 +788,12 @@ table 156 Resource
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
         ResourceUnitGroupPrefixLbl: Label 'RESOURCE', Locked = true;
 
-    procedure AssistEdit(OldRes: Record Resource): Boolean
+    procedure AssistEdit(OldRes: Record Resource) Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssistEdit(Rec, OldRes, IsHandled);
+        OnBeforeAssistEdit(Rec, OldRes, IsHandled, Result);
         if IsHandled then
             exit;
 
@@ -811,9 +811,10 @@ table 156 Resource
         end;
     end;
 
-    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
         PriceAsset.Init();
+        PriceAsset."Price Type" := PriceType;
         PriceAsset."Asset Type" := PriceAsset."Asset Type"::Resource;
         PriceAsset."Asset No." := "No.";
     end;
@@ -823,7 +824,7 @@ table 156 Resource
         PriceAsset: Record "Price Asset";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        AsPriceAsset(PriceAsset);
+        AsPriceAsset(PriceAsset, PriceType);
         PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 
@@ -975,7 +976,7 @@ table 156 Resource
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEdit(var Resource: Record Resource; xOldRes: Record Resource; var IsHandled: Boolean)
+    local procedure OnBeforeAssistEdit(var Resource: Record Resource; xOldRes: Record Resource; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 

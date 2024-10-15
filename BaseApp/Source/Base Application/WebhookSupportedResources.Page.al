@@ -53,6 +53,7 @@ page 5460 "Webhook Supported Resources"
 
         ApiWebhookEntity.SetRange("Object Type", ApiWebhookEntity."Object Type"::Page);
         ApiWebhookEntity.SetRange("Table Temporary", false);
+        ApiWebhookEntity.SetFilter("Table No.", '<>%1', Database::"Job Queue Entry");
         if not ApiWebhookEntity.FindSet() then
             exit(false);
 

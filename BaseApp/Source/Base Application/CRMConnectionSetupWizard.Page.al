@@ -281,6 +281,7 @@ page 1817 "CRM Connection Setup Wizard"
 
                 trigger OnAction()
                 var
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
                     if "Authentication Type" = "Authentication Type"::Office365 then
@@ -292,6 +293,7 @@ page 1817 "CRM Connection Setup Wizard"
                     Page.Run(Page::"CRM Connection Setup");
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CRM Connection Setup Wizard");
                     Commit();
+                    FeatureTelemetry.LogUptake('0000H77', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                     CurrPage.Close();
                 end;
             }
@@ -307,9 +309,12 @@ page 1817 "CRM Connection Setup Wizard"
     trigger OnOpenPage()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         CRMConnectionSetup.EnsureCDSConnectionIsEnabled();
         CRMConnectionSetup.LoadConnectionStringElementsFromCDSConnectionSetup();
+        FeatureTelemetry.LogUptake('0000H78', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000H79', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
 
         Init;
         if CRMConnectionSetup.Get then begin

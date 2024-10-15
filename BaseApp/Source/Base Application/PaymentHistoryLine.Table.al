@@ -609,7 +609,7 @@ table 11000002 "Payment History Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetUnstrRemitInfo(var PaymentHistoryLine: Record "Payment History Line"; var DetailLine: Record "Detail Line"; UnstrRemitInfo: Text[140])
+    local procedure OnAfterGetUnstrRemitInfo(var PaymentHistoryLine: Record "Payment History Line"; var DetailLine: Record "Detail Line"; var UnstrRemitInfo: Text[140])
     begin
     end;
 

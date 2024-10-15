@@ -1126,10 +1126,9 @@ table 472 "Job Queue Entry"
             Error(ExpiresBeforeStartErr, FieldCaption("Expiration Date/Time"), FieldCaption("Earliest Start Date/Time"));
     end;
 
-    procedure GetXmlContent(): Text
+    procedure GetXmlContent() Params: Text
     var
         InStr: InStream;
-        Params: Text;
     begin
         CalcFields(XML);
         if XML.HasValue() then begin
@@ -1137,7 +1136,7 @@ table 472 "Job Queue Entry"
             InStr.Read(Params);
         end;
 
-        exit(Params);
+        OnAfterGetXmlContent(Rec, Params);
     end;
 
     procedure SetXmlContent(Params: Text)
@@ -1149,6 +1148,8 @@ table 472 "Job Queue Entry"
             XML.CreateOutStream(OutStr, TEXTENCODING::UTF8);
             OutStr.Write(Params);
         end;
+
+        OnSetXmlContentOnBeforeModify(Rec, Params);
         Modify();
     end;
 
@@ -1181,6 +1182,7 @@ table 472 "Job Queue Entry"
         if "Object ID to Run" = 0 then
             exit;
 
+        OnRunReportRequestPageBeforeGetReportParameters(Rec);
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
@@ -1188,6 +1190,8 @@ table 472 "Job Queue Entry"
             "User ID" := UserId();
             SetReportParameters(Params);
         end;
+
+        OnAfterRunReportRequestPage(Rec, Params);
     end;
 
     procedure ScheduleJobQueueEntry(CodeunitID: Integer; RecordIDToProcess: RecordID)
@@ -1393,6 +1397,16 @@ table 472 "Job Queue Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetXmlContent(var JobQueueEntry: Record "Job Queue Entry"; var Params: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunReportRequestPage(JobQueueEntry: Record "Job Queue Entry"; var Params: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetDefaultValues(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
@@ -1457,6 +1471,16 @@ table 472 "Job Queue Entry"
 
     [InternalEvent(false)]
     local procedure OnReuseExisingJobFromId(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportRequestPageBeforeGetReportParameters(JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetXmlContentOnBeforeModify(var JobQueueEntry: Record "Job Queue Entry"; var Params: Text)
     begin
     end;
 }

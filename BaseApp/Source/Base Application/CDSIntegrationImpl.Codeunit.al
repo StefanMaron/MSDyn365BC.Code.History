@@ -4868,33 +4868,51 @@ codeunit 7201 "CDS Integration Impl."
 
     procedure InsertOptionSetMetadata(EntityName: Text; FieldName: Text; NewOptionLabel: Text): Integer
     var
+        CRMOrganization: Record "CRM Organization";
         CrmHelper: DotNet CrmHelper;
         Result: Integer;
     begin
         if (EntityName <> '') and (FieldName <> '') and (NewOptionLabel <> '') then
-            if InitializeConnection(CrmHelper) then
-                Result := CrmHelper.InsertOptionSetMetadata(EntityName, FieldName, NewOptionLabel);
+            if InitializeConnection(CrmHelper) then begin
+                CRMOrganization.FindFirst();
+                if CRMOrganization.LanguageCode <> 0 then
+                    Result := CRMHelper.InsertOptionSetMetadata(EntityName, FieldName, NewOptionLabel, CRMOrganization.LanguageCode)
+                else
+                    Result := CrmHelper.InsertOptionSetMetadata(EntityName, FieldName, NewOptionLabel);
+            end;
         exit(Result);
     end;
 
     procedure InsertOptionSetMetadataWithOptionValue(EntityName: Text; FieldName: Text; NewOptionLabel: Text; NewOptionValue: Integer): Integer
     var
+        CRMOrganization: Record "CRM Organization";
         CrmHelper: DotNet CrmHelper;
         Result: Integer;
     begin
         if (EntityName <> '') and (FieldName <> '') and (NewOptionLabel <> '') and (NewOptionValue <> 0) then
-            if InitializeConnection(CrmHelper) then
-                Result := CrmHelper.InsertOptionSetMetadataWithOptionValue(EntityName, FieldName, NewOptionLabel, NewOptionValue);
+            if InitializeConnection(CrmHelper) then begin
+                CRMOrganization.FindFirst();
+                if CRMOrganization.LanguageCode <> 0 then
+                    Result := CRMHelper.InsertOptionSetMetadataWithOptionValueAndLanguageCode(EntityName, FieldName, NewOptionLabel, NewOptionValue, CRMOrganization.LanguageCode)
+                else
+                    Result := CrmHelper.InsertOptionSetMetadataWithOptionValue(EntityName, FieldName, NewOptionLabel, NewOptionValue);
+            end;
         exit(Result);
     end;
 
     procedure UpdateOptionSetMetadata(EntityName: Text; FieldName: Text; OptionValue: Integer; NewOptionLabel: Text)
     var
+        CRMOrganization: Record "CRM Organization";
         CrmHelper: DotNet CrmHelper;
     begin
         if (EntityName <> '') and (FieldName <> '') and (OptionValue <> 0) and (NewOptionLabel <> '') then
-            if InitializeConnection(CrmHelper) then
-                CrmHelper.UpdateOptionSetMetadata(EntityName, FieldName, OptionValue, NewOptionLabel);
+            if InitializeConnection(CrmHelper) then begin
+                CRMOrganization.FindFirst();
+                if CRMOrganization.LanguageCode <> 0 then
+                    CrmHelper.UpdateOptionSetMetadataWithLanguageCode(EntityName, FieldName, OptionValue, NewOptionLabel, CRMOrganization.LanguageCode)
+                else
+                    CrmHelper.UpdateOptionSetMetadata(EntityName, FieldName, OptionValue, NewOptionLabel);
+            end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnEnableIntegration', '', true, true)]

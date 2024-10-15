@@ -27,6 +27,7 @@ codeunit 5058 "BankCont-Update"
         ContNo: Code[20];
         NoSeries: Code[20];
         SalespersonCode: Code[20];
+        IsHandled: Boolean;
     begin
         with ContBusRel do begin
             SetCurrentKey("Link to Table", "No.");
@@ -53,7 +54,10 @@ codeunit 5058 "BankCont-Update"
         Cont."Salesperson Code" := SalespersonCode;
         Cont.Validate(Name);
         Cont.DoModify(OldCont);
-        Cont.Modify(true);
+        IsHandled := false;
+        OnOnModifyOnBeforeContModify(Cont, BankAcc, IsHandled);
+        if not IsHandled then
+            Cont.Modify(true);
 
         BankAcc.Get(BankAcc."No.");
     end;
@@ -161,6 +165,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(var Contact: Record Contact; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnModifyOnBeforeContModify(var Contact: Record Contact; BankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 }

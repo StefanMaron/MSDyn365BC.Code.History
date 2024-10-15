@@ -242,7 +242,9 @@ codeunit 11000001 "Financial Interface Telebank"
         GenJnlLine."Shortcut Dimension 2 Code" := PaymentHistLine."Global Dimension 2 Code";
         if PaymentHist.Get(PaymentHistLine."Our Bank", PaymentHistLine."Run No.") then
             GenJnlLine."Dimension Set ID" := PaymentHist."Dimension Set ID";
+        OnProcessPaymReceivedOnBeforeProcessGLJL(GenJnlLine, PaymentHistLine);
         ProcessGLJL(GenJnlLine);
+        OnProcessPaymReceivedOnAfterProcessGLJL(GenJnlLine, PaymentHistLine, CBGStatementline, UsePostingDate, UseDocumentDate, "Use Document No.");
 
         PaymentHistLine.Status := PaymentHistLine.Status::Posted;
         PaymentHistLine."Document No." := "Use Document No.";
@@ -487,8 +489,18 @@ codeunit 11000001 "Financial Interface Telebank"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnProcessPaymReceivedOnAfterProcessGLJL(var GenJournalLine: Record "Gen. Journal Line"; PaymentHistoryLine: Record "Payment History Line"; CBGStatementline: Record "CBG Statement Line"; UsePostingDate: Date; UseDocumentDate: Date; UseDocumentNo: Code[20])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnProcessPaymReceivedOnBeforeProcessGLJLTrMode(var GenJnlLine: Record "Gen. Journal Line"; CBGStatementline: Record "CBG Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPaymReceivedOnBeforeProcessGLJL(var GenJournalLine: Record "Gen. Journal Line"; PaymentHistoryLine: Record "Payment History Line")
     begin
     end;
 

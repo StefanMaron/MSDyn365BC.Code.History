@@ -166,7 +166,7 @@
             trigger OnValidate()
             begin
                 TestField("Posting Date");
-                Validate("Document Date", "Posting Date");
+                ValidateDocumentDateFromPostingDate();
                 ValidateCurrencyCode();
 
                 OnValidatePostingDateOnAfterValidateCurrencyCode(Rec, xRec);
@@ -1647,8 +1647,7 @@
                 if IsHandled then
                     exit;
 
-                if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then
-                    TestField("VAT Prod. Posting Group", '');
+                CheckEmptyVATProdPostingGroup();
 
                 CheckVATInAlloc;
 
@@ -2819,7 +2818,13 @@
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckJobQueueStatus(Rec);
         ApprovalsMgmt.OnCancelGeneralJournalLineApprovalRequest(Rec);
 
@@ -2974,6 +2979,7 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
+        SpecialSymbolsTok: Label '=|&''@()<>', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3057,7 +3063,7 @@
             "Document Date" := LastGenJnlLine."Posting Date";
             "Document No." := LastGenJnlLine."Document No.";
             IsHandled := false;
-            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec);
+            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec, GenJnlBatch);
             if BottomLine and not IsHandled and
                (Balance - LastGenJnlLine."Balance (LCY)" = 0) and
                not LastGenJnlLine.EmptyLine
@@ -3366,6 +3372,19 @@
         GenJnlLine2.ModifyAll("Applies-to Doc. No.", NewAppliesToDocNo);
     end;
 
+    local procedure CheckEmptyVATProdPostingGroup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEmptyVATProdPostingGroup(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then
+            TestField("VAT Prod. Posting Group", '');
+    end;
+
     local procedure CheckVATInAlloc()
     begin
         if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
@@ -3608,6 +3627,7 @@
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
                         ClearCustApplnEntryFields;
                         TempCustLedgEntry.DeleteAll();
+                        OnClearCustVendApplnEntryOnBeforeCustEntrySetApplIDSetApplId(Rec, CustLedgEntry);
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
                     end
                 end else
@@ -3775,7 +3795,7 @@
         TestField("Check Printed", false);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
-        OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, CurrFieldNo);
     end;
 
     local procedure ValidateAmount()
@@ -4441,6 +4461,8 @@
         else
             TempJobJnlLine.Validate("Posting Date", xRec."Posting Date");
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
+        
+        "Job Currency Factor" := 0;
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
                 CurrencyDate := WorkDate()
@@ -4921,6 +4943,18 @@
             exit;
 
         Validate("Currency Code");
+    end;
+
+    local procedure ValidateDocumentDateFromPostingDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateDocumentDateFromPostingDate(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Document Date", "Posting Date");
     end;
 
     local procedure SetAppliesToFields(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
@@ -5482,6 +5516,8 @@
             "Account Type"::"Bank Account":
                 UpdateBankAccountID;
         end;
+
+        OnAfterCleanLine(Rec, xRec);
     end;
 
     local procedure ReplaceDescription(): Boolean
@@ -6281,7 +6317,7 @@
         if "Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor] then
             Amount := -Amount;
 
-        OnAfterSetAmountWithRemaining(Rec);
+        OnAfterSetAmountWithRemaining(Rec, CustLedgEntry);
         ValidateAmount();
     end;
 
@@ -6303,6 +6339,8 @@
             end;
             if TemplateFilter <> '' then
                 GenJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
+            if DelChr(BatchFilter, '=', SpecialSymbolsTok) <> BatchFilter then
+                BatchFilter := '''' + BatchFilter + '''';
             GenJournalBatch.SetFilter(Name, BatchFilter);
             GenJournalBatch.FindFirst();
         end;
@@ -6478,7 +6516,7 @@
                 ClearPostingGroups;
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
-        OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc);
+        OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc, CurrFieldNo);
     end;
 
     local procedure GetGLBalAccount()
@@ -6513,7 +6551,7 @@
             if "Posting Date" = ClosingDate("Posting Date") then
                 ClearBalancePostingGroups;
 
-        OnAfterAccountNoOnValidateGetGLBalAccount(Rec, GLAcc);
+        OnAfterAccountNoOnValidateGetGLBalAccount(Rec, GLAcc, CurrFieldNo);
     end;
 
     local procedure GetCustomerAccount()
@@ -6606,7 +6644,6 @@
     local procedure GetVendorAccount()
     var
         Vend: Record Vendor;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         Vend.Get("Account No.");
         Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
@@ -6626,20 +6663,33 @@
         if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
             "Currency Code" := Vend."Currency Code";
         ClearPostingGroups;
-        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Account No.") and
-           not HideValidationDialog
-        then
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(
-                   Text014, Vend.TableCaption, Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
-                   Vend."Pay-to Vendor No."), true)
-            then
-                Error('');
+        CheckConfirmDifferentVendorAndPayToVendor(Vend, "Account No.");
         Validate("Payment Terms Code");
         "Transaction Mode Code" := Vend."Transaction Mode Code";
         CheckPaymentTolerance;
 
         OnAfterAccountNoOnValidateGetVendorAccount(Rec, Vend, CurrFieldNo);
+    end;
+
+    local procedure CheckConfirmDifferentVendorAndPayToVendor(Vend: Record Vendor; AccountNo: Code[20])
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckConfirmDifferentVendorAndPayToVendor(Rec, Vend, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> AccountNo) and
+           not HideValidationDialog
+        then
+            if not ConfirmManagement.GetResponseOrDefault(
+                 StrSubstNo(
+                   Text014, Vend.TableCaption(), Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
+                   Vend."Pay-to Vendor No."), true)
+            then
+                Error('');
     end;
 
     local procedure GetEmployeeAccount()
@@ -6662,7 +6712,6 @@
     local procedure GetVendorBalAccount()
     var
         Vend: Record Vendor;
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         Vend.Get("Bal. Account No.");
         Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
@@ -6679,15 +6728,7 @@
             "Currency Code" := Vend."Currency Code";
         CheckSetCurrencyCodeForBankVendLine(Vend);
         ClearBalancePostingGroups;
-        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Bal. Account No.") and
-           not HideValidationDialog
-        then
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(
-                   Text014, Vend.TableCaption, Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
-                   Vend."Pay-to Vendor No."), true)
-            then
-                Error('');
+        CheckConfirmDifferentVendorAndPayToVendor(Vend, "Bal. Account No.");
         Validate("Payment Terms Code");
         "Transaction Mode Code" := Vend."Transaction Mode Code";
         CheckPaymentTolerance;
@@ -7262,12 +7303,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; CallingFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAccountNoOnValidateGetGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    local procedure OnAfterAccountNoOnValidateGetGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -7490,7 +7531,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; CallingFieldNo: Integer)
     begin
     end;
 
@@ -7500,7 +7541,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -7701,6 +7742,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentDateFromPostingDate(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7851,7 +7897,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line")
+    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch")
     begin
     end;
 
@@ -8435,7 +8481,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FromFieldNo = Rec.FieldNo("Salespers./Purch. Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FromFieldNo = Rec.FieldNo("Campaign No."));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FromFieldNo);
     end;
 
 #if not CLEAN20
@@ -8455,7 +8501,12 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCleanLine(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8501,6 +8552,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsApplied(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
@@ -8564,6 +8620,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnClearCustVendApplnEntryOnBeforeCustEntrySetApplIDSetApplId(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnGetCustomerAccountOnAfterCustGet(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
@@ -8601,6 +8662,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckConfirmDifferentCustomerAndBillToCustomer(var GenJorunalLine: Record "Gen. Journal Line"; Customer: Record Customer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckConfirmDifferentVendorAndPayToVendor(var GenJorunalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmptyVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

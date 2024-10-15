@@ -21,7 +21,13 @@ codeunit 312 "Cust-Check Cr. Limit"
     var
         SalesHeader: Record "Sales Header";
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenJnlLineCheck(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GuiAllowed then
             exit;
 
@@ -250,6 +256,11 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure GetOverdueBalanceNotificationMsg(): Text
     begin
         exit(OverdueBalanceNotificationMsg);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineCheck(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

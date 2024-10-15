@@ -274,7 +274,9 @@
                     var
                         IntrastatJnlLine: Record "Intrastat Jnl. Line";
                     begin
-		                FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                        Commit();
+
                         ReportPrint.PrintIntrastatJnlLine(Rec);
                         if ErrorsExistOnCurrentBatch(true) then
                             Error('');
@@ -284,7 +286,7 @@
                         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         REPORT.RunModal(REPORT::"Create Intrastat Decl. Disk", true, false, IntrastatJnlLine);
-			            FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
+                        FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                     end;
                 }
             }
@@ -362,14 +364,14 @@
             action(Form)
             {
                 ApplicationArea = BasicEU;
-                Caption = 'Prints Intrastat Journal';
+                Caption = 'Print Intrastat Journal';
                 Ellipsis = true;
                 Image = PrintForm;
                 Promoted = true;
                 PromotedCategory = "Report";
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Print that Form - this is used to print Intrastat journal.';
+                ToolTip = 'Print the intrastat journal.';
 
                 trigger OnAction()
                 begin
@@ -429,7 +431,6 @@
         JnlSelected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
-        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
