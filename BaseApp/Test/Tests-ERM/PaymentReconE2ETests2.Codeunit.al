@@ -24,6 +24,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
+        IncorrectEntriesErr: Label 'Check that the all the entries with the same %1 and a %2 and \', Comment = '%1 = Document No.;%2 = VAT Bus. Posting Group';
 
     [Test]
     [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
@@ -1470,8 +1471,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        GLEntry: Record "G/L Entry";
-        VATEntry: Record "VAT Entry";
+        GenJnlLine: Record "Gen. Journal Line";
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 212403] VAT Entry is created when post Payment Reconciliation with enabled "Copy VAT Setup to Jnl. Line" in Payment Reconciliation
@@ -1485,12 +1485,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateBankAccReconciliationLineWithVATGLAcc(BankAccReconciliationLine, BankAccReconciliation);
 
         // [WHEN] Post Payment Reconciliation
-        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
-        // [THEN] VAT Entry is created for Payment Reconciliation
-        FindGLEntry(GLEntry, BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Account No.");
-        FilterPmtVATEntry(VATEntry, BankAccReconciliationLine."Statement No.", GLEntry."Transaction No.");
-        Assert.RecordCount(VATEntry, 1);
+        // [THEN] Error message thrown
+        Assert.ExpectedError(
+          StrSubstNo(IncorrectEntriesErr, GenJnlLine.FieldCaption("Document No."), GenJnlLine.FieldCaption("VAT Bus. Posting Group")));
     end;
 
     [Test]
@@ -1724,6 +1723,32 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
         BankAccReconciliationLine.FindFirst;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTableRelationStatementNoInPostedPmtPeconLineToPostedPmtReconHdr()
+    var
+        PostedPaymentReconLine: Record "Posted Payment Recon. Line";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+    begin
+        // [SCENARIO 346379] Field Statement No. in the table Posted Payment Recon. Line has a relation to table Posted Payment Recon. Hdr.
+        Initialize();
+
+        // [GIVEN] Created Posted Payment Recon. Header
+        PostedPaymentReconHdr.Init();
+        PostedPaymentReconHdr."Bank Account No." := LibraryERM.CreateBankAccountno();
+        PostedPaymentReconHdr."Statement No." := LibraryUtility.GenerateGUID();
+        PostedPaymentReconHdr.Insert();
+        Commit();
+
+        // [WHEN] Validate field "Statement No." in "Posted Payment Recon. Line"
+        PostedPaymentReconLine.Init();
+        PostedPaymentReconLine.Validate("Bank Account No.", PostedPaymentReconHdr."Bank Account No.");
+        PostedPaymentReconLine.Validate("Statement No.", PostedPaymentReconHdr."Statement No.");
+
+        // [THEN] The field validated correctly
+        PostedPaymentReconLine.TestField("Statement No.", PostedPaymentReconHdr."Statement No.");
     end;
 
     local procedure Initialize()

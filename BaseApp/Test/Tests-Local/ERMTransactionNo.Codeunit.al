@@ -62,6 +62,7 @@ codeunit 144012 "ERM Transaction No."
         LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        OneDocSameNoErr: Label 'There must be one   invoice, credit memo, or finance charge memo with the same Document No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -485,10 +486,11 @@ codeunit 144012 "ERM Transaction No."
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Sale.
         // [WHEN] Post Recurring Journal Line.
-        CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithSalesSetup);
+        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithSalesSetup);
 
-        // [THEN] Recurring Journal Line is posted.
-        VerifyGLRegister(GenJournalLine, 1);
+        // [THEN] Error "There must be one invoice, credit memo, or finance charge memo with the same Document No." is thrown.
+        Assert.ExpectedError(OneDocSameNoErr);
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]
@@ -505,10 +507,11 @@ codeunit 144012 "ERM Transaction No."
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Purchase.
         // [WHEN] Post Recurring Journal Line.
-        CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithPurchSetup);
+        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithPurchSetup);
 
-        // [THEN] Recurring Journal Line is posted.
-        VerifyGLRegister(GenJournalLine, 1);
+        // [THEN] Error "There must be one invoice, credit memo, or finance charge memo with the same Document No." is thrown.
+        Assert.ExpectedError(OneDocSameNoErr);
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     local procedure Initialize()

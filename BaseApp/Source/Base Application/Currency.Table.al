@@ -519,6 +519,8 @@ table 4 Currency
 
     trigger OnInsert()
     begin
+        TestField(Code);
+         
         "Last Modified Date Time" := CurrentDateTime;
     end;
 

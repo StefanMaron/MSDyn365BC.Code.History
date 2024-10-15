@@ -114,6 +114,7 @@
         NextEntryNo2: Integer;
         Text1100000: Label 'Unrealized VAT Type must be "Percentage" in VAT Posting Setup.';
         Text1100001: Label 'Invoice No. %1 does not exist';
+        GenJnlLineNotFoundErr: Label 'Check that the all the entries with the same %2 and a %3 and \%4 associated have a Customer/Vendor associated, check that all the lines with the same \%2 have not more than one Customer/Vendor associated, check that all the lines with same \%2 have in the field %1 the same value: Invoice, Credit Memo or Finance Charge Memo.', Comment = 'Field captions: %1 = "Document Type", %2 = "Document No.", %3 = "VAT Bus. Posting Group", %4 = "VAT Prod. Posting Group"';
         Text1100006: Label 'Invoice %1';
         Text1100007: Label '%1 cannot be applied, since it is included in a bill group.';
         Text1100008: Label 'Remove it from its bill group and try again.';
@@ -6129,8 +6130,12 @@
                     exit;
             end;
             if not GenJnlLine2.Find('-') or (GenJnlLine2.Next <> 0) then
-                exit;
-
+                Error(
+                  GenJnlLineNotFoundErr,
+                  FieldCaption("Document Type"),
+                  FieldCaption("Document No."),
+                  FieldCaption("VAT Bus. Posting Group"),
+                  FieldCaption("VAT Prod. Posting Group"));
             if GenJnlLine2."Bill-to/Pay-to No." <> '' then
                 VATEntry."Bill-to/Pay-to No." := GenJnlLine2."Bill-to/Pay-to No."
             else

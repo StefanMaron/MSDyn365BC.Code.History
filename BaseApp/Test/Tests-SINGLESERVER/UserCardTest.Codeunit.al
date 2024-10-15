@@ -4,6 +4,7 @@ codeunit 132903 UserCardTest
 
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -46,8 +47,11 @@ codeunit 132903 UserCardTest
         DisableUserMsg: Label 'To permanently disable a user, go to your Office 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Office 365.';
 
     local procedure Initialize()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         LibraryVariableStorage.Clear;
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         if isInitialized then
             exit;
@@ -160,8 +164,13 @@ codeunit 132903 UserCardTest
     [HandlerFunctions('SetAcsAuthenticationHandler,ConfirmHandlerAnsNo')]
     [Scope('OnPrem')]
     procedure GenerateAcsPin()
+    var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
     begin
-        Initialize;
+        Initialize();
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubscbr);
+
         // Set valid ACS pin with auto generate. Ensure ACS state changed to Pending and ACS pin is persistent
         AcsAuthenticationHelper(User001Msg, '', 'Pending', false, true);
     end;
@@ -171,12 +180,17 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure GenerateWebServiceKeyNoExpires()
     var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
-        Initialize;
+        Initialize();
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubscbr);
+
         // Generate web key with no expires date. Validate key is generated and not date is not set
         WebServiceAccessHelper(CreateDateTime(Today, 0T), true, false, User001Msg);
+
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
@@ -192,10 +206,14 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure GenerateWebServiceKeyWithExpires()
     var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
-        Initialize;
+        Initialize();
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubscbr);
+
         // Generate web key with expire date. Validate key is generated and date i set
         WebServiceAccessHelper(CreateDateTime(Today, 0T), false, false, User001Msg);
         UserCardPage.OpenEdit;
@@ -214,10 +232,14 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure CancelGenerateWebServiceKey()
     var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
-        Initialize;
+        Initialize();
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubscbr);
+
         // Generate web key. Answer no if we should generate key. Ensure key and date is not changed
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", User001Msg);
@@ -869,7 +891,7 @@ codeunit 132903 UserCardTest
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", UserName);
         UserCardPage."User Name".AssertEquals(UserName);
-        Commit;
+
         UserCardPage.WebServiceID.AssistEdit;
 
         UserCardPage.Close;
@@ -903,7 +925,7 @@ codeunit 132903 UserCardTest
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", AcsUserNameToEnter);
         UserCardPage."User Name".AssertEquals(AcsUserNameToEnter);
-        Commit;
+
         UserCardPage.ACSStatus.AssistEdit;
         WsCompareAcsStatus := UserCardPage.ACSStatus.Value;
         UserCardPage.Close;
@@ -987,6 +1009,19 @@ codeunit 132903 UserCardTest
         UserGroupMember.SetRange("User Security ID", User."User Security ID");
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         Assert.RecordIsNotEmpty(UserGroupMember);
+    end;
+
+    local procedure CreateSuperUser(): Guid
+    var
+        User: Record User;
+    begin
+        User.Init();
+        User.Validate("User Name", UserId());
+        User.Validate("License Type", User."License Type"::"Full User");
+        User.Validate("User Security ID", CreateGuid());
+        User.Insert();
+
+        exit(User."User Security ID");
     end;
 
     [ModalPageHandler]

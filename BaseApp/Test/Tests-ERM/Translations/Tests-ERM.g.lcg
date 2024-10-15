@@ -1058,6 +1058,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Budget - NamedType AnalysisViewBudgetEntryExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 2184629082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value %1 - %2 is blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 3144747853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value Type for Dimension Value %1 - %2 must not be %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMustNotBeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value for %1 is missing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3944115356 - NamedType 638311702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Gen. Prod. Posting Group must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero]]></Val>
@@ -3074,6 +3101,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM PostRecurringJournal - NamedType SkippedLineMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1514131158 - NamedType 1439671870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There must be one   invoice, credit memo, or finance charge memo with the same Document No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM PostRecurringJournal - NamedType OneDocSameNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 909970305 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -4327,11 +4363,11 @@
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 3546971989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table]]></Val>
+      <Val><![CDATA[The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - G\L Acc No]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 16987930" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6699,6 +6735,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType SEPA_CAMT_Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1570463600 - NamedType 3735578474" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Check that the all the entries with the same %1 and a %2 and \]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document No.;%2 = VAT Bus. Posting Group]D;]A;(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType IncorrectEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1425724606 - NamedType 4277721231" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

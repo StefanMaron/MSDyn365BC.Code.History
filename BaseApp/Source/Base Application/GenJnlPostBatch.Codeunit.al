@@ -93,6 +93,7 @@
         RefPostingState: Option "Checking lines","Checking balance","Updating bal. lines","Posting Lines","Posting revers. lines","Updating lines";
         Text1100001: Label 'must be the same on all lines for the same transaction';
         LastTempTransNo: Integer;
+        GenJnlLineNotFoundErr: Label 'There must be one %1 invoice, credit memo, or finance charge memo with the same %2 as journal line %3.', Comment = '%1 = "Gen. Posting Type", %2 = caption of "Document No.", %3 = "Line No."';
         Text1100101: Label 'You can not create a bill from more than one posted invoice when this contains Unrealized VAT.';
         PreviewMode: Boolean;
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
@@ -151,6 +152,8 @@
         VATPostingSetup: Record "VAT Posting Setup";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         ICOutboxExport: Codeunit "IC Outbox Export";
+        TypeHelper: Codeunit "Type Helper";
+        RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
         LastLineNo: Integer;
@@ -266,6 +269,9 @@
             end;
 
             // Post reversing lines
+            RecRef.GetTable(TempGenJnlLine4);
+            TypeHelper.SortRecordRef(RecRef, CurrentKey, Ascending);
+            RecRef.SetTable(TempGenJnlLine4);
             PostReversingLines(TempGenJnlLine4);
 
             OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo);
@@ -1192,8 +1198,11 @@
                     exit;
             end;
             if not GenJnlLine7.Find('-') or (GenJnlLine7.Next <> 0) then
-                exit('');
-
+                Error(
+                  GenJnlLineNotFoundErr,
+                  GenJnlLine7."Gen. Posting Type",
+                  FieldCaption("Document No."),
+                  "Line No.");
             if GenJnlLine7."Bill-to/Pay-to No." <> '' then
                 exit(GenJnlLine7."Bill-to/Pay-to No.");
 
