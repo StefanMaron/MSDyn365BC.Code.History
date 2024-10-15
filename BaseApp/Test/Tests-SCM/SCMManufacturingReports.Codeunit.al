@@ -1115,6 +1115,35 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryReportDataset.AssertElementTagWithValueNotExist('ItemNo_ProdOrderComp', NonInvtCompItem."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('CapacityTaskListEmptyRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CapacityTaskListStartEndTimeFormattedValue()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProductionOrder: Record "Production Order";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO 434203] Report 'Capacity Task List' should display Starting Time/Ending Time correctly
+        Initialize();
+
+        // [GIVEN] Production Order and related Prod. Order Routing Line
+        CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
+
+        ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status::Released);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Work Center");
+        ProdOrderRoutingLine.FindFirst();
+
+        // [WHEN] Run Report 'Capacity Task List' 
+        RequestPageXML := Report.RunRequestPage(Report::"Capacity Task List", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Capacity Task List", ProdOrderRoutingLine, RequestPageXML);
+
+        // [THEN] 'Starting Time'/'Ending Time' = formatted value of Prod. Order Routing Line."Starting Time"/"Ending Time"
+        LibraryReportDataset.AssertElementWithValueExists('StrtTm_ProdOrderRtngLine', Format(ProdOrderRoutingLine."Starting Time"));
+        LibraryReportDataset.AssertElementWithValueExists('EndTime_ProdOrderRtngLine', Format(ProdOrderRoutingLine."Ending Time"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1748,6 +1777,12 @@ codeunit 137304 "SCM Manufacturing Reports"
     procedure CapacityTaskListRequestPageHandler(var CapacityTaskList: TestRequestPage "Capacity Task List")
     begin
         CapacityTaskList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CapacityTaskListEmptyRequestPageHandler(var CapacityTaskList: TestRequestPage "Capacity Task List")
+    begin
     end;
 
     [MessageHandler]
