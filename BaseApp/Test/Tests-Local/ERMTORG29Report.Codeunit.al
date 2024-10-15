@@ -46,6 +46,7 @@ codeunit 144712 "ERM TORG-29 Report"
           TempValueEntryResid, TempValueEntryRcpt, TempValueEntryShpt);
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ResidOnStartWithPriceAmountType()
@@ -71,6 +72,7 @@ codeunit 144712 "ERM TORG-29 Report"
         Assert.AreEqual(
           Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"), ResidOnstart, WrongResidOnStartErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -148,6 +150,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ReceiptsWithPriceAmountType()
@@ -175,6 +178,7 @@ codeunit 144712 "ERM TORG-29 Report"
           TempRcptValueEntry."Valued Quantity", Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
           StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -251,6 +255,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ShptsWithPriceAmountType()
@@ -277,6 +282,7 @@ codeunit 144712 "ERM TORG-29 Report"
           TempShptValueEntry."Valued Quantity", -Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
           StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -356,6 +362,7 @@ codeunit 144712 "ERM TORG-29 Report"
         exit(PriceListLine."Unit Price");
     end;
 
+#if not CLEAN21
     local procedure MockSalesPrice(ItemNo: Code[20]; PostingDate: Date): Decimal
     var
         SalesPrice: Record "Sales Price";
@@ -372,6 +379,7 @@ codeunit 144712 "ERM TORG-29 Report"
             exit("Unit Price");
         end;
     end;
+#endif
 
     local procedure MockEmployee(): Code[20]
     var

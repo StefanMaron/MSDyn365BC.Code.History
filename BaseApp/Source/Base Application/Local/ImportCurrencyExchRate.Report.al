@@ -9,7 +9,7 @@ report 14900 "Import Currency Exch. Rate"
     {
         dataitem(Date; Date)
         {
-            DataItemTableView = SORTING("Period Type", "Period Start") WHERE("Period Type" = CONST(Date));
+            DataItemTableView = sorting("Period Type", "Period Start") where("Period Type" = const(Date));
 
             trigger OnAfterGetRecord()
             begin
@@ -34,7 +34,7 @@ report 14900 "Import Currency Exch. Rate"
         }
         dataitem(MonthlyRates; Date)
         {
-            DataItemTableView = SORTING("Period Type", "Period Start") WHERE("Period Type" = CONST(Month));
+            DataItemTableView = sorting("Period Type", "Period Start") where("Period Type" = const(Month));
 
             trigger OnAfterGetRecord()
             begin

@@ -117,7 +117,7 @@ table 26550 "Statutory Report"
         field(20; "Recipient Tax Authority Code"; Code[20])
         {
             Caption = 'Recipient Tax Authority Code';
-            TableRelation = Vendor."No." WHERE("Vendor Type" = CONST("Tax Authority"));
+            TableRelation = Vendor."No." where("Vendor Type" = const("Tax Authority"));
 
             trigger OnValidate()
             begin
@@ -135,7 +135,7 @@ table 26550 "Statutory Report"
         field(22; "Admin. Tax Authority Code"; Code[20])
         {
             Caption = 'Admin. Tax Authority Code';
-            TableRelation = Vendor."No." WHERE("Vendor Type" = CONST("Tax Authority"));
+            TableRelation = Vendor."No." where("Vendor Type" = const("Tax Authority"));
 
             trigger OnValidate()
             begin
@@ -178,7 +178,7 @@ table 26550 "Statutory Report"
         field(26; "Company Address Code"; Code[10])
         {
             Caption = 'Company Address Code';
-            TableRelation = "Company Address".Code WHERE("Address Type" = CONST(Legal));
+            TableRelation = "Company Address".Code where("Address Type" = const(Legal));
 
             trigger OnLookup()
             begin
@@ -210,8 +210,8 @@ table 26550 "Statutory Report"
         field(27; "Company Address Language Code"; Code[10])
         {
             Caption = 'Company Address Language Code';
-            TableRelation = "Company Address"."Language Code" WHERE(Code = FIELD("Company Address Code"),
-                                                                     "Address Type" = CONST(Legal));
+            TableRelation = "Company Address"."Language Code" where(Code = field("Company Address Code"),
+                                                                     "Address Type" = const(Legal));
 
             trigger OnValidate()
             begin
@@ -425,14 +425,22 @@ table 26550 "Statutory Report"
                 case StatReportTableMapping."Int. Source Type" of
                     StatReportTableMapping."Int. Source Type"::"Acc. Schedule":
                         begin
-                            AccScheduleName.Get(StatReportTableMapping."Int. Source No.");
-                            AccScheduleName.TestField("Default Column Layout");
+#if not CLEAN22
+                            if StatReportTableMapping."Int. Source Col. Lay. Name" = '' then begin
+                                AccScheduleName.Get(StatReportTableMapping."Int. Source No.");
+                                if AccScheduleName."Default Column Layout" <> '' then begin
+                                    StatReportTableMapping."Int. Source Col. Lay. Name" := AccScheduleName."Default Column Layout";
+                                    StatReportTableMapping.Modify();
+                                end;
+                            end;
+#endif
+                            StatReportTableMapping.TestField("Int. Source Col. Lay. Name");
                             AccScheduleLine.Get(
                               StatReportTableMapping."Int. Source No.",
                               StatReportTableMapping."Internal Source Row No.");
                             AccScheduleLine.SetFilter("Date Filter", '%1..%2', StartDate, EndDate);
                             ColumnLayout.Get(
-                              AccScheduleName."Default Column Layout",
+                              StatReportTableMapping."Int. Source Col. Lay. Name",
                               StatReportTableMapping."Internal Source Column No.");
 
                             CellValue := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);

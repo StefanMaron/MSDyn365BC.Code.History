@@ -13,7 +13,7 @@ page 12486 "Precious Metal"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code associated with this precious metal asset.';

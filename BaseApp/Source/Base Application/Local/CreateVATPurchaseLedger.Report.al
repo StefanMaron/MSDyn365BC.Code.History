@@ -11,7 +11,7 @@ report 12455 "Create VAT Purchase Ledger"
         {
             dataitem(PurchVATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Purchase), "Tax Invoice Amount Type" = CONST(VAT), "Additional VAT Ledger Sheet" = CONST(false), "Include In Other VAT Ledger" = CONST(false), "VAT Allocation Type" = CONST(VAT), "VAT Reinstatement" = CONST(false), "VAT Agent" = CONST(false));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Purchase), "Tax Invoice Amount Type" = const(VAT), "Additional VAT Ledger Sheet" = const(false), "Include In Other VAT Ledger" = const(false), "VAT Allocation Type" = const(VAT), "VAT Reinstatement" = const(false), "VAT Agent" = const(false));
 
                 trigger OnAfterGetRecord()
                 var
@@ -157,7 +157,7 @@ report 12455 "Create VAT Purchase Ledger"
             }
             dataitem(PurchPrepmtVATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Purchase), "Tax Invoice Amount Type" = CONST(VAT), "Additional VAT Ledger Sheet" = CONST(false), "Include In Other VAT Ledger" = CONST(false), Prepayment = CONST(true), "VAT Allocation Type" = CONST(VAT), "VAT Reinstatement" = CONST(false), "VAT Agent" = CONST(false));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Purchase), "Tax Invoice Amount Type" = const(VAT), "Additional VAT Ledger Sheet" = const(false), "Include In Other VAT Ledger" = const(false), Prepayment = const(true), "VAT Allocation Type" = const(VAT), "VAT Reinstatement" = const(false), "VAT Agent" = const(false));
 
                 trigger OnAfterGetRecord()
                 var
@@ -211,7 +211,7 @@ report 12455 "Create VAT Purchase Ledger"
             }
             dataitem(CustPrepmtVATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Sale), "Tax Invoice Amount Type" = CONST(VAT), Prepayment = CONST(true), "Additional VAT Ledger Sheet" = CONST(false), "Include In Other VAT Ledger" = CONST(false), "VAT Allocation Type" = CONST(VAT));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Sale), "Tax Invoice Amount Type" = const(VAT), Prepayment = const(true), "Additional VAT Ledger Sheet" = const(false), "Include In Other VAT Ledger" = const(false), "VAT Allocation Type" = const(VAT));
 
                 trigger OnAfterGetRecord()
                 var
@@ -265,7 +265,7 @@ report 12455 "Create VAT Purchase Ledger"
             }
             dataitem(SalesReturnVATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Sale), "Tax Invoice Amount Type" = CONST(VAT), "Document Type" = CONST("Credit Memo"), "Include In Other VAT Ledger" = CONST(true), "VAT Allocation Type" = CONST(VAT));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Sale), "Tax Invoice Amount Type" = const(VAT), "Document Type" = const("Credit Memo"), "Include In Other VAT Ledger" = const(true), "VAT Allocation Type" = const(VAT));
 
                 trigger OnAfterGetRecord()
                 var
@@ -312,7 +312,7 @@ report 12455 "Create VAT Purchase Ledger"
             }
             dataitem(VATAgentEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Purchase), "Tax Invoice Amount Type" = CONST(VAT), "Additional VAT Ledger Sheet" = CONST(false), "Include In Other VAT Ledger" = CONST(false), "VAT Allocation Type" = CONST(VAT), "VAT Reinstatement" = CONST(false), "VAT Agent" = CONST(true));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Purchase), "Tax Invoice Amount Type" = const(VAT), "Additional VAT Ledger Sheet" = const(false), "Include In Other VAT Ledger" = const(false), "VAT Allocation Type" = const(VAT), "VAT Reinstatement" = const(false), "VAT Agent" = const(true));
 
                 trigger OnAfterGetRecord()
                 var
@@ -382,10 +382,10 @@ report 12455 "Create VAT Purchase Ledger"
             }
             dataitem(LedgerPart; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(0 .. 1));
+                DataItemTableView = sorting(Number) where(Number = filter(0 .. 1));
                 dataitem(PurchLedger; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -459,7 +459,7 @@ report 12455 "Create VAT Purchase Ledger"
                 }
                 dataitem(OtherLedger; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(0 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(0 ..));
 
                     trigger OnAfterGetRecord()
                     begin

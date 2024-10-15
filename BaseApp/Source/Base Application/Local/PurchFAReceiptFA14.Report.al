@@ -7,12 +7,12 @@ report 14980 "Purch. FA Receipt FA-14"
     {
         dataitem("Purchase Header"; "Purchase Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = FILTER(Order | Invoice));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = filter(Order | Invoice));
             RequestFilterFields = "No.";
             dataitem("Purchase Line"; "Purchase Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Expected Receipt Date") WHERE(Type = CONST("Fixed Asset"));
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Expected Receipt Date") where(Type = const("Fixed Asset"));
 
                 trigger OnAfterGetRecord()
                 begin

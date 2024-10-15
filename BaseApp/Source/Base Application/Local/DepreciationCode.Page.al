@@ -15,7 +15,7 @@ page 12488 "Depreciation Code"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the unique identification code for this depreciation code.';
@@ -32,12 +32,12 @@ page 12488 "Depreciation Code"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'This object supports the Microsoft Dynamics NAV infrastructure and is intended only for internal use.';
                 }
-                field(Parent; Parent)
+                field(Parent; Rec.Parent)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'This object supports the Microsoft Dynamics NAV infrastructure and is intended only for internal use.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the indentation of the line.';
@@ -72,15 +72,13 @@ page 12488 "Depreciation Code"
     end;
 
     var
-        [InDataSet]
         NameEmphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
 
     local procedure NameOnFormat()
     begin
-        NameIndent := Indentation * 440;
-        if "Code Type" = "Code Type"::Header then
+        NameIndent := Rec.Indentation * 440;
+        if Rec."Code Type" = Rec."Code Type"::Header then
             NameEmphasize := true;
     end;
 }

@@ -4,7 +4,7 @@ page 26568 "Stat. Report Excel Sheets"
     Editable = false;
     PageType = List;
     SourceTable = "Stat. Report Excel Sheet";
-    SourceTableView = SORTING("Report Code", "Table Code", "Report Data No.", "Sequence No.");
+    SourceTableView = sorting("Report Code", "Table Code", "Report Data No.", "Sequence No.");
 
     layout
     {
@@ -69,13 +69,13 @@ page 26568 "Stat. Report Excel Sheets"
         Sheet: Record "Stat. Report Excel Sheet";
     begin
         Sheet.SetCurrentKey("Report Code", "Table Code", "Report Data No.", "Sequence No.");
-        Sheet.SetRange("Report Code", "Report Code");
-        Sheet.SetRange("Report Data No.", "Report Data No.");
-        Sheet.SetRange("Table Code", "Table Code");
+        Sheet.SetRange("Report Code", Rec."Report Code");
+        Sheet.SetRange("Report Data No.", Rec."Report Data No.");
+        Sheet.SetRange("Table Code", Rec."Table Code");
         if Sheet.FindLast() then;
-        "Sequence No." := Sheet."Sequence No." + 1;
-        StatutoryReportTable.Get("Report Code", "Table Code");
-        "Parent Sheet Name" := StatutoryReportTable."Excel Sheet Name";
+        Rec."Sequence No." := Sheet."Sequence No." + 1;
+        StatutoryReportTable.Get(Rec."Report Code", Rec."Table Code");
+        Rec."Parent Sheet Name" := StatutoryReportTable."Excel Sheet Name";
     end;
 
     [Scope('OnPrem')]
@@ -84,20 +84,20 @@ page 26568 "Stat. Report Excel Sheets"
         UpperSheet: Record "Stat. Report Excel Sheet";
         SequenceNo: Integer;
     begin
-        if "Parent Sheet Name" <> '' then begin
+        if Rec."Parent Sheet Name" <> '' then begin
             UpperSheet.SetCurrentKey("Report Code", "Table Code", "Report Data No.", "Sequence No.");
-            UpperSheet.SetRange("Report Code", "Report Code");
-            UpperSheet.SetRange("Report Data No.", "Report Data No.");
-            UpperSheet.SetRange("Table Code", "Table Code");
+            UpperSheet.SetRange("Report Code", Rec."Report Code");
+            UpperSheet.SetRange("Report Data No.", Rec."Report Data No.");
+            UpperSheet.SetRange("Table Code", Rec."Table Code");
             UpperSheet.SetFilter("Parent Sheet Name", '<>''''');
-            UpperSheet.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
+            UpperSheet.SetFilter("Sequence No.", '..%1', Rec."Sequence No." - 1);
             if UpperSheet.FindLast() then begin
                 SequenceNo := UpperSheet."Sequence No.";
-                UpperSheet."Sequence No." := "Sequence No.";
+                UpperSheet."Sequence No." := Rec."Sequence No.";
                 UpperSheet.Modify();
 
-                "Sequence No." := SequenceNo;
-                Modify();
+                Rec."Sequence No." := SequenceNo;
+                Rec.Modify();
             end;
         end;
     end;
@@ -108,20 +108,20 @@ page 26568 "Stat. Report Excel Sheets"
         LowerSheet: Record "Stat. Report Excel Sheet";
         SequenceNo: Integer;
     begin
-        if "Parent Sheet Name" <> '' then begin
+        if Rec."Parent Sheet Name" <> '' then begin
             LowerSheet.SetCurrentKey("Report Code", "Table Code", "Report Data No.", "Sequence No.");
-            LowerSheet.SetRange("Report Code", "Report Code");
-            LowerSheet.SetRange("Report Data No.", "Report Data No.");
-            LowerSheet.SetRange("Table Code", "Table Code");
+            LowerSheet.SetRange("Report Code", Rec."Report Code");
+            LowerSheet.SetRange("Report Data No.", Rec."Report Data No.");
+            LowerSheet.SetRange("Table Code", Rec."Table Code");
             LowerSheet.SetFilter("Parent Sheet Name", '<>''''');
-            LowerSheet.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
+            LowerSheet.SetFilter("Sequence No.", '%1..', Rec."Sequence No." + 1);
             if LowerSheet.FindFirst() then begin
                 SequenceNo := LowerSheet."Sequence No.";
-                LowerSheet."Sequence No." := "Sequence No.";
+                LowerSheet."Sequence No." := Rec."Sequence No.";
                 LowerSheet.Modify();
 
-                "Sequence No." := SequenceNo;
-                Modify();
+                Rec."Sequence No." := SequenceNo;
+                Rec.Modify();
             end;
         end;
     end;

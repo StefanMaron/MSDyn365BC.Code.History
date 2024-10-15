@@ -17,7 +17,7 @@ table 17307 "Tax Calc. Section"
         field(6; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -90,8 +90,8 @@ table 17307 "Tax Calc. Section"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Page Name';
             Editable = false;
             FieldClass = FlowField;

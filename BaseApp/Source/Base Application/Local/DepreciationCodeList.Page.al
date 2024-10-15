@@ -14,7 +14,7 @@ page 12485 "Depreciation Code List"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the unique identification code for this depreciation code.';
@@ -51,15 +51,13 @@ page 12485 "Depreciation Code List"
     end;
 
     var
-        [InDataSet]
         NameEmphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
 
     local procedure NameOnFormat()
     begin
-        NameIndent := Indentation * 440;
-        if "Code Type" = "Code Type"::Header then
+        NameIndent := Rec.Indentation * 440;
+        if Rec."Code Type" = Rec."Code Type"::Header then
             NameEmphasize := true;
     end;
 }

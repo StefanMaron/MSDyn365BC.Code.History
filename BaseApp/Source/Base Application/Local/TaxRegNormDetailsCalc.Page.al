@@ -1,7 +1,7 @@
 page 17280 "Tax Reg. Norm Details (Calc)"
 {
     Caption = 'Norm Details (Calc)';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     DelayedInsert = true;
     Editable = false;
     PageType = List;
@@ -19,7 +19,7 @@ page 17280 "Tax Reg. Norm Details (Calc)"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the effective date associated with the norm details.';
                 }
-                field(Norm; Norm)
+                field(Norm; Rec.Norm)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the norm value that is used to calculate tax differences.';
@@ -29,7 +29,7 @@ page 17280 "Tax Reg. Norm Details (Calc)"
                         DrillDownAmount();
                     end;
                 }
-                field(LineDescription; LineDescription())
+                field(LineDescription; Rec.LineDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -49,9 +49,9 @@ page 17280 "Tax Reg. Norm Details (Calc)"
         NormAccumulation: Record "Tax Reg. Norm Accumulation";
     begin
         NormAccumulation.SetCurrentKey("Norm Jurisdiction Code", "Norm Group Code");
-        NormAccumulation.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
-        NormAccumulation.SetRange("Norm Group Code", "Norm Group Code");
-        NormAccumulation.SetRange("Ending Date", "Effective Date");
+        NormAccumulation.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
+        NormAccumulation.SetRange("Norm Group Code", Rec."Norm Group Code");
+        NormAccumulation.SetRange("Ending Date", Rec."Effective Date");
         NormAccumulation.SetRange("Line Type", NormAccumulation."Line Type"::"Norm Value");
         if NormAccumulation.FindFirst() then;
         NormAccumulation.SetRange("Line Type");

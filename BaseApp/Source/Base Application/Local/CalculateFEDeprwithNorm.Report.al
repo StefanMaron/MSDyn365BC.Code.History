@@ -8,36 +8,36 @@ report 17303 "Calculate FE Depr. with Norm"
     {
         dataitem("Tax Difference"; "Tax Difference")
         {
-            DataItemTableView = WHERE(Type = CONST(Temporary), "Calc. Norm Jurisdiction Code" = FILTER(<> ''), "Calc. Norm Code" = FILTER(<> ''));
+            DataItemTableView = where(Type = const(Temporary), "Calc. Norm Jurisdiction Code" = filter(<> ''), "Calc. Norm Code" = filter(<> ''));
             RequestFilterFields = "Code";
             column(Tax_Difference_Code; Code)
             {
             }
             dataitem("Fixed Asset"; "Fixed Asset")
             {
-                DataItemLink = "Tax Difference Code" = FIELD(Code);
-                DataItemTableView = SORTING("No.");
+                DataItemLink = "Tax Difference Code" = field(Code);
+                DataItemTableView = sorting("No.");
                 dataitem("Depreciation Book"; "Depreciation Book")
                 {
-                    DataItemTableView = SORTING(Code) WHERE("Posting Book Type" = FILTER(Accounting | "Tax Accounting"));
+                    DataItemTableView = sorting(Code) where("Posting Book Type" = filter(Accounting | "Tax Accounting"));
                     dataitem("FA Depreciation Book"; "FA Depreciation Book")
                     {
-                        DataItemLink = "Depreciation Book Code" = FIELD(Code);
+                        DataItemLink = "Depreciation Book Code" = field(Code);
                         DataItemLinkReference = "Depreciation Book";
-                        DataItemTableView = SORTING("Depreciation Book Code", "FA No.") WHERE("Disposal Date" = FILTER(0D));
+                        DataItemTableView = sorting("Depreciation Book Code", "FA No.") where("Disposal Date" = filter(0D));
                         dataitem("FA Journal Template"; "FA Journal Template")
                         {
-                            DataItemTableView = SORTING(Name) WHERE(Type = CONST("Future Expenses"));
+                            DataItemTableView = sorting(Name) where(Type = const("Future Expenses"));
                             dataitem("FA Journal Batch"; "FA Journal Batch")
                             {
-                                DataItemLink = "Journal Template Name" = FIELD(Name);
+                                DataItemLink = "Journal Template Name" = field(Name);
                                 DataItemLinkReference = "FA Journal Template";
-                                DataItemTableView = SORTING("Journal Template Name", Name);
+                                DataItemTableView = sorting("Journal Template Name", Name);
                                 dataitem("FA Journal Line"; "FA Journal Line")
                                 {
-                                    DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
+                                    DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
                                     DataItemLinkReference = "FA Journal Batch";
-                                    DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.") WHERE("FA Posting Type" = CONST(Depreciation));
+                                    DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") where("FA Posting Type" = const(Depreciation));
 
                                     trigger OnAfterGetRecord()
                                     begin
@@ -97,7 +97,7 @@ report 17303 "Calculate FE Depr. with Norm"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                 column(USERID; UserId)
                 {
                 }

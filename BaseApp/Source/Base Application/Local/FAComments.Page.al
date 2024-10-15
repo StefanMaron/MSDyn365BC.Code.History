@@ -20,7 +20,7 @@ page 12495 "FA Comments"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of comment line associated with this fixed asset act.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the text of the comment associated with this fixed asset act.';

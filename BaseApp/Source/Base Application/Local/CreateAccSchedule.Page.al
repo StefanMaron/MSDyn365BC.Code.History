@@ -27,11 +27,6 @@ page 26577 "Create Acc. Schedule"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Acc. Schedule Name';
                     TableRelation = "Acc. Schedule Name";
-
-                    trigger OnValidate()
-                    begin
-                        AccSchedNameOnAfterValidate();
-                    end;
                 }
                 field(ColumnLayoutName; ColumnLayoutName)
                 {
@@ -72,8 +67,14 @@ page 26577 "Create Acc. Schedule"
         if StatutoryReportTable."Int. Source Type" = StatutoryReportTable."Int. Source Type"::"Acc. Schedule" then begin
             StatutoryReportTable.TestField("Int. Source No.");
             AccScheduleName.Get(StatutoryReportTable."Int. Source No.");
+#if not CLEAN22
+            if (StatutoryReportTable."Int. Source Col. Name" = '') and (AccScheduleName."Default Column Layout" <> '') then begin
+                StatutoryReportTable."Int. Source Col. Name" := AccScheduleName."Default Column Layout";
+                StatutoryReportTable.Modify();
+            end;
+#endif
             AccSchedName := AccScheduleName.Name;
-            ColumnLayoutName := AccScheduleName."Default Column Layout";
+            ColumnLayoutName := StatutoryReportTable."Int. Source Col. Name";
         end;
     end;
 
@@ -83,13 +84,6 @@ page 26577 "Create Acc. Schedule"
         NewAccScheduleName := AccSchedName;
         NewColumnLayoutName := ColumnLayoutName;
         NewReplExistLines := ReplaceExistLines;
-    end;
-
-    local procedure AccSchedNameOnAfterValidate()
-    begin
-        if AccSchedName <> '' then
-            if AccScheduleName.Get(AccSchedName) then
-                ColumnLayoutName := AccScheduleName."Default Column Layout";
     end;
 }
 

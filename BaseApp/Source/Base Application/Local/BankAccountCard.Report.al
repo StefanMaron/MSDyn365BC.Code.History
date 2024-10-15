@@ -10,7 +10,7 @@ report 12448 "Bank Account Card"
     {
         dataitem("Bank Account"; "Bank Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(CurrentDate; CurrentDate)
@@ -51,7 +51,7 @@ report 12448 "Bank Account Card"
             }
             dataitem("Balance Beg/Ending"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(Bank_Account__Name; "Bank Account".Name)
                 {
@@ -91,9 +91,9 @@ report 12448 "Bank Account Card"
                 }
                 dataitem("Bank Account Ledger Entry"; "Bank Account Ledger Entry")
                 {
-                    DataItemLink = "Bank Account No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Posting Date" = FIELD("Date Filter");
+                    DataItemLink = "Bank Account No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Posting Date" = field("Date Filter");
                     DataItemLinkReference = "Bank Account";
-                    DataItemTableView = SORTING("Bank Account No.", "Posting Date");
+                    DataItemTableView = sorting("Bank Account No.", "Posting Date");
                     column(Bank_Account_Ledger_Entry__Posting_Date_; "Posting Date")
                     {
                     }
@@ -152,8 +152,8 @@ report 12448 "Bank Account Card"
             }
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
             {
-                DataItemLink = "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter");
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
+                DataItemLink = "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"), "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter");
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
                 RequestFilterFields = "Journal Template Name", "Journal Batch Name";
                 RequestFilterHeading = 'Non-posted entries';
                 column(Bank_Account__Name_Control70; "Bank Account".Name)

@@ -2,7 +2,7 @@ page 12422 "Bank Payment Order"
 {
     AutoSplitKey = true;
     Caption = 'Bank Payment Order';
-    DataCaptionExpression = "Document No.";
+    DataCaptionExpression = Rec."Document No.";
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
@@ -39,13 +39,13 @@ page 12422 "Bank Payment Order"
 
                         trigger OnValidate()
                         begin
-                            if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]) then
+                            if not (Rec."Document Type" in [Rec."Document Type"::Payment, Rec."Document Type"::Refund]) then
                                 error(DocumentTypeErr);
 
                             DocumentTypeOnAfterValidate();
                         end;
                     }
-                    field(Prepayment; Prepayment)
+                    field(Prepayment; Rec.Prepayment)
                     {
                         ApplicationArea = Prepayments;
                         ToolTip = 'Specifies if the related payment is a prepayment.';
@@ -97,7 +97,7 @@ page 12422 "Bank Payment Order"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the currency code for the record.';
                     }
-                    field(DebitAmount; "Debit Amount")
+                    field(DebitAmount; Rec."Debit Amount")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Amount';
@@ -158,7 +158,7 @@ page 12422 "Bank Payment Order"
                     field(CheckPrintedText; CheckPrintedText)
                     {
                         ApplicationArea = Basic, Suite;
-                        CaptionClass = FieldCaption("Check Printed");
+                        CaptionClass = Rec.FieldCaption("Check Printed");
                         Editable = false;
                         HideValue = CheckPrintedHideValue;
                         Style = Attention;
@@ -372,12 +372,12 @@ page 12422 "Bank Payment Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the pay type associated with the general journal line.';
                 }
-                field(KBK; KBK)
+                field(KBK; Rec.KBK)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the KBK code associated with the general journal line.';
                 }
-                field(OKATO; OKATO)
+                field(OKATO; Rec.OKATO)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the OKATO code associated with the general journal line.';
@@ -415,7 +415,7 @@ page 12422 "Bank Payment Order"
 
                     trigger OnAction()
                     begin
-                        UpdatePaymentVATInfo(true);
+                        Rec.UpdatePaymentVATInfo(true);
                     end;
                 }
                 action("Copy Document")
@@ -428,9 +428,9 @@ page 12422 "Bank Payment Order"
                     trigger OnAction()
                     begin
                         GenJnlLine.Reset();
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         if GenJnlLine.FindFirst() then
                             REPORT.RunModal(REPORT::"Copy Payment Document", true, true, GenJnlLine);
                     end;
@@ -444,7 +444,7 @@ page 12422 "Bank Payment Order"
 
                     trigger OnAction()
                     begin
-                        ExportCancel();
+                        Rec.ExportCancel();
                     end;
                 }
             }
@@ -460,9 +460,9 @@ page 12422 "Bank Payment Order"
                     if (BankAccNo <> '') and (CorrAccNo <> '') then begin
                         GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         DocumentPrint.PrintCheck(GenJnlLine);
                     end;
                 end;
@@ -485,13 +485,13 @@ page 12422 "Bank Payment Order"
     begin
         CheckPrintedHideValue := false;
         CalcPayment();
-        CheckPrintedText := Format("Check Printed");
+        CheckPrintedText := Format(Rec."Check Printed");
         CheckPrintedTextOnFormat(CheckPrintedText);
     end;
 
     trigger OnOpenPage()
     begin
-        CurrPage.Editable("Export Status" <> "Export Status"::"Bank Statement Found");
+        CurrPage.Editable(Rec."Export Status" <> Rec."Export Status"::"Bank Statement Found");
     end;
 
     var
@@ -519,11 +519,8 @@ page 12422 "Bank Payment Order"
         BenefBank: Text[100];
         BenefName: Text[100];
         Text008: Label 'Printed';
-        [InDataSet]
         CheckPrintedHideValue: Boolean;
-        [InDataSet]
         CheckPrintedText: Text[1024];
-        [InDataSet]
         DocumentTypeEditable: Boolean;
         DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
 
@@ -540,23 +537,23 @@ page 12422 "Bank Payment Order"
         Clear(BenefCode);
         Clear(BenefText);
 
-        TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-        BankAccount.Get("Bal. Account No.");
+        Rec.TestField("Bal. Account Type", Rec."Bal. Account Type"::"Bank Account");
+        BankAccount.Get(Rec."Bal. Account No.");
         BankAccPostingGr.Get(BankAccount."Bank Acc. Posting Group");
         BankAccPostingGr.TestField("G/L Account No.");
         BankAccNo := BankAccPostingGr."G/L Account No.";
 
-        if "Credit Amount" <> 0 then
-            Validate("Debit Amount", -"Credit Amount");
+        if Rec."Credit Amount" <> 0 then
+            Rec.Validate("Debit Amount", -Rec."Credit Amount");
 
         CorrAccNo := '';
         DocumentTypeEditable := true;
-        if "Account No." <> '' then
-            case "Account Type" of
-                "Account Type"::Customer:
+        if Rec."Account No." <> '' then
+            case Rec."Account Type" of
+                Rec."Account Type"::Customer:
                     begin
-                        CustPostGroup.Get("Posting Group");
-                        if Prepayment then begin
+                        CustPostGroup.Get(Rec."Posting Group");
+                        if Rec.Prepayment then begin
                             CustPostGroup.TestField("Prepayment Account");
                             CorrAccNo := CustPostGroup."Prepayment Account";
                         end else begin
@@ -565,10 +562,10 @@ page 12422 "Bank Payment Order"
                         end;
                         DocumentTypeEditable := false;
                     end;
-                "Account Type"::Vendor:
+                Rec."Account Type"::Vendor:
                     begin
-                        VendPostGroup.Get("Posting Group");
-                        if Prepayment then begin
+                        VendPostGroup.Get(Rec."Posting Group");
+                        if Rec.Prepayment then begin
                             VendPostGroup.TestField("Prepayment Account");
                             CorrAccNo := VendPostGroup."Prepayment Account";
                         end else begin
@@ -577,18 +574,18 @@ page 12422 "Bank Payment Order"
                         end;
                         DocumentTypeEditable := false;
                     end;
-                "Account Type"::"Bank Account":
+                Rec."Account Type"::"Bank Account":
                     begin
-                        BankAccount.Get("Account No.");
+                        BankAccount.Get(Rec."Account No.");
                         BankAccPostingGr.Get(BankAccount."Bank Acc. Posting Group");
                         BankAccPostingGr.TestField("G/L Account No.");
                         CorrAccNo := BankAccPostingGr."G/L Account No.";
                         DocumentTypeEditable := false;
                     end;
-                "Account Type"::"G/L Account":
+                Rec."Account Type"::"G/L Account":
                     begin
-                        BankAccount.Get("Bal. Account No.");
-                        if BankAccountDetail.Get("Beneficiary Bank Code") then
+                        BankAccount.Get(Rec."Bal. Account No.");
+                        if BankAccountDetail.Get(Rec."Beneficiary Bank Code") then
                             if BankAccount."Use Client-Bank" then begin
                                 CorrAccNo := BankAccountDetail."Transit No.";
                                 DocumentTypeEditable := false;
@@ -600,9 +597,9 @@ page 12422 "Bank Payment Order"
             StandardReportManagement.CheckAttributes(Rec,
               AmountDocument, PayerCode, PayerText, BenefCode, BenefText);
 
-        if ("Payer Vendor No." <> '') and ("Payer Beneficiary Bank Code" <> '') then begin
-            VendorPayer.Get("Payer Vendor No.");
-            VendorBankPayer.Get("Payer Vendor No.", "Payer Beneficiary Bank Code");
+        if (Rec."Payer Vendor No." <> '') and (Rec."Payer Beneficiary Bank Code" <> '') then begin
+            VendorPayer.Get(Rec."Payer Vendor No.");
+            VendorBankPayer.Get(Rec."Payer Vendor No.", Rec."Payer Beneficiary Bank Code");
             BenefCode[CodeIndex::BIC] := VendorBankPayer.BIC;
             BenefCode[CodeIndex::"Corresp. Account"] := VendorBankPayer."Bank Corresp. Account No.";
             if VendorBankPayer.City <> '' then
@@ -615,7 +612,7 @@ page 12422 "Bank Payment Order"
             BenefText[TextIndex::Name2] := VendorPayer."Name 2";
         end;
 
-        if ("Account Type" = "Account Type"::"G/L Account") and ("Account No." <> '') then begin
+        if (Rec."Account Type" = Rec."Account Type"::"G/L Account") and (Rec."Account No." <> '') then begin
             BenefCode[CodeIndex::BIC] := DelChr(BankAccountDetail."Bank BIC", '<>', ' ');
             BenefCode[CodeIndex::"Corresp. Account"] := DelChr(BankAccountDetail."Transit No.", '<>', ' ');
             BenefText[TextIndex::Town] := DelChr(BankAccountDetail."Bank City", '<>', ' ');
@@ -675,7 +672,7 @@ page 12422 "Bank Payment Order"
 
     local procedure CheckPrintedTextOnFormat(var Text: Text[1024])
     begin
-        if "Check Printed" then
+        if Rec."Check Printed" then
             Text := Text008
         else
             CheckPrintedHideValue := true;

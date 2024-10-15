@@ -68,8 +68,8 @@ page 17202 "Tax Register Worksheet"
                 Caption = 'Show Data';
                 Image = ShowMatrix;
                 RunObject = Page "Tax Register Accumulation";
-                RunPageLink = "Section Code" = FIELD("Section Code"),
-                              "No." = FIELD("No.");
+                RunPageLink = "Section Code" = field("Section Code"),
+                              "No." = field("No.");
                 ToolTip = 'View the related details.';
             }
         }
@@ -94,7 +94,7 @@ page 17202 "Tax Register Worksheet"
 
     trigger OnOpenPage()
     begin
-        CurrentSectionCode := "Section Code";
+        CurrentSectionCode := Rec."Section Code";
         TaxRegMgt.OpenJnl(CurrentSectionCode, Rec);
 
         CurrPage.Editable := not CurrPage.LookupMode;
@@ -105,9 +105,7 @@ page 17202 "Tax Register Worksheet"
     var
         TaxRegMgt: Codeunit "Tax Register Mgt.";
         CurrentSectionCode: Code[10];
-        [InDataSet]
         TableIDVisible: Boolean;
-        [InDataSet]
         StoringMethodVisible: Boolean;
 }
 

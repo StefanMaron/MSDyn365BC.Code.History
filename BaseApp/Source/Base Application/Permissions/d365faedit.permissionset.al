@@ -1,3 +1,15 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.Currency;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.Journal;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Posting;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Foundation.NoSeries;
+
 permissionset 8787 "D365 FA, EDIT"
 {
     Assignable = true;

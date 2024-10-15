@@ -15,31 +15,29 @@ table 12406 "VAT Ledger Connection"
         field(2; "Sales Ledger Code"; Code[20])
         {
             Caption = 'Sales Ledger Code';
-            TableRelation = "VAT Ledger".Code WHERE(Type = CONST(Sales));
+            TableRelation = "VAT Ledger".Code where(Type = const(Sales));
         }
         field(3; "Sales Ledger Line No."; Integer)
         {
             Caption = 'Sales Ledger Line No.';
-            TableRelation = "VAT Ledger Line"."Line No." WHERE(Type = CONST(Sales),
-                                                                Code = FIELD("Sales Ledger Code"));
+            TableRelation = "VAT Ledger Line"."Line No." where(Type = const(Sales),
+                                                                Code = field("Sales Ledger Code"));
         }
         field(4; "Purch. Ledger Code"; Code[20])
         {
             Caption = 'Purch. Ledger Code';
-            TableRelation = "VAT Ledger".Code WHERE(Type = CONST(Purchase));
+            TableRelation = "VAT Ledger".Code where(Type = const(Purchase));
         }
         field(5; "Purch. Ledger Line No."; Integer)
         {
             Caption = 'Purch. Ledger Line No.';
-            TableRelation = "VAT Ledger Line"."Line No." WHERE(Type = CONST(Purchase),
-                                                                Code = FIELD("Purch. Ledger Code"));
+            TableRelation = "VAT Ledger Line"."Line No." where(Type = const(Purchase),
+                                                                Code = field("Purch. Ledger Code"));
         }
         field(6; "VAT Entry No."; Integer)
         {
             Caption = 'VAT Entry No.';
-            TableRelation = "VAT Entry"."Entry No." WHERE(Type = FIELD("Connection Type"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = "VAT Entry"."Entry No." where(Type = field("Connection Type"));
         }
     }
 

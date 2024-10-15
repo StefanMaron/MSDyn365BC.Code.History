@@ -30,7 +30,6 @@ codeunit 134763 "Test Sales Post Preview"
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         AmountMustBePositiveErr: Label 'Amount must be positive';
         InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
-        PostingPreviewNoTok: Label '***', Locked = true;
         TotalInvoiceAmountNegativeErr: Label 'The total amount for the invoice must be 0 or greater.';
 
     [Test]
@@ -1017,7 +1016,7 @@ codeunit 134763 "Test Sales Post Preview"
         GLPostingPreview.Close();
 
         // [THEN] Sales Header "Posting No." = "***"
-        Assert.AreEqual(PostingPreviewNoTok, TestSalesPostPreview.GetSalesHeaderPostingNo(), 'Invalid Posting No.');
+        Assert.IsSubstring(TestSalesPostPreview.GetSalesHeaderPostingNo(), '{');
     end;
 
     [Test]

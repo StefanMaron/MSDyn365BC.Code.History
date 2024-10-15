@@ -6,7 +6,7 @@ page 35630 "Bank Accounts"
     Editable = false;
     PageType = List;
     SourceTable = "Bank Account";
-    SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
+    SourceTableView = where("Account Type" = const("Bank Account"));
     UsageCategory = Lists;
 
     layout
@@ -46,7 +46,7 @@ page 35630 "Bank Accounts"
                     ToolTip = 'Specifies the fax number.';
                     Visible = false;
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -59,7 +59,7 @@ page 35630 "Bank Accounts"
                 {
                     Visible = false;
                 }
-                field(IBAN; IBAN)
+                field(IBAN; Rec.IBAN)
                 {
                     Visible = false;
                 }
@@ -93,8 +93,8 @@ page 35630 "Bank Accounts"
         {
             part(Control1905532107; "Dimensions FactBox")
             {
-                SubPageLink = "Table ID" = CONST(270),
-                              "No." = FIELD("No.");
+                SubPageLink = "Table ID" = const(270),
+                              "No." = field("No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -130,7 +130,7 @@ page 35630 "Bank Accounts"
                         BankAcc: Record "Bank Account";
                     begin
                         BankAcc.Copy(Rec);
-                        if "Account Type" = "Account Type"::"Bank Account" then
+                        if Rec."Account Type" = Rec."Account Type"::"Bank Account" then
                             PAGE.Run(PAGE::"Bank Account Card", BankAcc)
                         else
                             PAGE.Run(PAGE::"Cash Account Card", BankAcc);
@@ -142,10 +142,10 @@ page 35630 "Bank Accounts"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Bank Account Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -154,8 +154,8 @@ page 35630 "Bank Accounts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Bank Account"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Bank Account"),
+                                  "No." = field("No.");
                 }
                 group(Dimensions)
                 {
@@ -167,8 +167,8 @@ page 35630 "Bank Accounts"
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
                         RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(270),
-                                      "No." = FIELD("No.");
+                        RunPageLink = "Table ID" = const(270),
+                                      "No." = field("No.");
                         ShortCutKey = 'Shift+Ctrl+D';
                     }
                     action("Dimensions-&Multiple")
@@ -183,7 +183,7 @@ page 35630 "Bank Accounts"
                             DefaultDimMultiple: Page "Default Dimensions-Multiple";
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
-                            DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
+                            DefaultDimMultiple.SetMultiRecord(BankAcc, Rec.FieldNo("No."));
                             DefaultDimMultiple.RunModal();
                         end;
                     }
@@ -194,10 +194,10 @@ page 35630 "Bank Accounts"
                     Caption = 'Balance';
                     Image = Balance;
                     RunObject = Page "Bank Account Balance";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action("St&atements")
                 {
@@ -205,7 +205,7 @@ page 35630 "Bank Accounts"
                     Caption = 'St&atements';
                     Image = BankAccountStatement;
                     RunObject = Page "Bank Account Statement List";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
+                    RunPageLink = "Bank Account No." = field("No.");
                     ToolTip = 'View posted bank statements and reconciliations.';
                 }
                 action("Ledger E&ntries")
@@ -216,8 +216,8 @@ page 35630 "Bank Accounts"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Bank Account Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -226,8 +226,8 @@ page 35630 "Bank Accounts"
                     Caption = 'Chec&k Ledger Entries';
                     Image = CheckLedger;
                     RunObject = Page "Check Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                 }
                 action("C&ontact")
                 {
@@ -237,7 +237,7 @@ page 35630 "Bank Accounts"
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
             }
@@ -308,7 +308,7 @@ page 35630 "Bank Accounts"
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Check Report Name");
+        Rec.CalcFields("Check Report Name");
     end;
 }
 

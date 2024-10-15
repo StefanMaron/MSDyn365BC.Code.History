@@ -66,7 +66,7 @@
                 }
                 tableelement("statutory report table"; "Statutory Report Table")
                 {
-                    LinkFields = "Report Code" = FIELD(Code);
+                    LinkFields = "Report Code" = field(Code);
                     LinkTable = "Statutory Report";
                     MinOccurs = Zero;
                     XmlName = 'StatutoryReportTable';
@@ -139,7 +139,7 @@
                     }
                     tableelement("stat. report table row"; "Stat. Report Table Row")
                     {
-                        LinkFields = "Report Code" = FIELD("Report Code"), "Table Code" = FIELD(Code);
+                        LinkFields = "Report Code" = field("Report Code"), "Table Code" = field(Code);
                         LinkTable = "Statutory Report Table";
                         MinOccurs = Zero;
                         XmlName = 'StatReportTableRow';
@@ -177,7 +177,7 @@
                     }
                     tableelement("stat. report table column"; "Stat. Report Table Column")
                     {
-                        LinkFields = "Report Code" = FIELD("Report Code"), "Table Code" = FIELD(Code);
+                        LinkFields = "Report Code" = field("Report Code"), "Table Code" = field(Code);
                         LinkTable = "Statutory Report Table";
                         MinOccurs = Zero;
                         XmlName = 'StatReportTableColumn';
@@ -206,7 +206,7 @@
                     }
                     tableelement("table individual requisite"; "Table Individual Requisite")
                     {
-                        LinkFields = "Report Code" = FIELD("Report Code"), "Table Code" = FIELD(Code);
+                        LinkFields = "Report Code" = field("Report Code"), "Table Code" = field(Code);
                         LinkTable = "Statutory Report Table";
                         MinOccurs = Zero;
                         XmlName = 'TableIndividualRequisite';
@@ -239,7 +239,7 @@
                 }
                 tableelement("xml element line"; "XML Element Line")
                 {
-                    LinkFields = "Report Code" = FIELD(Code);
+                    LinkFields = "Report Code" = field(Code);
                     LinkTable = "Statutory Report";
                     MinOccurs = Zero;
                     XmlName = 'XMLElementLine';
@@ -345,7 +345,7 @@
                     }
                     tableelement("xml element expression line"; "XML Element Expression Line")
                     {
-                        LinkFields = "Report Code" = FIELD("Report Code"), "Base XML Element Line No." = FIELD("Line No.");
+                        LinkFields = "Report Code" = field("Report Code"), "Base XML Element Line No." = field("Line No.");
                         LinkTable = "XML Element Line";
                         MinOccurs = Zero;
                         XmlName = 'XMLElementExpressionLine';
@@ -390,7 +390,7 @@
                 }
                 tableelement("page indication xml element"; "Page Indication XML Element")
                 {
-                    LinkFields = "Report Code" = FIELD(Code);
+                    LinkFields = "Report Code" = field(Code);
                     LinkTable = "Statutory Report";
                     MinOccurs = Zero;
                     XmlName = 'PageIndicationXMLElement';
@@ -413,11 +413,11 @@
                 }
                 tableelement("stat. report excel sheet"; "Stat. Report Excel Sheet")
                 {
-                    LinkFields = "Report Code" = FIELD(Code);
+                    LinkFields = "Report Code" = field(Code);
                     LinkTable = "Statutory Report";
                     MinOccurs = Zero;
                     XmlName = 'StatReportExcelSheet';
-                    SourceTableView = WHERE("Report Data No." = CONST(''));
+                    SourceTableView = where("Report Data No." = const(''));
                     UseTemporary = true;
                     fieldelement(ReportCode; "Stat. Report Excel Sheet"."Report Code")
                     {
@@ -443,7 +443,7 @@
                 }
                 tableelement("stat. report table mapping"; "Stat. Report Table Mapping")
                 {
-                    LinkFields = "Report Code" = FIELD(Code);
+                    LinkFields = "Report Code" = field(Code);
                     LinkTable = "Statutory Report";
                     MinOccurs = Zero;
                     XmlName = 'StatReportTableMapping';

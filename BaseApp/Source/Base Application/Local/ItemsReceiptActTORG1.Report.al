@@ -7,11 +7,11 @@ report 14918 "Items Receipt Act TORG-1"
     {
         dataitem("Purchase Header"; "Purchase Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = FILTER(Order | Invoice | "Credit Memo"));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = filter(Order | Invoice | "Credit Memo"));
             dataitem("Purchase Line"; "Purchase Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -133,11 +133,11 @@ report 14918 "Items Receipt Act TORG-1"
         }
         dataitem("Invt. Document Header"; "Invt. Document Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Receipt));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Receipt));
             dataitem("Invt. Document Line"; "Invt. Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -200,11 +200,11 @@ report 14918 "Items Receipt Act TORG-1"
         }
         dataitem("Invt. Receipt Header"; "Invt. Receipt Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             dataitem("Invt. Receipt Line"; "Invt. Receipt Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -268,7 +268,7 @@ report 14918 "Items Receipt Act TORG-1"
         }
         dataitem(HeaderLoop; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             MaxIteration = 1;
 
             trigger OnAfterGetRecord()
@@ -393,7 +393,7 @@ report 14918 "Items Receipt Act TORG-1"
         }
         dataitem(LineLoop; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
 
             trigger OnAfterGetRecord()
             var

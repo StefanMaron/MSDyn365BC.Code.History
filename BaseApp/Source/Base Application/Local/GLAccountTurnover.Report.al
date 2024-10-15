@@ -9,7 +9,7 @@ report 12436 "G/L Account Turnover"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Business Unit Filter", "Date Filter";
             column(CurrentDate; CurrentDate)
             {

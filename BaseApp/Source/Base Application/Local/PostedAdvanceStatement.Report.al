@@ -21,12 +21,12 @@ report 12454 "Posted Advance Statement"
     {
         dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -55,7 +55,7 @@ report 12454 "Posted Advance Statement"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnAfterGetRecord()
                 begin

@@ -56,7 +56,7 @@ table 17314 "Tax Calc. Accumulation"
         field(38; "Register No."; Code[10])
         {
             Caption = 'Register No.';
-            TableRelation = "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Section Code"));
+            TableRelation = "Tax Calc. Header"."No." where("Section Code" = field("Section Code"));
         }
         field(39; Indentation; Integer)
         {
@@ -73,10 +73,10 @@ table 17314 "Tax Calc. Accumulation"
         }
         field(51; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Calc. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                               "Register No." = FIELD("Register No."),
-                                                               Define = CONST(Template),
-                                                               "Line No." = FIELD("Template Line No.")));
+            CalcFormula = Exist ("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                               "Register No." = field("Register No."),
+                                                               Define = const(Template),
+                                                               "Line No." = field("Template Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;

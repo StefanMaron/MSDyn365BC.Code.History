@@ -107,7 +107,7 @@ page 14906 "Letter of Attorney List"
 
                     trigger OnAction()
                     begin
-                        Release();
+                        Rec.Release();
                     end;
                 }
                 action(Reopen)
@@ -119,7 +119,7 @@ page 14906 "Letter of Attorney List"
 
                     trigger OnAction()
                     begin
-                        Reopen();
+                        Rec.Reopen();
                     end;
                 }
                 action(Print)
@@ -131,7 +131,7 @@ page 14906 "Letter of Attorney List"
 
                     trigger OnAction()
                     begin
-                        Print();
+                        Rec.Print();
                         CurrPage.Update(false);
                     end;
                 }

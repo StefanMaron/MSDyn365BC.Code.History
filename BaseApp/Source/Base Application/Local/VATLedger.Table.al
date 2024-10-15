@@ -59,16 +59,16 @@ table 12404 "VAT Ledger"
         }
         field(6; "From No."; Integer)
         {
-            CalcFormula = Min ("VAT Ledger Line"."Line No." WHERE(Type = FIELD(Type),
-                                                                  Code = FIELD(Code)));
+            CalcFormula = min("VAT Ledger Line"."Line No." where(Type = field(Type),
+                                                                  Code = field(Code)));
             Caption = 'From No.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7; "To No."; Integer)
         {
-            CalcFormula = Max ("VAT Ledger Line"."Line No." WHERE(Type = FIELD(Type),
-                                                                  Code = FIELD(Code)));
+            CalcFormula = max("VAT Ledger Line"."Line No." where(Type = field(Type),
+                                                                  Code = field(Code)));
             Caption = 'To No.';
             Editable = false;
             FieldClass = FlowField;
@@ -111,11 +111,9 @@ table 12404 "VAT Ledger"
         field(20; "C/V Filter"; Text[250])
         {
             Caption = 'C/V Filter';
-            TableRelation = IF (Type = CONST(Purchase)) Vendor
-            ELSE
-            IF (Type = CONST(Sales)) Customer;
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if (Type = const(Purchase)) Vendor
+            else
+            if (Type = const(Sales)) Customer;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -127,8 +125,6 @@ table 12404 "VAT Ledger"
         {
             Caption = 'VAT Product Group Filter';
             TableRelation = "VAT Product Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -140,8 +136,6 @@ table 12404 "VAT Ledger"
         {
             Caption = 'VAT Business Group Filter';
             TableRelation = "VAT Business Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()

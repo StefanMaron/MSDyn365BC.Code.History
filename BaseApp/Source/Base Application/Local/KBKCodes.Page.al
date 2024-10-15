@@ -2,7 +2,7 @@ page 12428 "KBK Codes"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Budget Classification Codes';
-    DataCaptionExpression = "Name 1" + "Name 2" + "Name 3";
+    DataCaptionExpression = Rec."Name 1" + Rec."Name 2" + Rec."Name 3";
     PageType = Document;
     SourceTable = KBK;
     UsageCategory = Tasks;
@@ -16,7 +16,7 @@ page 12428 "KBK Codes"
                 IndentationColumn = Name1Indent;
                 IndentationControls = "Name 1";
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -30,12 +30,12 @@ page 12428 "KBK Codes"
                     StyleExpr = Name1Emphasize;
                     ToolTip = 'Specifies a value for the standard budget classification description.';
                 }
-                field(Header; Header)
+                field(Header; Rec.Header)
                 {
                     ToolTip = 'Specifies if the budget classification code is a header.';
                     Visible = false;
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
@@ -61,22 +61,19 @@ page 12428 "KBK Codes"
     end;
 
     var
-        [InDataSet]
         CodeEmphasize: Boolean;
-        [InDataSet]
         Name1Emphasize: Boolean;
-        [InDataSet]
         Name1Indent: Integer;
 
     local procedure CodeOnFormat()
     begin
-        CodeEmphasize := Header;
+        CodeEmphasize := Rec.Header;
     end;
 
     local procedure Name1OnFormat()
     begin
-        Name1Indent := Indentation;
-        Name1Emphasize := Header;
+        Name1Indent := Rec.Indentation;
+        Name1Emphasize := Rec.Header;
     end;
 }
 

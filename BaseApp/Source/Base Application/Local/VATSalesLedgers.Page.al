@@ -5,7 +5,7 @@ page 35629 "VAT Sales Ledgers"
     CardPageID = "VAT Sales Ledger Card";
     PageType = List;
     SourceTable = "VAT Ledger";
-    SourceTableView = WHERE(Type = CONST(Sales));
+    SourceTableView = where(Type = const(Sales));
     UsageCategory = Tasks;
 
     layout
@@ -15,14 +15,14 @@ page 35629 "VAT Sales Ledgers"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT ledger code.';
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -31,7 +31,7 @@ page 35629 "VAT Sales Ledgers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this VAT ledger.';
                 }
-                field("Accounting Period"; "Accounting Period")
+                field("Accounting Period"; Rec."Accounting Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the accounting period associated with this VAT ledger.';
@@ -88,8 +88,8 @@ page 35629 "VAT Sales Ledgers"
                     Caption = 'Card';
                     Image = VATLedger;
                     RunObject = Page "VAT Sales Ledger Card";
-                    RunPageLink = Type = FIELD(Type),
-                                  Code = FIELD(Code);
+                    RunPageLink = Type = field(Type),
+                                  Code = field(Code);
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -110,7 +110,7 @@ page 35629 "VAT Sales Ledgers"
 
                     trigger OnAction()
                     begin
-                        CreateVATLedger();
+                        Rec.CreateVATLedger();
                     end;
                 }
                 action("Create Additional Sheet")
@@ -123,7 +123,7 @@ page 35629 "VAT Sales Ledgers"
 
                     trigger OnAction()
                     begin
-                        CreateAddSheet();
+                        Rec.CreateAddSheet();
                     end;
                 }
             }
@@ -142,7 +142,7 @@ page 35629 "VAT Sales Ledgers"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, false);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, false);
                         VATLedgerExport.RunModal();
                     end;
                 }
@@ -157,7 +157,7 @@ page 35629 "VAT Sales Ledgers"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, true);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, true);
                         VATLedgerExport.RunModal();
                     end;
                 }
@@ -172,7 +172,7 @@ page 35629 "VAT Sales Ledgers"
                     var
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
-                        VATLedgerExportXML.InitializeReport(Type, Code, false);
+                        VATLedgerExportXML.InitializeReport(Rec.Type, Rec.Code, false);
                         VATLedgerExportXML.RunModal();
                     end;
                 }
@@ -187,7 +187,7 @@ page 35629 "VAT Sales Ledgers"
                     var
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
-                        VATLedgerExportXML.InitializeReport(Type, Code, true);
+                        VATLedgerExportXML.InitializeReport(Rec.Type, Rec.Code, true);
                         VATLedgerExportXML.RunModal();
                     end;
                 }

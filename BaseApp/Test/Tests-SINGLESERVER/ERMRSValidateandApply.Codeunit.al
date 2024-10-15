@@ -1183,7 +1183,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimensionsTableIsNotAppliedWhenAnotherTableIsSelected()
     var
@@ -1203,7 +1203,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimensionsTableIsAppliedWhenTableWithDimSetIDIsSelected()
     var
@@ -1224,7 +1224,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimensionsTableIsNotAppliedWhenTableWithDimSetIDIsSelectedAndDimSetEntryIsEmpty()
     var

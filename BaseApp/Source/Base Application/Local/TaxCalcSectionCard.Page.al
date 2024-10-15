@@ -11,7 +11,7 @@ page 17308 "Tax Calc. Section Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the tax calculation section.';
@@ -157,7 +157,7 @@ page 17308 "Tax Calc. Section Card"
                     Caption = 'Registers';
                     Image = Register;
                     RunObject = Page "Tax Calc. List";
-                    RunPageLink = "Section Code" = FIELD(Code);
+                    RunPageLink = "Section Code" = field(Code);
                     ShortCutKey = 'Shift+Ctrl+L';
                     ToolTip = 'View all related tax entries. Every register shows the first and last entry number of its entries.';
                 }
@@ -205,7 +205,7 @@ page 17308 "Tax Calc. Section Card"
                         TaxCalcSection := Rec;
                         TaxCalcSection.SetRecFilter();
                         CreateTaxCalc.SetPeriodStart(
-                          TaxCalcMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Calc. Accumulation", true));
+                          TaxCalcMgt.GetNextAvailableBeginDate(Rec.Code, DATABASE::"Tax Calc. Accumulation", true));
                         CreateTaxCalc.SetTableView(TaxCalcSection);
                         CreateTaxCalc.RunModal();
                     end;
@@ -218,7 +218,7 @@ page 17308 "Tax Calc. Section Card"
 
                     trigger OnAction()
                     begin
-                        ValidateChange();
+                        Rec.ValidateChange();
                     end;
                 }
                 separator(Action1210001)
@@ -235,7 +235,7 @@ page 17308 "Tax Calc. Section Card"
                     begin
                         TaxCalcSection := Rec;
                         TaxCalcSection.SetRecFilter();
-                        ExportSettings(TaxCalcSection);
+                        Rec.ExportSettings(TaxCalcSection);
                     end;
                 }
                 action("Import Settings")
@@ -248,8 +248,8 @@ page 17308 "Tax Calc. Section Card"
 
                     trigger OnAction()
                     begin
-                        ValidateChange();
-                        PromptImportSettings();
+                        Rec.ValidateChange();
+                        Rec.PromptImportSettings();
                     end;
                 }
             }

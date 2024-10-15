@@ -34,7 +34,7 @@ table 17300 "Tax Difference"
         field(8; "Norm Code"; Code[10])
         {
             Caption = 'Norm Code';
-            TableRelation = "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"));
+            TableRelation = "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"));
         }
         field(9; "Posting Group"; Code[20])
         {
@@ -55,8 +55,8 @@ table 17300 "Tax Difference"
         field(12; "Tax Amount"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Tax Diff. Ledger Entry"."Tax Amount" WHERE("Tax Diff. Code" = FIELD(Code),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = Sum ("Tax Diff. Ledger Entry"."Tax Amount" where("Tax Diff. Code" = field(Code),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Tax Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -75,7 +75,7 @@ table 17300 "Tax Difference"
         field(15; "Calc. Norm Code"; Code[10])
         {
             Caption = 'Calc. Norm Code';
-            TableRelation = "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Calc. Norm Jurisdiction Code"));
+            TableRelation = "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Calc. Norm Jurisdiction Code"));
 
             trigger OnValidate()
             begin

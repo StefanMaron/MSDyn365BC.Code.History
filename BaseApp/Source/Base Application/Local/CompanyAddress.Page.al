@@ -11,7 +11,7 @@ page 12400 "Company Address"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Primary Key of the Company Information card, to which this address record is attached.';
@@ -31,7 +31,7 @@ page 12400 "Company Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company name for this address, as you want it to appear on printed materials.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company address.';
@@ -46,12 +46,12 @@ page 12400 "Company Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(County; County)
+                field(County; Rec.County)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the address.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address.';
@@ -71,27 +71,27 @@ page 12400 "Company Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the region name for this company address.';
                 }
-                field(Settlement; Settlement)
+                field(Settlement; Rec.Settlement)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company location.';
                 }
-                field(Street; Street)
+                field(Street; Rec.Street)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the street name for this company address.';
                 }
-                field(House; House)
+                field(House; Rec.House)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the house number for the company address.';
                 }
-                field(Building; Building)
+                field(Building; Rec.Building)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the building number for this company address.';
                 }
-                field(Apartment; Apartment)
+                field(Apartment; Rec.Apartment)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the apartment number for this company address.';

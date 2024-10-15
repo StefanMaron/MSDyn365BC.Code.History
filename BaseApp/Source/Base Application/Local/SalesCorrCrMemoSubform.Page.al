@@ -7,7 +7,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Sales Line";
-    SourceTableView = WHERE("Document Type" = FILTER("Credit Memo"));
+    SourceTableView = where("Document Type" = filter("Credit Memo"));
 
     layout
     {
@@ -37,7 +37,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                     end;
                 }
@@ -206,7 +206,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -217,7 +217,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments();
+                        Rec.ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -241,7 +241,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -250,14 +250,14 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
@@ -267,7 +267,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType();
+        Rec.InitType();
         Clear(ShortcutDimCode);
     end;
 
@@ -308,7 +308,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt();
+        Rec.ShowItemChargeAssgnt();
     end;
 
     [Scope('OnPrem')]
@@ -320,7 +320,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     local procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
-        if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
+        if (Rec.Type = Rec.Type::"Charge (Item)") and (Rec."No." <> xRec."No.") and
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord();

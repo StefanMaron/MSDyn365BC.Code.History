@@ -21,9 +21,9 @@ table 14906 "Letter of Attorney Line"
         field(6; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(Item)) Item
-            ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if (Type = const(Item)) Item
+            else
+            if (Type = const("Fixed Asset")) "Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -63,8 +63,8 @@ table 14906 "Letter of Attorney Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()

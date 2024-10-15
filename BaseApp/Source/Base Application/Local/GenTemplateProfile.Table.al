@@ -131,8 +131,6 @@ table 17237 "Gen. Template Profile"
         field(31; "Dimension Value Filter (Dim)"; Integer)
         {
             Caption = 'Dimension Value Filter (Dim)';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }

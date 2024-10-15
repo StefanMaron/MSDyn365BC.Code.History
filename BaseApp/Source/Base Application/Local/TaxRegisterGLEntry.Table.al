@@ -130,13 +130,13 @@ table 17209 "Tax Register G/L Entry"
         field(110; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Source Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor
+            else
+            if ("Source Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Source Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(121; "Dimension 1 Value Code"; Code[20])
         {
@@ -223,7 +223,7 @@ table 17209 "Tax Register G/L Entry"
         Navigate: Page Navigate;
     begin
         Clear(Navigate);
-        Navigate.SetDoc("Posting Date", "Document No.");
+        Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
         Navigate.Run();
     end;
 

@@ -83,37 +83,37 @@ page 12414 "VAT Purchase Ledger Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount, including VAT, of this VAT ledger line.';
                 }
-                field(Base20; Base20)
+                field(Base20; Rec.Base20)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base VAT amount for a 20 percent VAT rate.';
                 }
-                field(Amount20; Amount20)
+                field(Amount20; Rec.Amount20)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax amount for a 20 percent VAT rate.';
                 }
-                field(Base18; Base18)
+                field(Base18; Rec.Base18)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base VAT amount for an 18 percent VAT rate.';
                 }
-                field(Amount18; Amount18)
+                field(Amount18; Rec.Amount18)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax amount for an 18 percent VAT rate.';
                 }
-                field(Base10; Base10)
+                field(Base10; Rec.Base10)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base VAT amount for a 10 percent VAT rate.';
                 }
-                field(Amount10; Amount10)
+                field(Amount10; Rec.Amount10)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax amount for a 10 percent VAT rate.';
                 }
-                field(Base0; Base0)
+                field(Base0; Rec.Base0)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base VAT amount for a zero percent VAT rate.';
@@ -138,7 +138,7 @@ page 12414 "VAT Purchase Ledger Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
                 }
-                field(Prepayment; Prepayment)
+                field(Prepayment; Rec.Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
@@ -197,7 +197,7 @@ page 12414 "VAT Purchase Ledger Subform"
     [Scope('OnPrem')]
     procedure NavigateDocument()
     begin
-        Navigate.SetDoc("Document Date", "Origin. Document No.");
+        Navigate.SetDoc(Rec."Document Date", Rec."Origin. Document No.");
         Navigate.Run();
     end;
 }

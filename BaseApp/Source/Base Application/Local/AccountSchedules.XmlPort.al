@@ -21,17 +21,19 @@
                 {
                     MinOccurs = Zero;
                 }
+#if not CLEAN22
                 fieldelement(DefaultColumnLayout; "Acc. Schedule Name"."Default Column Layout")
                 {
                     MinOccurs = Zero;
                 }
+#endif
                 fieldelement(AnalysisViewName; "Acc. Schedule Name"."Analysis View Name")
                 {
                     MinOccurs = Zero;
                 }
                 tableelement("acc. schedule line"; "Acc. Schedule Line")
                 {
-                    LinkFields = "Schedule Name" = FIELD(Name);
+                    LinkFields = "Schedule Name" = field(Name);
                     LinkTable = "Acc. Schedule Name";
                     MinOccurs = Zero;
                     XmlName = 'AccScheduleLine';
@@ -144,7 +146,7 @@
                 }
                 tableelement("column layout"; "Column Layout")
                 {
-                    LinkFields = "Column Layout Name" = FIELD(Name);
+                    LinkFields = "Column Layout Name" = field(Name);
                     LinkTable = "Column Layout Name";
                     MinOccurs = Zero;
                     XmlName = 'ColumnLayout';
@@ -364,8 +366,10 @@
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
+#if not CLEAN22
         ColumnLayoutName: Record "Column Layout Name";
         ColumnLayout: Record "Column Layout";
+#endif
         AccScheduleExtension: Record "Acc. Schedule Extension";
 
     [Scope('OnPrem')]
@@ -394,6 +398,7 @@
                             end;
                     until AccScheduleLine.Next() = 0;
 
+#if not CLEAN22
                 if not "Column Layout Name".Get(TempAccScheduleName."Default Column Layout") then
                     if ColumnLayoutName.Get(TempAccScheduleName."Default Column Layout") then begin
                         "Column Layout Name" := ColumnLayoutName;
@@ -406,6 +411,7 @@
                                 "Column Layout".Insert();
                             until ColumnLayout.Next() = 0;
                     end;
+#endif
 
             until TempAccScheduleName.Next() = 0;
     end;
@@ -433,6 +439,7 @@
                 AccScheduleLine.Insert();
             until "Acc. Schedule Line".Next() = 0;
 
+#if not CLEAN22
         "Column Layout Name".Reset();
         if "Column Layout Name".FindSet() then
             repeat
@@ -450,6 +457,7 @@
                 ColumnLayout := "Column Layout";
                 ColumnLayout.Insert();
             until "Column Layout".Next() = 0;
+#endif
 
         "Acc. Schedule Extension".Reset();
         if "Acc. Schedule Extension".FindSet() then

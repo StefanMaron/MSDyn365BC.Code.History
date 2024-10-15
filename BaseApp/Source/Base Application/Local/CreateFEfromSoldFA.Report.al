@@ -9,15 +9,15 @@ report 17304 "Create FE from Sold FA"
     {
         dataitem("Fixed Asset"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("FA Type") WHERE("FA Type" = FILTER(<> "Future Expense"));
+            DataItemTableView = sorting("FA Type") where("FA Type" = filter(<> "Future Expense"));
             RequestFilterFields = "No.";
             dataitem("Depreciation Book"; "Depreciation Book")
             {
-                DataItemTableView = SORTING(Code) WHERE("Posting Book Type" = CONST("Tax Accounting"));
+                DataItemTableView = sorting(Code) where("Posting Book Type" = const("Tax Accounting"));
                 dataitem("FA Depreciation Book"; "FA Depreciation Book")
                 {
-                    DataItemLink = "Depreciation Book Code" = FIELD(Code);
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code") WHERE("Disposal Date" = FILTER(<> 0D));
+                    DataItemLink = "Depreciation Book Code" = field(Code);
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code") where("Disposal Date" = filter(<> 0D));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -159,9 +159,9 @@ report 17304 "Create FE from Sold FA"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'FE Template';
-                        TableRelation = "Fixed Asset" WHERE("FA Type" = CONST("Future Expense"),
-                                                             Blocked = CONST(true),
-                                                             Inactive = CONST(true));
+                        TableRelation = "Fixed Asset" where("FA Type" = const("Future Expense"),
+                                                             Blocked = const(true),
+                                                             Inactive = const(true));
 
                         trigger OnValidate()
                         begin

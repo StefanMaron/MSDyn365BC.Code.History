@@ -45,8 +45,6 @@ table 14940 "G/L Corr. Analysis View"
         {
             Caption = 'Business Unit Filter';
             TableRelation = "Business Unit";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -103,8 +101,6 @@ table 14940 "G/L Corr. Analysis View"
         {
             Caption = 'Debit Account Filter';
             TableRelation = "G/L Account";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -144,8 +140,6 @@ table 14940 "G/L Corr. Analysis View"
         {
             Caption = 'Credit Account Filter';
             TableRelation = "G/L Account";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()

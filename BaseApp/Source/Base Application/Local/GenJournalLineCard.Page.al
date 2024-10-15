@@ -2,7 +2,7 @@ page 12408 "Gen. Journal Line Card"
 {
     AutoSplitKey = true;
     Caption = 'Gen. Journal Line Card';
-    DataCaptionExpression = "Journal Batch Name";
+    DataCaptionExpression = Rec."Journal Batch Name";
     DelayedInsert = true;
     InsertAllowed = false;
     PageType = Card;
@@ -42,7 +42,7 @@ page 12408 "Gen. Journal Line Card"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field(Description; Rec.Description)
@@ -89,7 +89,7 @@ page 12408 "Gen. Journal Line Card"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Business Unit Code"; Rec."Business Unit Code")
@@ -114,7 +114,7 @@ page 12408 "Gen. Journal Line Card"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
             }
@@ -231,78 +231,78 @@ page 12408 "Gen. Journal Line Card"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
             }
@@ -369,7 +369,7 @@ page 12408 "Gen. Journal Line Card"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -401,13 +401,13 @@ page 12408 "Gen. Journal Line Card"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         UpdateBalance();
-        SetUpNewLine(xRec, Balance, BelowxRec);
+        Rec.SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
     end;
 

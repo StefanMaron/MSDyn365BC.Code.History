@@ -61,7 +61,7 @@ page 14947 "VAT Reinstatement Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("""Unrealized VAT Amount"" - ""Realized VAT Amount"""; Rec."Unrealized VAT Amount" - "Realized VAT Amount")
+                field("""Unrealized VAT Amount"" - ""Realized VAT Amount"""; Rec."Unrealized VAT Amount" - Rec."Realized VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining VAT Amount';
@@ -72,7 +72,7 @@ page 14947 "VAT Reinstatement Worksheet"
 
                     trigger OnDrillDown()
                     begin
-                        RemVATDrillDown("Entry No.");
+                        RemVATDrillDown(Rec."Entry No.");
                     end;
                 }
                 field("Realized VAT Amount"; Rec."Realized VAT Amount")
@@ -198,7 +198,7 @@ page 14947 "VAT Reinstatement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowCVEntry();
+                        Rec.ShowCVEntry();
                     end;
                 }
                 action("&VAT Entries")
@@ -207,8 +207,8 @@ page 14947 "VAT Reinstatement Worksheet"
                     Caption = '&VAT Entries';
                     Image = VATLedger;
                     RunObject = Page "VAT Entries";
-                    RunPageLink = "CV Ledg. Entry No." = FIELD("Entry No.");
-                    RunPageView = SORTING("Transaction No.", "CV Ledg. Entry No.");
+                    RunPageLink = "CV Ledg. Entry No." = field("Entry No.");
+                    RunPageView = sorting("Transaction No.", "CV Ledg. Entry No.");
                     ShortCutKey = 'Ctrl+F7';
                 }
                 action(Dimensions)
@@ -219,7 +219,7 @@ page 14947 "VAT Reinstatement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -298,7 +298,7 @@ page 14947 "VAT Reinstatement Worksheet"
                 var
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetDoc("Document Date", "Document No.");
+                    Navigate.SetDoc(Rec."Document Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }
@@ -349,8 +349,8 @@ page 14947 "VAT Reinstatement Worksheet"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
@@ -358,14 +358,14 @@ page 14947 "VAT Reinstatement Worksheet"
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if Calendar."Period Start" = Calendar."Period End" then begin
             if AmountType = AmountType::"Net Change" then
-                SetRange("Date Filter", Calendar."Period Start")
+                Rec.SetRange("Date Filter", Calendar."Period Start")
             else
-                SetRange("Date Filter", 0D, Calendar."Period Start");
+                Rec.SetRange("Date Filter", 0D, Calendar."Period Start");
         end else
             if AmountType = AmountType::"Net Change" then
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
+                Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
             else
-                SetRange("Date Filter", 0D, Calendar."Period End");
+                Rec.SetRange("Date Filter", 0D, Calendar."Period End");
     end;
 
     local procedure FindUserPeriod(SearchText: Code[10])
@@ -374,20 +374,20 @@ page 14947 "VAT Reinstatement Worksheet"
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserSetup.Get(UserId) then begin
-            SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+            if Rec.GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end;
     end;
 
@@ -400,10 +400,10 @@ page 14947 "VAT Reinstatement Worksheet"
         VATEntry.SetRange("CV Ledg. Entry No.", CVEntryNo);
         VATEntry.SetRange("Unrealized VAT Entry No.", 0);
         VATEntry.SetFilter("Remaining Unrealized Amount", '<>%1', 0);
-        VATEntry.SetFilter("VAT Settlement Type", GetFilter("Type Filter"));
+        VATEntry.SetFilter("VAT Settlement Type", Rec.GetFilter("Type Filter"));
         VATEntry.SetRange("Manual VAT Settlement", true);
-        VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
         VATEntries.SetTableView(VATEntry);
         VATEntries.RunModal();
     end;
@@ -420,20 +420,20 @@ page 14947 "VAT Reinstatement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
                 LineToCopy := Rec;
                 LineToCopy.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
         Rec := CurrRec;
-        Reset();
-        CopyFilters(Filters);
+        Rec.Reset();
+        Rec.CopyFilters(Filters);
 
         LineToCopy.Reset();
-        LineToCopy.SetFilter("Type Filter", GetFilter("Type Filter"));
-        LineToCopy.SetFilter("Date Filter", GetFilter("Date Filter"));
-        VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
+        LineToCopy.SetFilter("Type Filter", Rec.GetFilter("Type Filter"));
+        LineToCopy.SetFilter("Date Filter", Rec.GetFilter("Date Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
         if LineToCopy.IsEmpty() then
             Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         CopyToVATReinstJournal.SetParameters(LineToCopy, VATEntry, LineToCopy.GetRangeMax("Date Filter"));

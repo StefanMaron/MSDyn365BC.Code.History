@@ -1,4 +1,27 @@
-﻿permissionset 6092 "Payables - Admin"
+﻿namespace System.Security.AccessControl;
+
+using Microsoft.Foundation.Calendar;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Inventory.Item;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Purchases.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.Requisition;
+using Microsoft.CRM.Team;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Purchases.Document;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Purchases.Vendor;
+
+permissionset 6092 "Payables - Admin"
 {
     Access = Public;
     Assignable = false;
@@ -18,9 +41,6 @@
                   tabledata "Gen. Journal Line" = MD,
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Item Charge" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = MD,
-#endif
                   tabledata "Payment Method" = RIMD,
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Purchases & Payables Setup" = RIMD,

@@ -122,7 +122,7 @@ page 17307 "Tax Diff. Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expense amount, based on accounting tax transactions, associated with the tax differences ledger entry.';
                 }
-                field(Difference; Difference)
+                field(Difference; Rec.Difference)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the difference between the book accounting and tax accounting transactions.';
@@ -184,7 +184,7 @@ page 17307 "Tax Diff. Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -200,7 +200,7 @@ page 17307 "Tax Diff. Ledger Entries"
 
                 trigger OnAction()
                 begin
-                    Navigate.SetDoc("Posting Date", "Document No.");
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }

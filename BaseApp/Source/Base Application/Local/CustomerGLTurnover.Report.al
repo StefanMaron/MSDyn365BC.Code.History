@@ -8,7 +8,7 @@ report 12450 "Customer G/L Turnover"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Customer Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Date Filter";
             column(CurrentDate; CurrentDate)
             {
@@ -195,8 +195,8 @@ report 12450 "Customer G/L Turnover"
             }
             dataitem("Customer Agreement"; "Customer Agreement")
             {
-                DataItemLink = "Customer No." = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "G/L Account Filter" = FIELD("G/L Account Filter"), "Date Filter" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Customer No.", "No.");
+                DataItemLink = "Customer No." = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "G/L Account Filter" = field("G/L Account Filter"), "Date Filter" = field("Date Filter");
+                DataItemTableView = sorting("Customer No.", "No.");
                 column(Customer_Agreement__No__; "No.")
                 {
                 }

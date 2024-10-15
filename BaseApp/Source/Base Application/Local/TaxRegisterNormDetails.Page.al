@@ -1,7 +1,7 @@
 page 17248 "Tax Register Norm Details"
 {
     Caption = 'Norm Details';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Tax Register Norm Detail";
@@ -23,7 +23,7 @@ page 17248 "Tax Register Norm Details"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the effective date associated with the norm details.';
                 }
-                field(Norm; Norm)
+                field(Norm; Rec.Norm)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the norm value that is used to calculate tax differences.';
@@ -33,7 +33,7 @@ page 17248 "Tax Register Norm Details"
                     ToolTip = 'Specifies the norm type associated with the norm details.';
                     Visible = false;
                 }
-                field(Maximum; Maximum)
+                field(Maximum; Rec.Maximum)
                 {
                     ToolTip = 'Specifies the maximum amount associated with the norm details.';
                     Visible = false;
@@ -43,7 +43,7 @@ page 17248 "Tax Register Norm Details"
                     ToolTip = 'Specifies the norm above maximum amount associated with the norm details.';
                     Visible = false;
                 }
-                field(LineDescription; LineDescription())
+                field(LineDescription; Rec.LineDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';

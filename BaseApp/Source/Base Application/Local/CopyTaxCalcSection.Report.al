@@ -7,15 +7,15 @@ report 17310 "Copy Tax Calc. Section"
     {
         dataitem(ToTaxCalcSection; "Tax Calc. Section")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             MaxIteration = 1;
             dataitem("Tax Calc. Section"; "Tax Calc. Section")
             {
-                DataItemTableView = SORTING(Code);
+                DataItemTableView = sorting(Code);
                 dataitem("Tax Calc. Header"; "Tax Calc. Header")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "No.");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "No.");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -32,8 +32,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Selection Setup"; "Tax Calc. Selection Setup")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Register No.", "Line No.");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Register No.", "Line No.");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -50,8 +50,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Line"; "Tax Calc. Line")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", Code, "Line No.");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", Code, "Line No.");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -68,8 +68,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Term"; "Tax Calc. Term")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Term Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Term Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -86,8 +86,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Term Formula"; "Tax Calc. Term Formula")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Term Code", "Line No.");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Term Code", "Line No.");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -104,8 +104,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Dim. Filter"; "Tax Calc. Dim. Filter")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Register No.", Define, "Line No.", "Dimension Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Register No.", Define, "Line No.", "Dimension Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -122,8 +122,8 @@ report 17310 "Copy Tax Calc. Section"
                 }
                 dataitem("Tax Calc. Dim. Corr. Filter"; "Tax Calc. Dim. Corr. Filter")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Corresp. Entry No.", "Connection Entry No.");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Corresp. Entry No.", "Connection Entry No.");
 
                     trigger OnAfterGetRecord()
                     begin

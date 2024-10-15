@@ -1,4 +1,36 @@
-﻿permissionset 3846 "Fixed Assets - Edit"
+﻿namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.HumanResources.Comment;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.Inventory.Location;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Document;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Payables;
+
+permissionset 3846 "Fixed Assets - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -42,9 +74,6 @@
                   tabledata Maintenance = RIMD,
                   tabledata "Maintenance Ledger Entry" = Rm,
                   tabledata "Maintenance Registration" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = r,
-#endif
                   tabledata "Precious Metal" = RIMD,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = rm,

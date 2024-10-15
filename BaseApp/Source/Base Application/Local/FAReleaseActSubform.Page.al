@@ -93,7 +93,7 @@ page 12475 "FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -105,7 +105,7 @@ page 12475 "FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
                 action("&Print")
@@ -123,7 +123,7 @@ page 12475 "FA Release Act Subform"
                         FADocLine: Record "FA Document Line";
                         FAReleaseActRep: Report "FA Release Act FA-1";
                     begin
-                        FADocHeader.Get("Document Type", "Document No.");
+                        FADocHeader.Get(Rec."Document Type", Rec."Document No.");
                         FADocHeader.SetRecFilter();
                         FADocLine := Rec;
                         FADocLine.SetRecFilter();
@@ -146,9 +146,7 @@ page 12475 "FA Release Act Subform"
     end;
 
     var
-        [InDataSet]
         FALocationCodeVisible: Boolean;
-        [InDataSet]
         FAEmployeeNoVisible: Boolean;
 
     [Scope('OnPrem')]

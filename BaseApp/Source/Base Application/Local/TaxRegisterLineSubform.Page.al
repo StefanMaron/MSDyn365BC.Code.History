@@ -41,8 +41,8 @@ page 17204 "Tax Register Line Subform"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         GLAcc.Reset();
-                        if "Account No." <> '' then begin
-                            GLAcc.SetFilter("No.", "Account No.");
+                        if Rec."Account No." <> '' then begin
+                            GLAcc.SetFilter("No.", Rec."Account No.");
                             if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
@@ -60,12 +60,12 @@ page 17204 "Tax Register Line Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        TaxRegisterName.Get("Section Code", "Tax Register No.");
+                        TaxRegisterName.Get(Rec."Section Code", Rec."Tax Register No.");
                         if TaxRegisterName."Table ID" = DATABASE::"Tax Register Item Entry" then
                             TaxRegisterName.FieldError("Table ID");
                         GLAcc.Reset();
-                        if "Bal. Account No." <> '' then begin
-                            GLAcc.SetFilter("No.", "Bal. Account No.");
+                        if Rec."Bal. Account No." <> '' then begin
+                            GLAcc.SetFilter("No.", Rec."Bal. Account No.");
                             if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
@@ -112,13 +112,13 @@ page 17204 "Tax Register Line Subform"
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
-        if "Dimensions Filters" then
+        Rec.CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
+        if Rec."Dimensions Filters" then
             DimFilters := Text1001
         else
             DimFilters := '';
 
-        if "G/L Corr. Dimensions Filters" then
+        if Rec."G/L Corr. Dimensions Filters" then
             GLCorrDimFilters := Text1001
         else
             GLCorrDimFilters := '';
@@ -145,17 +145,17 @@ page 17204 "Tax Register Line Subform"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxRegisterName.Get("Section Code", "Tax Register No.");
-        if (TaxRegisterName."Table ID" <> DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
+        TaxRegisterName.Get(Rec."Section Code", Rec."Tax Register No.");
+        if (TaxRegisterName."Table ID" <> DATABASE::"Tax Register G/L Entry") and (Rec."Line No." <> 0) then begin
             TaxRegDimFilter.FilterGroup(2);
-            TaxRegDimFilter.SetRange("Section Code", "Section Code");
-            TaxRegDimFilter.SetRange("Tax Register No.", "Tax Register No.");
+            TaxRegDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxRegDimFilter.SetRange("Tax Register No.", Rec."Tax Register No.");
             TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::"Entry Setup");
             TaxRegDimFilter.FilterGroup(0);
-            TaxRegDimFilter.SetRange("Line No.", "Line No.");
+            TaxRegDimFilter.SetRange("Line No.", Rec."Line No.");
             PAGE.RunModal(0, TaxRegDimFilter);
         end else
-            Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("G/L Corr. Dimensions Filters"));
         CurrPage.Update(false);
     end;
 
@@ -166,17 +166,17 @@ page 17204 "Tax Register Line Subform"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxRegisterName.Get("Section Code", "Tax Register No.");
-        if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
+        TaxRegisterName.Get(Rec."Section Code", Rec."Tax Register No.");
+        if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and (Rec."Line No." <> 0) then begin
             TaxRegGLCorrDimFilter.FilterGroup(2);
-            TaxRegGLCorrDimFilter.SetRange("Section Code", "Section Code");
-            TaxRegGLCorrDimFilter.SetRange("Tax Register No.", "Tax Register No.");
+            TaxRegGLCorrDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxRegGLCorrDimFilter.SetRange("Tax Register No.", Rec."Tax Register No.");
             TaxRegGLCorrDimFilter.SetRange(Define, TaxRegGLCorrDimFilter.Define::"Entry Setup");
-            TaxRegGLCorrDimFilter.SetRange("Line No.", "Line No.");
+            TaxRegGLCorrDimFilter.SetRange("Line No.", Rec."Line No.");
             TaxRegGLCorrDimFilter.FilterGroup(0);
             PAGE.RunModal(0, TaxRegGLCorrDimFilter);
         end else
-            Error(Text1002, FieldCaption("Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("Dimensions Filters"));
         CurrPage.Update(false);
     end;
 }

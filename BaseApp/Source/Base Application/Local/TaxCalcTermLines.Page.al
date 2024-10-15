@@ -12,7 +12,7 @@ page 17317 "Tax Calc. Term Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Operation; Operation)
+                field(Operation; Rec.Operation)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = OperationEditable;
@@ -36,13 +36,13 @@ page 17317 "Tax Calc. Term Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        case "Account Type" of
-                            "Account Type"::"GL Acc", "Account Type"::"Net Change":
+                        case Rec."Account Type" of
+                            Rec."Account Type"::"GL Acc", Rec."Account Type"::"Net Change":
                                 begin
                                     GLAcc.Reset();
-                                    if "Bal. Account No." <> '' then
-                                        if StrPos('|&<>', CopyStr("Account No.", StrLen("Account No."))) = 0 then begin
-                                            GLAcc.SetFilter("No.", "Account No.");
+                                    if Rec."Bal. Account No." <> '' then
+                                        if StrPos('|&<>', CopyStr(Rec."Account No.", StrLen(Rec."Account No."))) = 0 then begin
+                                            GLAcc.SetFilter("No.", Rec."Account No.");
                                             if GLAcc.FindFirst() then;
                                             GLAcc.SetRange("No.");
                                         end;
@@ -51,32 +51,32 @@ page 17317 "Tax Calc. Term Lines"
                                         exit(true);
                                     end;
                                 end;
-                            "Account Type"::Termin:
+                            Rec."Account Type"::Termin:
                                 begin
                                     TaxCalcTermName.Reset();
-                                    if "Account No." <> '' then begin
-                                        TaxCalcTermName.SetFilter("Term Code", "Account No.");
+                                    if Rec."Account No." <> '' then begin
+                                        TaxCalcTermName.SetFilter("Term Code", Rec."Account No.");
                                         if TaxCalcTermName.FindFirst() then;
                                         TaxCalcTermName.SetRange("Term Code");
                                     end;
                                     if ACTION::LookupOK = PAGE.RunModal(0, TaxCalcTermName) then begin
-                                        "Account No." := '';
+                                        Rec."Account No." := '';
                                         Text := TaxCalcTermName."Term Code";
                                         exit(true);
                                     end;
                                 end;
-                            "Account Type"::Norm:
+                            Rec."Account Type"::Norm:
                                 begin
-                                    CalcFields("Norm Jurisdiction Code");
-                                    if "Norm Jurisdiction Code" <> '' then begin
+                                    Rec.CalcFields("Norm Jurisdiction Code");
+                                    if Rec."Norm Jurisdiction Code" <> '' then begin
                                         NormGroup.Reset();
                                         NormGroup.FilterGroup(2);
-                                        NormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
+                                        NormGroup.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
                                         NormGroup.FilterGroup(0);
                                         NormGroup.SetRange("Has Details", true);
-                                        if NormGroup.Get("Norm Jurisdiction Code", CopyStr("Account No.", 1, MaxStrLen(NormGroup.Code))) then;
+                                        if NormGroup.Get(Rec."Norm Jurisdiction Code", CopyStr(Rec."Account No.", 1, MaxStrLen(NormGroup.Code))) then;
                                         if ACTION::LookupOK = PAGE.RunModal(0, NormGroup) then begin
-                                            "Account No." := '';
+                                            Rec."Account No." := '';
                                             Text := NormGroup.Code;
                                             exit(true);
                                         end;
@@ -99,11 +99,11 @@ page 17317 "Tax Calc. Term Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if "Account Type" = "Account Type"::"Net Change" then begin
+                        if Rec."Account Type" = Rec."Account Type"::"Net Change" then begin
                             GLAcc.Reset();
-                            if "Bal. Account No." <> '' then
-                                if StrPos('|&<>', CopyStr("Bal. Account No.", StrLen("Bal. Account No."))) = 0 then begin
-                                    GLAcc.SetFilter("No.", "Bal. Account No.");
+                            if Rec."Bal. Account No." <> '' then
+                                if StrPos('|&<>', CopyStr(Rec."Bal. Account No.", StrLen(Rec."Bal. Account No."))) = 0 then begin
+                                    GLAcc.SetFilter("No.", Rec."Bal. Account No.");
                                     if GLAcc.FindFirst() then;
                                     GLAcc.SetRange("No.");
                                 end;
@@ -112,16 +112,16 @@ page 17317 "Tax Calc. Term Lines"
                                 exit(true);
                             end;
                         end;
-                        CalcFields("Expression Type");
-                        if "Expression Type" = "Expression Type"::Compare then begin
+                        Rec.CalcFields("Expression Type");
+                        if Rec."Expression Type" = Rec."Expression Type"::Compare then begin
                             TaxCalcTermName.Reset();
-                            if "Bal. Account No." <> '' then begin
-                                TaxCalcTermName.SetFilter("Term Code", "Bal. Account No.");
+                            if Rec."Bal. Account No." <> '' then begin
+                                TaxCalcTermName.SetFilter("Term Code", Rec."Bal. Account No.");
                                 if TaxCalcTermName.FindFirst() then;
                                 TaxCalcTermName.SetRange("Term Code");
                             end;
                             if ACTION::LookupOK = PAGE.RunModal(0, TaxCalcTermName) then begin
-                                "Bal. Account No." := '';
+                                Rec."Bal. Account No." := '';
                                 Text := TaxCalcTermName."Term Code";
                                 exit(true);
                             end;
@@ -165,11 +165,11 @@ page 17317 "Tax Calc. Term Lines"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CalcFields("Expression Type");
-        if "Expression Type" = "Expression Type"::Compare then begin
+        Rec.CalcFields("Expression Type");
+        if Rec."Expression Type" = Rec."Expression Type"::Compare then begin
             if not Confirm(Text001, false) then
                 exit(false);
-            DeleteAll();
+            Rec.DeleteAll();
             CurrPage.Close();
         end;
         exit(true);
@@ -185,27 +185,26 @@ page 17317 "Tax Calc. Term Lines"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        CalcFields("Expression Type");
-        if "Expression Type" = "Expression Type"::"Plus/Minus"
-        then
-            Operation := Operation::"+"
+        Rec.CalcFields("Expression Type");
+        if Rec."Expression Type" = Rec."Expression Type"::"Plus/Minus" then
+            Rec.Operation := Rec.Operation::"+"
         else
-            if "Expression Type" = "Expression Type"::"Multiply/Divide" then
-                Operation := Operation::"*"
+            if Rec."Expression Type" = Rec."Expression Type"::"Multiply/Divide" then
+                Rec.Operation := Rec.Operation::"*"
             else begin
-                if not (Count = 3) then
+                if not (Rec.Count = 3) then
                     CurrPage.Close();
-                Operation := Operation::"Less 0";
-                "Account Type" := "Account Type"::Termin;
+                Rec.Operation := Rec.Operation::"Less 0";
+                Rec."Account Type" := Rec."Account Type"::Termin;
             end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        CalcFields("Expression Type");
-        if not ("Expression Type" = "Expression Type"::Compare) then
+        Rec.CalcFields("Expression Type");
+        if not (Rec."Expression Type" = Rec."Expression Type"::Compare) then
             exit(true);
-        if not (Count = 3) then
+        if not (Rec.Count = 3) then
             exit(true);
         TaxCalcTermLine.Copy(Rec);
         TaxCalcTermLine.Find('-');
@@ -229,26 +228,22 @@ page 17317 "Tax Calc. Term Lines"
         TaxCalcTermLine: Record "Tax Calc. Term Formula";
         TaxCalcTermName: Record "Tax Calc. Term";
         NormGroup: Record "Tax Register Norm Group";
-        [InDataSet]
         BalAccountNoEditable: Boolean;
-        [InDataSet]
         OperationEditable: Boolean;
-        [InDataSet]
         AccountTypeEditable: Boolean;
-        [InDataSet]
         AmountTypeEditable: Boolean;
 
     local procedure SetEnable()
     begin
-        CalcFields("Expression Type");
-        if "Expression Type" = "Expression Type"::Compare then begin
+        Rec.CalcFields("Expression Type");
+        if Rec."Expression Type" = Rec."Expression Type"::Compare then begin
             BalAccountNoEditable := true;
             OperationEditable := false;
             AccountTypeEditable := false;
         end else
-            BalAccountNoEditable := "Account Type" = "Account Type"::"Net Change";
+            BalAccountNoEditable := Rec."Account Type" = Rec."Account Type"::"Net Change";
 
-        AmountTypeEditable := "Account Type" in ["Account Type"::"GL Acc", "Account Type"::"Net Change"];
+        AmountTypeEditable := Rec."Account Type" in [Rec."Account Type"::"GL Acc", Rec."Account Type"::"Net Change"];
     end;
 
     local procedure AccountTypeOnAfterValidate()

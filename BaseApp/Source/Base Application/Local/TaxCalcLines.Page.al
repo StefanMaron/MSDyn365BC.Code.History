@@ -27,7 +27,7 @@ page 17320 "Tax Calc. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -37,7 +37,7 @@ page 17320 "Tax Calc. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link register number associated with the tax calculation line.';
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period associated with the tax calculation line.';

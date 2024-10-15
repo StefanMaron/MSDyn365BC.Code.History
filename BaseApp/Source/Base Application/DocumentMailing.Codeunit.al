@@ -1,4 +1,20 @@
-﻿codeunit 260 "Document-Mailing"
+﻿namespace System.EMail;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+#if not CLEAN21
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+#endif
+using System;
+using System.IO;
+using System.Threading;
+using System.Utilities;
+
+codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -16,7 +32,6 @@
     end;
 
     var
-        TempBlob: Codeunit "Temp Blob";
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
         ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No. or Job Number';
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
@@ -27,6 +42,28 @@
         TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
 #endif
         CustomerLbl: Label '<Customer>';
+
+    internal procedure EnqueueEmailFile(AttachmentInStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentInStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default,
+            true
+            ));
+    end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
     var
@@ -44,7 +81,8 @@
             -1,
             false,
             '',
-            EmailScenario));
+            EmailScenario,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -64,7 +102,8 @@
             ReportUsage,
             true,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceReference: RecordRef): Boolean
@@ -87,7 +126,8 @@
             -1,
             false,
             '',
-            EmailScenario));
+            EmailScenario,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -108,7 +148,8 @@
             -1,
             false,
             '',
-            EmailScenario));
+            EmailScenario,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
@@ -131,7 +172,8 @@
             ReportUsage,
             true,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: InStream; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -156,7 +198,8 @@
             -1,
             false,
             '',
-            EmailScenario));
+            EmailScenario,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -177,7 +220,8 @@
             ReportUsage,
             true,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: Instream; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -202,130 +246,8 @@
             ReportUsage,
             true,
             '',
-            Enum::"Email Scenario"::Default));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
-    procedure EmailFile(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
-    var
-        TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        AttachmentStream: Instream;
-    begin
-        Clear(TempBlob);
-        if AttachmentFilePath <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
-            TempBlob.CreateInStream(AttachmentStream);
-            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
-        end;
-        exit(EmailFileInternal(
-            TempEmailItem,
-            HtmlBodyFilePath,
-            '',
-            ToEmailAddress,
-            PostedDocNo,
-            EmailDocName,
-            HideDialog,
-            ReportUsage,
-            true,
-            '',
-            Enum::"Email Scenario"::Default));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
-    procedure EmailFile(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
-    var
-        TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        AttachmentStream: Instream;
-    begin
-        Clear(TempBlob);
-        if AttachmentFilePath <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
-            TempBlob.CreateInStream(AttachmentStream);
-            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
-        end;
-        exit(EmailFileInternal(
-            TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
-            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
-            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
-            '',
-            '',
-            HideDialog,
-            -1,
-            false,
-            '',
-            EmailScenario));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with the EmailFile function accepting Email Scenario', '17.0')]
-    procedure EmailFileWithSubject(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean): Boolean
-    var
-        TempEmailItem: Record "Email Item" temporary;
-    begin
-#pragma warning disable AL0432
-        exit(EmailFileWithSubjectAndSender(AttachmentFilePath, AttachmentFileName, HtmlBodyFilePath, EmailSubject, ToEmailAddress, HideDialog, ''));
-#pragma warning restore AL0432
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with the EmailFile function accepting Email Scenario', '17.0')]
-    procedure EmailFileWithSubjectAndSender(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; SenderUserID: Code[50]): Boolean
-    var
-        TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        AttachmentStream: Instream;
-    begin
-        Clear(TempBlob);
-        if AttachmentFilePath <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
-            TempBlob.CreateInStream(AttachmentStream);
-            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
-        end;
-        exit(EmailFileInternal(
-            TempEmailItem,
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
-            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
-            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
-            '',
-            '',
-            HideDialog,
-            0, // 0 is a possible value of the Report Selection Usage, it's not recommended to run this function when the feature switch is on
-            false,
-            SenderUserID,
-            Enum::"Email Scenario"::Default));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
-    procedure EmailFileWithSubjectAndReportUsage(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
-    var
-        TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        AttachmentStream: Instream;
-    begin
-        Clear(TempBlob);
-        if AttachmentFilePath <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
-            TempBlob.CreateInStream(AttachmentStream);
-            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
-        end;
-        exit(EmailFileInternal(
-            TempEmailItem,
-            HtmlBodyFilePath,
-            EmailSubject,
-            ToEmailAddress,
-            PostedDocNo,
-            EmailDocName,
-            HideDialog,
-            ReportUsage,
-            false,
-            '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -344,7 +266,8 @@
             ReportUsage,
             false,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
@@ -368,7 +291,8 @@
             ReportUsage,
             false,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -389,7 +313,8 @@
             ReportUsage,
             false,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure GetToAddressFromCustomer(BillToCustomerNo: Code[20]): Text[250]
@@ -509,7 +434,7 @@
         if Customer.Get(CustomerNo) then;
 
         if EmailParameter.GetParameterWithReportUsage(
-            PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Body)
+            PostedDocNo, Enum::"Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Body)
         then begin
             String := EmailParameter.GetParameterValue();
             exit(String.Replace(CustomerLbl, Customer.Name));
@@ -622,7 +547,7 @@
     end;
 #endif
     // Email Item needs to be passed by var so the attachments are available
-    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"): Boolean
+    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
     var
         OfficeMgt: Codeunit "Office Management";
         EmailScenarioMapping: Codeunit "Email Scenario Mapping";
@@ -681,7 +606,7 @@
         if not OfficeMgt.AttachAvailable() then begin
             if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
                 EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
-            EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario);
+            EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario, Enqueue);
             if EmailSentSuccesfully then
                 OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
             exit(EmailSentSuccesfully);
@@ -712,7 +637,8 @@
             ReportUsage,
             false,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailHtmlFromStream(MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -733,7 +659,8 @@
             ReportUsage,
             false,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     procedure EmailFileAndHtmlFromStream(AttachmentStream: InStream; AttachmentName: Text; MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -760,7 +687,8 @@
             ReportUsage,
             IsFromPostedDoc,
             '',
-            Enum::"Email Scenario"::Default));
+            Enum::"Email Scenario"::Default,
+            false));
     end;
 
     [IntegrationEvent(false, false)]

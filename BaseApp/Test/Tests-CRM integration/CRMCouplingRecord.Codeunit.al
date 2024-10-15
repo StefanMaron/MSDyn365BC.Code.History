@@ -924,6 +924,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.FindFirst();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
         IntegrationFieldMapping.FindFirst();
         ExpectedFieldCount := IntegrationFieldMapping.Count();
         // [GIVEN] A Customer is coupled to a CRM Account

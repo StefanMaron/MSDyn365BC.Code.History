@@ -1108,7 +1108,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // [SCENARIO 225420] When "Always Create Pick Line" is enabled, Warehouse Pick created via Pick Worksheet has a bin code populated for a shipment that can be picked from inventory and blank bin code for a shipment reserved from outstanding purchase
         Initialize();
 
-        Qty := LibraryRandom.RandIntInRange(20, 40);
+        Qty := 20;
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] "Always Create Pick Line" is enabled at location.
@@ -1833,7 +1833,7 @@ codeunit 137161 "SCM Warehouse Orders"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingPageHandler,WhseItemTrackingLinesHandler')]
+    [HandlerFunctions('ItemTrackingPageHandler,WhseItemTrackingLinesHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ReservationEntryForLotAndOrderTrackedItemWhenCreatePickFromWhseShipment()
     var
@@ -2185,7 +2185,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 30.
         FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
-        Assert.AreEqual(Qty + Qty / 4 + Qty / 4, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+        Assert.AreEqual(Qty + Qty / 4 + Qty / 4, WhseWorksheetLine.AvailableQtyToPick(), '');
     end;
 
     [Test]
@@ -2240,7 +2240,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 10.
         FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
-        Assert.AreEqual(Qty / 2, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+        Assert.AreEqual(Qty / 2, WhseWorksheetLine.AvailableQtyToPick(), '');
     end;
 
     [Test]
@@ -2305,7 +2305,7 @@ codeunit 137161 "SCM Warehouse Orders"
 
         // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 15.
         FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
-        Assert.AreEqual(Qty * 3 / 4, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+        Assert.AreEqual(Qty * 3 / 4, WhseWorksheetLine.AvailableQtyToPick(), '');
     end;
 
     local procedure Initialize()
@@ -2533,8 +2533,8 @@ codeunit 137161 "SCM Warehouse Orders"
         Quantity2: Decimal;
     begin
         // Create Lot for Lot Item. Create Sales Order and Update Shipment Date. Create Multiple Purchase Orders with Lot Item Tracking and Update Planning Flexibility on Purchase Line.
-        Quantity := LibraryRandom.RandInt(100) + 100;  // Large value Required.
-        Quantity2 := LibraryRandom.RandInt(100) + 100;  // Large value Required.
+        Quantity := 200;  // Large value Required.
+        Quantity2 := 300;  // Large value Required.
         CreateLotForLotItem(Item);
         ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CreateAndReleaseSalesOrderWithShipmentDate(
@@ -2545,7 +2545,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LotNo2 :=
           CreateAndReleasePurchaseOrderWithLotTrackingAndNonePlanningFlexibility(
             PurchaseHeader2, PurchaseLine2, PurchaseHeader."Buy-from Vendor No.", Item."No.",
-            Quantity2 + LibraryRandom.RandInt(100), LocationWhite.Code);
+            Quantity2 + 100, LocationWhite.Code);
 
         // Exercise: Calculate Plan for Requisition Worksheet.
         LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), ShipmentDate);
@@ -3526,10 +3526,12 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         i: Integer;
     begin
-        for i := 1 to ArrayLen(Quantity) do
-            Quantity[i] := LibraryRandom.RandIntInRange(10, 20);
+        Quantity[1] := 60;
+        Quantity[2] := 120;
+        Quantity[3] := 180;
+        Quantity[4] := 180;
         SalesQty1 := Quantity[1] + Quantity[2] / 2;
-        SalesQty2 := Quantity[1] + Quantity[2] + Quantity[3] + Quantity[4] + LibraryRandom.RandIntInRange(10, 20);
+        SalesQty2 := Quantity[1] + Quantity[2] + Quantity[3] + Quantity[4] + 10;
     end;
 
     local procedure OpenInventoryPickPageAndAutoFillQtyToHandle(var InventoryPick: TestPage "Inventory Pick"; SourceNo: Code[20])

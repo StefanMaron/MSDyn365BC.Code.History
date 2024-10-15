@@ -9,11 +9,11 @@ report 17207 "Create Norm Details"
     {
         dataitem("Tax Register Norm Jurisdiction"; "Tax Register Norm Jurisdiction")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             RequestFilterFields = "Code";
             dataitem(Date; Date)
             {
-                DataItemTableView = SORTING("Period Type", "Period Start") WHERE("Period Type" = CONST(Month));
+                DataItemTableView = sorting("Period Type", "Period Start") where("Period Type" = const(Month));
 
                 trigger OnAfterGetRecord()
                 begin

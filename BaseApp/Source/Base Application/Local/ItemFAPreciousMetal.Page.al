@@ -23,7 +23,7 @@ page 12487 "Item/FA Precious Metal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the precious metal asset.';
                 }
-                field(Kind; Kind)
+                field(Kind; Rec.Kind)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies and describes the precious metal.';
@@ -38,7 +38,7 @@ page 12487 "Item/FA Precious Metal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of units of the precious metal asset.';
                 }
-                field(Mass; Mass)
+                field(Mass; Rec.Mass)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the weight of the precious metal asset.';

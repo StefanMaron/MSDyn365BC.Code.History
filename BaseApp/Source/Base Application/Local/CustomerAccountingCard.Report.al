@@ -8,7 +8,7 @@ report 12441 "Customer Accounting Card"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Customer Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Agreement Filter", "Date Filter";
             column(RequestFilter; RequestFilter)
@@ -49,7 +49,7 @@ report 12441 "Customer Accounting Card"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(Customer_Name; Customer.Name)
                 {
@@ -108,9 +108,9 @@ report 12441 "Customer Accounting Card"
                 dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
                 {
                     CalcFields = "Debit Amount (LCY)", "Credit Amount (LCY)";
-                    DataItemLink = "Customer No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Agreement No." = FIELD("Agreement Filter"), "Posting Date" = FIELD("Date Filter");
+                    DataItemLink = "Customer No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Agreement No." = field("Agreement Filter"), "Posting Date" = field("Date Filter");
                     DataItemLinkReference = Customer;
-                    DataItemTableView = SORTING("Customer No.", "Posting Date", "Currency Code", "Agreement No.");
+                    DataItemTableView = sorting("Customer No.", "Posting Date", "Currency Code", "Agreement No.");
                     column(Posting_DateCaption; Posting_DateCaptionLbl)
                     {
                     }
@@ -158,8 +158,8 @@ report 12441 "Customer Accounting Card"
                     }
                     dataitem("Detailed Cust. Ledg. Entry"; "Detailed Cust. Ledg. Entry")
                     {
-                        DataItemLink = "Cust. Ledger Entry No." = FIELD("Entry No.");
-                        DataItemTableView = SORTING("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+                        DataItemLink = "Cust. Ledger Entry No." = field("Entry No.");
+                        DataItemTableView = sorting("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
                         column(Detailed_Cust__Ledg__Entry__Posting_Date_; "Posting Date")
                         {
                         }

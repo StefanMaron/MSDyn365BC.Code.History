@@ -24,7 +24,7 @@ table 17241 "Tax Reg. Norm Term Formula"
         }
         field(4; "Expression Type"; Option)
         {
-            CalcFormula = Lookup ("Tax Reg. Norm Term"."Expression Type" WHERE("Term Code" = FIELD("Term Code")));
+            CalcFormula = Lookup("Tax Reg. Norm Term"."Expression Type" where("Term Code" = field("Term Code")));
             Caption = 'Expression Type';
             FieldClass = FlowField;
             OptionCaption = 'Plus/Minus,Multiply/Divide,Compare';
@@ -82,18 +82,16 @@ table 17241 "Tax Reg. Norm Term Formula"
         field(7; "Account No."; Code[100])
         {
             Caption = 'Account No.';
-            TableRelation = IF ("Expression Type" = FILTER(<> Compare),
-                                "Account Type" = CONST("GL Acc")) "G/L Account"."No."
-            ELSE
-            IF ("Expression Type" = FILTER(<> Compare),
-                                         "Account Type" = CONST("Net Change")) "G/L Account"."No."
-            ELSE
-            IF ("Account Type" = CONST(Termin)) "Tax Reg. Norm Term"."Term Code"
-            ELSE
-            IF ("Account Type" = CONST(Norm)) "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Jurisdiction Code"),
-                                                                                                                    "Has Details" = CONST(true));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Expression Type" = filter(<> Compare),
+                                "Account Type" = const("GL Acc")) "G/L Account"."No."
+            else
+            if ("Expression Type" = filter(<> Compare),
+                                         "Account Type" = const("Net Change")) "G/L Account"."No."
+            else
+            if ("Account Type" = const(Termin)) "Tax Reg. Norm Term"."Term Code"
+            else
+            if ("Account Type" = const(Norm)) "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Jurisdiction Code"),
+                                                                                                                    "Has Details" = const(true));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -139,8 +137,6 @@ table 17241 "Tax Reg. Norm Term Formula"
         field(9; "Bal. Account No."; Code[100])
         {
             Caption = 'Bal. Account No.';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
 

@@ -32,6 +32,7 @@ codeunit 134322 "General Journal Line Approval"
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
+	PreventDeleteRecordWithOpenApprovalEntryForSenderMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you need to Cancel approval request first.';
 
     [Test]
     [Scope('OnPrem')]
@@ -76,13 +77,8 @@ codeunit 134322 "General Journal Line Approval"
         Assert.IsTrue(ApprovalCommentExists(ApprovalEntry), NoApprovalCommentExistsErr);
 
         // Exercise
-        GenJournalLine.Delete(true);
-
-        // Verify
-        WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
-        Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
-        Assert.IsTrue(ApprovalEntry.IsEmpty, UnexpectedNoOfApprovalEntriesErr);
-        Assert.IsFalse(ApprovalCommentExists(ApprovalEntry), ApprovalCommentWasNotDeletedErr);
+        asserterror GenJournalLine.Delete(true);
+        Assert.ExpectedError(PreventDeleteRecordWithOpenApprovalEntryForSenderMsg);
     end;
 
     [Test]
@@ -1781,6 +1777,6 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalCommentLine.SetRange("Document No.", ApprovalEntry."Document No.");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         exit(ApprovalCommentLine.FindFirst())
-    end;
+    end;    
 }
 

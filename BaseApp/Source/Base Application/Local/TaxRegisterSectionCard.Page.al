@@ -11,7 +11,7 @@ page 17219 "Tax Register Section Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the tax register section.';
@@ -202,7 +202,7 @@ page 17219 "Tax Register Section Card"
                 Caption = 'Registers';
                 Image = Register;
                 RunObject = Page "Tax Register Worksheet";
-                RunPageLink = "Section Code" = FIELD(Code);
+                RunPageLink = "Section Code" = field(Code);
                 ShortCutKey = 'Shift+Ctrl+L';
                 ToolTip = 'View all related tax entries. Every register shows the first and last entry number of its entries.';
             }
@@ -224,7 +224,7 @@ page 17219 "Tax Register Section Card"
                         CopyTaxRegSection: Report "Copy Tax Register Section";
                     begin
                         Clear(CopyTaxRegSection);
-                        TaxRegSection.SetRange(Code, Code);
+                        TaxRegSection.SetRange(Code, Rec.Code);
                         CopyTaxRegSection.SetTableView(TaxRegSection);
                         CopyTaxRegSection.RunModal();
                         Clear(CopyTaxRegSection);
@@ -242,7 +242,7 @@ page 17219 "Tax Register Section Card"
 
                     trigger OnAction()
                     begin
-                        TaxRegSection.SetRange(Code, Code);
+                        TaxRegSection.SetRange(Code, Rec.Code);
                         REPORT.Run(REPORT::"Create Tax Registers", true, true, TaxRegSection);
                     end;
                 }
@@ -256,7 +256,7 @@ page 17219 "Tax Register Section Card"
 
                     trigger OnAction()
                     begin
-                        ValidateChangeDeclaration();
+                        Rec.ValidateChangeDeclaration();
                     end;
                 }
                 separator(Action1210000)
@@ -273,8 +273,8 @@ page 17219 "Tax Register Section Card"
 
                     trigger OnAction()
                     begin
-                        TaxRegSection.SetRange(Code, Code);
-                        ExportSettings(TaxRegSection);
+                        TaxRegSection.SetRange(Code, Rec.Code);
+                        Rec.ExportSettings(TaxRegSection);
                     end;
                 }
                 action("Import Settings")
@@ -289,8 +289,8 @@ page 17219 "Tax Register Section Card"
 
                     trigger OnAction()
                     begin
-                        ValidateChangeDeclaration();
-                        PromptImportSettings();
+                        Rec.ValidateChangeDeclaration();
+                        Rec.PromptImportSettings();
                     end;
                 }
             }

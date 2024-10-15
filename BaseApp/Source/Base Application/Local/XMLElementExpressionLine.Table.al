@@ -20,7 +20,7 @@ table 26572 "XML Element Expression Line"
         field(10; "XML Element Line No."; Integer)
         {
             Caption = 'XML Element Line No.';
-            TableRelation = "XML Element Line"."Line No." WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "XML Element Line"."Line No." where("Report Code" = field("Report Code"));
         }
         field(11; "XML Element Name"; Text[30])
         {
@@ -50,12 +50,12 @@ table 26572 "XML Element Expression Line"
         field(25; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = CONST(Table));
         }
         field(27; "Field ID"; Integer)
         {
             Caption = 'Field ID';
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
 
             trigger OnValidate()
             begin
@@ -64,8 +64,8 @@ table 26572 "XML Element Expression Line"
         }
         field(28; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
-                                                        "No." = FIELD("Field ID")));
+            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+                                                        "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;
             FieldClass = FlowField;

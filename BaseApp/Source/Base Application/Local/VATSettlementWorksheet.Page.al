@@ -71,12 +71,12 @@ page 14925 "VAT Settlement Worksheet"
                     trigger OnDrillDown()
                     begin
                         DrillDownVATAllocation;
-                        CalcFields("VAT Amount To Allocate");
-                        "Allocated VAT Amount" := "VAT Amount To Allocate";
+                        Rec.CalcFields("VAT Amount To Allocate");
+                        Rec."Allocated VAT Amount" := Rec."VAT Amount To Allocate";
                         CurrPage.Update(true);
                     end;
                 }
-                field("""Unrealized VAT Amount"" - ""Realized VAT Amount"""; Rec."Unrealized VAT Amount" - "Realized VAT Amount")
+                field("""Unrealized VAT Amount"" - ""Realized VAT Amount"""; Rec."Unrealized VAT Amount" - Rec."Realized VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining VAT Amount';
@@ -87,7 +87,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnDrillDown()
                     begin
-                        RemVATDrillDown("Entry No.");
+                        RemVATDrillDown(Rec."Entry No.");
                     end;
                 }
                 field("Realized VAT Amount"; Rec."Realized VAT Amount")
@@ -219,7 +219,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Ledger Entry")
@@ -233,7 +233,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowCVEntry;
+                        Rec.ShowCVEntry();
                     end;
                 }
                 action("&VAT Entries")
@@ -242,8 +242,8 @@ page 14925 "VAT Settlement Worksheet"
                     Caption = '&VAT Entries';
                     Image = VATLedger;
                     RunObject = Page "VAT Entries";
-                    RunPageLink = "CV Ledg. Entry No." = FIELD("Entry No.");
-                    RunPageView = SORTING("Transaction No.", "CV Ledg. Entry No.");
+                    RunPageLink = "CV Ledg. Entry No." = field("Entry No.");
+                    RunPageView = sorting("Transaction No.", "CV Ledg. Entry No.");
                     ShortCutKey = 'Ctrl+F7';
                 }
             }
@@ -348,7 +348,7 @@ page 14925 "VAT Settlement Worksheet"
                 var
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetDoc("Document Date", "Document No.");
+                    Navigate.SetDoc(Rec."Document Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }
@@ -417,13 +417,9 @@ page 14925 "VAT Settlement Worksheet"
         AmountType: Enum "Analysis Amount Type";
         Text002: Label 'There is nothing to allocate.';
         Text003: Label 'There are lines in which %1 is Yes. Do you want to apply these changes? ';
-        [InDataSet]
         ChangedVendorVATInvoiceVisible: Boolean;
-        [InDataSet]
         VendorVATInvoiceNoVisible: Boolean;
-        [InDataSet]
         VendorVATInvoiceDateVisible: Boolean;
-        [InDataSet]
         VendorVATInvoiceRcvdDateVisibl: Boolean;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -431,8 +427,8 @@ page 14925 "VAT Settlement Worksheet"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
@@ -440,14 +436,14 @@ page 14925 "VAT Settlement Worksheet"
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if Calendar."Period Start" = Calendar."Period End" then begin
             if AmountType = AmountType::"Net Change" then
-                SetRange("Date Filter", Calendar."Period Start")
+                Rec.SetRange("Date Filter", Calendar."Period Start")
             else
-                SetRange("Date Filter", 0D, Calendar."Period Start");
+                Rec.SetRange("Date Filter", 0D, Calendar."Period Start");
         end else
             if AmountType = AmountType::"Net Change" then
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
+                Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
             else
-                SetRange("Date Filter", 0D, Calendar."Period End");
+                Rec.SetRange("Date Filter", 0D, Calendar."Period End");
     end;
 
     local procedure FindUserPeriod(SearchText: Code[10])
@@ -456,20 +452,20 @@ page 14925 "VAT Settlement Worksheet"
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserSetup.Get(UserId) then begin
-            SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+            if Rec.GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end;
     end;
 
@@ -482,10 +478,10 @@ page 14925 "VAT Settlement Worksheet"
         VATEntry.SetRange("CV Ledg. Entry No.", CVEntryNo);
         VATEntry.SetRange("Unrealized VAT Entry No.", 0);
         VATEntry.SetFilter("Remaining Unrealized Amount", '<>%1', 0);
-        VATEntry.SetFilter("VAT Settlement Type", GetFilter("Type Filter"));
+        VATEntry.SetFilter("VAT Settlement Type", Rec.GetFilter("Type Filter"));
         VATEntry.SetRange("Manual VAT Settlement", true);
-        VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
         VATEntries.SetTableView(VATEntry);
         VATEntries.RunModal();
     end;
@@ -501,23 +497,23 @@ page 14925 "VAT Settlement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
                 CalcVATAmount;
-                if "Allocated VAT Amount" <> 0 then begin
+                if Rec."Allocated VAT Amount" <> 0 then begin
                     EntryToPost := Rec;
                     EntryToPost.Insert();
                 end;
-            until Next() = 0;
+            until Rec.Next() = 0;
         Rec := CurrRec;
-        Reset();
-        CopyFilters(Filters);
+        Rec.Reset();
+        Rec.CopyFilters(Filters);
 
         EntryToPost.Reset();
-        EntryToPost.SetFilter("Type Filter", GetFilter("Type Filter"));
-        EntryToPost.SetFilter("Date Filter", GetFilter("Date Filter"));
-        VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
+        EntryToPost.SetFilter("Type Filter", Rec.GetFilter("Type Filter"));
+        EntryToPost.SetFilter("Date Filter", Rec.GetFilter("Date Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
         if EntryToPost.IsEmpty() then
             Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         VATSettlementMgt.CopyToJnl(EntryToPost, VATEntry);
@@ -534,11 +530,11 @@ page 14925 "VAT Settlement Worksheet"
         Clear(VATAllocation);
         VATAllocationLine.Reset();
         VATAllocationLine.SetCurrentKey("CV Ledger Entry No.");
-        VATAllocationLine.SetRange("CV Ledger Entry No.", "Entry No.");
-        VATAllocationLine.SetFilter("VAT Settlement Type", GetFilter("Type Filter"));
-        VATAllocationLine.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATAllocationLine.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
-        VATAllocationLine.SetFilter("Posting Date Filter", GetFilter("Date Filter"));
+        VATAllocationLine.SetRange("CV Ledger Entry No.", Rec."Entry No.");
+        VATAllocationLine.SetFilter("VAT Settlement Type", Rec.GetFilter("Type Filter"));
+        VATAllocationLine.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATAllocationLine.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
+        VATAllocationLine.SetFilter("Posting Date Filter", Rec.GetFilter("Date Filter"));
         VATAllocation.SetTableView(VATAllocationLine);
         VATAllocation.RunModal();
     end;
@@ -546,10 +542,10 @@ page 14925 "VAT Settlement Worksheet"
     [Scope('OnPrem')]
     procedure UpdateForm()
     begin
-        ChangedVendorVATInvoiceVisible := "Entry Type" = "Entry Type"::Purchase;
-        VendorVATInvoiceNoVisible := "Entry Type" = "Entry Type"::Purchase;
-        VendorVATInvoiceDateVisible := "Entry Type" = "Entry Type"::Purchase;
-        VendorVATInvoiceRcvdDateVisibl := "Entry Type" = "Entry Type"::Purchase;
+        ChangedVendorVATInvoiceVisible := Rec."Entry Type" = Rec."Entry Type"::Purchase;
+        VendorVATInvoiceNoVisible := Rec."Entry Type" = Rec."Entry Type"::Purchase;
+        VendorVATInvoiceDateVisible := Rec."Entry Type" = Rec."Entry Type"::Purchase;
+        VendorVATInvoiceRcvdDateVisibl := Rec."Entry Type" = Rec."Entry Type"::Purchase;
     end;
 
     [Scope('OnPrem')]
@@ -563,33 +559,33 @@ page 14925 "VAT Settlement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindFirst() then
+        if Rec.FindFirst() then
             repeat
-                EntryNo.Number := "Entry No.";
+                EntryNo.Number := Rec."Entry No.";
                 EntryNo.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
         if EntryNo.IsEmpty() then
             Error(Text002);
 
-        VATEntry.SetFilter(Type, GetFilter("Entry Type"));
-        VATEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
-        VATEntry.SetFilter("VAT Settlement Type", GetFilter("Type Filter"));
+        VATEntry.SetFilter(Type, Rec.GetFilter("Entry Type"));
+        VATEntry.SetFilter("Posting Date", Rec.GetFilter("Date Filter"));
+        VATEntry.SetFilter("VAT Settlement Type", Rec.GetFilter("Type Filter"));
         VATEntry.SetRange("Unrealized VAT Entry No.", 0);
-        VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-        VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", Rec.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", Rec.GetFilter("VAT Prod. Posting Group Filter"));
         VATEntry.SetRange("Manual VAT Settlement", true);
         if VATSettlementMgt.SetGroupVATAlloc(VATEntry, EntryNo) then begin
-            FindSet();
+            Rec.FindSet();
             repeat
-                CalcFields("VAT Amount To Allocate");
-                "Allocated VAT Amount" := "VAT Amount To Allocate";
-            until Next() = 0;
+                Rec.CalcFields("VAT Amount To Allocate");
+                Rec."Allocated VAT Amount" := Rec."VAT Amount To Allocate";
+            until Rec.Next() = 0;
         end;
         EntryNo.DeleteAll();
 
         Rec := CurrRec;
-        Reset();
-        CopyFilters(Filters);
+        Rec.Reset();
+        Rec.CopyFilters(Filters);
         CurrPage.Update(true);
     end;
 
@@ -598,15 +594,15 @@ page 14925 "VAT Settlement Worksheet"
     begin
         if Type <> xType then begin
             xType := Type;
-            Reset();
-            DeleteAll();
+            Rec.Reset();
+            Rec.DeleteAll();
             case Type of
                 Type::Purchase, Type::Sale:
-                    SetRange("Type Filter", "Type Filter"::" ");
+                    Rec.SetRange("Type Filter", Rec."Type Filter"::" ");
                 Type::"Fixed Asset":
-                    SetRange("Type Filter", "Type Filter"::"by Act");
+                    Rec.SetRange("Type Filter", Rec."Type Filter"::"by Act");
                 Type::"Future Expense":
-                    SetRange("Type Filter", "Type Filter"::"Future Expenses");
+                    Rec.SetRange("Type Filter", Rec."Type Filter"::"Future Expenses");
             end;
             if PeriodType = PeriodType::"Accounting Period" then
                 FindUserPeriod('')
@@ -623,22 +619,22 @@ page 14925 "VAT Settlement Worksheet"
         VendEntryEdit: Codeunit "Vend. Entry-Edit";
     begin
         CurrRec := Rec;
-        SetRange("Changed Vendor VAT Invoice", true);
-        if not IsEmpty and AskConfirmation then
-            if not Confirm(StrSubstNo(Text003, FieldCaption("Changed Vendor VAT Invoice")), true) then
+        Rec.SetRange("Changed Vendor VAT Invoice", true);
+        if not Rec.IsEmpty() and AskConfirmation then
+            if not Confirm(StrSubstNo(Text003, Rec.FieldCaption("Changed Vendor VAT Invoice")), true) then
                 exit;
-        if FindSet(true) then
+        if Rec.FindSet(true) then
             repeat
-                VendLedgEntry.Get("Entry No.");
+                VendLedgEntry.Get(Rec."Entry No.");
                 VendEntryEdit.UpdateVATInvoiceData(
                   VendLedgEntry,
-                  "Vendor VAT Invoice No.",
-                  "Vendor VAT Invoice Date",
-                  "Vendor VAT Invoice Rcvd Date");
-                SetChangedVATInvoice();
-                Modify();
-            until Next() = 0;
-        SetRange("Changed Vendor VAT Invoice");
+                  Rec."Vendor VAT Invoice No.",
+                  Rec."Vendor VAT Invoice Date",
+                  Rec."Vendor VAT Invoice Rcvd Date");
+                Rec.SetChangedVATInvoice();
+                Rec.Modify();
+            until Rec.Next() = 0;
+        Rec.SetRange("Changed Vendor VAT Invoice");
         Rec := CurrRec;
         CurrPage.Update(false);
     end;
@@ -651,9 +647,9 @@ page 14925 "VAT Settlement Worksheet"
     [Scope('OnPrem')]
     procedure CalcVATAmount()
     begin
-        CalcFields("VAT Amount To Allocate");
-        if "Allocated VAT Amount" <> "VAT Amount To Allocate" then
-            "Allocated VAT Amount" := "VAT Amount To Allocate";
+        Rec.CalcFields("VAT Amount To Allocate");
+        if Rec."Allocated VAT Amount" <> Rec."VAT Amount To Allocate" then
+            Rec."Allocated VAT Amount" := Rec."VAT Amount To Allocate";
     end;
 }
 

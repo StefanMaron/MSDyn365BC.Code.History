@@ -22,7 +22,7 @@ page 26595 "Acc. Schedule Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Totaling; Totaling)
+                field(Totaling; Rec.Totaling)
                 {
                     ApplicationArea = Basic, Suite;
                 }

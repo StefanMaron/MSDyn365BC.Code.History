@@ -18,7 +18,7 @@ table 17205 "Tax Register Term Formula"
         }
         field(3; "Expression Type"; Option)
         {
-            CalcFormula = Lookup ("Tax Register Term"."Expression Type" WHERE("Term Code" = FIELD("Term Code")));
+            CalcFormula = Lookup("Tax Register Term"."Expression Type" where("Term Code" = field("Term Code")));
             Caption = 'Expression Type';
             FieldClass = FlowField;
             OptionCaption = 'Plus/Minus,Multiply/Divide,Compare';
@@ -80,18 +80,16 @@ table 17205 "Tax Register Term Formula"
         field(6; "Account No."; Code[100])
         {
             Caption = 'Account No.';
-            TableRelation = IF ("Expression Type" = FILTER(<> Compare),
-                                "Account Type" = CONST("G/L Account")) "G/L Account"."No."
-            ELSE
-            IF ("Expression Type" = FILTER(<> Compare),
-                                         "Account Type" = CONST("Net Change")) "G/L Account"."No."
-            ELSE
-            IF ("Account Type" = CONST(Term)) "Tax Register Term"."Term Code"
-            ELSE
-            IF ("Account Type" = CONST(Norm)) "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"),
-                                                                                                                    "Has Details" = CONST(true));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Expression Type" = filter(<> Compare),
+                                "Account Type" = const("G/L Account")) "G/L Account"."No."
+            else
+            if ("Expression Type" = filter(<> Compare),
+                                         "Account Type" = const("Net Change")) "G/L Account"."No."
+            else
+            if ("Account Type" = const(Term)) "Tax Register Term"."Term Code"
+            else
+            if ("Account Type" = const(Norm)) "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+                                                                                                                    "Has Details" = const(true));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -139,12 +137,10 @@ table 17205 "Tax Register Term Formula"
         field(8; "Bal. Account No."; Code[100])
         {
             Caption = 'Bal. Account No.';
-            TableRelation = IF ("Expression Type" = CONST(Compare),
-                                "Account Type" = CONST(Term)) "Tax Register Line Setup"."Tax Register No."
-            ELSE
-            IF ("Account Type" = CONST("Net Change")) "G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Expression Type" = const(Compare),
+                                "Account Type" = const(Term)) "Tax Register Line Setup"."Tax Register No."
+            else
+            if ("Account Type" = const("Net Change")) "G/L Account"."No.";
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -188,7 +184,7 @@ table 17205 "Tax Register Term Formula"
         }
         field(14; "Norm Jurisdiction Code"; Code[10])
         {
-            CalcFormula = Lookup ("Tax Register Section"."Norm Jurisdiction Code" WHERE(Code = FIELD("Section Code")));
+            CalcFormula = Lookup("Tax Register Section"."Norm Jurisdiction Code" where(Code = field("Section Code")));
             Caption = 'Norm Jurisdiction Code';
             Editable = false;
             FieldClass = FlowField;

@@ -11,7 +11,7 @@ report 14970 "Comparing Depr. Book Entries"
     {
         dataitem(FA; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "FA Type", "Depreciation Group", "Belonging to Manufacturing";
             column(Heading; Heading)
             {
@@ -450,7 +450,6 @@ report 14970 "Comparing Depr. Book Entries"
         Text004: Label 'There are some FA which do not included to the report. Continue?';
         CurrentDate: Text[30];
         FADeprGroup: Code[10];
-        [InDataSet]
         RollUpGrCheckBoxEnable: Boolean;
         Book_ValueCaptionLbl: Label 'Book Value';
         Total_DepreciationCaptionLbl: Label 'Total Depreciation';

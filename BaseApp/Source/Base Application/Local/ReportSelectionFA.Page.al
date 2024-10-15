@@ -25,7 +25,7 @@ page 12484 "Report Selection - FA"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = FixedAssets;
                 }
@@ -62,7 +62,7 @@ page 12484 "Report Selection - FA"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord();
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -75,26 +75,26 @@ page 12484 "Report Selection - FA"
 
     local procedure SetUsageFilter()
     begin
-        FilterGroup(2);
+        Rec.FilterGroup(2);
         case ReportUsage2 of
             ReportUsage2::"Unposted FA Writeoff":
-                SetRange(Usage, Usage::UFAW);
+                Rec.SetRange(Usage, Rec.Usage::UFAW);
             ReportUsage2::"Unposted FA Release":
-                SetRange(Usage, Usage::UFAR);
+                Rec.SetRange(Usage, Rec.Usage::UFAR);
             ReportUsage2::"Unposted FA Movement":
-                SetRange(Usage, Usage::UFAM);
+                Rec.SetRange(Usage, Rec.Usage::UFAM);
             ReportUsage2::"FA Writeoff":
-                SetRange(Usage, Usage::FAW);
+                Rec.SetRange(Usage, Rec.Usage::FAW);
             ReportUsage2::"FA Release":
-                SetRange(Usage, Usage::FAR);
+                Rec.SetRange(Usage, Rec.Usage::FAR);
             ReportUsage2::"FA Movement":
-                SetRange(Usage, Usage::FAM);
+                Rec.SetRange(Usage, Rec.Usage::FAM);
             ReportUsage2::"FA Jnl.":
-                SetRange(Usage, Usage::FAJ);
+                Rec.SetRange(Usage, Rec.Usage::FAJ);
             ReportUsage2::"FA Rec.Jnl":
-                SetRange(Usage, Usage::FARJ);
+                Rec.SetRange(Usage, Rec.Usage::FARJ);
         end;
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     local procedure ReportUsage2OnAfterValidate()

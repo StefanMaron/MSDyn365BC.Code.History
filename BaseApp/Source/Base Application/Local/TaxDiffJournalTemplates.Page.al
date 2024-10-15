@@ -73,7 +73,7 @@ page 17303 "Tax Diff. Journal Templates"
                     Caption = 'Batches';
                     Image = Description;
                     RunObject = Page "Tax Difference Journal Batches";
-                    RunPageLink = "Journal Template Name" = FIELD(Name);
+                    RunPageLink = "Journal Template Name" = field(Name);
                 }
             }
         }

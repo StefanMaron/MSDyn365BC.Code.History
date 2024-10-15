@@ -9,13 +9,13 @@ report 14940 "Analytic Account Card by Dim."
     {
         dataitem(GLAccountBuffer; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem("Dimension Value"; "Dimension Value")
             {
-                DataItemTableView = SORTING("Dimension Code", Code);
+                DataItemTableView = sorting("Dimension Code", Code);
                 dataitem("Integer"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     var
@@ -494,17 +494,11 @@ report 14940 "Analytic Account Card by Dim."
         Text014: Label '1,6,,Credit Dimension 1 Filter';
         Text015: Label '1,6,,Credit Dimension 2 Filter';
         Text016: Label '1,6,,Credit Dimension 3 Filter';
-        [InDataSet]
         DebitDim1FilterEnable: Boolean;
-        [InDataSet]
         DebitDim2FilterEnable: Boolean;
-        [InDataSet]
         DebitDim3FilterEnable: Boolean;
-        [InDataSet]
         CreditDim1FilterEnable: Boolean;
-        [InDataSet]
         CreditDim2FilterEnable: Boolean;
-        [InDataSet]
         CreditDim3FilterEnable: Boolean;
 
     [Scope('OnPrem')]

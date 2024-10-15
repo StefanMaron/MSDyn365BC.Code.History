@@ -5,7 +5,7 @@ page 26579 "Select Excel Sheet Name"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Stat. Report Excel Sheet";
-    SourceTableView = SORTING("Report Code", "Table Code", "Report Data No.", "Sequence No.");
+    SourceTableView = sorting("Report Code", "Table Code", "Report Data No.", "Sequence No.");
 
     layout
     {

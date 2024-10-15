@@ -58,12 +58,12 @@ page 17318 "Tax Calc. Dimension Filters"
     [Scope('OnPrem')]
     procedure DrillDownValueName()
     begin
-        if "Dimension Value Filter" <> '' then begin
+        if Rec."Dimension Value Filter" <> '' then begin
             DimValue.Reset();
             DimValue.FilterGroup(2);
-            DimValue.SetRange("Dimension Code", "Dimension Code");
+            DimValue.SetRange("Dimension Code", Rec."Dimension Code");
             DimValue.FilterGroup(0);
-            DimValue.SetFilter(Code, "Dimension Value Filter");
+            DimValue.SetFilter(Code, Rec."Dimension Value Filter");
             PAGE.RunModal(0, DimValue);
         end;
     end;

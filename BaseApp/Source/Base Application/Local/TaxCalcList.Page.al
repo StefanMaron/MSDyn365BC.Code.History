@@ -73,8 +73,8 @@ page 17310 "Tax Calc. List"
                 Caption = 'Data';
                 Image = AccountingPeriods;
                 RunObject = Page "Tax Calc. Accumulation";
-                RunPageLink = "Section Code" = FIELD("Section Code"),
-                              "No." = FIELD("No.");
+                RunPageLink = "Section Code" = field("Section Code"),
+                              "No." = field("No.");
             }
         }
         area(Promoted)
@@ -104,9 +104,7 @@ page 17310 "Tax Calc. List"
     end;
 
     var
-        [InDataSet]
         TableIDVisible: Boolean;
-        [InDataSet]
         StoringMethodVisible: Boolean;
 }
 

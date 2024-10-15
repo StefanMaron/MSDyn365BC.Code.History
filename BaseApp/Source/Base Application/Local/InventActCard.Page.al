@@ -18,7 +18,7 @@ page 14910 "Invent. Act Card"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEdit();
+                        Rec.AssistEdit();
                     end;
                 }
                 field("Act Date"; Rec."Act Date")
@@ -55,7 +55,7 @@ page 14910 "Invent. Act Card"
             part(Control1210014; "Invent. Act Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Act No." = FIELD("No.");
+                SubPageLink = "Act No." = field("No.");
             }
         }
         area(factboxes)
@@ -86,8 +86,8 @@ page 14910 "Invent. Act Card"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(14908),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14908),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -109,7 +109,7 @@ page 14910 "Invent. Act Card"
                     var
                         InventActHeader: Record "Invent. Act Header";
                     begin
-                        TestStatus();
+                        Rec.TestStatus();
                         InventActHeader := Rec;
                         InventActHeader.SetRecFilter();
                         REPORT.RunModal(REPORT::"Create Invent. Act Lines", true, false, InventActHeader);
@@ -128,7 +128,7 @@ page 14910 "Invent. Act Card"
 
                     trigger OnAction()
                     begin
-                        Release();
+                        Rec.Release();
                     end;
                 }
                 action(Reopen)
@@ -140,7 +140,7 @@ page 14910 "Invent. Act Card"
 
                     trigger OnAction()
                     begin
-                        Reopen();
+                        Rec.Reopen();
                     end;
                 }
                 group(Print)

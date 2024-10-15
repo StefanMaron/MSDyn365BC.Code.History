@@ -1,7 +1,7 @@
 page 17203 "Tax Register Card"
 {
     Caption = 'Tax Register Card';
-    DataCaptionExpression = "No." + ' ' + Description;
+    DataCaptionExpression = Rec."No." + ' ' + Rec.Description;
     Description = '"No."+'' ''+Description';
     InsertAllowed = false;
     PageType = Document;
@@ -30,7 +30,7 @@ page 17203 "Tax Register Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the tax register name.';
                 }
-                field(Check; Check)
+                field(Check; Rec.Check)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -41,7 +41,7 @@ page 17203 "Tax Register Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax register name will be used in a statutory report.';
                 }
-                field(Level; Level)
+                field(Level; Rec.Level)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -66,36 +66,36 @@ page 17203 "Tax Register Card"
             part(TaxRegFATemplateSubform; "Tax Reg. FA Template Subform")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = TaxRegFATemplateSubformVisible;
             }
             part(TaxRegLineSubform; "Tax Register Line Subform")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              "Tax Register No." = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              "Tax Register No." = field("No.");
                 Visible = TaxRegLineSubformVisible;
             }
             part(TaxRegCalcTemplSubform; "Tax Register Calc. Templ. Subf")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = TaxRegCalcTemplSubformVisible;
             }
             part(TaxRegTemplateSubform; "Tax Register Template Subform")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = TaxRegTemplateSubformVisible;
             }
             part(TaxRegEntryTemplSubform; "Tax Register Entr. Templ. Subf")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = TaxRegEntryTemplSubformVisible;
             }
             group(Objects)
@@ -153,8 +153,8 @@ page 17203 "Tax Register Card"
                 Caption = 'Show Data';
                 Image = ShowMatrix;
                 RunObject = Page "Tax Register Accumulation";
-                RunPageLink = "Section Code" = FIELD("Section Code"),
-                              "No." = FIELD("No.");
+                RunPageLink = "Section Code" = field("Section Code"),
+                              "No." = field("No.");
                 ToolTip = 'View the related details.';
             }
             action("Check Links")
@@ -165,7 +165,7 @@ page 17203 "Tax Register Card"
 
                 trigger OnAction()
                 begin
-                    TaxRegTermMgt.CheckTaxRegLink(false, "Section Code", DATABASE::"Tax Register Template");
+                    TaxRegTermMgt.CheckTaxRegLink(false, Rec."Section Code", DATABASE::"Tax Register Template");
                 end;
             }
             action("Show Entries")
@@ -180,7 +180,7 @@ page 17203 "Tax Register Card"
 
                 trigger OnAction()
                 begin
-                    if "Page ID" <> 0 then
+                    if Rec."Page ID" <> 0 then
                         CheckPageID();
                 end;
             }
@@ -209,12 +209,12 @@ page 17203 "Tax Register Card"
         TaxRegPayrollLineSubformVisible := false;
 
         case true of
-            "Table ID" = DATABASE::"Tax Register CV Entry",
-          "Table ID" = DATABASE::"Tax Register FE Entry":
+            Rec."Table ID" = DATABASE::"Tax Register CV Entry",
+          Rec."Table ID" = DATABASE::"Tax Register FE Entry":
                 TaxRegTemplateSubformVisible := true;
-            "Table ID" = DATABASE::"Tax Register FA Entry":
+            Rec."Table ID" = DATABASE::"Tax Register FA Entry":
                 TaxRegFATemplateSubformVisible := true;
-            "Storing Method" = "Storing Method"::"Build Entry":
+            Rec."Storing Method" = Rec."Storing Method"::"Build Entry":
                 begin
                     TaxRegLineSubformVisible := true;
                     TaxRegEntryTemplSubformVisible := true;
@@ -237,19 +237,12 @@ page 17203 "Tax Register Card"
 
     var
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
-        [InDataSet]
         TaxRegLineSubformVisible: Boolean;
-        [InDataSet]
         TaxRegEntryTemplSubformVisible: Boolean;
-        [InDataSet]
         TaxRegCalcTemplSubformVisible: Boolean;
-        [InDataSet]
         TaxRegTemplateSubformVisible: Boolean;
-        [InDataSet]
         TaxRegFATemplateSubformVisible: Boolean;
-        [InDataSet]
         TaxRegPayrollTemplateSubformVisible: Boolean;
-        [InDataSet]
         TaxRegPayrollLineSubformVisible: Boolean;
 
     [Scope('OnPrem')]
@@ -262,48 +255,48 @@ page 17203 "Tax Register Card"
         TaxRegItemEntry: Record "Tax Register Item Entry";
         TaxRegFEEntry: Record "Tax Register FE Entry";
     begin
-        case "Table ID" of
+        case Rec."Table ID" of
             DATABASE::"Tax Register Accumulation":
                 begin
                     TaxRegAccumulEntry.FilterGroup := 2;
-                    TaxRegAccumulEntry.SetRange("Section Code", "Section Code");
+                    TaxRegAccumulEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegAccumulEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegAccumulEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegAccumulEntry);
                 end;
             DATABASE::"Tax Register G/L Entry":
                 begin
                     TaxRegGLEntry.FilterGroup := 2;
-                    TaxRegGLEntry.SetRange("Section Code", "Section Code");
+                    TaxRegGLEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegGLEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegGLEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegGLEntry);
                 end;
             DATABASE::"Tax Register CV Entry":
                 begin
                     TaxRegCVEntry.FilterGroup := 2;
-                    TaxRegCVEntry.SetRange("Section Code", "Section Code");
+                    TaxRegCVEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegCVEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegCVEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegCVEntry);
                 end;
             DATABASE::"Tax Register FA Entry":
                 begin
                     TaxRegFAEntry.FilterGroup := 2;
-                    TaxRegFAEntry.SetRange("Section Code", "Section Code");
+                    TaxRegFAEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegFAEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegFAEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegFAEntry);
                 end;
             DATABASE::"Tax Register Item Entry":
                 begin
                     TaxRegItemEntry.FilterGroup := 2;
-                    TaxRegItemEntry.SetRange("Section Code", "Section Code");
+                    TaxRegItemEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegItemEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegItemEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegItemEntry);
                 end;
             DATABASE::"Tax Register FE Entry":
                 begin
                     TaxRegFEEntry.FilterGroup := 2;
-                    TaxRegFEEntry.SetRange("Section Code", "Section Code");
+                    TaxRegFEEntry.SetRange("Section Code", Rec."Section Code");
                     TaxRegFEEntry.FilterGroup := 0;
-                    PAGE.RunModal("Page ID", TaxRegFEEntry);
+                    PAGE.RunModal(Rec."Page ID", TaxRegFEEntry);
                 end;
         end;
     end;

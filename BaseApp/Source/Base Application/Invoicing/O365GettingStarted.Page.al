@@ -121,24 +121,24 @@ page 1309 "O365 Getting Started"
 
     trigger OnClosePage()
     begin
-        "Tour in Progress" := false;
-        "Tour Completed" := true;
-        Modify();
+        Rec."Tour in Progress" := false;
+        Rec."Tour Completed" := true;
+        Rec.Modify();
     end;
 
     trigger OnInit()
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId);
 
         ConfPersonalizationMgt.GetCurrentProfileNoError(CurrAllProfile);
     end;
 
     trigger OnOpenPage()
     begin
-        if not AlreadyShown() then
-            MarkAsShown();
+        if not Rec.AlreadyShown() then
+            Rec.MarkAsShown();
 
         CurrentPage := true;
     end;

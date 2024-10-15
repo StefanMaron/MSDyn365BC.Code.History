@@ -7,12 +7,12 @@ report 14978 "Transfer Shipment TORG-13"
     {
         dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Transfer Shipment Line"; "Transfer Shipment Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

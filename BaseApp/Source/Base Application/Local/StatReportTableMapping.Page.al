@@ -589,7 +589,7 @@ page 26592 "Stat. Report Table Mapping"
 
     trigger OnOpenPage()
     begin
-        Load("Report Code", "Table Code");
+        Load(Rec."Report Code", Rec."Table Code");
     end;
 
     var
@@ -602,69 +602,37 @@ page 26592 "Stat. Report Table Mapping"
         ColumnValue: Text[1024];
         ReportCode: Code[20];
         TableCode: Code[20];
-        [InDataSet]
         Field1Visible: Boolean;
-        [InDataSet]
         Field2Visible: Boolean;
-        [InDataSet]
         Field3Visible: Boolean;
-        [InDataSet]
         Field4Visible: Boolean;
-        [InDataSet]
         Field5Visible: Boolean;
-        [InDataSet]
         Field6Visible: Boolean;
-        [InDataSet]
         Field7Visible: Boolean;
-        [InDataSet]
         Field8Visible: Boolean;
-        [InDataSet]
         Field9Visible: Boolean;
-        [InDataSet]
         Field10Visible: Boolean;
-        [InDataSet]
         Field11Visible: Boolean;
-        [InDataSet]
         Field12Visible: Boolean;
-        [InDataSet]
         Field13Visible: Boolean;
-        [InDataSet]
         Field14Visible: Boolean;
-        [InDataSet]
         Field15Visible: Boolean;
-        [InDataSet]
         Field16Visible: Boolean;
-        [InDataSet]
         Field17Visible: Boolean;
-        [InDataSet]
         Field18Visible: Boolean;
-        [InDataSet]
         Field19Visible: Boolean;
-        [InDataSet]
         Field20Visible: Boolean;
-        [InDataSet]
         Field21Visible: Boolean;
-        [InDataSet]
         Field22Visible: Boolean;
-        [InDataSet]
         Field23Visible: Boolean;
-        [InDataSet]
         Field24Visible: Boolean;
-        [InDataSet]
         Field25Visible: Boolean;
-        [InDataSet]
         Field26Visible: Boolean;
-        [InDataSet]
         Field27Visible: Boolean;
-        [InDataSet]
         Field28Visible: Boolean;
-        [InDataSet]
         Field29Visible: Boolean;
-        [InDataSet]
         Field30Visible: Boolean;
-        [InDataSet]
         Field31Visible: Boolean;
-        [InDataSet]
         Field32Visible: Boolean;
 
     [Scope('OnPrem')]
@@ -726,7 +694,7 @@ page 26592 "Stat. Report Table Mapping"
         StatReportTableMapping.ShowMappingCard(
           ReportCode,
           TableCode,
-          "Line No.",
+          Rec."Line No.",
           MatrixRecords[MATRIX_ColumnOrdinal]."Line No.",
           ColumnValue);
     end;
@@ -737,7 +705,7 @@ page 26592 "Stat. Report Table Mapping"
         if StatReportTableMapping.Get(
              ReportCode,
              TableCode,
-             "Line No.",
+             Rec."Line No.",
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then
             ColumnValue := StatReportTableMapping.GetRecDescription();
@@ -750,7 +718,7 @@ page 26592 "Stat. Report Table Mapping"
         if StatReportTableMapping.Get(
              ReportCode,
              TableCode,
-             "Line No.",
+             Rec."Line No.",
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then
             StatReportTableMapping.Delete();

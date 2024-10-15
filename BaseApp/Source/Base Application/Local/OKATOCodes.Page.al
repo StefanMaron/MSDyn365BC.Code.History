@@ -13,7 +13,7 @@ page 12430 "OKATO Codes"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the standard OKATO classification code.';

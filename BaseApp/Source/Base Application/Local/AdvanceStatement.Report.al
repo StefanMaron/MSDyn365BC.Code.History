@@ -18,12 +18,12 @@ report 12452 "Advance Statement"
     {
         dataitem("Purchase Header"; "Purchase Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Invoice));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Invoice));
             RequestFilterFields = "No.";
             dataitem("Purchase Line"; "Purchase Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -57,7 +57,7 @@ report 12452 "Advance Statement"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnAfterGetRecord()
                 begin

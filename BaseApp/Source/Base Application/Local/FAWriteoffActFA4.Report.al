@@ -7,22 +7,22 @@ report 12493 "FA Write-off Act FA-4"
     {
         dataitem("FA Document Header"; "FA Document Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Writeoff));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Writeoff));
             RequestFilterFields = "No.";
             dataitem("FA Document Line"; "FA Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                 RequestFilterFields = "Line No.";
                 dataitem("Part 2"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                     dataitem("Main Asset Component"; "Main Asset Component")
                     {
-                        DataItemLink = "Main Asset No." = FIELD("FA No.");
+                        DataItemLink = "Main Asset No." = field("FA No.");
                         DataItemLinkReference = "FA Document Line";
-                        DataItemTableView = SORTING("Main Asset No.", "FA No.");
+                        DataItemTableView = sorting("Main Asset No.", "FA No.");
 
                         trigger OnAfterGetRecord()
                         begin
@@ -37,9 +37,9 @@ report 12493 "FA Write-off Act FA-4"
                     }
                     dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
                     {
-                        DataItemLink = "No." = FIELD("FA No.");
+                        DataItemLink = "No." = field("FA No.");
                         DataItemLinkReference = "FA Document Line";
-                        DataItemTableView = SORTING("Item Type", "No.", "Precious Metals Code");
+                        DataItemTableView = sorting("Item Type", "No.", "Precious Metals Code");
 
                         trigger OnAfterGetRecord()
                         begin
@@ -61,13 +61,13 @@ report 12493 "FA Write-off Act FA-4"
                 }
                 dataitem("Part 3"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                     dataitem("Invt. Document Line"; "Invt. Document Line")
                     {
-                        DataItemLink = "Document No." = FIELD("Item Receipt No.");
+                        DataItemLink = "Document No." = field("Item Receipt No.");
                         DataItemLinkReference = "FA Document Line";
-                        DataItemTableView = SORTING("Document Type", "Document No.", "Line No.") WHERE("Document Type" = CONST(Receipt));
+                        DataItemTableView = sorting("Document Type", "Document No.", "Line No.") where("Document Type" = const(Receipt));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -98,7 +98,7 @@ report 12493 "FA Write-off Act FA-4"
                 }
                 dataitem(Footer; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
 
                     trigger OnPreDataItem()

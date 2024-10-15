@@ -9,7 +9,7 @@ report 14941 "Update G/L Corr.Analysis Views"
     {
         dataitem("G/L Corr. Analysis View"; "G/L Corr. Analysis View")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             RequestFilterFields = "Code";
 
             trigger OnAfterGetRecord()

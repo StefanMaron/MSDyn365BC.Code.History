@@ -7,12 +7,12 @@ report 14981 "Posted Purch. FA Receipt FA-14"
     {
         dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.") WHERE(Type = CONST("Fixed Asset"));
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.") where(Type = const("Fixed Asset"));
 
                 trigger OnAfterGetRecord()
                 begin

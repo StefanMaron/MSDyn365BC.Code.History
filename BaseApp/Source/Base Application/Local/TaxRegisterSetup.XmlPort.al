@@ -66,7 +66,7 @@
                 }
                 tableelement("Tax Register"; "Tax Register")
                 {
-                    LinkFields = "Section Code" = FIELD(Code);
+                    LinkFields = "Section Code" = field(Code);
                     LinkTable = "Tax Register Section";
                     MinOccurs = Zero;
                     XmlName = 'TaxRegister';
@@ -106,7 +106,7 @@
                     }
                     tableelement("Tax Register Line Setup"; "Tax Register Line Setup")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterLineSetup';
@@ -150,7 +150,7 @@
                     }
                     tableelement("Tax Register Template"; "Tax Register Template")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), Code = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), Code = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterTemplate';
@@ -233,7 +233,7 @@
                     }
                     tableelement("Tax Register Dim. Comb."; "Tax Register Dim. Comb.")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterDimComb';
@@ -262,7 +262,7 @@
                     }
                     tableelement("Tax Register Dim. Value Comb."; "Tax Register Dim. Value Comb.")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterDimValueComb';
@@ -294,7 +294,7 @@
                     }
                     tableelement("Tax Register Dim. Def. Value"; "Tax Register Dim. Def. Value")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterDimDefValue';
@@ -329,7 +329,7 @@
                     }
                     tableelement("Tax Register Dim. Filter"; "Tax Register Dim. Filter")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterDimFilter';
@@ -361,7 +361,7 @@
                     }
                     tableelement("Tax Reg. G/L Corr. Dim. Filter"; "Tax Reg. G/L Corr. Dim. Filter")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Tax Register No." = field("No.");
                         LinkTable = "Tax Register";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterCorrDimFilter';
@@ -391,7 +391,7 @@
                 }
                 tableelement("Tax Register Term"; "Tax Register Term")
                 {
-                    LinkFields = "Section Code" = FIELD(Code);
+                    LinkFields = "Section Code" = field(Code);
                     LinkTable = "Tax Register Section";
                     MinOccurs = Zero;
                     XmlName = 'TaxRegisterTerm';
@@ -422,7 +422,7 @@
                     }
                     tableelement("Tax Register Term Formula"; "Tax Register Term Formula")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Term Code" = FIELD("Term Code");
+                        LinkFields = "Section Code" = field("Section Code"), "Term Code" = field("Term Code");
                         LinkTable = "Tax Register Term";
                         MinOccurs = Zero;
                         XmlName = 'TaxRegisterTermFormula';

@@ -32,13 +32,13 @@ table 12471 "Posted FA Doc. Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(9; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(10; "Language Code"; Code[10])
         {
@@ -52,9 +52,9 @@ table 12471 "Posted FA Doc. Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("Posted FA Comment" WHERE("Document Type" = FIELD("Document Type"),
-                                                           "Document No." = FIELD("No."),
-                                                           "Document Line No." = CONST(0)));
+            CalcFormula = exist("Posted FA Comment" where("Document Type" = field("Document Type"),
+                                                           "Document No." = field("No."),
+                                                           "Document Line No." = const(0)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -110,8 +110,6 @@ table 12471 "Posted FA Doc. Header"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(51; "Creation Date"; Date)
@@ -126,7 +124,7 @@ table 12471 "Posted FA Doc. Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
         }
     }

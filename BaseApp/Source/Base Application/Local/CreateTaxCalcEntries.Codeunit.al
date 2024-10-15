@@ -4,7 +4,7 @@ codeunit 17305 "Create Tax Calc. Entries"
 
     trigger OnRun()
     begin
-        Code("Starting Date", "Ending Date", "Section Code");
+        Code(Rec."Starting Date", Rec."Ending Date", Rec."Section Code");
     end;
 
     var

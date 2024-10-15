@@ -26,7 +26,7 @@ page 12479 "FA Movement Act Subform"
                         FADocHeader: Record "FA Document Header";
                         FAList: Page "Fixed Asset List";
                     begin
-                        FADocHeader.Get("Document Type", "Document No.");
+                        FADocHeader.Get(Rec."Document Type", Rec."Document No.");
                         FA.Reset();
                         if FADocHeader."FA Location Code" <> '' then begin
                             FA.SetCurrentKey("FA Location Code");
@@ -35,12 +35,12 @@ page 12479 "FA Movement Act Subform"
                             FA.FilterGroup := 0;
                         end;
                         FAList.SetTableView(FA);
-                        if FA.Get("FA No.") then
+                        if FA.Get(Rec."FA No.") then
                             FAList.SetRecord(FA);
                         FAList.LookupMode(true);
                         if FAList.RunModal() = ACTION::LookupOK then begin
                             FAList.GetRecord(FA);
-                            Validate("FA No.", FA."No.");
+                            Rec.Validate("FA No.", FA."No.");
                         end;
                     end;
                 }
@@ -115,7 +115,7 @@ page 12479 "FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -127,7 +127,7 @@ page 12479 "FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
             }
@@ -202,7 +202,6 @@ page 12479 "FA Movement Act Subform"
     end;
 
     var
-        [InDataSet]
         FAEmployeeNoVisible: Boolean;
 
     [Scope('OnPrem')]
@@ -213,7 +212,7 @@ page 12479 "FA Movement Act Subform"
 
     local procedure SetFilters(var FADocHeader: Record "FA Document Header"; var FADocLine: Record "FA Document Line")
     begin
-        FADocHeader.Get("Document Type", "Document No.");
+        FADocHeader.Get(Rec."Document Type", Rec."Document No.");
         FADocHeader.SetRecFilter();
         FADocLine := Rec;
         FADocLine.SetRecFilter();

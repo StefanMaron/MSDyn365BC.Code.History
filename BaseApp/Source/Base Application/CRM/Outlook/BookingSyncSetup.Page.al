@@ -1,7 +1,13 @@
+namespace Microsoft.Booking;
+
+using Microsoft.CRM.Outlook;
+using System.Environment;
+using System.Security.AccessControl;
+
 page 6702 "Booking Sync. Setup"
 {
     Caption = 'Booking Sync. Setup';
-    DataCaptionExpression = "Booking Mailbox Name";
+    DataCaptionExpression = Rec."Booking Mailbox Name";
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -26,42 +32,42 @@ page 6702 "Booking Sync. Setup"
                         BookingMailbox: Record "Booking Mailbox";
                         BookingMailboxList: Page "Booking Mailbox List";
                     begin
-                        if Format("Last Customer Sync") + Format("Last Service Sync") <> '' then
+                        if Format(Rec."Last Customer Sync") + Format(Rec."Last Service Sync") <> '' then
                             if not Confirm(ChangeCompanyQst) then begin
-                                "Booking Mailbox Name" := xRec."Booking Mailbox Name";
+                                Rec."Booking Mailbox Name" := xRec."Booking Mailbox Name";
                                 exit;
                             end;
 
-                        O365SyncManagement.GetBookingMailboxes(Rec, TempBookingMailbox, "Booking Mailbox Name");
+                        O365SyncManagement.GetBookingMailboxes(Rec, TempBookingMailbox, Rec."Booking Mailbox Name");
 
                         if TempBookingMailbox.Count = 0 then
                             Error(NoMailboxErr);
 
                         if TempBookingMailbox.Count = 1 then begin
-                            "Booking Mailbox Address" := TempBookingMailbox.SmtpAddress;
-                            "Booking Mailbox Name" := TempBookingMailbox."Display Name";
+                            Rec."Booking Mailbox Address" := TempBookingMailbox.SmtpAddress;
+                            Rec."Booking Mailbox Name" := TempBookingMailbox."Display Name";
                         end else begin
                             BookingMailboxList.SetMailboxes(TempBookingMailbox);
                             BookingMailboxList.LookupMode(true);
                             if BookingMailboxList.RunModal() in [ACTION::LookupOK, ACTION::OK] then begin
                                 BookingMailboxList.GetRecord(BookingMailbox);
-                                "Booking Mailbox Address" := BookingMailbox.SmtpAddress;
-                                "Booking Mailbox Name" := BookingMailbox."Display Name";
+                                Rec."Booking Mailbox Address" := BookingMailbox.SmtpAddress;
+                                Rec."Booking Mailbox Name" := BookingMailbox."Display Name";
                             end else
-                                "Booking Mailbox Name" := xRec."Booking Mailbox Name";
+                                Rec."Booking Mailbox Name" := xRec."Booking Mailbox Name";
                         end;
 
-                        if "Booking Mailbox Name" <> xRec."Booking Mailbox Name" then begin
-                            Clear("Last Customer Sync");
-                            Clear("Last Service Sync");
-                            Modify();
+                        if Rec."Booking Mailbox Name" <> xRec."Booking Mailbox Name" then begin
+                            Clear(Rec."Last Customer Sync");
+                            Clear(Rec."Last Service Sync");
+                            Rec.Modify();
                             CurrPage.Update();
                         end;
 
                         Session.LogMessage('0000ACL', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
                     end;
                 }
-                field(SyncUser; "User ID")
+                field(SyncUser; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Synchronization User';
@@ -69,7 +75,7 @@ page 6702 "Booking Sync. Setup"
                     Enabled = false;
                     ToolTip = 'Specifies the user on behalf of which to run the synchronize operation.';
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enable Background Synchronization';
@@ -141,9 +147,9 @@ page 6702 "Booking Sync. Setup"
                     begin
                         Clear(O365SyncManagement);
                         if O365SyncManagement.IsO365Setup(false) then begin
-                            if "Sync Customers" then
+                            if Rec."Sync Customers" then
                                 O365SyncManagement.SyncBookingCustomers(Rec);
-                            if "Sync Services" then
+                            if Rec."Sync Services" then
                                 O365SyncManagement.SyncBookingServices(Rec);
                         end;
                     end;
@@ -159,7 +165,7 @@ page 6702 "Booking Sync. Setup"
                     trigger OnAction()
                     begin
                         if Confirm(SetSyncUserQst) then begin
-                            Validate("User ID", UserId);
+                            Rec.Validate("User ID", UserId);
                             GetExchangeAccount();
                         end;
                     end;
@@ -194,7 +200,7 @@ page 6702 "Booking Sync. Setup"
                     var
                         BookingCustomerSync: Codeunit "Booking Customer Sync.";
                     begin
-                        CalcFields("Customer Filter");
+                        Rec.CalcFields("Customer Filter");
                         BookingCustomerSync.GetRequestParameters(Rec);
                     end;
                 }
@@ -209,7 +215,7 @@ page 6702 "Booking Sync. Setup"
                     var
                         BookingServiceSync: Codeunit "Booking Service Sync.";
                     begin
-                        CalcFields("Item Filter");
+                        Rec.CalcFields("Item Filter");
                         BookingServiceSync.GetRequestParameters(Rec);
                     end;
                 }
@@ -262,7 +268,7 @@ page 6702 "Booking Sync. Setup"
     begin
         CheckExistingSetup();
         GetExchangeAccount();
-        IsSyncUser := "User ID" = UserId;
+        IsSyncUser := Rec."User ID" = UserId;
         IsSaaS := EnvironmentInfo.IsSaaS();
         SetCustTemplateCodesVisibility();
     end;
@@ -288,19 +294,19 @@ page 6702 "Booking Sync. Setup"
         if not ExchangeSync.Get(UserId) or not O365SyncManagement.IsO365Setup(false) then
             Error(ExchangeSyncErr);
 
-        if not Get() then begin
-            Init();
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec."User ID" := CopyStr(UserId(), 1, MaxStrLen(Rec."User ID"));
             O365SyncManagement.GetBookingMailboxes(Rec, TempBookingMailbox, '');
 
             if TempBookingMailbox.Count = 0 then
                 Error(BookingsSetupErr);
 
             if TempBookingMailbox.Count = 1 then begin
-                "Booking Mailbox Address" := TempBookingMailbox.SmtpAddress;
-                "Booking Mailbox Name" := TempBookingMailbox."Display Name";
+                Rec."Booking Mailbox Address" := TempBookingMailbox.SmtpAddress;
+                Rec."Booking Mailbox Name" := TempBookingMailbox."Display Name";
             end;
-            Insert(true);
+            Rec.Insert(true);
         end;
     end;
 

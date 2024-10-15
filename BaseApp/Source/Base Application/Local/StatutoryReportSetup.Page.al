@@ -59,8 +59,8 @@ page 26581 "Statutory Report Setup"
 
     trigger OnOpenPage()
     begin
-        if not Get() then
-            Insert();
+        if not Rec.Get() then
+            Rec.Insert();
     end;
 }
 

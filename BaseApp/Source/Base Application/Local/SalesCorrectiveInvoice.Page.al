@@ -4,8 +4,8 @@ page 14971 "Sales Corrective Invoice"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice),
-                            "Corrective Document" = FILTER(true));
+    SourceTableView = where("Document Type" = filter(Invoice),
+                            "Corrective Document" = filter(true));
 
     layout
     {
@@ -21,7 +21,7 @@ page 14971 "Sales Corrective Invoice"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -120,7 +120,7 @@ page 14971 "Sales Corrective Invoice"
             part(SalesLines; "Sales Corr. Invoice Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Invoicing)
             {
@@ -327,9 +327,9 @@ page 14971 "Sales Corrective Invoice"
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -360,7 +360,7 @@ page 14971 "Sales Corrective Invoice"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
@@ -420,53 +420,53 @@ page 14971 "Sales Corrective Invoice"
         {
             part(Control1903720907; "Sales Hist. Sell-to FactBox")
             {
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = field("Sell-to Customer No.");
                 Visible = false;
             }
             part(Control1907234507; "Sales Hist. Bill-to FactBox")
             {
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = field("Bill-to Customer No.");
                 Visible = false;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = field("Bill-to Customer No.");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = field("Sell-to Customer No.");
                 Visible = true;
             }
             part(Control1906127307; "Sales Line FactBox")
             {
                 Provider = SalesLines;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
                 Visible = false;
             }
             part(Control1901314507; "Item Invoicing FactBox")
             {
                 ApplicationArea = Basic, Suite;
                 Provider = SalesLines;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
             part(Control1906354007; "Approval FactBox")
             {
-                SubPageLink = "Table ID" = CONST(36),
-                              "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No."),
-                              Status = CONST(Open);
+                SubPageLink = "Table ID" = const(36),
+                              "Document Type" = field("Document Type"),
+                              "Document No." = field("No."),
+                              Status = const(Open);
                 Visible = false;
             }
             part(Control1907012907; "Resource Details FactBox")
             {
                 Provider = SalesLines;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -499,7 +499,7 @@ page 14971 "Sales Corrective Invoice"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader();
+                        Rec.CalcInvDiscForHeader();
                         Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
@@ -510,7 +510,7 @@ page 14971 "Sales Corrective Invoice"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = field("Sell-to Customer No.");
                     ShortCutKey = 'Shift+F7';
                 }
                 action("Co&mments")
@@ -518,9 +518,9 @@ page 14971 "Sales Corrective Invoice"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Sales Comment Sheet";
-                    RunPageLink = "Document Type" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = field("Document Type"),
+                                  "No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -530,7 +530,7 @@ page 14971 "Sales Corrective Invoice"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action(Approvals)
@@ -556,9 +556,9 @@ page 14971 "Sales Corrective Invoice"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(36),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(36),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -679,7 +679,7 @@ page 14971 "Sales Corrective Invoice"
                     var
                         CorrDocMgt: Codeunit "Corrective Document Mgt.";
                     begin
-                        CorrDocMgt.SetSalesHeader("Document Type".AsInteger(), "No.");
+                        CorrDocMgt.SetSalesHeader(Rec."Document Type".AsInteger(), Rec."No.");
                         CorrDocMgt.SelectPstdSalesDocLines;
                     end;
                 }
@@ -864,21 +864,21 @@ page 14971 "Sales Corrective Invoice"
     trigger OnDeleteRecord(): Boolean
     begin
         CurrPage.SaveRecord();
-        exit(ConfirmDeletion());
+        exit(Rec.ConfirmDeletion());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserMgt.GetSalesFilter();
-        "Corrective Document" := true;
+        Rec."Responsibility Center" := UserMgt.GetSalesFilter();
+        Rec."Corrective Document" := true;
     end;
 
     trigger OnOpenPage()
     begin
         if UserMgt.GetSalesFilter() <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter());
-            FilterGroup(0);
+            Rec.FilterGroup(2);
+            Rec.SetRange("Responsibility Center", UserMgt.GetSalesFilter());
+            Rec.FilterGroup(0);
         end;
     end;
 
@@ -900,7 +900,7 @@ page 14971 "Sales Corrective Invoice"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
     end;
 }
 

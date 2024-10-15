@@ -28,7 +28,7 @@ page 17284 "Tax Reg. Norm Template Lines"
                     HideValue = ExpressionTypeHideValue;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -38,7 +38,7 @@ page 17284 "Tax Reg. Norm Template Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link group code associated with the norm template line.';
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period associated with the norm template line.';
@@ -58,12 +58,11 @@ page 17284 "Tax Reg. Norm Template Lines"
     end;
 
     var
-        [InDataSet]
         ExpressionTypeHideValue: Boolean;
 
     local procedure ExpressionTypeOnFormat()
     begin
-        if "Expression Type" = "Expression Type"::Norm then
+        if Rec."Expression Type" = Rec."Expression Type"::Norm then
             ExpressionTypeHideValue := true;
     end;
 }

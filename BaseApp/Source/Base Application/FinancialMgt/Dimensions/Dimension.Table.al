@@ -1,3 +1,16 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Intercompany.Dimension;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using System.Globalization;
+
 table 348 Dimension
 {
     Caption = 'Dimension';
@@ -158,6 +171,7 @@ table 348 Dimension
                     GLSetup.Modify();
                 end;
         end;
+
         RemoveICDimensionMappings();
     end;
 
@@ -503,7 +517,7 @@ table 348 Dimension
         end;
     end;
 
-    procedure SetMLCodeCaption(NewMLCodeCaption: Text[30]; LanguageID: Integer)
+    procedure SetMLCodeCaption(NewMLCodeCaption: Text[80]; LanguageID: Integer)
     begin
         if IsApplicationLanguage(LanguageID) then begin
             if "Code Caption" <> NewMLCodeCaption then begin
@@ -519,7 +533,7 @@ table 348 Dimension
         end;
     end;
 
-    procedure SetMLFilterCaption(NewMLFilterCaption: Text[30]; LanguageID: Integer)
+    procedure SetMLFilterCaption(NewMLFilterCaption: Text[80]; LanguageID: Integer)
     begin
         if IsApplicationLanguage(LanguageID) then begin
             if "Filter Caption" <> NewMLFilterCaption then begin
@@ -535,7 +549,7 @@ table 348 Dimension
         end;
     end;
 
-    procedure SetMLDescription(NewMLDescription: Text[50]; LanguageID: Integer)
+    procedure SetMLDescription(NewMLDescription: Text[100]; LanguageID: Integer)
     begin
         if IsApplicationLanguage(LanguageID) then begin
             if Description <> NewMLDescription then begin

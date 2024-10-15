@@ -151,14 +151,14 @@ table 17236 "Tax Register Setup"
         field(17220; "Depr. Bonus TD Code"; Code[10])
         {
             Caption = 'Depr. Bonus TD Code';
-            TableRelation = "Tax Difference" WHERE(Type = CONST(Temporary),
-                                                    "Depreciation Bonus" = CONST(true));
+            TableRelation = "Tax Difference" where(Type = const(Temporary),
+                                                    "Depreciation Bonus" = const(true));
         }
         field(17222; "Default FA TD Code"; Code[10])
         {
             Caption = 'Default FA TD Code';
-            TableRelation = "Tax Difference" WHERE("Source Code Mandatory" = CONST(true),
-                                                    "Depreciation Bonus" = CONST(false));
+            TableRelation = "Tax Difference" where("Source Code Mandatory" = const(true),
+                                                    "Depreciation Bonus" = const(false));
         }
         field(17223; "Depr. Bonus Recovery from"; Date)
         {
@@ -172,16 +172,16 @@ table 17236 "Tax Register Setup"
         field(17225; "Disposal TD Code"; Code[10])
         {
             Caption = 'Disposal TD Code';
-            TableRelation = "Tax Difference" WHERE("Source Code Mandatory" = CONST(true),
-                                                    "Depreciation Bonus" = CONST(false),
-                                                    Type = CONST(Constant));
+            TableRelation = "Tax Difference" where("Source Code Mandatory" = const(true),
+                                                    "Depreciation Bonus" = const(false),
+                                                    Type = const(Constant));
         }
         field(17226; "Depr. Bonus Recovery TD Code"; Code[10])
         {
             Caption = 'Depr. Bonus Recovery TD Code';
-            TableRelation = "Tax Difference" WHERE("Source Code Mandatory" = CONST(true),
-                                                    "Depreciation Bonus" = CONST(false),
-                                                    Type = CONST(Constant));
+            TableRelation = "Tax Difference" where("Source Code Mandatory" = const(true),
+                                                    "Depreciation Bonus" = const(false),
+                                                    Type = const(Constant));
         }
         field(17227; "Create Data for Printing Forms"; Boolean)
         {

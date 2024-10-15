@@ -18,7 +18,7 @@ page 17242 "Tax Reg G/L Corres Dim Filters"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax register number associated with the tax register dimension filter.';
                 }
-                field(TaxRegDescription; TaxRegDescription())
+                field(TaxRegDescription; Rec.TaxRegDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -75,7 +75,7 @@ page 17242 "Tax Reg G/L Corres Dim Filters"
                 TaxRegDimFilter.SetRange("Entry No.", TaxRegDimCorrFilter."Connection Entry No.");
                 if TaxRegDimFilter.FindFirst() then begin
                     Rec := TaxRegDimFilter;
-                    Insert();
+                    Rec.Insert();
                 end;
             until TaxRegDimCorrFilter.Next() = 0;
     end;

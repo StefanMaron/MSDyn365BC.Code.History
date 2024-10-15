@@ -138,7 +138,7 @@ table 12477 "FA Document Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnLookup()
             begin
@@ -147,14 +147,14 @@ table 12477 "FA Document Line"
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(28; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnLookup()
             begin
@@ -163,7 +163,7 @@ table 12477 "FA Document Line"
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(30; Status; Option)
@@ -213,7 +213,7 @@ table 12477 "FA Document Line"
         field(50; "Item Receipt No."; Code[20])
         {
             Caption = 'Item Receipt No.';
-            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = CONST(Receipt));
+            TableRelation = "Invt. Document Header"."No." where("Document Type" = const(Receipt));
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -223,7 +223,7 @@ table 12477 "FA Document Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -252,29 +252,13 @@ table 12477 "FA Document Line"
         FADeprBook: Record "FA Depreciation Book";
         DimMgt: Codeunit DimensionManagement;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    [Scope('OnPrem')]
-    procedure CreateDim(Type1: Integer; No1: Code[20])
-    var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        TableID[1] := Type1;
-        No[1] := No1;
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" := DimMgt.GetDefaultDimID(
-            TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" := DimMgt.GetDefaultDimID(
-            DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        "Dimension Set ID" :=
+            DimMgt.GetRecDefaultDimID(
+                Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -295,13 +279,13 @@ table 12477 "FA Document Line"
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
+        Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]
@@ -309,7 +293,7 @@ table 12477 "FA Document Line"
     begin
         TestField("Document No.");
         if ("Document Type" <> FADocHeader."Document Type") or ("Document No." <> FADocHeader."No.") then
-            FADocHeader.Get("Document Type", "Document No.");
+            FADocHeader.Get(Rec."Document Type", Rec."Document No.");
     end;
 
     local procedure GetFA(FANo: Code[20])

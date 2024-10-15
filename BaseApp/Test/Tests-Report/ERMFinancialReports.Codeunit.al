@@ -89,7 +89,7 @@ codeunit 134982 "ERM Financial Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', 1);
             LibraryReportDataset.AssertCurrentRowValueEquals('GLBalance', 2);
         end else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), 1));
+            Error(ReportErr, GenJournalLine.FieldCaption(Amount), 1);
     end;
 
     [Test]
@@ -118,7 +118,7 @@ codeunit 134982 "ERM Financial Reports"
         if LibraryReportDataset.GetNextRow then
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', GenJournalLine.Amount)
         else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+            Error(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount);
     end;
 
     [Test]
@@ -316,7 +316,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No."));
+            Error(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Statement_Amount_', -GenJournalLine.Amount);
     end;
 
@@ -362,7 +362,7 @@ codeunit 134982 "ERM Financial Reports"
         if LibraryReportDataset.GetNextRow then
             LibraryReportDataset.AssertCurrentRowValueEquals('FA_Ledger_Entry_Amount', GenJournalLine.Amount)
         else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+            Error(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount);
     end;
 
     [Test]
@@ -434,7 +434,7 @@ codeunit 134982 "ERM Financial Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Maintenance_Ledger_Entry__Posting_Date_', Format(GenJournalLine."Posting Date"));
         end else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+            Error(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount);
     end;
 
     [Test]
@@ -564,7 +564,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No__Series_Line__Series_Code_', NoSeriesLine."Series Code"));
+            Error(RowNotFoundErr, 'No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
     end;
 
@@ -715,7 +715,7 @@ codeunit 134982 "ERM Financial Reports"
         FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
         LibraryReportDataset.SetRange('No__Series_Line_Series_Code', NoSeriesLine."Series Code");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No__Series_Line_Series_Code', NoSeriesLine."Series Code"));
+            Error(RowNotFoundErr, 'No__Series_Line_Series_Code', NoSeriesLine."Series Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Ending_No__', NoSeriesLine."Ending No.");
     end;
@@ -743,7 +743,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Related_No__SeriesCaption', RelatedNoSeriesTok);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Related_No__SeriesCaption', RelatedNoSeriesTok));
+            Error(RowNotFoundErr, 'Related_No__SeriesCaption', RelatedNoSeriesTok);
         LibraryReportDataset.AssertCurrentRowValueEquals('NoSeriesLine2_Series_Code', RelatedNoSeriesCode);
     end;
 
@@ -857,12 +857,12 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_GLAccount', GLAccountNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_GLAccount', GLAccountNo));
+            Error(RowNotFoundErr, 'No_GLAccount', GLAccountNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAccount', GLAccount.Name);
 
         LibraryReportDataset.SetRange('GetTableName', Customer.FieldCaption("Customer Posting Group"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'GetTableName', Customer.FieldCaption("Customer Posting Group")));
+            Error(RowNotFoundErr, 'GetTableName', Customer.FieldCaption("Customer Posting Group"));
         LibraryReportDataset.AssertCurrentRowValueEquals('ReconCustVendBufferPostingGroup', Customer."Customer Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('AccountType', CustomerPostingGroup.FieldCaption("Receivables Account"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount', TotalAmount);
@@ -2188,7 +2188,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryReportDataset.SetRange('No_GLAccount', AccountNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_GLAccount', AccountNo));
+            Error(RowNotFoundErr, 'No_GLAccount', AccountNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(FiscalYearBalance, ExpectedAmount);
     end;
 
@@ -2206,7 +2206,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryReportDataset.SetRange('G_L_Account___No__', GLAccount."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No."));
+            Error(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Bus__Posting_Group_', GLAccount."Gen. Bus. Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Prod__Posting_Group_', GLAccount."Gen. Prod. Posting Group");
     end;
@@ -2220,7 +2220,7 @@ codeunit 134982 "ERM Financial Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__Posting_Date_', Format(GenJournalLine."Posting Date"));
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__G_L_Account_No__', Format(GenJournalLine."Account No."))
         end else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No."));
+            Error(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No.");
     end;
 
     local procedure VerifyGLRegisterReport(GenJournalLine: Record "Gen. Journal Line"; GLRegisterNo: Integer)
@@ -2232,14 +2232,14 @@ codeunit 134982 "ERM Financial Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__Document_No__', GenJournalLine."Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__G_L_Account_No__', GenJournalLine."Account No.")
         end else
-            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No."));
+            Error(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No.");
     end;
 
     local procedure VerifyMaintenanceLedgerEntryAmount(RowCaption: Text; RowValue: Text; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, RowCaption, RowValue));
+            Error(RowNotFoundErr, RowCaption, RowValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('Maintenance_Ledger_Entry_Amount', Amount);
     end;
 
@@ -2258,7 +2258,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No."));
+            Error(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(DataSetField, Value);
     end;
 
@@ -2281,7 +2281,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No."));
+            Error(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Net_Change_', GenJournalLine."Debit Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAcc2__Budget_at_Date_', BudgetAtDate);
     end;
@@ -2290,14 +2290,14 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo_GLEntry', GenJournalLine."Document No."));
+            Error(RowNotFoundErr, 'DocumentNo_GLEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
     end;
 
     local procedure VerifyBankLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; Amount: Text[30])
     begin
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocNo_BankAccLedg', GenJournalLine."Document No."));
+            Error(RowNotFoundErr, 'DocNo_BankAccLedg', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
     end;
 

@@ -10,7 +10,7 @@ report 12439 "Customer Turnover"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Customer Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Date Filter";
             column(CurrentDate; CurrentDate)
             {
@@ -167,7 +167,7 @@ report 12439 "Customer Turnover"
             }
             dataitem("Customer Agreement"; "Customer Agreement")
             {
-                DataItemLink = "Customer No." = FIELD("No.");
+                DataItemLink = "Customer No." = field("No.");
                 column(Customer_Agreement__No__; "No.")
                 {
                 }
@@ -405,9 +405,7 @@ report 12439 "Customer Turnover"
         Counter: Integer;
         I: Integer;
         LineAmountAgr: array[10] of Decimal;
-        [InDataSet]
         PrintAgreementsVisible: Boolean;
-        [InDataSet]
         "Print by AgreementsVisible": Boolean;
         CustomerCaptionLbl: Label 'Customer';
         PageCaptionLbl: Label 'Page';

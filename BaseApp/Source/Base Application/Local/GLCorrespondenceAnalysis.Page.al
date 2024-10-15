@@ -116,11 +116,11 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "G/L Account Card";
-                    RunPageLink = "No." = FIELD("Debit Account No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Debit Global Dim. 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Debit Global Dim. 2 Filter"),
-                                  "Business Unit Filter" = FIELD("Business Unit Filter");
+                    RunPageLink = "No." = field("Debit Account No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Debit Global Dim. 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Debit Global Dim. 2 Filter"),
+                                  "Business Unit Filter" = field("Business Unit Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -130,8 +130,8 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Debit Account Ledger Entries';
                     Image = GL;
                     RunObject = Page "General Ledger Entries";
-                    RunPageLink = "G/L Account No." = FIELD("Debit Account No.");
-                    RunPageView = SORTING("G/L Account No.");
+                    RunPageLink = "G/L Account No." = field("Debit Account No.");
+                    RunPageView = sorting("G/L Account No.");
                     ShortCutKey = 'Ctrl+F7';
                 }
                 action("Co&mments")
@@ -139,8 +139,8 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("G/L Account"),
-                                  "No." = FIELD("Debit Account No.");
+                    RunPageLink = "Table Name" = const("G/L Account"),
+                                  "No." = field("Debit Account No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
@@ -149,8 +149,8 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(15),
-                                  "No." = FIELD("Debit Account No.");
+                    RunPageLink = "Table ID" = const(15),
+                                  "No." = field("Debit Account No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
                 }
@@ -160,9 +160,9 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'E&xtended Texts';
                     Image = Text;
                     RunObject = Page "Extended Text List";
-                    RunPageLink = "Table Name" = CONST("G/L Account"),
-                                  "No." = FIELD("Debit Account No.");
-                    RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
+                    RunPageLink = "Table Name" = const("G/L Account"),
+                                  "No." = field("Debit Account No.");
+                    RunPageView = sorting("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
                     ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
                 }
             }
@@ -175,11 +175,11 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Chart of Accounts";
-                    RunPageLink = "No." = FIELD("Credit Account No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Credit Global Dim. 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Credit Global Dim. 2 Filter"),
-                                  "Business Unit Filter" = FIELD("Business Unit Filter");
+                    RunPageLink = "No." = field("Credit Account No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Credit Global Dim. 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Credit Global Dim. 2 Filter"),
+                                  "Business Unit Filter" = field("Business Unit Filter");
                     ToolTip = 'View or edit details about the selected entity.';
                 }
                 action("Credit Account Ledger Entries")
@@ -188,16 +188,16 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Credit Account Ledger Entries';
                     Image = GL;
                     RunObject = Page "General Ledger Entries";
-                    RunPageLink = "G/L Account No." = FIELD("Credit Account No.");
-                    RunPageView = SORTING("G/L Account No.");
+                    RunPageLink = "G/L Account No." = field("Credit Account No.");
+                    RunPageView = sorting("G/L Account No.");
                 }
                 action(Action1210046)
                 {
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("G/L Account"),
-                                  "No." = FIELD("Credit Account No.");
+                    RunPageLink = "Table Name" = const("G/L Account"),
+                                  "No." = field("Credit Account No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Action1210047)
@@ -206,8 +206,8 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(15),
-                                  "No." = FIELD("Credit Account No.");
+                    RunPageLink = "Table ID" = const(15),
+                                  "No." = field("Credit Account No.");
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
                 }
                 action(Action1210048)
@@ -216,9 +216,9 @@ page 12402 "G/L Correspondence Analysis"
                     Caption = 'E&xtended Texts';
                     Image = Text;
                     RunObject = Page "Extended Text List";
-                    RunPageLink = "Table Name" = CONST("G/L Account"),
-                                  "No." = FIELD("Credit Account No.");
-                    RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
+                    RunPageLink = "Table Name" = const("G/L Account"),
+                                  "No." = field("Credit Account No.");
+                    RunPageView = sorting("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
                     ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
                 }
             }
@@ -274,7 +274,7 @@ page 12402 "G/L Correspondence Analysis"
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields(Amount, "Amount (ACY)");
+        Rec.CalcFields(Amount, "Amount (ACY)");
     end;
 
     trigger OnOpenPage()
@@ -293,8 +293,8 @@ page 12402 "G/L Correspondence Analysis"
         AccountingPeriod: Record "Accounting Period";
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
@@ -302,32 +302,32 @@ page 12402 "G/L Correspondence Analysis"
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then
             if Calendar."Period Start" = Calendar."Period End" then
-                SetRange("Date Filter", Calendar."Period Start")
+                Rec.SetRange("Date Filter", Calendar."Period Start")
             else
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
+                Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End")
         else
-            SetRange("Date Filter", 0D, Calendar."Period End");
+            Rec.SetRange("Date Filter", 0D, Calendar."Period End");
         if ClosingEntryFilter = ClosingEntryFilter::Exclude then begin
             AccountingPeriod.SetCurrentKey("New Fiscal Year");
             AccountingPeriod.SetRange("New Fiscal Year", true);
-            if GetRangeMin("Date Filter") = 0D then
-                AccountingPeriod.SetRange("Starting Date", 0D, GetRangeMax("Date Filter"))
+            if Rec.GetRangeMin("Date Filter") = 0D then
+                AccountingPeriod.SetRange("Starting Date", 0D, Rec.GetRangeMax("Date Filter"))
             else
                 AccountingPeriod.SetRange(
                   "Starting Date",
-                  GetRangeMin("Date Filter") + 1,
-                  GetRangeMax("Date Filter"));
+                  Rec.GetRangeMin("Date Filter") + 1,
+                  Rec.GetRangeMax("Date Filter"));
             if AccountingPeriod.Find('-') then
                 repeat
-                    SetFilter(
-                      "Date Filter", GetFilter("Date Filter") + '&<>%1',
+                    Rec.SetFilter(
+                      "Date Filter", Rec.GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
                 until AccountingPeriod.Next() = 0;
         end else
-            SetRange(
+            Rec.SetRange(
               "Date Filter",
-              GetRangeMin("Date Filter"),
-              ClosingDate(GetRangeMax("Date Filter")));
+              Rec.GetRangeMin("Date Filter"),
+              ClosingDate(Rec.GetRangeMax("Date Filter")));
     end;
 
     local procedure ClosingEntryFilterOnAfterValid()

@@ -1,13 +1,13 @@
 page 17220 "Tax Register G/L Entry"
 {
     Caption = 'Tax Register G/L Entry';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
     SourceTable = "Tax Register G/L Entry";
-    SourceTableView = SORTING("Section Code");
+    SourceTableView = sorting("Section Code");
 
     layout
     {
@@ -67,17 +67,17 @@ page 17220 "Tax Register G/L Entry"
                     ToolTip = 'Specifies the credit account number associated with the tax register general ledger entry.';
                     Visible = false;
                 }
-                field(DebitAccountName; DebitAccountName())
+                field(DebitAccountName; Rec.DebitAccountName())
                 {
                     Caption = 'Debit Account Name';
                     Visible = false;
                 }
-                field(CreditAccountName; CreditAccountName())
+                field(CreditAccountName; Rec.CreditAccountName())
                 {
                     Caption = 'Credit Account Name';
                     Visible = false;
                 }
-                field(Correction; Correction)
+                field(Correction; Rec.Correction)
                 {
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                     Visible = false;
@@ -92,7 +92,7 @@ page 17220 "Tax Register G/L Entry"
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field(SourceName; SourceName())
+                field(SourceName; Rec.SourceName())
                 {
                     Caption = 'Source Name';
                     Visible = false;
@@ -185,7 +185,7 @@ page 17220 "Tax Register G/L Entry"
 
                 trigger OnAction()
                 begin
-                    Navigating();
+                    Rec.Navigating();
                 end;
             }
         }
@@ -210,16 +210,16 @@ page 17220 "Tax Register G/L Entry"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if DateFilterText <> GetFilter("Date Filter") then
+        if DateFilterText <> Rec.GetFilter("Date Filter") then
             ShowNewData();
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        CopyFilter("Date Filter", Calendar."Period End");
-        CopyFilter("Date Filter", "Posting Date");
+        Rec.CopyFilter("Date Filter", Calendar."Period End");
+        Rec.CopyFilter("Date Filter", Rec."Posting Date");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
         Calendar.Reset();
     end;
@@ -235,24 +235,24 @@ page 17220 "Tax Register G/L Entry"
     procedure ShowNewData()
     begin
         FindPeriod('');
-        DateFilterText := GetFilter("Date Filter");
+        DateFilterText := Rec.GetFilter("Date Filter");
 
-        SetFilter("Posting Date", DateFilterText);
-        SetFilter("Date Filter", DateFilterText);
+        Rec.SetFilter("Posting Date", DateFilterText);
+        Rec.SetFilter("Date Filter", DateFilterText);
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar."Period End" := GetRangeMax("Date Filter");
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar."Period End" := Rec.GetRangeMax("Date Filter");
             if not TaxRegMgt.FindDate('', Calendar, PeriodType, AmountType) then
                 TaxRegMgt.FindDate('', Calendar, PeriodType::Month, AmountType);
         end;
         TaxRegMgt.FindDate(SearchText, Calendar, PeriodType, AmountType);
 
-        SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
+        Rec.SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
     end;
 }
 

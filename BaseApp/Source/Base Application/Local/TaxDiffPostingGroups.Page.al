@@ -14,7 +14,7 @@ page 17301 "Tax Diff. Posting Groups"
             repeater(Control1000000000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the tax differences posting group.';

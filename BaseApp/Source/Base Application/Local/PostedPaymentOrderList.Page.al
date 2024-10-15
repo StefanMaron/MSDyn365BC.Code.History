@@ -91,7 +91,7 @@ page 12425 "Posted Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account to which a balancing entry will posted, such as a cash account for cash purchases.';
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -167,7 +167,7 @@ page 12425 "Posted Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                 }
-                field(Positive; Positive)
+                field(Positive; Rec.Positive)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the check ledger entry is positive.';

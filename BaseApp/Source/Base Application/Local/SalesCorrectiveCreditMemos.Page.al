@@ -6,8 +6,8 @@ page 36848 "Sales Corrective Credit Memos"
     Editable = false;
     PageType = List;
     SourceTable = "Sales Header";
-    SourceTableView = WHERE("Document Type" = CONST("Credit Memo"),
-                            "Corrective Document" = CONST(true));
+    SourceTableView = where("Document Type" = const("Credit Memo"),
+                            "Corrective Document" = const(true));
     UsageCategory = Lists;
 
     layout
@@ -186,15 +186,15 @@ page 36848 "Sales Corrective Credit Memos"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -228,7 +228,7 @@ page 36848 "Sales Corrective Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader();
+                        Rec.CalcInvDiscForHeader();
                         Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
@@ -238,9 +238,9 @@ page 36848 "Sales Corrective Credit Memos"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Sales Comment Sheet";
-                    RunPageLink = "Document Type" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = field("Document Type"),
+                                  "No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -251,7 +251,7 @@ page 36848 "Sales Corrective Credit Memos"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action(Approvals)
@@ -368,7 +368,7 @@ page 36848 "Sales Corrective Credit Memos"
 
                     trigger OnAction()
                     begin
-                        SendToPosting(CODEUNIT::"Sales-Post (Yes/No)");
+                        Rec.SendToPosting(Codeunit::"Sales-Post (Yes/No)");
                     end;
                 }
                 action("Post and &Print")
@@ -381,7 +381,7 @@ page 36848 "Sales Corrective Credit Memos"
 
                     trigger OnAction()
                     begin
-                        SendToPosting(CODEUNIT::"Sales-Post + Print");
+                        Rec.SendToPosting(Codeunit::"Sales-Post + Print");
                     end;
                 }
                 action("Post &Batch")
@@ -410,7 +410,7 @@ page 36848 "Sales Corrective Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting();
+                        Rec.CancelBackgroundPosting();
                     end;
                 }
             }
@@ -443,13 +443,12 @@ page 36848 "Sales Corrective Credit Memos"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
         JobQueueActive := SalesSetup.JobQueueActive();
     end;
 
     var
         ReportPrint: Codeunit "Test Report-Print";
-        [InDataSet]
         JobQueueActive: Boolean;
         OpenApprovalEntriesExist: Boolean;
 
@@ -457,7 +456,7 @@ page 36848 "Sales Corrective Credit Memos"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
     end;
 }
 

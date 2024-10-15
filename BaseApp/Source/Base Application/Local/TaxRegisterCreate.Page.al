@@ -6,7 +6,7 @@ page 17236 "Tax Register Create"
     ModifyAllowed = false;
     PageType = Card;
     SourceTable = "Tax Register Section";
-    SourceTableView = WHERE(Status = FILTER(Open | Reporting));
+    SourceTableView = where(Status = filter(Open | Reporting));
 
     layout
     {
@@ -24,7 +24,7 @@ page 17236 "Tax Register Create"
 
                     trigger OnValidate()
                     begin
-                        TaxRegMgt.InitTaxPeriod(CalendarPeriod, Periodicity, "Starting Date");
+                        TaxRegMgt.InitTaxPeriod(CalendarPeriod, Periodicity, Rec."Starting Date");
                         AccountPeriod := '';
                         TaxRegMgt.SetCaptionPeriodAndYear(AccountPeriod, CalendarPeriod);
                         DatePeriod.Copy(CalendarPeriod);
@@ -190,12 +190,12 @@ page 17236 "Tax Register Create"
     trigger OnAfterGetRecord()
     begin
         TaxRegMgt.InitTaxPeriod(CalendarPeriod, Periodicity,
-          TaxRegMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Register Accumulation", true));
+          TaxRegMgt.GetNextAvailableBeginDate(Rec.Code, DATABASE::"Tax Register Accumulation", true));
         TaxRegMgt.SetCaptionPeriodAndYear(AccountPeriod, CalendarPeriod);
         DatePeriod.Copy(CalendarPeriod);
         TaxRegMgt.PeriodSetup(DatePeriod);
 
-        SetRecFilter();
+        Rec.SetRecFilter();
     end;
 
     trigger OnOpenPage()

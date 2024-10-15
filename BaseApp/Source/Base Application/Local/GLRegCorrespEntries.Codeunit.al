@@ -4,7 +4,7 @@ codeunit 12402 "G/L Reg. - Corresp. Entries"
 
     trigger OnRun()
     begin
-        GLCorrespEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
+        GLCorrespEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
         PAGE.Run(0, GLCorrespEntry);
     end;
 

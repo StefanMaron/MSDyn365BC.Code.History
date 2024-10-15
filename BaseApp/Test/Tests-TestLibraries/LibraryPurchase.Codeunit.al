@@ -752,6 +752,13 @@ codeunit 130512 "Library - Purchase"
         exit(VendorPostingGroup."Invoice Rounding Account");
     end;
 
+    procedure GetPurchaseReturnShipmentLine(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
+    begin
+        PurchGetReturnShipments.Run(PurchaseLine);
+    end;
+
     procedure GetPurchaseReceiptLine(var PurchaseLine: Record "Purchase Line")
     var
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
@@ -1252,6 +1259,17 @@ codeunit 130512 "Library - Purchase"
         VATLedgerExport.SetTableView(VATLedger);
         VATLedgerExport.UseRequestPage(false);
         VATLedgerExport.Run();
+    end;
+
+    procedure CreatePostVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Vendor, CreateVendorNo(), -LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
     end;
 
     [IntegrationEvent(false, false)]

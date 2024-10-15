@@ -7,7 +7,7 @@ page 12432 "Advance Statement Subform"
     PageType = ListPart;
     PopulateAllFields = true;
     SourceTable = "Purchase Line";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice));
+    SourceTableView = where("Document Type" = filter(Invoice));
 
     layout
     {
@@ -28,7 +28,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                     end;
                 }
@@ -189,7 +189,7 @@ page 12432 "Advance Statement Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord();
-                        ShowItemChargeAssgnt();
+                        Rec.ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -201,7 +201,7 @@ page 12432 "Advance Statement Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord();
-                        ShowItemChargeAssgnt();
+                        Rec.ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -212,7 +212,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Prod. Order No."; Rec."Prod. Order No.")
@@ -287,79 +287,79 @@ page 12432 "Advance Statement Subform"
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
                 {
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
             }
@@ -474,7 +474,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -498,7 +498,7 @@ page 12432 "Advance Statement Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -507,12 +507,12 @@ page 12432 "Advance Statement Subform"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Type := xRec.Type;
+        Rec.Type := xRec.Type;
         Clear(ShortcutDimCode);
     end;
 
@@ -553,7 +553,7 @@ page 12432 "Advance Statement Subform"
     [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt();
+        Rec.ShowItemChargeAssgnt();
     end;
 
     [Scope('OnPrem')]
@@ -565,7 +565,7 @@ page 12432 "Advance Statement Subform"
     local procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
-        if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
+        if (Rec.Type = Rec.Type::"Charge (Item)") and (Rec."No." <> xRec."No.") and
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord();

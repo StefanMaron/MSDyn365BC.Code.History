@@ -9,12 +9,12 @@ report 17302 "Calculate FE Depreciation"
     {
         dataitem("Fixed Asset"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.") WHERE("FA Type" = CONST("Future Expense"));
+            DataItemTableView = sorting("No.") where("FA Type" = const("Future Expense"));
             RequestFilterFields = "No.";
             dataitem("FA Depreciation Book"; "FA Depreciation Book")
             {
-                DataItemLink = "FA No." = FIELD("No.");
-                DataItemTableView = SORTING("Depreciation Book Code", "FA No.");
+                DataItemLink = "FA No." = field("No.");
+                DataItemTableView = sorting("Depreciation Book Code", "FA No.");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -442,13 +442,11 @@ report 17302 "Calculate FE Depreciation"
         AccountPeriod: Text[30];
         ProgressiveTotal: Boolean;
         Text12409: Label 'Posting Date must be into Accounting Period.';
-        [InDataSet]
         Details: Boolean;
         Text12411: Label 'FED-';
         Text12410: Label ' FE Depreciation';
         Text12412: Label 'No. of Days in Fiscal Year for Depr. Book %1 = %2 will calculate incorrect depreciation amounts. Continue?';
         DepreciationBookFilter: Code[250];
-        [InDataSet]
         DaysFieldEnable: Boolean;
 
     [Scope('OnPrem')]

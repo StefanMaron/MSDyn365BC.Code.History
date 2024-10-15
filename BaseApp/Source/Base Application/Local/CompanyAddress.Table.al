@@ -60,8 +60,6 @@ table 12425 "Company Address"
         field(12; "Region Code"; Code[10])
         {
             Caption = 'Region Code';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -114,8 +112,6 @@ table 12425 "Company Address"
         {
             Caption = 'Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()

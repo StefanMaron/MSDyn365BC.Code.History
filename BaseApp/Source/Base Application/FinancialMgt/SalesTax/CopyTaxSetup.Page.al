@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Foundation.Company;
+using System.Environment;
+
 page 476 "Copy Tax Setup"
 {
     ApplicationArea = SalesTax;
@@ -120,13 +125,9 @@ page 476 "Copy Tax Setup"
         CopyTable: array[4] of Boolean;
         i: Integer;
         CopyMode: Option All,Custom;
-        [InDataSet]
         TaxGroupsEnable: Boolean;
-        [InDataSet]
         TaxJurisdictionsEnable: Boolean;
-        [InDataSet]
         TaxAreasEnable: Boolean;
-        [InDataSet]
         TaxDetailEnable: Boolean;
 
         Text000: Label 'You must select a company other than the current company.';

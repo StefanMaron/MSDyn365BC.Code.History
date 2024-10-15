@@ -602,69 +602,37 @@ page 35623 "_Scalable Table Data Subform"
         ResultCode: Code[20];
         TableCode: Code[20];
         ShowOnlyChangedValues: Boolean;
-        [InDataSet]
         Field1Visible: Boolean;
-        [InDataSet]
         Field2Visible: Boolean;
-        [InDataSet]
         Field3Visible: Boolean;
-        [InDataSet]
         Field4Visible: Boolean;
-        [InDataSet]
         Field5Visible: Boolean;
-        [InDataSet]
         Field6Visible: Boolean;
-        [InDataSet]
         Field7Visible: Boolean;
-        [InDataSet]
         Field8Visible: Boolean;
-        [InDataSet]
         Field9Visible: Boolean;
-        [InDataSet]
         Field10Visible: Boolean;
-        [InDataSet]
         Field11Visible: Boolean;
-        [InDataSet]
         Field12Visible: Boolean;
-        [InDataSet]
         Field13Visible: Boolean;
-        [InDataSet]
         Field14Visible: Boolean;
-        [InDataSet]
         Field15Visible: Boolean;
-        [InDataSet]
         Field16Visible: Boolean;
-        [InDataSet]
         Field17Visible: Boolean;
-        [InDataSet]
         Field18Visible: Boolean;
-        [InDataSet]
         Field19Visible: Boolean;
-        [InDataSet]
         Field20Visible: Boolean;
-        [InDataSet]
         Field21Visible: Boolean;
-        [InDataSet]
         Field22Visible: Boolean;
-        [InDataSet]
         Field23Visible: Boolean;
-        [InDataSet]
         Field24Visible: Boolean;
-        [InDataSet]
         Field25Visible: Boolean;
-        [InDataSet]
         Field26Visible: Boolean;
-        [InDataSet]
         Field27Visible: Boolean;
-        [InDataSet]
         Field28Visible: Boolean;
-        [InDataSet]
         Field29Visible: Boolean;
-        [InDataSet]
         Field30Visible: Boolean;
-        [InDataSet]
         Field31Visible: Boolean;
-        [InDataSet]
         Field32Visible: Boolean;
 
     [Scope('OnPrem')]
@@ -679,10 +647,10 @@ page 35623 "_Scalable Table Data Subform"
         StatutoryReportDataHeader.Get(NewResultCode);
         ReportCode := StatutoryReportDataHeader."Report Code";
 
-        SetRange("Report Code", ReportCode);
-        SetRange("Table Code", TableCode);
-        SetRange("Report Data No.", ResultCode);
-        SetRange("Excel Sheet Name", ExcelSheetName);
+        Rec.SetRange("Report Code", ReportCode);
+        Rec.SetRange("Table Code", TableCode);
+        Rec.SetRange("Report Data No.", ResultCode);
+        Rec.SetRange("Excel Sheet Name", ExcelSheetName);
 
         i := 0;
         StatReportTableColumn.SetRange("Report Code", ReportCode);
@@ -739,7 +707,7 @@ page 35623 "_Scalable Table Data Subform"
              ReportCode,
              TableCode,
              ExcelSheetName,
-             "Line No.",
+             Rec."Line No.",
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then
             if StatReportDataChangeLog.ShouldValueBeDisplayed(
@@ -748,7 +716,7 @@ page 35623 "_Scalable Table Data Subform"
                  ReportCode,
                  TableCode,
                  ExcelSheetName,
-                 "Line No.",
+                 Rec."Line No.",
                  MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
             then
                 ColumnValue := StatutoryReportDataValue.Value;
@@ -762,7 +730,7 @@ page 35623 "_Scalable Table Data Subform"
         StatReportDataChangeLog.SetRange("Report Data No.", ResultCode);
         StatReportDataChangeLog.SetRange("Report Code", ReportCode);
         StatReportDataChangeLog.SetRange("Table Code", TableCode);
-        StatReportDataChangeLog.SetRange("Row No.", "Line No.");
+        StatReportDataChangeLog.SetRange("Row No.", Rec."Line No.");
         StatReportDataChangeLog.SetRange("Column No.", MatrixRecords[MATRIX_ColumnOrdinal]."Line No.");
         StatReportDataChangeLog.SetRange("Excel Sheet Name", ExcelSheetName);
         PAGE.RunModal(PAGE::"Stat. Report Data Change Log", StatReportDataChangeLog);
@@ -775,7 +743,7 @@ page 35623 "_Scalable Table Data Subform"
              ReportCode,
              TableCode,
              ExcelSheetName,
-             "Line No.",
+             Rec."Line No.",
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then begin
             StatutoryReportDataValue.Validate(Value, MATRIX_CellData[MATRIX_ColumnOrdinal]);
@@ -786,7 +754,7 @@ page 35623 "_Scalable Table Data Subform"
             StatutoryReportDataValue."Report Code" := ReportCode;
             StatutoryReportDataValue."Table Code" := TableCode;
             StatutoryReportDataValue."Excel Sheet Name" := ExcelSheetName;
-            StatutoryReportDataValue."Row No." := "Line No.";
+            StatutoryReportDataValue."Row No." := Rec."Line No.";
             StatutoryReportDataValue."Column No." := MatrixRecords[MATRIX_ColumnOrdinal]."Line No.";
             StatutoryReportDataValue.Validate(Value, MATRIX_CellData[MATRIX_ColumnOrdinal]);
             StatutoryReportDataValue.Insert();

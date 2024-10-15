@@ -33,6 +33,7 @@
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
@@ -46,6 +47,9 @@
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         isInitialized := true;
         Commit();
@@ -538,7 +542,7 @@
         ExecuteUIHandler;
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -588,7 +592,7 @@
     end;
 #endif
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -1286,7 +1290,7 @@
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', CurrencyExchangeRate2."Starting Date"));
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;

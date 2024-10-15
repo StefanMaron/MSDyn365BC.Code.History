@@ -84,7 +84,7 @@ page 12473 "Posted FA Writeoff Act Subf"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -96,7 +96,7 @@ page 12473 "Posted FA Writeoff Act Subf"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
             }
@@ -146,7 +146,7 @@ page 12473 "Posted FA Writeoff Act Subf"
 
     local procedure SetFilters(var PostedFADocHeader: Record "Posted FA Doc. Header"; var PostedFADocLine: Record "Posted FA Doc. Line")
     begin
-        PostedFADocHeader.Get("Document Type", "Document No.");
+        PostedFADocHeader.Get(Rec."Document Type", Rec."Document No.");
         PostedFADocHeader.SetRecFilter();
         PostedFADocLine := Rec;
         PostedFADocLine.SetRecFilter();

@@ -1,3 +1,5 @@
+namespace System.Test.Tooling;
+
 codeunit 149108 "BCPT Make Web Call"
 {
     SingleInstance = true;

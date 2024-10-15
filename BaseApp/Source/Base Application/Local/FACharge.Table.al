@@ -34,22 +34,22 @@ table 14907 "FA Charge"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Global Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Global Dimension 1 Code");
             end;
         }
         field(6; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Global Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
         field(7; "Exclude Cost for TA"; Boolean)
@@ -64,8 +64,8 @@ table 14907 "FA Charge"
         field(17300; "Tax Difference Code"; Code[10])
         {
             Caption = 'Tax Difference Code';
-            TableRelation = "Tax Difference" WHERE("Source Code Mandatory" = CONST(true),
-                                                    "Depreciation Bonus" = CONST(false));
+            TableRelation = "Tax Difference" where("Source Code Mandatory" = const(true),
+                                                    "Depreciation Bonus" = const(false));
         }
     }
 

@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Service.Item;
+
 table 5945 "Troubleshooting Setup"
 {
     Caption = 'Troubleshooting Setup';
@@ -20,11 +25,11 @@ table 5945 "Troubleshooting Setup"
         field(2; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST("Service Item Group")) "Service Item Group"
-            ELSE
-            IF (Type = CONST(Item)) Item
-            ELSE
-            IF (Type = CONST("Service Item")) "Service Item";
+            TableRelation = if (Type = const("Service Item Group")) "Service Item Group"
+            else
+            if (Type = const(Item)) Item
+            else
+            if (Type = const("Service Item")) "Service Item";
         }
         field(3; "Troubleshooting No."; Code[20])
         {
@@ -39,7 +44,7 @@ table 5945 "Troubleshooting Setup"
         }
         field(4; "Troubleshooting Description"; Text[100])
         {
-            CalcFormula = Lookup ("Troubleshooting Header".Description WHERE("No." = FIELD("Troubleshooting No.")));
+            CalcFormula = Lookup("Troubleshooting Header".Description where("No." = field("Troubleshooting No.")));
             Caption = 'Troubleshooting Description';
             Editable = false;
             FieldClass = FlowField;

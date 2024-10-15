@@ -74,7 +74,7 @@ page 12477 "Posted FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -86,7 +86,7 @@ page 12477 "Posted FA Release Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
                 action("&Print")
@@ -104,7 +104,7 @@ page 12477 "Posted FA Release Act Subform"
                         PostedFADocLine: Record "Posted FA Doc. Line";
                         FAPostedReleaseActRep: Report "FA Posted Release Act FA-1";
                     begin
-                        PostedFADocHeader.Get("Document Type", "Document No.");
+                        PostedFADocHeader.Get(Rec."Document Type", Rec."Document No.");
                         PostedFADocHeader.SetRecFilter();
                         PostedFADocLine := Rec;
                         PostedFADocLine.SetRecFilter();

@@ -7,12 +7,12 @@ report 14931 "Posted Item Write-off TORG-16"
     {
         dataitem(InvtShptHeader; "Invt. Shipment Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem(InvtShptLine1; "Invt. Shipment Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -41,8 +41,8 @@ report 14931 "Posted Item Write-off TORG-16"
             }
             dataitem(InvtShptLine2; "Invt. Shipment Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

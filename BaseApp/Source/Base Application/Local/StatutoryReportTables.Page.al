@@ -5,7 +5,7 @@ page 26552 "Statutory Report Tables"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Statutory Report Table";
-    SourceTableView = SORTING("Report Code", "Sequence No.");
+    SourceTableView = sorting("Report Code", "Sequence No.");
 
     layout
     {
@@ -14,7 +14,7 @@ page 26552 "Statutory Report Tables"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the statutory report table.';
@@ -86,30 +86,30 @@ page 26552 "Statutory Report Tables"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        TestField("Multipage Table", true);
+                        Rec.TestField("Multipage Table", true);
 
                         TableIndividualRequisite.FilterGroup(2);
-                        TableIndividualRequisite.SetRange("Report Code", "Report Code");
-                        TableIndividualRequisite.SetRange("Table Code", Code);
+                        TableIndividualRequisite.SetRange("Report Code", Rec."Report Code");
+                        TableIndividualRequisite.SetRange("Table Code", Rec.Code);
                         TableIndividualRequisite.FilterGroup(0);
                         if PAGE.RunModal(0, TableIndividualRequisite) = ACTION::LookupOK then begin
-                            "Page Indic. Requisite Line No." := TableIndividualRequisite."Line No.";
+                            Rec."Page Indic. Requisite Line No." := TableIndividualRequisite."Line No.";
                             PageIndicRowNo := TableIndividualRequisite."Row Code";
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Multipage Table", true);
+                        Rec.TestField("Multipage Table", true);
 
                         if PageIndicRowNo <> '' then begin
-                            TableIndividualRequisite.SetRange("Report Code", "Report Code");
-                            TableIndividualRequisite.SetRange("Table Code", Code);
+                            TableIndividualRequisite.SetRange("Report Code", Rec."Report Code");
+                            TableIndividualRequisite.SetRange("Table Code", Rec.Code);
                             TableIndividualRequisite.SetRange("Row Code", PageIndicRowNo);
                             TableIndividualRequisite.FindFirst();
-                            "Page Indic. Requisite Line No." := TableIndividualRequisite."Line No.";
+                            Rec."Page Indic. Requisite Line No." := TableIndividualRequisite."Line No.";
                         end else
-                            "Page Indic. Requisite Line No." := 0;
+                            Rec."Page Indic. Requisite Line No." := 0;
                     end;
                 }
                 field(PageIndicationForXML; GetPageIndicForXML())
@@ -121,15 +121,15 @@ page 26552 "Statutory Report Tables"
                     var
                         PageIndicationXMLElement: Record "Page Indication XML Element";
                     begin
-                        if not ("Multipage Table" or "Vertical Table") then
+                        if not (Rec."Multipage Table" or Rec."Vertical Table") then
                             Error(Text003,
-                              FieldCaption("Multipage Table"),
-                              FieldCaption("Vertical Table"),
-                              GetRecDescription());
+                              Rec.FieldCaption("Multipage Table"),
+                              Rec.FieldCaption("Vertical Table"),
+                              Rec.GetRecDescription());
 
                         PageIndicationXMLElement.FilterGroup(2);
-                        PageIndicationXMLElement.SetRange("Report Code", "Report Code");
-                        PageIndicationXMLElement.SetRange("Table Code", Code);
+                        PageIndicationXMLElement.SetRange("Report Code", Rec."Report Code");
+                        PageIndicationXMLElement.SetRange("Table Code", Rec.Code);
                         PageIndicationXMLElement.FilterGroup(0);
                         PAGE.RunModal(0, PageIndicationXMLElement);
                     end;
@@ -164,6 +164,11 @@ page 26552 "Statutory Report Tables"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the internal source number associated with the statutory report table.';
                 }
+                field("Int. Source Col. Name"; Rec."Int. Source Col. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the internal source number associated with the statutory report column layout.';
+                }
             }
         }
     }
@@ -181,8 +186,8 @@ page 26552 "Statutory Report Tables"
                     Caption = '&Rows';
                     Image = GetLines;
                     RunObject = Page "Report Table Rows";
-                    RunPageLink = "Report Code" = FIELD("Report Code"),
-                                  "Table Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field("Report Code"),
+                                  "Table Code" = field(Code);
                 }
                 action("&Columns")
                 {
@@ -190,8 +195,8 @@ page 26552 "Statutory Report Tables"
                     Caption = '&Columns';
                     Image = Column;
                     RunObject = Page "Report Table Columns";
-                    RunPageLink = "Report Code" = FIELD("Report Code"),
-                                  "Table Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field("Report Code"),
+                                  "Table Code" = field(Code);
                     ToolTip = 'Enter settings to define the values that the column displays in a report.';
                 }
                 action("&Individual Requisites")
@@ -200,8 +205,8 @@ page 26552 "Statutory Report Tables"
                     Caption = '&Individual Requisites';
                     Image = AdjustItemCost;
                     RunObject = Page "Table Individual Requisites";
-                    RunPageLink = "Report Code" = FIELD("Report Code"),
-                                  "Table Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field("Report Code"),
+                                  "Table Code" = field(Code);
                     ToolTip = 'View and edit individual requisites for the statutory report.';
                 }
                 action("Internal Data Source &Mapping")
@@ -212,8 +217,8 @@ page 26552 "Statutory Report Tables"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Stat. Report Table Mapping";
-                    RunPageLink = "Report Code" = FIELD("Report Code"),
-                                  "Table Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field("Report Code"),
+                                  "Table Code" = field(Code);
                     RunPageMode = Edit;
                     ToolTip = 'View mappings between statutory report tables.';
                 }
@@ -234,7 +239,7 @@ page 26552 "Statutory Report Tables"
 
                     trigger OnAction()
                     begin
-                        CreateAccSchedule();
+                        Rec.CreateAccSchedule();
                     end;
                 }
                 separator(Action1210022)
@@ -249,7 +254,7 @@ page 26552 "Statutory Report Tables"
 
                     trigger OnAction()
                     begin
-                        UpdateIntSourceLinks();
+                        Rec.UpdateIntSourceLinks();
                     end;
                 }
                 separator(Action1210060)
@@ -305,8 +310,8 @@ page 26552 "Statutory Report Tables"
     trigger OnAfterGetRecord()
     begin
         PageIndicRowNo := '';
-        if "Page Indic. Requisite Line No." <> 0 then begin
-            TableIndividualRequisite.Get("Report Code", Code, "Page Indic. Requisite Line No.");
+        if Rec."Page Indic. Requisite Line No." <> 0 then begin
+            TableIndividualRequisite.Get(Rec."Report Code", Rec.Code, Rec."Page Indic. Requisite Line No.");
             PageIndicRowNo := TableIndividualRequisite."Row Code";
         end;
     end;
@@ -317,11 +322,11 @@ page 26552 "Statutory Report Tables"
         SequenceNo: Integer;
     begin
         StatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
-        StatutoryReportTable.SetRange("Report Code", "Report Code");
+        StatutoryReportTable.SetRange("Report Code", Rec."Report Code");
 
         if BelowxRec then begin
             if StatutoryReportTable.FindLast() then;
-            "Sequence No." := StatutoryReportTable."Sequence No." + 1;
+            Rec."Sequence No." := StatutoryReportTable."Sequence No." + 1;
         end else begin
             SequenceNo := xRec."Sequence No.";
 
@@ -331,7 +336,7 @@ page 26552 "Statutory Report Tables"
                     StatutoryReportTable."Sequence No." := StatutoryReportTable."Sequence No." + 1;
                     StatutoryReportTable.Modify();
                 until StatutoryReportTable.Next(-1) = 0;
-            "Sequence No." := SequenceNo;
+            Rec."Sequence No." := SequenceNo;
         end;
     end;
 
@@ -348,15 +353,15 @@ page 26552 "Statutory Report Tables"
         SequenceNo: Integer;
     begin
         UpperStatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
-        UpperStatutoryReportTable.SetRange("Report Code", "Report Code");
-        UpperStatutoryReportTable.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
+        UpperStatutoryReportTable.SetRange("Report Code", Rec."Report Code");
+        UpperStatutoryReportTable.SetFilter("Sequence No.", '..%1', Rec."Sequence No." - 1);
         if UpperStatutoryReportTable.FindLast() then begin
             SequenceNo := UpperStatutoryReportTable."Sequence No.";
-            UpperStatutoryReportTable."Sequence No." := "Sequence No.";
+            UpperStatutoryReportTable."Sequence No." := Rec."Sequence No.";
             UpperStatutoryReportTable.Modify();
 
-            "Sequence No." := SequenceNo;
-            Modify();
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify();
         end;
     end;
 
@@ -367,15 +372,15 @@ page 26552 "Statutory Report Tables"
         SequenceNo: Integer;
     begin
         LowerStatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
-        LowerStatutoryReportTable.SetRange("Report Code", "Report Code");
-        LowerStatutoryReportTable.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
+        LowerStatutoryReportTable.SetRange("Report Code", Rec."Report Code");
+        LowerStatutoryReportTable.SetFilter("Sequence No.", '%1..', Rec."Sequence No." + 1);
         if LowerStatutoryReportTable.FindFirst() then begin
             SequenceNo := LowerStatutoryReportTable."Sequence No.";
-            LowerStatutoryReportTable."Sequence No." := "Sequence No.";
+            LowerStatutoryReportTable."Sequence No." := Rec."Sequence No.";
             LowerStatutoryReportTable.Modify();
 
-            "Sequence No." := SequenceNo;
-            Modify();
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify();
         end;
     end;
 
@@ -385,8 +390,8 @@ page 26552 "Statutory Report Tables"
         PageIndicationXMLElement: Record "Page Indication XML Element";
     begin
         PageIndicationForXML := '';
-        PageIndicationXMLElement.SetRange("Report Code", "Report Code");
-        PageIndicationXMLElement.SetRange("Table Code", Code);
+        PageIndicationXMLElement.SetRange("Report Code", Rec."Report Code");
+        PageIndicationXMLElement.SetRange("Table Code", Rec.Code);
         if PageIndicationXMLElement.FindSet() then
             repeat
                 if PageIndicationForXML = '' then

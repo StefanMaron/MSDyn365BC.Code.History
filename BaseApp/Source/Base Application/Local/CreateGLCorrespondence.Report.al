@@ -25,7 +25,7 @@ report 12430 "Create G/L Correspondence"
     {
         dataitem("G/L Entry"; "G/L Entry")
         {
-            DataItemTableView = SORTING("Transaction No.");
+            DataItemTableView = sorting("Transaction No.");
             RequestFilterFields = "Transaction No.";
 
             trigger OnAfterGetRecord()

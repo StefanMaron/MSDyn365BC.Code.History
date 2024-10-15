@@ -14,7 +14,7 @@ table 26554 "Stat. Report Table Column"
         field(2; "Table Code"; Code[20])
         {
             Caption = 'Table Code';
-            TableRelation = "Statutory Report Table".Code WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "Statutory Report Table".Code where("Report Code" = field("Report Code"));
         }
         field(3; "Line No."; Integer)
         {

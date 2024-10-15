@@ -7,7 +7,7 @@ report 12459 "Posted Bank Payment Order"
     {
         dataitem("Check Ledger Entry"; "Check Ledger Entry")
         {
-            DataItemTableView = SORTING("Entry No.") WHERE("Entry Status" = CONST(Posted));
+            DataItemTableView = sorting("Entry No.") where("Entry Status" = const(Posted));
             PrintOnlyIfDetail = false;
             RequestFilterFields = "Entry No.";
 

@@ -6,8 +6,8 @@ page 35604 "FA Release Acts"
     Editable = false;
     PageType = List;
     SourceTable = "FA Document Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Release));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Release));
     UsageCategory = Lists;
 
     layout
@@ -82,9 +82,9 @@ page 35604 "FA Release Acts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "FA Comments";
-                    RunPageLink = "Document Type" = CONST(Release),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Release),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -94,7 +94,7 @@ page 35604 "FA Release Acts"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -105,9 +105,9 @@ page 35604 "FA Release Acts"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12470),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12470),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }

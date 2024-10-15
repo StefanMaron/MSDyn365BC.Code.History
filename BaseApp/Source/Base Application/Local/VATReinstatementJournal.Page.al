@@ -87,7 +87,7 @@ page 14946 "VAT Reinstatement Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Correction; Correction)
+                field(Correction; Rec.Correction)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
@@ -193,7 +193,7 @@ page 14946 "VAT Reinstatement Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -242,7 +242,7 @@ page 14946 "VAT Reinstatement Journal"
                         Clear(GenJnlPost);
                         GenJnlPost.SetJnlType(3); // 3 = VAT Reinstatement
                         GenJnlPost.Run(Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -297,22 +297,22 @@ page 14946 "VAT Reinstatement Journal"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        TestField("Reinstatement VAT Entry No.");
+        Rec.TestField("Reinstatement VAT Entry No.");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         GLSetup.Get();
-        GenJnlTemplate.Get("Journal Template Name");
-        GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        "Source Code" := GenJnlTemplate."Source Code";
-        "Reason Code" := GenJnlBatch."Reason Code";
-        Correction := GLSetup."Red Storno VAT Reinstatement";
+        GenJnlTemplate.Get(Rec."Journal Template Name");
+        GenJnlBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name");
+        Rec."Source Code" := GenJnlTemplate."Source Code";
+        Rec."Reason Code" := GenJnlBatch."Reason Code";
+        Rec.Correction := GLSetup."Red Storno VAT Reinstatement";
 
         Clear(ShortcutDimCode);
     end;
@@ -321,9 +321,9 @@ page 14946 "VAT Reinstatement Journal"
     var
         JnlSelected: Boolean;
     begin
-        OpenedFromBatch := ("Journal Batch Name" <> '') and ("Journal Template Name" = '');
+        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Journal Template Name" = '');
         if OpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
@@ -349,10 +349,10 @@ page 14946 "VAT Reinstatement Journal"
         VATEntry: Record "VAT Entry";
         Navigate: Page Navigate;
     begin
-        if "Reinstatement VAT Entry No." <> 0 then begin
-            VATEntry.Get("Reinstatement VAT Entry No.");
+        if Rec."Reinstatement VAT Entry No." <> 0 then begin
+            VATEntry.Get(Rec."Reinstatement VAT Entry No.");
             SourceVATEntry.Get(VATEntry."Unrealized VAT Entry No.");
-            Navigate.SetDoc(SourceVATEntry."Posting Date", "Document No.");
+            Navigate.SetDoc(SourceVATEntry."Posting Date", Rec."Document No.");
         end;
         Navigate.Run();
     end;

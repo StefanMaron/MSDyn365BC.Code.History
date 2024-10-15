@@ -13,7 +13,7 @@ page 12489 "Depreciation Group"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for this depreciation group.';

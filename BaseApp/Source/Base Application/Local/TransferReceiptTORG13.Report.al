@@ -7,12 +7,12 @@ report 14977 "Transfer Receipt TORG-13"
     {
         dataitem("Transfer Receipt Header"; "Transfer Receipt Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Transfer Receipt Line"; "Transfer Receipt Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

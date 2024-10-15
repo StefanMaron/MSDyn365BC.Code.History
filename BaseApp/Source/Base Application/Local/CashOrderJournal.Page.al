@@ -57,7 +57,7 @@ page 12438 "Cash Order Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field(Prepayment; Prepayment)
+                field(Prepayment; Rec.Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
@@ -90,7 +90,7 @@ page 12438 "Cash Order Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Posting Group"; Rec."Posting Group")
@@ -120,7 +120,7 @@ page 12438 "Cash Order Journal"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
@@ -141,9 +141,9 @@ page 12438 "Cash Order Journal"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                         Clear(ChangeExchangeRate);
                     end;
                 }
@@ -220,7 +220,7 @@ page 12438 "Cash Order Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
@@ -261,79 +261,79 @@ page 12438 "Cash Order Journal"
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
                 {
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
@@ -378,7 +378,7 @@ page 12438 "Cash Order Journal"
                     Editable = false;
                     ToolTip = 'Specifies the name of the balancing account that has been entered on the journal line.';
                 }
-                field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                field(Balance; Balance + Rec."Balance (LCY)" - xRec."Balance (LCY)")
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
@@ -387,7 +387,7 @@ page 12438 "Cash Order Journal"
                     ToolTip = 'Specifies the balance that has accumulated in the journal on the line where the cursor is.';
                     Visible = BalanceVisible;
                 }
-                field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                field(TotalBalance; TotalBalance + Rec."Balance (LCY)" - xRec."Balance (LCY)")
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
@@ -429,7 +429,7 @@ page 12438 "Cash Order Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }
@@ -488,9 +488,9 @@ page 12438 "Cash Order Journal"
                     begin
                         GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         GenJnlLine.TestField("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
                         BankAcc.Get(GenJnlLine."Bal. Account No.");
                         case BankAcc."Account Type" of
@@ -511,9 +511,9 @@ page 12438 "Cash Order Journal"
 
                     trigger OnAction()
                     begin
-                        TestField("Bank Payment Type", "Bank Payment Type"::"Computer Check");
-                        TestField("Check Printed", true);
-                        if Confirm(Text000, false, "Document No.") then
+                        Rec.TestField("Bank Payment Type", "Bank Payment Type"::"Computer Check");
+                        Rec.TestField("Check Printed", true);
+                        if Confirm(Text000, false, Rec."Document No.") then
                             CheckManagement.VoidCheck(Rec);
                     end;
                 }
@@ -572,12 +572,12 @@ page 12438 "Cash Order Journal"
 
                     trigger OnAction()
                     begin
-                        if "Line No." = 0 then
-                            FieldError("Line No.");
+                        if Rec."Line No." = 0 then
+                            Rec.FieldError("Line No.");
                         GenJnlLine.Reset();
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         if GenJnlLine.Find('-') then
                             REPORT.RunModal(REPORT::"Copy Payment Document", true, true, GenJnlLine);
                     end;
@@ -625,7 +625,7 @@ page 12438 "Cash Order Journal"
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -655,7 +655,7 @@ page 12438 "Cash Order Journal"
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -700,7 +700,7 @@ page 12438 "Cash Order Journal"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnInit()
@@ -712,7 +712,7 @@ page 12438 "Cash Order Journal"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         UpdateBalance();
-        SetUpNewLine(xRec, Balance, BelowxRec);
+        Rec.SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
     end;
 
@@ -745,9 +745,7 @@ page 12438 "Cash Order Journal"
         ShortcutDimCode: array[8] of Code[20];
         Text000: Label 'Void Check %1?';
         Text001: Label 'Void all printed checks?';
-        [InDataSet]
         BalanceVisible: Boolean;
-        [InDataSet]
         TotalBalanceVisible: Boolean;
 
     local procedure UpdateBalance()

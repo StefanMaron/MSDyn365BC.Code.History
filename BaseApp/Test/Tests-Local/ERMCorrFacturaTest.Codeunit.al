@@ -446,6 +446,7 @@ codeunit 144718 "ERM Corr. Factura Test"
             Get();
             Validate("Credit Warnings", "Credit Warnings"::"No Warning");
             Validate("Stockout Warning", false);
+            Validate("Link Doc. Date To Posting Date", true);
             Modify(true);
         end;
     end;

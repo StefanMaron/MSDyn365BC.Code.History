@@ -7,12 +7,12 @@ report 14930 "Item Write-off act TORG-16"
     {
         dataitem(InvtDocHeader; "Invt. Document Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Shipment));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Shipment));
             RequestFilterFields = "Document Type", "No.";
             dataitem(InvtDocLine1; "Invt. Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -40,8 +40,8 @@ report 14930 "Item Write-off act TORG-16"
             }
             dataitem(InvtDocLine2; "Invt. Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

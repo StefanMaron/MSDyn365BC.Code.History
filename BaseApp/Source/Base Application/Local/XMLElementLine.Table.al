@@ -107,7 +107,7 @@ table 26570 "XML Element Line"
         field(15; "Table Code"; Code[20])
         {
             Caption = 'Table Code';
-            TableRelation = "Statutory Report Table".Code WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "Statutory Report Table".Code where("Report Code" = field("Report Code"));
 
             trigger OnValidate()
             var
@@ -242,8 +242,8 @@ table 26570 "XML Element Line"
         field(38; "Excel Sheet Name"; Text[30])
         {
             Caption = 'Excel Sheet Name';
-            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" WHERE("Report Code" = FIELD("Report Code"),
-                                                                           "Report Data No." = CONST(''));
+            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" where("Report Code" = field("Report Code"),
+                                                                           "Report Data No." = const(''));
         }
         field(40; "Fraction Digits"; Integer)
         {

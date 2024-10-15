@@ -12,7 +12,7 @@ report 14901 "Purch. without Vend. VAT Inv."
         dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
         {
             CalcFields = "Original Amount";
-            DataItemTableView = WHERE("Document Type" = FILTER(Invoice | "Credit Memo"));
+            DataItemTableView = where("Document Type" = filter(Invoice | "Credit Memo"));
             RequestFilterFields = "Vendor No.", "Posting Date";
             column(USERID; UserId)
             {

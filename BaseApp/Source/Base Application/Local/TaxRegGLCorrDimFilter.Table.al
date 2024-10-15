@@ -15,7 +15,7 @@ table 17244 "Tax Reg. G/L Corr. Dim. Filter"
         {
             Caption = 'Tax Register No.';
             NotBlank = true;
-            TableRelation = "Tax Register"."No." WHERE("Section Code" = FIELD("Section Code"));
+            TableRelation = "Tax Register"."No." where("Section Code" = field("Section Code"));
         }
         field(3; Define; Option)
         {
@@ -54,14 +54,12 @@ table 17244 "Tax Reg. G/L Corr. Dim. Filter"
         field(7; "Dimension Value Filter"; Code[250])
         {
             Caption = 'Dimension Value Filter';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
             ValidateTableRelation = false;
         }
         field(10; "Dimension Name"; Text[50])
         {
-            CalcFormula = Lookup (Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;

@@ -15,7 +15,7 @@ page 12420 "Bank Directory List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(BIC; BIC)
+                field(BIC; Rec.BIC)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT BIC code of the bank.';
@@ -50,12 +50,12 @@ page 12420 "Bank Directory List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the area name associated with the bank.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address associated with the bank.';
                 }
-                field(Telephone; Telephone)
+                field(Telephone; Rec.Telephone)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number associated with the bank.';
@@ -70,7 +70,7 @@ page 12420 "Bank Directory List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the bank records were last modified.';
                 }
-                field(RKC; RKC)
+                field(RKC; Rec.RKC)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the RKC number associated with the bank.';

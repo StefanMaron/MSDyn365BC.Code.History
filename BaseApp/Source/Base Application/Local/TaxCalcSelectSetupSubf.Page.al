@@ -31,8 +31,8 @@ page 17312 "Tax Calc. Select Setup Subf"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         GLAcc.Reset();
-                        if "Account No." <> '' then begin
-                            GLAcc.SetFilter("No.", "Account No.");
+                        if Rec."Account No." <> '' then begin
+                            GLAcc.SetFilter("No.", Rec."Account No.");
                             if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
@@ -56,8 +56,8 @@ page 17312 "Tax Calc. Select Setup Subf"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         GLAcc.Reset();
-                        if "Bal. Account No." <> '' then begin
-                            GLAcc.SetFilter("No.", "Bal. Account No.");
+                        if Rec."Bal. Account No." <> '' then begin
+                            GLAcc.SetFilter("No.", Rec."Bal. Account No.");
                             if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
@@ -109,13 +109,13 @@ page 17312 "Tax Calc. Select Setup Subf"
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
-        if "Dimensions Filters" then
+        Rec.CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
+        if Rec."Dimensions Filters" then
             DimFilters := Text1001
         else
             DimFilters := '';
 
-        if "G/L Corr. Dimensions Filters" then
+        if Rec."G/L Corr. Dimensions Filters" then
             GLCorrDimFilters := Text1001
         else
             GLCorrDimFilters := '';
@@ -123,7 +123,7 @@ page 17312 "Tax Calc. Select Setup Subf"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupRegisterType();
+        Rec.SetupRegisterType();
     end;
 
     var
@@ -141,17 +141,17 @@ page 17312 "Tax Calc. Select Setup Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxCalcHeader.Get("Section Code", "Register No.");
-        if (TaxCalcHeader."Table ID" <> DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
+        TaxCalcHeader.Get(Rec."Section Code", Rec."Register No.");
+        if (TaxCalcHeader."Table ID" <> DATABASE::"Tax Calc. G/L Entry") and (Rec."Line No." <> 0) then begin
             TemplateDimFilter.FilterGroup(2);
-            TemplateDimFilter.SetRange("Section Code", "Section Code");
-            TemplateDimFilter.SetRange("Register No.", "Register No.");
+            TemplateDimFilter.SetRange("Section Code", Rec."Section Code");
+            TemplateDimFilter.SetRange("Register No.", Rec."Register No.");
             TemplateDimFilter.SetRange(Define, TemplateDimFilter.Define::"Entry Setup");
             TemplateDimFilter.FilterGroup(0);
-            TemplateDimFilter.SetRange("Line No.", "Line No.");
+            TemplateDimFilter.SetRange("Line No.", Rec."Line No.");
             PAGE.RunModal(0, TemplateDimFilter);
         end else
-            Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("G/L Corr. Dimensions Filters"));
         CurrPage.Update(false);
     end;
 
@@ -162,35 +162,35 @@ page 17312 "Tax Calc. Select Setup Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxCalcHeader.Get("Section Code", "Register No.");
-        if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
+        TaxCalcHeader.Get(Rec."Section Code", Rec."Register No.");
+        if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and (Rec."Line No." <> 0) then begin
             TaxDifGLCorrDimFilter.FilterGroup(2);
-            TaxDifGLCorrDimFilter.SetRange("Section Code", "Section Code");
-            TaxDifGLCorrDimFilter.SetRange("Tax Calc. No.", "Register No.");
+            TaxDifGLCorrDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxDifGLCorrDimFilter.SetRange("Tax Calc. No.", Rec."Register No.");
             TaxDifGLCorrDimFilter.SetRange(Define, TaxDifGLCorrDimFilter.Define::"Entry Setup");
-            TaxDifGLCorrDimFilter.SetRange("Line No.", "Line No.");
+            TaxDifGLCorrDimFilter.SetRange("Line No.", Rec."Line No.");
             TaxDifGLCorrDimFilter.FilterGroup(0);
             PAGE.RunModal(0, TaxDifGLCorrDimFilter);
         end else
-            Error(Text1002, FieldCaption("Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("Dimensions Filters"));
         CurrPage.Update(false);
     end;
 
     local procedure LineCodeOnAfterValidate()
     begin
-        if "Line Code" <> '' then
+        if Rec."Line Code" <> '' then
             CurrPage.SaveRecord();
     end;
 
     local procedure AccountNoOnAfterValidate()
     begin
-        if "Account No." <> '' then
+        if Rec."Account No." <> '' then
             CurrPage.SaveRecord();
     end;
 
     local procedure BalAccountNoOnAfterValidate()
     begin
-        if "Bal. Account No." <> '' then
+        if Rec."Bal. Account No." <> '' then
             CurrPage.SaveRecord();
     end;
 }

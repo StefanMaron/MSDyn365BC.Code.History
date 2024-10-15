@@ -43,7 +43,7 @@ page 26553 "Report Table Rows"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the column name for the inserted requisite associated with the statutory report table row.';
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';

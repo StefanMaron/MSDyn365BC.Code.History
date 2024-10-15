@@ -17,7 +17,7 @@ page 26571 "Report Export Log"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Year; Year)
+                field(Year; Rec.Year)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the year of the export log entry.';
@@ -69,10 +69,10 @@ page 26571 "Report Export Log"
 
                 trigger OnAction()
                 begin
-                    CalcFields("Exported File");
-                    if "Exported File".HasValue() then begin
-                        TempBlob.FromRecord(Rec, FieldNo("Exported File"));
-                        FileMgt.BLOBExport(TempBlob, "File Name", true);
+                    Rec.CalcFields("Exported File");
+                    if Rec."Exported File".HasValue() then begin
+                        TempBlob.FromRecord(Rec, Rec.FieldNo("Exported File"));
+                        FileMgt.BLOBExport(TempBlob, Rec."File Name", true);
                     end else
                         Message(Text001);
                 end;

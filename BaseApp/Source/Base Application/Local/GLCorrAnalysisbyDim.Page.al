@@ -169,7 +169,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -178,7 +178,7 @@ page 14940 "G/L Corr. Analysis by Dim."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookUpCode(LineDimCode, Code);
+                        LookUpCode(LineDimCode, Rec.Code);
                     end;
                 }
                 field(Name; Rec.Name)
@@ -339,7 +339,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                     begin
                         CalculateClosingDateFilter();
                         FindPeriod('=');
-                        Amount := CalcDebitAmount();
+                        Rec.Amount := CalcDebitAmount();
                     end;
                 }
                 field(RoundingFactor; RoundingFactor)
@@ -496,23 +496,14 @@ page 14940 "G/L Corr. Analysis by Dim."
         CreditAmount: Decimal;
         StartDate: Date;
         EndDate: Date;
-        [InDataSet]
         CodeEmphasize: Boolean;
-        [InDataSet]
         NameEmphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
-        [InDataSet]
         DebitDim1FilterEnable: Boolean;
-        [InDataSet]
         DebitDim2FilterEnable: Boolean;
-        [InDataSet]
         DebitDim3FilterEnable: Boolean;
-        [InDataSet]
         CreditDim1FilterEnable: Boolean;
-        [InDataSet]
         CreditDim2FilterEnable: Boolean;
-        [InDataSet]
         CreditDim3FilterEnable: Boolean;
 
     local procedure DimCodeToOption(DimCode: Code[30]; GroupType: Option Debit,Credit): Integer
@@ -931,31 +922,31 @@ page 14940 "G/L Corr. Analysis by Dim."
         CreditDim1Filter := '';
         CreditDim2Filter := '';
         CreditDim3Filter := '';
-        DebitDim1Filter := GetFilter("Dimension 1 Value Filter");
-        DebitDim2Filter := GetFilter("Dimension 2 Value Filter");
-        DebitDim3Filter := GetFilter("Dimension 3 Value Filter");
-        CreditDim1Filter := GetFilter("Credit Dim. 1 Value Filter");
-        CreditDim2Filter := GetFilter("Credit Dim. 2 Value Filter");
-        CreditDim3Filter := GetFilter("Credit Dim. 3 Value Filter");
+        DebitDim1Filter := Rec.GetFilter("Dimension 1 Value Filter");
+        DebitDim2Filter := Rec.GetFilter("Dimension 2 Value Filter");
+        DebitDim3Filter := Rec.GetFilter("Dimension 3 Value Filter");
+        CreditDim1Filter := Rec.GetFilter("Credit Dim. 1 Value Filter");
+        CreditDim2Filter := Rec.GetFilter("Credit Dim. 2 Value Filter");
+        CreditDim3Filter := Rec.GetFilter("Credit Dim. 3 Value Filter");
 
         DebitDim1FilterEnable :=
           (GLCorrAnalysisView."Debit Dimension 1 Code" <> '') and
-          (GetFilter("Dimension 1 Value Filter") = '');
+          (Rec.GetFilter("Dimension 1 Value Filter") = '');
         DebitDim2FilterEnable :=
           (GLCorrAnalysisView."Debit Dimension 2 Code" <> '') and
-          (GetFilter("Dimension 2 Value Filter") = '');
+          (Rec.GetFilter("Dimension 2 Value Filter") = '');
         DebitDim3FilterEnable :=
           (GLCorrAnalysisView."Debit Dimension 3 Code" <> '') and
-          (GetFilter("Dimension 3 Value Filter") = '');
+          (Rec.GetFilter("Dimension 3 Value Filter") = '');
         CreditDim1FilterEnable :=
           (GLCorrAnalysisView."Credit Dimension 1 Code" <> '') and
-          (GetFilter("Credit Dim. 1 Value Filter") = '');
+          (Rec.GetFilter("Credit Dim. 1 Value Filter") = '');
         CreditDim2FilterEnable :=
           (GLCorrAnalysisView."Credit Dimension 2 Code" <> '') and
-          (GetFilter("Credit Dim. 2 Value Filter") = '');
+          (Rec.GetFilter("Credit Dim. 2 Value Filter") = '');
         CreditDim3FilterEnable :=
           (GLCorrAnalysisView."Credit Dimension 3 Code" <> '') and
-          (GetFilter("Credit Dim. 3 Value Filter") = '');
+          (Rec.GetFilter("Credit Dim. 3 Value Filter") = '');
 
         if DebitDim1FilterEnable then
             if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisView.Code, GLCorrAnalysisView."Debit Dimension 1 Code") then
@@ -1154,13 +1145,13 @@ page 14940 "G/L Corr. Analysis by Dim."
 
     local procedure CodeOnFormat()
     begin
-        CodeEmphasize := "Show in Bold";
+        CodeEmphasize := Rec."Show in Bold";
     end;
 
     local procedure NameOnFormat()
     begin
-        NameEmphasize := "Show in Bold";
-        NameIndent := Indentation;
+        NameEmphasize := Rec."Show in Bold";
+        NameIndent := Rec.Indentation;
     end;
 
     local procedure RoundAmount(Amount: Decimal): Decimal

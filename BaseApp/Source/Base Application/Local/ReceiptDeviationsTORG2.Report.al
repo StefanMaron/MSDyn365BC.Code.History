@@ -7,7 +7,7 @@ report 14925 "Receipt Deviations TORG-2"
     {
         dataitem("Document Print Buffer"; "Document Print Buffer")
         {
-            DataItemTableView = SORTING("User ID");
+            DataItemTableView = sorting("User ID");
 
             trigger OnPreDataItem()
             begin

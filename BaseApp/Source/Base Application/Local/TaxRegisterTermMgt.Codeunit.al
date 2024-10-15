@@ -30,8 +30,8 @@ codeunit 17200 "Tax Register Term Mgt."
         GlobalTemplateLineNo: Integer;
         GlobalDateFilter: Text;
         Text17200: Label 'IF TERM(%1) < 0 THEN ', Locked = true;
-        Text17201: Label ' ELSEIF TERM(%1) = 0 THEN ', Locked = true;
-        Text17202: Label ' ELSEIF TERM(%1) > 0 THEN ', Locked = true;
+        Text17201: Label ' elseIF TERM(%1) = 0 THEN ', Locked = true;
+        Text17202: Label ' elseIF TERM(%1) > 0 THEN ', Locked = true;
         Text17203: Label 'Equal,Account,Term,CorrAcc,Norm,5,6,7,8,9,10';
         Text17204: Label 'DB-CR,DB,CR,4,5,6,7,8,9,10';
         InvalidSymbol: Label '@#^&*/-+(){}[]<>|\!:', Locked = true;

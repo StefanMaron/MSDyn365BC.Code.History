@@ -14,7 +14,7 @@ table 12411 "VAT Ledger Line CD No."
         field(2; "Code"; Code[20])
         {
             Caption = 'Code';
-            TableRelation = "VAT Ledger".Code WHERE(Type = FIELD(Type));
+            TableRelation = "VAT Ledger".Code where(Type = field(Type));
         }
         field(3; "Line No."; Integer)
         {

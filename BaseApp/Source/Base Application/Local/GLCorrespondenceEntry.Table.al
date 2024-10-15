@@ -27,13 +27,13 @@ table 12401 "G/L Correspondence Entry"
         field(5; "Debit Source No."; Code[20])
         {
             Caption = 'Debit Source No.';
-            TableRelation = IF ("Debit Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Debit Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Debit Source Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Debit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Debit Source Type" = CONST(Customer)) Customer
+            else
+            if ("Debit Source Type" = CONST(Vendor)) Vendor
+            else
+            if ("Debit Source Type" = CONST("Bank Account")) "Bank Account"
+            else
+            if ("Debit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
         }
         field(6; "Credit Account No."; Code[20])
         {
@@ -43,13 +43,13 @@ table 12401 "G/L Correspondence Entry"
         field(7; "Credit Source No."; Code[20])
         {
             Caption = 'Credit Source No.';
-            TableRelation = IF ("Credit Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Credit Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Credit Source Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Credit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Credit Source Type" = CONST(Customer)) Customer
+            else
+            if ("Credit Source Type" = CONST(Vendor)) Vendor
+            else
+            if ("Credit Source Type" = CONST("Bank Account")) "Bank Account"
+            else
+            if ("Credit Source Type" = CONST("Fixed Asset")) "Fixed Asset";
         }
         field(8; Amount; Decimal)
         {
@@ -61,8 +61,6 @@ table 12401 "G/L Correspondence Entry"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(10; "Transaction No."; Integer)
@@ -78,13 +76,13 @@ table 12401 "G/L Correspondence Entry"
         {
             CaptionClass = '1,1,1,Debit ';
             Caption = 'Debit Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
         }
         field(13; "Debit Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2,Debit ';
             Caption = 'Debit Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
         }
         field(14; Positive; Boolean)
         {
@@ -116,13 +114,13 @@ table 12401 "G/L Correspondence Entry"
         {
             CaptionClass = '1,1,1,Credit ';
             Caption = 'Credit Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(1));
         }
         field(49; "Credit Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2,Credit ';
             Caption = 'Credit Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = CONST(2));
         }
         field(50; "Debit Entry No."; Integer)
         {

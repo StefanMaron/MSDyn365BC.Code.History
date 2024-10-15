@@ -13,7 +13,7 @@ page 14920 "Assessed Tax Allowances"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for an assessed tax allowance.';

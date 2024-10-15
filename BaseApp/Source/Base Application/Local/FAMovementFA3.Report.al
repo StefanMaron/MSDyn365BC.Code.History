@@ -7,11 +7,11 @@ report 14988 "FA Movement FA-3"
     {
         dataitem("FA Document Header"; "FA Document Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Movement));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Movement));
             dataitem("FA Document Line"; "FA Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

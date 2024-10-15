@@ -172,7 +172,7 @@ table 17202 "Tax Register Template"
         field(9; "Link Tax Register No."; Code[10])
         {
             Caption = 'Link Tax Register No.';
-            TableRelation = IF ("Expression Type" = CONST(Link)) "Tax Register"."No." WHERE("Section Code" = FIELD("Section Code"));
+            TableRelation = if ("Expression Type" = const(Link)) "Tax Register"."No." where("Section Code" = field("Section Code"));
 
             trigger OnValidate()
             begin
@@ -230,10 +230,10 @@ table 17202 "Tax Register Template"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                  "Tax Register No." = FIELD(Code),
-                                                                  Define = CONST(Template),
-                                                                  "Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                  "Tax Register No." = field(Code),
+                                                                  Define = const(Template),
+                                                                  "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;
@@ -245,10 +245,10 @@ table 17202 "Tax Register Template"
         }
         field(16; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist("Tax Reg. G/L Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                        "Tax Register No." = FIELD(Code),
-                                                                        "Line No." = FIELD("Line No."),
-                                                                        Define = CONST(Template)));
+            CalcFormula = exist("Tax Reg. G/L Corr. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                        "Tax Register No." = field(Code),
+                                                                        "Line No." = field("Line No."),
+                                                                        Define = const(Template)));
             Caption = 'G/L Corr. Dimensions Filters';
             FieldClass = FlowField;
         }
@@ -320,7 +320,7 @@ table 17202 "Tax Register Template"
         field(43; "Depreciation Group"; Code[10])
         {
             Caption = 'Depreciation Group';
-            TableRelation = IF ("Expression Type" = CONST(SumField)) "Depreciation Group".Code;
+            TableRelation = if ("Expression Type" = const(SumField)) "Depreciation Group".Code;
 
             trigger OnValidate()
             begin

@@ -7,7 +7,7 @@ query 12400 "Value Entry Item Tariff No."
     {
         dataitem(Value_Entry; "Value Entry")
         {
-            DataItemTableFilter = "Item No." = FILTER(<> '');
+            DataItemTableFilter = "Item No." = filter(<> '');
             column(Source_Type; "Source Type")
             {
             }
@@ -29,7 +29,7 @@ query 12400 "Value Entry Item Tariff No."
             dataitem(Item; Item)
             {
                 DataItemLink = "No." = Value_Entry."Item No.";
-                DataItemTableFilter = "Tariff No." = FILTER(<> '');
+                DataItemTableFilter = "Tariff No." = filter(<> '');
                 column(Tariff_No; "Tariff No.")
                 {
                 }

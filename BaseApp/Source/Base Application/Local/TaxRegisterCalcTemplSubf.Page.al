@@ -42,22 +42,22 @@ page 17205 "Tax Register Calc. Templ. Subf"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link tax register number associated with the tax register template.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ToolTip = 'Specifies the value associated with the tax register template.';
                     Visible = false;
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
@@ -67,7 +67,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
                     ToolTip = 'Specifies the interval that you want to use as the rounding difference.';
                     Visible = false;
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ToolTip = 'Specifies the period associated with the tax register template.';
                     Visible = false;
@@ -98,8 +98,8 @@ page 17205 "Tax Register Calc. Templ. Subf"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        CalcFields("Dimensions Filters");
-        if "Dimensions Filters" then
+        Rec.CalcFields("Dimensions Filters");
+        if Rec."Dimensions Filters" then
             DimFilters := Text1001
         else
             DimFilters := '';
@@ -114,9 +114,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
     var
         Text1001: Label 'Present';
         DimFilters: Text[30];
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     [Scope('OnPrem')]
@@ -125,14 +123,14 @@ page 17205 "Tax Register Calc. Templ. Subf"
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         GLSetup: Record "General Ledger Setup";
     begin
-        if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::Term) then begin
+        if (Rec."Line No." <> 0) and (Rec."Expression Type" = Rec."Expression Type"::Term) then begin
             GLSetup.Get();
             if (GLSetup."Global Dimension 1 Code" <> '') or
                (GLSetup."Global Dimension 2 Code" <> '')
             then begin
                 TaxRegDimFilter.FilterGroup(2);
-                TaxRegDimFilter.SetRange("Section Code", "Section Code");
-                TaxRegDimFilter.SetRange("Tax Register No.", Code);
+                TaxRegDimFilter.SetRange("Section Code", Rec."Section Code");
+                TaxRegDimFilter.SetRange("Tax Register No.", Rec.Code);
                 TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::Template);
                 case true of
                     (GLSetup."Global Dimension 1 Code" <> '') and (GLSetup."Global Dimension 2 Code" <> ''):
@@ -144,7 +142,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
                         TaxRegDimFilter.SetRange("Dimension Code", GLSetup."Global Dimension 2 Code");
                 end;
                 TaxRegDimFilter.FilterGroup(0);
-                TaxRegDimFilter.SetRange("Line No.", "Line No.");
+                TaxRegDimFilter.SetRange("Line No.", Rec."Line No.");
                 PAGE.RunModal(0, TaxRegDimFilter);
             end else
                 GLSetup.TestField("Global Dimension 1 Code");
@@ -153,8 +151,8 @@ page 17205 "Tax Register Calc. Templ. Subf"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

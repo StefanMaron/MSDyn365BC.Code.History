@@ -12,7 +12,7 @@ page 17247 "Tax Register Norm Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the norm group.';
@@ -130,13 +130,12 @@ page 17247 "Tax Register Norm Groups"
     trigger OnAfterGetRecord()
     begin
         HasDetailsHideValue := false;
-        HasDetailsOnFormat(Format("Has Details"));
+        HasDetailsOnFormat(Format(Rec."Has Details"));
     end;
 
     var
         Text1000: Label 'Nothing to calculate';
         Text1001: Label 'Present';
-        [InDataSet]
         HasDetailsHideValue: Boolean;
 
     [Scope('OnPrem')]
@@ -147,14 +146,14 @@ page 17247 "Tax Register Norm Groups"
     begin
         CurrPage.SaveRecord();
         Commit();
-        NormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
-        NormGroup.SetRange("Storing Method", "Storing Method"::Calculation);
+        NormGroup.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
+        NormGroup.SetRange("Storing Method", Rec."Storing Method"::Calculation);
         if not NormGroup.FindFirst() then
             Error(Text1000);
         NormJurisdiction.FilterGroup(2);
-        NormJurisdiction.SetRange(Code, "Norm Jurisdiction Code");
+        NormJurisdiction.SetRange(Code, Rec."Norm Jurisdiction Code");
         NormJurisdiction.FilterGroup(0);
-        NormJurisdiction.SetRange(Code, "Norm Jurisdiction Code");
+        NormJurisdiction.SetRange(Code, Rec."Norm Jurisdiction Code");
         REPORT.RunModal(REPORT::"Create Norm Details", true, true, NormJurisdiction);
     end;
 
@@ -164,10 +163,10 @@ page 17247 "Tax Register Norm Groups"
         NormDetail: Record "Tax Register Norm Detail";
     begin
         NormDetail.FilterGroup(2);
-        NormDetail.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
-        NormDetail.SetRange("Norm Group Code", Code);
+        NormDetail.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
+        NormDetail.SetRange("Norm Group Code", Rec.Code);
         NormDetail.FilterGroup(0);
-        if "Storing Method" = "Storing Method"::" " then
+        if Rec."Storing Method" = Rec."Storing Method"::" " then
             PAGE.RunModal(0, NormDetail)
         else
             PAGE.RunModal(PAGE::"Tax Reg. Norm Details (Calc)", NormDetail);
@@ -178,18 +177,18 @@ page 17247 "Tax Register Norm Groups"
     var
         NormTemplateLine: Record "Tax Reg. Norm Template Line";
     begin
-        if "Storing Method" = "Storing Method"::" " then
+        if Rec."Storing Method" = Rec."Storing Method"::" " then
             exit;
         NormTemplateLine.FilterGroup(2);
-        NormTemplateLine.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
-        NormTemplateLine.SetRange("Norm Group Code", Code);
+        NormTemplateLine.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
+        NormTemplateLine.SetRange("Norm Group Code", Rec.Code);
         NormTemplateLine.FilterGroup(0);
         PAGE.Run(PAGE::"Tax Reg. Norm Template Setup", NormTemplateLine);
     end;
 
     local procedure HasDetailsOnFormat(Text: Text[1024])
     begin
-        if "Has Details" then
+        if Rec."Has Details" then
             Text := Text1001
         else
             HasDetailsHideValue := true;

@@ -75,7 +75,7 @@ table 26569 "Statutory Report Setup"
         field(17; "Default Comp. Addr. Code"; Code[10])
         {
             Caption = 'Default Comp. Addr. Code';
-            TableRelation = "Company Address".Code WHERE("Address Type" = CONST(Legal));
+            TableRelation = "Company Address".Code where("Address Type" = const(Legal));
 
             trigger OnLookup()
             begin
@@ -100,8 +100,8 @@ table 26569 "Statutory Report Setup"
         field(18; "Default Comp. Addr. Lang. Code"; Code[10])
         {
             Caption = 'Default Comp. Addr. Lang. Code';
-            TableRelation = "Company Address"."Language Code" WHERE(Code = FIELD("Default Comp. Addr. Code"),
-                                                                     "Address Type" = CONST(Legal));
+            TableRelation = "Company Address"."Language Code" where(Code = field("Default Comp. Addr. Code"),
+                                                                     "Address Type" = const(Legal));
         }
     }
 

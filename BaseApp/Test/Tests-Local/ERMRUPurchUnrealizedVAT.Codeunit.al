@@ -30,7 +30,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainApply()
     begin
@@ -39,7 +38,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealiedGainUnapply()
     begin
@@ -47,7 +45,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossApply()
     begin
@@ -55,7 +52,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossUnapply()
     begin
@@ -63,7 +59,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainApplySumm()
     begin
@@ -71,7 +66,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainUnapplySumm()
     begin
@@ -79,7 +73,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossApplySumm()
     begin
@@ -87,7 +80,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossUnapplySumm()
     begin
@@ -95,7 +87,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainApplySummDiffAcc()
     begin
@@ -104,7 +95,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainUnapplySummDiffAcc()
     begin
@@ -112,7 +102,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossApplySummDiffAcc()
     begin
@@ -120,7 +109,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     end;
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossUnapplySummDiffAcc()
     begin
@@ -175,7 +163,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         end;
         PmtNo :=
           CreatePostPayment(PostingDate, PurchLine."Buy-from Vendor No.", CurrencyCode, PmtAmount);
-        RunAdjExchRates(CurrencyCode, WorkDate(), GetInvPostingDate(PurchLine."Document No."), PurchLine."Buy-from Vendor No.");
+        RunExchRateAdustment(CurrencyCode, WorkDate(), GetInvPostingDate(PurchLine."Document No."), PurchLine."Buy-from Vendor No.");
         ApplyPaymentToPairedInvoice(PmtNo, InvNo);
         if IsUnapply then begin
             UnapplyLedgerEntries(VendLedgEntry."Document Type"::Payment, PmtNo);
@@ -345,17 +333,19 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
         DtldVendLedgEntry.FindFirst();
-        VendEntryApplyPostedEntries.PostUnApplyVendor(
-          DtldVendLedgEntry, VendLedgEntry."Document No.", DtldVendLedgEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := VendLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DtldVendLedgEntry."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, ApplyUnapplyParameters);
     end;
 
-    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Option; DocNo: Code[20])
+    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocNo: Code[20])
     begin
         with DtldVendLedgEntry do begin
             SetRange("Entry Type", EntryType);
@@ -374,7 +364,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         exit(PurchInvHeader."Posting Date");
     end;
 
-    local procedure CalcGainLossParameters(var EntryType: array[2] of Option; var AccNo: array[2] of Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; IsSummarizeGainsLosses: Boolean)
+    local procedure CalcGainLossParameters(var EntryType: array[2] of Enum "Detailed CV Ledger Entry Type"; var AccNo: array[2] of Code[20]; CurrencyCode: Code[10]; IsRaise: Boolean; IsSummarizeGainsLosses: Boolean)
     var
         Currency: Record Currency;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -399,27 +389,28 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         end;
     end;
 
-    local procedure RunAdjExchRates(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; VendNo: Code[20])
+    local procedure RunExchRateAdustment(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; VendNo: Code[20])
     var
         Currency: Record Currency;
         Vendor: Record Vendor;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
     begin
         Currency.SetRange(Code, CurrencyCode);
         Vendor.SetRange("No.", VendNo);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.SetTableView(Vendor);
-        AdjustExchangeRates.InitializeRequest2(
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.SetTableView(Vendor);
+        ExchRateAdjustment.InitializeRequest2(
           StartDate, EndDate, '', EndDate, LibraryUtility.GenerateGUID, true, false);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
+        ExchRateAdjustment.Run();
     end;
 
     local procedure VerifyGainLossAppEntries(InvNo: array[2] of Code[20]; IsRaise: Boolean; IsSummarizeGainsLosses: Boolean; CurrencyCode: Code[10])
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GLEntry: Record "G/L Entry";
-        EntryType: array[2] of Option;
+        EntryType: array[2] of Enum "Detailed CV Ledger Entry Type";
         AccNo: array[2] of Code[20];
         i: Integer;
     begin
@@ -435,13 +426,6 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
                   FindLast, StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
             end;
         end;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure NothingAdjustedMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
     end;
 }
 

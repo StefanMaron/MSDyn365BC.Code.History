@@ -13,7 +13,7 @@ page 12494 "Taxpayer Document Types"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the taxpayer document types that have been set up.';
@@ -23,7 +23,7 @@ page 12494 "Taxpayer Document Types"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document name associated with the taxpayer document types that have been set up.';
                 }
-                field(Note; Note)
+                field(Note; Rec.Note)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the note associated with the taxpayer document types that have been set up.';

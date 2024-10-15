@@ -3,7 +3,7 @@ page 12442 "VAT Purchase Ledger Card"
     Caption = 'VAT Purchase Ledger Card';
     PageType = Document;
     SourceTable = "VAT Ledger";
-    SourceTableView = WHERE(Type = CONST(Purchase));
+    SourceTableView = where(Type = const(Purchase));
 
     layout
     {
@@ -12,14 +12,14 @@ page 12442 "VAT Purchase Ledger Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT ledger code.';
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -50,7 +50,7 @@ page 12442 "VAT Purchase Ledger Card"
                     DrillDown = false;
                     ToolTip = 'Specifies the end number associated with this VAT ledger.';
                 }
-                field("Accounting Period"; "Accounting Period")
+                field("Accounting Period"; Rec."Accounting Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the accounting period associated with this VAT ledger.';
@@ -64,8 +64,8 @@ page 12442 "VAT Purchase Ledger Card"
             part(PurchSubform; "VAT Purchase Ledger Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = Type = FIELD(Type),
-                              Code = FIELD(Code);
+                SubPageLink = Type = field(Type),
+                              Code = field(Code);
             }
             group(Options)
             {
@@ -173,7 +173,7 @@ page 12442 "VAT Purchase Ledger Card"
 
                     trigger OnAction()
                     begin
-                        CreateVATLedger();
+                        Rec.CreateVATLedger();
                     end;
                 }
                 action("Create Additional Sheet")
@@ -184,7 +184,7 @@ page 12442 "VAT Purchase Ledger Card"
 
                     trigger OnAction()
                     begin
-                        CreateAddSheet();
+                        Rec.CreateAddSheet();
                     end;
                 }
             }
@@ -203,7 +203,7 @@ page 12442 "VAT Purchase Ledger Card"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, false);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, false);
                         VATLedgerExport.RunModal();
                     end;
                 }
@@ -218,7 +218,7 @@ page 12442 "VAT Purchase Ledger Card"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, true);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, true);
                         VATLedgerExport.RunModal();
                     end;
                 }
@@ -233,7 +233,7 @@ page 12442 "VAT Purchase Ledger Card"
                     var
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
-                        VATLedgerExportXML.InitializeReport(Type, Code, false);
+                        VATLedgerExportXML.InitializeReport(Rec.Type, Rec.Code, false);
                         VATLedgerExportXML.RunModal();
                     end;
                 }
@@ -248,7 +248,7 @@ page 12442 "VAT Purchase Ledger Card"
                     var
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
-                        VATLedgerExportXML.InitializeReport(Type, Code, true);
+                        VATLedgerExportXML.InitializeReport(Rec.Type, Rec.Code, true);
                         VATLedgerExportXML.RunModal();
                     end;
                 }

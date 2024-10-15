@@ -6,8 +6,8 @@ page 35601 "Responsible Employees"
     Editable = false;
     PageType = List;
     SourceTable = Vendor;
-    SourceTableView = SORTING("Vendor Type", "No.")
-                      WHERE("Vendor Type" = CONST("Resp. Employee"));
+    SourceTableView = sorting("Vendor Type", "No.")
+                      WHERE("Vendor Type" = const("Resp. Employee"));
     UsageCategory = Lists;
 
     layout
@@ -33,24 +33,24 @@ page 35601 "Responsible Employees"
         {
             part(Control1901138007; "Vendor Details FactBox")
             {
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = false;
             }
             part(Control1904651607; "Vendor Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
             part(Control1903435607; "Vendor Hist. Buy-from FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
             part(Control1906949207; "Vendor Hist. Pay-to FactBox")
             {
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -80,8 +80,8 @@ page 35601 "Responsible Employees"
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
                     RunObject = Page "Vendor Ledger Entries";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -90,8 +90,8 @@ page 35601 "Responsible Employees"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Vendor),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Vendor),
+                                  "No." = field("No.");
                 }
                 group(Dimensions)
                 {
@@ -103,8 +103,8 @@ page 35601 "Responsible Employees"
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
                         RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(23),
-                                      "No." = FIELD("No.");
+                        RunPageLink = "Table ID" = const(23),
+                                      "No." = field("No.");
                         ShortCutKey = 'Shift+Ctrl+D';
                     }
                     action("Dimensions-&Multiple")
@@ -119,7 +119,7 @@ page 35601 "Responsible Employees"
                             DefaultDimMultiple: Page "Default Dimensions-Multiple";
                         begin
                             CurrPage.SetSelectionFilter(Vend);
-                            DefaultDimMultiple.SetMultiRecord(Vend, FieldNo("No."));
+                            DefaultDimMultiple.SetMultiRecord(Vend, Rec.FieldNo("No."));
                             DefaultDimMultiple.RunModal();
                         end;
                     }
@@ -130,7 +130,7 @@ page 35601 "Responsible Employees"
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Vendor Bank Account List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("Order &Addresses")
                 {
@@ -138,7 +138,7 @@ page 35601 "Responsible Employees"
                     Caption = 'Order &Addresses';
                     Image = Addresses;
                     RunObject = Page "Order Address List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("C&ontact")
                 {
@@ -148,7 +148,7 @@ page 35601 "Responsible Employees"
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
                 separator(Action1210018)
@@ -159,10 +159,10 @@ page 35601 "Responsible Employees"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Vendor Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -172,10 +172,10 @@ page 35601 "Responsible Employees"
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Vendor Entry Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action(Purchases)
                 {
@@ -183,9 +183,9 @@ page 35601 "Responsible Employees"
                     Caption = 'Purchases';
                     Image = Purchase;
                     RunObject = Page "Vendor Purchases";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 separator(Action1210023)
                 {
@@ -203,7 +203,7 @@ page 35601 "Responsible Employees"
                     Caption = 'Unposted Advance Statements';
                     Image = Documents;
                     RunObject = Page "Purchase Advance Reports";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
                 }
                 action("Posted Advance Statements")
                 {
@@ -213,7 +213,7 @@ page 35601 "Responsible Employees"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Posted Advance Statement";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
                 }
             }
             action("Vendor G/L Turnover")
@@ -222,7 +222,7 @@ page 35601 "Responsible Employees"
                 Caption = 'Vendor G/L Turnover';
                 Image = GL;
                 RunObject = Page "Vendor G/L Turnover";
-                RunPageLink = "No." = FIELD("No.");
+                RunPageLink = "No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Analyze vendors'' turnover and account balances.';
             }
@@ -237,7 +237,7 @@ page 35601 "Responsible Employees"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Purchase Credit Memo";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase credit memo for the vendor.';
             }
@@ -249,7 +249,7 @@ page 35601 "Responsible Employees"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Purchase Credit Memo";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'View the document that authorizes the involved individual or organization to act on the behalf of another to perform the process in question.';
             }

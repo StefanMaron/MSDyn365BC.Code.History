@@ -23,17 +23,17 @@ table 12403 "Gen. Journal Line Archive"
         field(4; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset"
-            ELSE
-            IF ("Account Type" = CONST("IC Partner")) "IC Partner";
+            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Account Type" = const(Customer)) Customer
+            else
+            if ("Account Type" = const(Vendor)) Vendor
+            else
+            if ("Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Account Type" = const("Fixed Asset")) "Fixed Asset"
+            else
+            if ("Account Type" = const("IC Partner")) "IC Partner";
         }
         field(5; "Posting Date"; Date)
         {
@@ -63,17 +63,17 @@ table 12403 "Gen. Journal Line Archive"
         field(11; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
-            TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset"
-            ELSE
-            IF ("Bal. Account Type" = CONST("IC Partner")) "IC Partner";
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset"
+            else
+            if ("Bal. Account Type" = const("IC Partner")) "IC Partner";
         }
         field(12; "Currency Code"; Code[10])
         {
@@ -82,20 +82,20 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(13; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(14; "Debit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
         }
         field(15; "Credit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
@@ -136,35 +136,35 @@ table 12403 "Gen. Journal Line Archive"
         field(22; "Bill-to/Pay-to No."; Code[20])
         {
             Caption = 'Bill-to/Pay-to No.';
-            TableRelation = IF ("Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor;
+            TableRelation = if ("Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor;
         }
         field(23; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
             Editable = false;
-            TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group"
-            ELSE
-            IF ("Account Type" = CONST("Fixed Asset")) "FA Posting Group";
+            TableRelation = if ("Account Type" = const(Customer)) "Customer Posting Group"
+            else
+            if ("Account Type" = const(Vendor)) "Vendor Posting Group"
+            else
+            if ("Account Type" = const("Fixed Asset")) "FA Posting Group";
         }
         field(24; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(26; "Salespers./Purch. Code"; Code[20])
         {
@@ -222,7 +222,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(44; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }
@@ -250,7 +250,7 @@ table 12403 "Gen. Journal Line Archive"
         field(51; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
-            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Journal Template Name"));
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Journal Template Name"));
         }
         field(52; "Reason Code"; Code[10])
         {
@@ -340,7 +340,7 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(69; "Bal. VAT Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Bal. VAT Amount';
         }
@@ -352,13 +352,13 @@ table 12403 "Gen. Journal Line Archive"
         }
         field(71; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
         }
         field(72; "Bal. VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Bal. VAT Base Amount';
         }
@@ -389,13 +389,13 @@ table 12403 "Gen. Journal Line Archive"
         field(79; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Source Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor
+            else
+            if ("Source Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Source Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(80; "Posting No. Series"; Code[20])
         {
@@ -540,24 +540,24 @@ table 12403 "Gen. Journal Line Archive"
         field(110; "Ship-to/Order Address Code"; Code[10])
         {
             Caption = 'Ship-to/Order Address Code';
-            TableRelation = IF ("Account Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Bill-to/Pay-to No."))
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Bill-to/Pay-to No."))
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Bill-to/Pay-to No."))
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Bill-to/Pay-to No."));
+            TableRelation = if ("Account Type" = const(Customer)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."))
+            else
+            if ("Account Type" = const(Vendor)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."))
+            else
+            if ("Bal. Account Type" = const(Customer)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."))
+            else
+            if ("Bal. Account Type" = const(Vendor)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."));
         }
         field(111; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
         }
         field(112; "Bal. VAT Difference"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Bal. VAT Difference';
             Editable = false;
@@ -596,13 +596,13 @@ table 12403 "Gen. Journal Line Archive"
         field(118; "Sell-to/Buy-from No."; Code[20])
         {
             Caption = 'Sell-to/Buy-from No.';
-            TableRelation = IF ("Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor;
+            TableRelation = if ("Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor;
         }
         field(119; "VAT Registration No."; Text[20])
         {
@@ -630,19 +630,19 @@ table 12403 "Gen. Journal Line Archive"
         {
             Caption = 'IC Account No.';
             TableRelation =
-            IF ("IC Account Type" = const("G/L Account")) "IC G/L Account" where("Account Type" = const(Posting), Blocked = const(false))
-            ELSE
-            IF ("Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
-            ELSE
-            IF ("Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
-            ELSE
-            IF ("Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Account No."), Blocked = const(false))
-            ELSE
-            IF ("Bal. Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
-            ELSE
-            IF ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
-            ELSE
-            IF ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
+            if ("IC Account Type" = const("G/L Account")) "IC G/L Account" where("Account Type" = const(Posting), Blocked = const(false))
+            else
+            if ("Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            else
+            if ("Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            else
+            if ("Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Account No."), Blocked = const(false))
+            else
+            if ("Bal. Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            else
+            if ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            else
+            if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -652,13 +652,13 @@ table 12403 "Gen. Journal Line Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
         }
         field(1001; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
-            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Unit Price (LCY)"; Decimal)
         {
@@ -854,15 +854,13 @@ table 12403 "Gen. Journal Line Archive"
         field(12401; "Beneficiary Bank Code"; Code[20])
         {
             Caption = 'Beneficiary Bank Code';
-            TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Account No."))
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Account No."));
+            TableRelation = if ("Account Type" = const(Customer)) "Customer Bank Account".Code where("Customer No." = field("Account No."))
+            else
+            if ("Account Type" = const(Vendor)) "Vendor Bank Account".Code where("Vendor No." = field("Account No."));
         }
         field(12402; "Payment Purpose"; Text[250])
         {
             Caption = 'Payment Purpose';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -918,7 +916,7 @@ table 12403 "Gen. Journal Line Archive"
         field(12414; "Realized VAT Entry No."; Integer)
         {
             Caption = 'Realized VAT Entry No.';
-            TableRelation = "Vendor Ledger Entry"."Entry No." WHERE("Document Type" = FILTER(Invoice | "Credit Memo" | "Finance Charge Memo" | Reminder));
+            TableRelation = "Vendor Ledger Entry"."Entry No." where("Document Type" = filter(Invoice | "Credit Memo" | "Finance Charge Memo" | Reminder));
         }
         field(12415; Expression; Text[50])
         {
@@ -945,7 +943,7 @@ table 12403 "Gen. Journal Line Archive"
         {
             BlankZero = true;
             Caption = 'Unrealized VAT Entry No.';
-            TableRelation = "VAT Entry"."Entry No." WHERE("Unrealized Base" = FILTER(<> 0));
+            TableRelation = "VAT Entry"."Entry No." where("Unrealized Base" = filter(<> 0));
         }
         field(12420; "Paid Amount"; Decimal)
         {
@@ -960,19 +958,19 @@ table 12403 "Gen. Journal Line Archive"
         field(12422; "Initial VAT Entry No."; Integer)
         {
             Caption = 'Initial VAT Entry No.';
-            TableRelation = IF ("Account Type" = CONST(Vendor)) "VAT Entry"."Entry No." WHERE("Document Type" = FIELD("Document Type"),
-                                                                                             "Document No." = FIELD("Document No."),
-                                                                                             Type = CONST(Purchase),
-                                                                                             "Unrealized VAT Entry No." = FILTER(<> 0),
-                                                                                             "Bill-to/Pay-to No." = FIELD("Account No."),
-                                                                                             "Prepmt. Diff." = CONST(false))
-            ELSE
-            IF ("Account Type" = CONST(Customer)) "VAT Entry"."Entry No." WHERE("Document Type" = FIELD("Document Type"),
-                                                                                                                                                                     "Document No." = FIELD("Document No."),
-                                                                                                                                                                     Type = CONST(Sale),
-                                                                                                                                                                     "Bill-to/Pay-to No." = FIELD("Account No."),
-                                                                                                                                                                     "Unrealized VAT Entry No." = FILTER(<> 0),
-                                                                                                                                                                     "Prepmt. Diff." = CONST(false));
+            TableRelation = if ("Account Type" = const(Vendor)) "VAT Entry"."Entry No." where("Document Type" = field("Document Type"),
+                                                                                             "Document No." = field("Document No."),
+                                                                                             Type = const(Purchase),
+                                                                                             "Unrealized VAT Entry No." = filter(<> 0),
+                                                                                             "Bill-to/Pay-to No." = field("Account No."),
+                                                                                             "Prepmt. Diff." = const(false))
+            else
+            if ("Account Type" = const(Customer)) "VAT Entry"."Entry No." where("Document Type" = field("Document Type"),
+                                                                                                                                                                     "Document No." = field("Document No."),
+                                                                                                                                                                     Type = const(Sale),
+                                                                                                                                                                     "Bill-to/Pay-to No." = field("Account No."),
+                                                                                                                                                                     "Unrealized VAT Entry No." = filter(<> 0),
+                                                                                                                                                                     "Prepmt. Diff." = const(false));
         }
         field(12423; "Object Type"; Enum "Gen. Journal Source Type")
         {
@@ -981,13 +979,13 @@ table 12403 "Gen. Journal Line Archive"
         field(12424; "Object No."; Code[20])
         {
             Caption = 'Object No.';
-            TableRelation = IF ("Object Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Object Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Object Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Object Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Object Type" = const(Customer)) Customer
+            else
+            if ("Object Type" = const(Vendor)) Vendor
+            else
+            if ("Object Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Object Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(12425; "Prepayment Document No."; Code[20])
         {
@@ -1062,7 +1060,7 @@ table 12403 "Gen. Journal Line Archive"
         field(12483; "Payment Reason Code"; Code[10])
         {
             Caption = 'Payment Reason Code';
-            TableRelation = "Payment Order Code".Code WHERE(Type = CONST("Payment Reason"));
+            TableRelation = "Payment Order Code".Code where(Type = const("Payment Reason"));
         }
         field(12484; "Reason Document No."; Code[10])
         {
@@ -1075,7 +1073,7 @@ table 12403 "Gen. Journal Line Archive"
         field(12486; "Tax Payment Type"; Code[10])
         {
             Caption = 'Tax Payment Type';
-            TableRelation = "Payment Order Code".Code WHERE(Type = CONST("Tax Payment Type"));
+            TableRelation = "Payment Order Code".Code where(Type = const("Tax Payment Type"));
         }
         field(12487; "Tax Period"; Code[10])
         {
@@ -1097,9 +1095,9 @@ table 12403 "Gen. Journal Line Archive"
         field(12490; "Agreement No."; Code[20])
         {
             Caption = 'Agreement No.';
-            TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Agreement" WHERE("Customer No." = FIELD("Account No."))
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Vendor Agreement" WHERE("Vendor No." = FIELD("Account No."));
+            TableRelation = if ("Account Type" = const(Customer)) "Customer Agreement" where("Customer No." = field("Account No."))
+            else
+            if ("Account Type" = const(Vendor)) "Vendor Agreement" where("Vendor No." = field("Account No."));
         }
         field(12491; "Depr. Period Starting Date"; Date)
         {
@@ -1114,7 +1112,7 @@ table 12403 "Gen. Journal Line Archive"
         field(12493; "Payer Beneficiary Bank Code"; Code[20])
         {
             Caption = 'Payer Beneficiary Bank Code';
-            TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Payer Vendor No."));
+            TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Payer Vendor No."));
         }
         field(12494; "Not Add.-Currency Correction"; Boolean)
         {
@@ -1157,7 +1155,7 @@ table 12403 "Gen. Journal Line Archive"
         field(17300; "Tax Difference Code"; Code[10])
         {
             Caption = 'Tax Difference Code';
-            TableRelation = "Tax Difference" WHERE("Source Code Mandatory" = CONST(true));
+            TableRelation = "Tax Difference" where("Source Code Mandatory" = const(true));
         }
         field(17301; "Depr. Group Elimination"; Boolean)
         {
@@ -1198,7 +1196,7 @@ table 12403 "Gen. Journal Line Archive"
     [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]

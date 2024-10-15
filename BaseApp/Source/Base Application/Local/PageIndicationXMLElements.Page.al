@@ -24,11 +24,11 @@ page 26583 "Page Indication XML Elements"
                     begin
                         XMLElementLine.SetCurrentKey("Report Code", "Sequence No.");
                         XMLElementLine.FilterGroup(2);
-                        XMLElementLine.SetRange("Report Code", "Report Code");
+                        XMLElementLine.SetRange("Report Code", Rec."Report Code");
                         XMLElementLine.FilterGroup(0);
-                        XMLElementLine.SetRange("Table Code", "Table Code");
-                        if "XML Element Line No." <> 0 then begin
-                            XMLElementLine.Get("Report Code", "XML Element Line No.");
+                        XMLElementLine.SetRange("Table Code", Rec."Table Code");
+                        if Rec."XML Element Line No." <> 0 then begin
+                            XMLElementLine.Get(Rec."Report Code", Rec."XML Element Line No.");
                             XMLElementLines.SetRecord(XMLElementLine);
                         end;
                         XMLElementLines.SetTableView(XMLElementLine);
@@ -36,21 +36,21 @@ page 26583 "Page Indication XML Elements"
 
                         if XMLElementLines.RunModal() = ACTION::LookupOK then begin
                             XMLElementLines.GetRecord(XMLElementLine);
-                            "XML Element Line No." := XMLElementLine."Line No.";
-                            "XML Element Name" := XMLElementLine."Element Name";
+                            Rec."XML Element Line No." := XMLElementLine."Line No.";
+                            Rec."XML Element Name" := XMLElementLine."Element Name";
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        if "XML Element Name" <> '' then begin
-                            XMLElementLine.SetRange("Report Code", "Report Code");
-                            XMLElementLine.SetRange("Table Code", "Table Code");
-                            XMLElementLine.SetRange("Element Name", "XML Element Name");
+                        if Rec."XML Element Name" <> '' then begin
+                            XMLElementLine.SetRange("Report Code", Rec."Report Code");
+                            XMLElementLine.SetRange("Table Code", Rec."Table Code");
+                            XMLElementLine.SetRange("Element Name", Rec."XML Element Name");
                             XMLElementLine.FindFirst();
-                            "XML Element Line No." := XMLElementLine."Line No.";
+                            Rec."XML Element Line No." := XMLElementLine."Line No.";
                         end else
-                            "XML Element Line No." := 0;
+                            Rec."XML Element Line No." := 0;
                     end;
                 }
             }

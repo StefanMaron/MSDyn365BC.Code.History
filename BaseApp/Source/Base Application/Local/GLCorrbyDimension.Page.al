@@ -31,8 +31,8 @@ page 14945 "G/L Corr. by Dimension"
 
                     trigger OnDrillDown()
                     begin
-                        GLCorrAnalysisViewEntry.SetRange("Debit Account No.", "Debit Account No.");
-                        GLCorrAnalysisViewEntry.SetRange("Credit Account No.", "Credit Account No.");
+                        GLCorrAnalysisViewEntry.SetRange("Debit Account No.", Rec."Debit Account No.");
+                        GLCorrAnalysisViewEntry.SetRange("Credit Account No.", Rec."Credit Account No.");
                         PAGE.RunModal(PAGE::"G/L Corr. Analysis View Entr.", GLCorrAnalysisViewEntry);
                     end;
                 }
@@ -53,10 +53,10 @@ page 14945 "G/L Corr. by Dimension"
         GLCorrAnalysisViewEntry.Copy(SourceGLCorrAnalysisViewEntry);
         if GLCorrAnalysisViewEntry.FindSet() then
             repeat
-                if not Get(GLCorrAnalysisViewEntry."Debit Account No.", GLCorrAnalysisViewEntry."Credit Account No.") then begin
-                    "Debit Account No." := GLCorrAnalysisViewEntry."Debit Account No.";
-                    "Credit Account No." := GLCorrAnalysisViewEntry."Credit Account No.";
-                    Insert();
+                if not Rec.Get(GLCorrAnalysisViewEntry."Debit Account No.", GLCorrAnalysisViewEntry."Credit Account No.") then begin
+                    Rec."Debit Account No." := GLCorrAnalysisViewEntry."Debit Account No.";
+                    Rec."Credit Account No." := GLCorrAnalysisViewEntry."Credit Account No.";
+                    Rec.Insert();
                 end;
             until GLCorrAnalysisViewEntry.Next() = 0;
     end;
@@ -64,8 +64,8 @@ page 14945 "G/L Corr. by Dimension"
     [Scope('OnPrem')]
     procedure CalcAmount(): Decimal
     begin
-        GLCorrAnalysisViewEntry.SetRange("Debit Account No.", "Debit Account No.");
-        GLCorrAnalysisViewEntry.SetRange("Credit Account No.", "Credit Account No.");
+        GLCorrAnalysisViewEntry.SetRange("Debit Account No.", Rec."Debit Account No.");
+        GLCorrAnalysisViewEntry.SetRange("Credit Account No.", Rec."Credit Account No.");
         GLCorrAnalysisViewEntry.CalcSums(Amount);
         exit(GLCorrAnalysisViewEntry.Amount);
     end;

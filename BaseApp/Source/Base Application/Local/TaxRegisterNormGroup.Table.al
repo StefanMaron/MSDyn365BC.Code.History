@@ -22,8 +22,8 @@ table 17221 "Tax Register Norm Group"
         }
         field(4; "Has Details"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Norm Detail" WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"),
-                                                                  "Norm Group Code" = FIELD(Code)));
+            CalcFormula = Exist ("Tax Register Norm Detail" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+                                                                  "Norm Group Code" = field(Code)));
             Caption = 'Has Details';
             Editable = false;
             FieldClass = FlowField;

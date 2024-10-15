@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+
 report 1700 "Deferral Summary - G/L"
 {
     DefaultLayout = RDLC;
@@ -10,7 +16,7 @@ report 1700 "Deferral Summary - G/L"
     {
         dataitem("Posted Deferral Header"; "Posted Deferral Header")
         {
-            DataItemTableView = SORTING("Deferral Doc. Type", "Account No.", "Posting Date", "Gen. Jnl. Document No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) WHERE("Deferral Doc. Type" = CONST("G/L"));
+            DataItemTableView = sorting("Deferral Doc. Type", "Account No.", "Posting Date", "Gen. Jnl. Document No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) where("Deferral Doc. Type" = const("G/L"));
             RequestFilterFields = "Account No.";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {

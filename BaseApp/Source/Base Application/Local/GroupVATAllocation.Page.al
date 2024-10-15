@@ -29,7 +29,7 @@ page 14928 "Group VAT Allocation"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the default VAT allocation entry.';
                 }
-                field(Base; Base)
+                field(Base; Rec.Base)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the base amount if full, depreciated, or remaining.';
@@ -76,7 +76,7 @@ page 14928 "Group VAT Allocation"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }
@@ -99,11 +99,11 @@ page 14928 "Group VAT Allocation"
     procedure GetRecords(var GroupVATAllocLine: Record "Default VAT Allocation Line" temporary)
     begin
         GroupVATAllocLine.DeleteAll();
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
                 GroupVATAllocLine := Rec;
                 GroupVATAllocLine.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 }
 

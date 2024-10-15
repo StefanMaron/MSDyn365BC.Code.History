@@ -7,7 +7,7 @@ report 12400 "Bank Payment Order"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.") ORDER(Ascending);
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.") order(Ascending);
             PrintOnlyIfDetail = false;
 
             trigger OnAfterGetRecord()

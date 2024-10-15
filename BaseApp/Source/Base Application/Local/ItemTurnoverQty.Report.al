@@ -8,7 +8,7 @@ report 12469 "Item Turnover (Qty.)"
     {
         dataitem(Item; Item)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Location Filter", "Date Filter";
             column(USERID; UserId)
             {
@@ -232,7 +232,7 @@ report 12469 "Item Turnover (Qty.)"
             }
             dataitem(DetailedEntries; "Value Entry")
             {
-                DataItemTableView = SORTING("Item No.", "Posting Date", "Document No.", "Document Line No.");
+                DataItemTableView = sorting("Item No.", "Posting Date", "Document No.", "Document Line No.");
                 column(DetailedEntries_DetailedEntries__Posting_Date_; DetailedEntries."Posting Date")
                 {
                 }
@@ -548,7 +548,6 @@ report 12469 "Item Turnover (Qty.)"
         DetailedQtyPositive: Decimal;
         DetailedQtyNegative: Decimal;
         ExcelCapt9: Label 'Red Storno';
-        [InDataSet]
         ExportToExcelRegionVisible: Boolean;
         Turnover_SheetCaptionLbl: Label 'Turnover Sheet';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

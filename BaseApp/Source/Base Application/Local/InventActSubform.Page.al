@@ -37,7 +37,7 @@ page 14912 "Invent. Act Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the receivables or payables account for which the debt or liability amount is calculated.';
                 }
-                field(Category; Category)
+                field(Category; Rec.Category)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount category.';
@@ -49,7 +49,7 @@ page 14912 "Invent. Act Subform"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Confirmed Amount"; Rec."Confirmed Amount")

@@ -43,22 +43,22 @@ table 12470 "FA Document Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(9; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(10; "Language Code"; Code[10])
@@ -73,9 +73,9 @@ table 12470 "FA Document Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist("FA Comment" WHERE("Document Type" = FIELD("Document Type"),
-                                                    "Document No." = FIELD("No."),
-                                                    "Document Line No." = CONST(0)));
+            CalcFormula = exist("FA Comment" WHERE("Document Type" = field("Document Type"),
+                                                    "Document No." = field("No."),
+                                                    "Document Line No." = const(0)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -174,7 +174,7 @@ table 12470 "FA Document Header"
 
             trigger OnLookup()
             begin
-                ShowDocDim();
+                Rec.ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -351,33 +351,6 @@ table 12470 "FA Document Header"
         FADocLine.SetRange("Document No.", "No.");
         exit(not FADocLine.IsEmpty);
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    [Scope('OnPrem')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        SourceCodeSetup.Get();
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        TableID[4] := Type4;
-        No[4] := No4;
-        TableID[5] := Type5;
-        No[5] := No5;
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        DimMgt.GetDefaultDimID(
-          TableID, No, SourceCodeSetup."Fixed Asset G/L Journal", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-    end;
-#endif
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var

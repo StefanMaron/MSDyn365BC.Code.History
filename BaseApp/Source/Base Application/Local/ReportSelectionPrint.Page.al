@@ -48,7 +48,7 @@ page 12448 "Report Selection - Print"
 
                     trigger OnAction()
                     begin
-                        ModifyAll(Default, true);
+                        Rec.ModifyAll(Default, true);
                     end;
                 }
                 action("Clear All")
@@ -59,7 +59,7 @@ page 12448 "Report Selection - Print"
 
                     trigger OnAction()
                     begin
-                        ModifyAll(Default, false);
+                        Rec.ModifyAll(Default, false);
                     end;
                 }
             }

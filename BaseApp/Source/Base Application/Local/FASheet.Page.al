@@ -103,7 +103,7 @@ page 12497 "FA Sheet"
                 {
                     ApplicationArea = FixedAssets;
                 }
-                field(Depreciation; Depreciation)
+                field(Depreciation; Rec.Depreciation)
                 {
                     ApplicationArea = FixedAssets;
                     BlankZero = true;
@@ -137,7 +137,7 @@ page 12497 "FA Sheet"
                     ApplicationArea = FixedAssets;
                     BlankZero = true;
                 }
-                field(Appreciation; Appreciation)
+                field(Appreciation; Rec.Appreciation)
                 {
                     ApplicationArea = FixedAssets;
                     BlankZero = true;
@@ -184,7 +184,7 @@ page 12497 "FA Sheet"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Fixed Asset Card";
-                    RunPageLink = "No." = FIELD("FA No.");
+                    RunPageLink = "No." = field("FA No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -265,12 +265,12 @@ page 12497 "FA Sheet"
 
     trigger OnAfterGetRecord()
     begin
-        if FA.Get("FA No.") then;
+        if FA.Get(Rec."FA No.") then;
     end;
 
     trigger OnOpenPage()
     begin
-        DateFilter := GetFilter("FA Posting Date Filter");
+        DateFilter := Rec.GetFilter("FA Posting Date Filter");
         if DateFilter = '' then begin
             if PeriodType = PeriodType::"Accounting Period" then
                 FindPeriodUser('')
@@ -282,7 +282,7 @@ page 12497 "FA Sheet"
             FASetup.Get();
             DeprBookFilter := FASetup."Default Depr. Book";
         end;
-        SetRange("Depreciation Book Code", DeprBookFilter);
+        Rec.SetRange("Depreciation Book Code", DeprBookFilter);
     end;
 
     var
@@ -300,19 +300,19 @@ page 12497 "FA Sheet"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("FA Posting Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("FA Posting Date Filter"));
+        if Rec.GetFilter("FA Posting Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("FA Posting Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then begin
-            SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then
-                SetRange("FA Posting Date Filter", GetRangeMin("FA Posting Date Filter"));
+            Rec.SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("FA Posting Date Filter") = Rec.GetRangeMax("FA Posting Date Filter") then
+                Rec.SetRange("FA Posting Date Filter", Rec.GetRangeMin("FA Posting Date Filter"));
         end else
-            SetRange("FA Posting Date Filter", 0D, Calendar."Period End");
+            Rec.SetRange("FA Posting Date Filter", 0D, Calendar."Period End");
     end;
 
     local procedure FindPeriodUser(SearchText: Code[10])
@@ -321,23 +321,23 @@ page 12497 "FA Sheet"
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserPeriods.Get(UserId) then begin
-            SetRange("FA Posting Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
-            if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then
-                SetRange("FA Posting Date Filter", GetRangeMin("FA Posting Date Filter"));
+            Rec.SetRange("FA Posting Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
+            if Rec.GetRangeMin("FA Posting Date Filter") = Rec.GetRangeMax("FA Posting Date Filter") then
+                Rec.SetRange("FA Posting Date Filter", Rec.GetRangeMin("FA Posting Date Filter"));
         end else begin
-            if GetFilter("FA Posting Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("FA Posting Date Filter"));
+            if Rec.GetFilter("FA Posting Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("FA Posting Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
             if AmountType = AmountType::"Net Change" then begin
-                SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
-                if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then
-                    SetRange("FA Posting Date Filter", GetRangeMin("FA Posting Date Filter"));
+                Rec.SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
+                if Rec.GetRangeMin("FA Posting Date Filter") = Rec.GetRangeMax("FA Posting Date Filter") then
+                    Rec.SetRange("FA Posting Date Filter", Rec.GetRangeMin("FA Posting Date Filter"));
             end else
-                SetRange("FA Posting Date Filter", 0D, Calendar."Period End");
+                Rec.SetRange("FA Posting Date Filter", 0D, Calendar."Period End");
         end;
     end;
 }

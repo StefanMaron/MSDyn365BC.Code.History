@@ -7,11 +7,11 @@ report 14934 "Write-off for Tax Ledger"
     {
         dataitem("Posted FA Doc. Header"; "Posted FA Doc. Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Writeoff));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Writeoff));
             dataitem("Posted FA Doc. Line"; "Posted FA Doc. Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 var
@@ -171,7 +171,6 @@ report 14934 "Write-off for Tax Ledger"
         NewPostingDate: Date;
         PostingDate: Date;
         DeprBookCode: Code[10];
-        [InDataSet]
         UseNewPostDate: Boolean;
         Post: Boolean;
         FAJnlNextLineNo: Integer;
@@ -179,7 +178,6 @@ report 14934 "Write-off for Tax Ledger"
         Text000: Label 'You must specify New Posting Date.';
         Text001: Label 'Processing';
         Text002: Label 'Fixed Asset #1##########';
-        [InDataSet]
         NewPostingDateTextBoxEnable: Boolean;
 
     [Scope('OnPrem')]

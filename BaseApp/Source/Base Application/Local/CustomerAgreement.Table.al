@@ -62,17 +62,17 @@ table 14902 "Customer Agreement"
         field(9; "Agreement Group"; Code[20])
         {
             Caption = 'Agreement Group';
-            TableRelation = "Agreement Group".Code WHERE(Type = CONST(Sales));
+            TableRelation = "Agreement Group".Code where(Type = const(Sales));
         }
         field(10; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST(Agreement),
-                                                            "No." = FIELD("No.")));
+            CalcFormula = exist("Sales Comment Line" where("Document Type" = const(Agreement),
+                                                            "No." = field("No.")));
             Caption = 'Comment';
             FieldClass = FlowField;
         }
@@ -88,22 +88,22 @@ table 14902 "Customer Agreement"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Global Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Global Dimension 1 Code");
             end;
         }
         field(17; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Global Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
         field(20; "Credit Limit (LCY)"; Decimal)
@@ -207,20 +207,20 @@ table 14902 "Customer Agreement"
             CaptionClass = '1,3,1';
             Caption = 'Global Dimension 1 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(57; "Global Dimension 2 Filter"; Code[20])
         {
             CaptionClass = '1,3,2';
             Caption = 'Global Dimension 2 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(58; Balance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
-                                                                         "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("Customer No."),
+                                                                         "Agreement No." = field("No.")));
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -228,21 +228,21 @@ table 14902 "Customer Agreement"
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                 "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("Customer No."),
+                                                                                 "Agreement No." = field("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(60; "Net Change"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer No."),
-                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                         "Posting Date" = FIELD("Date Filter"),
-                                                                         "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("Customer No."),
+                                                                         "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                         "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                         "Posting Date" = field("Date Filter"),
+                                                                         "Agreement No." = field("No.")));
             Caption = 'Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -250,11 +250,11 @@ table 14902 "Customer Agreement"
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                 "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                 "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                 "Posting Date" = FIELD("Date Filter"),
-                                                                                 "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("Customer No."),
+                                                                                 "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                 "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                 "Posting Date" = field("Date Filter"),
+                                                                                 "Agreement No." = field("No.")));
             Caption = 'Net Change (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -262,7 +262,7 @@ table 14902 "Customer Agreement"
         field(83; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -278,30 +278,30 @@ table 14902 "Customer Agreement"
         }
         field(97; "Debit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                 "Entry Type" = FILTER(<> Application),
-                                                                                 "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                 "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                 "Posting Date" = FIELD("Date Filter"),
-                                                                                 "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Debit Amount" where("Customer No." = field("Customer No."),
+                                                                                 "Entry Type" = filter(<> Application),
+                                                                                 "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                 "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                 "Posting Date" = field("Date Filter"),
+                                                                                 "Agreement No." = field("No.")));
             Caption = 'Debit Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(98; "Credit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                  "Entry Type" = FILTER(<> Application),
-                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                  "Posting Date" = FIELD("Date Filter"),
-                                                                                  "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Credit Amount" where("Customer No." = field("Customer No."),
+                                                                                  "Entry Type" = filter(<> Application),
+                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                  "Posting Date" = field("Date Filter"),
+                                                                                  "Agreement No." = field("No.")));
             Caption = 'Credit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -310,12 +310,12 @@ table 14902 "Customer Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                       "Entry Type" = FILTER(<> Application),
-                                                                                       "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                       "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                       "Posting Date" = FIELD("Date Filter"),
-                                                                                       "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" where("Customer No." = field("Customer No."),
+                                                                                       "Entry Type" = filter(<> Application),
+                                                                                       "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                       "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                       "Posting Date" = field("Date Filter"),
+                                                                                       "Agreement No." = field("No.")));
             Caption = 'Debit Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -324,12 +324,12 @@ table 14902 "Customer Agreement"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                        "Entry Type" = FILTER(<> Application),
-                                                                                        "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                        "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                        "Posting Date" = FIELD("Date Filter"),
-                                                                                        "Agreement No." = FIELD("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" where("Customer No." = field("Customer No."),
+                                                                                        "Entry Type" = filter(<> Application),
+                                                                                        "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                        "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                        "Posting Date" = field("Date Filter"),
+                                                                                        "Agreement No." = field("No.")));
             Caption = 'Credit Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -364,7 +364,7 @@ table 14902 "Customer Agreement"
         field(5792; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
-            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+            TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
             begin
@@ -380,7 +380,7 @@ table 14902 "Customer Agreement"
         field(12400; "Default Bank Code"; Code[20])
         {
             Caption = 'Default Bank Code';
-            TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Customer No."));
         }
         field(12422; "G/L Account Filter"; Code[20])
         {
@@ -396,13 +396,13 @@ table 14902 "Customer Agreement"
         field(12424; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
-                                                        "Source No." = FIELD("Customer No."),
-                                                        "G/L Account No." = FIELD("G/L Account Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "Agreement No." = FIELD("No."),
-                                                        "Posting Date" = FIELD(UPPERLIMIT("G/L Starting Date Filter"))));
+            CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
+                                                        "Source No." = field("Customer No."),
+                                                        "G/L Account No." = field("G/L Account Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                        "Agreement No." = field("No."),
+                                                        "Posting Date" = field(UPPERLIMIT("G/L Starting Date Filter"))));
             Caption = 'G/L Starting Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -410,13 +410,13 @@ table 14902 "Customer Agreement"
         field(12425; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
-                                                        "Source No." = FIELD("Customer No."),
-                                                        "G/L Account No." = FIELD("G/L Account Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "Agreement No." = FIELD("No."),
-                                                        "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
+                                                        "Source No." = field("Customer No."),
+                                                        "G/L Account No." = field("G/L Account Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                        "Agreement No." = field("No."),
+                                                        "Posting Date" = field("Date Filter")));
             Caption = 'G/L Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -424,13 +424,13 @@ table 14902 "Customer Agreement"
         field(12426; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Customer),
-                                                                "Source No." = FIELD("Customer No."),
-                                                                "G/L Account No." = FIELD("G/L Account Filter"),
-                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                "Agreement No." = FIELD("No."),
-                                                                "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Debit Amount" where("Source Type" = const(Customer),
+                                                                "Source No." = field("Customer No."),
+                                                                "G/L Account No." = field("G/L Account Filter"),
+                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                "Agreement No." = field("No."),
+                                                                "Posting Date" = field("Date Filter")));
             Caption = 'G/L Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -438,13 +438,13 @@ table 14902 "Customer Agreement"
         field(12427; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Customer),
-                                                                 "Source No." = FIELD("Customer No."),
-                                                                 "G/L Account No." = FIELD("G/L Account Filter"),
-                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                 "Agreement No." = FIELD("No."),
-                                                                 "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Credit Amount" where("Source Type" = const(Customer),
+                                                                 "Source No." = field("Customer No."),
+                                                                 "G/L Account No." = field("G/L Account Filter"),
+                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                 "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                 "Agreement No." = field("No."),
+                                                                 "Posting Date" = field("Date Filter")));
             Caption = 'G/L Credit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -452,13 +452,13 @@ table 14902 "Customer Agreement"
         field(12428; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Customer),
-                                                        "Source No." = FIELD("Customer No."),
-                                                        "G/L Account No." = FIELD("G/L Account Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "Agreement No." = FIELD("No."),
-                                                        "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = sum("G/L Entry".Amount where("Source Type" = const(Customer),
+                                                        "Source No." = field("Customer No."),
+                                                        "G/L Account No." = field("G/L Account Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                        "Agreement No." = field("No."),
+                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'G/L Balance to Date';
             Editable = false;
             FieldClass = FlowField;

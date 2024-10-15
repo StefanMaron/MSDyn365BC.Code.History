@@ -7,14 +7,14 @@ report 12414 "Posted Ship. Shipment TORG-12"
     {
         dataitem(Header; "Sales Shipment Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem(CopyCycle; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 dataitem(LineCycle; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                     trigger OnAfterGetRecord()
                     var

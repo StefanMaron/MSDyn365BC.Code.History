@@ -78,13 +78,13 @@ page 26563 "Statutory Report Data Overview"
                     StatReportDataSubform: Page "_Stat. Report Data Subform";
                     ScalableTableDataSubform: Page "_Scalable Table Data Subform";
                 begin
-                    StatutoryReportTable.Get("Report Code", TableCode);
+                    StatutoryReportTable.Get(Rec."Report Code", TableCode);
 
                     if StatutoryReportTable."Scalable Table" then begin
-                        ScalableTableDataSubform.InitParameters("No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
+                        ScalableTableDataSubform.InitParameters(Rec."No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
                         ScalableTableDataSubform.RunModal();
                     end else begin
-                        StatReportDataSubform.InitParameters("No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
+                        StatReportDataSubform.InitParameters(Rec."No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
                         StatReportDataSubform.RunModal();
                     end;
                 end;
@@ -106,7 +106,7 @@ page 26563 "Statutory Report Data Overview"
     trigger OnOpenPage()
     begin
         StatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
-        StatutoryReportTable.SetRange("Report Code", "Report Code");
+        StatutoryReportTable.SetRange("Report Code", Rec."Report Code");
         if StatutoryReportTable.FindFirst() then begin
             TableCode := StatutoryReportTable.Code;
             FindFirstExcelSheet(TableCode);
@@ -127,7 +127,7 @@ page 26563 "Statutory Report Data Overview"
     begin
         PrevTableCode := TableCode;
         StatutoryReportTable.FilterGroup(2);
-        StatutoryReportTable.SetRange("Report Code", "Report Code");
+        StatutoryReportTable.SetRange("Report Code", Rec."Report Code");
         StatutoryReportTable.FilterGroup(0);
         StatutoryReportTable.Code := TableCode;
 
@@ -144,8 +144,8 @@ page 26563 "Statutory Report Data Overview"
     [Scope('OnPrem')]
     procedure LookupExcelSheet(): Boolean
     begin
-        StatReportExcelSheet.SetRange("Report Data No.", "No.");
-        StatReportExcelSheet.SetRange("Report Code", "Report Code");
+        StatReportExcelSheet.SetRange("Report Data No.", Rec."No.");
+        StatReportExcelSheet.SetRange("Report Code", Rec."Report Code");
         StatReportExcelSheet.SetRange("Table Code", TableCode);
         if PAGE.RunModal(0, StatReportExcelSheet) <> ACTION::LookupOK then
             exit(false);
@@ -157,7 +157,7 @@ page 26563 "Statutory Report Data Overview"
     [Scope('OnPrem')]
     procedure FindFirstExcelSheet(NewTableCode: Code[20])
     begin
-        StatReportExcelSheet.SetRange("Report Code", "Report Code");
+        StatReportExcelSheet.SetRange("Report Code", Rec."Report Code");
         StatReportExcelSheet.SetRange("Table Code", NewTableCode);
         if StatReportExcelSheet.FindFirst() then
             ExcelSheetName := StatReportExcelSheet."Sheet Name";

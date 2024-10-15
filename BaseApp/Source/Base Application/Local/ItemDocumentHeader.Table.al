@@ -33,19 +33,19 @@ table 12450 "Item Document Header"
         field(7; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            TableRelation = Location.Code WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location.Code where("Use As In-Transit" = const(false));
         }
         field(8; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(9; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(10; "Language Code"; Code[10])
         {
@@ -75,7 +75,7 @@ table 12450 "Item Document Header"
         field(17; "Whse. Adj. Bin Code"; Code[20])
         {
             Caption = 'Whse. Adj. Bin Code';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Location Code"));
         }
         field(20; "Posting No."; Code[20])
         {

@@ -71,13 +71,13 @@ table 17315 "Tax Calc. G/L Entry"
         field(26; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Source Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Source Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor
+            else
+            if ("Source Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Source Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(30; "Dimension 1 Value Code"; Code[20])
         {
@@ -116,16 +116,16 @@ table 17315 "Tax Calc. G/L Entry"
         }
         field(51; "Tax Factor"; Decimal)
         {
-            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Factor" WHERE("Entry No." = FIELD("Entry No."),
-                                                                              Code = FIELD("Code Filter")));
+            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Factor" where("Entry No." = field("Entry No."),
+                                                                              Code = field("Code Filter")));
             Caption = 'Tax Factor';
             DecimalPlaces = 5 : 5;
             FieldClass = FlowField;
         }
         field(52; "Tax Amount"; Decimal)
         {
-            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Amount" WHERE("Entry No." = FIELD("Entry No."),
-                                                                              Code = FIELD("Code Filter")));
+            CalcFormula = Lookup ("Tax Calc. Buffer Entry"."Tax Amount" where("Entry No." = field("Entry No."),
+                                                                              Code = field("Code Filter")));
             Caption = 'Tax Amount';
             DecimalPlaces = 2 :;
             FieldClass = FlowField;
@@ -186,7 +186,7 @@ table 17315 "Tax Calc. G/L Entry"
         Navigate: Page Navigate;
     begin
         Clear(Navigate);
-        Navigate.SetDoc("Posting Date", "Document No.");
+        Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
         Navigate.Run();
     end;
 

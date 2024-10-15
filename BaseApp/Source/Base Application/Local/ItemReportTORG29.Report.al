@@ -9,7 +9,7 @@ report 14919 "Item Report TORG-29"
     {
         dataitem(ReceiptsHeader; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             MaxIteration = 1;
 
             trigger OnPreDataItem()
@@ -36,10 +36,10 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(IntegerReceipts; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem(PMReceipts; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnAfterGetRecord()
@@ -86,11 +86,11 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(ReceiptsFooter; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             MaxIteration = 1;
             dataitem(PMReceiptsFooter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnPreDataItem()
@@ -109,7 +109,7 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(ShipmentHeader; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             MaxIteration = 1;
 
             trigger OnPreDataItem()
@@ -124,10 +124,10 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(IntegerShipment; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem(PMShipment; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnAfterGetRecord()
@@ -179,11 +179,11 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(ShipmentFooter; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             MaxIteration = 1;
             dataitem(PMShipmentFooter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnPreDataItem()
@@ -206,7 +206,7 @@ report 14919 "Item Report TORG-29"
         }
         dataitem(ErrorLog; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
 
             trigger OnAfterGetRecord()
             begin
@@ -526,7 +526,6 @@ report 14919 "Item Report TORG-29"
         Text007: Label 'Employee Code for Report Acceptor should be entered.';
         Text008: Label 'Employee Code for Responsible Employee should be entered.';
         FileName: Text;
-        [InDataSet]
         CtrlEnable: Boolean;
         SalesCodeCtrlEnable: Boolean;
         TNTxt: Label 't.n.', Comment = 'Should be translated "Ô.¡."';

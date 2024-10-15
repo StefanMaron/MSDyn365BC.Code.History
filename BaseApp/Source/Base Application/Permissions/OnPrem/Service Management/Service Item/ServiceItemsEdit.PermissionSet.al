@@ -1,3 +1,21 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.BOM;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Item;
+using Microsoft.Service.Document;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Service.Maintenance;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.UOM;
+
 permissionset 4339 "Service Items - Edit"
 {
     Access = Public;

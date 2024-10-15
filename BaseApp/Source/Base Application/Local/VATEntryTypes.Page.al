@@ -13,7 +13,7 @@ page 14977 "VAT Entry Types"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -22,7 +22,7 @@ page 14977 "VAT Entry Types"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a comment is associated with this entry.';

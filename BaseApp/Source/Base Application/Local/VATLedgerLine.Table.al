@@ -17,7 +17,7 @@ table 12405 "VAT Ledger Line"
         field(2; "Code"; Code[20])
         {
             Caption = 'Code';
-            TableRelation = "VAT Ledger".Code WHERE(Type = FIELD(Type));
+            TableRelation = "VAT Ledger".Code where(Type = field(Type));
         }
         field(3; "Line No."; Integer)
         {
@@ -26,9 +26,9 @@ table 12405 "VAT Ledger Line"
         field(4; "C/V No."; Code[20])
         {
             Caption = 'C/V No.';
-            TableRelation = IF ("C/V Type" = CONST(Vendor)) Vendor
+            TableRelation = if ("C/V Type" = const(Vendor)) Vendor
             ELSE
-            IF ("C/V Type" = CONST(Customer)) Customer;
+            if ("C/V Type" = const(Customer)) Customer;
         }
         field(5; "C/V Name"; Text[250])
         {
@@ -177,36 +177,36 @@ table 12405 "VAT Ledger Line"
         }
         field(39; "No. of Sales Ledger Lines"; Integer)
         {
-            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
-                                                               "Purch. Ledger Code" = FIELD(Code),
-                                                               "Purch. Ledger Line No." = FIELD("Line No.")));
+            CalcFormula = count("VAT Ledger Connection" where("Connection Type" = const(Line),
+                                                               "Purch. Ledger Code" = field(Code),
+                                                               "Purch. Ledger Line No." = field("Line No.")));
             Caption = 'No. of Sales Ledger Lines';
             Editable = false;
             FieldClass = FlowField;
         }
         field(40; "No. of Purch. Ledger Lines"; Integer)
         {
-            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Line),
-                                                               "Sales Ledger Code" = FIELD(Code),
-                                                               "Sales Ledger Line No." = FIELD("Line No.")));
+            CalcFormula = count("VAT Ledger Connection" where("Connection Type" = const(Line),
+                                                               "Sales Ledger Code" = field(Code),
+                                                               "Sales Ledger Line No." = field("Line No.")));
             Caption = 'No. of Purch. Ledger Lines';
             Editable = false;
             FieldClass = FlowField;
         }
         field(41; "No. of VAT Sales Entries"; Integer)
         {
-            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Sales),
-                                                               "Sales Ledger Code" = FIELD(Code),
-                                                               "Sales Ledger Line No." = FIELD("Line No.")));
+            CalcFormula = count("VAT Ledger Connection" where("Connection Type" = const(Sales),
+                                                               "Sales Ledger Code" = field(Code),
+                                                               "Sales Ledger Line No." = field("Line No.")));
             Caption = 'No. of VAT Sales Entries';
             Editable = false;
             FieldClass = FlowField;
         }
         field(42; "No. of VAT Purch. Entries"; Integer)
         {
-            CalcFormula = Count("VAT Ledger Connection" WHERE("Connection Type" = CONST(Purchase),
-                                                               "Purch. Ledger Code" = FIELD(Code),
-                                                               "Purch. Ledger Line No." = FIELD("Line No.")));
+            CalcFormula = count("VAT Ledger Connection" where("Connection Type" = const(Purchase),
+                                                               "Purch. Ledger Code" = field(Code),
+                                                               "Purch. Ledger Line No." = field("Line No.")));
             Caption = 'No. of VAT Purch. Entries';
             FieldClass = FlowField;
         }
@@ -301,8 +301,6 @@ table 12405 "VAT Ledger Line"
         {
             Caption = 'VAT Entry Type';
             TableRelation = "VAT Entry Type".Code;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(12494; "Currency Code"; Code[10])

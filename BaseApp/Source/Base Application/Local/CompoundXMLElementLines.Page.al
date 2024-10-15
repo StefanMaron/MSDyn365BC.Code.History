@@ -23,34 +23,34 @@ page 26589 "Compound XML Element Lines"
                     begin
                         XMLElementLine.Reset();
                         XMLElementLine.FilterGroup(2);
-                        XMLElementLine.SetRange("Report Code", "Report Code");
-                        XMLElementLine.SetFilter("Line No.", '<>%1', "Base XML Element Line No.");
+                        XMLElementLine.SetRange("Report Code", Rec."Report Code");
+                        XMLElementLine.SetFilter("Line No.", '<>%1', Rec."Base XML Element Line No.");
                         XMLElementLine.FilterGroup(0);
                         XMLElementLines.SetTableView(XMLElementLine);
                         XMLElementLines.LookupMode := true;
 
-                        if "XML Element Line No." <> 0 then begin
-                            if XMLElementLine.Get("Report Code", "XML Element Line No.") then
+                        if Rec."XML Element Line No." <> 0 then begin
+                            if XMLElementLine.Get(Rec."Report Code", Rec."XML Element Line No.") then
                                 XMLElementLines.SetRecord(XMLElementLine);
                         end;
 
                         if XMLElementLines.RunModal() = ACTION::LookupOK then begin
                             XMLElementLines.GetRecord(XMLElementLine);
-                            "XML Element Line No." := XMLElementLine."Line No.";
-                            "XML Element Name" := XMLElementLine."Element Name";
+                            Rec."XML Element Line No." := XMLElementLine."Line No.";
+                            Rec."XML Element Name" := XMLElementLine."Element Name";
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        if "XML Element Name" <> '' then begin
+                        if Rec."XML Element Name" <> '' then begin
                             XMLElementLine.Reset();
-                            XMLElementLine.SetRange("Report Code", "Report Code");
-                            XMLElementLine.SetRange("Element Name", "XML Element Name");
+                            XMLElementLine.SetRange("Report Code", Rec."Report Code");
+                            XMLElementLine.SetRange("Element Name", Rec."XML Element Name");
                             XMLElementLine.FindFirst();
-                            "XML Element Line No." := XMLElementLine."Line No.";
+                            Rec."XML Element Line No." := XMLElementLine."Line No.";
                         end else
-                            "XML Element Line No." := 0;
+                            Rec."XML Element Line No." := 0;
                     end;
                 }
                 field("String Before"; Rec."String Before")
@@ -61,7 +61,7 @@ page 26589 "Compound XML Element Lines"
                     trigger OnValidate()
                     begin
                         if SpaceEntered then begin
-                            "String After" := ' ';
+                            Rec."String After" := ' ';
                             SpaceEntered := false;
                         end;
                     end;
@@ -74,7 +74,7 @@ page 26589 "Compound XML Element Lines"
                     trigger OnValidate()
                     begin
                         if SpaceEntered then begin
-                            "String After" := ' ';
+                            Rec."String After" := ' ';
                             SpaceEntered := false;
                         end;
                     end;

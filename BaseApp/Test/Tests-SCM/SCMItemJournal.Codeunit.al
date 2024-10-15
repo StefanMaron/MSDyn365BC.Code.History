@@ -1255,6 +1255,48 @@
     end;
 
     [Test]
+    procedure CalcInvPhysInvWhenBlockedItemVariant()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Calculate Inventory] [Blocked]
+        // [SCENARIO] Calculate Inventory report doesn't try to create lines for Blocked Item Variants
+        Initialize();
+
+        // [GIVEN] Items "I1" and "I2" had stock and item "I1" has variant "V1"
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandInt(10));
+        ItemJournalLine."Variant Code" := ItemVariant.Code;
+        ItemJournalLine.Modify();
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemJournalLine."Entry Type",
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] ItemVariant "V1" is Blocked
+        ItemVariant.Validate(Blocked, true);
+        ItemVariant.Modify(true);
+        Item.SetFilter("No.", '%1|%2', Item."No.", ItemJournalLine."Item No.");
+
+        // [WHEN] Run report Calculate Inventory for both Items
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate(), false, false);
+
+        // [THEN] Item Journal Line is created for Item "I2"
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
+        ItemJournalLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        Assert.RecordCount(ItemJournalLine, 1);
+
+        // [THEN] Item Journal Line is not created for Item "I1" and variant "V1"
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsEmpty(ItemJournalLine);
+    end;
+
+
+    [Test]
     [HandlerFunctions('ItemLedgerEntriesLookupMultipleModalPageHandler')]
     [Scope('OnPrem')]
     procedure ShowPositiveEntriesOnApplyToEntryLookupWhenItemJournalLineQtyIsZero()

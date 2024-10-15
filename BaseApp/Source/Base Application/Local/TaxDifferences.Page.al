@@ -14,7 +14,7 @@ page 17300 "Tax Differences"
             repeater(Control100)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an identifying income or expense code that defines the source of the tax difference.';
@@ -29,7 +29,7 @@ page 17300 "Tax Differences"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax difference represents Income or Expense for your organization.';
                 }
-                field(Category; Category)
+                field(Category; Rec.Category)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax difference amount is a Constant or Temporary.';
@@ -114,8 +114,8 @@ page 17300 "Tax Differences"
                     Caption = 'Tax Diff. Ledger Entries';
                     Image = LedgerEntries;
                     RunObject = Page "Tax Diff. Ledger Entries";
-                    RunPageLink = "Tax Diff. Code" = FIELD(Code);
-                    RunPageView = SORTING("Tax Diff. Code");
+                    RunPageLink = "Tax Diff. Code" = field(Code);
+                    RunPageView = sorting("Tax Diff. Code");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View entries resulting from posting variations in tax amounts caused by the different rules for recognizing income and expenses between entries for book accounting and tax accounting.';
                 }

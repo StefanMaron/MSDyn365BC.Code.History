@@ -7,12 +7,12 @@ report 17201 "Create Closing Gen. Jnl. Line"
     {
         dataitem("Tax Register CV Entry"; "Tax Register CV Entry")
         {
-            DataItemTableView = SORTING("Section Code", "Ending Date", "Object Type");
+            DataItemTableView = sorting("Section Code", "Ending Date", "Object Type");
             RequestFilterFields = "Object Type", "C/V No.";
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
                 CalcFields = "Remaining Amt. (LCY)";
-                DataItemTableView = SORTING("Customer No.", Open, Positive, "Due Date");
+                DataItemTableView = sorting("Customer No.", Open, Positive, "Due Date");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -56,7 +56,7 @@ report 17201 "Create Closing Gen. Jnl. Line"
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
                 CalcFields = "Remaining Amt. (LCY)";
-                DataItemTableView = SORTING("Vendor No.", Open, Positive, "Due Date");
+                DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -127,8 +127,8 @@ report 17201 "Create Closing Gen. Jnl. Line"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Template Name';
-                        TableRelation = "Gen. Journal Template" WHERE(Type = CONST(General),
-                                                                       Recurring = CONST(false));
+                        TableRelation = "Gen. Journal Template" where(Type = const(General),
+                                                                       Recurring = const(false));
                         ToolTip = 'Specifies the name of the journal template, the basis of the journal batch, that the entries were posted from.';
 
                         trigger OnValidate()
@@ -330,7 +330,6 @@ report 17201 "Create Closing Gen. Jnl. Line"
         FilterDueDate3Years: Text[30];
         Text1003: Label 'Debit,Credit';
         BalanceText: Text[30];
-        [InDataSet]
         BalanceTextText: Text[1024];
 
     [Scope('OnPrem')]

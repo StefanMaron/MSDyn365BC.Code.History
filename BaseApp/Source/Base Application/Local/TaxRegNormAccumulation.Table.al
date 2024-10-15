@@ -27,7 +27,7 @@ table 17242 "Tax Reg. Norm Accumulation"
         field(5; "Norm Group Code"; Code[10])
         {
             Caption = 'Norm Group Code';
-            TableRelation = "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"));
+            TableRelation = "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"));
         }
         field(6; "Template Line No."; Integer)
         {
@@ -39,9 +39,9 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(8; "Line Type"; Option)
         {
-            CalcFormula = Lookup ("Tax Reg. Norm Template Line"."Line Type" WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"),
-                                                                                  "Norm Group Code" = FIELD("Norm Group Code"),
-                                                                                  "Line No." = FIELD("Template Line No.")));
+            CalcFormula = Lookup ("Tax Reg. Norm Template Line"."Line Type" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+                                                                                  "Norm Group Code" = field("Norm Group Code"),
+                                                                                  "Line No." = field("Template Line No.")));
             Caption = 'Line Type';
             Editable = false;
             FieldClass = FlowField;
@@ -65,9 +65,9 @@ table 17242 "Tax Reg. Norm Accumulation"
         }
         field(12; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"),
-                                                                   "Norm Group Code" = FIELD("Norm Group Code"),
-                                                                   "Line No." = FIELD("Template Line No.")));
+            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+                                                                   "Norm Group Code" = field("Norm Group Code"),
+                                                                   "Line No." = field("Template Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;

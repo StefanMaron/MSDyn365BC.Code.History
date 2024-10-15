@@ -34,8 +34,6 @@ table 17206 "Tax Register Calc. Buffer"
         {
             Caption = 'Account No.';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -50,8 +48,6 @@ table 17206 "Tax Register Calc. Buffer"
         {
             Caption = 'Bal. Account No.';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -117,10 +113,10 @@ table 17206 "Tax Register Calc. Buffer"
         }
         field(23; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                  "Tax Register No." = FIELD("Tax Register No."),
-                                                                  Define = CONST(Template),
-                                                                  "Line No." = FIELD("Template Line No.")));
+            CalcFormula = exist("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                  "Tax Register No." = field("Tax Register No."),
+                                                                  Define = const(Template),
+                                                                  "Line No." = field("Template Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;

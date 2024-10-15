@@ -7,7 +7,7 @@ report 12457 "Posted Cash Outgoing Order"
     {
         dataitem("Check Ledger Entry"; "Check Ledger Entry")
         {
-            DataItemTableView = SORTING("Entry No.");
+            DataItemTableView = sorting("Entry No.");
             RequestFilterFields = "Entry No.";
 
             trigger OnAfterGetRecord()

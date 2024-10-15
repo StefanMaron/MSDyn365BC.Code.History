@@ -86,8 +86,8 @@ page 14939 "Journal Posting Preview Setup"
 
     trigger OnOpenPage()
     begin
-        if GetRangeMin("User ID") = GetRangeMax("User ID") then
-            Initialize(GetRangeMin("User ID"));
+        if Rec.GetRangeMin("User ID") = Rec.GetRangeMax("User ID") then
+            Rec.Initialize(Rec.GetRangeMin("User ID"));
     end;
 
     var

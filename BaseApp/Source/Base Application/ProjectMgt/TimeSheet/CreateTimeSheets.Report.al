@@ -1,3 +1,16 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Period;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using System.Security.User;
+using System.Utilities;
+
 report 950 "Create Time Sheets"
 {
     ApplicationArea = Basic, Suite;
@@ -9,10 +22,10 @@ report 950 "Create Time Sheets"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem(Resource; Resource)
             {
-                DataItemTableView = WHERE("Use Time Sheet" = CONST(true));
+                DataItemTableView = where("Use Time Sheet" = const(true));
                 RequestFilterFields = "No.", Type;
 
                 trigger OnAfterGetRecord()

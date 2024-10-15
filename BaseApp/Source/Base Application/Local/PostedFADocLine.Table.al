@@ -75,13 +75,13 @@ table 12472 "Posted FA Doc. Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(1));
         }
         field(28; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = const(2));
         }
         field(30; Status; Option)
         {
@@ -111,7 +111,7 @@ table 12472 "Posted FA Doc. Line"
         field(50; "Item Receipt No."; Code[20])
         {
             Caption = 'Item Receipt No.';
-            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = CONST(Receipt));
+            TableRelation = "Invt. Document Header"."No." WHERE("Document Type" = const(Receipt));
         }
         field(51; Canceled; Boolean)
         {
@@ -125,7 +125,7 @@ table 12472 "Posted FA Doc. Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
         }
     }

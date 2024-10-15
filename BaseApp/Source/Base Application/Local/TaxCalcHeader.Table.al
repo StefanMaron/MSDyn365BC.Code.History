@@ -29,7 +29,7 @@ table 17308 "Tax Calc. Header"
         {
             BlankZero = true;
             Caption = 'Table ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = const(Table));
 
             trigger OnValidate()
             begin
@@ -56,8 +56,8 @@ table 17308 "Tax Calc. Header"
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
-                                                                           "Object ID" = FIELD("Table ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Table),
+                                                                           "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
             FieldClass = FlowField;
@@ -65,7 +65,7 @@ table 17308 "Tax Calc. Header"
         field(5; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -74,8 +74,8 @@ table 17308 "Tax Calc. Header"
         }
         field(6; "Form Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Form Name';
             FieldClass = FlowField;
         }
@@ -152,9 +152,9 @@ table 17308 "Tax Calc. Header"
         }
         field(30; "Used in Statutory Report"; Boolean)
         {
-            CalcFormula = Exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Tax Difference"),
-                                                                    "Int. Source Section Code" = FIELD("Section Code"),
-                                                                    "Int. Source No." = FIELD("No.")));
+            CalcFormula = exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = const("Tax Difference"),
+                                                                    "Int. Source Section Code" = field("Section Code"),
+                                                                    "Int. Source No." = field("No.")));
             Caption = 'Used in Statutory Report';
             Editable = false;
             FieldClass = FlowField;

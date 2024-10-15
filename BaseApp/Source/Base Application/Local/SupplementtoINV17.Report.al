@@ -10,12 +10,12 @@ report 14915 "Supplement to INV-17"
             PrintOnlyIfDetail = true;
             dataitem(InventActLine; "Invent. Act Line")
             {
-                DataItemLink = "Act No." = FIELD("No.");
-                DataItemTableView = SORTING("Act No.", "Contractor Type", "Contractor No.", "Posting Group", Category);
+                DataItemLink = "Act No." = field("No.");
+                DataItemTableView = sorting("Act No.", "Contractor Type", "Contractor No.", "Posting Group", Category);
                 dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
                 {
-                    DataItemLink = "Customer No." = FIELD("Contractor No."), "Customer Posting Group" = FIELD("Posting Group");
-                    DataItemTableView = SORTING("Customer No.", "Posting Date", "Currency Code");
+                    DataItemLink = "Customer No." = field("Contractor No."), "Customer Posting Group" = field("Posting Group");
+                    DataItemTableView = sorting("Customer No.", "Posting Date", "Currency Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -64,8 +64,8 @@ report 14915 "Supplement to INV-17"
                 }
                 dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
                 {
-                    DataItemLink = "Vendor No." = FIELD("Contractor No.");
-                    DataItemTableView = SORTING("Vendor No.", "Posting Date", "Currency Code");
+                    DataItemLink = "Vendor No." = field("Contractor No.");
+                    DataItemTableView = sorting("Vendor No.", "Posting Date", "Currency Code");
 
                     trigger OnAfterGetRecord()
                     begin

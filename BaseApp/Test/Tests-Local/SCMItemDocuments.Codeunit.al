@@ -778,7 +778,7 @@ codeunit 147111 "SCM Item Documents"
             ItemTrackingAction::ManualSN:
                 begin
                     ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
-                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                    ItemTrackingLines."Quantity (Base)".SetValue(-1);
                     if IsRedStorno then
                         ItemTrackingLines."Appl.-from Item Entry".SetValue(LibraryVariableStorage.DequeueInteger());
                 end;

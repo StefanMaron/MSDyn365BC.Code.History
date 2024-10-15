@@ -10,12 +10,12 @@ report 12495 "FA Inventory Card FA-6"
             RequestFilterFields = "No.";
             dataitem("FA Depreciation Book"; "FA Depreciation Book")
             {
-                DataItemLink = "FA No." = FIELD("No.");
-                DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                DataItemLink = "FA No." = field("No.");
+                DataItemTableView = sorting("FA No.", "Depreciation Book Code");
                 dataitem(InitialAcquisition; "FA Ledger Entry")
                 {
-                    DataItemLink = "FA No." = FIELD("FA No."), "Depreciation Book Code" = FIELD("Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") WHERE("FA Posting Type" = FILTER("Acquisition Cost"), "Initial Acquisition" = CONST(true), Quantity = FILTER(> 0));
+                    DataItemLink = "FA No." = field("FA No."), "Depreciation Book Code" = field("Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") where("FA Posting Type" = filter("Acquisition Cost"), "Initial Acquisition" = const(true), Quantity = filter(> 0));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -31,8 +31,8 @@ report 12495 "FA Inventory Card FA-6"
                 }
                 dataitem(Transfer; "FA Ledger Entry")
                 {
-                    DataItemLink = "FA No." = FIELD("FA No."), "Depreciation Book Code" = FIELD("Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") WHERE("FA Posting Type" = FILTER("Acquisition Cost"), "Initial Acquisition" = CONST(false), Quantity = FILTER(> 0), "Reclassification Entry" = CONST(true));
+                    DataItemLink = "FA No." = field("FA No."), "Depreciation Book Code" = field("Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") where("FA Posting Type" = filter("Acquisition Cost"), "Initial Acquisition" = const(false), Quantity = filter(> 0), "Reclassification Entry" = const(true));
                     PrintOnlyIfDetail = true;
 
                     trigger OnAfterGetRecord()
@@ -49,8 +49,8 @@ report 12495 "FA Inventory Card FA-6"
                 }
                 dataitem(WriteOff; "FA Ledger Entry")
                 {
-                    DataItemLink = "FA No." = FIELD("FA No."), "Depreciation Book Code" = FIELD("Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") WHERE("FA Posting Type" = FILTER("Acquisition Cost"), "FA Posting Category" = FILTER(Disposal));
+                    DataItemLink = "FA No." = field("FA No."), "Depreciation Book Code" = field("Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") where("FA Posting Type" = filter("Acquisition Cost"), "FA Posting Category" = filter(Disposal));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -66,7 +66,7 @@ report 12495 "FA Inventory Card FA-6"
                 }
                 dataitem("Integer 1"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     var
@@ -124,12 +124,12 @@ report 12495 "FA Inventory Card FA-6"
             }
             dataitem("FA Depreciation Book 2"; "FA Depreciation Book")
             {
-                DataItemLink = "FA No." = FIELD("No.");
-                DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                DataItemLink = "FA No." = field("No.");
+                DataItemTableView = sorting("FA No.", "Depreciation Book Code");
                 dataitem("FA Ledger Entry 2"; "FA Ledger Entry")
                 {
-                    DataItemLink = "FA No." = FIELD("FA No."), "Depreciation Book Code" = FIELD("Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") WHERE("FA Posting Type" = FILTER("Acquisition Cost"), "Initial Acquisition" = CONST(false), Quantity = FILTER(> 0));
+                    DataItemLink = "FA No." = field("FA No."), "Depreciation Book Code" = field("Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry") where("FA Posting Type" = filter("Acquisition Cost"), "Initial Acquisition" = const(false), Quantity = filter(> 0));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -161,7 +161,7 @@ report 12495 "FA Inventory Card FA-6"
             }
             dataitem("Integer 2"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnAfterGetRecord()
@@ -171,8 +171,8 @@ report 12495 "FA Inventory Card FA-6"
             }
             dataitem("Main Asset Component"; "Main Asset Component")
             {
-                DataItemLink = "Main Asset No." = FIELD("No.");
-                DataItemTableView = SORTING("Main Asset No.", "FA No.");
+                DataItemLink = "Main Asset No." = field("No.");
+                DataItemTableView = sorting("Main Asset No.", "FA No.");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -183,8 +183,8 @@ report 12495 "FA Inventory Card FA-6"
             }
             dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
             {
-                DataItemLink = "No." = FIELD("No.");
-                DataItemTableView = SORTING("Item Type", "No.", "Precious Metals Code") WHERE("Item Type" = CONST(FA));
+                DataItemLink = "No." = field("No.");
+                DataItemTableView = sorting("Item Type", "No.", "Precious Metals Code") where("Item Type" = const(FA));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -198,7 +198,7 @@ report 12495 "FA Inventory Card FA-6"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnAfterGetRecord()

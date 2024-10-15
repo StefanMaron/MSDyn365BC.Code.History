@@ -81,12 +81,12 @@ page 12483 "FA Document List"
 
                     trigger OnAction()
                     begin
-                        case "Document Type" of
-                            "Document Type"::Writeoff:
+                        case Rec."Document Type" of
+                            Rec."Document Type"::Writeoff:
                                 PAGE.RunModal(PAGE::"FA Writeoff Act", Rec);
-                            "Document Type"::Release:
+                            Rec."Document Type"::Release:
                                 PAGE.RunModal(PAGE::"FA Release Act", Rec);
-                            "Document Type"::Movement:
+                            Rec."Document Type"::Movement:
                                 PAGE.RunModal(PAGE::"FA Movement Act", Rec);
                         end;
                     end;

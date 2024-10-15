@@ -7,15 +7,15 @@ report 17305 "Create Tax Diff. for Disp. FE"
     {
         dataitem("Future Expense"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.") WHERE("FA Type" = CONST("Future Expense"), Blocked = CONST(false), Inactive = CONST(false));
+            DataItemTableView = sorting("No.") where("FA Type" = const("Future Expense"), Blocked = const(false), Inactive = const(false));
             dataitem(DeprecnBookAccount; "Depreciation Book")
             {
-                DataItemTableView = SORTING(Code) WHERE("Posting Book Type" = CONST(Accounting));
+                DataItemTableView = sorting(Code) where("Posting Book Type" = const(Accounting));
                 dataitem(FEDepreciationBookAccount; "FA Depreciation Book")
                 {
                     CalcFields = Depreciation;
-                    DataItemLink = "Depreciation Book Code" = FIELD(Code);
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                    DataItemLink = "Depreciation Book Code" = field(Code);
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -39,12 +39,12 @@ report 17305 "Create Tax Diff. for Disp. FE"
             }
             dataitem(DeprecnBookTaxAccount; "Depreciation Book")
             {
-                DataItemTableView = SORTING(Code) WHERE("Posting Book Type" = CONST("Tax Accounting"));
+                DataItemTableView = sorting(Code) where("Posting Book Type" = const("Tax Accounting"));
                 dataitem(FEDepreciationBookTaxAccount; "FA Depreciation Book")
                 {
                     CalcFields = Depreciation;
-                    DataItemLink = "Depreciation Book Code" = FIELD(Code);
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code") WHERE(Depreciation = FILTER(<> 0));
+                    DataItemLink = "Depreciation Book Code" = field(Code);
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code") where(Depreciation = filter(<> 0));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -69,7 +69,7 @@ report 17305 "Create Tax Diff. for Disp. FE"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
 
                 trigger OnAfterGetRecord()

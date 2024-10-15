@@ -34,7 +34,7 @@ page 17323 "Tax Calc. Accumulat. Lines"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
             }

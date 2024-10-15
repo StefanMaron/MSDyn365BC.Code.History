@@ -12,7 +12,7 @@ table 26555 "Scalable Table Row"
         field(2; "Table Code"; Code[20])
         {
             Caption = 'Table Code';
-            TableRelation = "Statutory Report Table".Code WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "Statutory Report Table".Code where("Report Code" = field("Report Code"));
         }
         field(3; "Report Data No."; Code[20])
         {
@@ -33,9 +33,9 @@ table 26555 "Scalable Table Row"
         field(11; "Excel Sheet Name"; Text[30])
         {
             Caption = 'Excel Sheet Name';
-            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" WHERE("Report Code" = FIELD("Report Code"),
-                                                                           "Table Code" = FIELD("Table Code"),
-                                                                           "Report Data No." = FIELD("Report Data No."));
+            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" where("Report Code" = field("Report Code"),
+                                                                           "Table Code" = field("Table Code"),
+                                                                           "Report Data No." = field("Report Data No."));
         }
     }
 

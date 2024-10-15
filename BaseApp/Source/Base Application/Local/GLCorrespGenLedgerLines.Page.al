@@ -64,9 +64,9 @@ page 35613 "G/L Corresp. Gen. Ledger Lines"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        FilterGroup(0);
+        Rec.FilterGroup(0);
         RebuildView();
-        FilterGroup(0);
+        Rec.FilterGroup(0);
 
         GLCorr := Rec;
         FindResult := GLCorr.Find(Which);
@@ -139,10 +139,10 @@ page 35613 "G/L Corresp. Gen. Ledger Lines"
         GLCorr.SetRange("Debit Account No.");
         GLCorr.SetRange("Credit Account No.");
 
-        GLCorrFilter.SetFilter("Debit Account No.", GetFilter("Debit Account No."));
-        GLCorrFilter.SetFilter("Debit Global Dim. 1 Filter", GetFilter("Debit Global Dim. 1 Filter"));
-        GLCorrFilter.SetFilter("Debit Global Dim. 2 Filter", GetFilter("Debit Global Dim. 2 Filter"));
-        FilterGroup(0);
+        GLCorrFilter.SetFilter("Debit Account No.", Rec.GetFilter("Debit Account No."));
+        GLCorrFilter.SetFilter("Debit Global Dim. 1 Filter", Rec.GetFilter("Debit Global Dim. 1 Filter"));
+        GLCorrFilter.SetFilter("Debit Global Dim. 2 Filter", Rec.GetFilter("Debit Global Dim. 2 Filter"));
+        Rec.FilterGroup(0);
 
         GLCorr.SetRange("Debit Account No.");
         GLCorr.SetRange("Credit Account No.");
@@ -210,8 +210,8 @@ page 35613 "G/L Corresp. Gen. Ledger Lines"
     begin
         GLCorrEntry.Reset();
         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
-        GLCorrEntry.SetRange("Debit Account No.", "Debit Account No.");
-        GLCorrEntry.SetRange("Credit Account No.", "Credit Account No.");
+        GLCorrEntry.SetRange("Debit Account No.", Rec."Debit Account No.");
+        GLCorrEntry.SetRange("Credit Account No.", Rec."Credit Account No.");
         GLCorrEntry.SetFilter("Debit Global Dimension 1 Code", GLCorr.GetFilter("Debit Global Dim. 1 Filter"));
         GLCorrEntry.SetFilter("Debit Global Dimension 2 Code", GLCorr.GetFilter("Debit Global Dim. 2 Filter"));
         GLCorrEntry.SetFilter("Business Unit Code", GLCorr.GetFilter("Business Unit Filter"));

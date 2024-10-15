@@ -10,7 +10,7 @@ report 12446 "Vendor Entries Analysis"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Vendor Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Agreement Filter";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
@@ -55,7 +55,7 @@ report 12446 "Vendor Entries Analysis"
             }
             dataitem("Balance LCY Begining"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(BalanceBegining; BalanceBegining)
                 {
                 }
@@ -80,8 +80,8 @@ report 12446 "Vendor Entries Analysis"
             }
             dataitem("Vendor Currency Starting"; Currency)
             {
-                DataItemLink = "Vendor Filter" = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "Agreement Filter" = FIELD("Agreement Filter");
-                DataItemTableView = SORTING(Code) WHERE("Vendor Ledg. Entries in Filter" = CONST(true));
+                DataItemLink = "Vendor Filter" = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "Agreement Filter" = field("Agreement Filter");
+                DataItemTableView = sorting(Code) where("Vendor Ledg. Entries in Filter" = const(true));
                 column(BalanceBegining_Control2400; BalanceBegining)
                 {
                 }
@@ -131,8 +131,8 @@ report 12446 "Vendor Entries Analysis"
             }
             dataitem("Vendor Entry"; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Agreement No." = FIELD("Agreement Filter"), "Posting Date" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Agreement No." = field("Agreement Filter"), "Posting Date" = field("Date Filter");
+                DataItemTableView = sorting("Document Type", "Vendor No.", "Posting Date", "Currency Code");
                 column(Vendor_Name_Control37; Vendor.Name)
                 {
                 }
@@ -210,8 +210,8 @@ report 12446 "Vendor Entries Analysis"
                 }
                 dataitem(ApplicationEntry; "Detailed Vendor Ledg. Entry")
                 {
-                    DataItemLink = "Vendor Ledger Entry No." = FIELD("Entry No.");
-                    DataItemTableView = SORTING("Vendor Ledger Entry No.", "Posting Date") WHERE("Entry Type" = CONST(Application), Unapplied = CONST(false));
+                    DataItemLink = "Vendor Ledger Entry No." = field("Entry No.");
+                    DataItemTableView = sorting("Vendor Ledger Entry No.", "Posting Date") where("Entry Type" = const(Application), Unapplied = const(false));
                     column(ApplicationEntry_Entry_No_; "Entry No.")
                     {
                     }
@@ -226,8 +226,8 @@ report 12446 "Vendor Entries Analysis"
                     }
                     dataitem(AppliedEntry; "Detailed Vendor Ledg. Entry")
                     {
-                        DataItemLink = "Transaction No." = FIELD("Transaction No."), "Vendor No." = FIELD("Vendor No.");
-                        DataItemTableView = SORTING("Transaction No.", "Vendor No.", "Entry Type") WHERE("Entry Type" = CONST(Application), Unapplied = CONST(false));
+                        DataItemLink = "Transaction No." = field("Transaction No."), "Vendor No." = field("Vendor No.");
+                        DataItemTableView = sorting("Transaction No.", "Vendor No.", "Entry Type") where("Entry Type" = const(Application), Unapplied = const(false));
                         column(AppliedEntry__Posting_Date_; "Posting Date")
                         {
                         }
@@ -287,7 +287,7 @@ report 12446 "Vendor Entries Analysis"
                 }
                 dataitem(Total; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                     column(Total_Number; Number)
                     {
@@ -316,7 +316,7 @@ report 12446 "Vendor Entries Analysis"
             }
             dataitem("Balance LCY Ending"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(BalanceEnding; BalanceEnding)
                 {
                 }
@@ -335,8 +335,8 @@ report 12446 "Vendor Entries Analysis"
             }
             dataitem("Vendor Currency Ending"; Currency)
             {
-                DataItemLink = "Vendor Filter" = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "Agreement Filter" = FIELD("Agreement Filter");
-                DataItemTableView = SORTING(Code) WHERE("Vendor Ledg. Entries in Filter" = CONST(true));
+                DataItemLink = "Vendor Filter" = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "Agreement Filter" = field("Agreement Filter");
+                DataItemTableView = sorting(Code) where("Vendor Ledg. Entries in Filter" = const(true));
                 column(Vendor_Currency_Ending_Code; Code)
                 {
                 }

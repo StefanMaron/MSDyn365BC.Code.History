@@ -15,7 +15,7 @@ page 17309 "Tax Calc. Section List"
             repeater(Control100)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the tax calculation section.';
@@ -67,7 +67,7 @@ page 17309 "Tax Calc. Section List"
                 Caption = 'Registers';
                 Image = Register;
                 RunObject = Page "Tax Calc. List";
-                RunPageLink = "Section Code" = FIELD(Code);
+                RunPageLink = "Section Code" = field(Code);
                 ToolTip = 'View all related tax entries. Every register shows the first and last entry number of its entries.';
             }
             group(Functions)
@@ -87,7 +87,7 @@ page 17309 "Tax Calc. Section List"
                     begin
                         CurrPage.SetSelectionFilter(TaxCalcSection);
                         CreateTaxCalc.SetPeriodStart(
-                          TaxCalcMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Calc. Accumulation", true));
+                          TaxCalcMgt.GetNextAvailableBeginDate(Rec.Code, DATABASE::"Tax Calc. Accumulation", true));
                         CreateTaxCalc.SetTableView(TaxCalcSection);
                         CreateTaxCalc.RunModal();
                     end;
@@ -107,7 +107,7 @@ page 17309 "Tax Calc. Section List"
                     begin
                         TaxCalcSection := Rec;
                         TaxCalcSection.SetRecFilter();
-                        ExportSettings(TaxCalcSection);
+                        Rec.ExportSettings(TaxCalcSection);
                     end;
                 }
                 action("Import Settings")
@@ -120,8 +120,8 @@ page 17309 "Tax Calc. Section List"
 
                     trigger OnAction()
                     begin
-                        ValidateChange();
-                        PromptImportSettings();
+                        Rec.ValidateChange();
+                        Rec.PromptImportSettings();
                     end;
                 }
             }

@@ -763,12 +763,15 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     local procedure UnapplyCustLedgerEntries(CustEntryNo: Integer; DocumentNo: Code[20])
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustEntryNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.FindFirst();
-        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, DocumentNo, DetailedCustLedgEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
     end;
 
     local procedure UnapplyInvAndRefundToPrepmt(IsRaise: Boolean; IsCancelPrepmt: Boolean)
@@ -1110,7 +1113,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
-    local procedure GetEntryType(IsRaise: Boolean): Integer
+    local procedure GetEntryType(IsRaise: Boolean): Enum "Detailed CV Ledger Entry Type"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -1285,16 +1288,17 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     var
         Currency: Record Currency;
         Customer: Record Customer;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
     begin
         Currency.SetRange(Code, CurrencyCode);
         Customer.SetRange("No.", CustNo);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.SetTableView(Customer);
-        AdjustExchangeRates.InitializeRequest2(
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.SetTableView(Customer);
+        ExchRateAdjustment.InitializeRequest2(
           0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID, true, false);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
+        ExchRateAdjustment.Run();
     end;
 
     local procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1304,7 +1308,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         CustLedgEntry.FindLast();
     end;
 
-    local procedure FindDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option)
+    local procedure FindDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         with DtldCustLedgEntry do begin
             SetRange("Document Type", DocType);
@@ -1510,7 +1514,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         end;
     end;
 
-    local procedure VerifyDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    local procedure VerifyDetailedCustLedgEntry(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

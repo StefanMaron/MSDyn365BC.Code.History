@@ -6,8 +6,8 @@ page 35603 Vendors
     Editable = false;
     PageType = List;
     SourceTable = Vendor;
-    SourceTableView = SORTING("Vendor Type", "No.")
-                      WHERE("Vendor Type" = CONST(Vendor));
+    SourceTableView = sorting("Vendor Type", "No.")
+                      where("Vendor Type" = const(Vendor));
     UsageCategory = Lists;
 
     layout
@@ -62,7 +62,7 @@ page 35603 Vendors
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person.';
@@ -112,7 +112,7 @@ page 35603 Vendors
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                     Visible = false;
@@ -147,24 +147,24 @@ page 35603 Vendors
         {
             part(Control1901138007; "Vendor Details FactBox")
             {
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = false;
             }
             part(Control1904651607; "Vendor Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
             part(Control1903435607; "Vendor Hist. Buy-from FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
             part(Control1906949207; "Vendor Hist. Pay-to FactBox")
             {
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -218,8 +218,8 @@ page 35603 Vendors
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
                     RunObject = Page "Vendor Ledger Entries";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -228,8 +228,8 @@ page 35603 Vendors
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Vendor),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Vendor),
+                                  "No." = field("No.");
                 }
                 group(Dimensions)
                 {
@@ -241,8 +241,8 @@ page 35603 Vendors
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
                         RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(23),
-                                      "No." = FIELD("No.");
+                        RunPageLink = "Table ID" = const(23),
+                                      "No." = field("No.");
                         ShortCutKey = 'Shift+Ctrl+D';
                     }
                     action("Dimensions-&Multiple")
@@ -257,7 +257,7 @@ page 35603 Vendors
                             DefaultDimMultiple: Page "Default Dimensions-Multiple";
                         begin
                             CurrPage.SetSelectionFilter(Vend);
-                            DefaultDimMultiple.SetMultiRecord(Vend, FieldNo("No."));
+                            DefaultDimMultiple.SetMultiRecord(Vend, Rec.FieldNo("No."));
                             DefaultDimMultiple.RunModal();
                         end;
                     }
@@ -268,7 +268,7 @@ page 35603 Vendors
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Vendor Bank Account List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("Order &Addresses")
                 {
@@ -276,7 +276,7 @@ page 35603 Vendors
                     Caption = 'Order &Addresses';
                     Image = Addresses;
                     RunObject = Page "Order Address List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                     ToolTip = 'View a list of alternate order addresses for the vendor.';
                 }
                 action(Agreements)
@@ -285,7 +285,7 @@ page 35603 Vendors
                     Caption = 'Agreements';
                     Image = Agreement;
                     RunObject = Page "Vendor Agreements";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("C&ontact")
                 {
@@ -295,7 +295,7 @@ page 35603 Vendors
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
                 separator(Action55)
@@ -306,10 +306,10 @@ page 35603 Vendors
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Vendor Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -319,10 +319,10 @@ page 35603 Vendors
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Vendor Entry Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action(Purchases)
                 {
@@ -330,9 +330,9 @@ page 35603 Vendors
                     Caption = 'Purchases';
                     Image = Purchase;
                     RunObject = Page "Vendor Purchases";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 separator(Action61)
                 {
@@ -348,7 +348,7 @@ page 35603 Vendors
 
                     trigger OnAction()
                     begin
-                        CopyFromCustomer(Rec);
+                        Rec.CopyFromCustomer(Rec);
                     end;
                 }
             }
@@ -362,8 +362,8 @@ page 35603 Vendors
                     Caption = 'Items';
                     Image = Item;
                     RunObject = Page "Vendor Item Catalog";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                 }
                 action("Invoice &Discounts")
                 {
@@ -371,7 +371,7 @@ page 35603 Vendors
                     Caption = 'Invoice &Discounts';
                     Image = CalculateInvoiceDiscount;
                     RunObject = Page "Vend. Invoice Discounts";
-                    RunPageLink = Code = FIELD("Invoice Disc. Code");
+                    RunPageLink = Code = field("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts applied to invoices for the selected customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
                 action(PriceLists)
@@ -435,8 +435,8 @@ page 35603 Vendors
                     Image = ResourcePrice;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -449,8 +449,8 @@ page 35603 Vendors
                     Image = LineDiscount;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -463,8 +463,8 @@ page 35603 Vendors
                     Caption = 'Prepa&yment Percentages';
                     Image = PrepaymentPercentages;
                     RunObject = Page "Purchase Prepmt. Percentages";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or edit the percentages of the price that can be paid as a prepayment. ';
                 }
                 action("S&td. Vend. Purchase Codes")
@@ -473,7 +473,7 @@ page 35603 Vendors
                     Caption = 'S&td. Vend. Purchase Codes';
                     Image = CodesList;
                     RunObject = Page "Standard Vendor Purchase Codes";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                     ToolTip = 'View or edit recurring purchase lines for the vendor.';
                 }
                 separator(Action65)
@@ -485,8 +485,8 @@ page 35603 Vendors
                     Caption = 'Quotes';
                     Image = Quote;
                     RunObject = Page "Purchase Quotes";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.");
                     ToolTip = 'View any related purchase quotes. ';
                 }
                 action("Blanket Orders")
@@ -495,8 +495,8 @@ page 35603 Vendors
                     Caption = 'Blanket Orders';
                     Image = BlanketOrder;
                     RunObject = Page "Blanket Purchase Orders";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.");
                 }
                 action(Orders)
                 {
@@ -504,8 +504,8 @@ page 35603 Vendors
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Purchase Order List";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.", "No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.", "No.");
                     ToolTip = 'View any related purchase orders. ';
                 }
                 action("Return Orders")
@@ -527,7 +527,7 @@ page 35603 Vendors
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(2, Rec."No.", '', '', '');
                     end;
                 }
             }
@@ -537,7 +537,7 @@ page 35603 Vendors
                 Caption = 'Vendor G/L Turnover';
                 Image = GL;
                 RunObject = Page "Vendor G/L Turnover";
-                RunPageLink = "No." = FIELD("No.");
+                RunPageLink = "No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Analyze vendors'' turnover and account balances.';
             }
@@ -560,7 +560,7 @@ page 35603 Vendors
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Blanket Purchase Order";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
             }
             action("Purchase Quote")
@@ -570,7 +570,7 @@ page 35603 Vendors
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Purchase Quote";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase quote for the vendor.';
             }
@@ -580,7 +580,7 @@ page 35603 Vendors
                 Caption = 'Purchase Invoice';
                 Image = NewPurchaseInvoice;
                 RunObject = Page "Purchase Invoice";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase invoice for the vendor.';
             }
@@ -589,7 +589,7 @@ page 35603 Vendors
                 Caption = 'Purchase Order';
                 Image = Document;
                 RunObject = Page "Purchase Order";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase order for the vendor.';
             }
@@ -601,7 +601,7 @@ page 35603 Vendors
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Purchase Credit Memo";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase credit memo for the vendor.';
             }
@@ -612,7 +612,7 @@ page 35603 Vendors
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = New;
                 RunObject = Page "Purchase Return Order";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a purchase return order for the vendor.';
             }

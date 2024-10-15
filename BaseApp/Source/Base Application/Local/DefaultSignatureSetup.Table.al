@@ -8,7 +8,7 @@ table 12428 "Default Signature Setup"
         {
             Caption = 'Table ID';
             NotBlank = true;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
             begin
@@ -48,8 +48,8 @@ table 12428 "Default Signature Setup"
         }
         field(8; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
-                                                                           "Object ID" = FIELD("Table ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+                                                                           "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
             FieldClass = FlowField;

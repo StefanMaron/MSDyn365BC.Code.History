@@ -5,8 +5,8 @@ page 12474 "FA Release Act"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "FA Document Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Release));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Release));
 
     layout
     {
@@ -23,7 +23,7 @@ page 12474 "FA Release Act"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -87,8 +87,8 @@ page 12474 "FA Release Act"
             part(ReleaseLines; "FA Release Act Subform")
             {
                 ApplicationArea = FixedAssets;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No.");
             }
         }
         area(factboxes)
@@ -119,9 +119,9 @@ page 12474 "FA Release Act"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "FA Comments";
-                    RunPageLink = "Document Type" = CONST(Release),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Release),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -131,7 +131,7 @@ page 12474 "FA Release Act"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -140,9 +140,9 @@ page 12474 "FA Release Act"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12470),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12470),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }

@@ -9,9 +9,9 @@ codeunit 14940 "Update G/L Corr. Analysis View"
     trigger OnRun()
     begin
         MaxNumber := 2147483647;
-        if Code <> '' then
-            if Confirm(Text000, true, TableCaption(), Code) then begin
-                Modify();
+        if Rec.Code <> '' then
+            if Confirm(Text000, true, Rec.TableCaption(), Rec.Code) then begin
+                Rec.Modify();
                 UpdateOne(Rec, true);
             end;
     end;

@@ -7,14 +7,14 @@ report 12420 "Posted Inv. Item Waybill 1-T"
     {
         dataitem(Header; "Sales Invoice Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem(CopyCycle; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 dataitem(LineCycle; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                     trigger OnAfterGetRecord()
                     var
@@ -80,7 +80,7 @@ report 12420 "Posted Inv. Item Waybill 1-T"
                 }
                 dataitem("Back Side"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
 
                     trigger OnAfterGetRecord()

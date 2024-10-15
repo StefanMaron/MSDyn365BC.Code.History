@@ -19,7 +19,7 @@ page 14901 "Customer Agreement Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -33,7 +33,7 @@ page 14901 "Customer Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies the customer agreement.';
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a customer agreement is active.';
@@ -53,7 +53,7 @@ page 14901 "Customer Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that date that a customer agreement is no longer active.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
@@ -83,8 +83,8 @@ page 14901 "Customer Agreement Card"
                         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
                         CustLedgEntry: Record "Cust. Ledger Entry";
                     begin
-                        DtldCustLedgEntry.SetRange("Customer No.", "Customer No.");
-                        DtldCustLedgEntry.SetRange("Agreement No.", "No.");
+                        DtldCustLedgEntry.SetRange("Customer No.", Rec."Customer No.");
+                        DtldCustLedgEntry.SetRange("Agreement No.", Rec."No.");
                         CustLedgEntry.DrillDownOnEntries(DtldCustLedgEntry);
                     end;
                 }
@@ -103,7 +103,7 @@ page 14901 "Customer Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -236,9 +236,9 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Ledger E&ntries';
                     Image = GL;
                     RunObject = Page "Customer Ledger Entries";
-                    RunPageLink = "Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Customer No.");
+                    RunPageLink = "Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Customer No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -247,8 +247,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Customer Agreement"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Customer Agreement"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
@@ -257,8 +257,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(14902),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14902),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
@@ -270,8 +270,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Customer Statistics";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -281,8 +281,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Customer Entry Statistics";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                     ToolTip = 'View entry statistics for the record.';
                 }
                 action("S&ales")
@@ -291,8 +291,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'S&ales';
                     Image = Sales;
                     RunObject = Page "Customer Sales";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                 }
             }
             group(Action82)
@@ -305,9 +305,9 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Quotes';
                     Image = Quote;
                     RunObject = Page "Sales Quotes";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related sales quotes. ';
                 }
                 action("Blanket Orders")
@@ -316,9 +316,9 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Blanket Orders';
                     Image = BlanketOrder;
                     RunObject = Page "Blanket Sales Orders";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.");
                     ToolTip = 'View any related blanket sales orders. ';
                 }
                 action(Orders)
@@ -327,9 +327,9 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Sales Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related sales orders. ';
                 }
                 action("Return Orders")
@@ -338,9 +338,9 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Sales Return Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related sales return orders. ';
                 }
                 action("Service Orders")
@@ -348,8 +348,8 @@ page 14901 "Customer Agreement Card"
                     Caption = 'Service Orders';
                     Image = Document;
                     RunObject = Page "Service Orders";
-                    RunPageLink = "Customer No." = FIELD("Customer No.");
-                    RunPageView = SORTING("Document Type", "Customer No.");
+                    RunPageLink = "Customer No." = field("Customer No.");
+                    RunPageView = sorting("Document Type", "Customer No.");
                     ToolTip = 'View any related service orders. ';
                 }
             }
@@ -452,8 +452,8 @@ page 14901 "Customer Agreement Card"
     var
         RecordFound: Boolean;
     begin
-        RecordFound := Find(Which);
-        CurrPage.Editable := RecordFound or (GetFilter("No.") = '');
+        RecordFound := Rec.Find(Which);
+        CurrPage.Editable := RecordFound or (Rec.GetFilter("No.") = '');
         exit(RecordFound);
     end;
 }

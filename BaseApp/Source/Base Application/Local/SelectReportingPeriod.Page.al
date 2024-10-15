@@ -4,7 +4,7 @@ page 12445 "Select Reporting Period"
     Editable = false;
     PageType = List;
     SourceTable = Date;
-    SourceTableView = SORTING("Period Type", "Period Start");
+    SourceTableView = sorting("Period Type", "Period Start");
 
     layout
     {
@@ -13,12 +13,12 @@ page 12445 "Select Reporting Period"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FORMAT(""Period End"",0,Text000)"; Format("Period End", 0, Text000))
+                field("FORMAT(""Period End"",0,Text000)"; Format(Rec."Period End", 0, Text000))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Month';
                 }
-                field("FORMAT(""Period Start"",0,Text001)"; Format("Period Start", 0, Text001))
+                field("FORMAT(""Period Start"",0,Text001)"; Format(Rec."Period Start", 0, Text001))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Year';

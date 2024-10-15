@@ -13,7 +13,7 @@ page 12493 "Company Address List"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Primary Key of the Company Information card, to which this address record is attached.';
@@ -33,7 +33,7 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional part of this company name.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company address.';
@@ -43,12 +43,12 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional part of the address.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a contact name at the company address.';
@@ -78,27 +78,27 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the region name for this company address.';
                 }
-                field(Settlement; Settlement)
+                field(Settlement; Rec.Settlement)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company location.';
                 }
-                field(Street; Street)
+                field(Street; Rec.Street)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the street name for this company address.';
                 }
-                field(House; House)
+                field(House; Rec.House)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the house number for the company address.';
                 }
-                field(Building; Building)
+                field(Building; Rec.Building)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the building number for this company address.';
                 }
-                field(Apartment; Apartment)
+                field(Apartment; Rec.Apartment)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the apartment number for this company address.';
@@ -128,7 +128,7 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(County; County)
+                field(County; Rec.County)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county for this address.';
@@ -143,12 +143,12 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the web site.';
                 }
-                field(OKPO; OKPO)
+                field(OKPO; Rec.OKPO)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the federation-wide organizational classification of the company.';
                 }
-                field(KPP; KPP)
+                field(KPP; Rec.KPP)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the KPP reason code of the company.';

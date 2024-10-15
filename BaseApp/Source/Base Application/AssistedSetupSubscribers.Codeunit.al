@@ -1,3 +1,33 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.AccountantPortal;
+using Microsoft.Bank.Setup;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CRM.Outlook;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Projects.Timesheet;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Media;
+using System.Azure.Identity;
+using System.Integration;
+using System.Automation;
+using System.Integration.Excel;
+using System.Email;
+using System.Security.User;
+using System.Apps;
+
 codeunit 1814 "Assisted Setup Subscribers"
 {
 
@@ -67,9 +97,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         CDSConnectionSetupShortTitleTxt: Label 'Connect to Dataverse', MaxLength = 50;
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
         CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications. Data will flow between the apps for better productivity.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
-        AzureAdSetupTitleTxt: Label 'Set up your Azure Active Directory accounts';
-        AzureAdSetupShortTitleTxt: Label 'Set up Azure Active Directory', MaxLength = 50;
-        AzureAdSetupDescriptionTxt: Label 'Register an Azure Active Directory app so that you can use Power BI, Power Automate, Exchange, and other Azure services from on-premises.';
+        AzureAdSetupTitleTxt: Label 'Set up your Microsoft Entra ID accounts';
+        AzureAdSetupShortTitleTxt: Label 'Set up Microsoft Entra ID', MaxLength = 50;
+        AzureAdSetupDescriptionTxt: Label 'Register an Microsoft Entra app so that you can use Power BI, Power Automate, Exchange, and other Azure services from on-premises.';
         HelpSetupCashFlowForecastTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828693', Locked = true;
         HelpSetupEmailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828689', Locked = true;
         HelpImportbusinessdataTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828687', Locked = true;
@@ -254,7 +284,7 @@ codeunit 1814 "Assisted Setup Subscribers"
             GlobalLanguage(CurrentGlobalLanguage);
         end;
 
-        if NOT EnvironmentInfo.IsSaaS() then begin
+        if not EnvironmentInfo.IsSaaS() then begin
             GuidedExperience.InsertAssistedSetup(AzureAdSetupTitleTxt, AzureAdSetupShortTitleTxt, AzureAdSetupDescriptionTxt, 5, ObjectType::Page,
                 Page::"Azure AD App Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Uncategorized, '');
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
@@ -462,8 +492,8 @@ codeunit 1814 "Assisted Setup Subscribers"
         GuidedExperience: Codeunit "Guided Experience";
     begin
         ApprovalUserSetup.SETFILTER("Approver ID", '<>%1', '');
-        IF ApprovalUserSetup.ISEMPTY THEN
-            EXIT;
+        if ApprovalUserSetup.ISEMPTY then
+            exit;
 
         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Approval Workflow Setup Wizard");
     end;

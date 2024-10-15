@@ -1,3 +1,7 @@
+namespace System.Xml;
+
+using System;
+
 codeunit 6227 "Signed XML Mgt."
 {
 

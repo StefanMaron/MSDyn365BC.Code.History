@@ -8,7 +8,7 @@ report 12464 "Fixed Asset G/L Turnover"
     {
         dataitem("Fixed Asset"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "FA Type", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "FA Location Code Filter", "Depreciation Book Code Filter", "Depreciation Group", "Date Filter";
             column(CurrentDate; CurrentDate)
             {

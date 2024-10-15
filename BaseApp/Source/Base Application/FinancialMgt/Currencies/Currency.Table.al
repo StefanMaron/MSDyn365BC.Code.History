@@ -1,3 +1,21 @@
+﻿namespace Microsoft.Finance.Currency;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using System.Reflection;
+using System.Utilities;
+
 table 4 Currency
 {
     Caption = 'Currency';
@@ -192,14 +210,14 @@ table 4 Currency
             CaptionClass = '1,3,1';
             Caption = 'Global Dimension 1 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(22; "Global Dimension 2 Filter"; Code[20])
         {
             CaptionClass = '1,3,2';
             Caption = 'Global Dimension 2 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(23; "Date Filter"; Date)
         {
@@ -208,8 +226,8 @@ table 4 Currency
         }
         field(24; "Cust. Ledg. Entries in Filter"; Boolean)
         {
-            CalcFormula = Exist("Cust. Ledger Entry" WHERE("Customer No." = FIELD("Customer Filter"),
-                                                            "Currency Code" = FIELD(Code)));
+            CalcFormula = exist("Cust. Ledger Entry" where("Customer No." = field("Customer Filter"),
+                                                            "Currency Code" = field(Code)));
             Caption = 'Cust. Ledg. Entries in Filter';
             Editable = false;
             FieldClass = FlowField;
@@ -218,12 +236,12 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
-                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                         "Posting Date" = FIELD("Date Filter"),
-                                                                         "Currency Code" = FIELD(Code),
-                                                                         "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("Customer Filter"),
+                                                                         "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                         "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                         "Posting Date" = field("Date Filter"),
+                                                                         "Currency Code" = field(Code),
+                                                                         "Agreement No." = field("Agreement Filter")));
             Caption = 'Customer Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -233,12 +251,12 @@ table 4 Currency
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
-                                                                       "Bill-to Customer No." = FIELD("Customer Filter"),
-                                                                       "Currency Code" = FIELD(Code),
-                                                                       "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                       "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                       "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Sales Line"."Outstanding Amount" where("Document Type" = const(Order),
+                                                                       "Bill-to Customer No." = field("Customer Filter"),
+                                                                       "Currency Code" = field(Code),
+                                                                       "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                       "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                       "Agreement No." = field("Agreement Filter")));
             Caption = 'Customer Outstanding Orders';
             Editable = false;
             FieldClass = FlowField;
@@ -248,12 +266,12 @@ table 4 Currency
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced" WHERE("Document Type" = CONST(Order),
-                                                                         "Bill-to Customer No." = FIELD("Customer Filter"),
-                                                                         "Currency Code" = FIELD(Code),
-                                                                         "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                         "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                         "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Sales Line"."Shipped Not Invoiced" where("Document Type" = const(Order),
+                                                                         "Bill-to Customer No." = field("Customer Filter"),
+                                                                         "Currency Code" = field(Code),
+                                                                         "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                         "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                         "Agreement No." = field("Agreement Filter")));
             Caption = 'Customer Shipped Not Invoiced';
             Editable = false;
             FieldClass = FlowField;
@@ -262,21 +280,21 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
-                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                         "Initial Entry Due Date" = FIELD("Date Filter"),
-                                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
-                                                                         "Currency Code" = FIELD(Code),
-                                                                         "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("Customer Filter"),
+                                                                         "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                         "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                         "Initial Entry Due Date" = field("Date Filter"),
+                                                                         "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                                                         "Currency Code" = field(Code),
+                                                                         "Agreement No." = field("Agreement Filter")));
             Caption = 'Customer Balance Due';
             Editable = false;
             FieldClass = FlowField;
         }
         field(29; "Vendor Ledg. Entries in Filter"; Boolean)
         {
-            CalcFormula = Exist("Vendor Ledger Entry" WHERE("Vendor No." = FIELD("Vendor Filter"),
-                                                             "Currency Code" = FIELD(Code)));
+            CalcFormula = exist("Vendor Ledger Entry" where("Vendor No." = field("Vendor Filter"),
+                                                             "Currency Code" = field(Code)));
             Caption = 'Vendor Ledg. Entries in Filter';
             Editable = false;
             FieldClass = FlowField;
@@ -285,12 +303,12 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
-                                                                           "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                           "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                           "Posting Date" = FIELD("Date Filter"),
-                                                                           "Currency Code" = FIELD(Code),
-                                                                           "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = - sum("Detailed Vendor Ledg. Entry".Amount where("Vendor No." = field("Vendor Filter"),
+                                                                           "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                           "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                           "Posting Date" = field("Date Filter"),
+                                                                           "Currency Code" = field(Code),
+                                                                           "Agreement No." = field("Agreement Filter")));
             Caption = 'Vendor Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -300,12 +318,12 @@ table 4 Currency
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Purchase Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
-                                                                          "Pay-to Vendor No." = FIELD("Vendor Filter"),
-                                                                          "Currency Code" = FIELD(Code),
-                                                                          "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                          "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Purchase Line"."Outstanding Amount" where("Document Type" = const(Order),
+                                                                          "Pay-to Vendor No." = field("Vendor Filter"),
+                                                                          "Currency Code" = field(Code),
+                                                                          "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                          "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                          "Agreement No." = field("Agreement Filter")));
             Caption = 'Vendor Outstanding Orders';
             Editable = false;
             FieldClass = FlowField;
@@ -315,12 +333,12 @@ table 4 Currency
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum("Purchase Line"."Amt. Rcd. Not Invoiced" WHERE("Document Type" = CONST(Order),
-                                                                              "Pay-to Vendor No." = FIELD("Vendor Filter"),
-                                                                              "Currency Code" = FIELD(Code),
-                                                                              "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Purchase Line"."Amt. Rcd. Not Invoiced" where("Document Type" = const(Order),
+                                                                              "Pay-to Vendor No." = field("Vendor Filter"),
+                                                                              "Currency Code" = field(Code),
+                                                                              "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                              "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                              "Agreement No." = field("Agreement Filter")));
             Caption = 'Vendor Amt. Rcd. Not Invoiced';
             Editable = false;
             FieldClass = FlowField;
@@ -329,13 +347,13 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
-                                                                           "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                           "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                           "Initial Entry Due Date" = FIELD("Date Filter"),
-                                                                           "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
-                                                                           "Currency Code" = FIELD(Code),
-                                                                           "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = - sum("Detailed Vendor Ledg. Entry".Amount where("Vendor No." = field("Vendor Filter"),
+                                                                           "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                           "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                           "Initial Entry Due Date" = field("Date Filter"),
+                                                                           "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                                                           "Currency Code" = field(Code),
+                                                                           "Agreement No." = field("Agreement Filter")));
             Caption = 'Vendor Balance Due';
             Editable = false;
             FieldClass = FlowField;
@@ -343,12 +361,12 @@ table 4 Currency
         field(34; "Customer Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer Filter"),
-                                                                                 "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                 "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                 "Posting Date" = FIELD("Date Filter"),
-                                                                                 "Currency Code" = FIELD(Code),
-                                                                                 "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("Customer Filter"),
+                                                                                 "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                 "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                 "Posting Date" = field("Date Filter"),
+                                                                                 "Currency Code" = field(Code),
+                                                                                 "Agreement No." = field("Agreement Filter")));
             Caption = 'Customer Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -356,12 +374,12 @@ table 4 Currency
         field(35; "Vendor Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor Filter"),
-                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
-                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
-                                                                                   "Posting Date" = FIELD("Date Filter"),
-                                                                                   "Currency Code" = FIELD(Code),
-                                                                                   "Agreement No." = FIELD("Agreement Filter")));
+            CalcFormula = - sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor No." = field("Vendor Filter"),
+                                                                                   "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
+                                                                                   "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
+                                                                                   "Posting Date" = field("Date Filter"),
+                                                                                   "Currency Code" = field(Code),
+                                                                                   "Agreement No." = field("Agreement Filter")));
             Caption = 'Vendor Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

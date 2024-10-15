@@ -24,14 +24,14 @@ page 17336 "FA Tax Differences Detailed"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Difference; Difference)
+                field(Difference; Rec.Difference)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description associated with this line.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Amount (Base)"; Rec."Amount (Base)")
@@ -41,7 +41,7 @@ page 17336 "FA Tax Differences Detailed"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Amount (Tax)"; Rec."Amount (Tax)")
@@ -51,7 +51,7 @@ page 17336 "FA Tax Differences Detailed"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Tax Amount"; Rec."Tax Amount")
@@ -61,7 +61,7 @@ page 17336 "FA Tax Differences Detailed"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
             }
@@ -78,7 +78,7 @@ page 17336 "FA Tax Differences Detailed"
         if TaxDiffFABuffer.FindSet() then
             repeat
                 Rec := TaxDiffFABuffer;
-                Insert();
+                Rec.Insert();
             until TaxDiffFABuffer.Next() = 0;
     end;
 }

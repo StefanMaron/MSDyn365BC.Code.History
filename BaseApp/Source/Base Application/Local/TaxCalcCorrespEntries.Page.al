@@ -29,19 +29,19 @@ page 17329 "Tax Calc. Corresp. Entries"
                     ToolTip = 'Specifies the totaling tax register ID associated with the tax calculation corresponding entry.';
                     Visible = false;
                 }
-                field("TaxCalcName()"; TaxCalcName())
+                field("TaxCalcName()"; Rec.TaxCalcName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Registers List';
 
                     trigger OnAssistEdit()
                     begin
-                        LookupTaxCalcHeader();
+                        Rec.LookupTaxCalcHeader();
                     end;
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownTaxCalcHeader();
+                        Rec.DrillDownTaxCalcHeader();
                     end;
                 }
                 field("Debit Account Name"; Rec."Debit Account Name")

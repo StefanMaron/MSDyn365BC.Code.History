@@ -1,3 +1,20 @@
+﻿namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reports;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Sales.Document;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.Excel;
+using System.Security.User;
+
 page 291 "Req. Worksheet"
 {
     AdditionalSearchTerms = 'supply planning,mrp,mps';
@@ -61,9 +78,9 @@ page 291 "Req. Worksheet"
                         Item: Record "Item";
                     begin
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
-                        ShowShortcutDimCode(ShortcutDimCode);
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
                 field("Price Calculation Method"; Rec."Price Calculation Method")
@@ -93,8 +110,8 @@ page 291 "Req. Worksheet"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
                 field("Bin Code"; Rec."Bin Code")
@@ -154,9 +171,9 @@ page 291 "Req. Worksheet"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", WorkDate());
                         if ChangeExchangeRate.RunModal() = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
@@ -191,7 +208,7 @@ page 291 "Req. Worksheet"
                     trigger OnValidate()
                     begin
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
                 field("Vendor Item No."; Rec."Vendor Item No.")
@@ -236,7 +253,7 @@ page 291 "Req. Worksheet"
                     ToolTip = 'Specifies the ID of the user who is ordering the items on the line.';
                     Visible = false;
                 }
-                field(Confirmed; Confirmed)
+                field(Confirmed; Rec.Confirmed)
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the items on the line have been approved for purchase.';
@@ -258,84 +275,84 @@ page 291 "Req. Worksheet"
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
                 field("Ref. Order No."; Rec."Ref. Order No.")
@@ -417,7 +434,7 @@ page 291 "Req. Worksheet"
             part(Control1903326807; "Item Replenishment FactBox")
             {
                 ApplicationArea = Planning;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
                 Visible = true;
             }
         }
@@ -530,7 +547,7 @@ page 291 "Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ShowTimeline(Rec);
+                            Rec.ShowTimeline(Rec);
                         end;
                     }
 #endif                
@@ -546,7 +563,7 @@ page 291 "Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -560,7 +577,7 @@ page 291 "Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -593,7 +610,7 @@ page 291 "Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        CalculatePlan.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
+                        CalculatePlan.SetTemplAndWorksheet(Rec."Worksheet Template Name", Rec."Journal Batch Name");
                         OnCalculatePlanOnBeforeCalculatePlanRunModal(CalculatePlan, Rec);
                         CalculatePlan.RunModal();
                         Clear(CalculatePlan);
@@ -622,16 +639,16 @@ page 291 "Req. Worksheet"
                     }
                     action("Sales &Order")
                     {
-                        AccessByPermission = TableData "Sales Shipment Header" = R;
+                        AccessByPermission = TableData "Sales Header" = R;
                         ApplicationArea = Planning;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        Enabled = "Sales Order No." <> '';
+                        Enabled = Rec."Sales Order No." <> '';
                         ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
-                            SalesHeader.SetRange("No.", "Sales Order No.");
+                            SalesHeader.SetRange("No.", Rec."Sales Order No.");
                             SalesOrder.SetTableView(SalesHeader);
                             SalesOrder.Editable := false;
                             SalesOrder.Run();
@@ -661,16 +678,16 @@ page 291 "Req. Worksheet"
                     }
                     action(Action75)
                     {
-                        AccessByPermission = TableData "Sales Shipment Header" = R;
+                        AccessByPermission = TableData "Sales Header" = R;
                         ApplicationArea = Planning;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        Enabled = "Sales Order No." <> '';
+                        Enabled = Rec."Sales Order No." <> '';
                         ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
-                            SalesHeader.SetRange("No.", "Sales Order No.");
+                            SalesHeader.SetRange("No.", Rec."Sales Order No.");
                             SalesOrder.SetTableView(SalesHeader);
                             SalesOrder.Editable := false;
                             SalesOrder.Run();
@@ -690,7 +707,7 @@ page 291 "Req. Worksheet"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord();
-                        ShowReservation();
+                        Rec.ShowReservation();
                     end;
                 }
                 action(CarryOutActionMessage)
@@ -704,7 +721,7 @@ page 291 "Req. Worksheet"
                     trigger OnAction()
                     begin
                         CarryOutActionMsg();
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -726,6 +743,34 @@ page 291 "Req. Worksheet"
                     begin
                         TrackingForm.SetReqLine(Rec);
                         TrackingForm.RunModal();
+                    end;
+                }
+            }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    ToolTip = 'Send the data in the worksheet to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
+                    begin
+                        // The parameter of ODataUtility.ExternalizeName() should be the field name of page, because ODataUnitility generates ODataFieldName based on the field name of page.
+                        // If we use the field name from table, it is possible to return a wrong name when the name of page field is different from the name of table field.
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Journal Batch Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentJnlBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        // But here the "Worksheet Template Name" is not a part of the page, so we have to get the ODataFieldName from the record.
+                        // The reason why the "Worksheet Template Name" is still a part of the web service although not being a field on this page, is that it is a key in the underlying record.
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Worksheet Template Name")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Worksheet Template Name", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Req. Worksheet", EditInExcelFilters, StrSubstNo(ExcelFileNameTxt, CurrentJnlBatchName, Rec."Worksheet Template Name"));
                     end;
                 }
             }
@@ -896,14 +941,14 @@ page 291 "Req. Worksheet"
     var
         Item: Record "Item";
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
-        if "Variant Code" = '' then
-            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        "Accept Action Message" := false;
+        Rec."Accept Action Message" := false;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -914,19 +959,25 @@ page 291 "Req. Worksheet"
 
     trigger OnOpenPage()
     var
+        ClientTypeManagement: Codeunit "Client Type Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        // if called from API (such as edit-in-excel), do not filter 
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        OpenedFromBatch := ("Journal Batch Name" <> '') and ("Worksheet Template Name" = '');
+        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Worksheet Template Name" = '');
         if OpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             ReqJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
         OnBeforeTemplateSelection(Rec, CurrentJnlBatchName);
         ReqJnlManagement.WkshTemplateSelection(
-            PAGE::"Req. Worksheet", false, "Req. Worksheet Template Type"::"Req.", Rec, JnlSelected);
+            PAGE::"Req. Worksheet", false, Enum::"Req. Worksheet Template Type"::"Req.", Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -941,9 +992,11 @@ page 291 "Req. Worksheet"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ChangeExchangeRate: Page "Change Exchange Rate";
         SalesOrder: Page "Sales Order";
+        ExcelFileNameTxt: Label 'Requisition Worksheet - BatchName %1 - JournalName %2', Comment = '%1 = Journal Batch Name; %2 = Journal Template Name';
         ExtendedPriceEnabled: Boolean;
         VariantCodeMandatory: Boolean;
         OpenedFromBatch: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
         CalculatePlan: Report "Calculate Plan - Req. Wksh.";

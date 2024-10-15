@@ -157,7 +157,7 @@ page 12449 "Item G/L Turnover"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Item Card";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F7';
                 }
             }
@@ -268,16 +268,16 @@ page 12449 "Item G/L Turnover"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-        SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-        if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-            SetRange("Date Filter", GetRangeMin("Date Filter"));
+        Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+        if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+            Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
 
         CalcFilters();
     end;
@@ -295,12 +295,12 @@ page 12449 "Item G/L Turnover"
           "Item No.", "Location Code",
           "Global Dimension 1 Code", "Global Dimension 2 Code",
           "Expected Cost", Positive, "Posting Date", "Red Storno");
-        ValueEntry.SetRange("Item No.", "No.");
+        ValueEntry.SetRange("Item No.", Rec."No.");
         ValueEntry.SetRange("Expected Cost", false);
-        CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
-        CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
-        CopyFilter("Location Filter", ValueEntry."Location Code");
-        CopyFilter("Date Filter", ValueEntry."Posting Date");
+        Rec.CopyFilter("Global Dimension 1 Filter", ValueEntry."Global Dimension 1 Code");
+        Rec.CopyFilter("Global Dimension 2 Filter", ValueEntry."Global Dimension 2 Code");
+        Rec.CopyFilter("Location Filter", ValueEntry."Location Code");
+        Rec.CopyFilter("Date Filter", ValueEntry."Posting Date");
 
         CalculateAmounts(ValueEntry, DebitCost, CreditCost, DebitQuantity, CreditQuantity);
 
@@ -326,20 +326,20 @@ page 12449 "Item G/L Turnover"
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserSetup.Get(UserId) then begin
-            SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+            if Rec.GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end;
     end;
 
@@ -353,9 +353,9 @@ page 12449 "Item G/L Turnover"
           "Item No.", "Location Code",
           "Global Dimension 1 Code", "Global Dimension 2 Code",
           "Expected Cost", Positive, "Posting Date");
-        ValueEntry.SetRange("Item No.", "No.");
-        ValueEntry.SetFilter("Location Code", GetFilter("Location Filter"));
-        ValueEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetRange("Item No.", Rec."No.");
+        ValueEntry.SetFilter("Location Code", Rec.GetFilter("Location Filter"));
+        ValueEntry.SetFilter("Global Dimension 1 Code", Rec.GetFilter("Global Dimension 1 Filter"));
         case Show of
             Show::Start:
                 ValueEntry.SetFilter("Posting Date", StartDateFilter);
@@ -383,10 +383,10 @@ page 12449 "Item G/L Turnover"
     begin
         StartDateFilter := '';
         EndDateFilter := '';
-        if GetFilter("Date Filter") <> '' then begin
-            EndDateFilter := StrSubstNo('..%1', GetRangeMax("Date Filter"));
-            if GetRangeMin("Date Filter") > 0D then
-                StartDateFilter := StrSubstNo('..%1', CalcDate('<-1D>', GetRangeMin("Date Filter")));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            EndDateFilter := StrSubstNo('..%1', Rec.GetRangeMax("Date Filter"));
+            if Rec.GetRangeMin("Date Filter") > 0D then
+                StartDateFilter := StrSubstNo('..%1', CalcDate('<-1D>', Rec.GetRangeMin("Date Filter")));
         end;
     end;
 
@@ -394,7 +394,7 @@ page 12449 "Item G/L Turnover"
     procedure FillTempValueEntry(Show: Option Start,Debit,Credit,Ending; var TempValueEntry: Record "Value Entry" temporary)
     begin
         TempValueEntry.CopyFilters(ValueEntry);
-        TempValueEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
+        TempValueEntry.SetFilter("Posting Date", Rec.GetFilter("Date Filter"));
         if ValueEntry.FindSet() then
             repeat
                 TempValueEntry.Init();

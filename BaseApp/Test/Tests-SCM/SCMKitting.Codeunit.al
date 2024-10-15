@@ -2529,6 +2529,90 @@ codeunit 137101 "SCM Kitting"
         VerifyJobTaskDimensionOnRequisitionLine(AssemblyLine, DefaultDimension);
     end;
 
+    [Test]
+    procedure PostingDateModifiesDocumentDate()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseOrder: Record "Purchase Header";
+        PurchaseReturnOrder: Record "Purchase Header";
+        PurchaseInvoice: Record "Purchase Header";
+        PurchaseCreditMemo: Record "Purchase Header";
+        DocDate, PostingDate : Date;
+    begin
+        // [SCENARIO] Check that the PurchasesPayablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on purchase documents when set to true
+
+        // [GIVEN] Change the setting to true
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Create purchase documents and set the document date
+        DocDate := 20000101D;
+        LibraryPurchase.CreatePurchHeader(PurchaseOrder, "Purchase Document Type"::"Order", '');
+        PurchaseOrder.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseReturnOrder, "Purchase Document Type"::"Return Order", '');
+        PurchaseReturnOrder.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseInvoice, "Purchase Document Type"::"Invoice", '');
+        PurchaseInvoice.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseCreditMemo, "Purchase Document Type"::"Credit Memo", '');
+        PurchaseCreditMemo.Validate("Document Date", DocDate);
+
+        // [WHEN] The posting date is modified
+        PostingDate := 30000101D;
+        PurchaseOrder.Validate("Posting Date", PostingDate);
+        PurchaseReturnOrder.Validate("Posting Date", PostingDate);
+        PurchaseInvoice.Validate("Posting Date", PostingDate);
+        PurchaseCreditMemo.Validate("Posting Date", PostingDate);
+
+        // [THEN] The document date should be modified
+        PurchaseOrder.TestField("Document Date", PostingDate);
+        PurchaseReturnOrder.TestField("Document Date", PostingDate);
+        PurchaseInvoice.TestField("Document Date", PostingDate);
+        PurchaseCreditMemo.TestField("Document Date", PostingDate);
+    end;
+
+    [Test]
+    procedure PostingDateDoesNotModifiesDocumentDate()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseOrder: Record "Purchase Header";
+        PurchaseReturnOrder: Record "Purchase Header";
+        PurchaseInvoice: Record "Purchase Header";
+        PurchaseCreditMemo: Record "Purchase Header";
+        DocDate, PostingDate : Date;
+    begin
+        // [SCENARIO] Check that the PurchasesPayablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on Purchase documents when set to false
+
+        // [GIVEN] Change the setting to false
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", false);
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Create Purchase documents and set the document date
+        DocDate := 20000101D;
+        LibraryPurchase.CreatePurchHeader(PurchaseOrder, "Purchase Document Type"::"Order", '');
+        PurchaseOrder.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseReturnOrder, "Purchase Document Type"::"Return Order", '');
+        PurchaseReturnOrder.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseInvoice, "Purchase Document Type"::"Invoice", '');
+        PurchaseInvoice.Validate("Document Date", DocDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseCreditMemo, "Purchase Document Type"::"Credit Memo", '');
+        PurchaseCreditMemo.Validate("Document Date", DocDate);
+
+        // [WHEN] The posting date is modified
+        PostingDate := 30000101D;
+        PurchaseOrder.Validate("Posting Date", PostingDate);
+        PurchaseReturnOrder.Validate("Posting Date", PostingDate);
+        PurchaseInvoice.Validate("Posting Date", PostingDate);
+        PurchaseCreditMemo.Validate("Posting Date", PostingDate);
+
+        // [THEN] The document date should not be modified
+        PurchaseOrder.TestField("Document Date", DocDate);
+        PurchaseReturnOrder.TestField("Document Date", DocDate);
+        PurchaseInvoice.TestField("Document Date", DocDate);
+        PurchaseCreditMemo.TestField("Document Date", DocDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

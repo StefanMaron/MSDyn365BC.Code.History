@@ -5,8 +5,8 @@ page 12470 "FA Writeoff Act"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "FA Document Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Writeoff));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Writeoff));
 
     layout
     {
@@ -23,7 +23,7 @@ page 12470 "FA Writeoff Act"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -103,8 +103,8 @@ page 12470 "FA Writeoff Act"
             part(WriteoffLines; "FA Writeoff Act Subform")
             {
                 ApplicationArea = FixedAssets;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No.");
             }
         }
         area(factboxes)
@@ -135,9 +135,9 @@ page 12470 "FA Writeoff Act"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "FA Comments";
-                    RunPageLink = "Document Type" = CONST(Writeoff),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Writeoff),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -147,7 +147,7 @@ page 12470 "FA Writeoff Act"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -156,9 +156,9 @@ page 12470 "FA Writeoff Act"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12470),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12470),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }

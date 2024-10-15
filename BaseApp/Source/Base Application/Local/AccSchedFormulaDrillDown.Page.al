@@ -36,7 +36,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'This field is used internally.';
                 }
-                field(Totaling; Totaling)
+                field(Totaling; Rec.Totaling)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'This field is used internally.';
@@ -57,7 +57,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                         FormulaDrillDown: Page "Acc. Sched. Formula Drill-Down";
                     begin
                         AccSchedName.Get(SourceAccScheduleLine."Schedule Name");
-                        AccSchedLine.Get("Schedule Name", "Acc. Schedule Line No.");
+                        AccSchedLine.Get(Rec."Schedule Name", Rec."Acc. Schedule Line No.");
                         AccSchedLine.CopyFilters(SourceAccScheduleLine);
                         StartDate := AccSchedLine.GetRangeMin("Date Filter");
                         EndDate := AccSchedLine.GetRangeMax("Date Filter");
@@ -68,7 +68,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                             Message(Text001, SourceColumnLayout.Formula)
                         else
                             if (SourceColumnLayout."Ledger Entry Type" = SourceColumnLayout."Ledger Entry Type"::"Corr. Entries") and
-                               ("Totaling Type" <> "Totaling Type"::Formula)
+                               (Rec."Totaling Type" <> Rec."Totaling Type"::Formula)
                             then begin
                                 GLCorrespondenceEntry.SetFilter("Debit Account No.", AccSchedLine.Totaling);
                                 GLCorrespondenceEntry.SetFilter("Credit Account No.", AccSchedLine."Corr. Totaling");
@@ -109,25 +109,25 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                 GLCorrespondenceEntries.SetTableView(GLCorrespondenceEntry);
                                 GLCorrespondenceEntries.Run();
                             end else
-                                case "Totaling Type" of
-                                    "Totaling Type"::Constant:
-                                        Message(Text003, Totaling);
-                                    "Totaling Type"::Formula:
+                                case Rec."Totaling Type" of
+                                    Rec."Totaling Type"::Constant:
+                                        Message(Text003, Rec.Totaling);
+                                    Rec."Totaling Type"::Formula:
                                         begin
                                             FormulaDrillDown.InitParameters(AccSchedLine, SourceColumnLayout, AccSchedCellValue);
                                             FormulaDrillDown.Run();
                                         end;
-                                    "Totaling Type"::Custom:
+                                    Rec."Totaling Type"::Custom:
                                         AccSchedExtensionManagement.DrillDownAmount(
                                           AccSchedLine,
                                           SourceColumnLayout,
-                                          Totaling,
+                                          Rec.Totaling,
                                           StartDate,
                                           EndDate);
-                                    "Totaling Type"::"Set Base For Percent":
-                                        Message(Text002, Totaling);
+                                    Rec."Totaling Type"::"Set Base For Percent":
+                                        Message(Text002, Rec.Totaling);
                                     else
-                                        if Totaling <> '' then begin
+                                        if Rec.Totaling <> '' then begin
                                             AccSchedLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
                                             AccSchedLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
                                             AccSchedManagement.SetGLAccRowFilters(GLAcc, AccSchedLine);
@@ -381,15 +381,15 @@ page 26591 "Acc. Sched. Formula Drill-Down"
     begin
         EntryNo += 1;
 
-        Init();
-        "Entry No." := EntryNo;
-        Totaling := AccSchedLine.Totaling;
-        Amount := Result;
-        "Row No." := AccSchedLine."Row No.";
-        "Totaling Type" := AccSchedLine."Totaling Type";
-        "Schedule Name" := AccSchedLine."Schedule Name";
-        "Acc. Schedule Line No." := AccSchedLine."Line No.";
-        Insert();
+        Rec.Init();
+        Rec."Entry No." := EntryNo;
+        Rec.Totaling := AccSchedLine.Totaling;
+        Rec.Amount := Result;
+        Rec."Row No." := AccSchedLine."Row No.";
+        Rec."Totaling Type" := AccSchedLine."Totaling Type";
+        Rec."Schedule Name" := AccSchedLine."Schedule Name";
+        Rec."Acc. Schedule Line No." := AccSchedLine."Line No.";
+        Rec.Insert();
     end;
 }
 

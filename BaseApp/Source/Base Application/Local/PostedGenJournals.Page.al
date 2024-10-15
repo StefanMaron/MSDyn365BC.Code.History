@@ -118,9 +118,9 @@ page 12409 "Posted Gen. Journals"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                         Clear(ChangeExchangeRate);
                     end;
                 }
@@ -287,9 +287,9 @@ page 12409 "Posted Gen. Journals"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Posted Gen. Journal Line Card";
-                    RunPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
-                                  "Journal Batch Name" = FIELD("Journal Batch Name"),
-                                  "Line No." = FIELD("Line No.");
+                    RunPageLink = "Journal Template Name" = field("Journal Template Name"),
+                                  "Journal Batch Name" = field("Journal Batch Name"),
+                                  "Line No." = field("Line No.");
                     ShortCutKey = 'Shift+F4';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -303,7 +303,7 @@ page 12409 "Posted Gen. Journals"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }
@@ -320,7 +320,7 @@ page 12409 "Posted Gen. Journals"
 
                 trigger OnAction()
                 begin
-                    NavigatePage.SetDoc("Posting Date", "Document No.");
+                    NavigatePage.SetDoc(Rec."Posting Date", Rec."Document No.");
                     NavigatePage.Run();
                 end;
             }
@@ -363,21 +363,21 @@ page 12409 "Posted Gen. Journals"
     [Scope('OnPrem')]
     procedure OpenJnl()
     begin
-        FilterGroup := 2;
-        SetRange("Journal Template Name", CurrentJnlTemplateName);
-        SetRange("Journal Batch Name", CurrentJnlBatchName);
-        FilterGroup := 0;
-        if Find('-') then;
+        Rec.FilterGroup := 2;
+        Rec.SetRange("Journal Template Name", CurrentJnlTemplateName);
+        Rec.SetRange("Journal Batch Name", CurrentJnlBatchName);
+        Rec.FilterGroup := 0;
+        if Rec.Find('-') then;
     end;
 
     [Scope('OnPrem')]
     procedure SetName()
     begin
-        FilterGroup := 2;
-        SetRange("Journal Template Name", CurrentJnlTemplateName);
-        SetRange("Journal Batch Name", CurrentJnlBatchName);
-        FilterGroup := 0;
-        if Find('-') then;
+        Rec.FilterGroup := 2;
+        Rec.SetRange("Journal Template Name", CurrentJnlTemplateName);
+        Rec.SetRange("Journal Batch Name", CurrentJnlBatchName);
+        Rec.FilterGroup := 0;
+        if Rec.Find('-') then;
     end;
 
     [Scope('OnPrem')]

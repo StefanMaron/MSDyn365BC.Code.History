@@ -15,7 +15,7 @@ page 17218 "Tax Register Sections"
             repeater(Control100)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the tax register section.';
@@ -67,7 +67,7 @@ page 17218 "Tax Register Sections"
                 Caption = 'Registers';
                 Image = Register;
                 RunObject = Page "Tax Register Worksheet";
-                RunPageLink = "Section Code" = FIELD(Code);
+                RunPageLink = "Section Code" = field(Code);
                 ToolTip = 'View all related tax entries. Every register shows the first and last entry number of its entries.';
             }
             group("F&unctions")
@@ -83,7 +83,7 @@ page 17218 "Tax Register Sections"
 
                     trigger OnAction()
                     begin
-                        TaxRegSection.SetRange(Code, Code);
+                        TaxRegSection.SetRange(Code, Rec.Code);
                         REPORT.Run(REPORT::"Create Tax Registers", true, true, TaxRegSection);
                     end;
                 }
@@ -100,8 +100,8 @@ page 17218 "Tax Register Sections"
 
                     trigger OnAction()
                     begin
-                        TaxRegSection.SetRange(Code, Code);
-                        ExportSettings(TaxRegSection);
+                        TaxRegSection.SetRange(Code, Rec.Code);
+                        Rec.ExportSettings(TaxRegSection);
                     end;
                 }
                 action("&Import Settings")
@@ -114,8 +114,8 @@ page 17218 "Tax Register Sections"
 
                     trigger OnAction()
                     begin
-                        ValidateChangeDeclaration();
-                        PromptImportSettings();
+                        Rec.ValidateChangeDeclaration();
+                        Rec.PromptImportSettings();
                     end;
                 }
             }

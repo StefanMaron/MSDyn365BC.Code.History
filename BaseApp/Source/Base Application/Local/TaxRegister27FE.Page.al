@@ -1,13 +1,13 @@
 page 17228 "Tax Register (2.7) FE"
 {
     Caption = 'Tax Register (2.7) FE';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
     SourceTable = "Tax Register FE Entry";
-    SourceTableView = SORTING("Section Code");
+    SourceTableView = sorting("Section Code");
 
     layout
     {
@@ -23,7 +23,7 @@ page 17228 "Tax Register (2.7) FE"
                     ToolTip = 'Specifies the future expense number associated with this expense entry.';
                     Visible = false;
                 }
-                field(ObjectName; ObjectName())
+                field(ObjectName; Rec.ObjectName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
@@ -54,7 +54,7 @@ page 17228 "Tax Register (2.7) FE"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which depreciation of the fixed asset starts.';
                 }
-                field(CalcQtyMonthsUsefulLife; CalcQtyMonthsUsefulLife())
+                field(CalcQtyMonthsUsefulLife; Rec.CalcQtyMonthsUsefulLife())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. Month Expensive';
@@ -103,7 +103,7 @@ page 17228 "Tax Register (2.7) FE"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Future Period Expense Card";
-                    RunPageLink = "No." = FIELD("FE No.");
+                    RunPageLink = "No." = field("FE No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -154,15 +154,15 @@ page 17228 "Tax Register (2.7) FE"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if DateFilterText <> GetFilter("Date Filter") then
+        if DateFilterText <> Rec.GetFilter("Date Filter") then
             ShowNewData();
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        CopyFilter("Date Filter", Calendar."Period End");
+        Rec.CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
         Calendar.Reset();
         ShowNewData();
@@ -179,22 +179,22 @@ page 17228 "Tax Register (2.7) FE"
     procedure ShowNewData()
     begin
         FindPeriod('');
-        DateFilterText := GetFilter("Date Filter");
-        SetRange("Ending Date", GetRangeMax("Date Filter"));
+        DateFilterText := Rec.GetFilter("Date Filter");
+        Rec.SetRange("Ending Date", Rec.GetRangeMax("Date Filter"));
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar."Period End" := GetRangeMax("Date Filter");
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar."Period End" := Rec.GetRangeMax("Date Filter");
             if not TaxRegMgt.FindDate('', Calendar, PeriodType, AmountType) then
                 TaxRegMgt.FindDate('', Calendar, PeriodType::Month, AmountType);
         end;
         TaxRegMgt.FindDate(SearchText, Calendar, PeriodType, AmountType);
 
-        SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
+        Rec.SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
     end;
 }
 

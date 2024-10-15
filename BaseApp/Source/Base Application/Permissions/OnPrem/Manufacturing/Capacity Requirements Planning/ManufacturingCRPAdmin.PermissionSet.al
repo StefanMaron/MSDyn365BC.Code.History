@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
+
 permissionset 7561 "Manufacturing CRP - Admin"
 {
     Access = Public;

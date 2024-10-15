@@ -1,3 +1,10 @@
+﻿namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.IO;
+using System.Utilities;
+
 table 84 "Acc. Schedule Name"
 {
     Caption = 'Acc. Schedule Name';
@@ -66,8 +73,8 @@ table 84 "Acc. Schedule Name"
         }
         field(12400; "Used in Statutory Report"; Boolean)
         {
-            CalcFormula = Exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Acc. Schedule"),
-                                                                    "Int. Source No." = FIELD(Name)));
+            CalcFormula = exist("Stat. Report Table Mapping" where("Int. Source Type" = const("Acc. Schedule"),
+                                                                    "Int. Source No." = field(Name)));
             Caption = 'Used in Statutory Report';
             Editable = false;
             FieldClass = FlowField;

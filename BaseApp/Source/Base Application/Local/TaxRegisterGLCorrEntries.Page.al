@@ -34,19 +34,19 @@ page 17214 "Tax Register G/L Corr. Entries"
                     ToolTip = 'Specifies the tax register ID totaling associated with the tax register corresponding entry.';
                     Visible = false;
                 }
-                field(GetTaxRegName; GetTaxRegName())
+                field(GetTaxRegName; Rec.GetTaxRegName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Registers List';
 
                     trigger OnAssistEdit()
                     begin
-                        LookupTaxRegName();
+                        Rec.LookupTaxRegName();
                     end;
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownTaxRegName();
+                        Rec.DrillDownTaxRegName();
                     end;
                 }
                 field("Debit Account Name"; Rec."Debit Account Name")

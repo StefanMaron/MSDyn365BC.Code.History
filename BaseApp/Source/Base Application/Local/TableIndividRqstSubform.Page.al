@@ -32,14 +32,14 @@ page 26567 "Table Individ. Rqst. Subform"
                         StatReportDataChangeLog.SetRange("Report Data No.", DataHeaderNo);
                         StatReportDataChangeLog.SetRange("Report Code", ReportCode);
                         StatReportDataChangeLog.SetRange("Table Code", TableCode);
-                        StatReportDataChangeLog.SetRange("Row No.", "Line No.");
+                        StatReportDataChangeLog.SetRange("Row No.", Rec."Line No.");
                         StatReportDataChangeLog.SetRange("Column No.", 0);
                         PAGE.RunModal(PAGE::"Stat. Report Data Change Log", StatReportDataChangeLog);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if StatutoryReportDataValue.Get(DataHeaderNo, ReportCode, TableCode, ExcelSheetName, "Line No.", 0) then begin
+                        if StatutoryReportDataValue.Get(DataHeaderNo, ReportCode, TableCode, ExcelSheetName, Rec."Line No.", 0) then begin
                             StatutoryReportDataValue.Validate(Value, IndRequisiteValue);
                             StatutoryReportDataValue.Modify();
                         end else begin
@@ -48,7 +48,7 @@ page 26567 "Table Individ. Rqst. Subform"
                             StatutoryReportDataValue."Report Code" := ReportCode;
                             StatutoryReportDataValue."Table Code" := TableCode;
                             StatutoryReportDataValue."Excel Sheet Name" := ExcelSheetName;
-                            StatutoryReportDataValue."Row No." := "Line No.";
+                            StatutoryReportDataValue."Row No." := Rec."Line No.";
                             StatutoryReportDataValue."Column No." := 0;
                             StatutoryReportDataValue.Validate(Value, IndRequisiteValue);
                             StatutoryReportDataValue.Insert();
@@ -71,14 +71,14 @@ page 26567 "Table Individ. Rqst. Subform"
     trigger OnAfterGetRecord()
     begin
         IndRequisiteValue := '';
-        if StatutoryReportDataValue.Get(DataHeaderNo, ReportCode, TableCode, ExcelSheetName, "Line No.", 0) then
+        if StatutoryReportDataValue.Get(DataHeaderNo, ReportCode, TableCode, ExcelSheetName, Rec."Line No.", 0) then
             if StatReportDataChangeLog.ShouldValueBeDisplayed(
                  ShowOnlyChangedValues,
                  DataHeaderNo,
-                 "Report Code",
+                 Rec."Report Code",
                  TableCode,
                  ExcelSheetName,
-                 "Line No.",
+                 Rec."Line No.",
                  0)
             then
                 IndRequisiteValue := StatutoryReportDataValue.Value;
@@ -94,7 +94,6 @@ page 26567 "Table Individ. Rqst. Subform"
         ExcelSheetName: Text[30];
         IndRequisiteValue: Text[150];
         ShowOnlyChangedValues: Boolean;
-        [InDataSet]
         DescriptionEmphasize: Boolean;
 
     [Scope('OnPrem')]
@@ -114,19 +113,19 @@ page 26567 "Table Individ. Rqst. Subform"
         DataHeaderNo := NewDataHeaderNo;
         ExcelSheetName := NewExcelSheetName;
 
-        FilterGroup(2);
-        SetRange("Report Code", ReportCode);
-        SetRange("Table Code", TableCode);
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Report Code", ReportCode);
+        Rec.SetRange("Table Code", TableCode);
+        Rec.FilterGroup(0);
 
-        if FindFirst() then;
+        if Rec.FindFirst() then;
         CurrPage.Update(false);
         ShowOnlyChangedValues := NewShowOnlyChangedValues;
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionEmphasize := Bold;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

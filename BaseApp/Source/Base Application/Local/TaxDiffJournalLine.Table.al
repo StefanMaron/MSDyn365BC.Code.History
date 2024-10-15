@@ -105,7 +105,7 @@ table 17305 "Tax Diff. Journal Line"
         field(10; "Norm Code"; Code[10])
         {
             Caption = 'Norm Code';
-            TableRelation = "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Jurisdiction Code"));
+            TableRelation = "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Jurisdiction Code"));
 
             trigger OnValidate()
             begin
@@ -221,22 +221,22 @@ table 17305 "Tax Diff. Journal Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(26; "Disposal Mode"; Option)
@@ -324,11 +324,11 @@ table 17305 "Tax Diff. Journal Line"
         field(33; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST("Future Expense")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Future Expense"))
-            ELSE
-            IF ("Source Type" = CONST("Fixed Asset")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Fixed Assets"))
-            ELSE
-            IF ("Source Type" = CONST("Intangible Asset")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Intangible Asset"));
+            TableRelation = if ("Source Type" = const("Future Expense")) "Fixed Asset"."No." where("FA Type" = const("Future Expense"))
+            else
+            if ("Source Type" = const("Fixed Asset")) "Fixed Asset"."No." where("FA Type" = const("Fixed Assets"))
+            else
+            if ("Source Type" = const("Intangible Asset")) "Fixed Asset"."No." where("FA Type" = const("Intangible Asset"));
 
             trigger OnValidate()
             begin
@@ -405,7 +405,7 @@ table 17305 "Tax Diff. Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -431,8 +431,8 @@ table 17305 "Tax Diff. Journal Line"
     begin
         LockTable();
 
-        ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-        ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+        Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+        Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
     end;
 
     var
@@ -667,7 +667,7 @@ table 17305 "Tax Diff. Journal Line"
         TaxRegNormDetail: Record "Tax Register Norm Detail";
     begin
         "Tax Factor" := 0;
-        if "Posting Date" <> 0D then
+        if Rec."Posting Date" <> 0D then
             if TaxRegNormGroup.Get("Jurisdiction Code", "Norm Code") then begin
                 TaxRegNormDetail.Reset();
                 TaxRegNormDetail.SetRange("Norm Jurisdiction Code", "Jurisdiction Code");

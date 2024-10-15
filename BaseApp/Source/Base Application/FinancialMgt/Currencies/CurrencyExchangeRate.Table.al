@@ -1,4 +1,8 @@
-﻿table 330 "Currency Exchange Rate"
+﻿namespace Microsoft.Finance.Currency;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+
+table 330 "Currency Exchange Rate"
 {
     Caption = 'Currency Exchange Rate';
     DataCaptionFields = "Currency Code";

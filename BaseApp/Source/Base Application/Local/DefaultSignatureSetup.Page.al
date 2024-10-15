@@ -27,17 +27,17 @@ page 12465 "Default Signature Setup"
                         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
                         AllObjWithCaption.SetFilter("Object ID", '36|38|5740|12450|12470');
                         Objects.SetTableView(AllObjWithCaption);
-                        if "Table ID" <> 0 then begin
+                        if Rec."Table ID" <> 0 then begin
                             AllObjWithCaption."Object Type" := AllObjWithCaption."Object Type"::Table;
-                            AllObjWithCaption."Object ID" := "Table ID";
+                            AllObjWithCaption."Object ID" := Rec."Table ID";
                             AllObjWithCaption.Find();
                             Objects.SetRecord(AllObjWithCaption);
                         end;
                         Objects.LookupMode := true;
                         if Objects.RunModal() = ACTION::LookupOK then begin
                             Objects.GetRecord(AllObjWithCaption);
-                            "Table ID" := AllObjWithCaption."Object ID";
-                            CalcFields("Table Name");
+                            Rec."Table ID" := AllObjWithCaption."Object ID";
+                            Rec.CalcFields("Table Name");
                         end;
                     end;
 
@@ -63,16 +63,16 @@ page 12465 "Default Signature Setup"
                     var
                         Selection: Integer;
                     begin
-                        case "Table ID" of
+                        case Rec."Table ID" of
                             DATABASE::"Sales Header",
                             DATABASE::"Purchase Header",
                             DATABASE::"Invt. Document Header",
                             DATABASE::"FA Document Header":
                                 begin
-                                    Selection := StrMenu(GetDocumetTypeString("Table ID"), "Document Type" + 1);
+                                    Selection := StrMenu(GetDocumetTypeString(Rec."Table ID"), Rec."Document Type" + 1);
                                     if Selection <> 0 then begin
-                                        "Document Type" := Selection - 1;
-                                        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+                                        Rec."Document Type" := Selection - 1;
+                                        DocumentTypeName := GetDocumentTypeDesc(Rec."Table ID", Rec."Document Type");
                                     end;
                                 end;
                         end;
@@ -88,7 +88,7 @@ page 12465 "Default Signature Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved employee.';
                 }
-                field(Mandatory; Mandatory)
+                field(Mandatory; Rec.Mandatory)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the default signature setup information is mandatory.';
@@ -118,12 +118,12 @@ page 12465 "Default Signature Setup"
 
     trigger OnAfterGetCurrRecord()
     begin
-        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+        DocumentTypeName := GetDocumentTypeDesc(Rec."Table ID", Rec."Document Type");
     end;
 
     trigger OnAfterGetRecord()
     begin
-        DocumentTypeName := GetDocumentTypeDesc("Table ID", "Document Type");
+        DocumentTypeName := GetDocumentTypeDesc(Rec."Table ID", Rec."Document Type");
     end;
 
     var
@@ -187,8 +187,8 @@ page 12465 "Default Signature Setup"
 
     local procedure TableIDOnAfterValidate()
     begin
-        if "Table ID" <> 0 then
-            CalcFields("Table Name");
+        if Rec."Table ID" <> 0 then
+            Rec.CalcFields("Table Name");
     end;
 }
 

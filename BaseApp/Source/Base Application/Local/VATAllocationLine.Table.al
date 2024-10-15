@@ -223,11 +223,11 @@ table 14925 "VAT Allocation Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
                 Modify();
             end;
         }
@@ -235,11 +235,11 @@ table 14925 "VAT Allocation Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
                 Modify();
             end;
         }
@@ -295,7 +295,7 @@ table 14925 "VAT Allocation Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -334,8 +334,8 @@ table 14925 "VAT Allocation Line"
         FindCommonBase(CommonBase);
         Validate(Base, CommonBase);
 
-        ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-        ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+        Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+        Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
     end;
 
     var
@@ -372,27 +372,6 @@ table 14925 "VAT Allocation Line"
             Find();
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    [Scope('OnPrem')]
-    procedure CreateDim(Type1: Integer; No1: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        SourceCodeSetup.Get();
-        TableID[1] := Type1;
-        No[1] := No1;
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(
-            TableID, No, SourceCodeSetup."VAT Settlement",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -416,13 +395,13 @@ table 14925 "VAT Allocation Line"
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
+        Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     [Scope('OnPrem')]

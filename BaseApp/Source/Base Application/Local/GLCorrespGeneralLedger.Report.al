@@ -10,7 +10,7 @@ report 12431 "G/L Corresp. General Ledger"
     {
         dataitem(GLAcc; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") ORDER(Ascending);
+            DataItemTableView = sorting("No.") order(Ascending);
             RequestFilterFields = "No.";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
@@ -62,7 +62,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Missing Lines"; "Integer")
             {
-                DataItemTableView = SORTING(Number) ORDER(Ascending);
+                DataItemTableView = sorting(Number) order(Ascending);
 
                 trigger OnPreDataItem()
                 begin
@@ -74,7 +74,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Invoice Heading"; "Integer")
             {
-                DataItemTableView = SORTING(Number) ORDER(Ascending);
+                DataItemTableView = sorting(Number) order(Ascending);
                 MaxIteration = 1;
                 column(PADSTR_____Enclosure_Level____2______GLAcc__No__; PadStr('', "Enclosure Level" * 2, ' ') + GLAcc."No.")
                 {
@@ -106,7 +106,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem("Period Month"; "Integer")
             {
-                DataItemTableView = SORTING(Number) ORDER(Ascending);
+                DataItemTableView = sorting(Number) order(Ascending);
                 column(MonthFromPeriod; MonthFromPeriod)
                 {
                 }
@@ -133,9 +133,9 @@ report 12431 "G/L Corresp. General Ledger"
                 }
                 dataitem("Double Entry"; "G/L Correspondence")
                 {
-                    DataItemLink = "Business Unit Filter" = FIELD("Business Unit Filter"), "Debit Global Dim. 1 Filter" = FIELD("Global Dimension 1 Filter"), "Debit Global Dim. 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    DataItemLink = "Business Unit Filter" = field("Business Unit Filter"), "Debit Global Dim. 1 Filter" = field("Global Dimension 1 Filter"), "Debit Global Dim. 2 Filter" = field("Global Dimension 2 Filter");
                     DataItemLinkReference = GLAcc;
-                    DataItemTableView = SORTING("Debit Account No.", "Credit Account No.");
+                    DataItemTableView = sorting("Debit Account No.", "Credit Account No.");
                     column(Double_Entry__Credit_Account_No__; "Credit Account No.")
                     {
                     }
@@ -255,7 +255,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem(Total; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(BalanceBegPeriodDebitCredit; BalanceBegPeriodDebitCredit)
                 {
@@ -283,9 +283,9 @@ report 12431 "G/L Corresp. General Ledger"
                 }
                 dataitem(TotalAmount; "G/L Correspondence")
                 {
-                    DataItemLink = "Business Unit Filter" = FIELD("Business Unit Filter"), "Debit Global Dim. 1 Filter" = FIELD("Global Dimension 1 Filter"), "Debit Global Dim. 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    DataItemLink = "Business Unit Filter" = field("Business Unit Filter"), "Debit Global Dim. 1 Filter" = field("Global Dimension 1 Filter"), "Debit Global Dim. 2 Filter" = field("Global Dimension 2 Filter");
                     DataItemLinkReference = GLAcc;
-                    DataItemTableView = SORTING("Debit Account No.", "Credit Account No.");
+                    DataItemTableView = sorting("Debit Account No.", "Credit Account No.");
                     column(TotalAmount__Credit_Account_No__; "Credit Account No.")
                     {
                     }
@@ -359,7 +359,7 @@ report 12431 "G/L Corresp. General Ledger"
             }
             dataitem(EndingLine; "Integer")
             {
-                DataItemTableView = SORTING(Number) ORDER(Ascending);
+                DataItemTableView = sorting(Number) order(Ascending);
                 column(EndingLine_Number; Number)
                 {
                 }

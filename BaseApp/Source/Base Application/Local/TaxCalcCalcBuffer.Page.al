@@ -22,7 +22,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -52,7 +52,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Operation; Operation)
+                field(Operation; Rec.Operation)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -143,14 +143,14 @@ page 17324 "Tax Calc. Calc. Buffer"
     var
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
     begin
-        CalcFields("Dimensions Filters");
-        if "Dimensions Filters" then begin
+        Rec.CalcFields("Dimensions Filters");
+        if Rec."Dimensions Filters" then begin
             TaxCalcDimFilter.FilterGroup(2);
-            TaxCalcDimFilter.SetRange("Section Code", "Section Code");
-            TaxCalcDimFilter.SetRange("Register No.", "Tax Register No.");
+            TaxCalcDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxCalcDimFilter.SetRange("Register No.", Rec."Tax Register No.");
             TaxCalcDimFilter.SetRange(Define, TaxCalcDimFilter.Define::Template);
             TaxCalcDimFilter.FilterGroup(0);
-            TaxCalcDimFilter.SetRange("Line No.", "Template Line No.");
+            TaxCalcDimFilter.SetRange("Line No.", Rec."Template Line No.");
             if ACTION::None = PAGE.RunModal(0, TaxCalcDimFilter) then;
         end;
     end;
@@ -167,13 +167,13 @@ page 17324 "Tax Calc. Calc. Buffer"
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
         NoGlobalDimFilterNeed: Boolean;
     begin
-        if "Expression Type" = "Expression Type"::Term then
-            if TaxRegTermName.Get("Section Code", Expression) then
+        if Rec."Expression Type" = Rec."Expression Type"::Term then
+            if TaxRegTermName.Get(Rec."Section Code", Rec.Expression) then
                 if (TaxRegTermName."Expression Type" <> TaxRegTermName."Expression Type"::Compare) and
-                   ("Term Type" < "Term Type"::Compare)
+                   (Rec."Term Type" < Rec."Term Type"::Compare)
                 then
-                    if TaxRegTermLine.Get("Section Code", Expression, "Term Line No.") then begin
-                        TaxRegTermMgt.CopyTemplateDimFilters(TempDimBuf0, "Section Code", "Tax Register No.", "Template Line No.");
+                    if TaxRegTermLine.Get(Rec."Section Code", Rec.Expression, Rec."Term Line No.") then begin
+                        TaxRegTermMgt.CopyTemplateDimFilters(TempDimBuf0, Rec."Section Code", Rec."Tax Register No.", Rec."Template Line No.");
                         NoGlobalDimFilterNeed := TaxRegTermMgt.SetDimFilters2GLEntry(TempGLEntryGlobalDimFilter, TempDimBuf0);
                         if NoGlobalDimFilterNeed then
                             Message(Text1000);
@@ -184,7 +184,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                                     if TempGLEntryGlobalDimFilter.GetFilters = '' then begin
                                         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                                         GLEntry.SetFilter("G/L Account No.", TaxRegTermLine."Account No.");
-                                        GLEntry.SetFilter("Posting Date", "Date Filter");
+                                        GLEntry.SetFilter("Posting Date", Rec."Date Filter");
                                     end else begin
                                         GLEntry.SetCurrentKey(
                                           "G/L Account No.", "Business Unit Code",
@@ -195,7 +195,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                                         TempGLEntryGlobalDimFilter.CopyFilter(
                                           "Global Dimension 2 Code", GLEntry."Global Dimension 2 Code");
                                     end;
-                                    GLEntry.SetFilter("Posting Date", "Date Filter");
+                                    GLEntry.SetFilter("Posting Date", Rec."Date Filter");
                                     if TaxRegTermLine."Amount Type" = TaxRegTermLine."Amount Type"::Debit then
                                         GLEntry.SetFilter("Debit Amount", '<>%1', 0);
                                     if TaxRegTermLine."Amount Type" = TaxRegTermLine."Amount Type"::Credit then
@@ -221,25 +221,25 @@ page 17324 "Tax Calc. Calc. Buffer"
                                         TempGLEntryGlobalDimFilter.CopyFilter(
                                           "Global Dimension 2 Code", GLCorrespondEntry."Debit Global Dimension 2 Code");
                                     end;
-                                    GLCorrespondEntry.SetFilter("Posting Date", "Date Filter");
+                                    GLCorrespondEntry.SetFilter("Posting Date", Rec."Date Filter");
                                     PAGE.RunModal(0, GLCorrespondEntry);
                                 end;
                         end;
                     end;
-        if "Expression Type" = "Expression Type"::Total then begin
-            if StrPos("Date Filter", '..') > 0 then begin
-                if not Evaluate(TaxCalcAccumulation."Starting Date", CopyStr("Date Filter", 1, StrPos("Date Filter", '..') - 1)) then
+        if Rec."Expression Type" = Rec."Expression Type"::Total then begin
+            if StrPos(Rec."Date Filter", '..') > 0 then begin
+                if not Evaluate(TaxCalcAccumulation."Starting Date", CopyStr(Rec."Date Filter", 1, StrPos(Rec."Date Filter", '..') - 1)) then
                     exit;
-                if not Evaluate(TaxCalcAccumulation."Ending Date", CopyStr("Date Filter", StrPos("Date Filter", '..') + 2)) then
+                if not Evaluate(TaxCalcAccumulation."Ending Date", CopyStr(Rec."Date Filter", StrPos(Rec."Date Filter", '..') + 2)) then
                     exit;
             end else begin
-                if not Evaluate(TaxCalcAccumulation."Ending Date", "Date Filter") then
+                if not Evaluate(TaxCalcAccumulation."Ending Date", Rec."Date Filter") then
                     exit;
                 TaxCalcAccumulation."Starting Date" := 0D;
             end;
-            TaxCalcAccumulation."Template Line No." := "Template Line No.";
-            TaxCalcAccumulation."Register No." := "Tax Register No.";
-            TaxCalcAccumulation."Section Code" := "Section Code";
+            TaxCalcAccumulation."Template Line No." := Rec."Template Line No.";
+            TaxCalcAccumulation."Register No." := Rec."Tax Register No.";
+            TaxCalcAccumulation."Section Code" := Rec."Section Code";
             TaxCalcAccumulation.SetRange("Date Filter", TaxCalcAccumulation."Starting Date", TaxCalcAccumulation."Ending Date");
             TaxCalcAccumulation.DrillDownAmount();
         end;

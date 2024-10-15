@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Account;
+
 page 104 "Account Schedule"
 {
     AutoSplitKey = true;
@@ -32,7 +38,7 @@ page 104 "Account Schedule"
             }
             repeater(Control1)
             {
-                IndentationColumn = Indentation;
+                IndentationColumn = Rec.Indentation;
                 IndentationControls = Description;
                 ShowCaption = false;
                 field("Row No."; Rec."Row No.")
@@ -44,7 +50,7 @@ page 104 "Account Schedule"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = Bold;
+                    StyleExpr = Rec.Bold;
                     ToolTip = 'Specifies text that will appear on the financial report line.';
                 }
                 field("Totaling Type"; Rec."Totaling Type")
@@ -82,8 +88,8 @@ page 104 "Account Schedule"
                         AccScheduleLines: Page "Acc. Schedule Lines";
                         AccScheduleExtensions: Page "Acc. Schedule Extensions";
                     begin
-                        if "Totaling Type" in
-                           ["Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts"]
+                        if Rec."Totaling Type" in
+                           [Rec."Totaling Type"::"Posting Accounts", Rec."Totaling Type"::"Total Accounts"]
                         then begin
                             GLAccList.LookupMode(true);
                             if not (GLAccList.RunModal() = ACTION::LookupOK) then
@@ -94,8 +100,8 @@ page 104 "Account Schedule"
                             Rec.Validate(Totaling, TotalingDisplayed);
                         end;
 
-                        case "Totaling Type" of
-                            "Totaling Type"::Formula:
+                        case Rec."Totaling Type" of
+                            Rec."Totaling Type"::Formula:
                                 begin
                                     GLSetup.Get();
                                     if GLSetup."Shared Account Schedule" <> '' then begin
@@ -115,28 +121,26 @@ page 104 "Account Schedule"
                                     end;
                                 end;
 
-                            "Totaling Type"::Custom:
-                                begin
-                                    if "Extension Source Table" <> "Extension Source Table"::" " then begin
-                                        if Totaling <> '' then begin
-                                            AccScheduleExtension.Get(Totaling);
-                                            AccScheduleExtensions.SetRecord(AccScheduleExtension);
-                                        end;
-                                        AccScheduleExtension.FilterGroup(2);
-                                        AccScheduleExtension.SetRange(AccScheduleExtension."Source Table", "Extension Source Table" - 1);
-                                        AccScheduleExtension.FilterGroup(0);
-                                        AccScheduleExtensions.SetSourceTable("Extension Source Table");
-                                        AccScheduleExtensions.SetTableView(AccScheduleExtension);
-                                        AccScheduleExtensions.LookupMode(true);
-                                        if not (AccScheduleExtensions.RunModal() = ACTION::LookupOK) then
-                                            exit(false)
-                                        else begin
-                                            AccScheduleExtensions.GetRecord(AccScheduleExtension);
-                                            Text := AccScheduleExtension.Code;
-                                            TotalingDisplayed := CopyStr(Text, 1, 250);
-                                            Rec.Validate(Totaling, TotalingDisplayed);
-                                            exit(true);
-                                        end;
+                            Rec."Totaling Type"::Custom:
+                                if Rec."Extension Source Table" <> Rec."Extension Source Table"::" " then begin
+                                    if Rec.Totaling <> '' then begin
+                                        AccScheduleExtension.Get(Rec.Totaling);
+                                        AccScheduleExtensions.SetRecord(AccScheduleExtension);
+                                    end;
+                                    AccScheduleExtension.FilterGroup(2);
+                                    AccScheduleExtension.SetRange(AccScheduleExtension."Source Table", Rec."Extension Source Table" - 1);
+                                    AccScheduleExtension.FilterGroup(0);
+                                    AccScheduleExtensions.SetSourceTable(Rec."Extension Source Table");
+                                    AccScheduleExtensions.SetTableView(AccScheduleExtension);
+                                    AccScheduleExtensions.LookupMode(true);
+                                    if not (AccScheduleExtensions.RunModal() = ACTION::LookupOK) then
+                                        exit(false)
+                                    else begin
+                                        AccScheduleExtensions.GetRecord(AccScheduleExtension);
+                                        Text := AccScheduleExtension.Code;
+                                        TotalingDisplayed := CopyStr(Text, 1, 250);
+                                        Rec.Validate(Totaling, TotalingDisplayed);
+                                        exit(true);
                                     end;
                                 end;
                         end;
@@ -177,7 +181,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(1, Text));
+                        exit(Rec.LookUpDimFilter(1, Text));
                     end;
                 }
                 field("Dimension 2 Totaling"; Rec."Dimension 2 Totaling")
@@ -188,7 +192,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(2, Text));
+                        exit(Rec.LookUpDimFilter(2, Text));
                     end;
                 }
                 field("Dimension 3 Totaling"; Rec."Dimension 3 Totaling")
@@ -199,7 +203,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(3, Text));
+                        exit(Rec.LookUpDimFilter(3, Text));
                     end;
                 }
                 field("Dimension 4 Totaling"; Rec."Dimension 4 Totaling")
@@ -210,7 +214,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(4, Text));
+                        exit(Rec.LookUpDimFilter(4, Text));
                     end;
                 }
                 field("Dimension 1 Corr. Totaling"; Rec."Dimension 1 Corr. Totaling")
@@ -220,7 +224,7 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(12401, Text));
+                        exit(Rec.LookUpDimFilter(12401, Text));
                     end;
                 }
                 field("Dimension 2 Corr. Totaling"; Rec."Dimension 2 Corr. Totaling")
@@ -230,25 +234,25 @@ page 104 "Account Schedule"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(12402, Text));
+                        exit(Rec.LookUpDimFilter(12402, Text));
                     end;
                 }
-                field(Show; Show)
+                field(Show; Rec.Show)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to print the amounts in this row in bold.';
                 }
-                field(Italic; Italic)
+                field(Italic; Rec.Italic)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to print the amounts in this row in italics.';
                 }
-                field(Underline; Underline)
+                field(Underline; Rec.Underline)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to underline the amounts in this row.';
@@ -264,7 +268,7 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
                 }
-                field(HideCurrencySymbol; "Hide Currency Symbol")
+                field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
@@ -482,7 +486,7 @@ page 104 "Account Schedule"
                 var
                     AccScheduleName: Record "Acc. Schedule Name";
                 begin
-                    AccScheduleName.Get("Schedule Name");
+                    AccScheduleName.Get(Rec."Schedule Name");
                     AccScheduleName.Print();
                 end;
             }
@@ -549,12 +553,12 @@ page 104 "Account Schedule"
 
     trigger OnAfterGetRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnOpenPage()
@@ -601,7 +605,7 @@ page 104 "Account Schedule"
     procedure SetupAccSchedLine(var AccSchedLine: Record "Acc. Schedule Line")
     begin
         AccSchedLine := Rec;
-        if "Line No." = 0 then begin
+        if Rec."Line No." = 0 then begin
             AccSchedLine := xRec;
             AccSchedLine.SetRange("Schedule Name", CurrentSchedName);
             if AccSchedLine.Next() = 0 then

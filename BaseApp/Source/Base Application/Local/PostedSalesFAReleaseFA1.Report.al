@@ -7,16 +7,16 @@ report 14983 "Posted Sales FA Release FA-1"
     {
         dataitem("Sales Invoice Header"; "Sales Invoice Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Sales Invoice Line"; "Sales Invoice Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.") WHERE(Type = CONST("Fixed Asset"));
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.") where(Type = const("Fixed Asset"));
                 dataitem("FA Depreciation Book"; "FA Depreciation Book")
                 {
-                    DataItemLink = "FA No." = FIELD("No."), "Depreciation Book Code" = FIELD("Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                    DataItemLink = "FA No." = field("No."), "Depreciation Book Code" = field("Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -41,8 +41,8 @@ report 14983 "Posted Sales FA Release FA-1"
                 }
                 dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
                 {
-                    DataItemLink = "No." = FIELD("No.");
-                    DataItemTableView = SORTING("Item Type");
+                    DataItemLink = "No." = field("No.");
+                    DataItemTableView = sorting("Item Type");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -57,7 +57,7 @@ report 14983 "Posted Sales FA Release FA-1"
                 }
                 dataitem("Integer"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     MaxIteration = 1;
 
                     trigger OnAfterGetRecord()

@@ -33,7 +33,7 @@ page 26555 "Table Individual Requisites"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the requisites group name associated with the individual table requisite.';
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
@@ -46,9 +46,9 @@ page 26555 "Table Individual Requisites"
                     trigger OnAssistEdit()
                     begin
                         StatReportTableMapping.ShowMappingCard(
-                          "Report Code",
-                          "Table Code",
-                          "Line No.",
+                          Rec."Report Code",
+                          Rec."Table Code",
+                          Rec."Line No.",
                           0,
                           IntDataSourceCellMapping);
                     end;
@@ -56,7 +56,7 @@ page 26555 "Table Individual Requisites"
                     trigger OnValidate()
                     begin
                         if IntDataSourceCellMapping = '' then
-                            if StatReportTableMapping.Get("Report Code", "Table Code", "Line No.", 0) then
+                            if StatReportTableMapping.Get(Rec."Report Code", Rec."Table Code", Rec."Line No.", 0) then
                                 StatReportTableMapping.Delete();
                     end;
                 }
@@ -71,7 +71,7 @@ page 26555 "Table Individual Requisites"
     trigger OnAfterGetRecord()
     begin
         IntDataSourceCellMapping := '';
-        if StatReportTableMapping.Get("Report Code", "Table Code", "Line No.", 0) then
+        if StatReportTableMapping.Get(Rec."Report Code", Rec."Table Code", Rec."Line No.", 0) then
             IntDataSourceCellMapping := StatReportTableMapping.GetRecDescription();
     end;
 

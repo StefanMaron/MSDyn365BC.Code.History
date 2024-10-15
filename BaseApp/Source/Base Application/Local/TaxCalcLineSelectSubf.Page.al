@@ -68,7 +68,7 @@ page 17314 "Tax Calc. Line Select Subf"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link register number associated with the tax calculation line.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -78,17 +78,17 @@ page 17314 "Tax Calc. Line Select Subf"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the selection line code associated with the tax calculation line.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period associated with the tax calculation line.';
@@ -133,13 +133,13 @@ page 17314 "Tax Calc. Line Select Subf"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
-        if "Dimensions Filters" then
+        Rec.CalcFields("Dimensions Filters", Rec."G/L Corr. Dimensions Filters");
+        if Rec."Dimensions Filters" then
             DimFilters := Text1001
         else
             DimFilters := '';
 
-        if "G/L Corr. Dimensions Filters" then
+        if Rec."G/L Corr. Dimensions Filters" then
             GLCorrDimFilters := Text1001
         else
             GLCorrDimFilters := '';
@@ -148,8 +148,8 @@ page 17314 "Tax Calc. Line Select Subf"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Expression Type" := "Expression Type"::SumField;
-        GetDefaultSumField();
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
+        Rec.GetDefaultSumField();
     end;
 
     var
@@ -158,9 +158,7 @@ page 17314 "Tax Calc. Line Select Subf"
         DimFilters: Text[30];
         GLCorrDimFilters: Text[30];
         Text1002: Label '%1 should be used for this type of tax register.';
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     [Scope('OnPrem')]
@@ -172,20 +170,20 @@ page 17314 "Tax Calc. Line Select Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxCalcHeader.Get("Section Code", Code);
+        TaxCalcHeader.Get(Rec."Section Code", Rec.Code);
         if TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry" then
-            Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("G/L Corr. Dimensions Filters"));
 
-        if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::SumField) then begin
-            TemplateSection.Get("Section Code");
+        if (Rec."Line No." <> 0) and (Rec."Expression Type" = Rec."Expression Type"::SumField) then begin
+            TemplateSection.Get(Rec."Section Code");
             if (TemplateSection."Dimension 1 Code" <> '') or
                (TemplateSection."Dimension 2 Code" <> '') or
                (TemplateSection."Dimension 3 Code" <> '') or
                (TemplateSection."Dimension 4 Code" <> '')
             then begin
                 TemplateDimFilter.FilterGroup(2);
-                TemplateDimFilter.SetRange("Section Code", "Section Code");
-                TemplateDimFilter.SetRange("Register No.", Code);
+                TemplateDimFilter.SetRange("Section Code", Rec."Section Code");
+                TemplateDimFilter.SetRange("Register No.", Rec.Code);
                 TemplateDimFilter.SetRange(Define, TemplateDimFilter.Define::Template);
                 if TemplateSection."Dimension 1 Code" <> '' then
                     DimCodeFilter := TemplateSection."Dimension 1 Code";
@@ -198,7 +196,7 @@ page 17314 "Tax Calc. Line Select Subf"
                 DimCodeFilter := DelChr(DimCodeFilter, '<', '|');
                 TemplateDimFilter.SetFilter("Dimension Code", DimCodeFilter);
                 TemplateDimFilter.FilterGroup(0);
-                TemplateDimFilter.SetRange("Line No.", "Line No.");
+                TemplateDimFilter.SetRange("Line No.", Rec."Line No.");
                 PAGE.RunModal(0, TemplateDimFilter);
             end;
         end;
@@ -212,17 +210,17 @@ page 17314 "Tax Calc. Line Select Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxCalcHeader.Get("Section Code", Code);
-        if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
+        TaxCalcHeader.Get(Rec."Section Code", Rec.Code);
+        if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and (Rec."Line No." <> 0) then begin
             TaxDifGLCorrDimFilter.FilterGroup(2);
-            TaxDifGLCorrDimFilter.SetRange("Section Code", "Section Code");
-            TaxDifGLCorrDimFilter.SetRange("Tax Calc. No.", Code);
+            TaxDifGLCorrDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxDifGLCorrDimFilter.SetRange("Tax Calc. No.", Rec.Code);
             TaxDifGLCorrDimFilter.SetRange(Define, TaxDifGLCorrDimFilter.Define::Template);
-            TaxDifGLCorrDimFilter.SetRange("Line No.", "Line No.");
+            TaxDifGLCorrDimFilter.SetRange("Line No.", Rec."Line No.");
             TaxDifGLCorrDimFilter.FilterGroup(0);
             PAGE.RunModal(0, TaxDifGLCorrDimFilter);
         end else
-            Error(Text1002, FieldCaption("Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("Dimensions Filters"));
         CurrPage.Update(false);
     end;
 
@@ -238,8 +236,8 @@ page 17314 "Tax Calc. Line Select Subf"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

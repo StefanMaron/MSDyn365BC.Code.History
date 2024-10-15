@@ -12,8 +12,8 @@ report 12476 "Item Card M-17"
             RequestFilterFields = "No.", "Location Filter";
             dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
             {
-                DataItemLink = "No." = FIELD("No.");
-                DataItemTableView = SORTING("Item Type");
+                DataItemLink = "No." = field("No.");
+                DataItemTableView = sorting("Item Type");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -31,8 +31,8 @@ report 12476 "Item Card M-17"
             }
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
-                DataItemLink = "Item No." = FIELD("No."), "Location Code" = FIELD("Location Filter");
-                DataItemTableView = SORTING("Entry No.");
+                DataItemLink = "Item No." = field("No."), "Location Code" = field("Location Filter");
+                DataItemTableView = sorting("Entry No.");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -91,7 +91,7 @@ report 12476 "Item Card M-17"
             }
             dataitem(DocFooter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnAfterGetRecord()
                 begin

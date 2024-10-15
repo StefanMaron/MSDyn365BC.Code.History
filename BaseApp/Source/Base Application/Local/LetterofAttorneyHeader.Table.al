@@ -157,8 +157,6 @@ table 14905 "Letter of Attorney Header"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(46; "Last Modified"; DateTime)

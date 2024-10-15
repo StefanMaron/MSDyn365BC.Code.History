@@ -19,7 +19,7 @@
                 }
                 tableelement("Tax Register Norm Group"; "Tax Register Norm Group")
                 {
-                    LinkFields = "Norm Jurisdiction Code" = FIELD(Code);
+                    LinkFields = "Norm Jurisdiction Code" = field(Code);
                     LinkTable = "Tax Register Norm Jurisdiction";
                     MinOccurs = Zero;
                     XmlName = 'NormGroup';
@@ -47,7 +47,7 @@
                     }
                     tableelement("Tax Register Norm Detail"; "Tax Register Norm Detail")
                     {
-                        LinkFields = "Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"), "Norm Group Code" = FIELD(Code);
+                        LinkFields = "Norm Jurisdiction Code" = field("Norm Jurisdiction Code"), "Norm Group Code" = field(Code);
                         LinkTable = "Tax Register Norm Group";
                         MinOccurs = Zero;
                         XmlName = 'NormDetail';

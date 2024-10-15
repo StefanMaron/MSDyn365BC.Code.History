@@ -10,7 +10,7 @@ report 12447 "Bank Account G/L Turnover"
     {
         dataitem("Bank Account"; "Bank Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {

@@ -1,7 +1,7 @@
 page 17311 "Tax Calc. Setup Card"
 {
     Caption = 'Tax Calc. Setup Card';
-    DataCaptionExpression = "No." + ' ' + Description;
+    DataCaptionExpression = Rec."No." + ' ' + Rec.Description;
     Description = '"No."+'' ''+COPYSTR(Description,1,30-STRLEN("No."))';
     InsertAllowed = false;
     PageType = Card;
@@ -30,7 +30,7 @@ page 17311 "Tax Calc. Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax calculation header.';
                 }
-                field(Check; Check)
+                field(Check; Rec.Check)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -41,7 +41,7 @@ page 17311 "Tax Calc. Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax calculation header is used in statutory reports.';
                 }
-                field(Level; Level)
+                field(Level; Rec.Level)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -61,29 +61,29 @@ page 17311 "Tax Calc. Setup Card"
             part(CalcTemplSubform; "Tax Calc. Line Subform")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = CalcTemplSubformVisible;
             }
             part(EntrySubform; "Tax Calc. Select Setup Subf")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              "Register No." = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              "Register No." = field("No.");
                 Visible = EntrySubformVisible;
             }
             part(TemplateFASubf; "Tax Calc. Subform")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = TemplateFASubfVisible;
             }
             part(EntrTemplSubform; "Tax Calc. Line Select Subf")
             {
                 ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              Code = field("No.");
                 Visible = EntrTemplSubformVisible;
             }
             group(Objects)
@@ -136,8 +136,8 @@ page 17311 "Tax Calc. Setup Card"
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = false;
                     RunObject = Page "Tax Calc. Accumulation";
-                    RunPageLink = "Section Code" = FIELD("Section Code"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Section Code" = field("Section Code"),
+                                  "No." = field("No.");
                     ToolTip = 'View the related details.';
                 }
             }
@@ -156,7 +156,7 @@ page 17311 "Tax Calc. Setup Card"
 
                     trigger OnAction()
                     begin
-                        TaxRegTermMgt.CheckTaxRegLink(false, "Section Code", DATABASE::"Tax Calc. Line");
+                        TaxRegTermMgt.CheckTaxRegLink(false, Rec."Section Code", DATABASE::"Tax Calc. Line");
                     end;
                 }
             }
@@ -169,14 +169,14 @@ page 17311 "Tax Calc. Setup Card"
     trigger OnAfterGetRecord()
     begin
         case true of
-            "Table ID" = DATABASE::"Tax Calc. FA Entry":
+            Rec."Table ID" = DATABASE::"Tax Calc. FA Entry":
                 begin
                     EntrySubformVisible := false;
                     EntrTemplSubformVisible := false;
                     CalcTemplSubformVisible := false;
                     TemplateFASubfVisible := true;
                 end;
-            "Storing Method" = "Storing Method"::"Build Entry":
+            Rec."Storing Method" = Rec."Storing Method"::"Build Entry":
                 begin
                     CalcTemplSubformVisible := false;
                     TemplateFASubfVisible := false;
@@ -184,11 +184,11 @@ page 17311 "Tax Calc. Setup Card"
                     EntrTemplSubformVisible := true;
                 end;
             else begin
-                    EntrySubformVisible := false;
-                    EntrTemplSubformVisible := false;
-                    TemplateFASubfVisible := false;
-                    CalcTemplSubformVisible := true;
-                end;
+                EntrySubformVisible := false;
+                EntrTemplSubformVisible := false;
+                TemplateFASubfVisible := false;
+                CalcTemplSubformVisible := true;
+            end;
         end;
     end;
 
@@ -202,13 +202,9 @@ page 17311 "Tax Calc. Setup Card"
 
     var
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
-        [InDataSet]
         EntrySubformVisible: Boolean;
-        [InDataSet]
         EntrTemplSubformVisible: Boolean;
-        [InDataSet]
         CalcTemplSubformVisible: Boolean;
-        [InDataSet]
         TemplateFASubfVisible: Boolean;
 }
 

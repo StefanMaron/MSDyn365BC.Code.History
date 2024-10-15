@@ -13,7 +13,7 @@ page 26551 "Statutory Report Groups"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statutory report group code.';

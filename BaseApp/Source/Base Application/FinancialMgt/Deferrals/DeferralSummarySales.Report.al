@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Utilities;
+
 report 1701 "Deferral Summary - Sales"
 {
     DefaultLayout = RDLC;
@@ -10,7 +17,7 @@ report 1701 "Deferral Summary - Sales"
     {
         dataitem("Posted Deferral Header"; "Posted Deferral Header")
         {
-            DataItemTableView = SORTING("Deferral Doc. Type", CustVendorNo, "Posting Date", "Gen. Jnl. Document No.", "Account No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) WHERE("Deferral Doc. Type" = CONST(Sales), CustVendorNo = FILTER(<> ''));
+            DataItemTableView = sorting("Deferral Doc. Type", CustVendorNo, "Posting Date", "Gen. Jnl. Document No.", "Account No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) where("Deferral Doc. Type" = const(Sales), CustVendorNo = filter(<> ''));
             RequestFilterFields = CustVendorNo, "Document No.";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {

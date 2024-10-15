@@ -7,7 +7,7 @@ report 12424 "Copy Payment Document"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
             MaxIteration = 1;
 
             trigger OnAfterGetRecord()

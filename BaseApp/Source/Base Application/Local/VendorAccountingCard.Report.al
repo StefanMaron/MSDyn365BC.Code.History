@@ -8,7 +8,7 @@ report 12445 "Vendor Accounting Card"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Vendor Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Agreement Filter", "Date Filter";
             column(RequestFilter; RequestFilter)
@@ -49,7 +49,7 @@ report 12445 "Vendor Accounting Card"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(Vendor_Name; Vendor.Name)
                 {
@@ -104,9 +104,9 @@ report 12445 "Vendor Accounting Card"
                 }
                 dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
                 {
-                    DataItemLink = "Vendor No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Agreement No." = FIELD("Agreement Filter"), "Posting Date" = FIELD("Date Filter");
+                    DataItemLink = "Vendor No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Agreement No." = field("Agreement Filter"), "Posting Date" = field("Date Filter");
                     DataItemLinkReference = Vendor;
-                    DataItemTableView = SORTING("Vendor No.", "Posting Date", "Currency Code");
+                    DataItemTableView = sorting("Vendor No.", "Posting Date", "Currency Code");
                     column(Posting_DateCaption; Posting_DateCaptionLbl)
                     {
                     }
@@ -154,8 +154,8 @@ report 12445 "Vendor Accounting Card"
                     }
                     dataitem("Detailed Vendor Ledg. Entry"; "Detailed Vendor Ledg. Entry")
                     {
-                        DataItemLink = "Vendor Ledger Entry No." = FIELD("Entry No.");
-                        DataItemTableView = SORTING("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
+                        DataItemLink = "Vendor Ledger Entry No." = field("Entry No.");
+                        DataItemTableView = sorting("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                         column(Detailed_Vendor_Ledg__Entry__Posting_Date_; "Posting Date")
                         {
                         }

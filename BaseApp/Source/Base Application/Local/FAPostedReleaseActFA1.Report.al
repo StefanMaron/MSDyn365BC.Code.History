@@ -7,18 +7,18 @@ report 12492 "FA Posted Release Act FA-1"
     {
         dataitem("Posted FA Doc. Header"; "Posted FA Doc. Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Release));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Release));
             RequestFilterFields = "No.";
             dataitem("Posted FA Doc. Line"; "Posted FA Doc. Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                 RequestFilterFields = "Line No.";
                 dataitem("FA Depreciation Book"; "FA Depreciation Book")
                 {
                     CalcFields = "Initial Acquisition Cost", Depreciation, "Acquisition Cost";
-                    DataItemLink = "FA No." = FIELD("FA No."), "Depreciation Book Code" = FIELD("New Depreciation Book Code");
-                    DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                    DataItemLink = "FA No." = field("FA No."), "Depreciation Book Code" = field("New Depreciation Book Code");
+                    DataItemTableView = sorting("FA No.", "Depreciation Book Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -47,8 +47,8 @@ report 12492 "FA Posted Release Act FA-1"
                 }
                 dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
                 {
-                    DataItemLink = "No." = FIELD("FA No.");
-                    DataItemTableView = SORTING("Item Type");
+                    DataItemLink = "No." = field("FA No.");
+                    DataItemTableView = sorting("Item Type");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -63,7 +63,7 @@ report 12492 "FA Posted Release Act FA-1"
                 }
                 dataitem("Integer"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     MaxIteration = 1;
 
                     trigger OnPreDataItem()

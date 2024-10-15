@@ -18,7 +18,7 @@ page 14918 "Payment Order Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                 }

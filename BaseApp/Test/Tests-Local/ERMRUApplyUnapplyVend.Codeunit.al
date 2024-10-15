@@ -117,6 +117,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
@@ -125,7 +126,9 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
             SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
             SetRange("Document No.", VendorLedgerEntry."Document No.");
             FindFirst();
-            VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, "Document No.", PostingDateFrom);
+            ApplyUnapplyParameters."Document No." := "Document No.";
+            ApplyUnapplyParameters."Posting Date" := PostingDateFrom;
+            VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, ApplyUnapplyParameters);
             exit(-Amount);
         end;
     end;
@@ -161,7 +164,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         end
     end;
 
-    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
+    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         with DetailedVendLedgEntry do begin
             SetRange("Entry Type", EntryType);

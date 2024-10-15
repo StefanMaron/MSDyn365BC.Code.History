@@ -1,11 +1,11 @@
 page 17326 "Tax Calc. Item Entries"
 {
     Caption = 'Tax Calc. Item Entries';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     Editable = false;
     PageType = Worksheet;
     SourceTable = "Tax Calc. Item Entry";
-    SourceTableView = SORTING("Section Code", "Posting Date");
+    SourceTableView = sorting("Section Code", "Posting Date");
 
     layout
     {
@@ -25,7 +25,7 @@ page 17326 "Tax Calc. Item Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax calculation item entry.';
                 }
-                field("UOMName()"; UOMName())
+                field("UOMName()"; Rec.UOMName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'UOM Name';
@@ -146,7 +146,7 @@ page 17326 "Tax Calc. Item Entries"
 
                 trigger OnAction()
                 begin
-                    Navigating();
+                    Rec.Navigating();
                 end;
             }
         }
@@ -171,21 +171,21 @@ page 17326 "Tax Calc. Item Entries"
 
     trigger OnAfterGetRecord()
     begin
-        OutstandQuantityOnFormat(Format("Outstand. Quantity"));
+        OutstandQuantityOnFormat(Format(Rec."Outstand. Quantity"));
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if DateFilterText <> GetFilter("Date Filter") then
+        if DateFilterText <> Rec.GetFilter("Date Filter") then
             ShowNewData();
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        CopyFilter("Date Filter", Calendar."Period End");
-        CopyFilter("Date Filter", "Posting Date");
+        Rec.CopyFilter("Date Filter", Calendar."Period End");
+        Rec.CopyFilter("Date Filter", Rec."Posting Date");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
         Calendar.Reset();
     end;
@@ -201,25 +201,25 @@ page 17326 "Tax Calc. Item Entries"
     procedure ShowNewData()
     begin
         FindPeriod('');
-        DateFilterText := GetFilter("Date Filter");
+        DateFilterText := Rec.GetFilter("Date Filter");
 
-        SetFilter("Posting Date", DateFilterText);
-        SetFilter("Date Filter", DateFilterText);
+        Rec.SetFilter("Posting Date", DateFilterText);
+        Rec.SetFilter("Date Filter", DateFilterText);
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar."Period End" := GetRangeMax("Date Filter");
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar."Period End" := Rec.GetRangeMax("Date Filter");
             if not TaxRegMgt.FindDate('', Calendar, PeriodType, AmountType) then
                 TaxRegMgt.FindDate('', Calendar, PeriodType::Month, AmountType);
         end;
         TaxRegMgt.FindDate(SearchText, Calendar, PeriodType, AmountType);
 
-        SetFilter("Posting Date", '%1..%2', Calendar."Period Start", Calendar."Period End");
-        SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
+        Rec.SetFilter("Posting Date", '%1..%2', Calendar."Period Start", Calendar."Period End");
+        Rec.SetFilter("Date Filter", '%1..%2', Calendar."Period Start", Calendar."Period End");
     end;
 
     local procedure MonthPeriodTypeOnPush()
@@ -249,7 +249,7 @@ page 17326 "Tax Calc. Item Entries"
 
     local procedure OutstandQuantityOnFormat(Text: Text[1024])
     begin
-        if "Appl. Entry No." = 0 then
+        if Rec."Appl. Entry No." = 0 then
             Text := '0';
     end;
 

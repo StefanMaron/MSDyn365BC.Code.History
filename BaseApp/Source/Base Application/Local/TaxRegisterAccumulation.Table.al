@@ -58,7 +58,7 @@ table 17208 "Tax Register Accumulation"
         field(38; "Tax Register No."; Code[10])
         {
             Caption = 'Tax Register No.';
-            TableRelation = "Tax Register"."No." WHERE("Section Code" = FIELD("Section Code"));
+            TableRelation = "Tax Register"."No." where("Section Code" = field("Section Code"));
         }
         field(39; Indentation; Integer)
         {
@@ -75,10 +75,10 @@ table 17208 "Tax Register Accumulation"
         }
         field(51; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                  "Tax Register No." = FIELD("Tax Register No."),
-                                                                  Define = CONST(Template),
-                                                                  "Line No." = FIELD("Template Line No.")));
+            CalcFormula = Exist ("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                  "Tax Register No." = field("Tax Register No."),
+                                                                  Define = const(Template),
+                                                                  "Line No." = field("Template Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;

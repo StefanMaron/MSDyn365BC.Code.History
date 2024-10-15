@@ -44,22 +44,22 @@ table 17213 "Tax Register FE Entry"
         }
         field(61; "Acquisition Cost"; Decimal)
         {
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FE No."),
-                                                              "Depreciation Book Code" = FIELD("Depreciation Book Code"),
-                                                              "FA Posting Category" = CONST(" "),
-                                                              "FA Posting Type" = CONST("Acquisition Cost"),
-                                                              "FA Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = Sum ("FA Ledger Entry".Amount where("FA No." = field("FE No."),
+                                                              "Depreciation Book Code" = field("Depreciation Book Code"),
+                                                              "FA Posting Category" = const(" "),
+                                                              "FA Posting Type" = const("Acquisition Cost"),
+                                                              "FA Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Acquisition Cost';
             Editable = false;
             FieldClass = FlowField;
         }
         field(62; "Valuation Changes"; Decimal)
         {
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FE No."),
-                                                              "Depreciation Book Code" = FIELD("Depreciation Book Code"),
-                                                              "FA Posting Category" = CONST(" "),
-                                                              "FA Posting Type" = FILTER("Write-Down" | Appreciation),
-                                                              "FA Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = Sum ("FA Ledger Entry".Amount where("FA No." = field("FE No."),
+                                                              "Depreciation Book Code" = field("Depreciation Book Code"),
+                                                              "FA Posting Category" = const(" "),
+                                                              "FA Posting Type" = filter("Write-Down" | Appreciation),
+                                                              "FA Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Valuation Changes';
             Editable = false;
             FieldClass = FlowField;
@@ -67,8 +67,8 @@ table 17213 "Tax Register FE Entry"
         field(65; "No. of Depreciation Months"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Lookup ("FA Depreciation Book"."No. of Depreciation Months" WHERE("FA No." = FIELD("FE No."),
-                                                                                            "Depreciation Book Code" = FIELD("Depreciation Book Code")));
+            CalcFormula = Lookup ("FA Depreciation Book"."No. of Depreciation Months" where("FA No." = field("FE No."),
+                                                                                            "Depreciation Book Code" = field("Depreciation Book Code")));
             Caption = 'No. of Depreciation Months';
             DecimalPlaces = 2 : 8;
             Editable = false;
@@ -76,55 +76,55 @@ table 17213 "Tax Register FE Entry"
         }
         field(66; "Acquisition Date"; Date)
         {
-            CalcFormula = Lookup ("FA Depreciation Book"."Acquisition Date" WHERE("FA No." = FIELD("FE No."),
-                                                                                  "Depreciation Book Code" = FIELD("Depreciation Book Code")));
+            CalcFormula = Lookup ("FA Depreciation Book"."Acquisition Date" where("FA No." = field("FE No."),
+                                                                                  "Depreciation Book Code" = field("Depreciation Book Code")));
             Caption = 'Acquisition Date';
             Editable = false;
             FieldClass = FlowField;
         }
         field(71; "Depreciation Starting Date"; Date)
         {
-            CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Starting Date" WHERE("FA No." = FIELD("FE No."),
-                                                                                            "Depreciation Book Code" = FIELD("Depreciation Book Code")));
+            CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Starting Date" where("FA No." = field("FE No."),
+                                                                                            "Depreciation Book Code" = field("Depreciation Book Code")));
             Caption = 'Depreciation Starting Date';
             Editable = false;
             FieldClass = FlowField;
         }
         field(72; "Depreciation Amount"; Decimal)
         {
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FE No."),
-                                                              "Depreciation Book Code" = FIELD("Depreciation Book Code"),
-                                                              "FA Posting Category" = CONST(" "),
-                                                              "FA Posting Type" = CONST(Depreciation),
-                                                              "FA Posting Date" = FIELD("Date Filter")));
+            CalcFormula = Sum ("FA Ledger Entry".Amount where("FA No." = field("FE No."),
+                                                              "Depreciation Book Code" = field("Depreciation Book Code"),
+                                                              "FA Posting Category" = const(" "),
+                                                              "FA Posting Type" = const(Depreciation),
+                                                              "FA Posting Date" = field("Date Filter")));
             Caption = 'Depreciation Amount';
             FieldClass = FlowField;
         }
         field(74; "Depreciation Ending Date"; Date)
         {
-            CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Ending Date" WHERE("FA No." = FIELD("FE No."),
-                                                                                          "Depreciation Book Code" = FIELD("Depreciation Book Code")));
+            CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Ending Date" where("FA No." = field("FE No."),
+                                                                                          "Depreciation Book Code" = field("Depreciation Book Code")));
             Caption = 'Depreciation Ending Date';
             Editable = false;
             FieldClass = FlowField;
         }
         field(84; "Book Value Amount"; Decimal)
         {
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FE No."),
-                                                              "Depreciation Book Code" = FIELD("Depreciation Book Code"),
-                                                              "Part of Book Value" = CONST(true),
-                                                              "FA Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = Sum ("FA Ledger Entry".Amount where("FA No." = field("FE No."),
+                                                              "Depreciation Book Code" = field("Depreciation Book Code"),
+                                                              "Part of Book Value" = const(true),
+                                                              "FA Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Book Value Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(89; "Total Depreciation Amount"; Decimal)
         {
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FE No."),
-                                                              "Depreciation Book Code" = FIELD("Depreciation Book Code"),
-                                                              "FA Posting Category" = CONST(" "),
-                                                              "FA Posting Type" = CONST(Depreciation),
-                                                              "FA Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = Sum ("FA Ledger Entry".Amount where("FA No." = field("FE No."),
+                                                              "Depreciation Book Code" = field("Depreciation Book Code"),
+                                                              "FA Posting Category" = const(" "),
+                                                              "FA Posting Type" = const(Depreciation),
+                                                              "FA Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Total Depreciation Amount';
             DecimalPlaces = 2 : 8;
             FieldClass = FlowField;
@@ -197,7 +197,7 @@ table 17213 "Tax Register FE Entry"
         FilterGroup(2);
         TaxRegName.SetRange("Section Code", "Section Code");
         TaxRegName.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
-        FilterGroup(0);
+        Rec.FilterGroup(0);
         if TaxRegName.Find('-') then
             if TaxRegName.Next(1) = 0 then
                 exit(TaxRegName.Description);

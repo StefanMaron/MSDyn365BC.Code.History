@@ -38,13 +38,13 @@ table 12459 "Direct Transfer Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(9; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(10; "Gen. Prod. Posting Group"; Code[20])
         {
@@ -70,7 +70,7 @@ table 12459 "Direct Transfer Line"
         field(15; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(16; "Gross Weight"; Decimal)
         {
@@ -90,7 +90,7 @@ table 12459 "Direct Transfer Line"
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(22; "Units per Parcel"; Decimal)
         {
@@ -105,8 +105,6 @@ table 12459 "Direct Transfer Line"
         {
             Caption = 'Transfer Order No.';
             TableRelation = "Transfer Header";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(25; "Posting Date"; Date)
@@ -117,13 +115,13 @@ table 12459 "Direct Transfer Line"
         {
             Caption = 'Transfer-from Code';
             Editable = false;
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(30; "Transfer-to Code"; Code[10])
         {
             Caption = 'Transfer-to Code';
             Editable = false;
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(31; "Item Shpt. Entry No."; Integer)
         {
@@ -153,16 +151,16 @@ table 12459 "Direct Transfer Line"
         field(7300; "Transfer-from Bin Code"; Code[20])
         {
             Caption = 'Transfer-from Bin Code';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Transfer-from Code"),
-                                            "Item Filter" = FIELD("Item No."),
-                                            "Variant Filter" = FIELD("Variant Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Transfer-from Code"),
+                                            "Item Filter" = field("Item No."),
+                                            "Variant Filter" = field("Variant Code"));
         }
         field(7301; "Transfer-To Bin Code"; Code[20])
         {
             Caption = 'Transfer-To Bin Code';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Transfer-to Code"),
-                                            "Item Filter" = FIELD("Item No."),
-                                            "Variant Filter" = FIELD("Variant Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Transfer-to Code"),
+                                            "Item Filter" = field("Item No."),
+                                            "Variant Filter" = field("Variant Code"));
         }
     }
 

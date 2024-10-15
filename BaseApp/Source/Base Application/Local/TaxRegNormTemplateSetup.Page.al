@@ -43,17 +43,17 @@ page 17281 "Tax Reg. Norm Template Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the link group code associated with the norm template line.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
@@ -63,7 +63,7 @@ page 17281 "Tax Reg. Norm Template Setup"
                     ToolTip = 'Specifies the interval that you want to use as the rounding difference.';
                     Visible = false;
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ToolTip = 'Specifies the period associated with the norm template line.';
                     Visible = false;
@@ -108,7 +108,7 @@ page 17281 "Tax Reg. Norm Template Setup"
 
                     trigger OnAction()
                     begin
-                        GeneralTermMgt.CheckTaxRegLink(false, "Norm Jurisdiction Code", DATABASE::"Tax Reg. Norm Template Line");
+                        GeneralTermMgt.CheckTaxRegLink(false, Rec."Norm Jurisdiction Code", DATABASE::"Tax Reg. Norm Template Line");
                     end;
                 }
             }
@@ -122,19 +122,15 @@ page 17281 "Tax Reg. Norm Template Setup"
         DescriptionIndent := 0;
         DescriptionOnFormat();
         ExpressionTypeOnFormat();
-        DimensionsFiltersOnFormat(Format("Dimensions Filters"));
+        DimensionsFiltersOnFormat(Format(Rec."Dimensions Filters"));
     end;
 
     var
         Text1001: Label 'Present';
         GeneralTermMgt: Codeunit "Tax Register Term Mgt.";
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
-        [InDataSet]
         ExpressionTypeHideValue: Boolean;
-        [InDataSet]
         DimensionsFiltersHideValue: Boolean;
 
     [Scope('OnPrem')]
@@ -143,14 +139,14 @@ page 17281 "Tax Reg. Norm Template Setup"
         NormDimFilter: Record "Tax Reg. Norm Dim. Filter";
         GLSetup: Record "General Ledger Setup";
     begin
-        if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::Term) then begin
+        if (Rec."Line No." <> 0) and (Rec."Expression Type" = Rec."Expression Type"::Term) then begin
             GLSetup.Get();
             if (GLSetup."Global Dimension 1 Code" <> '') or
                (GLSetup."Global Dimension 2 Code" <> '')
             then begin
                 NormDimFilter.FilterGroup(2);
-                NormDimFilter.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
-                NormDimFilter.SetRange("Norm Group Code", "Norm Group Code");
+                NormDimFilter.SetRange("Norm Jurisdiction Code", Rec."Norm Jurisdiction Code");
+                NormDimFilter.SetRange("Norm Group Code", Rec."Norm Group Code");
                 case true of
                     (GLSetup."Global Dimension 1 Code" <> '') and (GLSetup."Global Dimension 2 Code" <> ''):
                         NormDimFilter.SetFilter("Dimension Code", '%1|%2',
@@ -161,7 +157,7 @@ page 17281 "Tax Reg. Norm Template Setup"
                         NormDimFilter.SetRange("Dimension Code", GLSetup."Global Dimension 2 Code");
                 end;
                 NormDimFilter.FilterGroup(0);
-                NormDimFilter.SetRange("Line No.", "Line No.");
+                NormDimFilter.SetRange("Line No.", Rec."Line No.");
                 PAGE.RunModal(0, NormDimFilter);
             end else
                 GLSetup.TestField("Global Dimension 1 Code");
@@ -170,19 +166,19 @@ page 17281 "Tax Reg. Norm Template Setup"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 
     local procedure ExpressionTypeOnFormat()
     begin
-        if "Expression Type" = "Expression Type"::Norm then
+        if Rec."Expression Type" = Rec."Expression Type"::Norm then
             ExpressionTypeHideValue := true;
     end;
 
     local procedure DimensionsFiltersOnFormat(Text: Text[1024])
     begin
-        if "Dimensions Filters" then
+        if Rec."Dimensions Filters" then
             Text := Text1001
         else
             DimensionsFiltersHideValue := true;

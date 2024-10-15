@@ -1,3 +1,30 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Shipping;
+#if not CLEAN22
+using Microsoft.Inventory.Item;
+#endif
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+#if not CLEAN22
+using Microsoft.Inventory.Transfer;
+using Microsoft.Projects.Project.Job;
+#endif
+using Microsoft.Projects.Project.Ledger;
+#if not CLEAN22
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
+using Microsoft.Service.History;
+using System.Utilities;
+#endif
+
 table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
@@ -23,7 +50,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Journal Batch Name';
 #if not CLEAN22
-            TableRelation = "Intrastat Jnl. Batch".Name WHERE("Journal Template Name" = FIELD("Journal Template Name"));
+            TableRelation = "Intrastat Jnl. Batch".Name where("Journal Template Name" = field("Journal Template Name"));
 #endif
         }
         field(3; "Line No."; Integer)
@@ -91,9 +118,9 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Source Entry No.';
             Editable = false;
-            TableRelation = IF ("Source Type" = CONST("Item Entry")) "Item Ledger Entry"
-            ELSE
-            IF ("Source Type" = CONST("Job Entry")) "Job Ledger Entry";
+            TableRelation = if ("Source Type" = const("Item Entry")) "Item Ledger Entry"
+            else
+            if ("Source Type" = const("Job Entry")) "Job Ledger Entry";
         }
         field(13; "Net Weight"; Decimal)
         {
@@ -567,10 +594,10 @@ table 263 "Intrastat Jnl. Line"
     begin
         if not Customer.Get(CustomerNo) then
             exit(false);
-        if Customer."Intrastat Partner Type" <> "Partner Type"::" " then
-            exit(Customer."Intrastat Partner Type" = "Partner Type"::Person)
+        if Customer."Intrastat Partner Type" <> Customer."Intrastat Partner Type"::" " then
+            exit(Customer."Intrastat Partner Type" = Customer."Intrastat Partner Type"::Person)
         else
-            exit(Customer."Partner Type" = "Partner Type"::Person);
+            exit(Customer."Partner Type" = Customer."Partner Type"::Person);
     end;
 
     protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
@@ -579,10 +606,10 @@ table 263 "Intrastat Jnl. Line"
     begin
         if not Vendor.Get(VendorNo) then
             exit(false);
-        if Vendor."Intrastat Partner Type" <> "Partner Type"::" " then
-            exit(Vendor."Intrastat Partner Type" = "Partner Type"::Person)
+        if Vendor."Intrastat Partner Type" <> Vendor."Intrastat Partner Type"::" " then
+            exit(Vendor."Intrastat Partner Type" = Vendor."Intrastat Partner Type"::Person)
         else
-            exit(Vendor."Partner Type" = "Partner Type"::Person);
+            exit(Vendor."Partner Type" = Vendor."Partner Type"::Person);
     end;
 
     [IntegrationEvent(false, false)]

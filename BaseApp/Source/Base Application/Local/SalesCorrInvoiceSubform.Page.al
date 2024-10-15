@@ -7,7 +7,7 @@ page 14972 "Sales Corr. Invoice Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Sales Line";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice));
+    SourceTableView = where("Document Type" = filter(Invoice));
 
     layout
     {
@@ -37,7 +37,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                     end;
                 }
@@ -165,7 +165,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -176,7 +176,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments();
+                        Rec.ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -187,7 +187,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemChargeAssgnt();
+                        Rec.ShowItemChargeAssgnt();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -200,7 +200,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
                 action("FA Comments")
@@ -211,7 +211,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowFAComments();
+                        Rec.ShowFAComments();
                     end;
                 }
             }
@@ -220,14 +220,14 @@ page 14972 "Sales Corr. Invoice Subform"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
@@ -237,7 +237,7 @@ page 14972 "Sales Corr. Invoice Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType();
+        Rec.InitType();
         Clear(ShortcutDimCode);
     end;
 
@@ -278,7 +278,7 @@ page 14972 "Sales Corr. Invoice Subform"
     local procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
-        if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
+        if (Rec.Type = Rec.Type::"Charge (Item)") and (Rec."No." <> xRec."No.") and
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord();

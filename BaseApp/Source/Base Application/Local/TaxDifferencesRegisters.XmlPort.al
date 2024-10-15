@@ -45,7 +45,7 @@ xmlport 17300 "Tax Differences Registers"
                 }
                 tableelement("Tax Calc. Header"; "Tax Calc. Header")
                 {
-                    LinkFields = "Section Code" = FIELD(Code);
+                    LinkFields = "Section Code" = field(Code);
                     LinkTable = "Tax Calc. Section";
                     MinOccurs = Zero;
                     XmlName = 'TaxCalcHeader';
@@ -85,7 +85,7 @@ xmlport 17300 "Tax Differences Registers"
                     }
                     tableelement("Tax Calc. Selection Setup"; "Tax Calc. Selection Setup")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Register No." = field("No.");
                         LinkTable = "Tax Calc. Header";
                         MinOccurs = Zero;
                         XmlName = 'TaxCalcSelectionSetup';
@@ -114,7 +114,7 @@ xmlport 17300 "Tax Differences Registers"
                     }
                     tableelement("Tax Calc. Line"; "Tax Calc. Line")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), Code = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), Code = field("No.");
                         LinkTable = "Tax Calc. Header";
                         MinOccurs = Zero;
                         XmlName = 'TaxCalcLine';
@@ -191,7 +191,7 @@ xmlport 17300 "Tax Differences Registers"
                     }
                     tableelement("Tax Calc. Dim. Filter"; "Tax Calc. Dim. Filter")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Register No." = FIELD("No.");
+                        LinkFields = "Section Code" = field("Section Code"), "Register No." = field("No.");
                         LinkTable = "Tax Calc. Header";
                         MinOccurs = Zero;
                         XmlName = 'TaxCalcDimFilter';
@@ -224,7 +224,7 @@ xmlport 17300 "Tax Differences Registers"
                 }
                 tableelement("Tax Calc. Term"; "Tax Calc. Term")
                 {
-                    LinkFields = "Section Code" = FIELD(Code);
+                    LinkFields = "Section Code" = field(Code);
                     LinkTable = "Tax Calc. Section";
                     MinOccurs = Zero;
                     XmlName = 'TaxCalcTermName';
@@ -255,7 +255,7 @@ xmlport 17300 "Tax Differences Registers"
                     }
                     tableelement("Tax Calc. Term Formula"; "Tax Calc. Term Formula")
                     {
-                        LinkFields = "Section Code" = FIELD("Section Code"), "Term Code" = FIELD("Term Code");
+                        LinkFields = "Section Code" = field("Section Code"), "Term Code" = field("Term Code");
                         LinkTable = "Tax Calc. Term";
                         MinOccurs = Zero;
                         XmlName = 'TaxCalcTermLine';

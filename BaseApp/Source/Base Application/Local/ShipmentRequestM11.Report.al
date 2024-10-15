@@ -7,7 +7,7 @@ report 12471 "Shipment Request M-11"
     {
         dataitem("Transfer Header"; "Transfer Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
 
             trigger OnAfterGetRecord()
             begin
@@ -33,7 +33,7 @@ report 12471 "Shipment Request M-11"
         }
         dataitem("Item Journal Line"; "Item Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
 
             trigger OnAfterGetRecord()
             var
@@ -62,7 +62,7 @@ report 12471 "Shipment Request M-11"
         }
         dataitem("Transfer Receipt Header"; "Transfer Receipt Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
 
             trigger OnAfterGetRecord()
             begin
@@ -88,7 +88,7 @@ report 12471 "Shipment Request M-11"
         }
         dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
 
             trigger OnAfterGetRecord()
             begin
@@ -114,7 +114,7 @@ report 12471 "Shipment Request M-11"
         }
         dataitem(HeaderLoop; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
 
             trigger OnAfterGetRecord()
             begin
@@ -152,7 +152,7 @@ report 12471 "Shipment Request M-11"
         }
         dataitem(LineLoop; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
 
             trigger OnAfterGetRecord()
             begin

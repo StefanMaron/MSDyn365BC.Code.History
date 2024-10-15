@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using System.Security.User;
+
 page 6073 "Filed Service Contract List"
 {
     Caption = 'Filed Service Contract List';
@@ -35,7 +39,7 @@ page 6073 "Filed Service Contract List"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("Filed By");
+                        UserMgt.DisplayUserInformation(Rec."Filed By");
                     end;
                 }
                 field("Contract Type"; Rec."Contract Type")

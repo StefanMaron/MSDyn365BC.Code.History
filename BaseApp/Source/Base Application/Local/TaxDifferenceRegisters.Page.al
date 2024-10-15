@@ -49,7 +49,7 @@ page 17302 "Tax Difference Registers"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
             }
@@ -74,7 +74,7 @@ page 17302 "Tax Difference Registers"
                     trigger OnAction()
                     begin
                         TaxDiffEntry.Reset();
-                        TaxDiffEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
+                        TaxDiffEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
                         PAGE.Run(0, TaxDiffEntry);
                     end;
                 }

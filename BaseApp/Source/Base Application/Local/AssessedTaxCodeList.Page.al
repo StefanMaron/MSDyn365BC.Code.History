@@ -15,7 +15,7 @@ page 14922 "Assessed Tax Code List"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code number that represents an assessed fixed assets tax.';

@@ -9,8 +9,6 @@ table 12430 "Document Print Buffer"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(2; "Table ID"; Integer)

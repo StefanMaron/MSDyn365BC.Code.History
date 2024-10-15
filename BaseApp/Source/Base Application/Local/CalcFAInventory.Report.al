@@ -7,7 +7,7 @@ report 12423 "Calc. FA Inventory"
     {
         dataitem("Fixed Asset"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.") WHERE(Inactive = FILTER(false), Blocked = FILTER(false));
+            DataItemTableView = sorting("No.") where(Inactive = filter(false), Blocked = filter(false));
             RequestFilterFields = "FA Location Code", "Responsible Employee", "No.", "FA Type";
 
             trigger OnAfterGetRecord()

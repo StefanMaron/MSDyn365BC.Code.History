@@ -14,7 +14,7 @@ page 14933 "Bank Account Details"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unique identification code associated with this bank account detail record.';

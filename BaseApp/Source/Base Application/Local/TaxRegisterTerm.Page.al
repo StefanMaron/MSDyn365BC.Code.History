@@ -27,7 +27,7 @@ page 17207 "Tax Register Term"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -60,7 +60,7 @@ page 17207 "Tax Register Term"
                     trigger OnAction()
                     begin
                         TaxRegTermMgt.CheckTaxRegTerm(
-                          false, "Section Code",
+                          false, Rec."Section Code",
                           DATABASE::"Tax Register Term", DATABASE::"Tax Register Term Formula");
                     end;
                 }

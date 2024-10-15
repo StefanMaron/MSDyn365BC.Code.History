@@ -8,8 +8,8 @@ page 12472 "Posted FA Writeoff Act"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "Posted FA Doc. Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Writeoff));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Writeoff));
 
     layout
     {
@@ -85,8 +85,8 @@ page 12472 "Posted FA Writeoff Act"
             part(WriteoffLines; "Posted FA Writeoff Act Subf")
             {
                 ApplicationArea = FixedAssets;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No.");
             }
         }
         area(factboxes)
@@ -117,9 +117,9 @@ page 12472 "Posted FA Writeoff Act"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
-                    RunPageLink = "Document Type" = CONST(Writeoff),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Writeoff),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -129,7 +129,7 @@ page 12472 "Posted FA Writeoff Act"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -138,9 +138,9 @@ page 12472 "Posted FA Writeoff Act"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12471),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12471),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
             group("&Line")
@@ -202,7 +202,7 @@ page 12472 "Posted FA Writeoff Act"
                     var
                         VATReinstMgt: Codeunit "VAT Reinstatement Management";
                     begin
-                        VATReinstMgt.CreateVATReinstFromFAWriteOff("No.");
+                        VATReinstMgt.CreateVATReinstFromFAWriteOff(Rec."No.");
                     end;
                 }
             }
@@ -214,7 +214,7 @@ page 12472 "Posted FA Writeoff Act"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

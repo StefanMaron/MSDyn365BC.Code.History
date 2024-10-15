@@ -12,7 +12,7 @@ page 17334 "Tax Diff. Groups"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the deferral code associated with the tax differences group.';

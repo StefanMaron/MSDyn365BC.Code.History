@@ -18,8 +18,6 @@ table 17309 "Tax Calc. Selection Setup"
         {
             Caption = 'Account No.';
             TableRelation = "G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -33,8 +31,6 @@ table 17309 "Tax Calc. Selection Setup"
         {
             Caption = 'Bal. Account No.';
             TableRelation = "G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -71,20 +67,20 @@ table 17309 "Tax Calc. Selection Setup"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Calc. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                               "Register No." = FIELD("Register No."),
-                                                               Define = CONST("Entry Setup"),
-                                                               "Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                               "Register No." = field("Register No."),
+                                                               Define = const("Entry Setup"),
+                                                               "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Diff. Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                     "Tax Calc. No." = FIELD("Register No."),
-                                                                     "Line No." = FIELD("Line No."),
-                                                                     Define = CONST("Entry Setup")));
+            CalcFormula = exist("Tax Diff. Corr. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                     "Tax Calc. No." = field("Register No."),
+                                                                     "Line No." = field("Line No."),
+                                                                     Define = const("Entry Setup")));
             Caption = 'G/L Corr. Dimensions Filters';
             FieldClass = FlowField;
         }

@@ -99,8 +99,8 @@ page 14914 "Customer G/L Turnover Agr."
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Customer Agreement Card";
-                    RunPageLink = "Customer No." = FIELD("Customer No."),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Customer No." = field("Customer No."),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit details about the selected entity.';
                 }
@@ -146,9 +146,9 @@ page 14914 "Customer G/L Turnover Agr."
                     trigger OnAction()
                     begin
                         Cust.Reset();
-                        Cust.SetRange("No.", "Customer No.");
-                        CopyFilter("Date Filter", Cust."Date Filter");
-                        CopyFilter("G/L Starting Date Filter", Cust."G/L Starting Date Filter");
+                        Cust.SetRange("No.", Rec."Customer No.");
+                        Rec.CopyFilter("Date Filter", Cust."Date Filter");
+                        Rec.CopyFilter("G/L Starting Date Filter", Cust."G/L Starting Date Filter");
                         REPORT.RunModal(REPORT::"Customer Accounting Card", true, false, Cust);
                     end;
                 }
@@ -183,7 +183,7 @@ page 14914 "Customer G/L Turnover Agr."
 
     trigger OnOpenPage()
     begin
-        DateFilter := GetFilter("Date Filter");
+        DateFilter := Rec.GetFilter("Date Filter");
         if DateFilter = '' then begin
             if PeriodType = PeriodType::"Accounting Period" then
                 FindPeriodUser('')
@@ -203,17 +203,17 @@ page 14914 "Customer G/L Turnover Agr."
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-        SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-        if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-            SetRange("Date Filter", GetRangeMin("Date Filter"));
-        SetRange("G/L Starting Date Filter", GetRangeMin("Date Filter") - 1);
+        Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+        if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+            Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
+        Rec.SetRange("G/L Starting Date Filter", Rec.GetRangeMin("Date Filter") - 1);
     end;
 
     local procedure FindPeriodUser(SearchText: Code[10])
@@ -222,20 +222,20 @@ page 14914 "Customer G/L Turnover Agr."
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserPeriods.Get(UserId) then begin
-            SetRange("Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+            if Rec.GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end;
     end;
 }

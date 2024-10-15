@@ -73,14 +73,14 @@ page 12435 "Posted Sales Cr. Memo - Update"
 
     local procedure RecordChanged(): Boolean
     begin
-        exit("Consignor No." <> xSalesCrMemoHeader."Consignor No.");
+        exit(Rec."Consignor No." <> xSalesCrMemoHeader."Consignor No.");
     end;
 
     [Scope('OnPrem')]
     procedure SetRec(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         Rec := SalesCrMemoHeader;
-        Insert();
+        Rec.Insert();
     end;
 }
 

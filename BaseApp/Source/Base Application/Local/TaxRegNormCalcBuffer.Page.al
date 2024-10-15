@@ -22,7 +22,7 @@ page 17286 "Tax Reg. Norm Calc. Buffer"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -35,7 +35,7 @@ page 17286 "Tax Reg. Norm Calc. Buffer"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field(Description; Rec.Description)
@@ -52,7 +52,7 @@ page 17286 "Tax Reg. Norm Calc. Buffer"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Operation; Operation)
+                field(Operation; Rec.Operation)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -140,14 +140,14 @@ page 17286 "Tax Reg. Norm Calc. Buffer"
     var
         TaxRegNormDimFilter: Record "Tax Reg. Norm Dim. Filter";
     begin
-        CalcFields("Dimensions Filters");
-        if "Dimensions Filters" then begin
+        Rec.CalcFields("Dimensions Filters");
+        if Rec."Dimensions Filters" then begin
             TaxRegNormDimFilter.FilterGroup(2);
-            TaxRegNormDimFilter.SetRange("Norm Jurisdiction Code", "Section Code");
-            TaxRegNormDimFilter.SetRange("Norm Group Code", "Tax Register No.");
+            TaxRegNormDimFilter.SetRange("Norm Jurisdiction Code", Rec."Section Code");
+            TaxRegNormDimFilter.SetRange("Norm Group Code", Rec."Tax Register No.");
             TaxRegNormDimFilter.SetRange("Line No.", TaxRegNormDimFilter."Line No.");
             TaxRegNormDimFilter.FilterGroup(0);
-            TaxRegNormDimFilter.SetRange("Line No.", "Template Line No.");
+            TaxRegNormDimFilter.SetRange("Line No.", Rec."Template Line No.");
             if ACTION::None = PAGE.RunModal(0, TaxRegNormDimFilter) then;
         end;
     end;

@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Analysis;
+
 table 367 "Dimension Code Buffer"
 {
     Caption = 'Dimension Code Buffer';
@@ -49,11 +53,11 @@ table 367 "Dimension Code Buffer"
         field(9; Amount; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Analysis View Entry".Amount WHERE("Analysis View Code" = CONST(''),
-                                                                  "Dimension 1 Value Code" = FIELD("Dimension 1 Value Filter"),
-                                                                  "Dimension 2 Value Code" = FIELD("Dimension 2 Value Filter"),
-                                                                  "Dimension 3 Value Code" = FIELD("Dimension 3 Value Filter"),
-                                                                  "Dimension 4 Value Code" = FIELD("Dimension 4 Value Filter")));
+            CalcFormula = Sum("Analysis View Entry".Amount where("Analysis View Code" = const(''),
+                                                                  "Dimension 1 Value Code" = field("Dimension 1 Value Filter"),
+                                                                  "Dimension 2 Value Code" = field("Dimension 2 Value Filter"),
+                                                                  "Dimension 3 Value Code" = field("Dimension 3 Value Filter"),
+                                                                  "Dimension 4 Value Code" = field("Dimension 4 Value Filter")));
             Caption = 'Amount';
             FieldClass = FlowField;
         }
@@ -79,11 +83,11 @@ table 367 "Dimension Code Buffer"
         }
         field(7101; Quantity; Decimal)
         {
-            CalcFormula = Sum ("Analysis View Entry".Amount WHERE("Analysis View Code" = CONST(''),
-                                                                  "Dimension 1 Value Code" = FIELD("Dimension 1 Value Filter"),
-                                                                  "Dimension 2 Value Code" = FIELD("Dimension 2 Value Filter"),
-                                                                  "Dimension 3 Value Code" = FIELD("Dimension 3 Value Filter"),
-                                                                  "Dimension 4 Value Code" = FIELD("Dimension 4 Value Filter")));
+            CalcFormula = Sum("Analysis View Entry".Amount where("Analysis View Code" = const(''),
+                                                                  "Dimension 1 Value Code" = field("Dimension 1 Value Filter"),
+                                                                  "Dimension 2 Value Code" = field("Dimension 2 Value Filter"),
+                                                                  "Dimension 3 Value Code" = field("Dimension 3 Value Filter"),
+                                                                  "Dimension 4 Value Code" = field("Dimension 4 Value Filter")));
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             FieldClass = FlowField;

@@ -26,9 +26,9 @@ codeunit 12471 "FA Document-Post"
                 PostedFADocHeader."No." := FADocHeader."No."
             else
                 PostedFADocHeader."No." :=
-                  NoSeriesMgt.GetNextNo(FADocHeader."Posting No. Series", "Posting Date", true);
+                  NoSeriesMgt.GetNextNo(FADocHeader."Posting No. Series", Rec."Posting Date", true);
 
-        DocSignMgt.CheckDocSignatures(DATABASE::"FA Document Header", "Document Type", "No.");
+        DocSignMgt.CheckDocSignatures(DATABASE::"FA Document Header", Rec."Document Type", Rec."No.");
 
         DocSignMgt.MoveDocSignToPostedDocSign(
           DocSign, DATABASE::"FA Document Header",
@@ -53,17 +53,17 @@ codeunit 12471 "FA Document-Post"
                      FADocLine."Depreciation Book Code",
                      FADocLine."Posting Date")
                 then
-                    Error(Text001, "Document Type");
+                    Error(Text001, Rec."Document Type");
 
                 FADocLine.TestField("Depreciation Book Code");
                 FA.Get(FADocLine."FA No.");
 
-                case "Document Type" of
-                    "Document Type"::Writeoff:
+                case Rec."Document Type" of
+                    Rec."Document Type"::Writeoff:
                         PostFAWriteOff();
-                    "Document Type"::Release,
-                  "Document Type"::Movement:
-                        PostFAReleaseMovement("Document Type");
+                    Rec."Document Type"::Release,
+                  Rec."Document Type"::Movement:
+                        PostFAReleaseMovement(Rec."Document Type");
                 end;
 
                 InsertFADocLine(FADocLine, PostedFADocHeader."No.");

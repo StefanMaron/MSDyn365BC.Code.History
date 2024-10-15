@@ -9,8 +9,6 @@ table 14929 "Journal Posting Preview Setup"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(2; "Journal Template Name"; Code[10])

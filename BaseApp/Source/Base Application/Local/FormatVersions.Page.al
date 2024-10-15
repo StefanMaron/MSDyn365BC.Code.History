@@ -14,7 +14,7 @@ page 26586 "Format Versions"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format version code for the statutory reports.';
@@ -89,7 +89,7 @@ page 26586 "Format Versions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the version format order number and approval date associated with the statutory reports.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the version format comment associated with the statutory reports.';
@@ -128,9 +128,9 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        if HasLinkedReports() then
-                            Error(Text006, FieldCaption("Report Template"));
-                        ImportExcelTemplate('');
+                        if Rec.HasLinkedReports() then
+                            Error(Text006, Rec.FieldCaption("Report Template"));
+                        Rec.ImportExcelTemplate('');
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -143,7 +143,7 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        ExportExcelTemplate("Excel File Name");
+                        Rec.ExportExcelTemplate(Rec."Excel File Name");
                     end;
                 }
                 action("&Delete")
@@ -154,8 +154,8 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        Clear("Report Template");
-                        "Excel File Name" := '';
+                        Clear(Rec."Report Template");
+                        Rec."Excel File Name" := '';
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -172,9 +172,9 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        if HasLinkedReports() then
-                            Error(Text006, FieldCaption("XML Schema"));
-                        ImportXMLSchema('');
+                        if Rec.HasLinkedReports() then
+                            Error(Text006, Rec.FieldCaption("XML Schema"));
+                        Rec.ImportXMLSchema('');
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -187,7 +187,7 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        ExportXMLSchema("XML Schema File Name");
+                        Rec.ExportXMLSchema(Rec."XML Schema File Name");
                     end;
                 }
                 action(Action1210066)
@@ -198,8 +198,8 @@ page 26586 "Format Versions"
 
                     trigger OnAction()
                     begin
-                        Clear("XML Schema");
-                        "XML Schema File Name" := '';
+                        Clear(Rec."XML Schema");
+                        Rec."XML Schema File Name" := '';
                         CurrPage.SaveRecord();
                     end;
                 }

@@ -6,9 +6,9 @@ page 35610 "Purchase Advance Reports"
     Editable = false;
     PageType = List;
     SourceTable = "Purchase Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = FILTER(Invoice),
-                            "Empl. Purchase" = CONST(true));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = filter(Invoice),
+                            "Empl. Purchase" = const(true));
     UsageCategory = Lists;
 
     layout
@@ -223,7 +223,7 @@ page 35610 "Purchase Advance Reports"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader();
+                        Rec.CalcInvDiscForHeader();
                         Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
@@ -233,9 +233,9 @@ page 35610 "Purchase Advance Reports"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
-                    RunPageLink = "Document Type" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = field("Document Type"),
+                                  "No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -245,7 +245,7 @@ page 35610 "Purchase Advance Reports"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action(Approvals)
@@ -443,7 +443,7 @@ page 35610 "Purchase Advance Reports"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
     end;
 }
 

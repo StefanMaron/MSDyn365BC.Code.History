@@ -145,7 +145,7 @@ table 17239 "Tax Reg. Norm Template Line"
         field(10; "Link Group Code"; Code[10])
         {
             Caption = 'Link Group Code';
-            TableRelation = IF ("Expression Type" = CONST(Link)) "Tax Register Norm Group".Code;
+            TableRelation = if ("Expression Type" = const(Link)) "Tax Register Norm Group".Code;
 
             trigger OnValidate()
             begin
@@ -163,9 +163,9 @@ table 17239 "Tax Reg. Norm Template Line"
         }
         field(12; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"),
-                                                                   "Norm Group Code" = FIELD("Norm Group Code"),
-                                                                   "Line No." = FIELD("Line No.")));
+            CalcFormula = Exist ("Tax Reg. Norm Dim. Filter" where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"),
+                                                                   "Norm Group Code" = field("Norm Group Code"),
+                                                                   "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;

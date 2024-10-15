@@ -38,8 +38,8 @@ table 26557 "Stat. Report Requisites Group"
         field(11; "Excel Sheet Name"; Text[30])
         {
             Caption = 'Excel Sheet Name';
-            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" WHERE("Report Code" = FIELD("Report Code"),
-                                                                           "Report Data No." = CONST(''));
+            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" where("Report Code" = field("Report Code"),
+                                                                           "Report Data No." = const(''));
         }
         field(12; "Group End"; Boolean)
         {

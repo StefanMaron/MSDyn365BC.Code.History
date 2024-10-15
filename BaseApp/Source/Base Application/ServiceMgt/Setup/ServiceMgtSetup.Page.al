@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Setup;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Calendar;
+
 page 5919 "Service Mgt. Setup"
 {
     ApplicationArea = Service;
@@ -97,10 +102,12 @@ page 5919 "Service Mgt. Setup"
                     ToolTip = 'Specifies a customizable calendar for service planning that holds the service department''s working days and holidays. Choose the field to select another base calendars or to set up a customized calendar for your service department.';
 
                     trigger OnDrillDown()
+                    var
+                        CalendarManagement: Codeunit "Calendar Management";
                     begin
                         CurrPage.SaveRecord();
-                        TestField("Base Calendar Code");
-                        CalendarMgmt.ShowCustomizedCalendar(Rec);
+                        Rec.TestField("Base Calendar Code");
+                        CalendarManagement.ShowCustomizedCalendar(Rec);
                     end;
                 }
                 field("Copy Comments Order to Invoice"; Rec."Copy Comments Order to Invoice")
@@ -140,28 +147,13 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
-                    Visible = MultiplePostingGroupsVisible;
                 }
                 field("Check Multiple Posting Groups"; Rec."Check Multiple Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies implementation method of checking which posting groups can be used for the customer.';
-                    Visible = MultiplePostingGroupsVisible;
                 }
-#if not CLEAN20
-                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
-                {
-                    ApplicationArea = Advanced;
-                    Editable = false;
-                    Importance = Additional;
-                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
-                }
-#endif
             }
             group("Mandatory Fields")
             {
@@ -408,22 +400,18 @@ page 5919 "Service Mgt. Setup"
     trigger OnOpenPage()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
         GeneralLedgerSetup.Get();
         JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
-        MultiplePostingGroupsVisible := FeatureKeyManagement.IsAllowMultipleCustVendPostingGroupsEnabled();
     end;
 
     var
-        CalendarMgmt: Codeunit "Calendar Management";
         JnlTemplateNameVisible: Boolean;
-        MultiplePostingGroupsVisible: Boolean;
 }
 

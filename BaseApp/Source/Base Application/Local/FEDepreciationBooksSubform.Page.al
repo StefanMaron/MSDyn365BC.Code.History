@@ -69,7 +69,7 @@ page 17332 "FE Depreciation Books Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total percentage of acquisition cost that can be allocated when acquisition cost is posted.';
                 }
-                field(Depreciation; Depreciation)
+                field(Depreciation; Rec.Depreciation)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -82,12 +82,12 @@ page 17332 "FE Depreciation Books Subform"
                     var
                         FALedgEntry: Record "FA Ledger Entry";
                     begin
-                        if "Disposal Date" > 0D then
-                            ShowBookValueAfterDisposal()
+                        if Rec."Disposal Date" > 0D then
+                            Rec.ShowBookValueAfterDisposal()
                         else begin
                             FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
-                            FALedgEntry.SetRange("FA No.", "FA No.");
-                            FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
+                            FALedgEntry.SetRange("FA No.", Rec."FA No.");
+                            FALedgEntry.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
                             FALedgEntry.SetRange("Part of Book Value", true);
                             PAGE.Run(0, FALedgEntry);
                         end;
@@ -170,7 +170,7 @@ page 17332 "FE Depreciation Books Subform"
 
     trigger OnAfterGetRecord()
     begin
-        Disposed := ("Disposal Date" > 0D) and ("Book Value" = 0);
+        Disposed := (Rec."Disposal Date" > 0D) and (Rec."Book Value" = 0);
     end;
 
     var
@@ -182,7 +182,7 @@ page 17332 "FE Depreciation Books Subform"
     [Scope('OnPrem')]
     procedure ShowFALedgEntries()
     begin
-        DepreciationCalc.SetFAFilter(FALedgEntry, "FA No.", "Depreciation Book Code", false);
+        DepreciationCalc.SetFAFilter(FALedgEntry, Rec."FA No.", Rec."Depreciation Book Code", false);
         PAGE.Run(PAGE::"FA Ledger Entries", FALedgEntry);
     end;
 
@@ -191,16 +191,16 @@ page 17332 "FE Depreciation Books Subform"
     begin
         FALedgEntry.Reset();
         FALedgEntry.SetCurrentKey("Canceled from FA No.");
-        FALedgEntry.SetRange("Canceled from FA No.", "FA No.");
-        FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
+        FALedgEntry.SetRange("Canceled from FA No.", Rec."FA No.");
+        FALedgEntry.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
         PAGE.Run(PAGE::"FA Error Ledger Entries", FALedgEntry);
     end;
 
     [Scope('OnPrem')]
     procedure ShowStatistics()
     begin
-        FADeprBook.SetRange("FA No.", "FA No.");
-        FADeprBook.SetRange("Depreciation Book Code", "Depreciation Book Code");
+        FADeprBook.SetRange("FA No.", Rec."FA No.");
+        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
         PAGE.Run(PAGE::"Fixed Asset Statistics", FADeprBook);
     end;
 }

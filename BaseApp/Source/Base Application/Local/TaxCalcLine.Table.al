@@ -126,7 +126,7 @@ table 17310 "Tax Calc. Line"
         field(9; "Link Register No."; Code[10])
         {
             Caption = 'Link Register No.';
-            TableRelation = IF ("Expression Type" = CONST(Link)) "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Section Code"));
+            TableRelation = if ("Expression Type" = const(Link)) "Tax Calc. Header"."No." where("Section Code" = field("Section Code"));
 
             trigger OnValidate()
             begin
@@ -169,10 +169,10 @@ table 17310 "Tax Calc. Line"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Calc. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                               "Register No." = FIELD(Code),
-                                                               Define = CONST(Template),
-                                                               "Line No." = FIELD("Line No.")));
+            CalcFormula = Exist ("Tax Calc. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                               "Register No." = field(Code),
+                                                               Define = const(Template),
+                                                               "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;
@@ -199,7 +199,7 @@ table 17310 "Tax Calc. Line"
                 if "Line Type" = "Line Type"::CalcField then
                     "Expression Type" := "Expression Type"::Link
                 else
-                    "Expression Type" := "Expression Type"::SumField;
+                    Rec."Expression Type" := Rec."Expression Type"::SumField;
                 Expression := '';
                 Value := 0;
                 "Link Register No." := '';
@@ -290,10 +290,10 @@ table 17310 "Tax Calc. Line"
         }
         field(20; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Diff. Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                     "Tax Calc. No." = FIELD(Code),
-                                                                     "Line No." = FIELD("Line No."),
-                                                                     Define = CONST(Template)));
+            CalcFormula = Exist ("Tax Diff. Corr. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                     "Tax Calc. No." = field(Code),
+                                                                     "Line No." = field("Line No."),
+                                                                     Define = const(Template)));
             Caption = 'G/L Corr. Dimensions Filters';
             FieldClass = FlowField;
         }
@@ -358,7 +358,7 @@ table 17310 "Tax Calc. Line"
         field(43; "Depreciation Group"; Code[10])
         {
             Caption = 'Depreciation Group';
-            TableRelation = IF ("Expression Type" = CONST(SumField)) "Depreciation Group".Code;
+            TableRelation = if ("Expression Type" = const(SumField)) "Depreciation Group".Code;
 
             trigger OnValidate()
             begin

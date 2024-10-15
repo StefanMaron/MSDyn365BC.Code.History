@@ -9,16 +9,16 @@ report 14911 "Vendor - Reconciliation Act"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Agreement Filter";
             dataitem(OldVendInvoices; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = field("No."), "Agreement No." = field("Agreement Filter");
+                DataItemTableView = sorting("Document Type", "Vendor No.", "Posting Date", "Currency Code");
                 dataitem(OldAppldVendPays2; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -49,8 +49,8 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(OldAppldVendPays; "Detailed Vendor Ledg. Entry")
                 {
-                    DataItemLink = "Vendor Ledger Entry No." = FIELD("Entry No.");
-                    DataItemTableView = SORTING("Vendor Ledger Entry No.", "Entry Type", "Posting Date") WHERE("Entry Type" = FILTER("Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
+                    DataItemLink = "Vendor Ledger Entry No." = field("Entry No.");
+                    DataItemTableView = sorting("Vendor Ledger Entry No.", "Entry Type", "Posting Date") where("Entry Type" = filter("Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -83,7 +83,7 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(OldVendInvTotal; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -139,11 +139,11 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(VendInvoices; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = field("No."), "Agreement No." = field("Agreement Filter");
+                DataItemTableView = sorting("Document Type", "Vendor No.", "Posting Date", "Currency Code");
                 dataitem(AppldVendPays2; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -174,8 +174,8 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(AppldVendPays; "Detailed Vendor Ledg. Entry")
                 {
-                    DataItemLink = "Vendor Ledger Entry No." = FIELD("Entry No.");
-                    DataItemTableView = SORTING("Vendor Ledger Entry No.", "Entry Type", "Posting Date") WHERE("Entry Type" = FILTER("Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
+                    DataItemLink = "Vendor Ledger Entry No." = field("Entry No.");
+                    DataItemTableView = sorting("Vendor Ledger Entry No.", "Entry Type", "Posting Date") where("Entry Type" = filter("Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -208,7 +208,7 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(VendInvTotal; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -276,11 +276,11 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(VendPayments; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = field("No."), "Agreement No." = field("Agreement Filter");
+                DataItemTableView = sorting("Document Type", "Vendor No.", "Posting Date", "Currency Code");
                 dataitem(VendOtherCurrAppln; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -345,11 +345,11 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(OldVendPayments; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                DataItemTableView = SORTING("Document Type", "Vendor No.", "Posting Date", "Currency Code");
+                DataItemLink = "Vendor No." = field("No."), "Agreement No." = field("Agreement Filter");
+                DataItemTableView = sorting("Document Type", "Vendor No.", "Posting Date", "Currency Code");
                 dataitem(OldVendOtherCurrAppln; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -414,7 +414,7 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(VendTotal; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -432,18 +432,18 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(Customer; Customer)
             {
-                DataItemLink = "Vendor No." = FIELD("No.");
-                DataItemTableView = SORTING("No.");
+                DataItemLink = "Vendor No." = field("No.");
+                DataItemTableView = sorting("No.");
                 PrintOnlyIfDetail = true;
                 RequestFilterFields = "Agreement Filter";
                 dataitem(OldCustInvoices; "Cust. Ledger Entry")
                 {
-                    DataItemLink = "Customer No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                    DataItemTableView = SORTING("Document Type", "Customer No.", "Posting Date", "Currency Code") WHERE("Document Type" = FILTER(" " | Invoice | "Credit Memo"));
+                    DataItemLink = "Customer No." = field("No."), "Agreement No." = field("Agreement Filter");
+                    DataItemTableView = sorting("Document Type", "Customer No.", "Posting Date", "Currency Code") where("Document Type" = filter(" " | Invoice | "Credit Memo"));
                     dataitem(OldAppldCustPays; "Detailed Cust. Ledg. Entry")
                     {
-                        DataItemLink = "Cust. Ledger Entry No." = FIELD("Entry No.");
-                        DataItemTableView = SORTING("Cust. Ledger Entry No.", "Posting Date") WHERE("Entry Type" = FILTER(Application | "Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
+                        DataItemLink = "Cust. Ledger Entry No." = field("Entry No.");
+                        DataItemTableView = sorting("Cust. Ledger Entry No.", "Posting Date") where("Entry Type" = filter(Application | "Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -476,7 +476,7 @@ report 14911 "Vendor - Reconciliation Act"
                     }
                     dataitem(OldCustInvTotal; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -523,12 +523,12 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(CustInvoices; "Cust. Ledger Entry")
                 {
-                    DataItemLink = "Customer No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                    DataItemTableView = SORTING("Document Type", "Customer No.", "Posting Date", "Currency Code") WHERE("Document Type" = FILTER(" " | Invoice | "Credit Memo"));
+                    DataItemLink = "Customer No." = field("No."), "Agreement No." = field("Agreement Filter");
+                    DataItemTableView = sorting("Document Type", "Customer No.", "Posting Date", "Currency Code") where("Document Type" = filter(" " | Invoice | "Credit Memo"));
                     dataitem(AppldCustPays; "Detailed Cust. Ledg. Entry")
                     {
-                        DataItemLink = "Cust. Ledger Entry No." = FIELD("Entry No.");
-                        DataItemTableView = SORTING("Cust. Ledger Entry No.", "Posting Date") WHERE("Entry Type" = FILTER(Application | "Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
+                        DataItemLink = "Cust. Ledger Entry No." = field("Entry No.");
+                        DataItemTableView = sorting("Cust. Ledger Entry No.", "Posting Date") where("Entry Type" = filter(Application | "Realized Gain" | "Unrealized Gain" | "Realized Loss" | "Unrealized Loss"));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -561,7 +561,7 @@ report 14911 "Vendor - Reconciliation Act"
                     }
                     dataitem(CustInvTotal; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -610,11 +610,11 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(CustPayments; "Cust. Ledger Entry")
                 {
-                    DataItemLink = "Customer No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                    DataItemTableView = SORTING("Document Type", "Customer No.", "Posting Date", "Currency Code") WHERE("Document Type" = FILTER(Payment | Refund));
+                    DataItemLink = "Customer No." = field("No."), "Agreement No." = field("Agreement Filter");
+                    DataItemTableView = sorting("Document Type", "Customer No.", "Posting Date", "Currency Code") where("Document Type" = filter(Payment | Refund));
                     dataitem(CustOtherCurrAppln; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -677,11 +677,11 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(OldCustPayments; "Cust. Ledger Entry")
                 {
-                    DataItemLink = "Customer No." = FIELD("No."), "Agreement No." = FIELD("Agreement Filter");
-                    DataItemTableView = SORTING("Document Type", "Customer No.", "Posting Date", "Currency Code") WHERE("Document Type" = FILTER(Payment | Refund));
+                    DataItemLink = "Customer No." = field("No."), "Agreement No." = field("Agreement Filter");
+                    DataItemTableView = sorting("Document Type", "Customer No.", "Posting Date", "Currency Code") where("Document Type" = filter(Payment | Refund));
                     dataitem(OldCustOtherCurrAppln; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -743,7 +743,7 @@ report 14911 "Vendor - Reconciliation Act"
                 }
                 dataitem(CustTotal; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -809,7 +809,7 @@ report 14911 "Vendor - Reconciliation Act"
             }
             dataitem(Totals; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
 
                 trigger OnAfterGetRecord()
                 var

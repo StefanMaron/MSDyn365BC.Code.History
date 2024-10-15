@@ -6,7 +6,7 @@ page 26550 "Statutory Reports"
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Statutory Report";
-    SourceTableView = SORTING("Sequence No.");
+    SourceTableView = sorting("Sequence No.");
     UsageCategory = ReportsAndAnalysis;
 
     layout
@@ -18,7 +18,7 @@ page 26550 "Statutory Reports"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -37,7 +37,7 @@ page 26550 "Statutory Reports"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format version code associated with the statutory report.';
                 }
-                field(Header; Header)
+                field(Header; Rec.Header)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the header associated with the statutory report.';
@@ -52,7 +52,7 @@ page 26550 "Statutory Reports"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sender number associated with the statutory report.';
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the statutory report is active.';
@@ -128,7 +128,7 @@ page 26550 "Statutory Reports"
                     Caption = 'Tables';
                     Image = "Table";
                     RunObject = Page "Statutory Report Tables";
-                    RunPageLink = "Report Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field(Code);
                     ShortCutKey = 'Ctrl+T';
                 }
                 action("XML Element Lines")
@@ -137,7 +137,7 @@ page 26550 "Statutory Reports"
                     Caption = 'XML Element Lines';
                     Image = GetLines;
                     RunObject = Page "XML Element Lines";
-                    RunPageLink = "Report Code" = FIELD(Code);
+                    RunPageLink = "Report Code" = field(Code);
                     ShortCutKey = 'Ctrl+E';
                     ToolTip = 'Set up or edit XML files associated with statutory reporting.';
                 }
@@ -153,7 +153,7 @@ page 26550 "Statutory Reports"
 
                     trigger OnAction()
                     begin
-                        CopyReport();
+                        Rec.CopyReport();
                     end;
                 }
                 separator(Action1210034)
@@ -204,7 +204,7 @@ page 26550 "Statutory Reports"
                 Caption = '&Report Data';
                 Image = RegisteredDocs;
                 RunObject = Page "Report Data List";
-                RunPageLink = "Report Code" = FIELD(Code);
+                RunPageLink = "Report Code" = field(Code);
                 ToolTip = 'Preview and verify the data for the statutory report. The list contains one line for each set of report data that you have created for this directory.';
             }
             action("Export Log")
@@ -215,7 +215,7 @@ page 26550 "Statutory Reports"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = Process;
                 RunObject = Page "Report Export Log";
-                RunPageLink = "Report Code" = FIELD(Code);
+                RunPageLink = "Report Code" = field(Code);
             }
             group("F&unctions")
             {
@@ -247,7 +247,7 @@ page 26550 "Statutory Reports"
                         DataDescription: Text[250];
                         PeriodName: Text[30];
                     begin
-                        CreateReportData.SetParameters(Code);
+                        CreateReportData.SetParameters(Rec.Code);
                         if CreateReportData.RunModal() <> ACTION::OK then
                             exit;
 
@@ -331,7 +331,7 @@ page 26550 "Statutory Reports"
 
         if BelowxRec then begin
             if StatutoryReport.FindLast() then;
-            "Sequence No." := StatutoryReport."Sequence No." + 1;
+            Rec."Sequence No." := StatutoryReport."Sequence No." + 1;
         end else begin
             SequenceNo := xRec."Sequence No.";
 
@@ -341,7 +341,7 @@ page 26550 "Statutory Reports"
                     StatutoryReport."Sequence No." := StatutoryReport."Sequence No." + 1;
                     StatutoryReport.Modify();
                 until StatutoryReport.Next(-1) = 0;
-            "Sequence No." := SequenceNo;
+            Rec."Sequence No." := SequenceNo;
         end;
     end;
 
@@ -349,11 +349,8 @@ page 26550 "Statutory Reports"
         FileMgt: Codeunit "File Management";
         StartEndDateErr: Label 'You must specify Start Date or\and End Date.';
         Text007: Label 'Import';
-        [InDataSet]
         CodeEmphasize: Boolean;
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     [Scope('OnPrem')]
@@ -363,14 +360,13 @@ page 26550 "Statutory Reports"
         SequenceNo: Integer;
     begin
         UpperStatutoryReport.SetCurrentKey("Sequence No.");
-        UpperStatutoryReport.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
+        UpperStatutoryReport.SetFilter("Sequence No.", '..%1', Rec."Sequence No." - 1);
         if UpperStatutoryReport.FindLast() then begin
             SequenceNo := UpperStatutoryReport."Sequence No.";
-            UpperStatutoryReport."Sequence No." := "Sequence No.";
+            UpperStatutoryReport."Sequence No." := Rec."Sequence No.";
             UpperStatutoryReport.Modify();
-
-            "Sequence No." := SequenceNo;
-            Modify();
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify();
         end;
     end;
 
@@ -381,30 +377,30 @@ page 26550 "Statutory Reports"
         SequenceNo: Integer;
     begin
         LowerStatutoryReport.SetCurrentKey("Sequence No.");
-        LowerStatutoryReport.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
+        LowerStatutoryReport.SetFilter("Sequence No.", '%1..', Rec."Sequence No." + 1);
         if LowerStatutoryReport.FindFirst() then begin
             SequenceNo := LowerStatutoryReport."Sequence No.";
-            LowerStatutoryReport."Sequence No." := "Sequence No.";
+            LowerStatutoryReport."Sequence No." := Rec."Sequence No.";
             LowerStatutoryReport.Modify();
 
-            "Sequence No." := SequenceNo;
-            Modify();
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify();
         end;
     end;
 
     local procedure CodeOnFormat()
     begin
-        CodeEmphasize := Header;
+        CodeEmphasize := Rec.Header;
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        if Header then
+        if Rec.Header then
             DescriptionIndent := 0
         else
             DescriptionIndent := 1;
 
-        DescriptionEmphasize := Header;
+        DescriptionEmphasize := Rec.Header;
     end;
 }
 

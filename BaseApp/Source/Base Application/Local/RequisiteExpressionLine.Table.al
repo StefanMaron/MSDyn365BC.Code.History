@@ -48,17 +48,17 @@ table 26560 "Requisite Expression Line"
         field(25; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
         }
         field(27; "Field ID"; Integer)
         {
             Caption = 'Field ID';
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." where(TableNo = field("Table ID"));
         }
         field(28; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
-                                                        "No." = FIELD("Field ID")));
+            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+                                                        "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;
             FieldClass = FlowField;

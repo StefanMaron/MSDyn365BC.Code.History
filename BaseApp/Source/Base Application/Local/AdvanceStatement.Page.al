@@ -5,8 +5,8 @@ page 12431 "Advance Statement"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice),
-                            "Empl. Purchase" = CONST(true));
+    SourceTableView = where("Document Type" = filter(Invoice),
+                            "Empl. Purchase" = const(true));
 
     layout
     {
@@ -23,7 +23,7 @@ page 12431 "Advance Statement"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -85,7 +85,7 @@ page 12431 "Advance Statement"
             part(PurchLines; "Advance Statement Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Statement)
             {
@@ -120,9 +120,9 @@ page 12431 "Advance Statement"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -162,7 +162,7 @@ page 12431 "Advance Statement"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader();
+                        Rec.CalcInvDiscForHeader();
                         Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
@@ -173,7 +173,7 @@ page 12431 "Advance Statement"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Vendor Card";
-                    RunPageLink = "No." = FIELD("Buy-from Vendor No.");
+                    RunPageLink = "No." = field("Buy-from Vendor No.");
                     ShortCutKey = 'Shift+F7';
                 }
                 action("Co&mments")
@@ -181,8 +181,8 @@ page 12431 "Advance Statement"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
-                    RunPageLink = "Document Type" = FIELD("Document Type"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Document Type" = field("Document Type"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -192,7 +192,7 @@ page 12431 "Advance Statement"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.Update();
                     end;
                 }
@@ -376,41 +376,41 @@ page 12431 "Advance Statement"
     trigger OnDeleteRecord(): Boolean
     begin
         CurrPage.SaveRecord();
-        exit(ConfirmDeletion());
+        exit(Rec.ConfirmDeletion());
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         PurchSetup.Get();
-        if "No." = '' then begin
+        if Rec."No." = '' then begin
             PurchSetup.TestField("Advance Statement Nos.");
             NoSeriesMgt.InitSeries(
-              PurchSetup."Advance Statement Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
+              PurchSetup."Advance Statement Nos.", xRec."No. Series", Rec."Posting Date", Rec."No.", Rec."No. Series");
         end;
-        if "Posting No. Series" = '' then begin
-            "Posting No. Series" := "No. Series";
-            "Posting No." := "No.";
+        if Rec."Posting No. Series" = '' then begin
+            Rec."Posting No. Series" := Rec."No. Series";
+            Rec."Posting No." := Rec."No.";
         end;
-        if "Receiving No. Series" = '' then begin
-            "Receiving No. Series" := "No. Series";
-            "Receiving No." := "No.";
+        if Rec."Receiving No. Series" = '' then begin
+            Rec."Receiving No. Series" := Rec."No. Series";
+            Rec."Receiving No." := Rec."No.";
         end;
 
-        if "Empl. Purchase" = true then
-            "Vendor Invoice No." := "No.";
+        if Rec."Empl. Purchase" = true then
+            Rec."Vendor Invoice No." := Rec."No.";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserMgt.GetPurchasesFilter();
+        Rec."Responsibility Center" := UserMgt.GetPurchasesFilter();
     end;
 
     trigger OnOpenPage()
     begin
         if UserMgt.GetPurchasesFilter() <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter());
-            FilterGroup(0);
+            Rec.FilterGroup(2);
+            Rec.SetRange("Responsibility Center", UserMgt.GetPurchasesFilter());
+            Rec.FilterGroup(0);
         end;
     end;
 
@@ -435,29 +435,29 @@ page 12431 "Advance Statement"
     [Scope('OnPrem')]
     procedure CalculateAmounts()
     begin
-        if ("Applies-to Doc. No." <> '') and ("Applies-to ID" <> '') then
+        if (Rec."Applies-to Doc. No." <> '') and (Rec."Applies-to ID" <> '') then
             Error(Text12400);
 
-        if "Applies-to ID" <> '' then begin
+        if Rec."Applies-to ID" <> '' then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
-            VendLedgEntry.SetRange("Vendor No.", "Buy-from Vendor No.");
+            VendLedgEntry.SetRange("Vendor No.", Rec."Buy-from Vendor No.");
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.SetRange(Positive, true);
-            VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+            VendLedgEntry.SetRange("Applies-to ID", Rec."Applies-to ID");
             if VendLedgEntry.FindSet() then
                 repeat
-                    if VendLedgEntry."Currency Code" = "Currency Code" then
+                    if VendLedgEntry."Currency Code" = Rec."Currency Code" then
                         VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 until VendLedgEntry.Next() = 0;
         end;
 
-        if "Applies-to Doc. No." <> '' then begin
+        if Rec."Applies-to Doc. No." <> '' then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
-            VendLedgEntry.SetRange("Vendor No.", "Buy-from Vendor No.");
-            VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+            VendLedgEntry.SetRange("Vendor No.", Rec."Buy-from Vendor No.");
+            VendLedgEntry.SetRange("Document Type", Rec."Applies-to Doc. Type");
+            VendLedgEntry.SetRange("Document No.", Rec."Applies-to Doc. No.");
             VendLedgEntry.CalcSums("Remaining Amt. (LCY)");
         end;
     end;
@@ -469,10 +469,10 @@ page 12431 "Advance Statement"
         PurchLine: Record "Purchase Line";
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        PurchHeader.Get("Document Type", "No.");
+        PurchHeader.Get(Rec."Document Type", Rec."No.");
         PurchLine.Reset();
-        PurchLine.SetRange("Document Type", "Document Type");
-        PurchLine.SetRange("Document No.", "No.");
+        PurchLine.SetRange("Document Type", Rec."Document Type");
+        PurchLine.SetRange("Document No.", Rec."No.");
         PurchLine.SetRange(Type, PurchLine.Type::"Empl. Purchase");
         if PurchLine.Find('-') then
             repeat

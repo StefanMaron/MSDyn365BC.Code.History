@@ -28,8 +28,8 @@ page 12405 "G/L Account Turnover"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
-                        DateFilter := GetFilter("Date Filter");
+                        Rec.SetFilter("Date Filter", DateFilter);
+                        DateFilter := Rec.GetFilter("Date Filter");
                         CurrPage.Update(false);
                     end;
                 }
@@ -45,7 +45,7 @@ page 12405 "G/L Account Turnover"
                             FindUserPeriod('')
                         else
                             FindPeriod('');
-                        DateFilter := GetFilter("Date Filter");
+                        DateFilter := Rec.GetFilter("Date Filter");
                         CurrPage.Update(false);
                     end;
                 }
@@ -56,7 +56,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnValidate()
                     begin
-                        SetFilter("No.", GLAccountFilter);
+                        Rec.SetFilter("No.", GLAccountFilter);
                         CurrPage.Update(false);
                     end;
                 }
@@ -67,7 +67,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnValidate()
                     begin
-                        SetFilter("Business Unit Filter", BusinessUnitFilter);
+                        Rec.SetFilter("Business Unit Filter", BusinessUnitFilter);
                         CurrPage.Update(false);
                     end;
                 }
@@ -78,12 +78,12 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(GLSetup."Global Dimension 1 Code", Text));
+                        exit(Rec.LookUpDimFilter(GLSetup."Global Dimension 1 Code", Text));
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetFilter("Global Dimension 1 Filter", GlobalDimension1Filter);
+                        Rec.SetFilter("Global Dimension 1 Filter", GlobalDimension1Filter);
                         CurrPage.Update(false);
                     end;
                 }
@@ -94,12 +94,12 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(GLSetup."Global Dimension 2 Code", Text));
+                        exit(Rec.LookUpDimFilter(GLSetup."Global Dimension 2 Code", Text));
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetFilter("Global Dimension 2 Filter", GlobalDimension2Filter);
+                        Rec.SetFilter("Global Dimension 2 Filter", GlobalDimension2Filter);
                         CurrPage.Update(false);
                     end;
                 }
@@ -347,12 +347,12 @@ page 12405 "G/L Account Turnover"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "G/L Account Card";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
-                                  "Budget Filter" = FIELD("Budget Filter"),
-                                  "Business Unit Filter" = FIELD("Business Unit Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                                  "Budget Filter" = field("Budget Filter"),
+                                  "Business Unit Filter" = field("Business Unit Filter");
                     ShortCutKey = 'Shift+F7';
                 }
                 action("Ledger Entries")
@@ -363,8 +363,8 @@ page 12405 "G/L Account Turnover"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "General Ledger Entries";
-                    RunPageLink = "G/L Account No." = FIELD("No.");
-                    RunPageView = SORTING("G/L Account No.");
+                    RunPageLink = "G/L Account No." = field("No.");
+                    RunPageView = sorting("G/L Account No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -373,8 +373,8 @@ page 12405 "G/L Account Turnover"
                     Caption = '&Comments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("G/L Account"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("G/L Account"),
+                                  "No." = field("No.");
                 }
                 action("Receivables-Payables")
                 {
@@ -395,10 +395,10 @@ page 12405 "G/L Account Turnover"
                     Caption = 'G/L &Account Balance';
                     Image = GLAccountBalance;
                     RunObject = Page "G/L Account Balance";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
-                                  "Business Unit Filter" = FIELD("Business Unit Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                                  "Business Unit Filter" = field("Business Unit Filter");
                     ToolTip = 'View a summary of the debit and credit balances for different time periods, for the account that you select in the chart of accounts.';
                 }
                 action("G/L &Balance")
@@ -426,10 +426,10 @@ page 12405 "G/L Account Turnover"
                     Caption = 'G/L Account Balance/Bud&get';
                     Image = Period;
                     RunObject = Page "G/L Account Balance/Budget";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"),
-                                  "Business Unit Filter" = FIELD("Business Unit Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                                  "Business Unit Filter" = field("Business Unit Filter");
                     ToolTip = 'View a summary of the debit and credit balances and the budgeted amounts for different time periods for the current account.';
                 }
                 action("G/L Balance/B&udget")
@@ -449,8 +449,8 @@ page 12405 "G/L Account Turnover"
                     Caption = 'G/L Turnover by Customers';
                     Image = CustomerLedger;
                     RunObject = Page "Customer G/L Turnover";
-                    RunPageLink = "G/L Account Filter" = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter");
+                    RunPageLink = "G/L Account Filter" = field("No."),
+                                  "Date Filter" = field("Date Filter");
                     ToolTip = 'Analyze the turnover compared with customer account balances.';
                 }
                 action("G/L Turnover by Vendors")
@@ -459,8 +459,8 @@ page 12405 "G/L Account Turnover"
                     Caption = 'G/L Turnover by Vendors';
                     Image = VendorLedger;
                     RunObject = Page "Vendor G/L Turnover";
-                    RunPageLink = "G/L Account Filter" = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter");
+                    RunPageLink = "G/L Account Filter" = field("No."),
+                                  "Date Filter" = field("Date Filter");
                     ToolTip = 'Analyze the turnover compared with vendor account balances.';
                 }
             }
@@ -477,7 +477,7 @@ page 12405 "G/L Account Turnover"
                 trigger OnAction()
                 begin
                     FindPeriod('<=');
-                    DateFilter := GetFilter("Date Filter");
+                    DateFilter := Rec.GetFilter("Date Filter");
                 end;
             }
             action("Next Period")
@@ -490,7 +490,7 @@ page 12405 "G/L Account Turnover"
                 trigger OnAction()
                 begin
                     FindPeriod('>=');
-                    DateFilter := GetFilter("Date Filter");
+                    DateFilter := Rec.GetFilter("Date Filter");
                 end;
             }
             group(Print)
@@ -548,7 +548,7 @@ page 12405 "G/L Account Turnover"
                     trigger OnAction()
                     begin
                         GLAcc.Reset();
-                        GLAcc.SetRange("No.", "No.");
+                        GLAcc.SetRange("No.", Rec."No.");
                         REPORT.RunModal(REPORT::"G/L Corresp. General Ledger", true, false, GLAcc);
                     end;
                 }
@@ -559,11 +559,11 @@ page 12405 "G/L Account Turnover"
                 Caption = 'Show GL Correspondence';
                 Image = GL;
                 RunObject = Page "G/L Corresp. Gen. Ledger Lines";
-                RunPageLink = "Debit Account No." = FIELD("No."),
-                              "Debit Account No." = FIELD(FILTER(Totaling)),
-                              "Debit Global Dim. 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                              "Debit Global Dim. 2 Filter" = FIELD("Global Dimension 2 Filter"),
-                              "Date Filter" = FIELD("Date Filter");
+                RunPageLink = "Debit Account No." = field("No."),
+                              "Debit Account No." = field(FILTER(Totaling)),
+                              "Debit Global Dim. 1 Filter" = field("Global Dimension 1 Filter"),
+                              "Debit Global Dim. 2 Filter" = field("Global Dimension 2 Filter"),
+                              "Date Filter" = field("Date Filter");
                 RunPageMode = Create;
                 ToolTip = 'View related correspondence transactions, for example to analyze the number of reports per correspondence.';
             }
@@ -610,7 +610,7 @@ page 12405 "G/L Account Turnover"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CalculateAmounts(BalanceAmounts);
+        Rec.CalculateAmounts(BalanceAmounts);
         NoOnFormat();
         NameOnFormat();
         DebitAmountOnFormat();
@@ -626,9 +626,9 @@ page 12405 "G/L Account Turnover"
             FindUserPeriod('')
         else
             FindPeriod('');
-        DateFilter := GetFilter("Date Filter");
+        DateFilter := Rec.GetFilter("Date Filter");
         if GLAccountFilter <> '' then
-            SetFilter("No.", GLAccountFilter);
+            Rec.SetFilter("No.", GLAccountFilter);
         SourceTypeOnAfterValidate();
         UpdateSourceNoFilter();
     end;
@@ -651,42 +651,35 @@ page 12405 "G/L Account Turnover"
         BalanceType: Option ,StartBal,StartBalACY,StartBalCredit,StartBalDebit,EndBalCredit,EndBalDebit,EndBal;
         SourceType: Option " ",Customer,Vendor,"Bank Account","Fixed Asset";
         SourceNo: Code[20];
-        [InDataSet]
         NoEmphasize: Boolean;
-        [InDataSet]
         NameEmphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
-        [InDataSet]
         DebitAmountEmphasize: Boolean;
-        [InDataSet]
         CreditAmountEmphasize: Boolean;
-        [InDataSet]
         BalanceEndPeriodEmphasize: Boolean;
-        [InDataSet]
         NetChangeEmphasize: Boolean;
 
     [Scope('OnPrem')]
     procedure DrillDownGLEntry(Show: Option Debit,Credit,ACYDebet,ACYCredit,BeginPeriod,ACYBeginPeriod)
     begin
         GLEntry.Reset();
-        if (GetFilter("Business Unit Filter") <> '') or
-           (GetFilter("Global Dimension 1 Filter") <> '') or
-           (GetFilter("Global Dimension 2 Filter") <> '')
+        if (Rec.GetFilter("Business Unit Filter") <> '') or
+           (Rec.GetFilter("Global Dimension 1 Filter") <> '') or
+           (Rec.GetFilter("Global Dimension 2 Filter") <> '')
         then
             GLEntry.SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code")
         else
             GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
-        if Totaling = '' then
-            GLEntry.SetRange("G/L Account No.", "No.")
+        if Rec.Totaling = '' then
+            GLEntry.SetRange("G/L Account No.", Rec."No.")
         else
-            GLEntry.SetFilter("G/L Account No.", Totaling);
-        GLEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
-        GLEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
-        GLEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
-        GLEntry.SetFilter("Business Unit Code", GetFilter("Business Unit Filter"));
-        GLEntry.SetFilter("Source Type", GetFilter("Source Type Filter"));
-        GLEntry.SetFilter("Source No.", GetFilter("Source No. Filter"));
+            GLEntry.SetFilter("G/L Account No.", Rec.Totaling);
+        GLEntry.SetFilter("Posting Date", Rec.GetFilter("Date Filter"));
+        GLEntry.SetFilter("Global Dimension 1 Code", Rec.GetFilter("Global Dimension 1 Filter"));
+        GLEntry.SetFilter("Global Dimension 2 Code", Rec.GetFilter("Global Dimension 2 Filter"));
+        GLEntry.SetFilter("Business Unit Code", Rec.GetFilter("Business Unit Filter"));
+        GLEntry.SetFilter("Source Type", Rec.GetFilter("Source Type Filter"));
+        GLEntry.SetFilter("Source No.", Rec.GetFilter("Source No. Filter"));
         case Show of
             Show::Debit:
                 GLEntry.SetFilter("Debit Amount", '<>%1', 0);
@@ -698,9 +691,9 @@ page 12405 "G/L Account Turnover"
                 GLEntry.SetFilter("Add.-Currency Credit Amount", '<>%1', 0);
             Show::BeginPeriod,
           Show::ACYBeginPeriod:
-                if CopyStr(GetFilter("Date Filter"), 1, 2) <> '..' then begin
-                    if GetRangeMin("Date Filter") <> 0D then
-                        GLEntry.SetRange("Posting Date", 0D, ClosingDate(GetRangeMin("Date Filter") - 1));
+                if CopyStr(Rec.GetFilter("Date Filter"), 1, 2) <> '..' then begin
+                    if Rec.GetRangeMin("Date Filter") <> 0D then
+                        GLEntry.SetRange("Posting Date", 0D, ClosingDate(Rec.GetRangeMin("Date Filter") - 1));
                 end else
                     exit;
             else
@@ -712,10 +705,10 @@ page 12405 "G/L Account Turnover"
     local procedure SourceTypeOnAfterValidate()
     begin
         if SourceType > 0 then
-            SetFilter("Source Type Filter", '%1', SourceType)
+            Rec.SetFilter("Source Type Filter", '%1', SourceType)
         else begin
-            SetRange("Source Type Filter");
-            SetRange("Source No. Filter");
+            Rec.SetRange("Source Type Filter");
+            Rec.SetRange("Source No. Filter");
             SourceNo := '';
         end;
     end;
@@ -723,40 +716,40 @@ page 12405 "G/L Account Turnover"
     local procedure UpdateSourceNoFilter()
     begin
         if SourceNo <> '' then
-            SetFilter("Source No. Filter", '%1', SourceNo)
+            Rec.SetFilter("Source No. Filter", '%1', SourceNo)
         else
-            SetRange("Source No. Filter");
+            Rec.SetRange("Source No. Filter");
     end;
 
     local procedure NoOnFormat()
     begin
-        NoEmphasize := "Account Type" <> "Account Type"::Posting;
+        NoEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     local procedure NameOnFormat()
     begin
-        NameIndent := Indentation;
-        NameEmphasize := "Account Type" <> "Account Type"::Posting;
+        NameIndent := Rec.Indentation;
+        NameEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     local procedure DebitAmountOnFormat()
     begin
-        DebitAmountEmphasize := "Account Type" <> "Account Type"::Posting;
+        DebitAmountEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     local procedure CreditAmountOnFormat()
     begin
-        CreditAmountEmphasize := "Account Type" <> "Account Type"::Posting;
+        CreditAmountEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     local procedure BalanceatDateOnFormat()
     begin
-        BalanceEndPeriodEmphasize := "Account Type" <> "Account Type"::Posting;
+        BalanceEndPeriodEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     local procedure NetChangeOnFormat()
     begin
-        NetChangeEmphasize := "Account Type" <> "Account Type"::Posting;
+        NetChangeEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
     end;
 
     [Scope('OnPrem')]
@@ -765,17 +758,17 @@ page 12405 "G/L Account Turnover"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if Calendar."Period Start" = Calendar."Period End" then
-            SetRange("Date Filter", Calendar."Period Start")
+            Rec.SetRange("Date Filter", Calendar."Period Start")
         else
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
     end;
 
     [Scope('OnPrem')]
@@ -784,9 +777,9 @@ page 12405 "G/L Account Turnover"
         UserSetup: Record "User Setup";
     begin
         if UserSetup.Get(UserId) then begin
-            SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserSetup."Allow Posting From", UserSetup."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else
             FindPeriod(SearchText);
     end;

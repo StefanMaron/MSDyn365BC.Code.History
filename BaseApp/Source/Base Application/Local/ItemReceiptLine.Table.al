@@ -90,13 +90,13 @@ table 12452 "Item Receipt Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(35; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(37; "Indirect Cost %"; Decimal)
         {
@@ -134,8 +134,6 @@ table 12452 "Item Receipt Line"
             Caption = 'Last Item Ledger Entry No.';
             Editable = false;
             TableRelation = "Item Ledger Entry";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(57; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -167,14 +165,14 @@ table 12452 "Item Receipt Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                            "Item Filter" = FIELD("Item No."),
-                                            "Variant Filter" = FIELD("Variant Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Location Code"),
+                                            "Item Filter" = field("Item No."),
+                                            "Variant Filter" = field("Variant Code"));
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
         {
@@ -186,7 +184,7 @@ table 12452 "Item Receipt Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(5413; "Quantity (Base)"; Decimal)
         {

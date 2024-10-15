@@ -34,7 +34,7 @@ page 17285 "Tax Reg. Norm Accum. Lines"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
             }

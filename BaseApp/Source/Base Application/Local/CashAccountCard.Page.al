@@ -4,7 +4,7 @@ page 12426 "Cash Account Card"
     PageType = Card;
     PopulateAllFields = true;
     SourceTable = "Bank Account";
-    SourceTableView = WHERE("Account Type" = CONST("Cash Account"));
+    SourceTableView = where("Account Type" = const("Cash Account"));
 
     layout
     {
@@ -21,7 +21,7 @@ page 12426 "Cash Account Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -31,7 +31,7 @@ page 12426 "Cash Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the related record.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -50,7 +50,7 @@ page 12426 "Cash Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city abbreviation associated with the bank account.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address.';
@@ -65,7 +65,7 @@ page 12426 "Cash Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cashier';
@@ -75,7 +75,7 @@ page 12426 "Cash Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field(Control22; Balance)
+                field(Control22; Rec.Balance)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -93,7 +93,7 @@ page 12426 "Cash Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -195,10 +195,10 @@ page 12426 "Cash Account Card"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Bank Account Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -207,8 +207,8 @@ page 12426 "Cash Account Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Bank Account"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Bank Account"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -216,8 +216,8 @@ page 12426 "Cash Account Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(270),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(270),
+                                  "No." = field("No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department.';
                 }
@@ -227,9 +227,9 @@ page 12426 "Cash Account Card"
                     Caption = 'Balance';
                     Image = Balance;
                     RunObject = Page "Bank Account Balance";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action("Ledger E&ntries")
                 {
@@ -237,8 +237,8 @@ page 12426 "Cash Account Card"
                     Caption = 'Ledger E&ntries';
                     Image = BankAccountLedger;
                     RunObject = Page "Bank Account Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -247,8 +247,8 @@ page 12426 "Cash Account Card"
                     Caption = 'Chec&k Ledger Entries';
                     Image = CheckLedger;
                     RunObject = Page "Check Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                 }
                 action("C&ontact")
                 {
@@ -258,7 +258,7 @@ page 12426 "Cash Account Card"
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
             }
@@ -372,7 +372,7 @@ page 12426 "Cash Account Card"
         ObjTransl: Record "Object Translation";
     begin
         ObjTransl.TranslateObject(
-          ObjTransl."Object Type"::Report, "Check Report ID");
+          ObjTransl."Object Type"::Report, Rec."Check Report ID");
     end;
 }
 

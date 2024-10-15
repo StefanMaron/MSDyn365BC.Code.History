@@ -27,7 +27,7 @@ page 17282 "Tax Reg. Norm Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the related tax calculation term is named, such as Plus/Minus, Multiply/Divide, and Compare.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -60,7 +60,7 @@ page 17282 "Tax Reg. Norm Terms"
                     trigger OnAction()
                     begin
                         TaxRegTermMgt.CheckTaxRegTerm(
-                          false, "Norm Jurisdiction Code",
+                          false, Rec."Norm Jurisdiction Code",
                           DATABASE::"Tax Reg. Norm Term", DATABASE::"Tax Reg. Norm Term Formula");
                     end;
                 }

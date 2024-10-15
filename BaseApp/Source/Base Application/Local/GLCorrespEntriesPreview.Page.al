@@ -79,7 +79,7 @@ page 14954 "G/L Corresp. Entries Preview"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Transaction No."; Rec."Transaction No.")
@@ -102,7 +102,7 @@ page 14954 "G/L Corresp. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the debit Global Dimension 2 code associated with this correspondence entry.';
                 }
-                field(Positive; Positive)
+                field(Positive; Rec.Positive)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this correspondence entry is positive.';

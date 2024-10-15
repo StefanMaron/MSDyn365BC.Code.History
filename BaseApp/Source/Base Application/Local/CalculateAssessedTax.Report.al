@@ -9,14 +9,14 @@ report 14920 "Calculate Assessed Tax"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.") WHERE("Vendor Type" = CONST("Tax Authority"));
+            DataItemTableView = sorting("No.") where("Vendor Type" = const("Tax Authority"));
             dataitem(OKATO; OKATO)
             {
-                DataItemLink = "Tax Authority No." = FIELD("No.");
-                DataItemTableView = SORTING(Code);
+                DataItemLink = "Tax Authority No." = field("No.");
+                DataItemTableView = sorting(Code);
                 dataitem(Chapter2; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     begin
@@ -222,7 +222,7 @@ report 14920 "Calculate Assessed Tax"
                 }
                 dataitem(Chapter1; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     begin
@@ -372,7 +372,7 @@ report 14920 "Calculate Assessed Tax"
             }
             dataitem(Title; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -529,7 +529,7 @@ report 14920 "Calculate Assessed Tax"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Tax Authority No.';
-                        TableRelation = Vendor WHERE("Vendor Type" = CONST("Tax Authority"));
+                        TableRelation = Vendor where("Vendor Type" = const("Tax Authority"));
                     }
                     field(Year; Year)
                     {

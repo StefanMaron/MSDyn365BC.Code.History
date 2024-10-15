@@ -70,8 +70,6 @@ table 26563 "Statutory Report Data Header"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(21; "Creation Date"; Date)

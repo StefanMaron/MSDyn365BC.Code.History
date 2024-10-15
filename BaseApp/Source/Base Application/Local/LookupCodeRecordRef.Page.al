@@ -14,12 +14,12 @@ page 17249 "Lookup Code (RecordRef)"
             repeater(Control100)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'This field is used internally.';
                 }
-                field(Text; Text)
+                field(Text; Rec.Text)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -46,7 +46,7 @@ page 17249 "Lookup Code (RecordRef)"
     [Scope('OnPrem')]
     procedure GetCodeRecordRef(): Code[20]
     begin
-        exit(Code);
+        exit(Rec.Code);
     end;
 
     [Scope('OnPrem')]
@@ -59,9 +59,9 @@ page 17249 "Lookup Code (RecordRef)"
                 xFieldRefCode := xRecordRef.Field(FieldCodeID);
                 xFieldRefText := xRecordRef.Field(FieldTextID);
                 repeat
-                    Code := xFieldRefCode.Value;
-                    Text := xFieldRefText.Value;
-                    Insert();
+                    Rec.Code := xFieldRefCode.Value;
+                    Rec.Text := xFieldRefText.Value;
+                    Rec.Insert();
                 until xRecordRef.Next() = 0;
             end;
             xRecordRef.Close();

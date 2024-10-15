@@ -1,4 +1,18 @@
-﻿permissionset 865 "D365 CUSTOMER, VIEW"
+﻿namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Profiling;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Service.Setup;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.VAT.Registration;
+
+permissionset 865 "D365 CUSTOMER, VIEW"
 {
     Assignable = true;
 

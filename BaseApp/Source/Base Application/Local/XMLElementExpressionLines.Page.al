@@ -18,7 +18,7 @@ page 26585 "XML Element Expression Lines"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Source; Source)
+                field(Source; Rec.Source)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source associated with the XML element expression line.';
@@ -39,16 +39,16 @@ page 26585 "XML Element Expression Lines"
                         "Field": Record "Field";
                         FieldSelection: Codeunit "Field Selection";
                     begin
-                        Field.SetRange(TableNo, "Table ID");
+                        Field.SetRange(TableNo, Rec."Table ID");
                         if FieldSelection.Open(Field) then begin
-                            Validate("Field ID", Field."No.");
+                            Rec.Validate("Field ID", Field."No.");
                             CurrPage.Update();
 
-                            ExpressionValue := UpdateRequisiteValue(false);
+                            ExpressionValue := Rec.UpdateRequisiteValue(false);
                         end;
                     end;
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value associated with the XML element expression line.';
@@ -61,7 +61,7 @@ page 26585 "XML Element Expression Lines"
                     trigger OnValidate()
                     begin
                         if SpaceEntered then begin
-                            "String Before" := ' ';
+                            Rec."String Before" := ' ';
                             SpaceEntered := false;
                         end;
                     end;
@@ -74,7 +74,7 @@ page 26585 "XML Element Expression Lines"
                     trigger OnValidate()
                     begin
                         if SpaceEntered then begin
-                            "String After" := ' ';
+                            Rec."String After" := ' ';
                             SpaceEntered := false;
                         end;
                     end;
@@ -94,7 +94,7 @@ page 26585 "XML Element Expression Lines"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateReferences();
+        Rec.UpdateReferences();
     end;
 
     trigger OnOpenPage()
@@ -111,7 +111,7 @@ page 26585 "XML Element Expression Lines"
     [Scope('OnPrem')]
     procedure GetExpressionValue(): Text[250]
     begin
-        if XMLElementLine.Get("Report Code", "Base XML Element Line No.") then
+        if XMLElementLine.Get(Rec."Report Code", Rec."Base XML Element Line No.") then
             exit(XMLElementLine.Value);
 
         exit('');
@@ -119,7 +119,7 @@ page 26585 "XML Element Expression Lines"
 
     local procedure SourceOnAfterValidate()
     begin
-        CalcFields("Field Name");
+        Rec.CalcFields("Field Name");
     end;
 
     local procedure OnActivateForm()

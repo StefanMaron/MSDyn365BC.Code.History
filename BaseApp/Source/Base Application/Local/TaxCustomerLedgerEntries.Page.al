@@ -125,7 +125,7 @@ page 17243 "Tax Customer Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -176,7 +176,7 @@ page 17243 "Tax Customer Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -185,9 +185,9 @@ page 17243 "Tax Customer Ledger Entries"
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
                     RunObject = Page "Detailed Cust. Ledg. Entries";
-                    RunPageLink = "Cust. Ledger Entry No." = FIELD("Entry No."),
-                                  "Customer No." = FIELD("Customer No.");
-                    RunPageView = SORTING("Cust. Ledger Entry No.", "Posting Date");
+                    RunPageLink = "Cust. Ledger Entry No." = field("Entry No."),
+                                  "Customer No." = field("Customer No.");
+                    RunPageView = sorting("Cust. Ledger Entry No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                 }
             }
@@ -208,9 +208,9 @@ page 17243 "Tax Customer Ledger Entries"
                     Caption = 'Apply Entries';
                     Image = ApplyEntries;
                     RunObject = Page "Apply Customer Entries";
-                    RunPageLink = "Customer No." = FIELD("Customer No."),
-                                  Open = CONST(true);
-                    RunPageView = SORTING("Customer No.", Open);
+                    RunPageLink = "Customer No." = field("Customer No."),
+                                  Open = const(true);
+                    RunPageView = sorting("Customer No.", Open);
                     ShortCutKey = 'Shift+F11';
                     Visible = false;
                 }
@@ -227,7 +227,7 @@ page 17243 "Tax Customer Ledger Entries"
 
                 trigger OnAction()
                 begin
-                    Navigate.SetDoc("Posting Date", "Document No.");
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }
@@ -248,7 +248,7 @@ page 17243 "Tax Customer Ledger Entries"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if not UseTmpCustLedgerEntry then
-            exit(Find(Which));
+            exit(Rec.Find(Which));
         TmpCustLedgerEntry.Copy(Rec);
         FindResult := TmpCustLedgerEntry.Find(Which);
         if FindResult then
@@ -259,7 +259,7 @@ page 17243 "Tax Customer Ledger Entries"
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         if not UseTmpCustLedgerEntry then
-            exit(Next(Steps));
+            exit(Rec.Next(Steps));
         TmpCustLedgerEntry := Rec;
         NextResult := TmpCustLedgerEntry.Next(Steps);
         if NextResult <> 0 then
@@ -277,48 +277,48 @@ page 17243 "Tax Customer Ledger Entries"
     [Scope('OnPrem')]
     procedure BuildTmpCustLedgerEntry(CustNo: Code[20]; DateBegin: Date; DateEnd: Date; DueFilter: Text[30]; PositiveEntry: Boolean)
     begin
-        Reset();
-        SetCurrentKey("Customer No.", "Posting Date");
-        SetRange("Customer No.", CustNo);
-        SetRange("Posting Date", DateBegin, DateEnd);
-        SetRange(Positive, PositiveEntry);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Customer No.", "Posting Date");
+        Rec.SetRange("Customer No.", CustNo);
+        Rec.SetRange("Posting Date", DateBegin, DateEnd);
+        Rec.SetRange(Positive, PositiveEntry);
+        if Rec.FindSet() then
             repeat
                 TmpCustLedgerEntry := Rec;
                 TmpCustLedgerEntry.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
 
-        Reset();
-        SetCurrentKey("Customer No.", Open, Positive, "Due Date");
-        SetRange("Customer No.", CustNo);
-        SetRange(Positive, PositiveEntry);
-        SetFilter("Due Date", DueFilter);
-        SetFilter("Date Filter", '..%1', DateBegin - 1);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
+        Rec.SetRange("Customer No.", CustNo);
+        Rec.SetRange(Positive, PositiveEntry);
+        Rec.SetFilter("Due Date", DueFilter);
+        Rec.SetFilter("Date Filter", '..%1', DateBegin - 1);
+        if Rec.FindSet() then
             repeat
-                CalcFields("Remaining Amt. (LCY)");
-                if "Remaining Amt. (LCY)" <> 0 then begin
+                Rec.CalcFields("Remaining Amt. (LCY)");
+                if Rec."Remaining Amt. (LCY)" <> 0 then begin
                     TmpCustLedgerEntry := Rec;
                     if TmpCustLedgerEntry.Insert() then;
                 end;
-            until Next() = 0;
+            until Rec.Next() = 0;
 
-        Reset();
-        SetCurrentKey("Customer No.", Open, Positive, "Due Date");
-        SetRange("Customer No.", CustNo);
-        SetRange(Positive, PositiveEntry);
-        SetFilter("Due Date", DueFilter);
-        SetFilter("Date Filter", '..%1', DateEnd);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
+        Rec.SetRange("Customer No.", CustNo);
+        Rec.SetRange(Positive, PositiveEntry);
+        Rec.SetFilter("Due Date", DueFilter);
+        Rec.SetFilter("Date Filter", '..%1', DateEnd);
+        if Rec.FindSet() then
             repeat
-                CalcFields("Remaining Amt. (LCY)");
-                if "Remaining Amt. (LCY)" <> 0 then begin
+                Rec.CalcFields("Remaining Amt. (LCY)");
+                if Rec."Remaining Amt. (LCY)" <> 0 then begin
                     TmpCustLedgerEntry := Rec;
                     if TmpCustLedgerEntry.Insert() then;
                 end;
-            until Next() = 0;
-        Reset();
-        SetFilter("Date Filter", DueFilter);
+            until Rec.Next() = 0;
+        Rec.Reset();
+        Rec.SetFilter("Date Filter", DueFilter);
         UseTmpCustLedgerEntry := true;
     end;
 }

@@ -5,8 +5,8 @@ page 12427 "Resp. Employee Card"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = Vendor;
-    SourceTableView = SORTING("Vendor Type")
-                      WHERE("Vendor Type" = CONST("Resp. Employee"));
+    SourceTableView = sorting("Vendor Type")
+                      where("Vendor Type" = const("Resp. Employee"));
 
     layout
     {
@@ -23,7 +23,7 @@ page 12427 "Resp. Employee Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -37,7 +37,7 @@ page 12427 "Resp. Employee Card"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -52,7 +52,7 @@ page 12427 "Resp. Employee Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address.';
@@ -82,14 +82,14 @@ page 12427 "Resp. Employee Card"
                         VendLedgEntry: Record "Vendor Ledger Entry";
                         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
                     begin
-                        DtldVendLedgEntry.SetFilter("Vendor No.", "No.");
-                        CopyFilter("Global Dimension 1 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 1");
-                        CopyFilter("Global Dimension 2 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 2");
-                        CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
+                        DtldVendLedgEntry.SetFilter("Vendor No.", Rec."No.");
+                        Rec.CopyFilter("Global Dimension 1 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 1");
+                        Rec.CopyFilter("Global Dimension 2 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 2");
+                        Rec.CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
                         VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
                     end;
                 }
-                field(Payments; Payments)
+                field(Payments; Rec.Payments)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -102,7 +102,7 @@ page 12427 "Resp. Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved employee.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -186,7 +186,7 @@ page 12427 "Resp. Employee Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -226,8 +226,8 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
                     RunObject = Page "Vendor Ledger Entries";
-                    RunPageLink = "Vendor No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -236,8 +236,8 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Vendor),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const(Vendor),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -245,8 +245,8 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(23),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(23),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                 }
                 action("Bank Accounts")
@@ -255,7 +255,7 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Vendor Bank Account List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("Order &Addresses")
                 {
@@ -263,7 +263,7 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Order &Addresses';
                     Image = Addresses;
                     RunObject = Page "Order Address List";
-                    RunPageLink = "Vendor No." = FIELD("No.");
+                    RunPageLink = "Vendor No." = field("No.");
                 }
                 action("C&ontact")
                 {
@@ -273,7 +273,7 @@ page 12427 "Resp. Employee Card"
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
                 separator(Action11)
@@ -284,9 +284,9 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Vendor Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -296,10 +296,10 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Vendor Entry Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action(Purchases)
                 {
@@ -307,9 +307,9 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Purchases';
                     Image = Purchase;
                     RunObject = Page "Vendor Purchases";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
             }
             group("&Adv. Statements")
@@ -321,7 +321,7 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Unposted Advance Statements';
                     Image = Documents;
                     RunObject = Page "Purchase Advance Reports";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
                 }
                 action("Posted Advance Statements")
                 {
@@ -329,7 +329,7 @@ page 12427 "Resp. Employee Card"
                     Caption = 'Posted Advance Statements';
                     Image = RegisteredDocs;
                     RunObject = Page "Posted Advance Statement";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    RunPageLink = "Buy-from Vendor No." = field("No.");
                 }
             }
         }

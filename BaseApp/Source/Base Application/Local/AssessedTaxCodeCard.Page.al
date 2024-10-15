@@ -11,7 +11,7 @@ page 14921 "Assessed Tax Code Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code number that represents an assessed fixed assets tax.';
@@ -68,8 +68,8 @@ page 14921 "Assessed Tax Code Card"
     var
         RecordFound: Boolean;
     begin
-        RecordFound := Find(Which);
-        CurrPage.Editable := RecordFound or (GetFilter(Code) = '');
+        RecordFound := Rec.Find(Which);
+        CurrPage.Editable := RecordFound or (Rec.GetFilter(Code) = '');
         exit(RecordFound);
     end;
 }

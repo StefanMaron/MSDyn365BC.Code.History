@@ -1,4 +1,43 @@
-﻿permissionset 7576 "D365 FINANCIAL REP."
+﻿namespace System.Security.AccessControl;
+
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Integration.Entity;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Company;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Purchases.Payables;
+using System.Environment.Configuration;
+
+permissionset 7576 "D365 FINANCIAL REP."
 {
     Assignable = true;
 
@@ -8,6 +47,10 @@
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Line Entity" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
+                  tabledata "Alloc. Acc. Manual Override" = RIMD,
+                  tabledata "Alloc. Account Distribution" = RIMD,
+                  tabledata "Allocation Account" = RIMD,
+                  tabledata "Allocation Line" = RIMD,
                   tabledata "Financial Report" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Accounting Period" = RIMD,
@@ -90,17 +133,6 @@
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,
-#if not CLEAN20
-                  tabledata "XBRL Comment Line" = RIMD,
-                  tabledata "XBRL G/L Map Line" = RIMD,
-                  tabledata "XBRL Line Constant" = RIMD,
-                  tabledata "XBRL Linkbase" = RIMD,
-                  tabledata "XBRL Rollup Line" = RIMD,
-                  tabledata "XBRL Schema" = RIMD,
-                  tabledata "XBRL Taxonomy" = RIMD,
-                  tabledata "XBRL Taxonomy Label" = RIMD,
-                  tabledata "XBRL Taxonomy Line" = RIMD,
-#endif
                   tabledata "VAT Setup" = RM,
                   tabledata "Vendor Ledger Entry" = Rimd;
 }

@@ -37,7 +37,7 @@ page 17288 "Tax Reg G/L Corr. Dim. Filters"
                         DimensionValueList: Page "Dimension Value List";
                     begin
                         DimensionValue.FilterGroup(2);
-                        DimensionValue.SetRange("Dimension Code", "Dimension Code");
+                        DimensionValue.SetRange("Dimension Code", Rec."Dimension Code");
                         DimensionValue.FilterGroup(0);
                         DimensionValueList.SetTableView(DimensionValue);
                         DimensionValueList.LookupMode(true);
@@ -72,17 +72,17 @@ page 17288 "Tax Reg G/L Corr. Dim. Filters"
         Dimension: Record Dimension;
         DimCodeFilter: Code[250];
     begin
-        TaxRegisterName.Get("Section Code", "Tax Register No.");
+        TaxRegisterName.Get(Rec."Section Code", Rec."Tax Register No.");
         if TaxRegisterName."G/L Corr. Analysis View Code" <> '' then begin
             GLCorrAnalysisView.Get(TaxRegisterName."G/L Corr. Analysis View Code");
-            case "Filter Group" of
-                "Filter Group"::Debit:
+            case Rec."Filter Group" of
+                Rec."Filter Group"::Debit:
                     begin
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 1 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 2 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 3 Code", DimCodeFilter);
                     end;
-                "Filter Group"::Credit:
+                Rec."Filter Group"::Credit:
                     begin
                         AddValue2Fiter(GLCorrAnalysisView."Credit Dimension 1 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Credit Dimension 2 Code", DimCodeFilter);

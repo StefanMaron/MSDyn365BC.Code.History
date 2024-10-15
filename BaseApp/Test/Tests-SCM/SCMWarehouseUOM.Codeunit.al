@@ -430,7 +430,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Setup : Create and release Purchase Order with multiple UOM. Create Warehouse Receipt and Put Away. Create Sales Order, Warehouse Shipment and Pick.
         Initialize();
         CreateItem(Item, ItemTrackingCode.Code);
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5) + 1);  // Value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 2);  // Value required for multiple UOM with different conversion rate.
         CreateAndReleasePurchaseOrderWithMultipleUOM(
           PurchaseHeader, Item."No.", Item."Base Unit of Measure", ItemUnitOfMeasure.Code, LocationWhite.Code,
           ItemUnitOfMeasure."Qty. per Unit of Measure", true);
@@ -671,7 +671,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Setup : Create and release Purchase Order with multiple UOM. Create Warehouse Receipt and Put Away. Create Sales Order, Warehouse Shipment and Pick. Post Warehouse Shipment.
         Initialize();
         CreateItem(Item, ItemTrackingCode.Code);
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandDec(10, 5) + 1);  // Decimal value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 2);  // Decimal value required for multiple UOM with different conversion rate.
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrderWithMultipleUOM(
           PurchaseHeader, Item."No.", ItemUnitOfMeasure.Code, '', LocationWhite3.Code, Quantity, true);  // Use TRUE for with Tracking.
@@ -712,7 +712,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Setup : Create and release Purchase Order with multiple UOM. Create Warehouse Receipt and Put Away.
         Initialize();
         CreateItem(Item, ItemTrackingCode.Code);
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5) + 1);  // Value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 2);  // Value required for multiple UOM with different conversion rate.
         CreateAndReleasePurchaseOrderWithMultipleUOM(
           PurchaseHeader, Item."No.", Item."Base Unit of Measure", Item."Base Unit of Measure", LocationWhite3.Code,
           ItemUnitOfMeasure."Qty. per Unit of Measure", true);  // Use TRUE for with Tracking.
@@ -754,7 +754,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Setup : Create Item with multiple UOM without Item Tracking. Create and release Purchase Order with multiple UOM. Create Warehouse Receipt and Put Away.
         Initialize();
         CreateItemWithMultipleUOM(Item, ItemUnitOfMeasureSales, ItemUnitOfMeasurePutAway, '');
-        CreateItemUnitOfMeasure(ItemUnitOfMeasurePurchase, Item."No.", LibraryRandom.RandDec(10, 2) + 1);  // Value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasurePurchase, Item."No.", 2);  // Value required for multiple UOM with different conversion rate.
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrderWithMultipleUOM(
           PurchaseHeader, Item."No.", ItemUnitOfMeasurePurchase.Code, '', LocationWhite3.Code, Quantity, false);  // Use FALSE for without Tracking.
@@ -1069,7 +1069,7 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         // Create Item with Strict Expiration Posting Item Tracking Code. Create and Update Put Away UOM. Create and post Warehouse Receipt from Purchase Order.
         CreateItem(Item, ItemTrackingCode);
-        CreateItemUnitOfMeasure(ItemUnitOfMeasurePutAway, Item."No.", LibraryRandom.RandInt(5) + 1);  // Value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasurePutAway, Item."No.", 2);  // Value required for multiple UOM with different conversion rate.
         UpdateItemUOM(Item, '', '', ItemUnitOfMeasurePutAway.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrderWithMultipleUOM(
@@ -2286,7 +2286,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Setup : Create Item with multiple UOM. Create a combine Warehouse Shipment for two Sales Order with different UOM.
         Initialize();
         CreateItem(Item, '');
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5) + 1);  // Value required for multiple UOM with different conversion rate.
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", 2);  // Value required for multiple UOM with different conversion rate.
         FindBin(Bin, LocationWhite3.Code, false, true, true);  // Find PICK Bin.
         Quantity := LibraryRandom.RandInt(10);
         Quantity2 := Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure";  // Value required for test.
@@ -2629,13 +2629,13 @@ codeunit 137150 "SCM Warehouse UOM"
         Initialize();
         AddBinsToLocation(LocationWhite.Code, false, false, true, true, false, 2);
         CreateItem(Item, ItemTrackingCode.Code);
-        SmallerQtyPerUnitOfMeasure := LibraryRandom.RandDecInDecimalRange(0.2, 0.9, 1);
+        SmallerQtyPerUnitOfMeasure := 0.2;
         CreateAdditionalItemUOM(Item."No.", SmallerQtyPerUnitOfMeasure);
         CreateAdditionalItemUOM(
-          Item."No.", SmallerQtyPerUnitOfMeasure * 10 * LibraryRandom.RandIntInRange(1, 4));
+          Item."No.", SmallerQtyPerUnitOfMeasure * 10);
 
         PrepareDataForWarehouse(
-          TempWarehouseEntry, Item, LibraryRandom.RandIntInRange(3, 10), true, 2);
+          TempWarehouseEntry, Item, 3, true, 2);
         CreatePurchaseOrderAndPutAwayWithData(TempWarehouseEntry);
         ReorganizeDataForWarehouse(TempWarehouseEntry);
         CreateAndReleaseTransferOrderWithData(TransferHeader, TempWarehouseEntry, LocationBlue.Code, LotsAssignment::Partial);
@@ -2776,11 +2776,11 @@ codeunit 137150 "SCM Warehouse UOM"
         // [SCENARIO 363019] BOM Cost Shares report is generated for a BOM including a phantom BOM as a component
         Initialize();
 
-        QtyPer := LibraryRandom.RandIntInRange(2, 10);
+        QtyPer := 2;
 
         // [GIVEN] Component Item with Unit of Measure = "Y"
         CreateItem(ComponentItem, '');
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ComponentItem."No.", LibraryRandom.RandIntInRange(2, 10));
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ComponentItem."No.", 2);
 
         // [GIVEN] Production BOM "A" including the component Item, "Qty. per" = "Q"
         CreateAndCertifyProductionBOM(
@@ -2790,7 +2790,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // [GIVEN] Production BOM "B" including Production BOM "A" with type = "Production BOM"
         // [GIVEN] Top Item with Unit of Measure = "X", Production BOM No = "B"
         CreateItem(TopParentItem, '');
-        CreateItemUnitOfMeasure(TopItemUnitOfMeasure, TopParentItem."No.", LibraryRandom.RandIntInRange(2, 10));
+        CreateItemUnitOfMeasure(TopItemUnitOfMeasure, TopParentItem."No.", 2);
         CreateAndCertifyProductionBOM(
           ProductionBOMHeader, ParentBOMHeaderNo, TopItemUnitOfMeasure.Code, QtyPer, BomLineType::"Production BOM");
         UpdateProductionBomAndRoutingOnItem(TopParentItem, ProductionBOMHeader."No.", '');
@@ -2822,8 +2822,8 @@ codeunit 137150 "SCM Warehouse UOM"
         Initialize();
 
         // [GIVEN] Low-level component item
-        ComponentQtyPer := LibraryRandom.RandIntInRange(2, 10);
-        PhantomBOMQtyPer := LibraryRandom.RandIntInRange(2, 10);
+        ComponentQtyPer := 2;
+        PhantomBOMQtyPer := 2;
 
         CreateItem(ComponentItem, '');
 
@@ -2833,7 +2833,7 @@ codeunit 137150 "SCM Warehouse UOM"
 
         // [GIVEN] Top Item with Unit of Measure = "X", additional unit of measure with "Base UoM Quantity" = "Q2"
         CreateItem(ParentItem, '');
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ParentItem."No.", LibraryRandom.RandIntInRange(2, 10));
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ParentItem."No.", 2);
         // [GIVEN] Production BOM "B" including Production BOM "A" with type = "Production BOM" (phantom BOM), "Qantity per" = "Q3"
         CreateAndCertifyProductionBOM(
           ProductionBOMHeader, ProductionBOMHeader."No.", ItemUnitOfMeasure.Code, PhantomBOMQtyPer, BomLineType::"Production BOM");
@@ -4344,8 +4344,8 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
-        QtyPer := LibraryRandom.RandIntInRange(2, 10);
-        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ParentItem."No.", LibraryRandom.RandIntInRange(2, 10));
+        QtyPer := 2;
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ParentItem."No.", 2);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ComponentItemNo, ItemUnitOfMeasure.Code, QtyPer, Type);
         UpdateProductionBomAndRoutingOnItem(ParentItem, ProductionBOMHeader."No.", '');
     end;

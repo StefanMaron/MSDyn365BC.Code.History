@@ -9,7 +9,7 @@
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
             RequestFilterFields = "No.", "Date Filter";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
@@ -55,7 +55,7 @@
             }
             dataitem(BYGLAccounts; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 column(Text005___________G_L_Account___No__; Text005 + '  ' + "G/L Account"."No.")
                 {
                 }
@@ -169,7 +169,7 @@
             }
             dataitem(ByDebit; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 0;
                 column(Text002____G_L_Account___No__; Text002 + "G/L Account"."No.")
                 {
@@ -235,7 +235,7 @@
             }
             dataitem(ByCredit; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 0;
                 column(Text003____G_L_Account___No__; Text003 + "G/L Account"."No.")
                 {
@@ -303,7 +303,7 @@
             }
             dataitem(Balance; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(BalanceEnding; BalanceEnding)
                 {
                 }

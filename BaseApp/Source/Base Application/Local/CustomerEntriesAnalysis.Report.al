@@ -10,7 +10,7 @@ report 12442 "Customer Entries Analysis"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Customer Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Agreement Filter";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
@@ -55,7 +55,7 @@ report 12442 "Customer Entries Analysis"
             }
             dataitem("Balance LCY Begining"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(BalanceBegining; BalanceBegining)
                 {
                 }
@@ -80,8 +80,8 @@ report 12442 "Customer Entries Analysis"
             }
             dataitem("Customer Currence Begining"; Currency)
             {
-                DataItemLink = "Customer Filter" = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "Agreement Filter" = FIELD("Agreement Filter");
-                DataItemTableView = SORTING(Code) WHERE("Cust. Ledg. Entries in Filter" = CONST(true));
+                DataItemLink = "Customer Filter" = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "Agreement Filter" = field("Agreement Filter");
+                DataItemTableView = sorting(Code) where("Cust. Ledg. Entries in Filter" = const(true));
                 column(BalanceBegining_Control2400; BalanceBegining)
                 {
                 }
@@ -131,8 +131,8 @@ report 12442 "Customer Entries Analysis"
             }
             dataitem("Customer Entry"; "Cust. Ledger Entry")
             {
-                DataItemLink = "Customer No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Agreement No." = FIELD("Agreement Filter"), "Posting Date" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Document Type", "Customer No.", "Posting Date", "Currency Code");
+                DataItemLink = "Customer No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Agreement No." = field("Agreement Filter"), "Posting Date" = field("Date Filter");
+                DataItemTableView = sorting("Document Type", "Customer No.", "Posting Date", "Currency Code");
                 RequestFilterFields = "Document No.";
                 column(Customer_Name_Control37; Customer.Name)
                 {
@@ -211,8 +211,8 @@ report 12442 "Customer Entries Analysis"
                 }
                 dataitem(ApplicationEntry; "Detailed Cust. Ledg. Entry")
                 {
-                    DataItemLink = "Cust. Ledger Entry No." = FIELD("Entry No.");
-                    DataItemTableView = SORTING("Cust. Ledger Entry No.", "Posting Date") WHERE("Entry Type" = CONST(Application), Unapplied = CONST(false));
+                    DataItemLink = "Cust. Ledger Entry No." = field("Entry No.");
+                    DataItemTableView = sorting("Cust. Ledger Entry No.", "Posting Date") where("Entry Type" = const(Application), Unapplied = const(false));
                     column(ApplicationEntry_Entry_No_; "Entry No.")
                     {
                     }
@@ -227,8 +227,8 @@ report 12442 "Customer Entries Analysis"
                     }
                     dataitem(AppliedEntry; "Detailed Cust. Ledg. Entry")
                     {
-                        DataItemLink = "Transaction No." = FIELD("Transaction No."), "Customer No." = FIELD("Customer No.");
-                        DataItemTableView = SORTING("Transaction No.", "Customer No.", "Entry Type") WHERE("Entry Type" = CONST(Application), Unapplied = CONST(false));
+                        DataItemLink = "Transaction No." = field("Transaction No."), "Customer No." = field("Customer No.");
+                        DataItemTableView = sorting("Transaction No.", "Customer No.", "Entry Type") where("Entry Type" = const(Application), Unapplied = const(false));
                         column(AppliedEntry__Posting_Date_; "Posting Date")
                         {
                         }
@@ -288,7 +288,7 @@ report 12442 "Customer Entries Analysis"
                 }
                 dataitem(Total; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                     column(Total_Number; Number)
                     {
@@ -319,7 +319,7 @@ report 12442 "Customer Entries Analysis"
             }
             dataitem("Balance LCY Ending"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(BalanceEnding; BalanceEnding)
                 {
                 }
@@ -338,8 +338,8 @@ report 12442 "Customer Entries Analysis"
             }
             dataitem("Customer Currence Ending"; Currency)
             {
-                DataItemLink = "Customer Filter" = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "Agreement Filter" = FIELD("Agreement Filter");
-                DataItemTableView = SORTING(Code) WHERE("Cust. Ledg. Entries in Filter" = CONST(true));
+                DataItemLink = "Customer Filter" = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "Agreement Filter" = field("Agreement Filter");
+                DataItemTableView = sorting(Code) where("Cust. Ledg. Entries in Filter" = const(true));
                 column(Customer_Currence_Ending_Code; Code)
                 {
                 }

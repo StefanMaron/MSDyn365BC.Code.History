@@ -1519,11 +1519,37 @@ codeunit 134425 "Payment Services Test"
     end;
 
     local procedure GetCustomBodyLayout(var CustomReportLayout: Record "Custom Report Layout")
+    var
+        ReportLayoutList: Record "Report Layout List";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+        OutStr: OutStream;
     begin
-        CustomReportLayout.SetRange("Report ID", GetReportID);
+        CustomReportLayout.SetRange("Report ID", GetReportID());
         CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
         CustomReportLayout.SetFilter(Description, '''@*Email Body*''');
-        CustomReportLayout.FindLast();
+        if not CustomReportLayout.FindLast() then begin
+            ReportLayoutList.SetRange("Report ID", GetReportID());
+            ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+            ReportLayoutList.SetFilter(Name, '''@*Email*''');
+            ReportLayoutList.FindFirst();
+
+            TempBlob.CreateOutStream(OutStr);
+            ReportLayoutList.Layout.ExportStream(OutStr);
+            TempBlob.CreateInStream(InStr);
+
+            CustomReportLayout.Init();
+            CustomReportLayout."Report ID" := GetReportID();
+            CustomReportLayout.Code := CopyStr(StrSubstNo('MS-X%1', Random(9999)), 1, 10);
+            CustomReportLayout."File Extension" := 'docx';
+            CustomReportLayout.Description := CopyStr(ReportLayoutList.Name, 1, MaxStrLen(CustomReportLayout.Description));
+            CustomReportLayout.Type := CustomReportLayout.Type::Word;
+            CustomReportLayout.Layout.CreateOutStream(OutStr);
+
+            CopyStream(OutStr, InStr);
+
+            CustomReportLayout.Insert();
+        end;
     end;
 
     local procedure AssignMockSetupRecordID(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary)

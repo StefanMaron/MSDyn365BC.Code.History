@@ -48,9 +48,7 @@ table 17218 "Tax Register Dim. Filter"
         field(6; "Dimension Value Filter"; Code[250])
         {
             Caption = 'Dimension Value Filter';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
             ValidateTableRelation = false;
         }
         field(7; "Entry No."; Integer)
@@ -71,7 +69,7 @@ table 17218 "Tax Register Dim. Filter"
         }
         field(9; "Dimension Name"; Text[50])
         {
-            CalcFormula = Lookup (Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;

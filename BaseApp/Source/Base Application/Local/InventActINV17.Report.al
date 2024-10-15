@@ -10,8 +10,8 @@ report 14914 "Invent. Act INV-17"
             PrintOnlyIfDetail = true;
             dataitem(DebtsInventActLine; "Invent. Act Line")
             {
-                DataItemLink = "Act No." = FIELD("No.");
-                DataItemTableView = SORTING("Act No.", "Contractor Type", "Contractor No.", "G/L Account No.", Category) WHERE(Category = CONST(Debts));
+                DataItemLink = "Act No." = field("No.");
+                DataItemTableView = sorting("Act No.", "Contractor Type", "Contractor No.", "G/L Account No.", Category) where(Category = const(Debts));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -34,8 +34,8 @@ report 14914 "Invent. Act INV-17"
             }
             dataitem(LiabilitiesInventActLine; "Invent. Act Line")
             {
-                DataItemLink = "Act No." = FIELD("No.");
-                DataItemTableView = SORTING("Act No.", "Contractor Type", "Contractor No.", "G/L Account No.", Category) WHERE(Category = CONST(Liabilities));
+                DataItemLink = "Act No." = field("No.");
+                DataItemTableView = sorting("Act No.", "Contractor Type", "Contractor No.", "G/L Account No.", Category) where(Category = const(Liabilities));
 
                 trigger OnAfterGetRecord()
                 begin

@@ -87,7 +87,7 @@ page 12437 "VAT Settlement Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Correction; Correction)
+                field(Correction; Rec.Correction)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
@@ -197,7 +197,7 @@ page 12437 "VAT Settlement Journal"
                     ToolTip = 'Specifies the description on the related document line.';
                     Visible = DescVisible;
                 }
-                field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                field(Balance; Balance + Rec."Balance (LCY)" - xRec."Balance (LCY)")
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
@@ -206,7 +206,7 @@ page 12437 "VAT Settlement Journal"
                     ToolTip = 'Specifies the VAT amount.';
                     Visible = BalanceVisible;
                 }
-                field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                field(TotalBalance; TotalBalance + Rec."Balance (LCY)" - xRec."Balance (LCY)")
                 {
                     ApplicationArea = All;
                     AutoFormatType = 1;
@@ -262,7 +262,7 @@ page 12437 "VAT Settlement Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }
@@ -313,7 +313,7 @@ page 12437 "VAT Settlement Journal"
                         Clear(GenJnlPost);
                         GenJnlPost.SetJnlType(1); // 1 = Deferred VAT Settlement
                         GenJnlPost.Run(Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -345,7 +345,7 @@ page 12437 "VAT Settlement Journal"
                 var
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetDoc("Posting Date", "Document No.");
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }
@@ -380,7 +380,7 @@ page 12437 "VAT Settlement Journal"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnInit()
@@ -393,7 +393,7 @@ page 12437 "VAT Settlement Journal"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        TestField("Unrealized VAT Entry No.");
+        Rec.TestField("Unrealized VAT Entry No.");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -405,9 +405,9 @@ page 12437 "VAT Settlement Journal"
     var
         JnlSelected: Boolean;
     begin
-        OpenedFromBatch := ("Journal Batch Name" <> '') and ("Journal Template Name" = '');
+        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Journal Template Name" = '');
         if OpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
@@ -429,13 +429,9 @@ page 12437 "VAT Settlement Journal"
         ShowTotalBalance: Boolean;
         InitialAmount: Decimal;
         OpenedFromBatch: Boolean;
-        [InDataSet]
         BalanceVisible: Boolean;
-        [InDataSet]
         TotalBalanceVisible: Boolean;
-        [InDataSet]
         CalcDateVisible: Boolean;
-        [InDataSet]
         DescVisible: Boolean;
 
     [Scope('OnPrem')]
@@ -446,17 +442,17 @@ page 12437 "VAT Settlement Journal"
     begin
         InitialAmount := 0;
         CalculatedDate := 0D;
-        if VATEntry.Get("Unrealized VAT Entry No.") then
+        if VATEntry.Get(Rec."Unrealized VAT Entry No.") then
             InitialAmount := VATEntry."Unrealized Amount";
         LineDescription := '';
         CalculatedDate := 0D;
-        if "Object Type" = "Object Type"::"Fixed Asset" then
-            if FA.Get("Object No.") then begin
+        if Rec."Object Type" = Rec."Object Type"::"Fixed Asset" then
+            if FA.Get(Rec."Object No.") then begin
                 LineDescription := FA.Description;
                 CalculatedDate := FA."Initial Release Date";
             end else
-                case "VAT Settlement Part" of
-                    "VAT Settlement Part"::Custom:
+                case Rec."VAT Settlement Part" of
+                    Rec."VAT Settlement Part"::Custom:
                         if InitialAmount <> 0 then begin
                             LineDescription := Format(InitialAmount, 0, '<Precision,2:2><Standard Format,0>');
                             CalculatedDate := VATEntry."Posting Date";
@@ -480,13 +476,13 @@ page 12437 "VAT Settlement Journal"
         VATAllocForm: Page "VAT Allocation";
     begin
         VATAllocation.Reset();
-        VATAllocation.SetRange("VAT Entry No.", "Unrealized VAT Entry No.");
+        VATAllocation.SetRange("VAT Entry No.", Rec."Unrealized VAT Entry No.");
         VATAllocForm.SetTableView(VATAllocation);
         VATAllocForm.SetCurrGenJnlLine(Rec);
         VATAllocForm.RunModal();
 
-        CalcFields("Allocated VAT Amount");
-        Amount := -"Allocated VAT Amount";
+        Rec.CalcFields("Allocated VAT Amount");
+        Rec.Amount := -Rec."Allocated VAT Amount";
     end;
 
     local procedure AmountOnAfterValidate()

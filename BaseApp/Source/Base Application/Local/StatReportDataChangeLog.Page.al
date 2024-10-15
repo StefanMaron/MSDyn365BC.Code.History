@@ -26,7 +26,7 @@ page 26569 "Stat. Report Data Change Log"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("New Value"; Rec."New Value")

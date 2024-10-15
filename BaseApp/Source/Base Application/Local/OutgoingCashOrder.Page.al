@@ -34,13 +34,13 @@ page 12446 "Outgoing Cash Order"
 
                     trigger OnValidate()
                     begin
-                        if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]) then
+                        if not (Rec."Document Type" in [Rec."Document Type"::Payment, Rec."Document Type"::Refund]) then
                             error(DocumentTypeErr);
 
                         DocumentTypeOnAfterValidate();
                     end;
                 }
-                field(Prepayment; Prepayment)
+                field(Prepayment; Rec.Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
@@ -213,12 +213,12 @@ page 12446 "Outgoing Cash Order"
 
                     trigger OnAction()
                     begin
-                        if "Line No." = 0 then
-                            FieldError("Line No.");
+                        if Rec."Line No." = 0 then
+                            Rec.FieldError("Line No.");
                         GenJnlLine.Reset();
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         if GenJnlLine.FindFirst() then
                             REPORT.RunModal(REPORT::"Copy Payment Document", true, true, GenJnlLine);
                     end;
@@ -236,8 +236,8 @@ page 12446 "Outgoing Cash Order"
                         Clear(CheckManagement);
                         CheckManagement.VoidCheck(GenJnlLine);
                         CurrPage.Update(false);
-                        "Bank Payment Type" := "Bank Payment Type"::"Manual Check";
-                        Modify();
+                        Rec."Bank Payment Type" := "Bank Payment Type"::"Manual Check";
+                        Rec.Modify();
                         Commit();
                     end;
                 }
@@ -254,9 +254,9 @@ page 12446 "Outgoing Cash Order"
                     if (BankAccNo <> '') and (CorrAccNo <> '') then begin
                         GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
-                        GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                        GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        GenJnlLine.SetRange("Line No.", "Line No.");
+                        GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                        GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                        GenJnlLine.SetRange("Line No.", Rec."Line No.");
                         DocumentPrint.PrintCashOrder(GenJnlLine);
                     end;
                 end;
@@ -277,7 +277,7 @@ page 12446 "Outgoing Cash Order"
                     begin
                         CurrPage.SetSelectionFilter(GenJnlLine);
                         GenJnlLine.FindFirst();
-                        if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
+                        if Rec."Bal. Account Type" = Rec."Bal. Account Type"::"Bank Account" then
                             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJnlLine);
                         CurrPage.Update(false);
                     end;
@@ -296,7 +296,7 @@ page 12446 "Outgoing Cash Order"
                     begin
                         CurrPage.SetSelectionFilter(GenJnlLine);
                         GenJnlLine.FindFirst();
-                        if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
+                        if Rec."Bal. Account Type" = Rec."Bal. Account Type"::"Bank Account" then
                             GenJnlPost.Preview(GenJnlLine);
                     end;
                 }
@@ -346,7 +346,6 @@ page 12446 "Outgoing Cash Order"
         CheckManagement: Codeunit CheckManagement;
         CorrAccNo: Code[20];
         BankAccNo: Code[20];
-        [InDataSet]
         DocumentTypeEditable: Boolean;
         DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
 
@@ -356,21 +355,21 @@ page 12446 "Outgoing Cash Order"
         CashAcc.Init();
         BankAccNo := '';
 
-        CashAcc.Get("Bal. Account No.");
+        CashAcc.Get(Rec."Bal. Account No.");
         BankAccPostingGr.Get(CashAcc."Bank Acc. Posting Group");
         BankAccNo := BankAccPostingGr."G/L Account No.";
 
-        if "Credit Amount" <> 0 then
-            Validate("Debit Amount", -"Credit Amount");
+        if Rec."Credit Amount" <> 0 then
+            Rec.Validate("Debit Amount", -Rec."Credit Amount");
 
         CorrAccNo := '';
-        if "Account No." <> '' then
-            case "Account Type" of
-                "Account Type"::Customer:
+        if Rec."Account No." <> '' then
+            case Rec."Account Type" of
+                Rec."Account Type"::Customer:
                     begin
-                        Cust.Get("Account No.");
-                        CustPostGroup.Get("Posting Group");
-                        if Prepayment then begin
+                        Cust.Get(Rec."Account No.");
+                        CustPostGroup.Get(Rec."Posting Group");
+                        if Rec.Prepayment then begin
                             CustPostGroup.TestField("Prepayment Account");
                             CorrAccNo := CustPostGroup."Prepayment Account";
                         end else begin
@@ -379,11 +378,11 @@ page 12446 "Outgoing Cash Order"
                         end;
                         DocumentTypeEditable := false;
                     end;
-                "Account Type"::Vendor:
+                Rec."Account Type"::Vendor:
                     begin
-                        Vend.Get("Account No.");
-                        VendPostGroup.Get("Posting Group");
-                        if Prepayment then begin
+                        Vend.Get(Rec."Account No.");
+                        VendPostGroup.Get(Rec."Posting Group");
+                        if Rec.Prepayment then begin
                             VendPostGroup.TestField("Prepayment Account");
                             CorrAccNo := VendPostGroup."Prepayment Account";
                         end else begin
@@ -392,11 +391,11 @@ page 12446 "Outgoing Cash Order"
                         end;
                         DocumentTypeEditable := false;
                     end;
-                "Account Type"::"G/L Account":
-                    CorrAccNo := "Account No.";
-                "Account Type"::"Bank Account":
+                Rec."Account Type"::"G/L Account":
+                    CorrAccNo := Rec."Account No.";
+                Rec."Account Type"::"Bank Account":
                     begin
-                        CashAcc.Get("Account No.");
+                        CashAcc.Get(Rec."Account No.");
                         BankAccPostingGr.Get(CashAcc."Bank Acc. Posting Group");
                         BankAccPostingGr.TestField("G/L Account No.");
                         CorrAccNo := BankAccPostingGr."G/L Account No.";

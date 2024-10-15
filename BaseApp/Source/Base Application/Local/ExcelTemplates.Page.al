@@ -13,7 +13,7 @@ page 14919 "Excel Templates"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for a Microsoft Excel template.';
@@ -52,20 +52,20 @@ page 14919 "Excel Templates"
                         RecordRef: RecordRef;
                         TemplateExists: Boolean;
                     begin
-                        TemplateExists := BLOB.HasValue;
+                        TemplateExists := Rec.BLOB.HasValue;
                         Filename := FileMgt.BLOBImport(TempBlob, '*.xls');
                         if Filename = '' then
                             exit;
                         if TemplateExists then
-                            if not Confirm(Text001, false, Code) then
+                            if not Confirm(Text001, false, Rec.Code) then
                                 exit;
-                        TempBlob.ToRecordRef(RecordRef, FieldNo(BLOB));
+                        TempBlob.ToRecordRef(RecordRef, Rec.FieldNo(BLOB));
 
-                        UpdateTemplateHeight(Filename);
+                        Rec.UpdateTemplateHeight(Filename);
 
                         while StrPos(Filename, '\') <> 0 do
                             Filename := CopyStr(Filename, StrPos(Filename, '\') + 1);
-                        "File Name" := CopyStr(Filename, 1, MaxStrLen("File Name"));
+                        Rec."File Name" := CopyStr(Filename, 1, MaxStrLen(Rec."File Name"));
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -79,10 +79,10 @@ page 14919 "Excel Templates"
 
                     trigger OnAction()
                     begin
-                        CalcFields(BLOB);
-                        if BLOB.HasValue() then begin
-                            TempBlob.FromRecord(Rec, FieldNo(BLOB));
-                            FileMgt.BLOBExport(TempBlob, "File Name", true);
+                        Rec.CalcFields(BLOB);
+                        if Rec.BLOB.HasValue() then begin
+                            TempBlob.FromRecord(Rec, Rec.FieldNo(BLOB));
+                            FileMgt.BLOBExport(TempBlob, Rec."File Name", true);
                         end;
                     end;
                 }
@@ -94,11 +94,11 @@ page 14919 "Excel Templates"
 
                     trigger OnAction()
                     begin
-                        if BLOB.HasValue() then
-                            if Confirm(Text002, false, Code) then begin
-                                CalcFields(BLOB);
-                                Clear(BLOB);
-                                "File Name" := '';
+                        if Rec.BLOB.HasValue() then
+                            if Confirm(Text002, false, Rec.Code) then begin
+                                Rec.CalcFields(BLOB);
+                                Clear(Rec.BLOB);
+                                Rec."File Name" := '';
                                 CurrPage.SaveRecord();
                             end;
                     end;

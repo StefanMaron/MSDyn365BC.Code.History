@@ -28,7 +28,7 @@ page 17241 "Tax Reg Dimension Filters"
                         DimensionValueList: Page "Dimension Value List";
                     begin
                         DimensionValue.FilterGroup(2);
-                        DimensionValue.SetRange("Dimension Code", "Dimension Code");
+                        DimensionValue.SetRange("Dimension Code", Rec."Dimension Code");
                         DimensionValue.FilterGroup(0);
                         DimensionValueList.SetTableView(DimensionValue);
                         DimensionValueList.LookupMode(true);

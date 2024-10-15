@@ -9,8 +9,8 @@ page 12476 "Posted FA Release Act"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "Posted FA Doc. Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Release));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Release));
 
     layout
     {
@@ -70,9 +70,9 @@ page 12476 "Posted FA Release Act"
             part(ReleaseLines; "Posted FA Release Act Subform")
             {
                 ApplicationArea = FixedAssets;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
-                SubPageView = SORTING("Document Type", "Document No.", "Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No.");
+                SubPageView = sorting("Document Type", "Document No.", "Line No.");
             }
         }
         area(factboxes)
@@ -103,9 +103,9 @@ page 12476 "Posted FA Release Act"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
-                    RunPageLink = "Document Type" = CONST(Release),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Release),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("D&imensions")
@@ -117,7 +117,7 @@ page 12476 "Posted FA Release Act"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -126,9 +126,9 @@ page 12476 "Posted FA Release Act"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12471),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12471),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -143,7 +143,7 @@ page 12476 "Posted FA Release Act"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

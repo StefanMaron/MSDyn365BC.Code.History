@@ -11,7 +11,7 @@ page 14941 "G/L Corr. Analysis View Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies the general ledger correspondence.';
@@ -58,7 +58,7 @@ page 14941 "G/L Corr. Analysis View Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to update the general ledger correspondence information when the analysis view is created.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -128,7 +128,7 @@ page 14941 "G/L Corr. Analysis View Card"
                     Caption = 'Filter';
                     Image = "Filter";
                     RunObject = Page "G/L Corr. Analysis View Filter";
-                    RunPageLink = "G/L Corr. Analysis View Code" = FIELD(Code);
+                    RunPageLink = "G/L Corr. Analysis View Code" = field(Code);
                 }
             }
         }

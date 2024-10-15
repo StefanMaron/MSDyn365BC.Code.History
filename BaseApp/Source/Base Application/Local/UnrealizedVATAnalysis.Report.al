@@ -11,8 +11,8 @@ report 14928 "Unrealized VAT Analysis"
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = SORTING(Type, "Posting Date", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "Object Type", "Object No.", "VAT Allocation Type", Prepayment) WHERE(Type = CONST(Purchase), Base = CONST(0), Amount = CONST(0));
-            RequestFilterFields = "Bill-to/Pay-to No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date";
+            DataItemTableView = sorting(Type, "VAT Reporting Date", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "Object Type", "Object No.", "VAT Allocation Type", Prepayment) where(Type = const(Purchase), Base = const(0), Amount = const(0));
+            RequestFilterFields = "Bill-to/Pay-to No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -52,7 +52,12 @@ report 14928 "Unrealized VAT Analysis"
             column(IsInvoice; IsInvoice)
             {
             }
+#if not CLEAN23
             column(VAT_Entry__Posting_Date_; "Posting Date")
+            {
+            }
+#endif
+            column(VAT_Entry__VAT_Reporting_Date_; "VAT Reporting Date")
             {
             }
             column(VAT_Entry__Document_Type_; "Document Type")
@@ -142,7 +147,12 @@ report 14928 "Unrealized VAT Analysis"
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
+#if not CLEAN23
             column(VAT_Entry__Posting_Date_Caption; FieldCaption("Posting Date"))
+            {
+            }
+#endif
+            column(VAT_Entry__VAT_Reporting_Date_Caption; FieldCaption("VAT Reporting Date"))
             {
             }
             column(VAT_Entry__Document_Type_Caption; FieldCaption("Document Type"))
@@ -216,7 +226,7 @@ report 14928 "Unrealized VAT Analysis"
                 ChargeVATAmount := 0;
                 ChargeVATBase := 0;
                 VATEntry.SetRange("Unrealized VAT Entry No.", "Entry No.");
-                VATEntry.SetFilter("Posting Date", "VAT Entry".GetFilter("Posting Date"));
+                VATEntry.SetFilter("VAT Reporting Date", "VAT Entry".GetFilter("VAT Reporting Date"));
                 if VATEntry.FindSet() then
                     repeat
                         case VATEntry."VAT Allocation Type" of

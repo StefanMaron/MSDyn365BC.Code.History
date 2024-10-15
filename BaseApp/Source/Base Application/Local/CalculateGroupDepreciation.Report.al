@@ -12,8 +12,8 @@ report 14933 "Calculate Group Depreciation"
             RequestFilterFields = "Code";
             dataitem("Fixed Asset"; "Fixed Asset")
             {
-                DataItemLink = "Depreciation Group" = FIELD(Code);
-                DataItemTableView = SORTING("Depreciation Group") WHERE(Blocked = CONST(false));
+                DataItemLink = "Depreciation Group" = field(Code);
+                DataItemTableView = sorting("Depreciation Group") where(Blocked = const(false));
 
                 trigger OnAfterGetRecord()
                 var
@@ -413,7 +413,6 @@ report 14933 "Calculate Group Depreciation"
         AccountPeriod: Text[30];
         PostingDescription: Text[50];
         ProgressiveTotal: Boolean;
-        [InDataSet]
         ChangeDetails: Boolean;
         BalAccount: Boolean;
         NumberOfDays: Integer;

@@ -20,7 +20,7 @@ table 12427 OKATO
         field(4; "Tax Authority No."; Code[20])
         {
             Caption = 'Tax Authority No.';
-            TableRelation = Vendor WHERE("Vendor Type" = CONST("Tax Authority"));
+            TableRelation = Vendor where("Vendor Type" = const("Tax Authority"));
         }
     }
 

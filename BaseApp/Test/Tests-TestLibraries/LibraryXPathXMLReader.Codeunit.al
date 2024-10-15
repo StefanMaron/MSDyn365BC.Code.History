@@ -240,7 +240,7 @@ codeunit 131337 "Library - XPath XML Reader"
     begin
         GetNodeListByElementName(ElementName, NodeList);
         if (Index < 0) or (Index >= NodeList.Count) then
-            Error(StrSubstNo(NodeIndexOutOfBoundsErr, ElementName, Index, NodeList.Count));
+            Error(NodeIndexOutOfBoundsErr, ElementName, Index, NodeList.Count);
         Node := NodeList.Item(Index);
     end;
 

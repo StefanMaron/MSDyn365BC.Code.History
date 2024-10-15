@@ -266,7 +266,7 @@
         LastTransactionNo[1] := GetLastTransactionNo;
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
@@ -997,7 +997,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
             Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else

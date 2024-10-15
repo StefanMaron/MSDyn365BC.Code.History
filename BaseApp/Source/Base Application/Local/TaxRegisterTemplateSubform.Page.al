@@ -44,22 +44,22 @@ page 17217 "Tax Register Template Subform"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies the description associated with the tax register template.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period associated with the tax register template.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
@@ -85,24 +85,22 @@ page 17217 "Tax Register Template Subform"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Expression Type" := "Expression Type"::SumField;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Expression Type" := "Expression Type"::SumField;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
     end;
 
     var
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

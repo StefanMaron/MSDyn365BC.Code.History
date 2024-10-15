@@ -13,7 +13,7 @@ page 17246 "Tax Reg. Norm Jurisdictions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the norm jurisdiction code.';
@@ -41,7 +41,7 @@ page 17246 "Tax Reg. Norm Jurisdictions"
                     Caption = 'Groups';
                     Image = Group;
                     RunObject = Page "Tax Register Norm Groups";
-                    RunPageLink = "Norm Jurisdiction Code" = FIELD(Code);
+                    RunPageLink = "Norm Jurisdiction Code" = field(Code);
                 }
             }
         }
@@ -74,7 +74,7 @@ page 17246 "Tax Reg. Norm Jurisdictions"
 
                     trigger OnAction()
                     begin
-                        PromptImportSettings();
+                        Rec.PromptImportSettings();
                     end;
                 }
             }

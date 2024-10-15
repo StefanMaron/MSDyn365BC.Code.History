@@ -558,6 +558,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibrarySetupStorage.Restore();
         if IsInitialized then
@@ -568,6 +569,9 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // "Posted VAT Agent No. Series" is blank in standard DB
         // We need keep the same series for the whole codeunit scope to avoid numbering conflict
         UpdatePostedVATAgentNoSeriesInPurchSetup(LibraryERM.CreateNoSeriesCode);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");

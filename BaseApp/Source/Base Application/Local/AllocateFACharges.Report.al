@@ -7,7 +7,7 @@ report 14912 "Allocate FA Charges"
     {
         dataitem("Purchase Header"; "Purchase Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.");
+            DataItemTableView = sorting("Document Type", "No.");
 
             trigger OnAfterGetRecord()
             begin

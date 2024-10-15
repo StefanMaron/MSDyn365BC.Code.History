@@ -40,8 +40,6 @@ table 17201 "Tax Register Line Setup"
         {
             Caption = 'Account No.';
             TableRelation = "G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(7; "Amount Type"; Option)
@@ -81,8 +79,6 @@ table 17201 "Tax Register Line Setup"
         {
             Caption = 'Bal. Account No.';
             TableRelation = "G/L Account"."No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -124,20 +120,20 @@ table 17201 "Tax Register Line Setup"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                  "Tax Register No." = FIELD("Tax Register No."),
-                                                                  Define = CONST("Entry Setup"),
-                                                                  "Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Tax Register Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                  "Tax Register No." = field("Tax Register No."),
+                                                                  Define = const("Entry Setup"),
+                                                                  "Line No." = field("Line No.")));
             Caption = 'Dimensions Filters';
             Editable = false;
             FieldClass = FlowField;
         }
         field(17; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist("Tax Reg. G/L Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
-                                                                        "Tax Register No." = FIELD("Tax Register No."),
-                                                                        "Line No." = FIELD("Line No."),
-                                                                        Define = CONST("Entry Setup")));
+            CalcFormula = exist("Tax Reg. G/L Corr. Dim. Filter" where("Section Code" = field("Section Code"),
+                                                                        "Tax Register No." = field("Tax Register No."),
+                                                                        "Line No." = field("Line No."),
+                                                                        Define = const("Entry Setup")));
             Caption = 'G/L Corr. Dimensions Filters';
             FieldClass = FlowField;
         }
@@ -153,24 +149,18 @@ table 17201 "Tax Register Line Setup"
         {
             Caption = 'Employee Statistics Group Code';
             TableRelation = "Employee Statistics Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(24; "Employee Category Code"; Code[80])
         {
             Caption = 'Employee Category Code';
             TableRelation = Employee;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(25; "Payroll Posting Group"; Code[80])
         {
             Caption = 'Payroll Posting Group';
             TableRelation = Employee;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
     }

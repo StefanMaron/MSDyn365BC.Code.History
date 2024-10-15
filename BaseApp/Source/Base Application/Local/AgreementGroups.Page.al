@@ -18,7 +18,7 @@ page 14916 "Agreement Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of customer agreement.';
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for a customer agreement.';

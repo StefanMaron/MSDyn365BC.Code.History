@@ -9,7 +9,7 @@ report 12463 "Cash Order Journal CO-3"
     {
         dataitem("Bank Account Ledger Entry"; "Bank Account Ledger Entry")
         {
-            DataItemTableView = SORTING("Bank Account No.", "Posting Date");
+            DataItemTableView = sorting("Bank Account No.", "Posting Date");
 
             trigger OnAfterGetRecord()
             var
@@ -45,7 +45,7 @@ report 12463 "Cash Order Journal CO-3"
         }
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
 
             trigger OnAfterGetRecord()
             begin
@@ -93,7 +93,7 @@ report 12463 "Cash Order Journal CO-3"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Account No.';
                         LookupPageID = "Bank Account List";
-                        TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Account"));
+                        TableRelation = "Bank Account" where("Account Type" = const("Cash Account"));
                     }
                     field(StartingDate; StartingDate)
                     {

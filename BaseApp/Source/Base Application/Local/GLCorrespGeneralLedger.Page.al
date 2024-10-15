@@ -111,7 +111,7 @@ page 12403 "G/L Corresp. General Ledger"
             repeater(Control6)
             {
                 Editable = false;
-                IndentationColumn = "Transaction No.";
+                IndentationColumn = Rec."Transaction No.";
                 ShowAsTree = true;
                 ShowCaption = false;
                 field("GLAccount.""No."""; GLAccount."No.")
@@ -258,7 +258,7 @@ page 12403 "G/L Corresp. General Ledger"
                 Caption = 'C&ard';
                 Image = Card;
                 RunObject = Page "G/L Account Card";
-                RunPageLink = "No." = FIELD("Debit Source No.");
+                RunPageLink = "No." = field("Debit Source No.");
                 ShortCutKey = 'Shift+F7';
             }
             action("Ledger E&ntries")
@@ -267,7 +267,7 @@ page 12403 "G/L Corresp. General Ledger"
                 Caption = 'Ledger E&ntries';
                 Image = GeneralLedger;
                 RunObject = Page "General Ledger Entries";
-                RunPageLink = "G/L Account No." = FIELD("Debit Source No.");
+                RunPageLink = "G/L Account No." = field("Debit Source No.");
                 ShortCutKey = 'Ctrl+F7';
                 ToolTip = 'View the history of transactions that have been posted for the selected record.';
             }
@@ -276,8 +276,8 @@ page 12403 "G/L Corresp. General Ledger"
                 Caption = 'Co&mments';
                 Image = ViewComments;
                 RunObject = Page "Comment Sheet";
-                RunPageLink = "Table Name" = CONST("G/L Account"),
-                              "No." = FIELD("Debit Source No.");
+                RunPageLink = "Table Name" = const("G/L Account"),
+                              "No." = field("Debit Source No.");
             }
             action(PreviousPeriod)
             {
@@ -331,9 +331,9 @@ page 12403 "G/L Corresp. General Ledger"
                     Caption = 'G/L Account Balance';
                     Image = GLAccountBalance;
                     RunObject = Page "G/L Account Balance";
-                    RunPageLink = "No." = FIELD("Debit Source No."),
-                                  "Global Dimension 1 Filter" = FIELD("Debit Global Dimension 1 Code"),
-                                  "Global Dimension 2 Filter" = FIELD("Debit Global Dimension 2 Code");
+                    RunPageLink = "No." = field("Debit Source No."),
+                                  "Global Dimension 1 Filter" = field("Debit Global Dimension 1 Code"),
+                                  "Global Dimension 2 Filter" = field("Debit Global Dimension 2 Code");
                     ToolTip = 'View a summary of the debit and credit balances for different time periods, for the account that you select in the chart of accounts.';
 
                     trigger OnAction()
@@ -364,7 +364,7 @@ page 12403 "G/L Corresp. General Ledger"
                     Caption = 'G/L Account Balance/Budget';
                     Image = GLAccountBalance;
                     RunObject = Page "G/L Account Balance/Budget";
-                    RunPageLink = "No." = FIELD("Debit Source No.");
+                    RunPageLink = "No." = field("Debit Source No.");
                     ToolTip = 'View a summary of the debit and credit balances and the budgeted amounts for different time periods for the current account.';
 
                     trigger OnAction()
@@ -391,7 +391,7 @@ page 12403 "G/L Corresp. General Ledger"
                     var
                         Customer: Record Customer;
                     begin
-                        Customer.SetFilter("G/L Account Filter", "Debit Source No.");
+                        Customer.SetFilter("G/L Account Filter", Rec."Debit Source No.");
                         Customer.SetFilter("Date Filter", DateFilter);
                         PAGE.RunModal(PAGE::"Customer G/L Turnover", Customer);
                     end;
@@ -407,7 +407,7 @@ page 12403 "G/L Corresp. General Ledger"
                     var
                         Vendor: Record Vendor;
                     begin
-                        Vendor.SetFilter("G/L Account Filter", "Debit Source No.");
+                        Vendor.SetFilter("G/L Account Filter", Rec."Debit Source No.");
                         Vendor.SetFilter("Date Filter", DateFilter);
                         PAGE.RunModal(PAGE::"Vendor G/L Turnover", Vendor);
                     end;
@@ -428,7 +428,7 @@ page 12403 "G/L Corresp. General Ledger"
                         GLAcc: Record "G/L Account";
                     begin
                         GLAcc.Reset();
-                        GLAcc.SetRange("No.", "Debit Source No.");
+                        GLAcc.SetRange("No.", Rec."Debit Source No.");
                         REPORT.RunModal(REPORT::"G/L Corresp. General Ledger", true, false, GLAcc);
                     end;
                 }
@@ -452,7 +452,7 @@ page 12403 "G/L Corresp. General Ledger"
                         GLAcc: Record "G/L Account";
                     begin
                         GLAcc.Reset();
-                        GLAcc.SetRange("No.", "Debit Source No.");
+                        GLAcc.SetRange("No.", Rec."Debit Source No.");
                         REPORT.RunModal(REPORT::"G/L Account Card", true, false, GLAcc);
                     end;
                 }
@@ -508,8 +508,8 @@ page 12403 "G/L Corresp. General Ledger"
         DebitAmount := CalcDebitCreditAmount(true);
         CreditAmount := CalcDebitCreditAmount(false);
 
-        if "Transaction No." = 0 then begin
-            GLAccount.Get("Debit Source No.");
+        if Rec."Transaction No." = 0 then begin
+            GLAccount.Get(Rec."Debit Source No.");
             GLAccMakeFilters();
             GLAccount.CalculateAmounts(BalanceAmounts);
             GLAccount.CalcFields("Net Change");
@@ -596,31 +596,31 @@ page 12403 "G/L Corresp. General Ledger"
     [Scope('OnPrem')]
     procedure ModifyView()
     begin
-        Reset();
-        SetRange("Transaction No.", 1);
-        ModifyAll("Debit Entry No.", 1);
+        Rec.Reset();
+        Rec.SetRange("Transaction No.", 1);
+        Rec.ModifyAll("Debit Entry No.", 1);
 
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
                 if CalcCorrAmount(true) <> 0 then
-                    "Debit Entry No." := 0
+                    Rec."Debit Entry No." := 0
                 else
                     if CalcCorrAmount(false) <> 0 then
-                        "Debit Entry No." := 0;
-                Modify();
-            until Next() = 0;
+                        Rec."Debit Entry No." := 0;
+                Rec.Modify();
+            until Rec.Next() = 0;
         UpdateView();
     end;
 
     [Scope('OnPrem')]
     procedure UpdateView()
     begin
-        FilterGroup(6);
-        Reset();
-        SetRange("Debit Entry No.", 0);
-        SetFilter("Debit Source No.", GLAccountFilter);
-        FilterGroup(0);
-        FindFirst();
+        Rec.FilterGroup(6);
+        Rec.Reset();
+        Rec.SetRange("Debit Entry No.", 0);
+        Rec.SetFilter("Debit Source No.", GLAccountFilter);
+        Rec.FilterGroup(0);
+        Rec.FindFirst();
 
         CurrPage.Update(false);
     end;
@@ -628,14 +628,14 @@ page 12403 "G/L Corresp. General Ledger"
     [Scope('OnPrem')]
     procedure InsertRec(DebitAccNo: Code[20]; CreditAccNo: Code[20]; SourceAccountNo: Code[20]; EntryNo: Integer; Indentation: Integer; IsDebit: Boolean)
     begin
-        Init();
-        "Entry No." := EntryNo;                 // defines sorting order
-        "Debit Account No." := DebitAccNo;
-        "Credit Account No." := CreditAccNo;
-        "Debit Source No." := SourceAccountNo;
-        "Transaction No." := Indentation;       // Level indentation
-        Positive := IsDebit;                    // reversed debit/credit for line
-        Insert();
+        Rec.Init();
+        Rec."Entry No." := EntryNo;                 // defines sorting order
+        Rec."Debit Account No." := DebitAccNo;
+        Rec."Credit Account No." := CreditAccNo;
+        Rec."Debit Source No." := SourceAccountNo;
+        Rec."Transaction No." := Indentation;       // Level indentation
+        Rec.Positive := IsDebit;                    // reversed debit/credit for line
+        Rec.Insert();
 
         // "Debit Entry No." this field is used for filtering non-zero amount
     end;
@@ -646,8 +646,8 @@ page 12403 "G/L Corresp. General Ledger"
         CalcAmount: Decimal;
     begin
         Clear(GLAccount);
-        if "Transaction No." = 0 then begin
-            GLAccount.Get("Debit Source No.");
+        if Rec."Transaction No." = 0 then begin
+            GLAccount.Get(Rec."Debit Source No.");
             GLAccMakeFilters();
             if IsDebit xor SwitchAccounts then begin
                 GLAccount.CalcFields("Debit Amount");
@@ -686,15 +686,15 @@ page 12403 "G/L Corresp. General Ledger"
     procedure GLCorrMakeFilters(var GLCorr: Record "G/L Correspondence"; IsDebit: Boolean)
     begin
         Clear(GLCorr);
-        if IsDebit and Positive or
-           not IsDebit and not Positive
+        if IsDebit and Rec.Positive or
+           not IsDebit and not Rec.Positive
         then
             if not SwitchAccounts then begin
-                GLCorr.SetFilter("Debit Account No.", "Debit Account No.");
-                GLCorr.SetFilter("Credit Account No.", "Credit Account No.");
+                GLCorr.SetFilter("Debit Account No.", Rec."Debit Account No.");
+                GLCorr.SetFilter("Credit Account No.", Rec."Credit Account No.");
             end else begin
-                GLCorr.SetFilter("Debit Account No.", "Credit Account No.");
-                GLCorr.SetFilter("Credit Account No.", "Debit Account No.");
+                GLCorr.SetFilter("Debit Account No.", Rec."Credit Account No.");
+                GLCorr.SetFilter("Credit Account No.", Rec."Debit Account No.");
             end
         else begin
             GLCorr.SetRange("Debit Account No.", '');
@@ -714,7 +714,7 @@ page 12403 "G/L Corresp. General Ledger"
     var
         GLCorr: Record "G/L Correspondence";
     begin
-        case "Transaction No." of
+        case Rec."Transaction No." of
             0:
                 DrillDownGLAccount(DateFilter, IsDebit, false);
             1:
@@ -746,7 +746,7 @@ page 12403 "G/L Corresp. General Ledger"
         GLEntry: Record "G/L Entry";
     begin
         if GLAccount.Totaling = '' then
-            GLEntry.SetFilter("G/L Account No.", "Debit Source No.")
+            GLEntry.SetFilter("G/L Account No.", Rec."Debit Source No.")
         else
             GLEntry.SetFilter("G/L Account No.", GLAccount.Totaling);
         GLEntry.SetFilter("Posting Date", AppliedDateFilter);
@@ -832,17 +832,17 @@ page 12403 "G/L Corresp. General Ledger"
     var
         GLAccNo: Code[20];
     begin
-        Reset();
-        SetRange("Transaction No.", 1);
+        Rec.Reset();
+        Rec.SetRange("Transaction No.", 1);
 
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
-                GLAccNo := "Debit Account No.";
-                "Debit Account No." := "Credit Account No.";
-                "Credit Account No." := GLAccNo;
-                Positive := not Positive;
-                Modify();
-            until Next() = 0;
+                GLAccNo := Rec."Debit Account No.";
+                Rec."Debit Account No." := Rec."Credit Account No.";
+                Rec."Credit Account No." := GLAccNo;
+                Rec.Positive := not Rec.Positive;
+                Rec.Modify();
+            until Rec.Next() = 0;
 
         UpdateView();
     end;
@@ -850,7 +850,7 @@ page 12403 "G/L Corresp. General Ledger"
     [Scope('OnPrem')]
     procedure EmphasizeLine(): Boolean
     begin
-        exit("Transaction No." = 0);
+        exit(Rec."Transaction No." = 0);
     end;
 
     [Scope('OnPrem')]
@@ -891,8 +891,8 @@ page 12403 "G/L Corresp. General Ledger"
 
     local procedure ForceRecalculate()
     begin
-        Reset();
-        DeleteAll();
+        Rec.Reset();
+        Rec.DeleteAll();
         CreateView();
         ModifyView();
     end;

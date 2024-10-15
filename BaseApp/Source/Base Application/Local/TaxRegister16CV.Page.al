@@ -1,16 +1,16 @@
 page 17223 "Tax Register (1.6) CV"
 {
     Caption = 'Tax Register (1.6) CV';
-    DataCaptionExpression = FormTitle();
+    DataCaptionExpression = Rec.FormTitle();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Tax Register CV Entry";
-    SourceTableView = SORTING("Section Code", "Register Type")
-                      WHERE("Register Type" = CONST("Debit Balance"),
-                            "CV Debit Balance Amnt 2-4" = FILTER(<> 0));
+    SourceTableView = sorting("Section Code", "Register Type")
+                      where("Register Type" = const("Debit Balance"),
+                            "CV Debit Balance Amnt 2-4" = filter(<> 0));
 
     layout
     {
@@ -26,7 +26,7 @@ page 17223 "Tax Register (1.6) CV"
                     Caption = 'No.';
                     ToolTip = 'Specifies the creditor or debtor number associated with the tax register debtor or creditor entry.';
                 }
-                field(ObjectName; ObjectName())
+                field(ObjectName; Rec.ObjectName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
@@ -39,7 +39,7 @@ page 17223 "Tax Register (1.6) CV"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownCVLedgerAmount(FilterDueDateTotal45Days, true, true);
+                        Rec.DrillDownCVLedgerAmount(FilterDueDateTotal45Days, true, true);
                     end;
                 }
                 field("CV Debit Balance Amnt 2"; Rec."CV Debit Balance Amnt 2")
@@ -49,7 +49,7 @@ page 17223 "Tax Register (1.6) CV"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownCVLedgerAmount(FilterDueDate45Days, true, true);
+                        Rec.DrillDownCVLedgerAmount(FilterDueDate45Days, true, true);
                     end;
                 }
                 field("CV Debit Balance Amnt 3"; Rec."CV Debit Balance Amnt 3")
@@ -59,7 +59,7 @@ page 17223 "Tax Register (1.6) CV"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownCVLedgerAmount(FilterDueDate90Days, true, true);
+                        Rec.DrillDownCVLedgerAmount(FilterDueDate90Days, true, true);
                     end;
                 }
                 field("CV Debit Balance Amnt 4"; Rec."CV Debit Balance Amnt 4")
@@ -69,7 +69,7 @@ page 17223 "Tax Register (1.6) CV"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownCVLedgerAmount(FilterDueDate3Years, true, true);
+                        Rec.DrillDownCVLedgerAmount(FilterDueDate3Years, true, true);
                     end;
                 }
             }
@@ -148,20 +148,20 @@ page 17223 "Tax Register (1.6) CV"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if DateFilterText <> GetFilter("Date Filter") then
+        if DateFilterText <> Rec.GetFilter("Date Filter") then
             ShowNewData();
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        CopyFilter("Date Filter", Calendar."Period End");
+        Rec.CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
         Calendar.Reset();
-        FilterGroup(2);
-        SectionCode := GetRangeMin("Section Code");
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        SectionCode := Rec.GetRangeMin("Section Code");
+        Rec.FilterGroup(0);
         ShowNewData();
     end;
 
@@ -182,29 +182,29 @@ page 17223 "Tax Register (1.6) CV"
     var
         UsingDate: Date;
     begin
-        if GetFilter("Date Filter") = '' then
+        if Rec.GetFilter("Date Filter") = '' then
             UsingDate := CalcDate('<CM-1M>', WorkDate())
         else
-            UsingDate := GetRangeMax("Date Filter");
+            UsingDate := Rec.GetRangeMax("Date Filter");
 
-        SetRange("Ending Date", UsingDate);
-        SetFilter("Date Filter", '..%1', UsingDate);
-        DateFilterText := GetFilter("Date Filter");
+        Rec.SetRange("Ending Date", UsingDate);
+        Rec.SetFilter("Date Filter", '..%1', UsingDate);
+        DateFilterText := Rec.GetFilter("Date Filter");
 
-        TaxRegMgt.CalcDebitBalancePointDate(SectionCode, GetRangeMax("Date Filter"),
+        TaxRegMgt.CalcDebitBalancePointDate(SectionCode, Rec.GetRangeMax("Date Filter"),
           FilterDueDateTotal45Days, FilterDueDate45Days, FilterDueDate90Days, FilterDueDate3Years);
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar."Period End" := GetRangeMax("Date Filter");
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar."Period End" := Rec.GetRangeMax("Date Filter");
             if not TaxRegMgt.FindDate('', Calendar, PeriodType, AmountType::"Tax Period") then
                 TaxRegMgt.FindDate('', Calendar, PeriodType::Month, AmountType::"Tax Period");
         end;
         TaxRegMgt.FindDate(SearchText, Calendar, PeriodType, AmountType::"Tax Period");
 
-        SetFilter("Date Filter", '..%1', Calendar."Period End");
+        Rec.SetFilter("Date Filter", '..%1', Calendar."Period End");
     end;
 
     [Scope('OnPrem')]
@@ -212,7 +212,7 @@ page 17223 "Tax Register (1.6) CV"
     var
         CreateClosingGenJnlLine: Report "Create Closing Gen. Jnl. Line";
     begin
-        CreateClosingGenJnlLine.SetSearching("Section Code", "Ending Date", true, FilterDueDate3Years);
+        CreateClosingGenJnlLine.SetSearching(Rec."Section Code", Rec."Ending Date", true, FilterDueDate3Years);
         CreateClosingGenJnlLine.RunModal();
     end;
 }

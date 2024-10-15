@@ -96,8 +96,8 @@ table 17212 "Tax Register Item Entry"
         field(26; "Outstand. Quantity"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum("Item Application Entry".Quantity WHERE("Batch Item Ledger Entry No." = FIELD("Appl. Entry No."),
-                                                                       "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = sum("Item Application Entry".Quantity where("Batch Item Ledger Entry No." = field("Appl. Entry No."),
+                                                                       "Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Outstand. Quantity';
             Editable = false;
             FieldClass = FlowField;
@@ -145,7 +145,7 @@ table 17212 "Tax Register Item Entry"
         field(100; "Cost Amount (Actual)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry No." = field("Ledger Entry No.")));
             Caption = 'Cost Amount (Actual)';
             Editable = false;
             FieldClass = FlowField;
@@ -168,7 +168,7 @@ table 17212 "Tax Register Item Entry"
         }
         field(105; "Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
-            CalcFormula = Lookup("Item Ledger Entry"."Entry Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Entry Type" where("Entry No." = field("Ledger Entry No.")));
             Caption = 'Ledger Entry Type';
             Editable = false;
             FieldClass = FlowField;
@@ -203,7 +203,7 @@ table 17212 "Tax Register Item Entry"
         }
         field(131; "Item Ledger Source Type"; Enum "Analysis Source Type")
         {
-            CalcFormula = Lookup("Item Ledger Entry"."Source Type" WHERE("Entry No." = FIELD("Ledger Entry No.")));
+            CalcFormula = Lookup("Item Ledger Entry"."Source Type" where("Entry No." = field("Ledger Entry No.")));
             Caption = 'Item Ledger Source Type';
             Editable = false;
             FieldClass = FlowField;
@@ -211,7 +211,7 @@ table 17212 "Tax Register Item Entry"
         field(132; "Sales/Purch. Account No."; Code[20])
         {
             Caption = 'Sales/Purch. Account No.';
-            TableRelation = IF ("Item Ledger Source Type" = FILTER(Customer | Vendor)) "G/L Account"."No.";
+            TableRelation = if ("Item Ledger Source Type" = filter(Customer | Vendor)) "G/L Account"."No.";
         }
         field(133; "Inventory Account No."; Code[20])
         {
@@ -226,9 +226,9 @@ table 17212 "Tax Register Item Entry"
         field(135; "Sales/Purch. Posting Code"; Code[20])
         {
             Caption = 'Sales/Purch. Posting Code';
-            TableRelation = IF ("Item Ledger Source Type" = FILTER(Vendor)) "Vendor Posting Group".Code
-            ELSE
-            IF ("Item Ledger Source Type" = FILTER(Customer)) "Customer Posting Group".Code;
+            TableRelation = if ("Item Ledger Source Type" = filter(Vendor)) "Vendor Posting Group".Code
+            else
+            if ("Item Ledger Source Type" = filter(Customer)) "Customer Posting Group".Code;
         }
         field(136; "Location Code"; Code[10])
         {
@@ -304,7 +304,7 @@ table 17212 "Tax Register Item Entry"
         Navigate: Page Navigate;
     begin
         Clear(Navigate);
-        Navigate.SetDoc("Posting Date", "Document No.");
+        Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
         Navigate.Run();
     end;
 

@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using System.Globalization;
+
 table 318 "Tax Area"
 {
     Caption = 'Tax Area';

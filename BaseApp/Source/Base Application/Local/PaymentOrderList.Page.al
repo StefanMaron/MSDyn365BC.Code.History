@@ -32,7 +32,7 @@ page 12424 "Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field(Prepayment; Prepayment)
+                field(Prepayment; Rec.Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if the related payment is a prepayment.';
@@ -100,9 +100,9 @@ page 12424 "Payment Order List"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeCurrencyFactor.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeCurrencyFactor.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeCurrencyFactor.RunModal() = ACTION::OK then
-                            Validate("Currency Factor", ChangeCurrencyFactor.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeCurrencyFactor.GetParameter());
                         Clear(ChangeCurrencyFactor);
                     end;
                 }
@@ -274,9 +274,9 @@ page 12424 "Payment Order List"
                     Caption = 'List';
                     Image = OpportunitiesList;
                     RunObject = Page "Ingoing Cash Order";
-                    RunPageLink = "Document No." = FIELD("Document No."),
-                                  "Journal Template Name" = FIELD("Journal Template Name"),
-                                  "Journal Batch Name" = FIELD("Journal Batch Name");
+                    RunPageLink = "Document No." = field("Document No."),
+                                  "Journal Template Name" = field("Journal Template Name"),
+                                  "Journal Batch Name" = field("Journal Batch Name");
                     ToolTip = 'Open the list of ongoing cash orders.';
                 }
                 action("Payment Order")
@@ -284,9 +284,9 @@ page 12424 "Payment Order List"
                     Caption = 'Payment Order';
                     Image = "Order";
                     RunObject = Page "Bank Payment Order";
-                    RunPageLink = "Document No." = FIELD("Document No."),
-                                  "Journal Template Name" = FIELD("Journal Template Name"),
-                                  "Journal Batch Name" = FIELD("Journal Batch Name");
+                    RunPageLink = "Document No." = field("Document No."),
+                                  "Journal Template Name" = field("Journal Template Name"),
+                                  "Journal Batch Name" = field("Journal Batch Name");
                 }
                 action(Dimensions)
                 {
@@ -296,7 +296,7 @@ page 12424 "Payment Order List"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }
@@ -313,17 +313,17 @@ page 12424 "Payment Order List"
 
                 trigger OnAction()
                 begin
-                    TestField("Bal. Account No.");
+                    Rec.TestField("Bal. Account No.");
 
                     BankAccount.Reset();
-                    BankAccount.SetRange("No.", "Bal. Account No.");
+                    BankAccount.SetRange("No.", Rec."Bal. Account No.");
                     if BankAccount.FindFirst() then begin
                         if BankAccount."Account Type" <> BankAccount."Account Type"::"Bank Account" then begin
                             GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
-                            GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                            GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                            GenJnlLine.SetRange("Line No.", "Line No.");
+                            GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                            GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                            GenJnlLine.SetRange("Line No.", Rec."Line No.");
                             DocumentPrint.PrintCashOrder(GenJnlLine);
                         end else
                             DocumentPrint.PrintCheck(Rec);
@@ -408,13 +408,13 @@ page 12424 "Payment Order List"
 
     trigger OnOpenPage()
     begin
-        ExportStatusFilter := "Export Status";
+        ExportStatusFilter := Rec."Export Status";
         SetExportStatusFilter();
 
-        FilterGroup(4);
-        if (GetFilter("Journal Template Name") = '') or (GetFilter("Journal Batch Name") = '') then
+        Rec.FilterGroup(4);
+        if (Rec.GetFilter("Journal Template Name") = '') or (Rec.GetFilter("Journal Batch Name") = '') then
             Error('');
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     var
@@ -432,12 +432,12 @@ page 12424 "Payment Order List"
 
     local procedure SetExportStatusFilter()
     begin
-        FilterGroup(2);
+        Rec.FilterGroup(2);
         if ExportStatusFilter = ExportStatusFilter::" " then
-            SetRange("Export Status")
+            Rec.SetRange("Export Status")
         else
-            SetRange("Export Status", ExportStatusFilter);
-        FilterGroup(0);
+            Rec.SetRange("Export Status", ExportStatusFilter);
+        Rec.FilterGroup(0);
     end;
 }
 

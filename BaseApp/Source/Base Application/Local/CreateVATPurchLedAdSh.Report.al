@@ -11,7 +11,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         {
             dataitem(PurchVATEntryAdd; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Purchase), "Tax Invoice Amount Type" = CONST(VAT), "Additional VAT Ledger Sheet" = CONST(true), "VAT Allocation Type" = CONST(VAT));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Purchase), "Tax Invoice Amount Type" = const(VAT), "Additional VAT Ledger Sheet" = const(true), "VAT Allocation Type" = const(VAT));
 
                 trigger OnAfterGetRecord()
                 var
@@ -166,7 +166,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
             }
             dataitem(PrepayVATEntryAdd; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Sale), "Tax Invoice Amount Type" = CONST(VAT), Prepayment = CONST(true), "Additional VAT Ledger Sheet" = CONST(true), "VAT Allocation Type" = CONST(VAT));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Sale), "Tax Invoice Amount Type" = const(VAT), Prepayment = const(true), "Additional VAT Ledger Sheet" = const(true), "VAT Allocation Type" = const(VAT));
 
                 trigger OnAfterGetRecord()
                 var
@@ -221,7 +221,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
             }
             dataitem(PurchVATEntry; "VAT Entry")
             {
-                DataItemTableView = SORTING("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) WHERE(Type = CONST(Purchase), "Tax Invoice Amount Type" = CONST(VAT), "Additional VAT Ledger Sheet" = CONST(false), "Include In Other VAT Ledger" = CONST(false), "VAT Allocation Type" = CONST(VAT));
+                DataItemTableView = sorting("Posting Date", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Invoice Amount Type", Prepayment, Positive) where(Type = const(Purchase), "Tax Invoice Amount Type" = const(VAT), "Additional VAT Ledger Sheet" = const(false), "Include In Other VAT Ledger" = const(false), "VAT Allocation Type" = const(VAT));
 
                 trigger OnAfterGetRecord()
                 var
@@ -388,13 +388,13 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
             }
             dataitem(LedgerPart; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(0 .. 1));
+                DataItemTableView = sorting(Number) where(Number = filter(0 .. 1));
                 dataitem(PurchLedger; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                     dataitem(CustDeclLine; "Integer")
                     {
-                        DataItemTableView = SORTING(Number);
+                        DataItemTableView = sorting(Number);
 
                         trigger OnAfterGetRecord()
                         begin
@@ -511,7 +511,7 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                 }
                 dataitem(OtherLedger; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(0 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(0 ..));
 
                     trigger OnAfterGetRecord()
                     begin

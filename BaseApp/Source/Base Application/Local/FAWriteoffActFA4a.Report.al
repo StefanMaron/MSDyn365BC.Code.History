@@ -7,16 +7,16 @@ report 14990 "FA Writeoff Act FA-4a"
     {
         dataitem("FA Document Header"; "FA Document Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Writeoff));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Writeoff));
             dataitem("Part 3"; "FA Document Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                 dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
                 {
-                    DataItemLink = "No." = FIELD("FA No.");
+                    DataItemLink = "No." = field("FA No.");
                     DataItemLinkReference = "Part 3";
-                    DataItemTableView = SORTING("Item Type");
+                    DataItemTableView = sorting("Item Type");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -37,12 +37,12 @@ report 14990 "FA Writeoff Act FA-4a"
                 }
                 dataitem("Part 4"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     dataitem("Invt. Document Line"; "Invt. Document Line")
                     {
-                        DataItemLink = "Document No." = FIELD("Item Receipt No.");
+                        DataItemLink = "Document No." = field("Item Receipt No.");
                         DataItemLinkReference = "Part 3";
-                        DataItemTableView = SORTING("Document Type", "Document No.", "Line No.") WHERE("Document Type" = CONST(Receipt));
+                        DataItemTableView = sorting("Document Type", "Document No.", "Line No.") where("Document Type" = const(Receipt));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -73,11 +73,11 @@ report 14990 "FA Writeoff Act FA-4a"
                 }
                 dataitem("Part 5"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                 }
                 dataitem(Footer; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
 
                     trigger OnPreDataItem()

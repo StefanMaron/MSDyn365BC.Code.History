@@ -86,8 +86,8 @@ page 14908 "FA Charge Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(14907),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14907),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                 }
                 action("Ledger Entries")
@@ -96,7 +96,7 @@ page 14908 "FA Charge Card"
                     Caption = 'Ledger Entries';
                     Image = LedgerEntries;
                     RunObject = Page "FA Ledger Entries";
-                    RunPageLink = "FA Charge No." = FIELD("No.");
+                    RunPageLink = "FA Charge No." = field("No.");
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
             }

@@ -16,9 +16,9 @@ table 17210 "Tax Register CV Entry"
         field(3; "C/V No."; Code[20])
         {
             Caption = 'C/V No.';
-            TableRelation = IF ("Object Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Object Type" = CONST(Customer)) Customer;
+            TableRelation = if ("Object Type" = const(Vendor)) Vendor
+            else
+            if ("Object Type" = const(Customer)) Customer;
         }
         field(4; "Starting Date"; Date)
         {

@@ -77,8 +77,8 @@ page 14909 "FA Charge List"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(14907),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14907),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
                 }

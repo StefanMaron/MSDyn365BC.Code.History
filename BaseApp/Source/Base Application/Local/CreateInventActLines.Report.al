@@ -7,7 +7,7 @@ report 14913 "Create Invent. Act Lines"
     {
         dataitem("Invent. Act Header"; "Invent. Act Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
 
             trigger OnAfterGetRecord()
             begin

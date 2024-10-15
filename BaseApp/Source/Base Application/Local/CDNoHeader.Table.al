@@ -33,11 +33,11 @@ table 12407 "CD No. Header"
         field(8; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Source Type" = CONST(Item)) Item;
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor
+            else
+            if ("Source Type" = const(Item)) Item;
         }
         field(17; "No. Series"; Code[20])
         {

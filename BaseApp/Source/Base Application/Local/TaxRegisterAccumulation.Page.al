@@ -44,10 +44,10 @@ page 17209 "Tax Register Accumulation"
             part(TaxRegAccLines; "Tax Register Accum. Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              "Tax Register No." = FIELD("No."),
-                              "Date Filter" = FIELD("Date Filter");
-                SubPageView = SORTING("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              "Tax Register No." = field("No."),
+                              "Date Filter" = field("Date Filter");
+                SubPageView = sorting("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
             }
         }
     }
@@ -103,7 +103,7 @@ page 17209 "Tax Register Accumulation"
 
                 trigger OnAction()
                 begin
-                    PrintReport(DateFilter);
+                    Rec.PrintReport(DateFilter);
                 end;
             }
         }
@@ -157,7 +157,7 @@ page 17209 "Tax Register Accumulation"
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         DateFilter := StrSubstNo('%1..%2', Calendar."Period Start", Calendar."Period End");
-        SetFilter("Date Filter", '%1..%2', CalcDate('<-CM>', Calendar."Period End"), Calendar."Period End");
+        Rec.SetFilter("Date Filter", '%1..%2', CalcDate('<-CM>', Calendar."Period End"), Calendar."Period End");
         CurrPage.TaxRegAccLines.PAGE.UpdatePage(DateFilter);
     end;
 
@@ -169,36 +169,36 @@ page 17209 "Tax Register Accumulation"
         TaxRegFAEntry: Record "Tax Register FA Entry";
         TaxRegFEEntry: Record "Tax Register FE Entry";
     begin
-        if ("Page ID" = 0) or ("Table ID" = 0) or
-           ("Storing Method" = "Storing Method"::Calculation)
+        if (Rec."Page ID" = 0) or (Rec."Table ID" = 0) or
+           (Rec."Storing Method" = Rec."Storing Method"::Calculation)
         then
             exit;
 
-        case "Table ID" of
+        case Rec."Table ID" of
             DATABASE::"Tax Register G/L Entry":
                 begin
-                    TaxRegGLEntry.SetFilter("Where Used Register IDs", '*~' + "Register ID" + '~*');
-                    PAGE.RunModal("Page ID", TaxRegGLEntry);
+                    TaxRegGLEntry.SetFilter("Where Used Register IDs", '*~' + Rec."Register ID" + '~*');
+                    PAGE.RunModal(Rec."Page ID", TaxRegGLEntry);
                 end;
             DATABASE::"Tax Register CV Entry":
                 begin
-                    TaxRegCVEntry.SetFilter("Where Used Register IDs", '*~' + "Register ID" + '~*');
-                    PAGE.RunModal("Page ID", TaxRegCVEntry);
+                    TaxRegCVEntry.SetFilter("Where Used Register IDs", '*~' + Rec."Register ID" + '~*');
+                    PAGE.RunModal(Rec."Page ID", TaxRegCVEntry);
                 end;
             DATABASE::"Tax Register Item Entry":
                 begin
-                    TaxRegItemEntry.SetFilter("Where Used Register IDs", '*~' + "Register ID" + '~*');
-                    PAGE.RunModal("Page ID", TaxRegItemEntry);
+                    TaxRegItemEntry.SetFilter("Where Used Register IDs", '*~' + Rec."Register ID" + '~*');
+                    PAGE.RunModal(Rec."Page ID", TaxRegItemEntry);
                 end;
             DATABASE::"Tax Register FA Entry":
                 begin
-                    TaxRegFAEntry.SetFilter("Where Used Register IDs", '*~' + "Register ID" + '~*');
-                    PAGE.RunModal("Page ID", TaxRegFAEntry);
+                    TaxRegFAEntry.SetFilter("Where Used Register IDs", '*~' + Rec."Register ID" + '~*');
+                    PAGE.RunModal(Rec."Page ID", TaxRegFAEntry);
                 end;
             DATABASE::"Tax Register FE Entry":
                 begin
-                    TaxRegFEEntry.SetFilter("Where Used Register IDs", '*~' + "Register ID" + '~*');
-                    PAGE.RunModal("Page ID", TaxRegFEEntry);
+                    TaxRegFEEntry.SetFilter("Where Used Register IDs", '*~' + Rec."Register ID" + '~*');
+                    PAGE.RunModal(Rec."Page ID", TaxRegFEEntry);
                 end;
         end;
     end;

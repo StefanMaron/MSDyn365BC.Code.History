@@ -1,3 +1,14 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CostAccounting.Account;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Enums;
+using System.Reflection;
+using System.Text;
+
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Financial Report';
@@ -366,7 +377,7 @@ page 490 "Acc. Schedule Overview"
                     var
                         Result: Boolean;
                     begin
-                        Result := LookupGLBudgetFilter(Text);
+                        Result := Rec.LookupGLBudgetFilter(Text);
                         TempFinancialReport.GLBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.GLBudgetFilter));
                         ValidateGLBudgetFilter();
                         exit(Result);
@@ -388,7 +399,7 @@ page 490 "Acc. Schedule Overview"
                     var
                         Result: Boolean;
                     begin
-                        Result := LookupCostBudgetFilter(Text);
+                        Result := Rec.LookupCostBudgetFilter(Text);
                         TempFinancialReport.CostBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostBudgetFilter));
                         ValidateCostBudgetFilter();
                         exit(Result);
@@ -403,7 +414,7 @@ page 490 "Acc. Schedule Overview"
             repeater(Control48)
             {
                 Editable = false;
-                IndentationColumn = Indentation;
+                IndentationColumn = Rec.Indentation;
                 IndentationControls = Description;
                 ShowCaption = false;
                 field("Row No."; Rec."Row No.")
@@ -415,7 +426,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = Bold;
+                    StyleExpr = Rec.Bold;
                     ToolTip = 'Specifies text that will appear on the account schedule line.';
                 }
                 field(ColumnValues1; ColumnValues[1])
@@ -715,7 +726,7 @@ page 490 "Acc. Schedule Overview"
                 trigger OnAction()
                 begin
                     AccSchedManagement.FindPeriod(Rec, '>=', TempFinancialReport.PeriodType);
-                    DateFilter := GetFilter("Date Filter");
+                    DateFilter := Rec.GetFilter("Date Filter");
                 end;
             }
             action(PreviousPeriod)
@@ -728,7 +739,7 @@ page 490 "Acc. Schedule Overview"
                 trigger OnAction()
                 begin
                     AccSchedManagement.FindPeriod(Rec, '<=', TempFinancialReport.PeriodType);
-                    DateFilter := GetFilter("Date Filter");
+                    DateFilter := Rec.GetFilter("Date Filter");
                 end;
             }
             action(NextColumn)
@@ -1013,7 +1024,7 @@ page 490 "Acc. Schedule Overview"
     begin
         Clear(ColumnValues);
 
-        if (Totaling = '') or (not TempColumnLayout.FindSet()) or ("Schedule Name" <> TempFinancialReport."Financial Report Row Group") then
+        if (Rec.Totaling = '') or (not TempColumnLayout.FindSet()) or (Rec."Schedule Name" <> TempFinancialReport."Financial Report Row Group") then
             exit;
 
         repeat
@@ -1027,7 +1038,7 @@ page 490 "Acc. Schedule Overview"
                     TempColumnLayout."Rounding Factor");
                 OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, TempFinancialReport.UseAmountsInAddCurrency);
                 ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
-                GetStyle(ColumnNo - ColumnOffset, "Line No.", TempColumnLayout."Line No.");
+                GetStyle(ColumnNo - ColumnOffset, Rec."Line No.", TempColumnLayout."Line No.");
             end;
         until TempColumnLayout.Next() = 0;
         AccSchedManagement.ForceRecalculate(false);
@@ -1049,7 +1060,6 @@ page 490 "Acc. Schedule Overview"
 
     var
         // Filters set in this page
-        TempFinancialReport: Record "Financial Report" temporary;
         // Helper records keeping computed state of the page
         TempColumnLayout: Record "Column Layout" temporary;
         AccSchedName: Record "Acc. Schedule Name";
@@ -1075,47 +1085,29 @@ page 490 "Acc. Schedule Overview"
         Text005Tok: Label '1,6,,Dimension %1 Filter';
         EditModeMessage: Label 'All changes made to this page are persistent and visible to all users immediately';
         // Other page state
-        [InDataSet]
         Dim1FilterEnable: Boolean;
-        [InDataSet]
         Dim2FilterEnable: Boolean;
-        [InDataSet]
         Dim3FilterEnable: Boolean;
-        [InDataSet]
         Dim4FilterEnable: Boolean;
-        [InDataSet]
         ColumnStyle1: Text;
-        [InDataSet]
         ColumnStyle2: Text;
-        [InDataSet]
         ColumnStyle3: Text;
-        [InDataSet]
         ColumnStyle4: Text;
-        [InDataSet]
         ColumnStyle5: Text;
-        [InDataSet]
         ColumnStyle6: Text;
-        [InDataSet]
         ColumnStyle7: Text;
-        [InDataSet]
         ColumnStyle8: Text;
-        [InDataSet]
         ColumnStyle9: Text;
-        [InDataSet]
         ColumnStyle10: Text;
-        [InDataSet]
         ColumnStyle11: Text;
-        [InDataSet]
         ColumnStyle12: Text;
-        [InDataSet]
         ColumnStyle13: Text;
-        [InDataSet]
         ColumnStyle14: Text;
-        [InDataSet]
         ColumnStyle15: Text;
 
     protected var
         AnalysisView: Record "Analysis View";
+        TempFinancialReport: Record "Financial Report" temporary;
         AccSchedManagement: Codeunit AccSchedManagement;
         // These variables are unused but kept in sync for retrocompatibility purposes
         FinancialReportCode: Code[10];
@@ -1166,7 +1158,7 @@ page 490 "Acc. Schedule Overview"
         LoadPageState();
     end;
 
-    local procedure LoadPageState()
+    protected procedure LoadPageState()
     var
         IsHandled: Boolean;
     begin
@@ -1521,9 +1513,9 @@ page 490 "Acc. Schedule Overview"
                     exit(StrSubstNo(Text005Tok, DimNo));
                 end;
             5:
-                exit(FieldCaption("Date Filter"));
+                exit(Rec.FieldCaption("Date Filter"));
             6:
-                exit(FieldCaption("Cash Flow Forecast Filter"));
+                exit(Rec.FieldCaption("Cash Flow Forecast Filter"));
         end;
     end;
 
@@ -1538,7 +1530,7 @@ page 490 "Acc. Schedule Overview"
         TempFinancialReport.PeriodType := "Analysis Period Type".FromInteger(PeriodTypeOpt);
     end;
 
-    local procedure UpdateColumnCaptions()
+    protected procedure UpdateColumnCaptions()
     var
         ColumnNo: Integer;
         i: Integer;
@@ -1775,7 +1767,7 @@ page 490 "Acc. Schedule Overview"
         CurrPage.Update(false);
     end;
 
-    local procedure CurrentColumnNameOnAfterValidate()
+    protected procedure CurrentColumnNameOnAfterValidate()
     begin
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
 
@@ -1822,7 +1814,7 @@ page 490 "Acc. Schedule Overview"
         if ErrorType > ErrorType::None then
             ColumnStyle := 'Unfavorable'
         else
-            if Bold then
+            if Rec.Bold then
                 ColumnStyle := 'Strong'
             else
                 ColumnStyle := 'Standard';

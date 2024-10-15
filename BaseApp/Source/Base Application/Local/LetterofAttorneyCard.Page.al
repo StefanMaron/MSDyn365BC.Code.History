@@ -88,14 +88,14 @@ page 14905 "Letter of Attorney Card"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEdit();
+                        Rec.AssistEdit();
                     end;
                 }
             }
             part(Subform; "Letter of Attorney Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Letter of Attorney No." = FIELD("No.");
+                SubPageLink = "Letter of Attorney No." = field("No.");
             }
         }
         area(factboxes)
@@ -130,10 +130,10 @@ page 14905 "Letter of Attorney Card"
                     var
                         PurchaseHeader: Record "Purchase Header";
                     begin
-                        if "Source Document Type" = "Source Document Type"::" " then
+                        if Rec."Source Document Type" = Rec."Source Document Type"::" " then
                             exit;
 
-                        if not PurchaseHeader.Get("Source Document Type" - 1, "Source Document No.") then
+                        if not PurchaseHeader.Get(Rec."Source Document Type" - 1, Rec."Source Document No.") then
                             exit;
 
                         case PurchaseHeader."Document Type" of
@@ -187,7 +187,7 @@ page 14905 "Letter of Attorney Card"
 
                     trigger OnAction()
                     begin
-                        Release();
+                        Rec.Release();
                     end;
                 }
                 action(Reopen)
@@ -199,7 +199,7 @@ page 14905 "Letter of Attorney Card"
 
                     trigger OnAction()
                     begin
-                        Reopen();
+                        Rec.Reopen();
                     end;
                 }
             }
@@ -212,7 +212,7 @@ page 14905 "Letter of Attorney Card"
 
                 trigger OnAction()
                 begin
-                    Print();
+                    Rec.Print();
                     CurrPage.Update(false);
                 end;
             }
@@ -242,16 +242,16 @@ page 14905 "Letter of Attorney Card"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if SourceDocNo <> '' then
-            Validate("Source Document No.");
+            Rec.Validate("Source Document No.");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if SourceDocType <> 0 then
-            "Source Document Type" := SourceDocType;
+            Rec."Source Document Type" := SourceDocType;
 
         if SourceDocNo <> '' then
-            "Source Document No." := SourceDocNo;
+            Rec."Source Document No." := SourceDocNo;
     end;
 
     var
@@ -268,8 +268,8 @@ page 14905 "Letter of Attorney Card"
     [Scope('OnPrem')]
     procedure CopyLinesFromSrcDoc()
     begin
-        TestField("Source Document No.");
-        CreateAttorneyLetterLines();
+        Rec.TestField("Source Document No.");
+        Rec.CreateAttorneyLetterLines();
         CurrPage.Subform.PAGE.UpdateForm(false);
     end;
 }

@@ -1,3 +1,8 @@
+namespace Microsoft.CRM.Outlook;
+
+using System;
+using System.Integration;
+
 table 1610 "Office Add-in"
 {
     Caption = 'Office Add-in';

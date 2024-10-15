@@ -188,7 +188,7 @@ page 12434 "Posted Adv. Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")
@@ -200,7 +200,7 @@ page 12434 "Posted Adv. Statement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemTrackingLines();
+                        Rec.ShowItemTrackingLines();
                     end;
                 }
             }

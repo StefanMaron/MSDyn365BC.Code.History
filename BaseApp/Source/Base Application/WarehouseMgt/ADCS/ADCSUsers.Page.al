@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.ADCS;
+
 page 7710 "ADCS Users"
 {
     AdditionalSearchTerms = 'scanner,handheld,automated data capture,barcode';
@@ -21,7 +23,7 @@ page 7710 "ADCS Users"
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of an ADCS user.';
                 }
-                field(Password; Password)
+                field(Password; Rec.Password)
                 {
                     ApplicationArea = ADCS;
                     Caption = 'Password';

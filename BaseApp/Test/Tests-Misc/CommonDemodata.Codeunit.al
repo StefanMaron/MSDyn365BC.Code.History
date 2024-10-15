@@ -216,21 +216,6 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesInvoiceProformaCustomReportLayoutSetup()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        // [FEATURE] [Report Selection] [Proforma Invoice]
-        // [SCENARIO 225721] There is a Word Custom Report Layout setup for REP 1302 "Standard Sales - Pro Forma Inv"
-        Initialize();
-
-        CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
-        CustomReportLayout.FindFirst();
-        CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ForwardLinksExistAndNotBlank()
     var
         NamedForwardLink: Record "Named Forward Link";

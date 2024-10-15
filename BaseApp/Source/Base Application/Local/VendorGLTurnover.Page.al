@@ -7,7 +7,7 @@ page 12407 "Vendor G/L Turnover"
     PageType = List;
     SaveValues = true;
     SourceTable = Vendor;
-    SourceTableView = SORTING("Vendor Type");
+    SourceTableView = sorting("Vendor Type");
     UsageCategory = Tasks;
 
     layout
@@ -106,12 +106,12 @@ page 12407 "Vendor G/L Turnover"
                     trigger OnAction()
                     begin
                         Vendor.Copy(Rec);
-                        case "Vendor Type" of
-                            "Vendor Type"::Vendor:
+                        case Rec."Vendor Type" of
+                            Rec."Vendor Type"::Vendor:
                                 PAGE.Run(PAGE::"Vendor Card", Vendor);
-                            "Vendor Type"::"Resp. Employee":
+                            Rec."Vendor Type"::"Resp. Employee":
                                 PAGE.Run(PAGE::"Resp. Employee Card", Vendor);
-                            "Vendor Type"::"Tax Authority":
+                            Rec."Vendor Type"::"Tax Authority":
                                 PAGE.Run(PAGE::"Tax Authority/Fund Card", Vendor);
                         end;
                     end;
@@ -122,12 +122,12 @@ page 12407 "Vendor G/L Turnover"
                     Caption = 'A&greements';
                     Image = Agreement;
                     RunObject = Page "Vendor G/L Turnover Agr.";
-                    RunPageLink = "Vendor No." = FIELD("No."),
-                                  "Global Dimension 1 Filter" = FIELD(FILTER("Global Dimension 1 Filter")),
-                                  "Global Dimension 2 Filter" = FIELD(FILTER("Global Dimension 2 Filter")),
-                                  "Date Filter" = FIELD(FILTER("Date Filter")),
-                                  "G/L Account Filter" = FIELD(FILTER("G/L Account Filter")),
-                                  "G/L Starting Date Filter" = FIELD(FILTER("G/L Starting Date Filter"));
+                    RunPageLink = "Vendor No." = field("No."),
+                                  "Global Dimension 1 Filter" = field(FILTER("Global Dimension 1 Filter")),
+                                  "Global Dimension 2 Filter" = field(FILTER("Global Dimension 2 Filter")),
+                                  "Date Filter" = field(FILTER("Date Filter")),
+                                  "G/L Account Filter" = field(FILTER("G/L Account Filter")),
+                                  "G/L Starting Date Filter" = field(FILTER("G/L Starting Date Filter"));
                     ShortCutKey = 'Shift+F11';
                 }
             }
@@ -225,14 +225,14 @@ page 12407 "Vendor G/L Turnover"
 
     trigger OnOpenPage()
     begin
-        DateFilter := GetFilter("Date Filter");
+        DateFilter := Rec.GetFilter("Date Filter");
         if DateFilter = '' then begin
             if PeriodType = PeriodType::"Accounting Period" then
                 FindPeriodUser('')
             else
                 FindPeriod('');
         end else
-            SetRange("G/L Starting Date Filter", GetRangeMin("Date Filter") - 1);
+            Rec.SetRange("G/L Starting Date Filter", Rec.GetRangeMin("Date Filter") - 1);
     end;
 
     var
@@ -247,17 +247,17 @@ page 12407 "Vendor G/L Turnover"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-        SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-        if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-            SetRange("Date Filter", GetRangeMin("Date Filter"));
-        SetRange("G/L Starting Date Filter", GetRangeMin("Date Filter") - 1);
+        Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+        if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+            Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
+        Rec.SetRange("G/L Starting Date Filter", Rec.GetRangeMin("Date Filter") - 1);
     end;
 
     local procedure FindPeriodUser(SearchText: Code[10])
@@ -266,20 +266,20 @@ page 12407 "Vendor G/L Turnover"
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserPeriods.Get(UserId) then begin
-            SetRange("Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end else begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+            if Rec.GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
                 if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                     PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
             PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+            Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+                Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
         end;
     end;
 }

@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+
 page 579 "Post Application"
 {
     Caption = 'Post Application';
@@ -44,17 +49,6 @@ page 579 "Post Application"
                     Caption = 'External Document No.';
                     ToolTip = 'Specifies the external document number of the entry to be applied.';
                 }
-#if not CLEAN20
-                field(ExternalNo; ApplyUnapplyParameters."External Document No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'External Document No.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
-                    ObsoleteReason = 'Replaced by ExtDocNo control';
-                    Visible = false;
-                }
-#endif
                 field(PostingDate; ApplyUnapplyParameters."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -86,50 +80,9 @@ page 579 "Post Application"
         ApplyUnapplyParameters := NewApplyUnapplyParameters;
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by procedure SetParameters()', '20.0')]
-    procedure SetValues(NewDocNo: Code[20]; NewPostingDate: Date; NewExternalDocNo: Code[35])
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeSetValues(NewDocNo, NewPostingDate, IsHandled);
-        if IsHandled then
-            exit;
-
-        ApplyUnapplyParameters."Document No." := NewDocNo;
-        ApplyUnapplyParameters."Posting Date" := NewPostingDate;
-        ApplyUnapplyParameters."External Document No." := NewExternalDocNo;
-    end;
-#endif
-
     procedure GetParameters(var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
         NewApplyUnapplyParameters := ApplyUnapplyParameters;
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by procedure GetParameters()', '20.0')]
-    procedure GetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var NewExternalDocNo: Code[35])
-    begin
-        OnBeforeGetValues(NewDocNo, NewPostingDate);
-
-        NewDocNo := ApplyUnapplyParameters."Document No.";
-        NewPostingDate := ApplyUnapplyParameters."Posting Date";
-        NewExternalDocNo := ApplyUnapplyParameters."External Document No.";
-    end;
-
-    [IntegrationEvent(true, false)]
-    [Obsolete('Obsolete as SetValues is replaced by procedure SetParameters()', '20.0')]
-    local procedure OnBeforeSetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    [Obsolete('Obsolete as SetValues is replaced by procedure GetParameters()', '20.0')]
-    local procedure OnBeforeGetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
-    begin
-    end;
-#endif
 }
 

@@ -93,13 +93,13 @@ table 12453 "Item Document Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(35; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(37; "Indirect Cost %"; Decimal)
         {
@@ -137,8 +137,6 @@ table 12453 "Item Document Line"
             Caption = 'Last Item Ledger Entry No.';
             Editable = false;
             TableRelation = "Item Ledger Entry";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(57; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -170,7 +168,7 @@ table 12453 "Item Document Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(5403; "Bin Code"; Code[20])
         {
@@ -186,7 +184,7 @@ table 12453 "Item Document Line"
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(5413; "Quantity (Base)"; Decimal)
         {
@@ -195,11 +193,11 @@ table 12453 "Item Document Line"
         }
         field(5470; "Reserved Quantity Inbnd."; Decimal)
         {
-            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
-                                                                  "Source Ref. No." = FIELD("Line No."),
-                                                                  "Source Type" = CONST(12453),
-                                                                  "Source Subtype" = FILTER("0" | "3"),
-                                                                  "Reservation Status" = CONST(Reservation)));
+            CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
+                                                                  "Source Ref. No." = field("Line No."),
+                                                                  "Source Type" = const(12453),
+                                                                  "Source Subtype" = filter("0" | "3"),
+                                                                  "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity Inbnd.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -207,11 +205,11 @@ table 12453 "Item Document Line"
         }
         field(5471; "Reserved Quantity Outbnd."; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
-                                                                   "Source Ref. No." = FIELD("Line No."),
-                                                                   "Source Type" = CONST(12453),
-                                                                   "Source Subtype" = FILTER("1" | "2"),
-                                                                   "Reservation Status" = CONST(Reservation)));
+            CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
+                                                                   "Source Ref. No." = field("Line No."),
+                                                                   "Source Type" = const(12453),
+                                                                   "Source Subtype" = filter("1" | "2"),
+                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity Outbnd.';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -219,11 +217,11 @@ table 12453 "Item Document Line"
         }
         field(5472; "Reserved Qty. Inbnd. (Base)"; Decimal)
         {
-            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
-                                                                           "Source Ref. No." = FIELD("Line No."),
-                                                                           "Source Type" = CONST(12453),
-                                                                           "Source Subtype" = FILTER("0" | "3"),
-                                                                           "Reservation Status" = CONST(Reservation)));
+            CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
+                                                                           "Source Ref. No." = field("Line No."),
+                                                                           "Source Type" = const(12453),
+                                                                           "Source Subtype" = filter("0" | "3"),
+                                                                           "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. Inbnd. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -231,11 +229,11 @@ table 12453 "Item Document Line"
         }
         field(5473; "Reserved Qty. Outbnd. (Base)"; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
-                                                                            "Source Ref. No." = FIELD("Line No."),
-                                                                            "Source Type" = CONST(12453),
-                                                                            "Source Subtype" = FILTER("1" | "2"),
-                                                                            "Reservation Status" = CONST(Reservation)));
+            CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
+                                                                            "Source Ref. No." = field("Line No."),
+                                                                            "Source Type" = const(12453),
+                                                                            "Source Subtype" = filter("1" | "2"),
+                                                                            "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. Outbnd. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -244,13 +242,13 @@ table 12453 "Item Document Line"
         field(5600; "FA Writeoff No."; Code[20])
         {
             Caption = 'FA Writeoff No.';
-            TableRelation = "FA Document Header"."No." WHERE("Document Type" = CONST(Writeoff));
+            TableRelation = "FA Document Header"."No." where("Document Type" = const(Writeoff));
         }
         field(5601; "FA Writeoff Line No."; Integer)
         {
             Caption = 'FA Writeoff Line No.';
-            TableRelation = "FA Document Line"."Line No." WHERE("Document Type" = CONST(Writeoff),
-                                                                 "Document No." = FIELD("FA Writeoff No."));
+            TableRelation = "FA Document Line"."Line No." where("Document Type" = const(Writeoff),
+                                                                 "Document No." = field("FA Writeoff No."));
         }
         field(5704; "Item Category Code"; Code[20])
         {
@@ -306,12 +304,12 @@ table 12453 "Item Document Line"
         field(12451; "FA Entry No."; Integer)
         {
             Caption = 'FA Entry No.';
-            TableRelation = "FA Ledger Entry" WHERE("Entry No." = FIELD("FA Entry No."));
+            TableRelation = "FA Ledger Entry" where("Entry No." = field("FA Entry No."));
         }
         field(12452; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
-            TableRelation = "FA Depreciation Book"."Depreciation Book Code" WHERE("FA No." = FIELD("FA No."));
+            TableRelation = "FA Depreciation Book"."Depreciation Book Code" where("FA No." = field("FA No."));
         }
     }
 

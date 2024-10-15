@@ -7,11 +7,11 @@ report 14921 "FA Phys. Inventory INV-1a"
     {
         dataitem("Document Print Buffer"; "Document Print Buffer")
         {
-            DataItemTableView = SORTING("User ID");
+            DataItemTableView = sorting("User ID");
             dataitem("FA Journal Line"; "FA Journal Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD("Journal Batch Name");
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field("Journal Batch Name");
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

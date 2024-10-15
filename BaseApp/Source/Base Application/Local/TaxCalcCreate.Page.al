@@ -6,7 +6,7 @@ page 17328 "Tax Calc. Create"
     ModifyAllowed = false;
     PageType = Card;
     SourceTable = "Tax Calc. Section";
-    SourceTableView = WHERE(Status = FILTER(Open | Statement));
+    SourceTableView = where(Status = filter(Open | Statement));
 
     layout
     {
@@ -24,7 +24,7 @@ page 17328 "Tax Calc. Create"
 
                     trigger OnValidate()
                     begin
-                        TaxCalcMgt.InitTaxPeriod(CalendarPeriod, Periodicity, "Starting Date");
+                        TaxCalcMgt.InitTaxPeriod(CalendarPeriod, Periodicity, Rec."Starting Date");
                         AccountPeriod := '';
                         TaxCalcMgt.SetCaptionPeriodAndYear(AccountPeriod, CalendarPeriod);
                         DatePeriod.Copy(CalendarPeriod);
@@ -145,12 +145,12 @@ page 17328 "Tax Calc. Create"
     trigger OnAfterGetRecord()
     begin
         TaxCalcMgt.InitTaxPeriod(CalendarPeriod, Periodicity,
-          TaxCalcMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Calc. Accumulation", true));
+          TaxCalcMgt.GetNextAvailableBeginDate(Rec.Code, DATABASE::"Tax Calc. Accumulation", true));
         TaxCalcMgt.SetCaptionPeriodAndYear(AccountPeriod, CalendarPeriod);
         DatePeriod.Copy(CalendarPeriod);
         TaxCalcMgt.PeriodSetup(DatePeriod);
 
-        SetRecFilter();
+        Rec.SetRecFilter();
     end;
 
     var

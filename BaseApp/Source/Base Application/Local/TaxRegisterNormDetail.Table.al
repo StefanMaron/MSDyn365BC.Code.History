@@ -14,7 +14,7 @@ table 17222 "Tax Register Norm Detail"
         field(2; "Norm Group Code"; Code[10])
         {
             Caption = 'Norm Group Code';
-            TableRelation = "Tax Register Norm Group".Code WHERE("Norm Jurisdiction Code" = FIELD("Norm Jurisdiction Code"));
+            TableRelation = "Tax Register Norm Group".Code where("Norm Jurisdiction Code" = field("Norm Jurisdiction Code"));
         }
         field(3; "Norm Type"; Option)
         {

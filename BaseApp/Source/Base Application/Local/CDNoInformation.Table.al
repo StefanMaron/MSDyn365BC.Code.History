@@ -12,14 +12,14 @@ table 12408 "CD No. Information"
         {
             Caption = 'No.';
             NotBlank = true;
-            TableRelation = IF (Type = CONST(Item)) Item
-            ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if (Type = const(Item)) Item
+            else
+            if (Type = const("Fixed Asset")) "Fixed Asset";
         }
         field(2; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("No."));
         }
         field(3; "CD No."; Code[50])
         {
@@ -70,10 +70,10 @@ table 12408 "CD No. Information"
         }
         field(14; Comment; Boolean)
         {
-            CalcFormula = Exist("Item Tracking Comment" WHERE(Type = CONST("Lot No."),
-                                                               "Item No." = FIELD("No."),
-                                                               "Variant Code" = FIELD("Variant Code"),
-                                                               "Serial/Lot No." = FIELD("CD No.")));
+            CalcFormula = exist("Item Tracking Comment" where(Type = const("Lot No."),
+                                                               "Item No." = field("No."),
+                                                               "Variant Code" = field("Variant Code"),
+                                                               "Serial/Lot No." = field("CD No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -98,14 +98,14 @@ table 12408 "CD No. Information"
         {
             Caption = 'Bin Filter';
             FieldClass = FlowFilter;
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Filter"));
+            TableRelation = Bin.Code where("Location Code" = field("Location Filter"));
         }
         field(30; Inventory; Decimal)
         {
-            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
-                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                  "Package No." = FIELD("CD No."),
-                                                                  "Location Code" = FIELD("Location Filter")));
+            CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
+                                                                  "Variant Code" = field("Variant Code"),
+                                                                  "Package No." = field("CD No."),
+                                                                  "Location Code" = field("Location Filter")));
             Caption = 'Inventory';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -113,44 +113,44 @@ table 12408 "CD No. Information"
         }
         field(31; "Positive Adjmt."; Decimal)
         {
-            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
-                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                  "Package No." = FIELD("CD No."),
-                                                                  "Location Code" = FIELD("Location Filter"),
-                                                                  "Entry Type" = CONST("Positive Adjmt.")));
+            CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
+                                                                  "Variant Code" = field("Variant Code"),
+                                                                  "Package No." = field("CD No."),
+                                                                  "Location Code" = field("Location Filter"),
+                                                                  "Entry Type" = const("Positive Adjmt.")));
             Caption = 'Positive Adjmt.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(32; Purchases; Decimal)
         {
-            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
-                                                                  "Variant Code" = FIELD("Variant Code"),
-                                                                  "Package No." = FIELD("CD No."),
-                                                                  "Location Code" = FIELD("Location Filter"),
-                                                                  "Entry Type" = CONST(Purchase)));
+            CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
+                                                                  "Variant Code" = field("Variant Code"),
+                                                                  "Package No." = field("CD No."),
+                                                                  "Location Code" = field("Location Filter"),
+                                                                  "Entry Type" = const(Purchase)));
             Caption = 'Purchases';
             Editable = false;
             FieldClass = FlowField;
         }
         field(33; "Negative Adjmt."; Decimal)
         {
-            CalcFormula = - Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
-                                                                   "Variant Code" = FIELD("Variant Code"),
-                                                                   "Package No." = FIELD("CD No."),
-                                                                   "Location Code" = FIELD("Location Filter"),
-                                                                   "Entry Type" = CONST("Negative Adjmt.")));
+            CalcFormula = - sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
+                                                                   "Variant Code" = field("Variant Code"),
+                                                                   "Package No." = field("CD No."),
+                                                                   "Location Code" = field("Location Filter"),
+                                                                   "Entry Type" = const("Negative Adjmt.")));
             Caption = 'Negative Adjmt.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(34; Sales; Decimal)
         {
-            CalcFormula = - Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("No."),
-                                                                   "Variant Code" = FIELD("Variant Code"),
-                                                                   "Package No." = FIELD("CD No."),
-                                                                   "Location Code" = FIELD("Location Filter"),
-                                                                   "Entry Type" = CONST(Sale)));
+            CalcFormula = - sum("Item Ledger Entry".Quantity where("Item No." = field("No."),
+                                                                   "Variant Code" = field("Variant Code"),
+                                                                   "Package No." = field("CD No."),
+                                                                   "Location Code" = field("Location Filter"),
+                                                                   "Entry Type" = const(Sale)));
             Caption = 'Sales';
             Editable = false;
             FieldClass = FlowField;

@@ -11,7 +11,7 @@
     {
         dataitem(GLAccForReport; "G/L Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'GL Accounts of Reports';
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
@@ -43,7 +43,7 @@
             }
             dataitem("Balance Beg/Ending"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(BalanceBegining; BalanceBegining)
                 {
@@ -89,7 +89,7 @@
                 }
                 dataitem(ByGLAccounts; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     column(Text005_____GLAccForReport__No__; Text005 + ' ' + GLAccForReport."No.")
                     {
                     }
@@ -152,9 +152,9 @@
                     }
                     dataitem(CorrespByGLAccDebit; "G/L Correspondence Entry")
                     {
-                        DataItemLink = "Debit Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Business Unit Code" = FIELD("Business Unit Filter");
+                        DataItemLink = "Debit Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Business Unit Code" = field("Business Unit Filter");
                         DataItemLinkReference = GLAccForReport;
-                        DataItemTableView = SORTING("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
+                        DataItemTableView = sorting("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
                         column(CorrespByGLAccDebit__Posting_Date_; "Posting Date")
                         {
                         }
@@ -198,9 +198,9 @@
                     }
                     dataitem(CorrespByGLAccCredit; "G/L Correspondence Entry")
                     {
-                        DataItemLink = "Debit Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Business Unit Code" = FIELD("Business Unit Filter");
+                        DataItemLink = "Debit Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Business Unit Code" = field("Business Unit Filter");
                         DataItemLinkReference = GLAccForReport;
-                        DataItemTableView = SORTING("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
+                        DataItemTableView = sorting("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
                         column(CorrespByGLAccCredit__Posting_Date_; "Posting Date")
                         {
                         }
@@ -298,7 +298,7 @@
                 }
                 dataitem(ByDebit; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 0;
                     column(Text002_GLAccForReport__No__; Text002 + GLAccForReport."No.")
                     {
@@ -344,9 +344,9 @@
                     }
                     dataitem(CorrespByDebit; "G/L Correspondence Entry")
                     {
-                        DataItemLink = "Debit Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Business Unit Code" = FIELD("Business Unit Filter");
+                        DataItemLink = "Debit Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Business Unit Code" = field("Business Unit Filter");
                         DataItemLinkReference = GLAccForReport;
-                        DataItemTableView = SORTING("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
+                        DataItemTableView = sorting("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
                         column(CorrespByDebit__Posting_Date_; "Posting Date")
                         {
                         }
@@ -420,7 +420,7 @@
                 }
                 dataitem(ByCredit; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 0;
                     column(Text003_GLAccForReport__No__; Text003 + GLAccForReport."No.")
                     {
@@ -466,9 +466,9 @@
                     }
                     dataitem(CorrespByCredit; "G/L Correspondence Entry")
                     {
-                        DataItemLink = "Debit Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Business Unit Code" = FIELD("Business Unit Filter");
+                        DataItemLink = "Debit Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Debit Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Business Unit Code" = field("Business Unit Filter");
                         DataItemLinkReference = GLAccForReport;
-                        DataItemTableView = SORTING("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
+                        DataItemTableView = sorting("Debit Account No.", "Credit Account No.", "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code", "Business Unit Code", "Posting Date");
                         column(CorrespByCredit__Posting_Date_; "Posting Date")
                         {
                         }

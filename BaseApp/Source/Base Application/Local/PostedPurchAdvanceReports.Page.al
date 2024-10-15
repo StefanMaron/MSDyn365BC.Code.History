@@ -5,7 +5,7 @@ page 35611 "Posted Purch. Advance Reports"
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Inv. Header";
-    SourceTableView = WHERE("Empl. Purchase" = CONST(true));
+    SourceTableView = where("Empl. Purchase" = const(true));
     UsageCategory = History;
 
     layout
@@ -46,7 +46,7 @@ page 35611 "Posted Purch. Advance Reports"
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
+                        Rec.SetRange("No.");
                         PAGE.RunModal(PAGE::"Posted Purchase Invoice", Rec)
                     end;
                 }
@@ -57,7 +57,7 @@ page 35611 "Posted Purch. Advance Reports"
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
+                        Rec.SetRange("No.");
                         PAGE.RunModal(PAGE::"Posted Purchase Invoice", Rec)
                     end;
                 }
@@ -220,7 +220,7 @@ page 35611 "Posted Purch. Advance Reports"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Posted Advance Statement";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F7';
                 }
                 action(Statistics)
@@ -228,7 +228,7 @@ page 35611 "Posted Purch. Advance Reports"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Purchase Invoice Statistics";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -237,8 +237,8 @@ page 35611 "Posted Purch. Advance Reports"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
-                    RunPageLink = "Document Type" = CONST("Posted Invoice"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Document Type" = const("Posted Invoice"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -248,7 +248,7 @@ page 35611 "Posted Purch. Advance Reports"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -277,7 +277,7 @@ page 35611 "Posted Purch. Advance Reports"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

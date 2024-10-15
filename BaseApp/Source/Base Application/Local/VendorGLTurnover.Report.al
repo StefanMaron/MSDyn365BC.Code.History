@@ -8,7 +8,7 @@ report 12451 "Vendor G/L Turnover"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Vendor Posting Group", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Date Filter";
             column(CurrentDate; CurrentDate)
             {
@@ -195,8 +195,8 @@ report 12451 "Vendor G/L Turnover"
             }
             dataitem("Vendor Agreement"; "Vendor Agreement")
             {
-                DataItemLink = "Vendor No." = FIELD("No."), "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter"), "G/L Account Filter" = FIELD("G/L Account Filter"), "Date Filter" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Vendor No.", "No.");
+                DataItemLink = "Vendor No." = field("No."), "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"), "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"), "G/L Account Filter" = field("G/L Account Filter"), "Date Filter" = field("Date Filter");
+                DataItemTableView = sorting("Vendor No.", "No.");
                 column(Vendor_Agreement__No__; "No.")
                 {
                 }

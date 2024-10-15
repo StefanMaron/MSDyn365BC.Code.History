@@ -18,7 +18,7 @@ page 17330 "Tax Calc. Cor. Dim. Filters"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the register number associated with the tax calculation dimension filter.';
                 }
-                field("TaxCalcDescription()"; TaxCalcDescription())
+                field("TaxCalcDescription()"; Rec.TaxCalcDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -75,7 +75,7 @@ page 17330 "Tax Calc. Cor. Dim. Filters"
                 TemplateDimFilter.SetRange("Entry No.", TemplateDimCorrespFilter."Connection Entry No.");
                 if TemplateDimFilter.FindFirst() then begin
                     Rec := TemplateDimFilter;
-                    Insert();
+                    Rec.Insert();
                 end;
             until TemplateDimCorrespFilter.Next() = 0;
     end;

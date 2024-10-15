@@ -5,7 +5,7 @@ page 35600 "Cash Accounts"
     CardPageID = "Cash Account Card";
     PageType = List;
     SourceTable = "Bank Account";
-    SourceTableView = WHERE("Account Type" = CONST("Cash Account"));
+    SourceTableView = where("Account Type" = const("Cash Account"));
     UsageCategory = Lists;
 
     layout
@@ -46,8 +46,8 @@ page 35600 "Cash Accounts"
             }
             part(Control1905532107; "Dimensions FactBox")
             {
-                SubPageLink = "Table ID" = CONST(270),
-                              "No." = FIELD("No.");
+                SubPageLink = "Table ID" = const(270),
+                              "No." = field("No.");
                 Visible = false;
             }
         }
@@ -66,10 +66,10 @@ page 35600 "Cash Accounts"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Bank Account Statistics";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -78,8 +78,8 @@ page 35600 "Cash Accounts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Bank Account"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Bank Account"),
+                                  "No." = field("No.");
                 }
                 group(Dimensions)
                 {
@@ -93,8 +93,8 @@ page 35600 "Cash Accounts"
                         //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                         //PromotedCategory = Process;
                         RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(270),
-                                      "No." = FIELD("No.");
+                        RunPageLink = "Table ID" = const(270),
+                                      "No." = field("No.");
                         ShortCutKey = 'Shift+Ctrl+D';
                     }
                     action("Dimensions-&Multiple")
@@ -111,7 +111,7 @@ page 35600 "Cash Accounts"
                             DefaultDimMultiple: Page "Default Dimensions-Multiple";
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
-                            DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
+                            DefaultDimMultiple.SetMultiRecord(BankAcc, Rec.FieldNo("No."));
                             DefaultDimMultiple.RunModal();
                         end;
                     }
@@ -122,10 +122,10 @@ page 35600 "Cash Accounts"
                     Caption = 'Balance';
                     Image = Balance;
                     RunObject = Page "Bank Account Balance";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Date Filter" = FIELD("Date Filter"),
-                                  "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
-                                  "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
+                    RunPageLink = "No." = field("No."),
+                                  "Date Filter" = field("Date Filter"),
+                                  "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                  "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 }
                 action("Ledger E&ntries")
                 {
@@ -133,8 +133,8 @@ page 35600 "Cash Accounts"
                     Caption = 'Ledger E&ntries';
                     Image = BankAccountLedger;
                     RunObject = Page "Bank Account Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -143,8 +143,8 @@ page 35600 "Cash Accounts"
                     Caption = 'Chec&k Ledger Entries';
                     Image = CheckLedger;
                     RunObject = Page "Check Ledger Entries";
-                    RunPageLink = "Bank Account No." = FIELD("No.");
-                    RunPageView = SORTING("Bank Account No.");
+                    RunPageLink = "Bank Account No." = field("No.");
+                    RunPageView = sorting("Bank Account No.");
                 }
                 action("C&ontact")
                 {
@@ -154,7 +154,7 @@ page 35600 "Cash Accounts"
 
                     trigger OnAction()
                     begin
-                        ShowContact();
+                        Rec.ShowContact();
                     end;
                 }
             }

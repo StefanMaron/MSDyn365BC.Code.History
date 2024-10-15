@@ -49,9 +49,9 @@ page 17337 "FA Tax Differences"
                     begin
                         FALedgerEntry.Reset();
                         FALedgerEntry.FilterGroup(2);
-                        FALedgerEntry.SetRange("FA No.", "No.");
+                        FALedgerEntry.SetRange("FA No.", Rec."No.");
                         FALedgerEntry.SetRange("Depreciation Book Code", FASetup."Release Depr. Book");
-                        CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
+                        Rec.CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
                         FALedgerEntry.SetFilter(
                           "FA Posting Type",
                           '%1|%2|%3',
@@ -71,9 +71,9 @@ page 17337 "FA Tax Differences"
                     begin
                         FALedgerEntry.Reset();
                         FALedgerEntry.FilterGroup(2);
-                        FALedgerEntry.SetRange("FA No.", "No.");
+                        FALedgerEntry.SetRange("FA No.", Rec."No.");
                         FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
-                        CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
+                        Rec.CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
                         FALedgerEntry.SetFilter(
                           "FA Posting Type",
                           '%1|%2|%3',
@@ -99,8 +99,8 @@ page 17337 "FA Tax Differences"
                         FALedgerEntry.Reset();
                         FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date", Reversed, "Tax Difference Code");
                         FALedgerEntry.FilterGroup(2);
-                        FALedgerEntry.SetRange("FA No.", "No.");
-                        CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
+                        FALedgerEntry.SetRange("FA No.", Rec."No.");
+                        Rec.CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
                         FALedgerEntry.SetFilter("Depreciation Book Code", DeprBookFilter);
                         FALedgerEntry.SetRange(Reversed, false);
                         FALedgerEntry.SetFilter("Tax Difference Code", '<>%1', TaxRegisterSetup."Default FA TD Code");
@@ -196,16 +196,16 @@ page 17337 "FA Tax Differences"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
-        if GetFilter("Date Filter") <> '' then begin
-            Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+        if Rec.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
                 PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
-        SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-        if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-            SetRange("Date Filter", GetRangeMin("Date Filter"));
+        Rec.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+        if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then
+            Rec.SetRange("Date Filter", Rec.GetRangeMin("Date Filter"));
     end;
 
     [Scope('OnPrem')]
@@ -217,8 +217,8 @@ page 17337 "FA Tax Differences"
         DifferenceAmountCalc := 0;
         IsDifference := false;
 
-        if FADepreciationBook.Get("No.", FASetup."Release Depr. Book") then begin
-            CopyFilter("Date Filter", FADepreciationBook."FA Posting Date Filter");
+        if FADepreciationBook.Get(Rec."No.", FASetup."Release Depr. Book") then begin
+            Rec.CopyFilter("Date Filter", FADepreciationBook."FA Posting Date Filter");
             FADepreciationBook.CalcFields("Acquisition Cost", Appreciation, "Salvage Value");
             AmountBase :=
               FADepreciationBook."Acquisition Cost" +
@@ -226,8 +226,8 @@ page 17337 "FA Tax Differences"
               FADepreciationBook."Salvage Value";
         end;
 
-        if FADepreciationBook.Get("No.", TaxRegisterSetup."Tax Depreciation Book") then begin
-            CopyFilter("Date Filter", FADepreciationBook."FA Posting Date Filter");
+        if FADepreciationBook.Get(Rec."No.", TaxRegisterSetup."Tax Depreciation Book") then begin
+            Rec.CopyFilter("Date Filter", FADepreciationBook."FA Posting Date Filter");
             FADepreciationBook.CalcFields("Acquisition Cost");
             AmountTax :=
               FADepreciationBook."Acquisition Cost" +
@@ -239,8 +239,8 @@ page 17337 "FA Tax Differences"
 
         FALedgerEntry.Reset();
         FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date", Reversed, "Tax Difference Code");
-        FALedgerEntry.SetRange("FA No.", "No.");
-        CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
+        FALedgerEntry.SetRange("FA No.", Rec."No.");
+        Rec.CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");
         FALedgerEntry.SetFilter("Depreciation Book Code", DeprBookFilter);
         FALedgerEntry.SetRange(Reversed, false);
         FALedgerEntry.SetFilter("Tax Difference Code", '<>%1', TaxRegisterSetup."Default FA TD Code");

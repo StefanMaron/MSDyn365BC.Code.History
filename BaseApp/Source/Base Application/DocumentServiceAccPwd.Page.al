@@ -1,4 +1,6 @@
 #if not CLEAN21
+namespace Microsoft.EServices.EDocument;
+
 page 9552 "Document Service Acc. Pwd."
 {
     Caption = 'Document Service Acc. Pwd.';

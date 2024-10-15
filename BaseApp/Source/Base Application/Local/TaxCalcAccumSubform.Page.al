@@ -32,7 +32,7 @@ page 17322 "Tax Calc. Accum. Subform"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Dimensions Filters"; Rec."Dimensions Filters")
@@ -106,18 +106,17 @@ page 17322 "Tax Calc. Accum. Subform"
     var
         TaxCalcHeader: Record "Tax Calc. Header";
         DateFilter: Text[250];
-        [InDataSet]
         DescriptionIndent: Integer;
 
     [Scope('OnPrem')]
     procedure Load(NewTaxCalcHeader: Record "Tax Calc. Header"; NewDateFilter: Text[250])
     begin
-        FilterGroup(2);
-        SetRange("Section Code", NewTaxCalcHeader."Section Code");
-        SetRange("Register No.", NewTaxCalcHeader."No.");
-        SetFilter("Date Filter", NewDateFilter);
-        SetRange("Ending Date", GetRangeMax("Date Filter"));
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Section Code", NewTaxCalcHeader."Section Code");
+        Rec.SetRange("Register No.", NewTaxCalcHeader."No.");
+        Rec.SetFilter("Date Filter", NewDateFilter);
+        Rec.SetRange("Ending Date", Rec.GetRangeMax("Date Filter"));
+        Rec.FilterGroup(0);
         DateFilter := NewDateFilter;
         TaxCalcHeader := NewTaxCalcHeader;
     end;
@@ -173,21 +172,21 @@ page 17322 "Tax Calc. Accum. Subform"
     var
         TemplateDimFilter: Record "Tax Calc. Dim. Filter";
     begin
-        CalcFields("Dimensions Filters");
-        if "Dimensions Filters" then begin
+        Rec.CalcFields("Dimensions Filters");
+        if Rec."Dimensions Filters" then begin
             TemplateDimFilter.FilterGroup(2);
-            TemplateDimFilter.SetRange("Section Code", "Section Code");
-            TemplateDimFilter.SetRange("Register No.", "Register No.");
+            TemplateDimFilter.SetRange("Section Code", Rec."Section Code");
+            TemplateDimFilter.SetRange("Register No.", Rec."Register No.");
             TemplateDimFilter.SetRange(Define, TemplateDimFilter.Define::Template);
             TemplateDimFilter.FilterGroup(0);
-            TemplateDimFilter.SetRange("Line No.", "Template Line No.");
+            TemplateDimFilter.SetRange("Line No.", Rec."Template Line No.");
             if ACTION::None = PAGE.RunModal(0, TemplateDimFilter) then;
         end;
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
+        DescriptionIndent := Rec.Indentation;
     end;
 }
 

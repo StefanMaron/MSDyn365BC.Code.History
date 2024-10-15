@@ -9,7 +9,7 @@ report 17300 "Calculate Tax Diff. for FE"
     {
         dataitem("Future Expense"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.") WHERE("FA Type" = CONST("Future Expense"), Blocked = CONST(false), Inactive = CONST(false));
+            DataItemTableView = sorting("No.") where("FA Type" = const("Future Expense"), Blocked = const(false), Inactive = const(false));
 
             trigger OnAfterGetRecord()
             begin

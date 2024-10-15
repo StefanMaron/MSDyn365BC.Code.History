@@ -26,8 +26,8 @@ table 26552 "Statutory Report Table"
         field(11; "Excel Sheet Name"; Text[30])
         {
             Caption = 'Excel Sheet Name';
-            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" WHERE("Report Code" = FIELD("Report Code"),
-                                                                           "Report Data No." = CONST(''));
+            TableRelation = "Stat. Report Excel Sheet"."Sheet Name" where("Report Code" = field("Report Code"),
+                                                                           "Report Data No." = const(''));
 
             trigger OnLookup()
             begin
@@ -65,16 +65,16 @@ table 26552 "Statutory Report Table"
         }
         field(16; "Rows Quantity"; Integer)
         {
-            CalcFormula = Count("Stat. Report Table Row" WHERE("Report Code" = FIELD("Report Code"),
-                                                                "Table Code" = FIELD(Code)));
+            CalcFormula = count("Stat. Report Table Row" where("Report Code" = field("Report Code"),
+                                                                "Table Code" = field(Code)));
             Caption = 'Rows Quantity';
             Editable = false;
             FieldClass = FlowField;
         }
         field(17; "Columns Quantity"; Integer)
         {
-            CalcFormula = Count("Stat. Report Table Column" WHERE("Report Code" = FIELD("Report Code"),
-                                                                   "Table Code" = FIELD(Code)));
+            CalcFormula = count("Stat. Report Table Column" where("Report Code" = field("Report Code"),
+                                                                   "Table Code" = field(Code)));
             Caption = 'Columns Quantity';
             Editable = false;
             FieldClass = FlowField;
@@ -147,8 +147,8 @@ table 26552 "Statutory Report Table"
         field(26; "Page Indic. Requisite Line No."; Integer)
         {
             Caption = 'Page Indic. Requisite Line No.';
-            TableRelation = "Table Individual Requisite"."Line No." WHERE("Report Code" = FIELD("Report Code"),
-                                                                           "Table Code" = FIELD(Code));
+            TableRelation = "Table Individual Requisite"."Line No." where("Report Code" = field("Report Code"),
+                                                                           "Table Code" = field(Code));
 
             trigger OnValidate()
             begin
@@ -182,7 +182,7 @@ table 26552 "Statutory Report Table"
         field(30; "Parent Table Code"; Code[20])
         {
             Caption = 'Parent Table Code';
-            TableRelation = "Statutory Report Table".Code WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "Statutory Report Table".Code where("Report Code" = field("Report Code"));
 
             trigger OnValidate()
             begin
@@ -203,7 +203,6 @@ table 26552 "Statutory Report Table"
                     DeletePageIndicationElements();
             end;
         }
-#pragma warning disable AS0044
         field(50; "Int. Source Type"; Option)
         {
             Caption = 'Int. Source Type';
@@ -218,13 +217,12 @@ table 26552 "Statutory Report Table"
                 end;
             end;
         }
-#pragma warning restore AS0044
         field(51; "Int. Source Section Code"; Code[10])
         {
             Caption = 'Int. Source Section Code';
-            TableRelation = IF ("Int. Source Type" = FILTER("Tax Register")) "Tax Register Section"
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Section";
+            TableRelation = if ("Int. Source Type" = filter("Tax Register")) "Tax Register Section"
+            else
+            if ("Int. Source Type" = const("Tax Difference")) "Tax Calc. Section";
 
             trigger OnValidate()
             begin
@@ -238,11 +236,11 @@ table 26552 "Statutory Report Table"
         field(52; "Int. Source No."; Code[10])
         {
             Caption = 'Int. Source No.';
-            TableRelation = IF ("Int. Source Type" = CONST("Acc. Schedule")) "Acc. Schedule Name"
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Register")) "Tax Register"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"))
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"));
+            TableRelation = if ("Int. Source Type" = const("Acc. Schedule")) "Acc. Schedule Name"
+            else
+            if ("Int. Source Type" = const("Tax Register")) "Tax Register"."No." where("Section Code" = field("Int. Source Section Code"))
+            else
+            if ("Int. Source Type" = const("Tax Difference")) "Tax Calc. Header"."No." where("Section Code" = field("Int. Source Section Code"));
 
             trigger OnValidate()
             begin
@@ -253,6 +251,11 @@ table 26552 "Statutory Report Table"
                     end else
                         CheckIntSourceMappingExistence();
             end;
+        }
+        field(53; "Int. Source Col. Name"; Code[10])
+        {
+            Caption = 'Int. Source Column Layout';
+            TableRelation = "Column Layout Name";
         }
     }
 
@@ -655,7 +658,9 @@ table 26552 "Statutory Report Table"
     [Scope('OnPrem')]
     procedure UpdateIntSourceLinks()
     var
+#if not CLEAN22
         AccScheduleName: Record "Acc. Schedule Name";
+#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterTemplate: Record "Tax Register Template";
@@ -673,13 +678,21 @@ table 26552 "Statutory Report Table"
         case "Int. Source Type" of
             "Int. Source Type"::"Acc. Schedule":
                 begin
-                    AccScheduleName.Get("Int. Source No.");
-                    AccScheduleName.TestField("Default Column Layout");
+#if not CLEAN22
+                    if Rec."Int. Source Col. Name" = '' then begin
+                        AccScheduleName.Get(Rec."Int. Source No.");
+                        if AccScheduleName."Default Column Layout" <> '' then begin
+                            Rec."Int. Source Col. Name" := AccScheduleName."Default Column Layout";
+                            Rec.Modify();
+                        end
+                    end;
+#endif
+                    Rec.TestField("Int. Source Col. Name");
                     AccScheduleLine.SetRange("Schedule Name", "Int. Source No.");
                     StatReportTableRow.SetRange("Report Code", "Report Code");
                     StatReportTableRow.SetRange("Table Code", Code);
 
-                    ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
+                    ColumnLayout.SetRange("Column Layout Name", Rec."Int. Source Col. Name");
 
                     if AccScheduleLine.FindSet() and StatReportTableRow.FindSet() then begin
                         repeat

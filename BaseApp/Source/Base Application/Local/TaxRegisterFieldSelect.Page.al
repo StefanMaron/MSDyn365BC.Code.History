@@ -21,7 +21,7 @@ page 17215 "Tax Register Field Select"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(FieldName; FieldName)
+                field(FieldName; Rec.FieldName)
                 {
                     ApplicationArea = Basic, Suite;
                 }

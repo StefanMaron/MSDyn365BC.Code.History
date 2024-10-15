@@ -14,7 +14,7 @@ page 26590 "Acc. Schedule Extensions"
             repeater(Control1470001)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account schedule extension code.';
@@ -227,8 +227,8 @@ page 26590 "Acc. Schedule Extensions"
                         BankAccountList: Page "Bank Account List";
                         FixedAssetList: Page "Fixed Asset List";
                     begin
-                        case "Object Type Filter" of
-                            "Object Type Filter"::"G/L Account":
+                        case Rec."Object Type Filter" of
+                            Rec."Object Type Filter"::"G/L Account":
                                 begin
                                     GLAccList.LookupMode(true);
                                     if not (GLAccList.RunModal() = ACTION::LookupOK) then
@@ -236,7 +236,7 @@ page 26590 "Acc. Schedule Extensions"
                                     Text := GLAccList.GetSelectionFilter();
                                     exit(true);
                                 end;
-                            "Object Type Filter"::Customer:
+                            Rec."Object Type Filter"::Customer:
                                 begin
                                     CustomerList.LookupMode(true);
                                     if not (CustomerList.RunModal() = ACTION::LookupOK) then
@@ -244,7 +244,7 @@ page 26590 "Acc. Schedule Extensions"
                                     Text := CustomerList.GetSelectionFilter();
                                     exit(true);
                                 end;
-                            "Object Type Filter"::Vendor:
+                            Rec."Object Type Filter"::Vendor:
                                 begin
                                     VendorList.LookupMode(true);
                                     if not (VendorList.RunModal() = ACTION::LookupOK) then
@@ -252,7 +252,7 @@ page 26590 "Acc. Schedule Extensions"
                                     Text := VendorList.GetSelectionFilter();
                                     exit(true);
                                 end;
-                            "Object Type Filter"::"Bank Account":
+                            Rec."Object Type Filter"::"Bank Account":
                                 begin
                                     BankAccountList.LookupMode(true);
                                     if not (BankAccountList.RunModal() = ACTION::LookupOK) then
@@ -261,7 +261,7 @@ page 26590 "Acc. Schedule Extensions"
                                     Text := BankAccount."No.";
                                     exit(true);
                                 end;
-                            "Object Type Filter"::"Fixed Asset":
+                            Rec."Object Type Filter"::"Fixed Asset":
                                 begin
                                     FixedAssetList.LookupMode(true);
                                     if not (FixedAssetList.RunModal() = ACTION::LookupOK) then
@@ -328,8 +328,8 @@ page 26590 "Acc. Schedule Extensions"
                         CustomerPostingGroups: Page "Customer Posting Groups";
                         VendorPostingGroups: Page "Vendor Posting Groups";
                     begin
-                        case "Source Table" of
-                            "Source Table"::"Customer Entry":
+                        case Rec."Source Table" of
+                            Rec."Source Table"::"Customer Entry":
                                 begin
                                     CustomerPostingGroups.LookupMode(true);
                                     if not (CustomerPostingGroups.RunModal() = ACTION::LookupOK) then
@@ -338,7 +338,7 @@ page 26590 "Acc. Schedule Extensions"
                                     Text := CustomerPostingGroup.Code;
                                     exit(true);
                                 end;
-                            "Source Table"::"Vendor Entry":
+                            Rec."Source Table"::"Vendor Entry":
                                 begin
                                     VendorPostingGroups.LookupMode(true);
                                     if not (VendorPostingGroups.RunModal() = ACTION::LookupOK) then
@@ -394,53 +394,29 @@ page 26590 "Acc. Schedule Extensions"
 
     var
         SourceTable: Option " ","VAT Entry","Value Entry","Customer Entry","Vendor Entry";
-        [InDataSet]
         "Source TableVisible": Boolean;
-        [InDataSet]
         "Amount SignVisible": Boolean;
-        [InDataSet]
         "VAT Entry TypeVisible": Boolean;
-        [InDataSet]
         "Prepayment FilterVisible": Boolean;
-        [InDataSet]
         "Reverse SignVisible": Boolean;
-        [InDataSet]
         "VAT Amount TypeVisible": Boolean;
-        [InDataSet]
         "VAT TypeVisible": Boolean;
-        [InDataSet]
         VATBusPostGroupFilterVisible: Boolean;
-        [InDataSet]
         VATProdPostGroupFilterVisible: Boolean;
-        [InDataSet]
         GenBusPostGroupFilterVisible: Boolean;
-        [InDataSet]
         GenProdPostGroupFilterVisible: Boolean;
-        [InDataSet]
         "Object Type FilterVisible": Boolean;
-        [InDataSet]
         "Object No. FilterVisible": Boolean;
-        [InDataSet]
         VATAllocationTypeFilterVisible: Boolean;
-        [InDataSet]
         "Location FilterVisible": Boolean;
-        [InDataSet]
         "Posting Group FilterVisible": Boolean;
-        [InDataSet]
         "Posting Date FilterVisible": Boolean;
-        [InDataSet]
         "Due Date FilterVisible": Boolean;
-        [InDataSet]
         "Liability TypeVisible": Boolean;
-        [InDataSet]
         "Document Type FilterVisible": Boolean;
-        [InDataSet]
         "Value Entry Type FilterVisible": Boolean;
-        [InDataSet]
         InventoryPostingGroupFilterVis: Boolean;
-        [InDataSet]
         "Item Charge No. FilterVisible": Boolean;
-        [InDataSet]
         "Value Entry Amount TypeVisible": Boolean;
 
     [Scope('OnPrem')]

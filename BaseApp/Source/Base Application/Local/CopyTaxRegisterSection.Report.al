@@ -7,14 +7,14 @@ report 17200 "Copy Tax Register Section"
     {
         dataitem(ToTaxRegSection; "Tax Register Section")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             dataitem("Tax Register Section"; "Tax Register Section")
             {
-                DataItemTableView = SORTING(Code);
+                DataItemTableView = sorting(Code);
                 dataitem("Tax Register"; "Tax Register")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -31,8 +31,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Line Setup"; "Tax Register Line Setup")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -49,8 +49,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Template"; "Tax Register Template")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -67,8 +67,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Term"; "Tax Register Term")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -85,8 +85,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Term Formula"; "Tax Register Term Formula")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -103,8 +103,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Dim. Filter"; "Tax Register Dim. Filter")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -121,8 +121,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Dim. Comb."; "Tax Register Dim. Comb.")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -139,8 +139,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Dim. Value Comb."; "Tax Register Dim. Value Comb.")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -157,8 +157,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Register Dim. Def. Value"; "Tax Register Dim. Def. Value")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -175,8 +175,8 @@ report 17200 "Copy Tax Register Section"
                 }
                 dataitem("Tax Reg. G/L Corr. Dim. Filter"; "Tax Reg. G/L Corr. Dim. Filter")
                 {
-                    DataItemLink = "Section Code" = FIELD(Code);
-                    DataItemTableView = SORTING("Section Code", "Tax Register No.", Define, "Line No.", "Filter Group", "Dimension Code");
+                    DataItemLink = "Section Code" = field(Code);
+                    DataItemTableView = sorting("Section Code", "Tax Register No.", Define, "Line No.", "Filter Group", "Dimension Code");
 
                     trigger OnAfterGetRecord()
                     begin

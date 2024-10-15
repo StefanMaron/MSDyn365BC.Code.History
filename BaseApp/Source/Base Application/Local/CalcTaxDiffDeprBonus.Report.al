@@ -9,7 +9,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
     {
         dataitem("Fixed Asset"; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.") WHERE("FA Type" = FILTER("Fixed Assets" | "Intangible Asset"), Blocked = CONST(false), Inactive = CONST(false));
+            DataItemTableView = sorting("No.") where("FA Type" = filter("Fixed Assets" | "Intangible Asset"), Blocked = const(false), Inactive = const(false));
             RequestFilterFields = "No.";
 
             trigger OnAfterGetRecord()

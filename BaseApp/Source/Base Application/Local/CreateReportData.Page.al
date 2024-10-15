@@ -207,15 +207,10 @@ page 26574 "Create Report Data"
         Text008: Label 'Open Excel File';
         Text009: Label 'The combination Periodicity=%1, Progressive Total=%2 is not defined. Please enter the value for Period Type manually.';
         DefaultFormat: Text[30];
-        [InDataSet]
         StartDateTextBoxEditable: Boolean;
-        [InDataSet]
         EndDateTextBoxEditable: Boolean;
-        [InDataSet]
         CorrNumberTextBoxEnable: Boolean;
-        [InDataSet]
         AccountingPeriodTextBoxEnable: Boolean;
-        [InDataSet]
         ProgressiveTotalCheckBoxEnable: Boolean;
 
     [Scope('OnPrem')]

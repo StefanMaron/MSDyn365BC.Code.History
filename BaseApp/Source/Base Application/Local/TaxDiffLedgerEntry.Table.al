@@ -114,13 +114,13 @@ table 17306 "Tax Diff. Ledger Entry"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(26; "Disposal Mode"; Option)
         {
@@ -162,11 +162,11 @@ table 17306 "Tax Diff. Ledger Entry"
         field(33; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST("Future Expense")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Future Expense"))
-            ELSE
-            IF ("Source Type" = CONST("Fixed Asset")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Fixed Assets"))
-            ELSE
-            IF ("Source Type" = CONST("Intangible Asset")) "Fixed Asset"."No." WHERE("FA Type" = CONST("Intangible Asset"));
+            TableRelation = if ("Source Type" = const("Future Expense")) "Fixed Asset"."No." where("FA Type" = const("Future Expense"))
+            else
+            if ("Source Type" = const("Fixed Asset")) "Fixed Asset"."No." where("FA Type" = const("Fixed Assets"))
+            else
+            if ("Source Type" = const("Intangible Asset")) "Fixed Asset"."No." where("FA Type" = const("Intangible Asset"));
         }
         field(34; "Source Code"; Code[10])
         {
@@ -221,7 +221,7 @@ table 17306 "Tax Diff. Ledger Entry"
 
             trigger OnValidate()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
         }
     }

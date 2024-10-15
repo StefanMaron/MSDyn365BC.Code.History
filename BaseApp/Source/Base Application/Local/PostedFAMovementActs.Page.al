@@ -6,8 +6,8 @@ page 35608 "Posted FA Movement Acts"
     Editable = false;
     PageType = List;
     SourceTable = "Posted FA Doc. Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Movement));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Movement));
     UsageCategory = History;
 
     layout
@@ -82,9 +82,9 @@ page 35608 "Posted FA Movement Acts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
-                    RunPageLink = "Document Type" = CONST(Movement),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Movement),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("D&imensions")
@@ -96,7 +96,7 @@ page 35608 "Posted FA Movement Acts"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -105,9 +105,9 @@ page 35608 "Posted FA Movement Acts"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12471),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12471),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -122,7 +122,7 @@ page 35608 "Posted FA Movement Acts"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

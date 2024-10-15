@@ -5,8 +5,8 @@ page 12478 "FA Movement Act"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "FA Document Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Movement));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Movement));
 
     layout
     {
@@ -23,7 +23,7 @@ page 12478 "FA Movement Act"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -103,9 +103,9 @@ page 12478 "FA Movement Act"
             part(MovementLines; "FA Movement Act Subform")
             {
                 ApplicationArea = FixedAssets;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
-                SubPageView = SORTING("Document Type", "Document No.", "Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No.");
+                SubPageView = sorting("Document Type", "Document No.", "Line No.");
             }
         }
         area(factboxes)
@@ -136,9 +136,9 @@ page 12478 "FA Movement Act"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "FA Comments";
-                    RunPageLink = "Document Type" = CONST(Movement),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Movement),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                 }
                 action(Dimensions)
                 {
@@ -148,7 +148,7 @@ page 12478 "FA Movement Act"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -157,9 +157,9 @@ page 12478 "FA Movement Act"
                     Caption = 'Employee Si&gnatures';
                     Image = Signature;
                     RunObject = Page "Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12470),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12470),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }

@@ -7,12 +7,12 @@ report 14976 "Transfer Order TORG-13"
     {
         dataitem("Transfer Header"; "Transfer Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Transfer Line"; "Transfer Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.") WHERE("Derived From Line No." = CONST(0));
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.") where("Derived From Line No." = const(0));
 
                 trigger OnAfterGetRecord()
                 begin

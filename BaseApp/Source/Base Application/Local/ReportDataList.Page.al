@@ -34,7 +34,7 @@ page 26562 "Report Data List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the statutory report data header.';
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period of the statutory report data header.';
@@ -49,7 +49,7 @@ page 26562 "Report Data List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field(OKEI; OKEI)
+                field(OKEI; Rec.OKEI)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure for amounts that are associated with the statutory report data header.';
@@ -73,7 +73,7 @@ page 26562 "Report Data List"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
             }
@@ -108,7 +108,7 @@ page 26562 "Report Data List"
 
                     trigger OnAction()
                     begin
-                        TestField(Status, Status::Open);
+                        Rec.TestField(Status, Rec.Status::Open);
                     end;
                 }
             }
@@ -121,8 +121,8 @@ page 26562 "Report Data List"
                 Caption = '&Overview';
                 Image = ViewDetails;
                 RunObject = Page "Statutory Report Data Overview";
-                RunPageLink = "No." = FIELD("No."),
-                              "Report Code" = FIELD("Report Code");
+                RunPageLink = "No." = field("No."),
+                              "Report Code" = field("Report Code");
             }
             group("F&unctions")
             {
@@ -151,7 +151,7 @@ page 26562 "Report Data List"
 
                     trigger OnAction()
                     begin
-                        ExportResultsToXML();
+                        Rec.ExportResultsToXML();
                     end;
                 }
                 separator(Action1210009)
@@ -165,7 +165,7 @@ page 26562 "Report Data List"
 
                     trigger OnAction()
                     begin
-                        CheckXML();
+                        Rec.CheckXML();
                     end;
                 }
                 separator(Action1210025)
@@ -179,7 +179,7 @@ page 26562 "Report Data List"
 
                     trigger OnAction()
                     begin
-                        UpdateData();
+                        Rec.UpdateData();
                     end;
                 }
                 separator(Action1210028)

@@ -4,7 +4,7 @@ page 17331 "Future Period Expense Card"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Fixed Asset";
-    SourceTableView = WHERE("FA Type" = CONST("Future Expense"));
+    SourceTableView = where("FA Type" = const("Future Expense"));
 
     layout
     {
@@ -20,7 +20,7 @@ page 17331 "Future Period Expense Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -48,11 +48,11 @@ page 17331 "Future Period Expense Card"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Inactive; Inactive)
+                field(Inactive; Rec.Inactive)
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -77,7 +77,7 @@ page 17331 "Future Period Expense Card"
             part(DepreciationBook; "FE Depreciation Books Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "FA No." = FIELD("No.");
+                SubPageLink = "FA No." = field("No.");
             }
         }
         area(factboxes)
@@ -107,15 +107,15 @@ page 17331 "Future Period Expense Card"
                     Caption = 'Depreciation &Books';
                     Image = DepreciationBooks;
                     RunObject = Page "FA Depreciation Books";
-                    RunPageLink = "FA No." = FIELD("No.");
+                    RunPageLink = "FA No." = field("No.");
                 }
                 action("Ledger E&ntries")
                 {
                     Caption = 'Ledger E&ntries';
                     Image = LedgerEntries;
                     RunObject = Page "FA Ledger Entries";
-                    RunPageLink = "FA No." = FIELD("No.");
-                    RunPageView = SORTING("FA No.");
+                    RunPageLink = "FA No." = field("No.");
+                    RunPageView = sorting("FA No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -124,16 +124,16 @@ page 17331 "Future Period Expense Card"
                     Caption = 'Error Ledger Entries';
                     Image = ErrorFALedgerEntries;
                     RunObject = Page "FA Error Ledger Entries";
-                    RunPageLink = "Canceled from FA No." = FIELD("No.");
-                    RunPageView = SORTING("Canceled from FA No.");
+                    RunPageLink = "Canceled from FA No." = field("No.");
+                    RunPageView = sorting("Canceled from FA No.");
                 }
                 action("Co&mments")
                 {
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Fixed Asset"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Fixed Asset"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -141,8 +141,8 @@ page 17331 "Future Period Expense Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(5600),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(5600),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                 }
                 separator(Action39)
@@ -155,7 +155,7 @@ page 17331 "Future Period Expense Card"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Fixed Asset Statistics";
-                    RunPageLink = "FA No." = FIELD("No.");
+                    RunPageLink = "FA No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -175,7 +175,7 @@ page 17331 "Future Period Expense Card"
 
                     trigger OnAction()
                     begin
-                        ShowTaxDifferences();
+                        Rec.ShowTaxDifferences();
                     end;
                 }
             }
@@ -196,7 +196,7 @@ page 17331 "Future Period Expense Card"
                     var
                         CopyFA: Report "Copy Fixed Asset";
                     begin
-                        CopyFA.SetFANo("No.");
+                        CopyFA.SetFANo(Rec."No.");
                         CopyFA.RunModal();
                     end;
                 }
@@ -210,7 +210,7 @@ page 17331 "Future Period Expense Card"
                     trigger OnAction()
                     begin
                         FA.Reset();
-                        FA.SetRange("No.", "No.");
+                        FA.SetRange("No.", Rec."No.");
                         if FA.FindFirst() then
                             REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FA);
                     end;
@@ -235,7 +235,7 @@ page 17331 "Future Period Expense Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "FA Type" := "FA Type"::"Future Expense";
+        Rec."FA Type" := Rec."FA Type"::"Future Expense";
     end;
 
     var

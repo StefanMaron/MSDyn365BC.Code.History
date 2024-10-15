@@ -7,7 +7,7 @@ page 14900 "Customer Agreements"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     SourceTable = "Customer Agreement";
-    SourceTableView = SORTING("Agreement Group", "No.");
+    SourceTableView = sorting("Agreement Group", "No.");
 
     layout
     {
@@ -31,7 +31,7 @@ page 14900 "Customer Agreements"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies the customer agreement.';
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a customer agreement is active.';
@@ -61,7 +61,7 @@ page 14900 "Customer Agreements"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that date that a customer agreement is no longer active.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -96,9 +96,9 @@ page 14900 "Customer Agreements"
                     Caption = 'Ledger E&ntries';
                     Image = GL;
                     RunObject = Page "Customer Ledger Entries";
-                    RunPageLink = "Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Customer No.");
+                    RunPageLink = "Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Customer No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -107,8 +107,8 @@ page 14900 "Customer Agreements"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Customer Agreement"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Customer Agreement"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -116,8 +116,8 @@ page 14900 "Customer Agreements"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(14902),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14902),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                 }
                 separator(Action1210023)
@@ -128,8 +128,8 @@ page 14900 "Customer Agreements"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Customer Statistics";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -139,8 +139,8 @@ page 14900 "Customer Agreements"
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Customer Entry Statistics";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                 }
                 action("S&ales")
                 {
@@ -148,8 +148,8 @@ page 14900 "Customer Agreements"
                     Caption = 'S&ales';
                     Image = Sales;
                     RunObject = Page "Customer Sales";
-                    RunPageLink = "No." = FIELD("Customer No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Customer No."),
+                                  "Agreement Filter" = field("No.");
                 }
             }
             group(Action1210028)
@@ -162,9 +162,9 @@ page 14900 "Customer Agreements"
                     Caption = 'Quotes';
                     Image = Quote;
                     RunObject = Page "Sales Quotes";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related sales quotes. ';
                 }
                 action("Blanket Orders")
@@ -173,9 +173,9 @@ page 14900 "Customer Agreements"
                     Caption = 'Blanket Orders';
                     Image = BlanketOrder;
                     RunObject = Page "Blanket Sales Orders";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.");
                 }
                 action(Orders)
                 {
@@ -183,9 +183,9 @@ page 14900 "Customer Agreements"
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Sales Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related sales orders. ';
                 }
                 action("Return Orders")
@@ -194,9 +194,9 @@ page 14900 "Customer Agreements"
                     Caption = 'Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Sales Return Order List";
-                    RunPageLink = "Sell-to Customer No." = FIELD("Customer No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Sell-to Customer No.", "No.");
+                    RunPageLink = "Sell-to Customer No." = field("Customer No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Sell-to Customer No.", "No.");
                     ToolTip = 'View any related return orders. ';
                 }
                 action("Service Orders")
@@ -204,8 +204,8 @@ page 14900 "Customer Agreements"
                     Caption = 'Service Orders';
                     Image = Document;
                     RunObject = Page "Service Orders";
-                    RunPageLink = "Customer No." = FIELD("Customer No.");
-                    RunPageView = SORTING("Document Type", "Customer No.");
+                    RunPageLink = "Customer No." = field("Customer No.");
+                    RunPageView = sorting("Document Type", "Customer No.");
                     ToolTip = 'View any related service orders. ';
                 }
             }

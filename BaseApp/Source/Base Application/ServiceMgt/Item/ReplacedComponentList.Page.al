@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Service.History;
+
 page 5987 "Replaced Component List"
 {
     AutoSplitKey = true;
@@ -14,7 +18,7 @@ page 5987 "Replaced Component List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the component is in use.';
@@ -46,7 +50,7 @@ page 5987 "Replaced Component List"
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo();
+                        Rec.AssistEditSerialNo();
                     end;
                 }
                 field("Date Installed"; Rec."Date Installed")
@@ -90,7 +94,7 @@ page 5987 "Replaced Component List"
                     Caption = 'Shipment';
                     Image = Shipment;
                     RunObject = Page "Posted Service Shipments";
-                    RunPageLink = "Order No." = FIELD("Service Order No.");
+                    RunPageLink = "Order No." = field("Service Order No.");
                     ToolTip = 'View related posted service shipments.';
                 }
             }

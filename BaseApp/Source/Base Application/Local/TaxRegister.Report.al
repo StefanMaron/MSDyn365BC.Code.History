@@ -7,12 +7,12 @@ report 17208 "Tax Register"
     {
         dataitem("Tax Register"; "Tax Register")
         {
-            DataItemTableView = SORTING("Section Code", "No.");
+            DataItemTableView = sorting("Section Code", "No.");
             RequestFilterFields = "No.", "Date Filter";
             dataitem("Tax Register Accumulation"; "Tax Register Accumulation")
             {
-                DataItemLink = "Section Code" = FIELD("Section Code"), "Tax Register No." = FIELD("No."), "Date Filter" = FIELD("Date Filter");
-                DataItemTableView = SORTING("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
+                DataItemLink = "Section Code" = field("Section Code"), "Tax Register No." = field("No."), "Date Filter" = field("Date Filter");
+                DataItemTableView = sorting("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
 
                 trigger OnAfterGetRecord()
                 begin

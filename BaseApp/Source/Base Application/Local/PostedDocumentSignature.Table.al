@@ -8,7 +8,7 @@ table 12421 "Posted Document Signature"
         {
             Caption = 'Table ID';
             NotBlank = true;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(2; "Document Type"; Option)
         {

@@ -7,7 +7,7 @@ report 17205 "Initial Due Date Create"
     {
         dataitem("Detailed Vendor Ledg. Entry"; "Detailed Vendor Ledg. Entry")
         {
-            DataItemTableView = SORTING("Entry No.");
+            DataItemTableView = sorting("Entry No.");
             RequestFilterFields = "Entry No.";
 
             trigger OnAfterGetRecord()

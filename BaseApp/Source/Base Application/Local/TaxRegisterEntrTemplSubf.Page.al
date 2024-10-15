@@ -44,7 +44,7 @@ page 17206 "Tax Register Entr. Templ. Subf"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies the description associated with the tax register template.';
                 }
-                field(Expression; Expression)
+                field(Expression; Rec.Expression)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
@@ -54,17 +54,17 @@ page 17206 "Tax Register Entr. Templ. Subf"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the term line code associated with the tax register template.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
                 }
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period associated with the tax register template.';
@@ -105,13 +105,13 @@ page 17206 "Tax Register Entr. Templ. Subf"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
-        if "Dimensions Filters" then
+        Rec.CalcFields("Dimensions Filters", "G/L Corr. Dimensions Filters");
+        if Rec."Dimensions Filters" then
             DimFilters := Text1001
         else
             DimFilters := '';
 
-        if "G/L Corr. Dimensions Filters" then
+        if Rec."G/L Corr. Dimensions Filters" then
             GLCorrDimFilters := Text1001
         else
             GLCorrDimFilters := '';
@@ -120,14 +120,14 @@ page 17206 "Tax Register Entr. Templ. Subf"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Expression Type" := "Expression Type"::SumField;
-        "Link Tax Register No." := Code;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
+        Rec."Link Tax Register No." := Rec.Code;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Expression Type" := "Expression Type"::SumField;
-        "Link Tax Register No." := Code;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
+        Rec."Link Tax Register No." := Rec.Code;
         DimFilters := '';
         GLCorrDimFilters := '';
     end;
@@ -138,9 +138,7 @@ page 17206 "Tax Register Entr. Templ. Subf"
         DimFilters: Text[30];
         GLCorrDimFilters: Text[30];
         Text1002: Label '%1 should be used for this type of tax register.';
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     [Scope('OnPrem')]
@@ -152,20 +150,20 @@ page 17206 "Tax Register Entr. Templ. Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxRegisterName.Get("Section Code", Code);
+        TaxRegisterName.Get(Rec."Section Code", Rec.Code);
         if TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry" then
-            Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("G/L Corr. Dimensions Filters"));
 
-        if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::SumField) then begin
-            TaxRegSection.Get("Section Code");
+        if (Rec."Line No." <> 0) and (Rec."Expression Type" = Rec."Expression Type"::SumField) then begin
+            TaxRegSection.Get(Rec."Section Code");
             if (TaxRegSection."Dimension 1 Code" <> '') or
                (TaxRegSection."Dimension 2 Code" <> '') or
                (TaxRegSection."Dimension 3 Code" <> '') or
                (TaxRegSection."Dimension 4 Code" <> '')
             then begin
                 TaxRegDimFilter.FilterGroup(2);
-                TaxRegDimFilter.SetRange("Section Code", "Section Code");
-                TaxRegDimFilter.SetRange("Tax Register No.", Code);
+                TaxRegDimFilter.SetRange("Section Code", Rec."Section Code");
+                TaxRegDimFilter.SetRange("Tax Register No.", Rec.Code);
                 TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::Template);
                 if TaxRegSection."Dimension 1 Code" <> '' then
                     DimCodeFilter := TaxRegSection."Dimension 1 Code";
@@ -178,7 +176,7 @@ page 17206 "Tax Register Entr. Templ. Subf"
                 DimCodeFilter := DelChr(DimCodeFilter, '<', '|');
                 TaxRegDimFilter.SetFilter("Dimension Code", DimCodeFilter);
                 TaxRegDimFilter.FilterGroup(0);
-                TaxRegDimFilter.SetRange("Line No.", "Line No.");
+                TaxRegDimFilter.SetRange("Line No.", Rec."Line No.");
                 PAGE.RunModal(0, TaxRegDimFilter);
             end;
         end;
@@ -192,24 +190,24 @@ page 17206 "Tax Register Entr. Templ. Subf"
     begin
         CurrPage.SaveRecord();
         Commit();
-        TaxRegisterName.Get("Section Code", Code);
-        if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
+        TaxRegisterName.Get(Rec."Section Code", Rec.Code);
+        if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and (Rec."Line No." <> 0) then begin
             TaxRegGLCorrDimFilter.FilterGroup(2);
-            TaxRegGLCorrDimFilter.SetRange("Section Code", "Section Code");
-            TaxRegGLCorrDimFilter.SetRange("Tax Register No.", Code);
+            TaxRegGLCorrDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxRegGLCorrDimFilter.SetRange("Tax Register No.", Rec.Code);
             TaxRegGLCorrDimFilter.SetRange(Define, TaxRegGLCorrDimFilter.Define::Template);
-            TaxRegGLCorrDimFilter.SetRange("Line No.", "Line No.");
+            TaxRegGLCorrDimFilter.SetRange("Line No.", Rec."Line No.");
             TaxRegGLCorrDimFilter.FilterGroup(0);
             PAGE.RunModal(0, TaxRegGLCorrDimFilter);
         end else
-            Error(Text1002, FieldCaption("Dimensions Filters"));
+            Error(Text1002, Rec.FieldCaption("Dimensions Filters"));
         CurrPage.Update(false);
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

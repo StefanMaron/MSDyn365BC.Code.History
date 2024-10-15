@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Foundation.Address;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Intrastat;
+
 permissionset 2345 "Intrastat - Edit"
 {
     Access = Public;

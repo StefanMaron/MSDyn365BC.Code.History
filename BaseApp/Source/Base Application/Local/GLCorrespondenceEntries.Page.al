@@ -77,7 +77,7 @@ page 12401 "G/L Correspondence Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Transaction No."; Rec."Transaction No.")
@@ -100,7 +100,7 @@ page 12401 "G/L Correspondence Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the debit Global Dimension 2 code associated with this correspondence entry.';
                 }
-                field(Positive; Positive)
+                field(Positive; Rec.Positive)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this correspondence entry is positive.';
@@ -137,7 +137,7 @@ page 12401 "G/L Correspondence Entries"
 
                 trigger OnAction()
                 begin
-                    NavigateForm.SetDoc("Posting Date", "Document No.");
+                    NavigateForm.SetDoc(Rec."Posting Date", Rec."Document No.");
                     NavigateForm.Run();
                 end;
             }

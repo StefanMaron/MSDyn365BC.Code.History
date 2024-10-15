@@ -8,9 +8,9 @@ codeunit 12410 "VAT Prepayment-Post"
 
     trigger OnRun()
     begin
-        TestField("Document Type", "Document Type"::Payment);
-        TestField(Open, true);
-        TestField(Prepayment, PostingType = PostingType::Reset);
+        Rec.TestField("Document Type", Rec."Document Type"::Payment);
+        Rec.TestField(Open, true);
+        Rec.TestField(Prepayment, PostingType = PostingType::Reset);
     end;
 
     var

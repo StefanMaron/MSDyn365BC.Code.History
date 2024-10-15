@@ -15,7 +15,7 @@ page 14942 "G/L Corr. Analysis View List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies the general ledger correspondence.';
@@ -94,7 +94,7 @@ page 14942 "G/L Corr. Analysis View List"
                     GLCorrAnalysisByDim: Page "G/L Corr. Analysis by Dim.";
                 begin
                     Clear(GLCorrAnalysisByDim);
-                    GLCorrAnalysisByDim.SetAnalysisViewCode(Code);
+                    GLCorrAnalysisByDim.SetAnalysisViewCode(Rec.Code);
                     GLCorrAnalysisByDim.Run();
                 end;
             }

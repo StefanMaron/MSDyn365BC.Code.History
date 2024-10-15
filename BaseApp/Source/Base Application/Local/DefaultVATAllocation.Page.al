@@ -29,7 +29,7 @@ page 14927 "Default VAT Allocation"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the default VAT allocation entry.';
                 }
-                field(Base; Base)
+                field(Base; Rec.Base)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the base amount if full, depreciated, or remaining.';
@@ -76,7 +76,7 @@ page 14927 "Default VAT Allocation"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.Update();
                     end;
                 }

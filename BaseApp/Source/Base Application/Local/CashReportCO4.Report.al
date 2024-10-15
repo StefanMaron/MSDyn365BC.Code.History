@@ -9,11 +9,11 @@ report 14902 "Cash Report CO-4"
     {
         dataitem("Bank Account"; "Bank Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             dataitem("Bank Account Ledger Entry"; "Bank Account Ledger Entry")
             {
-                DataItemLink = "Bank Account No." = FIELD("No.");
-                DataItemTableView = SORTING("Bank Account No.", "Posting Date");
+                DataItemLink = "Bank Account No." = field("No.");
+                DataItemTableView = sorting("Bank Account No.", "Posting Date");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -170,7 +170,7 @@ report 14902 "Cash Report CO-4"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Cash Account No.';
                         LookupPageID = "Bank Account List";
-                        TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Account"));
+                        TableRelation = "Bank Account" where("Account Type" = const("Cash Account"));
                     }
                     field(ReportType; ReportType)
                     {
@@ -292,11 +292,8 @@ report 14902 "Cash Report CO-4"
         ReportType: Option "Cash Report CO-4","Cash Additional Sheet";
         StartingBalanceCurr2: Decimal;
         BankAccountFilter: Code[20];
-        [InDataSet]
         CashierEnable: Boolean;
-        [InDataSet]
         PrintTitleSheetEnable: Boolean;
-        [InDataSet]
         PrintLastSheetEnable: Boolean;
         CashAccountForDateTxt: Label '%1 at %2';
         PageTxt: Label 'Page %1';

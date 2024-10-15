@@ -19,7 +19,7 @@ page 14902 "Vendor Agreement Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -33,7 +33,7 @@ page 14902 "Vendor Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies an external vendor agreement.';
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether or not a vendor agreement is active.';
@@ -53,7 +53,7 @@ page 14902 "Vendor Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the vendor agreement is no longer active.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor.';
@@ -83,8 +83,8 @@ page 14902 "Vendor Agreement Card"
                         VendLedgEntry: Record "Vendor Ledger Entry";
                         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
                     begin
-                        DtldVendLedgEntry.SetRange("Vendor No.", "Vendor No.");
-                        DtldVendLedgEntry.SetRange("Agreement No.", "No.");
+                        DtldVendLedgEntry.SetRange("Vendor No.", Rec."Vendor No.");
+                        DtldVendLedgEntry.SetRange("Agreement No.", Rec."No.");
                         VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
                     end;
                 }
@@ -98,7 +98,7 @@ page 14902 "Vendor Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -108,7 +108,7 @@ page 14902 "Vendor Agreement Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer agreement group to which a customer agreement belongs.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that corresponds to the priority that you give the vendor.';
@@ -213,9 +213,9 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Ledger E&ntries';
                     Image = GL;
                     RunObject = Page "Vendor Ledger Entries";
-                    RunPageLink = "Vendor No." = FIELD("Vendor No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Vendor No.");
+                    RunPageLink = "Vendor No." = field("Vendor No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Vendor No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -224,8 +224,8 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Vendor Agreement"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Vendor Agreement"),
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -233,8 +233,8 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(14901),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(14901),
+                                  "No." = field("No.");
                     ShortCutKey = 'Shift+Ctrl+D';
                 }
                 separator(Action11)
@@ -245,8 +245,8 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Vendor Statistics";
-                    RunPageLink = "No." = FIELD("Vendor No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Vendor No."),
+                                  "Agreement Filter" = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -256,8 +256,8 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
                     RunObject = Page "Vendor Entry Statistics";
-                    RunPageLink = "No." = FIELD("Vendor No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Vendor No."),
+                                  "Agreement Filter" = field("No.");
                 }
                 action(Purchases)
                 {
@@ -265,8 +265,8 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Purchases';
                     Image = Purchase;
                     RunObject = Page "Vendor Purchases";
-                    RunPageLink = "No." = FIELD("Vendor No."),
-                                  "Agreement Filter" = FIELD("No.");
+                    RunPageLink = "No." = field("Vendor No."),
+                                  "Agreement Filter" = field("No.");
                 }
             }
             group("&Purchases")
@@ -279,9 +279,9 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Quotes';
                     Image = Quote;
                     RunObject = Page "Purchase Quotes";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("Vendor No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
+                    RunPageLink = "Buy-from Vendor No." = field("Vendor No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.");
                     ToolTip = 'View any related purchase quotes. ';
                 }
                 action("Blanket Orders")
@@ -290,9 +290,9 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Blanket Orders';
                     Image = BlanketOrder;
                     RunObject = Page "Blanket Purchase Orders";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("Vendor No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
+                    RunPageLink = "Buy-from Vendor No." = field("Vendor No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.");
                 }
                 action(Orders)
                 {
@@ -300,9 +300,9 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Orders';
                     Image = Document;
                     RunObject = Page "Purchase Order List";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("Vendor No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.", "No.");
+                    RunPageLink = "Buy-from Vendor No." = field("Vendor No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.", "No.");
                     ToolTip = 'View any related purchase orders. ';
                 }
                 action("Return Orders")
@@ -311,9 +311,9 @@ page 14902 "Vendor Agreement Card"
                     Caption = 'Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Purchase Return Order List";
-                    RunPageLink = "Buy-from Vendor No." = FIELD("Vendor No."),
-                                  "Agreement No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Buy-from Vendor No.", "No.");
+                    RunPageLink = "Buy-from Vendor No." = field("Vendor No."),
+                                  "Agreement No." = field("No.");
+                    RunPageView = sorting("Document Type", "Buy-from Vendor No.", "No.");
                     ToolTip = 'View any related return orders. ';
                 }
             }
@@ -413,8 +413,8 @@ page 14902 "Vendor Agreement Card"
     var
         RecordFound: Boolean;
     begin
-        RecordFound := Find(Which);
-        CurrPage.Editable := RecordFound or (GetFilter("No.") = '');
+        RecordFound := Rec.Find(Which);
+        CurrPage.Editable := RecordFound or (Rec.GetFilter("No.") = '');
         exit(RecordFound);
     end;
 }

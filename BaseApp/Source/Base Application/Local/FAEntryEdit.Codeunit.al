@@ -9,11 +9,11 @@ codeunit 17308 "FA Entry - Edit"
         FALedgerEntry.LockTable();
         FALedgerEntry.Find();
 
-        if FALedgerEntry."Tax Difference Code" <> "Tax Difference Code" then
-            CheckTaxDifference(FALedgerEntry, "Tax Difference Code");
+        if FALedgerEntry."Tax Difference Code" <> Rec."Tax Difference Code" then
+            CheckTaxDifference(FALedgerEntry, Rec."Tax Difference Code");
 
-        FALedgerEntry."Depr. Bonus" := "Depr. Bonus";
-        FALedgerEntry."Tax Difference Code" := "Tax Difference Code";
+        FALedgerEntry."Depr. Bonus" := Rec."Depr. Bonus";
+        FALedgerEntry."Tax Difference Code" := Rec."Tax Difference Code";
         FALedgerEntry.Modify();
         Rec := FALedgerEntry;
     end;

@@ -25,9 +25,7 @@ table 14941 "G/L Corr. Analysis View Filter"
         field(4; "Dimension Value Filter"; Code[250])
         {
             Caption = 'Dimension Value Filter';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
             ValidateTableRelation = false;
         }
     }

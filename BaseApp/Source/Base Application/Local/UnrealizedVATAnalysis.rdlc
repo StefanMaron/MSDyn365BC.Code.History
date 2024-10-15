@@ -105,7 +105,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!VAT_Entry__Posting_Date_Caption.Value)</Value>
+                                  <Value>=First(Fields!VAT_Entry__VAT_Reporting_Date_Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1186,7 +1186,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VAT_Entry__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VAT_Entry__VAT_Reporting_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2457,14 +2457,14 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VAT_Entry__Posting_Date_Caption">
+                        <Textbox Name="VAT_Entry__VAT_Reporting_Date_Caption">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!VAT_Entry__Posting_Date_Caption.Value)</Value>
+                                  <Value>=First(Fields!VAT_Entry__VAT_Reporting_Date_Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -3556,7 +3556,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VAT_Entry__Posting_Date_.Value</Value>
+                                  <Value>=Fields!VAT_Entry__VAT_Reporting_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -5061,6 +5061,9 @@ End Function</Code>
         <Field Name="VAT_Entry__Posting_Date_">
           <DataField>VAT_Entry__Posting_Date_</DataField>
         </Field>
+        <Field Name="VAT_Entry__VAT_Reporting_Date_">
+          <DataField>VAT_Entry__VAT_Reporting_Date_</DataField>
+        </Field>
         <Field Name="VAT_Entry__Document_Type_">
           <DataField>VAT_Entry__Document_Type_</DataField>
         </Field>
@@ -5210,6 +5213,9 @@ End Function</Code>
         </Field>
         <Field Name="VAT_Entry__Posting_Date_Caption">
           <DataField>VAT_Entry__Posting_Date_Caption</DataField>
+        </Field>
+        <Field Name="VAT_Entry__VAT_Reporting_Date_Caption">
+          <DataField>VAT_Entry__VAT_Reporting_Date_Caption</DataField>
         </Field>
         <Field Name="VAT_Entry__Document_Type_Caption">
           <DataField>VAT_Entry__Document_Type_Caption</DataField>

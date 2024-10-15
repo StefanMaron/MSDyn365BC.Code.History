@@ -13,9 +13,9 @@ table 14927 "VAT Document Entry Buffer"
         {
             Caption = 'CV No.';
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Entry Type" = CONST(Sale)) Customer
-            ELSE
-            IF ("Entry Type" = CONST(Purchase)) Vendor;
+            TableRelation = if ("Entry Type" = const(Sale)) Customer
+            else
+            if ("Entry Type" = const(Purchase)) Vendor;
         }
         field(4; "Posting Date"; Date)
         {
@@ -56,14 +56,14 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(13; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
         field(14; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
             DataClassification = SystemMetadata;
@@ -121,14 +121,14 @@ table 14927 "VAT Document Entry Buffer"
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Salesperson Code"; Code[20])
         {
@@ -141,8 +141,6 @@ table 14927 "VAT Document Entry Buffer"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(28; "Source Code"; Code[10])
@@ -183,7 +181,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(39; "Original Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Original Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
@@ -212,7 +210,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(46; "Closed by Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Amount';
             DataClassification = SystemMetadata;
@@ -242,15 +240,15 @@ table 14927 "VAT Document Entry Buffer"
         {
             Caption = 'Bal. Account No.';
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(53; "Transaction No."; Integer)
         {
@@ -265,7 +263,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(58; "Debit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
@@ -273,7 +271,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(59; "Credit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
@@ -358,7 +356,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(77; "Remaining Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
@@ -395,7 +393,7 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(84; "Amount to Apply"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Apply';
             DataClassification = SystemMetadata;
@@ -519,58 +517,58 @@ table 14927 "VAT Document Entry Buffer"
         }
         field(14925; "Realized VAT Amount"; Decimal)
         {
-            CalcFormula = Sum("VAT Entry".Amount WHERE("CV Ledg. Entry No." = FIELD("Entry No."),
-                                                        Type = FIELD("Entry Type"),
-                                                        "Posting Date" = FIELD("Date Filter"),
-                                                        "VAT Settlement Type" = FIELD("Type Filter"),
-                                                        "Manual VAT Settlement" = CONST(true),
-                                                        "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group Filter"),
-                                                        "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group Filter")));
+            CalcFormula = sum("VAT Entry".Amount where("CV Ledg. Entry No." = field("Entry No."),
+                                                        Type = field("Entry Type"),
+                                                        "Posting Date" = field("Date Filter"),
+                                                        "VAT Settlement Type" = field("Type Filter"),
+                                                        "Manual VAT Settlement" = const(true),
+                                                        "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
+                                                        "VAT Prod. Posting Group" = field("VAT Prod. Posting Group Filter")));
             Caption = 'Realized VAT Amount';
             FieldClass = FlowField;
         }
         field(14926; "Unrealized VAT Amount"; Decimal)
         {
-            CalcFormula = Sum("VAT Entry"."Unrealized Amount" WHERE(Type = FIELD("Entry Type"),
-                                                                     "CV Ledg. Entry No." = FIELD("Entry No."),
-                                                                     "Posting Date" = FIELD("Date Filter"),
-                                                                     "VAT Settlement Type" = FIELD("Type Filter"),
-                                                                     "Manual VAT Settlement" = CONST(true),
-                                                                     "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group Filter"),
-                                                                     "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group Filter")));
+            CalcFormula = sum("VAT Entry"."Unrealized Amount" where(Type = field("Entry Type"),
+                                                                     "CV Ledg. Entry No." = field("Entry No."),
+                                                                     "Posting Date" = field("Date Filter"),
+                                                                     "VAT Settlement Type" = field("Type Filter"),
+                                                                     "Manual VAT Settlement" = const(true),
+                                                                     "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
+                                                                     "VAT Prod. Posting Group" = field("VAT Prod. Posting Group Filter")));
             Caption = 'Unrealized VAT Amount';
             FieldClass = FlowField;
         }
         field(14927; "Realized VAT Base"; Decimal)
         {
-            CalcFormula = Sum("VAT Entry".Base WHERE("CV Ledg. Entry No." = FIELD("Entry No."),
-                                                      Type = FIELD("Entry Type"),
-                                                      "Posting Date" = FIELD("Date Filter"),
-                                                      "VAT Settlement Type" = FIELD("Type Filter"),
-                                                      "Manual VAT Settlement" = CONST(true),
-                                                      "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group Filter"),
-                                                      "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group Filter")));
+            CalcFormula = sum("VAT Entry".Base where("CV Ledg. Entry No." = field("Entry No."),
+                                                      Type = field("Entry Type"),
+                                                      "Posting Date" = field("Date Filter"),
+                                                      "VAT Settlement Type" = field("Type Filter"),
+                                                      "Manual VAT Settlement" = const(true),
+                                                      "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
+                                                      "VAT Prod. Posting Group" = field("VAT Prod. Posting Group Filter")));
             Caption = 'Realized VAT Base';
             FieldClass = FlowField;
         }
         field(14928; "Unrealized VAT Base"; Decimal)
         {
-            CalcFormula = Sum("VAT Entry"."Unrealized Base" WHERE(Type = FIELD("Entry Type"),
-                                                                   "CV Ledg. Entry No." = FIELD("Entry No."),
-                                                                   "Posting Date" = FIELD("Date Filter"),
-                                                                   "VAT Settlement Type" = FIELD("Type Filter"),
-                                                                   "Manual VAT Settlement" = CONST(true),
-                                                                   "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group Filter"),
-                                                                   "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group Filter")));
+            CalcFormula = sum("VAT Entry"."Unrealized Base" where(Type = field("Entry Type"),
+                                                                   "CV Ledg. Entry No." = field("Entry No."),
+                                                                   "Posting Date" = field("Date Filter"),
+                                                                   "VAT Settlement Type" = field("Type Filter"),
+                                                                   "Manual VAT Settlement" = const(true),
+                                                                   "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
+                                                                   "VAT Prod. Posting Group" = field("VAT Prod. Posting Group Filter")));
             Caption = 'Unrealized VAT Base';
             FieldClass = FlowField;
         }
         field(14929; "VAT Amount To Allocate"; Decimal)
         {
-            CalcFormula = Sum("VAT Allocation Line".Amount WHERE("CV Ledger Entry No." = FIELD("Entry No."),
-                                                                  "VAT Settlement Type" = FIELD("Type Filter"),
-                                                                  "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group Filter"),
-                                                                  "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group Filter")));
+            CalcFormula = sum("VAT Allocation Line".Amount where("CV Ledger Entry No." = field("Entry No."),
+                                                                  "VAT Settlement Type" = field("Type Filter"),
+                                                                  "VAT Bus. Posting Group" = field("VAT Bus. Posting Group Filter"),
+                                                                  "VAT Prod. Posting Group" = field("VAT Prod. Posting Group Filter")));
             Caption = 'VAT Amount To Allocate';
             FieldClass = FlowField;
         }

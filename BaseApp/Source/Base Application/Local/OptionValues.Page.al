@@ -14,13 +14,13 @@ page 17245 "Option Values"
             repeater(Control100)
             {
                 ShowCaption = false;
-                field("Integer"; Integer)
+                field("Integer"; Rec.Integer)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'ID';
                     ToolTip = 'Specifies the ID.';
                 }
-                field(Text; Text)
+                field(Text; Rec.Text)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Value';

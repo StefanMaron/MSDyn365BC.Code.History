@@ -1,3 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using System.Automation;
+
 codeunit 500 "Enum Assignment Management"
 {
     trigger OnRun()
@@ -25,11 +36,11 @@ codeunit 500 "Enum Assignment Management"
             SalesDocumentType::"Return Order":
                 exit(ApprovalDocumentType::"Return Order");
             else begin
-                    IsHandled := false;
-                    OnGetSalesApprovalDocumentType(SalesDocumentType, ApprovalDocumentType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Sales', SalesDocumentType, 'Approval');
-                end;
+                IsHandled := false;
+                OnGetSalesApprovalDocumentType(SalesDocumentType, ApprovalDocumentType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Sales', SalesDocumentType, 'Approval');
+            end;
         end;
     end;
 
@@ -51,11 +62,11 @@ codeunit 500 "Enum Assignment Management"
             SalesDocumentType::"Return Order":
                 exit(IncomingDocumentType::"Return Order");
             else begin
-                    IsHandled := false;
-                    OnGetSalesIncomingDocumentType(SalesDocumentType, IncomingDocumentType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Sales', SalesDocumentType, 'Incoming');
-                end;
+                IsHandled := false;
+                OnGetSalesIncomingDocumentType(SalesDocumentType, IncomingDocumentType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Sales', SalesDocumentType, 'Incoming');
+            end;
         end;
     end;
 
@@ -77,11 +88,11 @@ codeunit 500 "Enum Assignment Management"
             PurchDocumentType::"Return Order":
                 exit(ApprovalDocumentType::"Return Order");
             else begin
-                    IsHandled := false;
-                    OnGetPurchApprovalDocumentType(PurchDocumentType, ApprovalDocumentType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Purchase', PurchDocumentType, 'Approval');
-                end;
+                IsHandled := false;
+                OnGetPurchApprovalDocumentType(PurchDocumentType, ApprovalDocumentType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Purchase', PurchDocumentType, 'Approval');
+            end;
         end;
     end;
 
@@ -103,11 +114,11 @@ codeunit 500 "Enum Assignment Management"
             PurchDocumentType::"Return Order":
                 exit(IncomingDocumentType::"Return Order");
             else begin
-                    IsHandled := false;
-                    OnGetPurchIncomingDocumentType(PurchDocumentType, IncomingDocumentType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Purchase', PurchDocumentType, 'Incoming');
-                end;
+                IsHandled := false;
+                OnGetPurchIncomingDocumentType(PurchDocumentType, IncomingDocumentType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Purchase', PurchDocumentType, 'Incoming');
+            end;
         end;
     end;
 
@@ -129,11 +140,11 @@ codeunit 500 "Enum Assignment Management"
             PurchLineType::"Charge (Item)":
                 exit(SalesLineType::"Charge (Item)");
             else begin
-                    IsHandled := false;
-                    OnGetSalesLineTypeFromPurchLineType(PurchLineType, SalesLineType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Purchase', PurchLineType, 'Sales');
-                end;
+                IsHandled := false;
+                OnGetSalesLineTypeFromPurchLineType(PurchLineType, SalesLineType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Purchase', PurchLineType, 'Sales');
+            end;
         end;
     end;
 
@@ -155,11 +166,11 @@ codeunit 500 "Enum Assignment Management"
             SalesLineType::"Charge (Item)":
                 exit(PurchLineType::"Charge (Item)");
             else begin
-                    IsHandled := false;
-                    OnGetPurchLineTypeFromSalesLineType(SalesLineType, PurchLineType, IsHandled);
-                    if not IsHandled then
-                        error(DocumentTypeEnumErr, 'Sales', SalesLineType, 'Purchase');
-                end;
+                IsHandled := false;
+                OnGetPurchLineTypeFromSalesLineType(SalesLineType, PurchLineType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Sales', SalesLineType, 'Purchase');
+            end;
         end;
     end;
 

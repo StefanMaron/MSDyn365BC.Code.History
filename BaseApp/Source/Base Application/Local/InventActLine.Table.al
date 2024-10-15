@@ -20,9 +20,9 @@ table 14909 "Invent. Act Line"
         {
             Caption = 'Contractor No.';
             Editable = false;
-            TableRelation = IF ("Contractor Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Contractor Type" = CONST(Vendor)) Vendor;
+            TableRelation = if ("Contractor Type" = const(Customer)) Customer
+            else
+            if ("Contractor Type" = const(Vendor)) Vendor;
         }
         field(7; "Contractor Name"; Text[250])
         {
@@ -33,9 +33,9 @@ table 14909 "Invent. Act Line"
         {
             Caption = 'Posting Group';
             Editable = false;
-            TableRelation = IF ("Contractor Type" = CONST(Customer)) "Customer Posting Group"
-            ELSE
-            IF ("Contractor Type" = CONST(Vendor)) "Vendor Posting Group";
+            TableRelation = if ("Contractor Type" = const(Customer)) "Customer Posting Group"
+            else
+            if ("Contractor Type" = const(Vendor)) "Vendor Posting Group";
         }
         field(9; "G/L Account No."; Code[20])
         {

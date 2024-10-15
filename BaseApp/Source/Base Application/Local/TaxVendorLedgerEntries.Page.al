@@ -129,7 +129,7 @@ page 17244 "Tax Vendor Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -180,7 +180,7 @@ page 17244 "Tax Vendor Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -189,9 +189,9 @@ page 17244 "Tax Vendor Ledger Entries"
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
                     RunObject = Page "Detailed Vendor Ledg. Entries";
-                    RunPageLink = "Vendor Ledger Entry No." = FIELD("Entry No."),
-                                  "Vendor No." = FIELD("Vendor No.");
-                    RunPageView = SORTING("Vendor Ledger Entry No.", "Posting Date");
+                    RunPageLink = "Vendor Ledger Entry No." = field("Entry No."),
+                                  "Vendor No." = field("Vendor No.");
+                    RunPageView = sorting("Vendor Ledger Entry No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                 }
             }
@@ -212,9 +212,9 @@ page 17244 "Tax Vendor Ledger Entries"
                     Caption = 'Apply Entries';
                     Image = ApplyEntries;
                     RunObject = Page "Apply Vendor Entries";
-                    RunPageLink = "Vendor No." = FIELD("Vendor No."),
-                                  Open = CONST(true);
-                    RunPageView = SORTING("Vendor No.", Open);
+                    RunPageLink = "Vendor No." = field("Vendor No."),
+                                  Open = const(true);
+                    RunPageView = sorting("Vendor No.", Open);
                     ShortCutKey = 'Shift+F11';
                     Visible = false;
                 }
@@ -231,7 +231,7 @@ page 17244 "Tax Vendor Ledger Entries"
 
                 trigger OnAction()
                 begin
-                    Navigate.SetDoc("Posting Date", "Document No.");
+                    Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                     Navigate.Run();
                 end;
             }
@@ -259,7 +259,7 @@ page 17244 "Tax Vendor Ledger Entries"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if not UseTmpVendLedgerEntry then
-            exit(Find(Which));
+            exit(Rec.Find(Which));
         TmpVendLedgerEntry.Copy(Rec);
         FindResult := TmpVendLedgerEntry.Find(Which);
         if FindResult then
@@ -270,7 +270,7 @@ page 17244 "Tax Vendor Ledger Entries"
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         if not UseTmpVendLedgerEntry then
-            exit(Next(Steps));
+            exit(Rec.Next(Steps));
         TmpVendLedgerEntry := Rec;
         NextResult := TmpVendLedgerEntry.Next(Steps);
         if NextResult <> 0 then
@@ -288,72 +288,72 @@ page 17244 "Tax Vendor Ledger Entries"
     [Scope('OnPrem')]
     procedure BuildTmpVendLedgerEntry(VendNo: Code[20]; DateBegin: Date; DateEnd: Date; DueFilter: Text[30]; PositiveEntry: Boolean)
     begin
-        Reset();
-        SetCurrentKey("Vendor No.", "Posting Date");
-        SetRange("Vendor No.", VendNo);
-        SetRange("Posting Date", DateBegin, DateEnd);
-        SetRange(Positive, PositiveEntry);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Vendor No.", "Posting Date");
+        Rec.SetRange("Vendor No.", VendNo);
+        Rec.SetRange("Posting Date", DateBegin, DateEnd);
+        Rec.SetRange(Positive, PositiveEntry);
+        if Rec.FindSet() then
             repeat
                 TmpVendLedgerEntry := Rec;
                 TmpVendLedgerEntry.Insert();
-            until Next() = 0;
+            until Rec.Next() = 0;
 
-        Reset();
-        SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
-        SetRange("Vendor No.", VendNo);
-        SetRange(Positive, PositiveEntry);
-        SetFilter("Due Date", DueFilter);
-        SetFilter("Date Filter", '..%1', DateBegin - 1);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
+        Rec.SetRange("Vendor No.", VendNo);
+        Rec.SetRange(Positive, PositiveEntry);
+        Rec.SetFilter("Due Date", DueFilter);
+        Rec.SetFilter("Date Filter", '..%1', DateBegin - 1);
+        if Rec.FindSet() then
             repeat
-                CalcFields("Remaining Amt. (LCY)");
-                if "Remaining Amt. (LCY)" <> 0 then begin
+                Rec.CalcFields("Remaining Amt. (LCY)");
+                if Rec."Remaining Amt. (LCY)" <> 0 then begin
                     TmpVendLedgerEntry := Rec;
                     if TmpVendLedgerEntry.Insert() then;
                 end;
-            until Next() = 0;
+            until Rec.Next() = 0;
 
-        Reset();
-        SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
-        SetRange("Vendor No.", VendNo);
-        SetRange(Positive, PositiveEntry);
-        SetFilter("Due Date", DueFilter);
-        SetFilter("Date Filter", '..%1', DateEnd);
-        if FindSet() then
+        Rec.Reset();
+        Rec.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
+        Rec.SetRange("Vendor No.", VendNo);
+        Rec.SetRange(Positive, PositiveEntry);
+        Rec.SetFilter("Due Date", DueFilter);
+        Rec.SetFilter("Date Filter", '..%1', DateEnd);
+        if Rec.FindSet() then
             repeat
-                CalcFields("Remaining Amt. (LCY)");
-                if "Remaining Amt. (LCY)" <> 0 then begin
+                Rec.CalcFields("Remaining Amt. (LCY)");
+                if Rec."Remaining Amt. (LCY)" <> 0 then begin
                     TmpVendLedgerEntry := Rec;
                     if TmpVendLedgerEntry.Insert() then;
                 end;
-            until Next() = 0;
-        Reset();
-        SetFilter("Date Filter", DueFilter);
+            until Rec.Next() = 0;
+        Rec.Reset();
+        Rec.SetFilter("Date Filter", DueFilter);
         UseTmpVendLedgerEntry := true;
     end;
 
     local procedure DocumentNoOnFormat()
     begin
-        if Open = true then begin
-            CalcFields(Amount);
-            if Amount < 0 then;
+        if Rec.Open = true then begin
+            Rec.CalcFields(Amount);
+            if Rec.Amount < 0 then;
         end;
     end;
 
     local procedure VendorNoOnFormat()
     begin
-        if Open = true then begin
-            CalcFields(Amount);
-            if Amount < 0 then;
+        if Rec.Open = true then begin
+            Rec.CalcFields(Amount);
+            if Rec.Amount < 0 then;
         end;
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        if Open = true then begin
-            CalcFields(Amount);
-            if Amount < 0 then;
+        if Rec.Open = true then begin
+            Rec.CalcFields(Amount);
+            if Rec.Amount < 0 then;
         end;
     end;
 }

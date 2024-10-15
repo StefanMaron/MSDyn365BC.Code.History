@@ -9,13 +9,13 @@ report 17301 "Calculate Tax Diff. for Calc."
     {
         dataitem("Tax Calc. Section"; "Tax Calc. Section")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             MaxIteration = 1;
             RequestFilterFields = "Code";
             dataitem("Tax Calc. Header"; "Tax Calc. Header")
             {
-                DataItemLink = "Section Code" = FIELD(Code);
-                DataItemTableView = SORTING("Section Code", "Tax Diff. Code") WHERE("Tax Diff. Code" = FILTER(<> ''), "Storing Method" = CONST("Build Entry"));
+                DataItemLink = "Section Code" = field(Code);
+                DataItemTableView = sorting("Section Code", "Tax Diff. Code") where("Tax Diff. Code" = filter(<> ''), "Storing Method" = const("Build Entry"));
 
                 trigger OnAfterGetRecord()
                 begin

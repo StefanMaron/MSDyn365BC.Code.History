@@ -7,12 +7,12 @@ report 14905 "Letter of Attorney M-2A"
     {
         dataitem("Letter of Attorney Header"; "Letter of Attorney Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem("Letter of Attorney Line"; "Letter of Attorney Line")
             {
-                DataItemLink = "Letter of Attorney No." = FIELD("No.");
-                DataItemTableView = SORTING("Letter of Attorney No.", "Line No.");
+                DataItemLink = "Letter of Attorney No." = field("No.");
+                DataItemTableView = sorting("Letter of Attorney No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

@@ -7,16 +7,16 @@ report 14991 "Posted FA Writeoff Act FA-4a"
     {
         dataitem("Posted FA Doc. Header"; "Posted FA Doc. Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.");
+            DataItemTableView = sorting("Document Type", "No.");
             dataitem("Part 3"; "Posted FA Doc. Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                 dataitem("Item/FA Precious Metal"; "Item/FA Precious Metal")
                 {
-                    DataItemLink = "No." = FIELD("FA No.");
+                    DataItemLink = "No." = field("FA No.");
                     DataItemLinkReference = "Part 3";
-                    DataItemTableView = SORTING("Item Type");
+                    DataItemTableView = sorting("Item Type");
 
                     trigger OnAfterGetRecord()
                     begin
@@ -37,13 +37,13 @@ report 14991 "Posted FA Writeoff Act FA-4a"
                 }
                 dataitem("Part 4"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                     dataitem("Invt. Receipt Line"; "Invt. Receipt Line")
                     {
-                        DataItemLink = "Document No." = FIELD("Item Receipt No.");
+                        DataItemLink = "Document No." = field("Item Receipt No.");
                         DataItemLinkReference = "Part 3";
-                        DataItemTableView = SORTING("Document No.", "Line No.");
+                        DataItemTableView = sorting("Document No.", "Line No.");
 
                         trigger OnAfterGetRecord()
                         begin
@@ -74,12 +74,12 @@ report 14991 "Posted FA Writeoff Act FA-4a"
                 }
                 dataitem("Part 5"; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
                 }
                 dataitem(Footer; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     MaxIteration = 1;
 
                     trigger OnPreDataItem()

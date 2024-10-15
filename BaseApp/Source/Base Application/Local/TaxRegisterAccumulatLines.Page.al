@@ -34,7 +34,7 @@ page 17213 "Tax Register Accumulat. Lines"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
             }

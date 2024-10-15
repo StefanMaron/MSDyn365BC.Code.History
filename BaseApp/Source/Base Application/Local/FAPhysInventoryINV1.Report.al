@@ -7,7 +7,7 @@ report 12486 "FA Phys. Inventory INV-1"
     {
         dataitem("FA Journal Line"; "FA Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
             RequestFilterFields = "Journal Template Name", "Journal Batch Name", "Document No.", "Location Code", "Employee No.";
 
             trigger OnAfterGetRecord()

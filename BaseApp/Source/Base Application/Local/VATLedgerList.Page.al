@@ -17,14 +17,14 @@ page 12412 "VAT Ledger List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT ledger type.';
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT ledger code.';
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -33,7 +33,7 @@ page 12412 "VAT Ledger List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this VAT ledger.';
                 }
-                field("Accounting Period"; "Accounting Period")
+                field("Accounting Period"; Rec."Accounting Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the accounting period associated with this VAT ledger.';
@@ -94,10 +94,10 @@ page 12412 "VAT Ledger List"
 
                     trigger OnAction()
                     begin
-                        case Type of
-                            Type::Purchase:
+                        case Rec.Type of
+                            Rec.Type::Purchase:
                                 PAGE.Run(PAGE::"VAT Purchase Ledger Card", Rec);
-                            Type::Sales:
+                            Rec.Type::Sales:
                                 PAGE.Run(PAGE::"VAT Sales Ledger Card", Rec);
                         end;
                     end;
@@ -119,7 +119,7 @@ page 12412 "VAT Ledger List"
 
                     trigger OnAction()
                     begin
-                        CreateVATLedger();
+                        Rec.CreateVATLedger();
                     end;
                 }
                 action("Create Additional Sheet")
@@ -132,7 +132,7 @@ page 12412 "VAT Ledger List"
 
                     trigger OnAction()
                     begin
-                        CreateAddSheet();
+                        Rec.CreateAddSheet();
                     end;
                 }
             }
@@ -151,7 +151,7 @@ page 12412 "VAT Ledger List"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, false);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, false);
                         VATLedgerExport.RunModal();
                     end;
                 }
@@ -166,7 +166,7 @@ page 12412 "VAT Ledger List"
                     var
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
-                        VATLedgerExport.InitializeReport(Type, Code, true);
+                        VATLedgerExport.InitializeReport(Rec.Type, Rec.Code, true);
                         VATLedgerExport.RunModal();
                     end;
                 }

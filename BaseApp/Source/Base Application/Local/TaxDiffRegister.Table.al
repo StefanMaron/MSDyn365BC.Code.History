@@ -12,15 +12,11 @@ table 17302 "Tax Diff. Register"
         {
             Caption = 'From Entry No.';
             TableRelation = "Tax Diff. Ledger Entry"."Entry No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(3; "To Entry No."; Integer)
         {
             Caption = 'To Entry No.';
             TableRelation = "Tax Diff. Ledger Entry"."Entry No.";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(4; "Journal Batch Name"; Code[10])
         {
@@ -35,8 +31,6 @@ table 17302 "Tax Diff. Register"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
     }

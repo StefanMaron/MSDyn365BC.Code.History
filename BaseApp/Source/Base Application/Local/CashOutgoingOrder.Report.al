@@ -7,7 +7,7 @@ report 12402 "Cash Outgoing Order"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
 
             trigger OnAfterGetRecord()
             begin

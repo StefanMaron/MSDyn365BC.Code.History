@@ -7,17 +7,17 @@ report 12418 "Posted Factura-Invoice (A)"
     {
         dataitem(Header; "Sales Invoice Header")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
             dataitem(CopyCycle; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 dataitem(LineCycle; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                     dataitem(AttachedLineCycle; "Integer")
                     {
-                        DataItemTableView = SORTING(Number);
+                        DataItemTableView = sorting(Number);
 
                         trigger OnAfterGetRecord()
                         var
@@ -41,7 +41,7 @@ report 12418 "Posted Factura-Invoice (A)"
                     }
                     dataitem(ItemTrackingLine; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                        DataItemTableView = sorting(Number) where(Number = filter(1 ..));
 
                         trigger OnAfterGetRecord()
                         var

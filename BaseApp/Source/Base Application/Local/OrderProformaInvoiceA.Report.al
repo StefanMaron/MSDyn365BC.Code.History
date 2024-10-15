@@ -7,7 +7,7 @@ report 12409 "Order Proforma-Invoice (A)"
     {
         dataitem(Header; "Sales Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.");
+            DataItemTableView = sorting("Document Type", "No.");
             RequestFilterFields = "No.";
         }
     }

@@ -286,7 +286,7 @@ codeunit 139058 "Office OCR Test"
         OfficeOCRIncomingDocuments.OK.Invoke;
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then begin
+        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
             PurchaseInvoice.Close();
             PurchaseInvoice.Trap;
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
@@ -481,7 +481,7 @@ codeunit 139058 "Office OCR Test"
         Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled, PurchaseInvoiceIncomingEmailAttachEnabledMsg);
 
         // [WHEN] A Purchase invoice card is opened an lines are added
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then
+        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then
             LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
         // [WHEN] SendToIncomingDocuments action is invoked.
@@ -490,7 +490,7 @@ codeunit 139058 "Office OCR Test"
         OfficeOCRIncomingDocuments.OK.Invoke;
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
-        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then begin
+        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value()) then begin
             PurchaseInvoice.Close();
             PurchaseInvoice.Trap;
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);

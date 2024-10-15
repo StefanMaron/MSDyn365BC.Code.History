@@ -11,7 +11,7 @@ report 12443 "Vendor Post. Gr. Turnover"
     {
         dataitem(VendorPostingGroup; "Vendor Posting Group")
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             RequestFilterFields = "Code";
             column(CurrentDate; CurrentDate)
             {
@@ -129,8 +129,8 @@ report 12443 "Vendor Post. Gr. Turnover"
             }
             dataitem(Vendor; Vendor)
             {
-                DataItemLink = "Vendor Posting Group" = FIELD(Code);
-                DataItemTableView = SORTING("No.");
+                DataItemLink = "Vendor Posting Group" = field(Code);
+                DataItemTableView = sorting("No.");
                 RequestFilterFields = "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Date Filter";
 
                 trigger OnAfterGetRecord()
@@ -166,7 +166,7 @@ report 12443 "Vendor Post. Gr. Turnover"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(SkipZeroValues; SkipZeroValues)
                 {
                 }

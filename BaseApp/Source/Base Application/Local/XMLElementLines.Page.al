@@ -5,7 +5,7 @@ page 26587 "XML Element Lines"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "XML Element Line";
-    SourceTableView = SORTING("Report Code", "Sequence No.");
+    SourceTableView = sorting("Report Code", "Sequence No.");
 
     layout
     {
@@ -23,7 +23,7 @@ page 26587 "XML Element Lines"
                     StyleExpr = "Element NameEmphasize";
                     ToolTip = 'Specifies the element name associated with the XML element line.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     Editable = false;
                     ToolTip = 'Specifies the indentation of the line.';
@@ -64,29 +64,29 @@ page 26587 "XML Element Lines"
                     var
                         XMLElementExpressionLine: Record "XML Element Expression Line";
                     begin
-                        if "Source Type" <> xRec."Source Type" then begin
-                            if "Source Type" <> "Source Type"::" " then
-                                TestField("Link Type", "Link Type"::Value);
-                            CheckReportDataExistence(Text005);
+                        if Rec."Source Type" <> xRec."Source Type" then begin
+                            if Rec."Source Type" <> Rec."Source Type"::" " then
+                                Rec.TestField("Link Type", Rec."Link Type"::Value);
+                            Rec.CheckReportDataExistence(Text005);
 
                             case xRec."Source Type" of
                                 xRec."Source Type"::Expression:
                                     begin
                                         XMLElementExpressionLine.Reset();
-                                        XMLElementExpressionLine.SetRange("Report Code", "Report Code");
-                                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
+                                        XMLElementExpressionLine.SetRange("Report Code", Rec."Report Code");
+                                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", Rec."Line No.");
                                         if XMLElementExpressionLine.FindFirst() then
                                             if Confirm(Text002) then begin
                                                 XMLElementExpressionLine.DeleteAll();
-                                                Value := '';
+                                                Rec.Value := '';
                                             end else
                                                 Error('');
                                     end;
                                 xRec."Source Type"::"Compound Element":
                                     begin
                                         XMLElementExpressionLine.Reset();
-                                        XMLElementExpressionLine.SetRange("Report Code", "Report Code");
-                                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
+                                        XMLElementExpressionLine.SetRange("Report Code", Rec."Report Code");
+                                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", Rec."Line No.");
                                         if XMLElementExpressionLine.FindFirst() then
                                             if Confirm(Text004) then
                                                 XMLElementExpressionLine.DeleteAll
@@ -95,28 +95,28 @@ page 26587 "XML Element Lines"
                                     end;
                                 xRec."Source Type"::"Inserted Element",
                               xRec."Source Type"::"Individual Element":
-                                    "Column Link No." := 0;
+                                    Rec."Column Link No." := 0;
                             end;
 
-                            if "Source Type" <> "Source Type"::Constant then
-                                Value := '';
+                            if Rec."Source Type" <> Rec."Source Type"::Constant then
+                                Rec.Value := '';
 
-                            case "Source Type" of
-                                "Source Type"::" ",
-                              "Source Type"::Expression,
-                              "Source Type"::Constant,
-                              "Source Type"::"Individual Element",
-                              "Source Type"::"Compound Element":
-                                    "Column Link No." := 0;
-                                "Source Type"::"Inserted Element":
-                                    "Column Link No." := -10000;
+                            case Rec."Source Type" of
+                                Rec."Source Type"::" ",
+                              Rec."Source Type"::Expression,
+                              Rec."Source Type"::Constant,
+                              Rec."Source Type"::"Individual Element",
+                              Rec."Source Type"::"Compound Element":
+                                    Rec."Column Link No." := 0;
+                                Rec."Source Type"::"Inserted Element":
+                                    Rec."Column Link No." := -10000;
                             end;
 
-                            "Row Link No." := 0;
+                            Rec."Row Link No." := 0;
                         end;
                     end;
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the XML element line.';
@@ -131,7 +131,7 @@ page 26587 "XML Element Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the service element associated with the XML element line.';
                 }
-                field(Choice; Choice)
+                field(Choice; Rec.Choice)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the XML element line is a choice line.';
@@ -158,7 +158,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupRow;
+                        Rec.LookupRow;
                     end;
                 }
                 field("Column Link No."; Rec."Column Link No.")
@@ -168,7 +168,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupColumn;
+                        Rec.LookupColumn;
                     end;
                 }
                 field("Excel Mapping Type"; Rec."Excel Mapping Type")
@@ -210,7 +210,7 @@ page 26587 "XML Element Lines"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Alignment; Alignment)
+                field(Alignment; Rec.Alignment)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -245,10 +245,10 @@ page 26587 "XML Element Lines"
                         XMLElementExpressionLine: Record "XML Element Expression Line";
                         XMLElementExpressionLines: Page "XML Element Expression Lines";
                     begin
-                        TestField("Source Type", "Source Type"::Expression);
+                        Rec.TestField("Source Type", Rec."Source Type"::Expression);
                         XMLElementExpressionLine.FilterGroup(2);
-                        XMLElementExpressionLine.SetRange("Report Code", "Report Code");
-                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
+                        XMLElementExpressionLine.SetRange("Report Code", Rec."Report Code");
+                        XMLElementExpressionLine.SetRange("Base XML Element Line No.", Rec."Line No.");
                         XMLElementExpressionLine.FilterGroup(0);
                         XMLElementExpressionLines.SetTableView(XMLElementExpressionLine);
                         XMLElementExpressionLines.RunModal();
@@ -335,7 +335,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnAction()
                     begin
-                        UpdateExpression;
+                        Rec.UpdateExpression;
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -381,7 +381,7 @@ page 26587 "XML Element Lines"
         SequenceNo: Integer;
         LineNo: Integer;
     begin
-        XMLElementLine.SetRange("Report Code", "Report Code");
+        XMLElementLine.SetRange("Report Code", Rec."Report Code");
         if XMLElementLine.Find('+') then;
         LineNo := XMLElementLine."Line No." + 10000;
 
@@ -389,8 +389,8 @@ page 26587 "XML Element Lines"
 
         if BelowxRec then begin
             if XMLElementLine.Find('+') then;
-            "Sequence No." := XMLElementLine."Sequence No." + 1;
-            "Line No." := LineNo;
+            Rec."Sequence No." := XMLElementLine."Sequence No." + 1;
+            Rec."Line No." := LineNo;
         end else begin
             SequenceNo := xRec."Sequence No.";
 
@@ -401,17 +401,17 @@ page 26587 "XML Element Lines"
                     XMLElementLine.Modify();
                 until XMLElementLine.Next(-1) = 0;
 
-            "Line No." := LineNo;
-            "Sequence No." := SequenceNo;
+            Rec."Line No." := LineNo;
+            Rec."Sequence No." := SequenceNo;
         end;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if not BelowxRec then begin
-            Indentation := xRec.Indentation;
-            "Parent Line No." := xRec."Parent Line No.";
-            "Element Type" := xRec."Element Type";
+            Rec.Indentation := xRec.Indentation;
+            Rec."Parent Line No." := xRec."Parent Line No.";
+            Rec."Element Type" := xRec."Element Type";
         end;
     end;
 
@@ -424,9 +424,7 @@ page 26587 "XML Element Lines"
         Text002: Label 'All related expression lines will be deleted. Proceed?';
         Text004: Label 'All related compound element lines will be deleted. Proceed?';
         Text005: Label '%1 cannot be modified because %2 %3 contains report data.';
-        [InDataSet]
         "Element NameEmphasize": Boolean;
-        [InDataSet]
         "Element NameIndent": Integer;
 
     [Scope('OnPrem')]
@@ -436,28 +434,28 @@ page 26587 "XML Element Lines"
         SequenceNo: Integer;
         CurrLineNo: Integer;
     begin
-        CheckReportDataExistence(Text005);
+        Rec.CheckReportDataExistence(Text005);
         UpperLine.SetCurrentKey("Report Code", "Sequence No.");
-        UpperLine.SetRange("Report Code", "Report Code");
-        UpperLine.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
+        UpperLine.SetRange("Report Code", Rec."Report Code");
+        UpperLine.SetFilter("Sequence No.", '..%1', Rec."Sequence No." - 1);
         if UpperLine.FindLast() then begin
             SequenceNo := UpperLine."Sequence No.";
-            UpperLine."Sequence No." := "Sequence No.";
+            UpperLine."Sequence No." := Rec."Sequence No.";
             UpperLine.Modify();
 
-            CurrLineNo := "Line No.";
+            CurrLineNo := Rec."Line No.";
 
-            Get("Report Code", UpperLine."Line No.");
-            "Sequence No." := UpperLine."Sequence No.";
-            Modify();
+            Rec.Get(Rec."Report Code", UpperLine."Line No.");
+            Rec."Sequence No." := UpperLine."Sequence No.";
+            Rec.Modify();
 
-            Get("Report Code", CurrLineNo);
-            Indentation := UpperLine.Indentation;
-            "Sequence No." := SequenceNo;
-            Modify(true);
+            Rec.Get(Rec."Report Code", CurrLineNo);
+            Rec.Indentation := UpperLine.Indentation;
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify(true);
 
-            UpperLine.Get("Report Code", CurrLineNo);
-            UpperLine.Indentation := Indentation;
+            UpperLine.Get(Rec."Report Code", CurrLineNo);
+            UpperLine.Indentation := Rec.Indentation;
             UpperLine."Sequence No." := SequenceNo;
             UpperLine.Modify();
         end;
@@ -472,28 +470,28 @@ page 26587 "XML Element Lines"
         SequenceNo: Integer;
         CurrLineNo: Integer;
     begin
-        CheckReportDataExistence(Text005);
+        Rec.CheckReportDataExistence(Text005);
         LowerLine.SetCurrentKey("Report Code", "Sequence No.");
-        LowerLine.SetRange("Report Code", "Report Code");
-        LowerLine.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
+        LowerLine.SetRange("Report Code", Rec."Report Code");
+        LowerLine.SetFilter("Sequence No.", '%1..', Rec."Sequence No." + 1);
         if LowerLine.FindFirst() then begin
             SequenceNo := LowerLine."Sequence No.";
-            LowerLine."Sequence No." := "Sequence No.";
+            LowerLine."Sequence No." := Rec."Sequence No.";
             LowerLine.Modify();
 
-            CurrLineNo := "Line No.";
+            CurrLineNo := Rec."Line No.";
 
-            Get("Report Code", LowerLine."Line No.");
-            "Sequence No." := LowerLine."Sequence No.";
-            Modify();
+            Rec.Get(Rec."Report Code", LowerLine."Line No.");
+            Rec."Sequence No." := LowerLine."Sequence No.";
+            Rec.Modify();
 
-            Get("Report Code", CurrLineNo);
-            Indentation := LowerLine.Indentation;
-            "Sequence No." := SequenceNo;
-            Modify(true);
+            Rec.Get(Rec."Report Code", CurrLineNo);
+            Rec.Indentation := LowerLine.Indentation;
+            Rec."Sequence No." := SequenceNo;
+            Rec.Modify(true);
 
-            LowerLine.Get("Report Code", CurrLineNo);
-            LowerLine.Indentation := Indentation;
+            LowerLine.Get(Rec."Report Code", CurrLineNo);
+            LowerLine.Indentation := Rec.Indentation;
             LowerLine."Sequence No." := SequenceNo;
             LowerLine.Modify();
         end;
@@ -503,19 +501,19 @@ page 26587 "XML Element Lines"
     [Scope('OnPrem')]
     procedure MoveRight()
     begin
-        CheckReportDataExistence(Text005);
-        Indentation := Indentation + 1;
-        Modify(true);
+        Rec.CheckReportDataExistence(Text005);
+        Rec.Indentation := Rec.Indentation + 1;
+        Rec.Modify(true);
         UpdateLinks;
     end;
 
     [Scope('OnPrem')]
     procedure MoveLeft()
     begin
-        CheckReportDataExistence(Text005);
-        if Indentation > 0 then begin
-            Indentation := Indentation - 1;
-            Modify(true);
+        Rec.CheckReportDataExistence(Text005);
+        if Rec.Indentation > 0 then begin
+            Rec.Indentation := Rec.Indentation - 1;
+            Rec.Modify(true);
         end;
         UpdateLinks;
     end;
@@ -527,10 +525,10 @@ page 26587 "XML Element Lines"
         ParentLine: Record "XML Element Line";
     begin
         ParentLine.SetCurrentKey("Report Code", "Sequence No.");
-        ParentLine.SetRange("Report Code", "Report Code");
+        ParentLine.SetRange("Report Code", Rec."Report Code");
 
         XMLElementLine.SetCurrentKey("Report Code", "Sequence No.");
-        XMLElementLine.SetRange("Report Code", "Report Code");
+        XMLElementLine.SetRange("Report Code", Rec."Report Code");
         if XMLElementLine.FindSet() then
             repeat
                 if XMLElementLine.Indentation > 0 then begin
@@ -553,10 +551,10 @@ page 26587 "XML Element Lines"
         XMLElementExpressionLine: Record "XML Element Expression Line";
         CompoundXMLElementLines: Page "Compound XML Element Lines";
     begin
-        TestField("Source Type", "Source Type"::"Compound Element");
+        Rec.TestField("Source Type", Rec."Source Type"::"Compound Element");
         XMLElementExpressionLine.FilterGroup(2);
-        XMLElementExpressionLine.SetRange("Report Code", "Report Code");
-        XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
+        XMLElementExpressionLine.SetRange("Report Code", Rec."Report Code");
+        XMLElementExpressionLine.SetRange("Base XML Element Line No.", Rec."Line No.");
         XMLElementExpressionLine.FilterGroup(0);
         CompoundXMLElementLines.SetTableView(XMLElementExpressionLine);
         CompoundXMLElementLines.RunModal();
@@ -564,17 +562,17 @@ page 26587 "XML Element Lines"
 
     local procedure TableCodeOnAfterValidate()
     begin
-        if "Table Code" <> '' then begin
+        if Rec."Table Code" <> '' then begin
             CurrPage.SaveRecord();
-            UpdateTableCode("Table Code");
+            Rec.UpdateTableCode(Rec."Table Code");
             CurrPage.Update();
         end;
     end;
 
     local procedure ElementNameOnFormat()
     begin
-        "Element NameIndent" := Indentation;
-        "Element NameEmphasize" := "Element Type" = "Element Type"::Complex;
+        "Element NameIndent" := Rec.Indentation;
+        "Element NameEmphasize" := Rec."Element Type" = Rec."Element Type"::Complex;
     end;
 }
 

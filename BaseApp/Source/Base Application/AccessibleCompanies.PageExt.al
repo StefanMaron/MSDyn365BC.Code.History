@@ -1,3 +1,7 @@
+namespace System.Environment.Configuration;
+
+using Microsoft.Utilities;
+
 pageextension 9177 "Accessible Companies" extends "Accessible Companies"
 {
     layout
@@ -21,12 +25,12 @@ pageextension 9177 "Accessible Companies" extends "Accessible Companies"
                 var
                     AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
                 begin
-                    AssistedCompanySetupStatus.DrillDownSetupStatus(Name);
+                    AssistedCompanySetupStatus.DrillDownSetupStatus(Rec.Name);
                 end;
             }
         }
     }
-    
+
     trigger OnAfterGetRecord()
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";

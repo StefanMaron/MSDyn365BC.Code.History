@@ -1,4 +1,17 @@
-﻿table 85 "Acc. Schedule Line"
+﻿namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CostAccounting.Account;
+using Microsoft.CostAccounting.Budget;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+
+table 85 "Acc. Schedule Line"
 {
     Caption = 'Acc. Schedule Line';
 
@@ -24,23 +37,21 @@
         field(5; Totaling; Text[250])
         {
             Caption = 'Totaling';
-            TableRelation = IF ("Totaling Type" = CONST("Posting Accounts")) "G/L Account"
-            ELSE
-            IF ("Totaling Type" = CONST("Total Accounts")) "G/L Account"
-            ELSE
-            IF ("Totaling Type" = CONST("Account Category")) "G/L Account Category"
-            ELSE
-            IF ("Totaling Type" = CONST("Cash Flow Entry Accounts")) "Cash Flow Account"
-            ELSE
-            IF ("Totaling Type" = CONST("Cash Flow Total Accounts")) "Cash Flow Account"
-            ELSE
-            IF ("Totaling Type" = CONST("Cost Type")) "Cost Type"
-            ELSE
-            IF ("Totaling Type" = CONST("Cost Type Total")) "Cost Type"
-            ELSE
-            IF ("Totaling Type" = CONST(Custom)) "Acc. Schedule Extension";
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Totaling Type" = const("Posting Accounts")) "G/L Account"
+            else
+            if ("Totaling Type" = const("Total Accounts")) "G/L Account"
+            else
+            if ("Totaling Type" = const("Account Category")) "G/L Account Category"
+            else
+            if ("Totaling Type" = const("Cash Flow Entry Accounts")) "Cash Flow Account"
+            else
+            if ("Totaling Type" = const("Cash Flow Total Accounts")) "Cash Flow Account"
+            else
+            if ("Totaling Type" = const("Cost Type")) "Cost Type"
+            else
+            if ("Totaling Type" = const("Cost Type Total")) "Cost Type"
+            else
+            if ("Totaling Type" = const(Custom)) "Acc. Schedule Extension";
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -163,8 +174,6 @@
             AccessByPermission = TableData Dimension = R;
             CaptionClass = GetCaptionClass(5);
             Caption = 'Dimension 1 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -173,8 +182,6 @@
             AccessByPermission = TableData Dimension = R;
             CaptionClass = GetCaptionClass(6);
             Caption = 'Dimension 2 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -183,8 +190,6 @@
             AccessByPermission = TableData "Dimension Combination" = R;
             CaptionClass = GetCaptionClass(7);
             Caption = 'Dimension 3 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -193,8 +198,6 @@
             AccessByPermission = TableData "Dimension Combination" = R;
             CaptionClass = GetCaptionClass(8);
             Caption = 'Dimension 4 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -275,16 +278,12 @@
         field(1102; "Cost Center Totaling"; Text[80])
         {
             Caption = 'Cost Center Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
         field(1103; "Cost Object Totaling"; Text[80])
         {
             Caption = 'Cost Object Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -313,16 +312,12 @@
         {
             Caption = 'Corr. Totaling';
             TableRelation = "G/L Account";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(12406; "Dimension 1 Corr. Totaling"; Text[80])
         {
             CaptionClass = GetCaptionClass(12401);
             Caption = 'Dimension 1 Corr. Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -330,8 +325,6 @@
         {
             CaptionClass = GetCaptionClass(12402);
             Caption = 'Dimension 2 Corr. Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }

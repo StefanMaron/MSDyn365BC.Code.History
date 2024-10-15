@@ -381,6 +381,7 @@ codeunit 144004 "ERM RU SE Fixes"
         VerifyGenJnlLineArchive(GenJnlLine);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure RunAccountScheduleOverviewWithComparisionFormula()
@@ -416,6 +417,7 @@ codeunit 144004 "ERM RU SE Fixes"
         AccScheduleOverview.CurrentColumnName.AssertEquals(ColumnLayoutName);
         AccScheduleOverview.ColumnValues1.AssertEquals(GLCorrespondenceEntry.Amount);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AccSchedFormulaDrillDownPageHandler')]
@@ -791,6 +793,7 @@ codeunit 144004 "ERM RU SE Fixes"
         VerifyPaymentAndInvoiceFullyApplied(PaymentNo, InvoiceNo);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure CorrDimFilterOnColumnLayoutAppliedToAccountSchedule()
@@ -839,7 +842,9 @@ codeunit 144004 "ERM RU SE Fixes"
         // [THEN] The value in the only cell in the account schedule = "A2".
         Assert.AreEqual(GLCorrespondenceEntry[2].Amount, Amt, '');
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure DrillDownAccountScheduleCellConsidersCorrDimFilterOnColumnLayout()
@@ -891,7 +896,9 @@ codeunit 144004 "ERM RU SE Fixes"
         Assert.IsFalse(GLCorrespondenceEntries.GotoKey(GLCorrespondenceEntry[1]."Entry No."), '');
         Assert.IsTrue(GLCorrespondenceEntries.GotoKey(GLCorrespondenceEntry[2]."Entry No."), '');
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TotalingDimValueCanBeUsedOnCorrDimFilterOnColumnLayout()
@@ -946,6 +953,7 @@ codeunit 144004 "ERM RU SE Fixes"
         // [THEN] The value in the only cell in the account schedule = "A2".
         Assert.AreEqual(GLCorrespondenceEntry[2].Amount, Amt, '');
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1157,6 +1165,7 @@ codeunit 144004 "ERM RU SE Fixes"
         ColumnLayout.Modify(true);
     end;
 
+#if not CLEAN22
     local procedure CreateAccScheduleWithDefaultColumnName(ColumnName: Code[10]; GLAccountNo: Code[20]): Code[10]
     var
         AccScheduleName: Record "Acc. Schedule Name";
@@ -1173,6 +1182,7 @@ codeunit 144004 "ERM RU SE Fixes"
 
         exit(AccScheduleName.Name);
     end;
+#endif
 
     local procedure CreateAccScheduleWithTotalingTypeForDrillDown(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; PassedTotaling: Text[250])
     begin

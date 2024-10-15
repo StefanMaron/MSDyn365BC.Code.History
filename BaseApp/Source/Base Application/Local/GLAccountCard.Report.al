@@ -9,7 +9,7 @@ report 12437 "G/L Account Card"
     {
         dataitem(GLAcc; "G/L Account")
         {
-            DataItemTableView = WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = where("Account Type" = const(Posting));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Business Unit Filter", "Date Filter";
             column(USERID; UserId)
@@ -50,7 +50,7 @@ report 12437 "G/L Account Card"
             }
             dataitem(Balance; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 MaxIteration = 1;
                 column(GLAcc__No__; GLAcc."No.")
                 {
@@ -117,9 +117,9 @@ report 12437 "G/L Account Card"
                 }
                 dataitem(GLEntry; "G/L Entry")
                 {
-                    DataItemLink = "G/L Account No." = FIELD("No."), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Posting Date" = FIELD("Date Filter"), "Source Type" = FIELD("Source Type Filter"), "Source No." = FIELD("Source No. Filter");
+                    DataItemLink = "G/L Account No." = field("No."), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter"), "Posting Date" = field("Date Filter"), "Source Type" = field("Source Type Filter"), "Source No." = field("Source No. Filter");
                     DataItemLinkReference = GLAcc;
-                    DataItemTableView = SORTING("Transaction No.");
+                    DataItemTableView = sorting("Transaction No.");
                     column(GLEntry_Description; Description)
                     {
                     }
@@ -173,8 +173,8 @@ report 12437 "G/L Account Card"
                     }
                     dataitem(GLCorrEntry; "G/L Correspondence Entry")
                     {
-                        DataItemLink = "Document No." = FIELD("Document No."), "Transaction No." = FIELD("Transaction No.");
-                        DataItemTableView = SORTING("Transaction No.", "Debit Account No.", "Credit Account No.");
+                        DataItemLink = "Document No." = field("Document No."), "Transaction No." = field("Transaction No.");
+                        DataItemTableView = sorting("Transaction No.", "Debit Account No.", "Credit Account No.");
                         column(CorrAccount; CorrAccount)
                         {
                         }

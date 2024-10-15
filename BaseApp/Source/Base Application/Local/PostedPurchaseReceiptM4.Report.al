@@ -17,8 +17,8 @@ report 12483 "Posted Purchase Receipt M-4"
             }
             dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
             {
-                DataItemLink = "Document No." = FIELD("No.");
-                DataItemTableView = SORTING("Document No.", "Line No.");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = sorting("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
                 begin

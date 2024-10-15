@@ -55,17 +55,17 @@ page 17335 "Tax Dif G/L Corr. Dim. Filters"
         Dimension: Record Dimension;
         DimCodeFilter: Code[250];
     begin
-        TaxCalcHeader.Get("Section Code", "Tax Calc. No.");
+        TaxCalcHeader.Get(Rec."Section Code", Rec."Tax Calc. No.");
         if TaxCalcHeader."G/L Corr. Analysis View Code" <> '' then begin
             GLCorrAnalysisView.Get(TaxCalcHeader."G/L Corr. Analysis View Code");
-            case "Filter Group" of
-                "Filter Group"::Debit:
+            case Rec."Filter Group" of
+                Rec."Filter Group"::Debit:
                     begin
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 1 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 2 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Debit Dimension 3 Code", DimCodeFilter);
                     end;
-                "Filter Group"::Credit:
+                Rec."Filter Group"::Credit:
                     begin
                         AddValue2Fiter(GLCorrAnalysisView."Credit Dimension 1 Code", DimCodeFilter);
                         AddValue2Fiter(GLCorrAnalysisView."Credit Dimension 2 Code", DimCodeFilter);

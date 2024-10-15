@@ -57,7 +57,7 @@ page 12481 "Posted FA Movement Act Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field(Canceled; Canceled)
+                field(Canceled; Rec.Canceled)
                 {
                     ApplicationArea = FixedAssets;
                 }
@@ -82,7 +82,7 @@ page 12481 "Posted FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -93,7 +93,7 @@ page 12481 "Posted FA Movement Act Subform"
 
                     trigger OnAction()
                     begin
-                        ShowComments();
+                        Rec.ShowComments();
                     end;
                 }
             }
@@ -159,7 +159,7 @@ page 12481 "Posted FA Movement Act Subform"
 
     local procedure SetFilters(var PostedFADocHeader: Record "Posted FA Doc. Header"; var PostedFADocLine: Record "Posted FA Doc. Line")
     begin
-        PostedFADocHeader.Get("Document Type", "Document No.");
+        PostedFADocHeader.Get(Rec."Document Type", Rec."Document No.");
         PostedFADocHeader.SetRecFilter();
         PostedFADocLine := Rec;
         PostedFADocLine.SetRecFilter();
@@ -171,7 +171,7 @@ page 12481 "Posted FA Movement Act Subform"
         PstdFADocLine: Record "Posted FA Doc. Line";
     begin
         CurrPage.SetSelectionFilter(PstdFADocLine);
-        CancelFALocationMovement(PstdFADocLine);
+        Rec.CancelFALocationMovement(PstdFADocLine);
     end;
 }
 

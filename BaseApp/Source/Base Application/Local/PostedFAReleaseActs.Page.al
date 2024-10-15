@@ -6,8 +6,8 @@ page 35607 "Posted FA Release Acts"
     Editable = false;
     PageType = List;
     SourceTable = "Posted FA Doc. Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Release));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = const(Release));
     UsageCategory = History;
 
     layout
@@ -82,9 +82,9 @@ page 35607 "Posted FA Release Acts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
-                    RunPageLink = "Document Type" = CONST(Release),
-                                  "Document No." = FIELD("No."),
-                                  "Document Line No." = CONST(0);
+                    RunPageLink = "Document Type" = const(Release),
+                                  "Document No." = field("No."),
+                                  "Document Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("D&imensions")
@@ -96,7 +96,7 @@ page 35607 "Posted FA Release Acts"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -107,9 +107,9 @@ page 35607 "Posted FA Release Acts"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Posted Document Signatures";
-                    RunPageLink = "Table ID" = CONST(12471),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(12471),
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -124,7 +124,7 @@ page 35607 "Posted FA Release Acts"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

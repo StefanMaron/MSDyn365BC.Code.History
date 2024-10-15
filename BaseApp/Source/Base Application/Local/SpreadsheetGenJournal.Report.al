@@ -8,7 +8,7 @@ report 17450 "Spreadsheet Gen. Journal"
     {
         dataitem("Gen. Journal Line"; "Gen. Journal Line")
         {
-            DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
+            DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
             RequestFilterFields = "Journal Template Name", "Business Unit Code", "Shortcut Dimension 1 Code";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {

@@ -52,7 +52,7 @@ page 17315 "Tax Calc. Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field name associated with the tax calculation line.';
                 }
-                field(Disposed; Disposed)
+                field(Disposed; Rec.Disposed)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax calculation line is disposed.';
@@ -72,12 +72,12 @@ page 17315 "Tax Calc. Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the depreciation group associated with the tax calculation line.';
                 }
-                field(Indentation; Indentation)
+                field(Indentation; Rec.Indentation)
                 {
                     ToolTip = 'Specifies the indentation of the line.';
                     Visible = false;
                 }
-                field(Bold; Bold)
+                field(Bold; Rec.Bold)
                 {
                     ToolTip = 'Specifies if you want the amounts in this line to be printed in bold.';
                     Visible = false;
@@ -98,18 +98,16 @@ page 17315 "Tax Calc. Subform"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Expression Type" := "Expression Type"::SumField;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Expression Type" := "Expression Type"::SumField;
+        Rec."Expression Type" := Rec."Expression Type"::SumField;
     end;
 
     var
-        [InDataSet]
         DescriptionEmphasize: Boolean;
-        [InDataSet]
         DescriptionIndent: Integer;
 
     local procedure TaxDiffAmountTaxOnAfterValidat()
@@ -124,8 +122,8 @@ page 17315 "Tax Calc. Subform"
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
-        DescriptionEmphasize := Bold;
+        DescriptionIndent := Rec.Indentation;
+        DescriptionEmphasize := Rec.Bold;
     end;
 }
 

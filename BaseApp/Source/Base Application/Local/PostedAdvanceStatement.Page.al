@@ -6,7 +6,7 @@ page 12433 "Posted Advance Statement"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Purch. Inv. Header";
-    SourceTableView = WHERE("Empl. Purchase" = CONST(true));
+    SourceTableView = where("Empl. Purchase" = CONST(true));
 
     layout
     {
@@ -80,7 +80,7 @@ page 12433 "Posted Advance Statement"
             part(PurchInvLines; "Posted Adv. Statement Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Statement)
             {
@@ -117,11 +117,11 @@ page 12433 "Posted Advance Statement"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            "Currency Factor" := ChangeExchangeRate.GetParameter();
-                            Modify();
+                            Rec."Currency Factor" := ChangeExchangeRate.GetParameter();
+                            Rec.Modify();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -155,7 +155,7 @@ page 12433 "Posted Advance Statement"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Purchase Invoice Statistics";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -165,7 +165,7 @@ page 12433 "Posted Advance Statement"
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Invoice"),
-                                  "No." = FIELD("No.");
+                                  "No." = field("No.");
                 }
                 action(Dimensions)
                 {
@@ -175,7 +175,7 @@ page 12433 "Posted Advance Statement"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -204,7 +204,7 @@ page 12433 "Posted Advance Statement"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

@@ -10,7 +10,7 @@ report 12466 "FA Turnover"
     {
         dataitem(FA; "Fixed Asset")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
@@ -160,8 +160,8 @@ report 12466 "FA Turnover"
             }
             dataitem("FA Depreciation Book"; "FA Depreciation Book")
             {
-                DataItemLink = "FA No." = FIELD("No.");
-                DataItemTableView = SORTING("FA No.", "Depreciation Book Code");
+                DataItemLink = "FA No." = field("No.");
+                DataItemTableView = sorting("FA No.", "Depreciation Book Code");
                 column(FA__No__; FA."No.")
                 {
                 }
@@ -360,7 +360,7 @@ report 12466 "FA Turnover"
                         ApplicationArea = Suite;
                         CaptionClass = '1,3,1';
                         Caption = 'Global Dimension 1 Filter';
-                        TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+                        TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
                         ToolTip = 'Specifies the dimensions by which data is shown. Global dimensions are linked to records or entries for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     }
                     field("Global Dimension 2 Filter"; GlobalDim2Filter)
@@ -368,7 +368,7 @@ report 12466 "FA Turnover"
                         ApplicationArea = Suite;
                         CaptionClass = '1,3,2';
                         Caption = 'Global Dimension 2 Filter';
-                        TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+                        TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
                         ToolTip = 'Specifies the dimensions by which data is shown. Global dimensions are linked to records or entries for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     }
                     field("FA Class Code"; FAClass)

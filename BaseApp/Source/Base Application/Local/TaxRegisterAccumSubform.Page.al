@@ -37,7 +37,7 @@ page 17210 "Tax Register Accum. Subform"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmount();
+                        Rec.DrillDownAmount();
                     end;
                 }
                 field("Dimensions Filters"; Rec."Dimensions Filters")
@@ -100,7 +100,6 @@ page 17210 "Tax Register Accum. Subform"
 
     var
         TaxReg: Record "Tax Register";
-        [InDataSet]
         DescriptionIndent: Integer;
 
     local procedure ShowTaxRegEntries()
@@ -111,7 +110,7 @@ page 17210 "Tax Register Accum. Subform"
         TaxRegFAEntry: Record "Tax Register FA Entry";
         TaxRegFEEntry: Record "Tax Register FE Entry";
     begin
-        TaxReg.Get("Section Code", "Tax Register No.");
+        TaxReg.Get(Rec."Section Code", Rec."Tax Register No.");
         if (TaxReg."Page ID" = 0) or (TaxReg."Table ID" = 0) or
            (TaxReg."Storing Method" = TaxReg."Storing Method"::Calculation)
         then
@@ -150,30 +149,30 @@ page 17210 "Tax Register Accum. Subform"
     var
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
     begin
-        CalcFields("Dimensions Filters");
-        if "Dimensions Filters" then begin
+        Rec.CalcFields("Dimensions Filters");
+        if Rec."Dimensions Filters" then begin
             TaxRegDimFilter.FilterGroup(2);
-            TaxRegDimFilter.SetRange("Section Code", "Section Code");
-            TaxRegDimFilter.SetRange("Tax Register No.", "Tax Register No.");
+            TaxRegDimFilter.SetRange("Section Code", Rec."Section Code");
+            TaxRegDimFilter.SetRange("Tax Register No.", Rec."Tax Register No.");
             TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::Template);
             TaxRegDimFilter.FilterGroup(0);
-            TaxRegDimFilter.SetRange("Line No.", "Template Line No.");
+            TaxRegDimFilter.SetRange("Line No.", Rec."Template Line No.");
             PAGE.RunModal(0, TaxRegDimFilter);
         end;
     end;
 
     local procedure DescriptionOnFormat()
     begin
-        DescriptionIndent := Indentation;
+        DescriptionIndent := Rec.Indentation;
     end;
 
     [Scope('OnPrem')]
     procedure UpdatePage(NewDateFilter: Text[80])
     begin
-        FilterGroup(4);
-        SetFilter("Date Filter", NewDateFilter);
-        SetFilter("Ending Date", NewDateFilter);
-        FilterGroup(0);
+        Rec.FilterGroup(4);
+        Rec.SetFilter("Date Filter", NewDateFilter);
+        Rec.SetFilter("Ending Date", NewDateFilter);
+        Rec.FilterGroup(0);
         CurrPage.Update(false);
     end;
 }

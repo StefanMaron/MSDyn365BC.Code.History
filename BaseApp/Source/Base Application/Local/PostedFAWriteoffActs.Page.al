@@ -6,8 +6,8 @@ page 35609 "Posted FA Writeoff Acts"
     Editable = false;
     PageType = List;
     SourceTable = "Posted FA Doc. Header";
-    SourceTableView = SORTING("Document Type", "No.")
-                      WHERE("Document Type" = CONST(Writeoff));
+    SourceTableView = sorting("Document Type", "No.")
+                      where("Document Type" = CONST(Writeoff));
     UsageCategory = History;
 
     layout
@@ -83,7 +83,7 @@ page 35609 "Posted FA Writeoff Acts"
                     Image = ViewComments;
                     RunObject = Page "Posted FA Comments";
                     RunPageLink = "Document Type" = CONST(Writeoff),
-                                  "Document No." = FIELD("No."),
+                                  "Document No." = field("No."),
                                   "Document Line No." = CONST(0);
                     ToolTip = 'View or add comments for the record.';
                 }
@@ -98,7 +98,7 @@ page 35609 "Posted FA Writeoff Acts"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Employee Si&gnatures")
@@ -108,8 +108,8 @@ page 35609 "Posted FA Writeoff Acts"
                     Image = Signature;
                     RunObject = Page "Posted Document Signatures";
                     RunPageLink = "Table ID" = CONST(12471),
-                                  "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("No.");
+                                  "Document Type" = field("Document Type"),
+                                  "Document No." = field("No.");
                 }
             }
         }
@@ -124,7 +124,7 @@ page 35609 "Posted FA Writeoff Acts"
 
                 trigger OnAction()
                 begin
-                    Navigate();
+                    Rec.Navigate();
                 end;
             }
         }

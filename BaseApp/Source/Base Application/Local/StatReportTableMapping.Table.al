@@ -13,7 +13,7 @@ table 26587 "Stat. Report Table Mapping"
         field(2; "Table Code"; Code[20])
         {
             Caption = 'Table Code';
-            TableRelation = "Statutory Report Table".Code WHERE("Report Code" = FIELD("Report Code"));
+            TableRelation = "Statutory Report Table".Code where("Report Code" = field("Report Code"));
         }
         field(3; "Table Row No."; Integer)
         {
@@ -52,9 +52,9 @@ table 26587 "Stat. Report Table Mapping"
         field(8; "Int. Source Section Code"; Code[10])
         {
             Caption = 'Int. Source Section Code';
-            TableRelation = IF ("Int. Source Type" = FILTER("Tax Register")) "Tax Register Section"
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Section";
+            TableRelation = if ("Int. Source Type" = filter("Tax Register")) "Tax Register Section"
+            else
+            if ("Int. Source Type" = const("Tax Difference")) "Tax Calc. Section";
 
             trigger OnValidate()
             begin
@@ -68,11 +68,11 @@ table 26587 "Stat. Report Table Mapping"
         field(9; "Int. Source No."; Code[10])
         {
             Caption = 'Int. Source No.';
-            TableRelation = IF ("Int. Source Type" = CONST("Acc. Schedule")) "Acc. Schedule Name"
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Register")) "Tax Register"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"))
-            ELSE
-            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"));
+            TableRelation = if ("Int. Source Type" = const("Acc. Schedule")) "Acc. Schedule Name"
+            else
+            if ("Int. Source Type" = const("Tax Register")) "Tax Register"."No." where("Section Code" = field("Int. Source Section Code"))
+            else
+            if ("Int. Source Type" = const("Tax Difference")) "Tax Calc. Header"."No." where("Section Code" = field("Int. Source Section Code"));
 
             trigger OnValidate()
             begin
@@ -106,6 +106,10 @@ table 26587 "Stat. Report Table Mapping"
         field(13; "Int. Source Column Header"; Text[250])
         {
             Caption = 'Int. Source Column Header';
+        }
+        field(14; "Int. Source Col. Lay. Name"; Code[10])
+        {
+            Caption = 'Int. Source Column Layout';
         }
     }
 

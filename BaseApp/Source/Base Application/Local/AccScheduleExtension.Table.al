@@ -83,8 +83,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'VAT Bus. Post. Group Filter';
             TableRelation = "VAT Business Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -96,8 +94,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'VAT Prod. Post. Group Filter';
             TableRelation = "VAT Product Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -169,8 +165,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'Inventory Posting Group Filter';
             TableRelation = "Inventory Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -182,8 +176,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'Item Charge No. Filter';
             TableRelation = "Item Charge";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -205,11 +197,9 @@ table 26584 "Acc. Schedule Extension"
         field(56; "Posting Group Filter"; Code[250])
         {
             Caption = 'Posting Group Filter';
-            TableRelation = IF ("Source Table" = CONST("Customer Entry")) "Customer Posting Group"
-            ELSE
-            IF ("Source Table" = CONST("Vendor Entry")) "Vendor Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Source Table" = const("Customer Entry")) "Customer Posting Group"
+            else
+            if ("Source Table" = const("Vendor Entry")) "Vendor Posting Group";
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -263,8 +253,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'Gen. Bus. Post. Group Filter';
             TableRelation = "Gen. Business Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -276,8 +264,6 @@ table 26584 "Acc. Schedule Extension"
         {
             Caption = 'Gen. Prod. Post. Group Filter';
             TableRelation = "Gen. Product Posting Group";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -301,17 +287,15 @@ table 26584 "Acc. Schedule Extension"
         field(63; "Object No. Filter"; Text[250])
         {
             Caption = 'Object No. Filter';
-            TableRelation = IF ("Object Type Filter" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Object Type Filter" = CONST(Customer)) Customer
-            ELSE
-            IF ("Object Type Filter" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Object Type Filter" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Object Type Filter" = CONST("Fixed Asset")) "Fixed Asset";
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Object Type Filter" = const("G/L Account")) "G/L Account"
+            else
+            if ("Object Type Filter" = const(Customer)) Customer
+            else
+            if ("Object Type Filter" = const(Vendor)) Vendor
+            else
+            if ("Object Type Filter" = const("Bank Account")) "Bank Account"
+            else
+            if ("Object Type Filter" = const("Fixed Asset")) "Fixed Asset";
             ValidateTableRelation = false;
 
             trigger OnValidate()

@@ -677,12 +677,15 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     local procedure UnapplyVendLedgerEntries(VendEntryNo: Integer; DocumentNo: Code[20])
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
     begin
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendEntryNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.FindFirst();
-        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, DocumentNo, DetailedVendorLedgEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := DetailedVendorLedgEntry."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
     end;
 
     local procedure UnapplyInvAndRefundToPrepmt(IsRaise: Boolean; IsCancelPrepmt: Boolean)
@@ -978,7 +981,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure GetEntryType(IsRaise: Boolean): Integer
+    local procedure GetEntryType(IsRaise: Boolean): Enum "Detailed CV Ledger Entry Type"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1177,16 +1180,17 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     var
         Currency: Record Currency;
         Vendor: Record Vendor;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
     begin
         Currency.SetRange(Code, CurrencyCode);
         Vendor.SetRange("No.", VendNo);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.SetTableView(Vendor);
-        AdjustExchangeRates.InitializeRequest2(
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.SetTableView(Vendor);
+        ExchRateAdjustment.InitializeRequest2(
           0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID, true, false);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
+        ExchRateAdjustment.Run();
     end;
 
     local procedure RunChangeVendorVATInvoice(var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]) InvNo: Code[20]
@@ -1221,7 +1225,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendLedgEntry.FindLast();
     end;
 
-    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option)
+    local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         with DtldVendLedgEntry do begin
             SetRange("Document Type", DocType);

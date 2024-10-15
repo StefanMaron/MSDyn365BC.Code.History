@@ -7,11 +7,11 @@ report 17206 "Create Item Batch"
     {
         dataitem("Item Application Entry"; "Item Application Entry")
         {
-            DataItemTableView = SORTING("Entry No.");
+            DataItemTableView = sorting("Entry No.");
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
-                DataItemLink = "Entry No." = FIELD("Item Ledger Entry No.");
-                DataItemTableView = SORTING("Entry No.") WHERE("Entry Type" = FILTER(<> Transfer));
+                DataItemLink = "Entry No." = field("Item Ledger Entry No.");
+                DataItemTableView = sorting("Entry No.") where("Entry Type" = filter(<> Transfer));
 
                 trigger OnAfterGetRecord()
                 begin

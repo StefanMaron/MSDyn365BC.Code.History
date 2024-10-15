@@ -14,7 +14,7 @@ table 17216 "Tax Register Dim. Value Comb."
         {
             Caption = 'Dimension 1 Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 1 Code"));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension 1 Code"));
         }
         field(3; "Dimension 2 Code"; Code[20])
         {
@@ -24,7 +24,7 @@ table 17216 "Tax Register Dim. Value Comb."
         field(4; "Dimension 2 Value Code"; Code[20])
         {
             Caption = 'Dimension 2 Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 2 Code"));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension 2 Code"));
         }
         field(5; "Type Limit"; Option)
         {

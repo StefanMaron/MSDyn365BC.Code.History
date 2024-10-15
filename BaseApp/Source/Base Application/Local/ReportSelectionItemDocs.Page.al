@@ -26,7 +26,7 @@ page 12454 "Report Selection - Item. Docs"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -63,7 +63,7 @@ page 12454 "Report Selection - Item. Docs"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord();
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -76,22 +76,22 @@ page 12454 "Report Selection - Item. Docs"
 
     local procedure SetUsageFilter()
     begin
-        FilterGroup(2);
+        Rec.FilterGroup(2);
         case ReportUsage2 of
             ReportUsage2::"Unposted Item Shipment":
-                SetRange(Usage, Usage::"Inventory Shipment");
+                Rec.SetRange(Usage, Rec.Usage::"Inventory Shipment");
             ReportUsage2::"Unposted Item Receipt":
-                SetRange(Usage, Usage::"Inventory Receipt");
+                Rec.SetRange(Usage, Rec.Usage::"Inventory Receipt");
             ReportUsage2::"Item Shipment":
-                SetRange(Usage, Usage::"P.Inventory Shipment");
+                Rec.SetRange(Usage, Rec.Usage::"P.Inventory Shipment");
             ReportUsage2::"Item Receipt":
-                SetRange(Usage, Usage::"P.Inventory Receipt");
+                Rec.SetRange(Usage, Rec.Usage::"P.Inventory Receipt");
             ReportUsage2::"Phys. Inventory":
-                SetRange(Usage, Usage::PIJ);
+                Rec.SetRange(Usage, Rec.Usage::PIJ);
             ReportUsage2::"Item Reclassification":
-                SetRange(Usage, Usage::IRJ);
+                Rec.SetRange(Usage, Rec.Usage::IRJ);
         end;
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     local procedure ReportUsage2OnAfterValidate()

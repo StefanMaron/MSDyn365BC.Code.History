@@ -44,8 +44,8 @@ page 17321 "Tax Calc. Accumulation"
             part(Control2; "Tax Calc. Accum. Subform")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              "Register No." = FIELD("No.");
+                SubPageLink = "Section Code" = field("Section Code"),
+                              "Register No." = field("No.");
             }
         }
     }

@@ -67,69 +67,86 @@ page 26594 "Stat. Rep. Table Cell Mapping"
 
                     trigger OnDrillDown()
                     begin
-                        case "Int. Source Type" of
-                            "Int. Source Type"::"Acc. Schedule":
+                        case Rec."Int. Source Type" of
+                            Rec."Int. Source Type"::"Acc. Schedule":
                                 begin
                                     AccScheduleLine.FilterGroup(2);
-                                    AccScheduleLine.SetRange("Schedule Name", "Int. Source No.");
+                                    AccScheduleLine.SetRange("Schedule Name", Rec."Int. Source No.");
                                     AccScheduleLine.FilterGroup(0);
                                     Clear(AccScheduleLines);
                                     AccScheduleLines.SetTableView(AccScheduleLine);
-                                    if "Internal Source Row No." <> 0 then
-                                        if AccScheduleLine.Get("Int. Source No.", "Internal Source Row No.") then
+                                    if Rec."Internal Source Row No." <> 0 then
+                                        if AccScheduleLine.Get(Rec."Int. Source No.", Rec."Internal Source Row No.") then
                                             AccScheduleLines.SetRecord(AccScheduleLine);
                                     AccScheduleLines.LookupMode := true;
                                     if AccScheduleLines.RunModal() = ACTION::LookupOK then begin
                                         AccScheduleLines.GetRecord(AccScheduleLine);
-                                        "Internal Source Row No." := AccScheduleLine."Line No.";
-                                        "Int. Source Row Description" := AccScheduleLine.Description;
+                                        Rec."Internal Source Row No." := AccScheduleLine."Line No.";
+                                        Rec."Int. Source Row Description" := AccScheduleLine.Description;
                                     end;
                                 end;
-                            "Int. Source Type"::"Tax Register":
+                            Rec."Int. Source Type"::"Tax Register":
                                 begin
                                     TaxRegisterTemplate.FilterGroup(2);
-                                    TaxRegisterTemplate.SetRange("Section Code", "Int. Source Section Code");
-                                    TaxRegisterTemplate.SetRange(Code, "Int. Source No.");
+                                    TaxRegisterTemplate.SetRange("Section Code", Rec."Int. Source Section Code");
+                                    TaxRegisterTemplate.SetRange(Code, Rec."Int. Source No.");
                                     TaxRegisterTemplate.FilterGroup(0);
                                     Clear(TaxRegisterTemplateLines);
                                     TaxRegisterTemplateLines.SetTableView(TaxRegisterTemplate);
-                                    if "Internal Source Row No." <> 0 then
+                                    if Rec."Internal Source Row No." <> 0 then
                                         if TaxRegisterTemplate.Get(
-                                             "Int. Source Section Code",
-                                             "Int. Source No.",
-                                             "Internal Source Row No.")
+                                             Rec."Int. Source Section Code",
+                                             Rec."Int. Source No.",
+                                             Rec."Internal Source Row No.")
                                         then
                                             TaxRegisterTemplateLines.SetRecord(TaxRegisterTemplate);
                                     TaxRegisterTemplateLines.LookupMode := true;
                                     if TaxRegisterTemplateLines.RunModal() = ACTION::LookupOK then begin
                                         TaxRegisterTemplateLines.GetRecord(TaxRegisterTemplate);
-                                        "Internal Source Row No." := TaxRegisterTemplate."Line No.";
-                                        "Int. Source Row Description" := TaxRegisterTemplate.Description;
+                                        Rec."Internal Source Row No." := TaxRegisterTemplate."Line No.";
+                                        Rec."Int. Source Row Description" := TaxRegisterTemplate.Description;
                                     end;
                                 end;
-                            "Int. Source Type"::"Tax Difference":
+                            Rec."Int. Source Type"::"Tax Difference":
                                 begin
                                     TaxCalcLine.FilterGroup(2);
-                                    TaxCalcLine.SetRange("Section Code", "Int. Source Section Code");
-                                    TaxCalcLine.SetRange(Code, "Int. Source No.");
+                                    TaxCalcLine.SetRange("Section Code", Rec."Int. Source Section Code");
+                                    TaxCalcLine.SetRange(Code, Rec."Int. Source No.");
                                     TaxCalcLine.FilterGroup(0);
                                     Clear(TaxCalcLines);
                                     TaxCalcLines.SetTableView(TaxCalcLine);
-                                    if "Internal Source Row No." <> 0 then
+                                    if Rec."Internal Source Row No." <> 0 then
                                         if TaxCalcLine.Get(
-                                             "Int. Source Section Code",
-                                             "Int. Source No.",
-                                             "Internal Source Row No.")
+                                             Rec."Int. Source Section Code",
+                                             Rec."Int. Source No.",
+                                             Rec."Internal Source Row No.")
                                         then
                                             TaxCalcLines.SetRecord(TaxCalcLine);
                                     TaxCalcLines.LookupMode := true;
                                     if TaxCalcLines.RunModal() = ACTION::LookupOK then begin
                                         TaxCalcLines.GetRecord(TaxCalcLine);
-                                        "Internal Source Row No." := TaxCalcLine."Line No.";
-                                        "Int. Source Row Description" := TaxCalcLine.Description;
+                                        Rec."Internal Source Row No." := TaxCalcLine."Line No.";
+                                        Rec."Int. Source Row Description" := TaxCalcLine.Description;
                                     end;
                                 end;
                         end;
+                    end;
+                }
+                field("Int. Source Col. Lay. Name"; Rec."Int. Source Col. Lay. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the internal source column layout name associated with the statutory report.';
+                    trigger OnDrillDown()
+                    var
+                        ColumnLayoutName: Record "Column Layout Name";
+                        ColumnLayoutNames: Page "Column Layout Names";
+                    begin
+                        if Rec."Int. Source Type" <> Rec."Int. Source Type"::"Acc. Schedule" then
+                            exit;
+                        if ColumnLayoutNames.RunModal() <> Action::LookupOK then
+                            exit;
+                        ColumnLayoutNames.GetRecord(ColumnLayoutName);
+                        Rec."Int. Source Col. Lay. Name" := ColumnLayoutName.Name;
                     end;
                 }
                 field("Int. Source Column Header"; Rec."Int. Source Column Header")
@@ -141,24 +158,31 @@ page 26594 "Stat. Rep. Table Cell Mapping"
 
                     trigger OnDrillDown()
                     begin
-                        case "Int. Source Type" of
-                            "Int. Source Type"::"Acc. Schedule":
+                        case Rec."Int. Source Type" of
+                            Rec."Int. Source Type"::"Acc. Schedule":
                                 begin
-                                    AccScheduleName.Get("Int. Source No.");
-                                    AccScheduleName.TestField("Default Column Layout");
+#if not CLEAN22
+                                    if AccScheduleName.Get(Rec."Int. Source No.") then
+                                        if (Rec."Int. Source Col. Lay. Name" = '') and (AccScheduleName."Default Column Layout" <> '') then begin
+                                            Rec."Int. Source Col. Lay. Name" := AccScheduleName."Default Column Layout";
+                                            Rec.Modify();
+                                            Commit();
+                                        end;
+#endif
+                                    Rec.TestField("Int. Source Col. Lay. Name");
                                     ColumnLayout.FilterGroup(2);
-                                    ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
+                                    ColumnLayout.SetRange("Column Layout Name", Rec."Int. Source Col. Lay. Name");
                                     ColumnLayout.FilterGroup(0);
                                     Clear(ColumnLayouts);
                                     ColumnLayouts.SetTableView(ColumnLayout);
-                                    if "Internal Source Column No." <> 0 then
-                                        if ColumnLayout.Get(AccScheduleName."Default Column Layout", "Internal Source Column No.") then
+                                    if Rec."Internal Source Column No." <> 0 then
+                                        if ColumnLayout.Get(Rec."Int. Source Col. Lay. Name", Rec."Internal Source Column No.") then
                                             ColumnLayouts.SetRecord(ColumnLayout);
                                     ColumnLayouts.LookupMode := true;
                                     if ColumnLayouts.RunModal() = ACTION::LookupOK then begin
                                         ColumnLayouts.GetRecord(ColumnLayout);
-                                        "Internal Source Column No." := ColumnLayout."Line No.";
-                                        "Int. Source Column Header" := ColumnLayout."Column Header";
+                                        Rec."Internal Source Column No." := ColumnLayout."Line No.";
+                                        Rec."Int. Source Column Header" := ColumnLayout."Column Header";
                                     end;
                                 end;
                         end;
@@ -184,7 +208,9 @@ page 26594 "Stat. Rep. Table Cell Mapping"
     end;
 
     var
+#if not CLEAN22
         AccScheduleName: Record "Acc. Schedule Name";
+#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterTemplate: Record "Tax Register Template";
@@ -193,9 +219,7 @@ page 26594 "Stat. Rep. Table Cell Mapping"
         ColumnLayouts: Page "Column Layouts";
         TaxRegisterTemplateLines: Page "Tax Register Templates";
         TaxCalcLines: Page "Tax Calc. Lines";
-        [InDataSet]
         IntSourceColumnHeaderEnable: Boolean;
-        [InDataSet]
         "Int. Source Section CodeEnable": Boolean;
 
     [Scope('OnPrem')]
@@ -203,7 +227,7 @@ page 26594 "Stat. Rep. Table Cell Mapping"
     var
         TaxReg: Boolean;
     begin
-        TaxReg := "Int. Source Type" in ["Int. Source Type"::"Tax Register", "Int. Source Type"::"Tax Difference"];
+        TaxReg := Rec."Int. Source Type" in [Rec."Int. Source Type"::"Tax Register", Rec."Int. Source Type"::"Tax Difference"];
         "Int. Source Section CodeEnable" := TaxReg;
         IntSourceColumnHeaderEnable := not TaxReg;
     end;
@@ -212,7 +236,7 @@ page 26594 "Stat. Rep. Table Cell Mapping"
     procedure SetData(StatReportTableMapping: Record "Stat. Report Table Mapping")
     begin
         Rec := StatReportTableMapping;
-        Insert();
+        Rec.Insert();
     end;
 
     local procedure IntSourceTypeOnAfterValidate()
