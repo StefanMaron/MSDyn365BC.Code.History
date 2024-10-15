@@ -249,11 +249,12 @@ table 349 "Dimension Value"
         Text006: Label 'You cannot change the value of %1.';
         TaxDimMgt: Codeunit "Tax Dimension Mgt.";
 
-    procedure CheckIfDimValueUsed(): Boolean
+    procedure CheckIfDimValueUsed() Result: Boolean
     begin
         DimSetEntry.SetCurrentKey("Dimension Value ID");
         DimSetEntry.SetRange("Dimension Value ID", "Dimension Value ID");
-        exit(not DimSetEntry.IsEmpty);
+        Result := not DimSetEntry.IsEmpty();
+        OnAfterCheckIfDimValueUsed(Rec, DimSetEntry, Result);
     end;
 
     local procedure UpdateCostAccFromDim(var DimensionValue: Record "Dimension Value"; var xDimensionValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
@@ -645,6 +646,11 @@ table 349 "Dimension Value"
         Dimension.Get("Dimension Code");
         Validate("Map-to IC Dimension Code", Dimension."Map-to IC Dimension Code");
         "Dimension Id" := Dimension.SystemId;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIfDimValueUsed(DimensionValue: Record "Dimension Value"; DimensionSetEntry: Record "Dimension Set Entry"; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

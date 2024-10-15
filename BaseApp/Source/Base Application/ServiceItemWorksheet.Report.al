@@ -18,6 +18,12 @@ report 5936 "Service Item Worksheet"
             column(CompanyAddr5; CompanyAddr[5])
             {
             }
+            column(CompanyAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddr8; CompanyAddr[8])
+            {
+            }
             column(ServHeaderOrderDate; Format(ServHeader."Order Date"))
             {
             }

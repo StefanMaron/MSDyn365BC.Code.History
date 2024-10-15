@@ -75,7 +75,7 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Item:
                 ItemLedgEntry.SetCurrentKey("Item No.");
         end;
-
+        OnFirstLevelOnAfterItemLedgEntrySetCurrentKey(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Lot No.", LotNoFilter);
         ItemLedgEntry.SetFilter("Serial No.", SerialNoFilter);
         ItemLedgEntry.SetFilter("Package No.", PackageNoFilter);
@@ -116,6 +116,7 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Package:
                 TempItemTracingBuffer.SetCurrentKey("Item No.", "Item Ledger Entry No.");
         end;
+        OnFirstLevelOnAfterTempItemTracingBufferSetCurrentKey(TempItemTracingBuffer);
 
         TempItemTracingBuffer.Ascending(Direction = Direction::Forward);
         if TempItemTracingBuffer.Find('-') then
@@ -150,6 +151,7 @@ codeunit 6520 "Item Tracing Mgt."
                     if SearchCriteria = SearchCriteria::Package then
                         ItemLedgEntry2.SetRange("Package No.", ItemLedgEntry."Package No.");
 
+                    OnFirstLevelOnBeforeTransferData(ItemLedgEntry, ItemLedgEntry2);
                     TransferData(ItemLedgEntry2, TempTrackEntry);
                     OnFirstLevelOnAfterTransferData(TempTrackEntry);
 
@@ -297,7 +299,7 @@ codeunit 6520 "Item Tracing Mgt."
         end;
     end;
 
-    procedure InsertRecord(var TempTrackEntry: Record "Item Tracing Buffer"; ParentID: Integer): Boolean
+    procedure InsertRecord(var TempTrackEntry: Record "Item Tracing Buffer"; ParentID: Integer) Result: Boolean
     var
         TempTrackEntry2: Record "Item Tracing Buffer";
         ProductionOrder: Record "Production Order";
@@ -306,64 +308,68 @@ codeunit 6520 "Item Tracing Mgt."
         RecRef: RecordRef;
         InsertEntry: Boolean;
         Description2: Text[100];
+        IsHandled: Boolean;
     begin
-        with TempTrackEntry do begin
-            TempTrackEntry2 := TempTrackEntry;
-            Reset();
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
+        IsHandled := false;
+        OnBeforeInsertRecord(TempTrackEntry, ParentID, Result, IsHandled);
+        if not IsHandled then
+            with TempTrackEntry do begin
+                TempTrackEntry2 := TempTrackEntry;
+                Reset();
+                SetCurrentKey("Item Ledger Entry No.");
+                SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
 
-            // Mark entry if already in search result
-            TempTrackEntry2."Already Traced" := FindFirst();
+                // Mark entry if already in search result
+                TempTrackEntry2."Already Traced" := FindFirst();
 
-            if CurrentLevel = 1 then begin
-                SetRange("Parent Item Ledger Entry No.", ParentID);
-                SetFilter(Level, '<>%1', CurrentLevel);
-            end;
-
-            InsertEntry := true;
-            if CurrentLevel <= 1 then
-                InsertEntry := not FindFirst();
-
-            if InsertEntry then begin
-                TempTrackEntry2.Reset();
-                TempTrackEntry := TempTrackEntry2;
-                TempLineNo += 1;
-                "Line No." := TempLineNo;
-                SetRecordID(TempTrackEntry);
-                "Parent Item Ledger Entry No." := ParentID;
-                if Format("Record Identifier") = '' then
-                    Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.")
-                else begin
-                    if RecRef.Get("Record Identifier") then
-                        case RecRef.Number of
-                            DATABASE::"Production Order":
-                                begin
-                                    RecRef.SetTable(ProductionOrder);
-                                    Description2 :=
-                                      StrSubstNo('%1 %2 %3 %4', ProductionOrder.Status, RecRef.Caption, "Entry Type", "Document No.");
-                                end;
-                            DATABASE::"Posted Assembly Header":
-                                Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.");
-                            DATABASE::"Item Ledger Entry":
-                                begin
-                                    RecRef.SetTable(ItemLedgerEntry);
-                                    if ItemLedgerEntry."Job No." <> '' then begin
-                                        Job.Get(ItemLedgerEntry."Job No.");
-                                        Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption(), ItemLedgerEntry."Job No."), -50);
-                                    end;
-                                end;
-                        end;
-                    if Description2 = '' then
-                        Description2 := StrSubstNo('%1 %2', RecRef.Caption, "Document No.");
+                if CurrentLevel = 1 then begin
+                    SetRange("Parent Item Ledger Entry No.", ParentID);
+                    SetFilter(Level, '<>%1', CurrentLevel);
                 end;
-                OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
-                SetDescription(Description2);
-                Insert();
-                exit(true);
+
+                InsertEntry := true;
+                if CurrentLevel <= 1 then
+                    InsertEntry := not FindFirst();
+
+                if InsertEntry then begin
+                    TempTrackEntry2.Reset();
+                    TempTrackEntry := TempTrackEntry2;
+                    TempLineNo += 1;
+                    "Line No." := TempLineNo;
+                    SetRecordID(TempTrackEntry);
+                    "Parent Item Ledger Entry No." := ParentID;
+                    if Format("Record Identifier") = '' then
+                        Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.")
+                    else begin
+                        if RecRef.Get("Record Identifier") then
+                            case RecRef.Number of
+                                DATABASE::"Production Order":
+                                    begin
+                                        RecRef.SetTable(ProductionOrder);
+                                        Description2 :=
+                                          StrSubstNo('%1 %2 %3 %4', ProductionOrder.Status, RecRef.Caption, "Entry Type", "Document No.");
+                                    end;
+                                DATABASE::"Posted Assembly Header":
+                                    Description2 := StrSubstNo('%1 %2', "Entry Type", "Document No.");
+                                DATABASE::"Item Ledger Entry":
+                                    begin
+                                        RecRef.SetTable(ItemLedgerEntry);
+                                        if ItemLedgerEntry."Job No." <> '' then begin
+                                            Job.Get(ItemLedgerEntry."Job No.");
+                                            Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption(), ItemLedgerEntry."Job No."), -50);
+                                        end;
+                                    end;
+                            end;
+                        if Description2 = '' then
+                            Description2 := StrSubstNo('%1 %2', RecRef.Caption, "Document No.");
+                    end;
+                    OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
+                    SetDescription(Description2);
+                    Insert();
+                    exit(true);
+                end;
+                exit(false);
             end;
-            exit(false);
-        end;
     end;
 
     procedure InitTempTable(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer")
@@ -513,6 +519,7 @@ codeunit 6520 "Item Tracing Mgt."
                     else
                         if PackageNoFilter <> '' then
                             SearchCriteria := SearchCriteria::Package;
+        OnAfterInitSearchCriteria(SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, SearchCriteria);
     end;
 
 #if not CLEAN19
@@ -902,10 +909,16 @@ codeunit 6520 "Item Tracing Mgt."
         exit(ItemTrackingSetup.SpecificTracking(ItemNo));
     end;
 
-    local procedure ExitLevel(TempItemTracingBuffer: Record "Item Tracing Buffer" temporary): Boolean
+    local procedure ExitLevel(TempItemTracingBuffer: Record "Item Tracing Buffer" temporary) Result: Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExitLevel(TempItemTracingBuffer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ItemTrackingSetup.CopyTrackingFromItemTracingBuffer(TempItemTracingBuffer);
         if not ItemTrackingSetup.TrackingExists() then
             exit(true);
@@ -923,7 +936,13 @@ codeunit 6520 "Item Tracing Mgt."
     var
         LevelCount: Integer;
         ExtFilterExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateHistory(TempItemTracingHistoryBuffer, CurrentHistoryEntryNo, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents, OK, IsHandled);
+        if IsHandled then
+            exit(OK);
+
         with TempItemTracingHistoryBuffer do begin
             Reset();
             SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
@@ -1075,12 +1094,27 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; var SearchCriteria: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferData(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; ValueEntry: Record "Value Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeExitLevel(TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindComponents(var ItemLedgEntry2: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer; var CurrentLevel: Integer; var TempLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertRecord(var ItemTracingBuffer: Record "Item Tracing Buffer"; ParentID: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1110,6 +1144,11 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateHistory(var TempItemTracingHistoryBuffer: Record "Item Tracing History Buffer" temporary; var CurrentHistoryEntryNo: Integer; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; TraceMethod: Option; ShowComponents: Option; var OK: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindComponentsOnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry2: Record "Item Ledger Entry")
     begin
     end;
@@ -1125,12 +1164,27 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFirstLevelOnAfterItemLedgEntrySetCurrentKey(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFirstLevelOnAfterTempItemTracingBufferSetCurrentKey(var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFirstLevelOnAfterTransferData(var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFirstLevelOnBeforeInsertFirstLevelEntry(var ItemTracingBuffer: Record "Item Tracing Buffer"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFirstLevelOnBeforeTransferData(var ItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry2: Record "Item Ledger Entry")
     begin
     end;
 

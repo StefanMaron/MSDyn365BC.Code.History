@@ -1407,7 +1407,7 @@
 
         IsHandled := false;
         OnBeforeCheckActionPerformed(
-            ActionPerformed, OK, CalcType.AsInteger(), PostingDone, TempApplyingVendLedgEntry, ApplnType.AsInteger(), Result, IsHandled);
+            ActionPerformed, OK, CalcType.AsInteger(), PostingDone, TempApplyingVendLedgEntry, ApplnType.AsInteger(), Result, IsHandled, AppliesToID);
         if IsHandled then
             exit(Result);
 
@@ -1526,7 +1526,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckActionPerformed(ActionPerformed: Boolean; OK: Boolean; CalcType: Option Direct,GenJnlLine,PurchHeader; PostingDone: Boolean; ApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckActionPerformed(ActionPerformed: Boolean; OK: Boolean; CalcType: Option Direct,GenJnlLine,PurchHeader; PostingDone: Boolean; ApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID"; var Result: Boolean; var IsHandled: Boolean; AppliesToID: Code[50])
     begin
     end;
 

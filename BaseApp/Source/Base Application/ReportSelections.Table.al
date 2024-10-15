@@ -1413,7 +1413,7 @@ table 77 "Report Selections"
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
             end;
 
-        OnBeforeSendEmailDirectly(Rec, ReportUsage, RecordVariant, DocNo, DocName, FoundBody, FoundAttachment, ServerEmailBodyFilePath, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, AllEmailsWereSuccessful, IsHandled);
+        OnBeforeSendEmailDirectly(Rec, ReportUsage, RecordVariant, DocNo, DocName, FoundBody, FoundAttachment, ServerEmailBodyFilePath, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, AllEmailsWereSuccessful, IsHandled, SourceTableIDs, SourceIDs, SourceRelationTypes);
         if IsHandled then
             exit(AllEmailsWereSuccessful);
 
@@ -2213,7 +2213,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var DocNo: Code[20]; var DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var DocNo: Code[20]; var DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean; var SourceTableIDs: List of [Integer]; var SourceIDs: List of [Guid]; var SourceRelationTypes: List of [Integer])
     begin
     end;
 

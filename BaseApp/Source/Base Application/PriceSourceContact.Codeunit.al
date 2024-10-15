@@ -58,5 +58,11 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
         PriceSource.Description := Contact.Name;
+        OnAfterFillAdditionalFields(PriceSource, Contact);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; Contact: Record Contact)
+    begin
     end;
 }

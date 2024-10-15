@@ -353,6 +353,7 @@
         TempDimBuf.DeleteAll();
 
         BankAccount.CalcFields("Balance at Date", "Balance at Date (LCY)");
+        OnProcessBankAccountOnAfterCalcFields(BankAccount, Currency);
         CurrAdjBase := BankAccount."Balance at Date";
         CurrAdjBaseLCY := BankAccount."Balance at Date (LCY)";
         CurrAdjAmount :=
@@ -1222,10 +1223,10 @@
                 Accumulate(TotalVATEntry."Add.-Currency Unrealized Base", -VATEntry."Add.-Currency Unrealized Base");
                 Accumulate(TotalVATEntry."Add.-Curr. Rem. Unreal. Amount", -VATEntry."Add.-Curr. Rem. Unreal. Amount");
                 Accumulate(TotalVATEntry."Add.-Curr. Rem. Unreal. Base", -VATEntry."Add.-Curr. Rem. Unreal. Base");
-            until VATEntry.Next() = 0;
+                until VATEntry.Next() = 0;
     end;
 
-    local procedure AdjustVATAmount(var AmountLCY: Decimal; var AmountAddCurr: Decimal)
+        local procedure AdjustVATAmount(var AmountLCY: Decimal; var AmountAddCurr: Decimal)
     begin
         case GLSetup."VAT Exchange Rate Adjustment" of
             GLSetup."VAT Exchange Rate Adjustment"::"Adjust Amount":
@@ -2739,6 +2740,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostGenJnlLineOnAfterGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessBankAccountOnAfterCalcFields(var BankAccount: Record "Bank Account"; Currency: Record Currency)
     begin
     end;
 

@@ -2010,6 +2010,8 @@ page 39 "General Journal"
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -2035,7 +2037,6 @@ page 39 "General Journal"
 
         if IsSimplePage and (CurrentDocNo = '') and GenJnlManagement.IsBatchNoSeriesEmpty(CurrentJnlBatchName, Rec) then
             Message(DocumentNumberMsg);
-		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

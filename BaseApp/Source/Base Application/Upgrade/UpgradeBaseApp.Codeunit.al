@@ -15,6 +15,12 @@
         ExcelTemplateCompanyInformationTxt: Label 'ExcelTemplateViewCompanyInformation', Locked = true;
         FailedToUpdatePowerBIImageTxt: Label 'Failed to update PowerBI optin image for client type %1.', Locked = true;
         AttemptingPowerBIUpdateTxt: Label 'Attempting to update PowerBI optin image for client type %1.', Locked = true;
+        SourceCodeGeneralDeferralLbl: Label 'Gen-Defer', Locked = true;
+        SourceCodeSalesDeferralLbl: Label 'Sal-Defer', Locked = true;
+        SourceCodePurchaseDeferralLbl: Label 'Pur-Defer', Locked = true;
+        SourceCodeGeneralDeferralTxt: Label 'General Deferral', Locked = true;
+        SourceCodeSalesDeferralTxt: Label 'Sales Deferral', Locked = true;
+        SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -97,6 +103,7 @@
         UpgradeCRMSDK90ToCRMSDK91();
         UpdatePurchaserOnRequisitionLines();
         SendCloudMigrationUsageTelemetry();
+        UpdateDeferralSourceCode();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3151,6 +3158,44 @@
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
+    end;
+
+    local procedure UpdateDeferralSourceCode()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeferralSourceCodeUpdateTag()) then
+            exit;
+
+        InsertSourceCode(SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
+        InsertSourceCode(SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
+        InsertSourceCode(SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
+        if SourceCodeSetup.Get() then begin
+            if SourceCodeSetup."General Deferral" = '' then
+                SourceCodeSetup."General Deferral" := SourceCodeGeneralDeferralLbl;
+            if SourceCodeSetup."Sales Deferral" = '' then
+                SourceCodeSetup."Sales Deferral" := SourceCodeSalesDeferralLbl;
+            if SourceCodeSetup."Purchase Deferral" = '' then
+                SourceCodeSetup."Purchase Deferral" := SourceCodePurchaseDeferralLbl;
+            SourceCodeSetup.Modify();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDeferralSourceCodeUpdateTag());
+    end;
+
+    local procedure InsertSourceCode(NewSourceCode: Code[10]; Description: Text[100])
+    var
+        SourceCode: Record "Source Code";
+    begin
+        SourceCode.Init();
+        SourceCode.Code := NewSourceCode;
+        SourceCode.Description := Description;
+        if SourceCode.Insert() then;
     end;
 }
 

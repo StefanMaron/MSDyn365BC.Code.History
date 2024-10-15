@@ -22,8 +22,15 @@
             Caption = 'Planning Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                ValidateModification(xRec."Planning Date" <> "Planning Date");
+                IsHandled := false;
+                OnBeforeValidatePlanningDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
+                ValidateModification(xRec."Planning Date" <> "Planning Date", Rec.FieldNo("Planning Date"));
 
                 Validate("Document Date", "Planning Date");
                 if ("Currency Date" = 0D) or ("Currency Date" = xRec."Planning Date") then
@@ -47,7 +54,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Document No." <> "Document No.");
+                ValidateModification(xRec."Document No." <> "Document No.", Rec.FieldNo("Document No."));
             end;
         }
         field(5; Type; Enum "Job Planning Line Type")
@@ -56,7 +63,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec.Type <> Type);
+                ValidateModification(xRec.Type <> Type, Rec.FieldNo(Type));
 
                 UpdateReservation(FieldNo(Type));
 
@@ -80,7 +87,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."No." <> "No.");
+                ValidateModification(xRec."No." <> "No.", Rec.FieldNo("No."));
 
                 CheckUsageLinkRelations();
 
@@ -131,7 +138,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec.Description <> Description);
+                ValidateModification(xRec.Description <> Description, Rec.FieldNo(Description));
             end;
         }
         field(9; Quantity; Decimal)
@@ -202,7 +209,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Unit Cost (LCY)" <> "Unit Cost (LCY)");
+                ValidateModification(xRec."Unit Cost (LCY)" <> "Unit Cost (LCY)", Rec.FieldNo("Unit Cost (LCY)"));
 
                 if ("Unit Cost (LCY)" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
@@ -233,7 +240,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Unit Price (LCY)" <> "Unit Price (LCY)");
+                ValidateModification(xRec."Unit Price (LCY)" <> "Unit Price (LCY)", Rec.FieldNo("Unit Price (LCY)"));
                 if ("Unit Price (LCY)" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
 
@@ -267,7 +274,7 @@
             var
                 Resource: Record Resource;
             begin
-                ValidateModification(xRec."Unit of Measure Code" <> "Unit of Measure Code");
+                ValidateModification(xRec."Unit of Measure Code" <> "Unit of Measure Code", Rec.FieldNo("Unit of Measure Code"));
 
                 GetGLSetup();
                 case Type of
@@ -335,7 +342,7 @@
                 PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
 #endif
             begin
-                ValidateModification(xRec."Location Code" <> "Location Code");
+                ValidateModification(xRec."Location Code" <> "Location Code", Rec.FieldNo("Location Code"));
 
                 "Bin Code" := '';
                 if Type = Type::Item then begin
@@ -386,7 +393,7 @@
                 if IsHandled then
                     exit;
 
-                ValidateModification(xRec."Work Type Code" <> "Work Type Code");
+                ValidateModification(xRec."Work Type Code" <> "Work Type Code", Rec.FieldNo("Work Type Code"));
                 TestField(Type, Type::Resource);
 
                 Validate("Line Discount %", 0);
@@ -464,7 +471,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Line Amount (LCY)" <> "Line Amount (LCY)");
+                ValidateModification(xRec."Line Amount (LCY)" <> "Line Amount (LCY)", Rec.FieldNo("Line Amount (LCY)"));
                 if ("Line Amount (LCY)" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
 
@@ -481,7 +488,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Unit Cost" <> "Unit Cost");
+                ValidateModification(xRec."Unit Cost" <> "Unit Cost", Rec.FieldNo("Unit Cost"));
                 if ("Unit Cost" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
                 UpdateAllAmounts();
@@ -502,7 +509,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Unit Price" <> "Unit Price");
+                ValidateModification(xRec."Unit Price" <> "Unit Price", Rec.FieldNo("Unit Price"));
                 if ("Unit Price" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
                 UpdateAllAmounts();
@@ -523,7 +530,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Line Amount" <> "Line Amount");
+                ValidateModification(xRec."Line Amount" <> "Line Amount", Rec.FieldNo("Line Amount"));
                 if ("Line Amount" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
 
@@ -538,7 +545,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Line Discount Amount" <> "Line Discount Amount");
+                ValidateModification(xRec."Line Discount Amount" <> "Line Discount Amount", Rec.FieldNo("Line Discount Amount"));
                 if ("Line Discount Amount" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
                 UpdateAllAmounts();
@@ -552,7 +559,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Line Discount Amount (LCY)" <> "Line Discount Amount (LCY)");
+                ValidateModification(xRec."Line Discount Amount (LCY)" <> "Line Discount Amount (LCY)", Rec.FieldNo("Line Discount Amount (LCY)"));
                 if ("Line Discount Amount (LCY)" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
                 InitRoundingPrecisions();
@@ -568,7 +575,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Cost Factor" <> "Cost Factor");
+                ValidateModification(xRec."Cost Factor" <> "Cost Factor", Rec.FieldNo("Cost Factor"));
 
                 UpdateAllAmounts();
             end;
@@ -591,7 +598,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Line Discount %" <> "Line Discount %");
+                ValidateModification(xRec."Line Discount %" <> "Line Discount %", Rec.FieldNo("Line Discount %"));
                 if ("Line Discount %" <> 0) and (Type = Type::Text) then
                     FieldError(Type);
                 UpdateAllAmounts();
@@ -624,7 +631,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Currency Code" <> "Currency Code");
+                ValidateModification(xRec."Currency Code" <> "Currency Code", Rec.FieldNo("Currency Code"));
 
                 UpdateCurrencyFactor();
                 UpdateAllAmounts();
@@ -637,7 +644,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Currency Date" <> "Currency Date");
+                ValidateModification(xRec."Currency Date" <> "Currency Date", Rec.FieldNo("Currency Date"));
 
                 UpdateCurrencyFactor();
                 if (CurrFieldNo <> FieldNo("Planning Date")) and (Type <> Type::Text) and ("No." <> '') then
@@ -653,7 +660,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Currency Factor" <> "Currency Factor");
+                ValidateModification(xRec."Currency Factor" <> "Currency Factor", Rec.FieldNo("Currency Factor"));
 
                 if ("Currency Code" = '') and ("Currency Factor" <> 0) then
                     FieldError("Currency Factor", StrSubstNo(CurrencyFactorErr, FieldCaption("Currency Code")));
@@ -987,7 +994,7 @@
 
             trigger OnValidate()
             begin
-                ValidateModification(xRec."Variant Code" <> "Variant Code");
+                ValidateModification(xRec."Variant Code" <> "Variant Code", Rec.FieldNo("Variant Code"));
 
                 if "Variant Code" = '' then begin
                     if Type = Type::Item then begin
@@ -1020,7 +1027,7 @@
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
                 BinCodeCaption: Text[30];
             begin
-                ValidateModification(xRec."Bin Code" <> "Bin Code");
+                ValidateModification(xRec."Bin Code" <> "Bin Code", Rec.FieldNo("Bin Code"));
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     GetLocation("Location Code");
@@ -1283,7 +1290,7 @@
     var
         JobUsageLink: Record "Job Usage Link";
     begin
-        ValidateModification(true);
+        ValidateModification(true, 0);
         CheckRelatedJobPlanningLineInvoice();
 
         if "Usage Link" then begin
@@ -1705,23 +1712,27 @@
     procedure InitJobPlanningLine()
     var
         JobJnlManagement: Codeunit JobJnlManagement;
+        IsHandled: Boolean;
     begin
-        GetJob();
-        if "Planning Date" = 0D then
-            Validate("Planning Date", WorkDate());
-        "Currency Code" := Job."Currency Code";
-        UpdateCurrencyFactor();
-        "VAT Unit Price" := 0;
-        "VAT Line Discount Amount" := 0;
-        "VAT Line Amount" := 0;
-        "VAT %" := 0;
-        "Job Contract Entry No." := JobJnlManagement.GetNextEntryNo();
-        "User ID" := UserId;
-        "Last Date Modified" := 0D;
-        Status := Job.Status;
-        ControlUsageLink();
-        "Country/Region Code" := Job."Bill-to Country/Region Code";
-
+        IsHandled := false;
+        OnBeforeInitJobPlanningLine(Rec, Job, IsHandled);
+        if not IsHandled then begin
+            GetJob();
+            if "Planning Date" = 0D then
+                Validate("Planning Date", WorkDate());
+            "Currency Code" := Job."Currency Code";
+            UpdateCurrencyFactor();
+            "VAT Unit Price" := 0;
+            "VAT Line Discount Amount" := 0;
+            "VAT Line Amount" := 0;
+            "VAT %" := 0;
+            "Job Contract Entry No." := JobJnlManagement.GetNextEntryNo();
+            "User ID" := UserId;
+            "Last Date Modified" := 0D;
+            Status := Job.Status;
+            ControlUsageLink();
+            "Country/Region Code" := Job."Bill-to Country/Region Code";
+        end;
         OnAfterInitJobPlanningLine(Rec);
     end;
 
@@ -2112,40 +2123,40 @@
     begin
         IsHandled := false;
         OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+            if not GuiAllowed() then
+                if xRec.Get(xRec.RecordId()) then;
 
-        // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
-        if not GuiAllowed() then
-            if xRec.Get(xRec.RecordId()) then;
-
-        if "Total Price" = 0 then begin
-            "Line Amount" := 0;
-            "Line Discount Amount" := 0;
-        end else
-            if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin
-                "Line Amount" := Round("Line Amount", AmountRoundingPrecisionFCY);
-                "Line Discount Amount" := "Total Price" - "Line Amount";
-                "Line Discount %" :=
-                  Round("Line Discount Amount" / "Total Price" * 100, 0.00001);
+            if "Total Price" = 0 then begin
+                "Line Amount" := 0;
+                "Line Discount Amount" := 0;
             end else
-                if ("Line Discount Amount" <> xRec."Line Discount Amount") and ("Line Amount" = xRec."Line Amount") then begin
-                    "Line Discount Amount" := Round("Line Discount Amount", AmountRoundingPrecisionFCY);
-                    "Line Amount" := "Total Price" - "Line Discount Amount";
+                if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin
+                    "Line Amount" := Round("Line Amount", AmountRoundingPrecisionFCY);
+                    "Line Discount Amount" := "Total Price" - "Line Amount";
                     "Line Discount %" :=
                       Round("Line Discount Amount" / "Total Price" * 100, 0.00001);
                 end else
-                    if ("Line Discount Amount" = xRec."Line Discount Amount") and
-                       (("Line Amount" <> xRec."Line Amount") or ("Line Discount %" <> xRec."Line Discount %") or
-                        ("Total Price" <> xRec."Total Price"))
-                    then begin
-                        "Line Discount Amount" :=
-                          Round("Total Price" * "Line Discount %" / 100, AmountRoundingPrecisionFCY);
+                    if ("Line Discount Amount" <> xRec."Line Discount Amount") and ("Line Amount" = xRec."Line Amount") then begin
+                        "Line Discount Amount" := Round("Line Discount Amount", AmountRoundingPrecisionFCY);
                         "Line Amount" := "Total Price" - "Line Discount Amount";
-                    end;
+                        "Line Discount %" :=
+                          Round("Line Discount Amount" / "Total Price" * 100, 0.00001);
+                    end else
+                        if ("Line Discount Amount" = xRec."Line Discount Amount") and
+                           (("Line Amount" <> xRec."Line Amount") or ("Line Discount %" <> xRec."Line Discount %") or
+                            ("Total Price" <> xRec."Total Price"))
+                        then begin
+                            "Line Discount Amount" :=
+                              Round("Total Price" * "Line Discount %" / 100, AmountRoundingPrecisionFCY);
+                            "Line Amount" := "Total Price" - "Line Discount Amount";
+                        end;
 
-        "Line Amount (LCY)" := ConvertAmountToLCY("Line Amount", AmountRoundingPrecision);
-        "Line Discount Amount (LCY)" := ConvertAmountToLCY("Line Discount Amount", AmountRoundingPrecision);
+            "Line Amount (LCY)" := ConvertAmountToLCY("Line Amount", AmountRoundingPrecision);
+            "Line Discount Amount (LCY)" := ConvertAmountToLCY("Line Discount Amount", AmountRoundingPrecision);
+        end;
+        OnAfterUpdateAmountsAndDiscounts(Rec, xRec);
     end;
 
     procedure Use(PostedQty: Decimal; PostedTotalCost: Decimal; PostedLineAmount: Decimal; PostingDate: Date; CurrencyFactor: Decimal)
@@ -2261,12 +2272,12 @@
         end;
     end;
 
-    local procedure ValidateModification(FieldChanged: Boolean)
+    local procedure ValidateModification(FieldChanged: Boolean; FieldNo: Integer)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateModification(Rec, IsHandled);
+        OnBeforeValidateModification(Rec, IsHandled, xRec, FieldNo);
         if IsHandled then
             exit;
 
@@ -2275,7 +2286,7 @@
             TestField("Qty. Transferred to Invoice", 0);
         end;
 
-        OnAfterValidateModification(Rec, FieldChanged);
+        OnAfterValidateModification(Rec, FieldChanged, FieldNo);
     end;
 
     local procedure CheckUsageLinkRelations()
@@ -2383,7 +2394,14 @@
     end;
 
     local procedure UpdateDescription()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDescription(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (xRec.Type = xRec.Type::Resource) and (xRec."No." <> '') then begin
             Res.Get(xRec."No.");
             if Description = Res.Name then
@@ -2527,7 +2545,13 @@
     local procedure CheckRelatedJobPlanningLineInvoice()
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckRelatedJobPlanningLineInvoice(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
         JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
         JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
@@ -2923,7 +2947,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateModification(var JobPlanningLine: Record "Job Planning Line"; FieldChanged: Boolean)
+    local procedure OnAfterUpdateAmountsAndDiscounts(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateModification(var JobPlanningLine: Record "Job Planning Line"; FieldChanged: Boolean; FieldNo: Integer)
     begin
     end;
 
@@ -2934,6 +2963,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckQuantityPosted(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRelatedJobPlanningLineInvoice(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2954,6 +2988,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -2983,7 +3022,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateModification(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateDescription(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateModification(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; xJobPlanningLine: Record "Job Planning Line"; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePlanningDate(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 

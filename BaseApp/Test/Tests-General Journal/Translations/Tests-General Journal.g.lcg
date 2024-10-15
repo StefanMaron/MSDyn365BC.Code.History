@@ -140,15 +140,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - field name, %2 - field value]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType FieldMustNotBeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3814745315 - NamedType 2143911298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[(+%1 other issues)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - number of issues]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType OtherIssuesTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3814745315 - NamedType 1932997211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[*is out of balance by*]]></Val>
@@ -311,6 +302,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType DocNoFilterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 494526765" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The journal lines were successfully posted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType GenJouranlLinePostedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 3025764971" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[General Journal must be opened with a Journal Batch that is equal to GenJournalLine."Journal Batch Name"]]></Val>
@@ -327,6 +327,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType MustSelectAndEmailBodyOrAttahmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 2763190567" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Starting Date not updated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType NoSeriesLineStartDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 1015433861" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

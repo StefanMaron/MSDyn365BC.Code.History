@@ -1562,6 +1562,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Purchase Ledger Corr. - NamedType VATLedgerLineCntErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1040987224 - NamedType 1815520118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Allowed Values Filter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Reinstatement - NamedType AllowedvaluesFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1040987224 - NamedType 2294662597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to post]]></Val>

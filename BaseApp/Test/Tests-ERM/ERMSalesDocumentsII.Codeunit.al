@@ -4219,6 +4219,49 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsTrue(SalesQuote.SalesLines.Editable, SalesQuoteLineNotEditableErr);
     end;
 
+        [Test]
+    [Scope('OnPrem')]
+    procedure VerifyShipToCountryRegionCodeOnILE()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CountryRegion: Record "Country/Region";
+        ItemLedgerEntries: Record "Item Ledger Entry";
+        Customer: Record Customer;
+        PostedSaleInvoiceNo: code[20];
+    begin
+        // [SCENARIO 453095] Creating a credit memo from a posted sales invoice with a manually add shipment address the item ledger entry is wrong.
+        Initialize();
+
+        // [GIVEN] Sales Order with Sell-to Country/Region code and empty Ship-to code.
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Modify(true);
+        CreateSalesDocument(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", SalesLine.Type::Item, '');
+        SalesHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Sales Order is posted.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        PostedSaleInvoiceNo := FindPostedSalesOrderToInvoice(SalesHeader."No.");
+
+        // [GIVEN] Sales Credit Memo is created
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        SalesCopyDocument(SalesHeader, PostedSaleInvoiceNo, "Sales Document Type From"::"Posted Invoice", false);
+        SalesHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Sales Credit Memo is posted.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Resulting Item Ledger entry has same Country/Region code.
+        FindItemLedgerEntry(
+          ItemLedgerEntries, SalesLine."No.", "Item Ledger Entry Type"::Sale, ItemLedgerEntries."Document Type"::"Sales Return Receipt");
+        ItemLedgerEntries.TestField("Country/Region Code", CountryRegion.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -40,6 +40,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         IsInitialized: Boolean;
         VATSettlType: Option ,Purchase,Sale,"Fixed Asset","Future Expense";
         DepCalcMsg: Label '1 fixed asset G/L journal lines were created.';
+        AllowedvaluesFilterLbl: Label 'Allowed Values Filter';
 
     [Test]
     [HandlerFunctions('HNDLMessages,HndlConfirm')]
@@ -114,7 +115,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     end;
 
     [Test]
-    [HandlerFunctions('HNDLMessages,HndlForm,HndlConfirm')]
+    [HandlerFunctions('HNDLMessages,HndlConfirm,HndlForm,HndlConfirm')]
     [Scope('OnPrem')]
     procedure UT_VATReinstatementDim()
     var
@@ -953,6 +954,11 @@ codeunit 144007 "ERM VAT Reinstatement"
     procedure HndlConfirm(Question: Text[1024]; var Reply: Boolean)
     begin
         if StrPos(Question, DepCalcMsg) <> 0 then begin
+            Reply := false;
+            exit;
+        end;
+
+        if StrPos(Question, AllowedvaluesFilterLbl) <> 0 then begin
             Reply := false;
             exit;
         end;

@@ -666,7 +666,7 @@
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
 
-            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
+            CheckVATDate(PurchHeader);
 
             OnCheckAndUpdateOnBeforeSetPostingFlags(PurchHeader, TempPurchLineGlobal);
             if LogErrorMode then
@@ -4397,8 +4397,6 @@
             "Item Charge No." := TempItemChargeAssgntPurch."Item Charge No.";
             "Item No." := TempItemChargeAssgntPurch."Item No.";
             "Qty. Assigned" := TempItemChargeAssgntPurch."Qty. to Handle";
-            "Qty. to Assign" -= TempItemChargeAssgntPurch."Qty. to Handle";
-            "Amount to Assign" -= TempItemChargeAssgntPurch."Amount to Handle";
             "Qty. to Handle" := 0;
             "Amount to Handle" := 0;
             Description := TempItemChargeAssgntPurch.Description;
@@ -8382,7 +8380,7 @@
     local procedure ValidatePostingAndDocumentDate(var PurchaseHeader: Record "Purchase Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
         ModifyHeader: Boolean;
         PostingDateExists: Boolean;
         VATDateExists: Boolean;
@@ -8399,7 +8397,7 @@
             PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate) and
           BatchProcessingMgt.GetDateParameter(
             PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
-        
+
         VATDateExists := BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
         BatchProcessingMgt.GetDateParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"VAT Date", VATDate);
 
@@ -9628,6 +9626,29 @@
             end;
             ValidateJobLineType(PurchLine);
         end;
+    end;
+
+    local procedure CheckVATDate(var PurchaseHeader: Record "Purchase Header")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        SetupRecID: RecordID;
+    begin
+        // ensure VAT Date is filled in
+        If PurchaseHeader."VAT Reporting Date" = 0D then begin
+            PurchaseHeader."VAT Reporting Date" := GLSetup.GetVATDate(PurchaseHeader."Posting Date", PurchaseHeader."Document Date");
+            PurchaseHeader.Modify();
+        end;
+
+        // check whether VAT Date is within allowed VAT Periods
+        GenJnlCheckLine.CheckVATDateAllowed(PurchaseHeader."VAT Reporting Date");
+
+        // check whether VAT Date is within Allowed period defined by Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(PurchaseHeader."VAT Reporting Date", SetupRecID, PurchaseHeader."Journal Templ. Name") then
+            ErrorMessageMgt.LogContextFieldError(
+              PurchaseHeader.FieldNo("VAT Reporting Date"), StrSubstNo(PostingDateNotAllowedErr, PurchaseHeader.FieldCaption("VAT Reporting Date")),
+              SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
+              ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
     end;
 
     [IntegrationEvent(false, false)]

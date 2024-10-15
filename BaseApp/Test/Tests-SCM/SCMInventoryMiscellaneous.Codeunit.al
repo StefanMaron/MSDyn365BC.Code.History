@@ -913,6 +913,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TransferLineDimension()
     var
@@ -2563,5 +2564,11 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [RecallNotificationHandler]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }

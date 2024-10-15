@@ -1423,7 +1423,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeFindJobLedgEntry(var TempJobLedgerEntry: Record "Job Ledger Entry" temporary; var ItemFilters: Record Item; var IsHandled: Boolean)
     begin
     end;

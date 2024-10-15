@@ -48,6 +48,12 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(CompanyAddress6; CompanyAddress[6])
             {
             }
+            column(CompanyAddress7; CompanyAddress[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddress[8])
+            {
+            }
             column(CustomerAddress1; CustomerAddress[1])
             {
             }

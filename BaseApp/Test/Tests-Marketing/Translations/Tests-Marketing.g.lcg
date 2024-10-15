@@ -815,6 +815,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType OppCardSalesDocTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1409019018 - NamedType 2851169892" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Opportunity No. not updated on Sales Quote.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType OppNoNotUpdatedOnSalesQuoteErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1409019018 - NamedType 576195303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Opportunity %1 was created based on selected interaction log entry.]]></Val>

@@ -806,7 +806,13 @@
         end;
     end;
 
+    [Obsolete('Replaced by CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value"; Allowed: Boolean)', '22.0')]
     procedure CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value")
+    begin
+        CreateDimValuePerAccountFromDimValue(DimValue, false);
+    end;
+
+    procedure CreateDimValuePerAccountFromDimValue(DimValue: Record "Dimension Value"; ShouldUpdateAllowed: Boolean)
     var
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
@@ -815,8 +821,27 @@
         DimValuePerAccount."Dimension Value Code" := DimValue.Code;
         DimValuePerAccount."Table ID" := "Table ID";
         DimValuePerAccount."No." := "No.";
-        DimValuePerAccount.Allowed := false;
+        if not ShouldUpdateAllowed then
+            DimValuePerAccount.Allowed := false
+        else
+            DimValuePerAccount.Allowed := IncludedInAllowedValuesFilter(DimValuePerAccount);
         DimValuePerAccount.Insert();
+    end;
+
+    procedure IncludedInAllowedValuesFilter(DimValuePerAccount: Record "Dim. Value per Account"): Boolean
+    var
+        TempDimValuePerAccount: Record "Dim. Value per Account" temporary;
+    begin
+        TempDimValuePerAccount := DimValuePerAccount;
+        TempDimValuePerAccount.Insert;
+
+        TempDimValuePerAccount.SetRange("Table ID", DimValuePerAccount."Table ID");
+        TempDimValuePerAccount.SetRange("No.", DimValuePerAccount."No.");
+        TempDimValuePerAccount.SetRange("Dimension Code", DimValuePerAccount."Dimension Code");
+        TempDimValuePerAccount.SetFilter("Dimension Value Code", "Allowed Values Filter");
+
+        If not TempDimValuePerAccount.IsEmpty() then
+            exit(true);
     end;
 
     procedure UpdateDimValuesPerAccountFromAllowedValuesFilter(var DimValuePerAccount: Record "Dim. Value per Account")

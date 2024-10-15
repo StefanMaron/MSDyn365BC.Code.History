@@ -63,6 +63,7 @@ codeunit 86 "Sales-Quote to Order"
             DeleteLinks();
             Delete();
             SalesQuoteLine.DeleteAll();
+            OnRunOnAfterSalesQuoteLineDeleteAll(Rec, SalesOrderHeader, SalesQuoteLine);
         end;
 
         if not ShouldRedistributeInvoiceAmount then
@@ -207,11 +208,7 @@ codeunit 86 "Sales-Quote to Order"
         if IsHandled then
             exit;
 
-        Opp.Reset();
-        Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
-        Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
-        Opp.SetRange("Sales Document No.", SalesHeader."No.");
-        Opp.SetRange(Status, Opp.Status::"In Progress");
+        FilterOpportunityForQuote(Opp, SalesHeader, true);
         if Opp.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
@@ -240,11 +237,7 @@ codeunit 86 "Sales-Quote to Order"
             if IsHandled then
                 exit;
             PAGE.RunModal(PAGE::"Close Opportunity", TempOpportunityEntry);
-            Opp.Reset();
-            Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
-            Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
-            Opp.SetRange("Sales Document No.", SalesHeader."No.");
-            Opp.SetRange(Status, Opp.Status::"In Progress");
+            FilterOpportunityForQuote(Opp, SalesHeader, true);
             if Opp.FindFirst() then
                 Error(Text001, Opp.TableCaption(), Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
             Commit();
@@ -257,10 +250,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
     begin
-        Opp.Reset();
-        Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
-        Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
-        Opp.SetRange("Sales Document No.", SalesQuoteHeader."No.");
+        FilterOpportunityForQuote(Opp, SalesQuoteHeader, false);
         if Opp.FindFirst() then
             if Opp.Status = Opp.Status::Won then begin
                 Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
@@ -282,6 +272,17 @@ codeunit 86 "Sales-Quote to Order"
                 end;
 
         OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
+    end;
+
+    local procedure FilterOpportunityForQuote(var Opportunity: Record Opportunity; SalesHeader: Record "Sales Header"; InProgress: Boolean)
+    begin
+        Opportunity.Reset();
+        Opportunity.SetCurrentKey("Sales Document Type", "Sales Document No.");
+        Opportunity.SetRange("Sales Document Type", Opportunity."Sales Document Type"::Quote);
+        Opportunity.SetRange("Sales Document No.", SalesHeader."No.");
+        if InProgress then
+            Opportunity.SetRange(Status, Opportunity.Status::"In Progress");
+        OnAfterFilterOpportunityForQuote(Opportunity, SalesHeader);
     end;
 
     local procedure TransferQuoteToOrderLines(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderLine: Record "Sales Line"; var SalesOrderHeader: Record "Sales Header"; Customer: Record Customer)
@@ -326,6 +327,11 @@ codeunit 86 "Sales-Quote to Order"
                 end;
             until SalesQuoteLine.Next() = 0;
         OnAfterTransferQuoteToOrderLines(SalesQuoteLine, SalesQuoteHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterOpportunityForQuote(var Opportunity: Record Opportunity; SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -435,6 +441,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesQuoteLineDeleteAll(var SalesHeaderRec: Record "Sales Header"; SalesOrderHeader: Record "Sales Header"; SalesQuoteLine: Record "Sales Line")
     begin
     end;
 
