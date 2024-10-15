@@ -646,7 +646,7 @@ codeunit 5817 "Undo Posting Management"
 
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
-            ItemJnlLine."Invoiced Quantity" := -TempApplyToItemLedgEntry."Invoiced Quantity";
+            ItemJnlLine."Invoiced Qty. (Base)" := -TempApplyToItemLedgEntry."Invoiced Quantity";
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
             if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
                 ItemJnlLine.CopyNewTrackingFromOldItemLedgerEntry(TempApplyToItemLedgEntry);
@@ -694,6 +694,10 @@ codeunit 5817 "Undo Posting Management"
         ItemTrackingMgt.AdjustQuantityRounding(
           NonDistrQuantity, ItemJnlLine.Quantity,
           NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
+
+        ItemTrackingMgt.AdjustQuantityRounding(
+         ItemJnlLine.Quantity, ItemJnlLine."Invoiced Quantity",
+         ItemJnlLine."Quantity (Base)", ItemJnlLine."Invoiced Qty. (Base)");
     end;
 
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)

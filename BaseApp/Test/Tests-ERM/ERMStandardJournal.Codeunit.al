@@ -562,6 +562,46 @@ codeunit 134921 "ERM Standard Journal"
         VerifyDimensionsOnGeneralJournalLines(StandardGeneralJournal, GenJournalLine);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure CurrencyCodeShouldFlowFromStandardJournalToGeneralJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+        CurrencyCode: code[20];
+    begin
+        // [SCENARIO 547489] Currency Code is not populating as saved in the Standard General Journal Template.
+        Initialize();
+
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create General Journal Line.
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+
+        // [GIVEN] Create and Save Standred Journal.
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [GIVEN] Create Currency With Random Exchange Rates.
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Update the Currency Code in Standard Journal. 
+        StandardGeneralJournalLine.SetRange("Journal Template Name", StandardGeneralJournal."Journal Template Name");
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournal.Code);
+        StandardGeneralJournalLine.SetRange("Account Type", StandardGeneralJournalLine."Account Type"::"G/L Account");
+        StandardGeneralJournalLine.FindFirst();
+        StandardGeneralJournalLine.Validate("Currency Code", CurrencyCode);
+        StandardGeneralJournalLine.Modify(true);
+
+        // [WHEN] Create General Journal From Standard Journal. 
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Currency Code must me populated in Standard General Journal.
+        Assert.AreEqual(CurrencyCode, StandardGeneralJournalLine."Currency Code", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
