@@ -66,6 +66,7 @@
         UpdatePriceSourceGroupInPriceListLines();
         UpdatePriceListLineStatus();
         UpdateAllJobsResourcePrices();
+        UpgradeDataExchFieldMapping();
     end;
 
     local procedure ClearTemporaryTables()
@@ -904,6 +905,91 @@
             ItemTrackingCode.MODIFYALL("Use Expiration Dates", TRUE);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemTrackingCodeUseExpirationDatesTag());
+    end;
+
+    local procedure UpgradeDataExchFieldMapping()
+    var
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDataExchOCRVendorNoTag()) then
+            exit;
+
+        UpgradeDataExchVendorIdFieldMapping('OCRINVOICE', 'OCRINVHEADER', 18);
+        UpgradeDataExchVendorIdFieldMapping('OCRCREDITMEMO', 'OCRCRMEMOHEADER', 18);
+        UpgradeDataExchVendorNoFieldMapping('OCRINVOICE', 'OCRINVHEADER', 19);
+        UpgradeDataExchVendorNoFieldMapping('OCRCREDITMEMO', 'OCRCRMEMOHEADER', 19);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDataExchOCRVendorNoTag());
+    end;
+
+    local procedure UpgradeDataExchVendorIdFieldMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        TempVendor: Record Vendor temporary;
+    begin
+        if not DataExchDef.Get(DataExchDefCode) then
+            exit;
+
+        UpgradeDataExchColumnDef(DataExchColumnDef, DataExchDefCode, DataExchLineDefCode, ColumnNo, 'Supplier ID', 'Buy-from Vendor ID', '/Document/Parties/Party[Type[text()=''supplier'']]/ExternalId');
+        UpgradeDataExchFieldMapping(DataExchColumnDef, Database::Vendor, TempVendor.FieldNo(SystemId));
+    end;
+
+    local procedure UpgradeDataExchVendorNoFieldMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        TempVendor: Record Vendor temporary;
+    begin
+        if not DataExchDef.Get(DataExchDefCode) then
+            exit;
+
+        UpgradeDataExchColumnDef(DataExchColumnDef, DataExchDefCode, DataExchLineDefCode, ColumnNo, 'Supplier No.', 'Buy-from Vendor No.', '/Document/Parties/Party[Type[text()=''supplier'']]/ExternalId');
+        UpgradeDataExchFieldMapping(DataExchColumnDef, Database::Vendor, TempVendor.FieldNo("No."));
+    end;
+
+    local procedure UpgradeDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; Name: Text[250]; Description: Text[100]; Path: Text[250])
+    begin
+        if not DataExchColumnDef.Get(DataExchDefCode, DataExchLineDefCode, ColumnNo) then begin
+            DataExchColumnDef."Data Exch. Def Code" := DataExchDefCode;
+            DataExchColumnDef."Data Exch. Line Def Code" := DataExchLineDefCode;
+            DataExchColumnDef."Column No." := ColumnNo;
+            DataExchColumnDef.Name := Name;
+            DataExchColumnDef.Description := Description;
+            DataExchColumnDef.Path := Path;
+            DataExchColumnDef."Data Type" := DataExchColumnDef."Data Type"::Text;
+            DataExchColumnDef.Insert();
+        end;
+    end;
+
+    local procedure UpgradeDataExchFieldMapping(var DataExchColumnDef: Record "Data Exch. Column Def"; TargetTableId: Integer; TargetFieldId: Integer)
+    var
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        Changed: Boolean;
+    begin
+        if not DataExchFieldMapping.Get(DataExchColumnDef."Data Exch. Def Code", DataExchColumnDef."Data Exch. Line Def Code", Database::"Intermediate Data Import", DataExchColumnDef."Column No.", 0) then begin
+            DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
+            DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
+            DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+            DataExchFieldMapping."Table ID" := Database::"Intermediate Data Import";
+            DataExchFieldMapping."Field ID" := 0;
+            DataExchFieldMapping."Target Table ID" := TargetTableId;
+            DataExchFieldMapping."Target Field ID" := TargetFieldId;
+            DataExchFieldMapping.Optional := true;
+            DataExchFieldMapping.Insert();
+        end else begin
+            if DataExchFieldMapping."Target Table ID" <> TargetTableId then begin
+                DataExchFieldMapping."Target Table ID" := TargetTableId;
+                Changed := true;
+            end;
+            if DataExchFieldMapping."Target Field ID" <> TargetFieldId then begin
+                DataExchFieldMapping."Target Field ID" := TargetFieldId;
+                Changed := true;
+            end;
+            if Changed then
+                DataExchFieldMapping.Modify();
+        end;
     end;
 
     local procedure UpgradeJobQueueEntries()

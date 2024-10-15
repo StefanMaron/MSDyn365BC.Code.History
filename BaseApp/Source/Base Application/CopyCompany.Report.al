@@ -1,6 +1,7 @@
 report 357 "Copy Company"
 {
     Caption = 'Copy Company';
+    Permissions = tabledata "Feature Data Update Status" = ri;
     ProcessingOnly = true;
 
     dataset
