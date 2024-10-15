@@ -53,9 +53,9 @@ page 5202 "Employee Picture"
                     FileName: Text;
                     ClientFileName: Text;
                 begin
-                    TestField("No.");
-                    TestField("First Family Name");
-                    TestField("Second Family Name");
+                    Rec.TestField("No.");
+                    Rec.TestField(Name);
+                    Rec.TestField("First Family Name");
 
                     if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then

@@ -1,7 +1,8 @@
-codeunit 483 "Change Global Dimensions"
+﻿codeunit 483 "Change Global Dimensions"
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "VAT Entry" = rm,
+                  Tabledata "Approval Entry" = rm,
                   TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
                   TableData "Item Ledger Entry" = rm,
