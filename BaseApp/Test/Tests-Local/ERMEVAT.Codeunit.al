@@ -70,6 +70,10 @@ codeunit 144051 "ERM EVAT"
         AttrBdObTok: Label 'xmlns:bd-ob';
         DownloadSubmissionMessageQst: Label 'Do you want to download the submission message?';
         NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
+        BDDataEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
+        VATDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
+        BDTuplesEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
+        ICPDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
 
     [Test]
     [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,VATStatementRequestPageHandler')]
@@ -589,6 +593,8 @@ codeunit 144051 "ERM EVAT"
 
         // [THEN] XBLR content generats correctly for Tax Declaration
         // [THEN] "xmlns:bd-ob" attribute does not exists in XBLR content
+        // Work item id 454920: NT17 changes
+        // [THEN] Endpoints are of nt17 version
         VerifyVATXBLRDocContent(ElecTaxDeclHeader, TempFile);
     end;
 
@@ -656,20 +662,18 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
         TempFile: Text;
     begin
-        // Purpose: Verify XBLR document content
-        Initialize;
+        // [SCENARIO] XBLR content of the ICP declaration is correct
+        Initialize();
 
-        // Setup
         InitializeElecTaxDeclSetup(false, false);
-
-        // Grouping by VAT Reg No. and country region code
+        // [GIVEN] Grouping by VAT Reg No. and country region code
         CreateReverseChargeSalesInvoiceVATEntry(VATEntry[1], false, false);
         CreateReverseChargeSalesInvoiceVATEntry(VATEntry[2], false, false);
         VATEntry[2]."VAT Registration No." := VATEntry[1]."VAT Registration No.";
         VATEntry[2]."Country/Region Code" := VATEntry[1]."Country/Region Code";
         VATEntry[2].Modify();
 
-        // No grouping between EU Trade and service entries but same VAT reg no. and country code
+        // [GIVEN] No grouping between EU Trade and service entries but same VAT reg no. and country code
         CreateReverseChargeSalesInvoiceVATEntry(VATEntry[3], true, false);
         VATEntry[3]."VAT Registration No." := VATEntry[1]."VAT Registration No.";
         VATEntry[3]."Country/Region Code" := VATEntry[1]."Country/Region Code";
@@ -682,10 +686,12 @@ codeunit 144051 "ERM EVAT"
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"ICP Declaration");
         ElecTaxDeclHeader.Get(ElecTaxDeclHeader."Declaration Type"::"ICP Declaration", No);
 
-        // Exercise
+        // [WHEN] Generate ICP declaration
         TempFile := BuildDeclarationDocumentPreview(ElecTaxDeclHeader);
 
-        // Verify
+        // [THEN] The XBRL structure is correct
+        // Work item id 454920: NT17 changes
+        // [THEN] Endpoints are of nt17 version
         VerifyICPXBLRDocContent(ElecTaxDeclHeader, TempFile);
         VATEntry[1].Base += VATEntry[2].Base;
         VerifyICPVATEntry(TempFile, VATEntry[1]);
@@ -743,7 +749,6 @@ codeunit 144051 "ERM EVAT"
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         CompanyInfo: Record "Company Information";
-        ElecTaxDeclarationMgt: Codeunit "Elec. Tax Declaration Mgt.";
         UseVATRegNo: Text[30];
         NodeList: List of [Text];
         Node: Text;
@@ -759,9 +764,9 @@ codeunit 144051 "ERM EVAT"
 
         LibraryXMLRead.Initialize(Filename);
         LibraryXMLRead.VerifyAttributeAbsence(XbrliXbrlTok, AttrBdObTok);
-        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdITok, ElecTaxDeclarationMgt.GetBDDataEndpoint);
+        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdITok, BDDataEndpointTxt);
         LibraryXMLRead.VerifyAttributeValueInSubtree(
-          XbrliXbrlTok, 'link:schemaRef', 'xlink:href', ElecTaxDeclarationMgt.GetVATDeclarationSchemaEndpoint);
+          XbrliXbrlTok, 'link:schemaRef', 'xlink:href', VATDeclarationSchemaEndpointTxt);
         LibraryXMLRead.VerifyNodeValueInSubtree('xbrli:context', 'xbrli:identifier', UseVATRegNo);
         LibraryXMLRead.VerifyNodeValueInSubtree(
           'xbrli:period', 'xbrli:startDate', Format(ElecTaxDeclHeader."Declaration Period From Date", 0, '<Year4>-<Month,2>-<Day,2>'));
@@ -825,7 +830,6 @@ codeunit 144051 "ERM EVAT"
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         CompanyInfo: Record "Company Information";
-        ElecTaxDeclarationMgt: Codeunit "Elec. Tax Declaration Mgt.";
         UseVATRegNo: Text[30];
     begin
         ElecTaxDeclarationSetup.Get();
@@ -838,10 +842,10 @@ codeunit 144051 "ERM EVAT"
             UseVATRegNo := DelStr(UseVATRegNo, 1, 2);
 
         LibraryXMLRead.Initialize(Filename);
-        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdTTok, ElecTaxDeclarationMgt.GetBDTuplesEndpoint);
-        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdITok, ElecTaxDeclarationMgt.GetBDDataEndpoint);
+        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdTTok, BDTuplesEndpointTxt);
+        LibraryXMLRead.VerifyAttributeValue(XbrliXbrlTok, AttrBdITok, BDDataEndpointTxt);
         LibraryXMLRead.VerifyAttributeValueInSubtree(
-          XbrliXbrlTok, 'link:schemaRef', 'xlink:href', ElecTaxDeclarationMgt.GetICPDeclarationSchemaEndpoint);
+          XbrliXbrlTok, 'link:schemaRef', 'xlink:href', ICPDeclarationSchemaEndpointTxt);
         LibraryXMLRead.VerifyNodeValueInSubtree('xbrli:context', 'xbrli:identifier', UseVATRegNo);
         LibraryXMLRead.VerifyNodeValueInSubtree(
           'xbrli:period', 'xbrli:startDate', Format(ElecTaxDeclHeader."Declaration Period From Date", 0, '<Year4>-<Month,2>-<Day,2>'));
