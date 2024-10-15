@@ -74,7 +74,7 @@ report 7000097 "Reject Docs."
                     PostedDoc.Get(PostedDoc.Type::Receivable, "Entry No.");
                     PostedDoc.Status := PostedDoc.Status::Rejected;
                     PostedDoc."Honored/Rejtd. at Date" := PostingDate;
-                    PostedDoc.Modify;
+                    PostedDoc.Modify();
                     "Document Status" := "Document Status"::Rejected;
                     Modify;
                     if IncludeExpenses then
@@ -94,7 +94,7 @@ report 7000097 "Reject Docs."
                     ClosedDoc."Amount for Collection" := 0;
                     ClosedDoc."Amt. for Collection (LCY)" := 0;
                     ClosedDoc.Insert(true);
-                    Doc.Delete;
+                    Doc.Delete();
                     "Document Status" := "Document Status"::Rejected;
                     "Document Situation" := "Document Situation"::"Closed Documents";
                     Modify;
@@ -172,7 +172,7 @@ report 7000097 "Reject Docs."
 
                 if (FeeRange.GetTotalRejExpensesAmt <> 0) and ArePostedDocs then begin
                     PostedBillGr."Rejection Expenses Amt." := PostedBillGr."Rejection Expenses Amt." + FeeRange.GetTotalRejExpensesAmt;
-                    PostedBillGr.Modify;
+                    PostedBillGr.Modify();
                 end;
             end;
 
@@ -197,10 +197,10 @@ report 7000097 "Reject Docs."
                     GLReg.FindLast;
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
-                    GLReg.Modify;
+                    GLReg.Modify();
                 end;
 
-                Commit;
+                Commit();
 
                 Message(Text1100007, DocCount);
             end;
@@ -219,7 +219,7 @@ report 7000097 "Reject Docs."
                     SourceCode := GenJnlTemplate."Source Code";
                 end else begin
                     ReasonCode := '';
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     SourceCode := SourceCodeSetup."Cartera Journal"
                 end;
 
@@ -346,7 +346,7 @@ report 7000097 "Reject Docs."
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         if UseJournal = UseJournal::AuxJournal then begin
             if not GenJnlBatch.Get(TemplName, BatchName) then
@@ -648,7 +648,7 @@ report 7000097 "Reject Docs."
             exit;
 
         if UseJournal = UseJournal::AuxJournal then begin
-            GenJnlLine2.LockTable;
+            GenJnlLine2.LockTable();
             GenJnlLine2.SetRange("Journal Template Name", TemplName);
             GenJnlLine2.SetRange("Journal Batch Name", BatchName);
             if GenJnlLine2.FindLast then begin
@@ -659,10 +659,10 @@ report 7000097 "Reject Docs."
                 GenJnlLine2 := GenJnlLine;
                 GenJnlLine2."Line No." := GenJnlLine2."Line No." + LastLineNo;
                 GenJnlLine2."Transaction No." := TransactionNo;
-                GenJnlLine2.Insert;
+                GenJnlLine2.Insert();
             until GenJnlLine.Next = 0;
-            Commit;
-            GenJnlLine2.Reset;
+            Commit();
+            GenJnlLine2.Reset();
             GenJnlTemplate.Get(TemplName);
             GenJnlLine2.FilterGroup := 2;
             GenJnlLine2.SetRange("Journal Template Name", TemplName);

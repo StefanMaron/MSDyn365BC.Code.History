@@ -51,11 +51,9 @@ table 10740 "No Taxable Entry"
             AutoFormatType = 1;
             Caption = 'Amount';
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax,No Taxable VAT';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax","No Taxable VAT";
         }
         field(12; "Source No."; Code[20])
         {
@@ -311,11 +309,11 @@ table 10740 "No Taxable Entry"
 
             NewNoTaxableEntry.Reversed := true;
             NewNoTaxableEntry."Reversed Entry No." := NoTaxableEntry."Entry No.";
-            NewNoTaxableEntry.Insert;
+            NewNoTaxableEntry.Insert();
 
             NoTaxableEntry.Reversed := true;
             NoTaxableEntry."Reversed by Entry No." := NewNoTaxableEntry."Entry No.";
-            NoTaxableEntry.Modify;
+            NoTaxableEntry.Modify();
         until NoTaxableEntry.Next = 0;
     end;
 

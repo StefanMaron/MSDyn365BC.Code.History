@@ -33,10 +33,10 @@ table 99000751 "Shop Calendar"
     trigger OnDelete()
     begin
         ShopCalendarWorkDays.SetRange("Shop Calendar Code", Code);
-        ShopCalendarWorkDays.DeleteAll;
+        ShopCalendarWorkDays.DeleteAll();
 
         ShopCalHoliday.SetRange("Shop Calendar Code", Code);
-        ShopCalHoliday.DeleteAll;
+        ShopCalHoliday.DeleteAll();
     end;
 
     var

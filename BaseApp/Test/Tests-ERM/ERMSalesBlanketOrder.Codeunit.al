@@ -75,7 +75,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.CalcVATAmountLines(QtyType::Invoicing, SalesHeader, SalesLine, VATAmountLine);
 
         // Verify: Verify VAT Amount on Sales Blanket Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesLine.FindSet;
         repeat
             BaseAmount += SalesLine."Line Amount";
@@ -239,7 +239,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", SalesHeader);
 
         // Verify: Verify Invoice Discount Amount on Created Sales Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindOrderLineFromBlanket(SalesLine, SalesHeader);
         Assert.AreNearlyEqual(
           InvDiscountAmount, SalesLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -905,7 +905,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
         SalesLine[1]."Location Code" := LibraryUtility.GenerateGUID;
-        SalesLine[1].Modify;
+        SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank location code.
         MockSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, SalesHeader[1]."Sell-to Customer No.");
@@ -936,7 +936,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
         SalesLine[1]."Variant Code" := LibraryUtility.GenerateGUID;
-        SalesLine[1].Modify;
+        SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank variant code.
         MockSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, SalesHeader[1]."Sell-to Customer No.");
@@ -967,7 +967,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
         SalesLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID;
-        SalesLine[1].Modify;
+        SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank unit of measure code.
         MockSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, SalesHeader[1]."Sell-to Customer No.");
@@ -1049,7 +1049,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Blanket Order");
     end;
@@ -1269,7 +1269,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Default Posting Date", DefaultPostingDate);
@@ -1323,7 +1323,7 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         CreateSalesBlanketOrder(BlanketSalesHeader, BlanketSalesLine, 1, Customer."No.", LibraryInventory.CreateItemNo);
         BlanketSalesHeader.Validate("Document Date", BlanketSalesHeader."Document Date" - 1);
-        BlanketSalesHeader.Modify;
+        BlanketSalesHeader.Modify();
 
         SalesHeaderNo := LibrarySales.BlanketSalesOrderMakeOrder(BlanketSalesHeader);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeaderNo);

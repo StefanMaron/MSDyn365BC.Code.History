@@ -185,10 +185,10 @@ table 7000007 "Closed Bill Group"
     trigger OnDelete()
     begin
         ClosedDoc.SetRange("Bill Gr./Pmt. Order No.", "No.");
-        ClosedDoc.DeleteAll;
+        ClosedDoc.DeleteAll();
 
         BGPOCommentLine.SetRange("BG/PO No.", "No.");
-        BGPOCommentLine.DeleteAll;
+        BGPOCommentLine.DeleteAll();
     end;
 
     var

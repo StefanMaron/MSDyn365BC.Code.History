@@ -61,12 +61,12 @@ page 7000040 "Cartera Setup"
 
     trigger OnAfterGetRecord()
     begin
-        GenLedgerSetup.Get;
+        GenLedgerSetup.Get();
     end;
 
     trigger OnOpenPage()
     begin
-        GenLedgerSetup.Get;
+        GenLedgerSetup.Get();
     end;
 
     var
@@ -74,7 +74,7 @@ page 7000040 "Cartera Setup"
 
     local procedure GenLedgerSetupBankAccountNosOn()
     begin
-        GenLedgerSetup.Modify;
+        GenLedgerSetup.Modify();
     end;
 }
 

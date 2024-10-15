@@ -18,7 +18,7 @@ table 7000005 "Bill Group"
                 CheckPrinted;
                 ResetPrinted;
 
-                CarteraSetup.Get;
+                CarteraSetup.Get();
                 NoSeriesMgt.TestManual(CarteraSetup."Bill Group Nos.");
                 "No. Series" := '';
 
@@ -171,7 +171,7 @@ table 7000005 "Bill Group"
 
             trigger OnLookup()
             begin
-                Currency.Reset;
+                Currency.Reset();
 
                 if Currency.Get("Currency Code") then;
                 Currencies.SetRecord(Currency);
@@ -195,7 +195,7 @@ table 7000005 "Bill Group"
                       StrSubstNo(Text1100003, TableCaption));
 
                 if "Currency Code" <> '' then begin
-                    Currency.Reset;
+                    Currency.Reset();
                     if "Dealing Type" = "Dealing Type"::Discount then
                         Currency.SetRange("Bill Groups - Discount", true)
                     else
@@ -234,7 +234,7 @@ table 7000005 "Bill Group"
 
             trigger OnValidate()
             begin
-                Doc.Reset;
+                Doc.Reset();
                 Doc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted, "Due Date", Place, "Document Type");
                 Doc.SetRange(Type, Doc.Type::Receivable);
                 Doc.SetRange("Collection Agent", Doc."Collection Agent"::Bank);
@@ -282,13 +282,13 @@ table 7000005 "Bill Group"
             Error(Text1100002);
 
         BGPOCommentLine.SetRange("BG/PO No.", "No.");
-        BGPOCommentLine.DeleteAll;
+        BGPOCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            CarteraSetup.Get;
+            CarteraSetup.Get();
             CarteraSetup.TestField("Bill Group Nos.");
             NoSeriesMgt.InitSeries(CarteraSetup."Bill Group Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -351,10 +351,10 @@ table 7000005 "Bill Group"
     begin
         with BillGr do begin
             BillGr := Rec;
-            CarteraSetup.Get;
+            CarteraSetup.Get();
             CarteraSetup.TestField("Bill Group Nos.");
             if NoSeriesMgt.SelectSeries(CarteraSetup."Bill Group Nos.", OldBillGr."No. Series", "No. Series") then begin
-                CarteraSetup.Get;
+                CarteraSetup.Get();
                 CarteraSetup.TestField("Bill Group Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := BillGr;
@@ -430,10 +430,10 @@ table 7000005 "Bill Group"
     begin
         DirectDebitCollection.CreateNew("No.", "Bank Account No.", "Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
         CheckSEPADirectDebitFormat(DirectDebitCollection);
         BankAccount.Get("Bank Account No.");
-        Commit;
+        Commit();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         RunFileExportCodeunit(BankAccount.GetDDExportCodeunitID, DirectDebitCollection."No.", DirectDebitCollectionEntry);
         DeleteDirectDebitCollection(DirectDebitCollection."No.");
@@ -447,7 +447,7 @@ table 7000005 "Bill Group"
         if not CODEUNIT.Run(CodeunitID, DirectDebitCollectionEntry) then begin
             LastError := GetLastErrorText;
             DeleteDirectDebitCollection(DirectDebitCollectionNo);
-            Commit;
+            Commit();
             Error(LastError);
         end;
     end;
@@ -492,7 +492,7 @@ table 7000005 "Bill Group"
                 DirectDebitFormat := SilentDirectDebitFormat;
 
             DirectDebitCollection."Direct Debit Format" := DirectDebitFormat;
-            DirectDebitCollection.Modify;
+            DirectDebitCollection.Modify();
         end;
     end;
 }

@@ -1117,7 +1117,7 @@ Cstr("") + Chr(177) +
 Cstr("") + Chr(177) + 
 Cstr("") + Chr(177) + 
 Cstr(Fields!StatementCaption.Value) + Chr(177) + 
-Cstr(Fields!CustomerCopyText.Value) + Chr(177) + 
+"" + Chr(177) + 
 Cstr(Fields!TodayFormatted.Value) + Chr(177) + 
 Cstr(Fields!StartDate.Value) + Chr(177) + 
 Cstr(Fields!EndDate.Value) + Chr(177) + 
@@ -5730,9 +5730,6 @@ End Function
         </Field>
         <Field Name="CurrencyCodeCaption">
           <DataField>CurrencyCodeCaption</DataField>
-        </Field>
-        <Field Name="CustomerCopyText">
-          <DataField>CustomerCopyText</DataField>
         </Field>
         <Field Name="CustAddr1">
           <DataField>CustAddr1</DataField>

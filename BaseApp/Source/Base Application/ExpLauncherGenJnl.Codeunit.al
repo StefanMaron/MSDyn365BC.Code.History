@@ -21,7 +21,7 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
         BankAccount.GetDataExchDefPaymentExport(DataExchDef);
 
         CreditTransferRegister.CreateNew(DataExchDef.Code, GenJnlLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         if DataExchDef."Data Handling Codeunit" > 0 then
             CODEUNIT.Run(DataExchDef."Data Handling Codeunit", GenJnlLine);

@@ -46,13 +46,13 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
         with InsuranceJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             InsuranceJnlTempl.Get("Journal Template Name");
             InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
             if not Find('=><') then begin
-                Commit;
+                Commit();
                 "Line No." := 0;
                 exit;
             end;
@@ -75,9 +75,9 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
 
-            InsCoverageLedgEntry.LockTable;
+            InsCoverageLedgEntry.LockTable();
             if InsCoverageLedgEntry.FindLast then;
-            InsuranceReg.LockTable;
+            InsuranceReg.LockTable();
             if InsuranceReg.FindLast then
                 InsuranceRegNo := InsuranceReg."No." + 1
             else
@@ -115,7 +115,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                                       ArrayLen(NoSeriesMgt2));
                                 NoSeries.Code := "Posting No. Series";
                                 NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert;
+                                NoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
                             Evaluate(PostingNoSeriesNo, NoSeries.Description);
@@ -138,30 +138,30 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 InsuranceJnlLine2.SetFilter("Insurance No.", '<>%1', '');
                 if InsuranceJnlLine2.FindLast then; // Remember the last line
                 InsuranceJnlLine3.Copy(InsuranceJnlLine);
-                InsuranceJnlLine3.DeleteAll;
-                InsuranceJnlLine3.Reset;
+                InsuranceJnlLine3.DeleteAll();
+                InsuranceJnlLine3.Reset();
                 InsuranceJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 InsuranceJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if InsuranceJnlTempl."Increment Batch Name" then
                     if not InsuranceJnlLine3.FindLast then
                         if IncStr("Journal Batch Name") <> '' then begin
                             InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                            InsuranceJnlBatch.Delete;
+                            InsuranceJnlBatch.Delete();
                             FAJnlSetup.IncInsuranceJnlBatchName(InsuranceJnlBatch);
                             InsuranceJnlBatch.Name := IncStr("Journal Batch Name");
-                            if InsuranceJnlBatch.Insert then;
+                            if InsuranceJnlBatch.Insert() then;
                             "Journal Batch Name" := InsuranceJnlBatch.Name;
                         end;
 
                 InsuranceJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if (InsuranceJnlBatch."No. Series" = '') and not InsuranceJnlLine3.FindLast then begin
-                    InsuranceJnlLine3.Init;
+                    InsuranceJnlLine3.Init();
                     InsuranceJnlLine3."Journal Template Name" := "Journal Template Name";
                     InsuranceJnlLine3."Journal Batch Name" := "Journal Batch Name";
                     InsuranceJnlLine3."Line No." := 10000;
-                    InsuranceJnlLine3.Insert;
+                    InsuranceJnlLine3.Insert();
                     InsuranceJnlLine3.SetUpNewLine(InsuranceJnlLine2);
-                    InsuranceJnlLine3.Modify;
+                    InsuranceJnlLine3.Modify();
                 end;
             end;
             if InsuranceJnlBatch."No. Series" <> '' then
@@ -172,12 +172,12 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
                 until NoSeries.Next = 0;
 
-            Commit;
+            Commit();
             Clear(InsuranceJnlCheckLine);
             Clear(InsuranceJnlPostLine);
         end;
         UpdateAnalysisView.UpdateAll(0, true);
-        Commit;
+        Commit();
     end;
 }
 

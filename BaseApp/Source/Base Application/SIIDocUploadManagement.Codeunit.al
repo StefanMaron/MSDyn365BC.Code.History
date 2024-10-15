@@ -8,7 +8,6 @@ codeunit 10752 "SII Doc. Upload Management"
     var
         SIISetup: Record "SII Setup";
         SIIXMLCreator: Codeunit "SII XML Creator";
-        X509Certificate2: DotNet X509Certificate2;
         RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration;
         NoCertificateErr: Label 'Could not get certificate.';
         NoConnectionErr: Label 'Could not establish connection.';
@@ -19,9 +18,12 @@ codeunit 10752 "SII Doc. Upload Management"
         NoDetailedVendLedgerEntryErr: Label 'Detailed Vendor Ledger Entry could not be found.';
         CommunicationErr: Label 'Communication error: %1.', Comment = '@1 is the error message.';
         ParseMatchDocumentErr: Label 'Parse error: couldn''t match the documents.';
+        CertificateUsedInSIISetupQst: Label 'A certificate is used in the SII Setup. Do you really want to delete the certificate?';
 
     local procedure InvokeBatchSoapRequest(SIISession: Record "SII Session"; var TempSIIHistoryBuffer: Record "SII History" temporary; RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var ResponseText: Text): Boolean
     var
+        CertificateEnabled: Boolean;
+        Cert: DotNet X509Certificate2;
         WebRequest: DotNet WebRequest;
         HttpWebRequest: DotNet HttpWebRequest;
         RequestStream: DotNet Stream;
@@ -33,7 +35,8 @@ codeunit 10752 "SII Doc. Upload Management"
         WebServiceUrl: Text;
         StatusDescription: Text[250];
     begin
-        if not GetCertificate then begin
+        CertificateEnabled := GetIsolatedCertificate(Cert);
+        if not CertificateEnabled then begin
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoCertificateErr);
             exit(false);
         end;
@@ -56,7 +59,7 @@ codeunit 10752 "SII Doc. Upload Management"
         SIISession.StoreRequestXml(RequestText);
 
         HttpWebRequest := WebRequest.Create(Uri.Uri(WebServiceUrl));
-        HttpWebRequest.ClientCertificates.Add(X509Certificate2);
+        HttpWebRequest.ClientCertificates.Add(Cert);
         HttpWebRequest.Method := 'POST';
         HttpWebRequest.ContentType := 'application/xml';
 
@@ -102,9 +105,26 @@ codeunit 10752 "SII Doc. Upload Management"
         HttpWebResponse := Task.Result;
     end;
 
-    local procedure GetCertificate(): Boolean
+    [NonDebuggable]
+    local procedure GetIsolatedCertificate(var Cert: DotNet X509Certificate2): Boolean
+    var
+        IsolatedCertificate: Record "Isolated Certificate";
+        CertificateManagement: Codeunit "Certificate Management";
+        DotNet_SecureString: Codeunit DotNet_SecureString;
+        DotNet_Array: Codeunit DotNet_Array;
+        DotNet_X509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
+        DotNet_X509Certificate2: Codeunit DotNet_X509Certificate2;
+        Convert: DotNet Convert;
     begin
-        exit(SIISetup.LoadCertificateFromBlob(X509Certificate2));
+        if not IsolatedCertificate.Get(SIISetup."Certificate Code") then
+            exit(false);
+        CertificateManagement.GetPasswordAsSecureString(DotNet_SecureString, IsolatedCertificate);
+        DotNet_Array.SetArray(
+            Convert.FromBase64String(CertificateManagement.GetCertAsBase64String(IsolatedCertificate)));
+        DotNet_X509KeyStorageFlags.Exportable();
+        DotNet_X509Certificate2.X509Certificate2(DotNet_Array, DotNet_SecureString, DotNet_X509KeyStorageFlags);
+        DotNet_X509Certificate2.GetX509Certificate2(Cert);
+        exit(true);
     end;
 
     local procedure ReadHttpResponseAsText(HttpWebResponse: DotNet HttpWebResponse) ResponseText: Text
@@ -147,16 +167,16 @@ codeunit 10752 "SII Doc. Upload Management"
                     TempSIIHistoryBuffer."Error Message" :=
                       CopyStr(DotNetExceptionHandler.GetMessage, 1, MaxStrLen(TempSIIHistoryBuffer."Error Message"));
                     SIIDocUploadState.Status := SIIDocUploadState.Status::Failed;
-                    SIIDocUploadState.Modify;
+                    SIIDocUploadState.Modify();
                 end else
                     if not IsSupported then begin
                         TempSIIHistoryBuffer.Status := TempSIIHistoryBuffer.Status::"Not Supported";
                         SIIDocUploadState.Status := SIIDocUploadState.Status::"Not Supported";
                         TempSIIHistoryBuffer."Error Message" := CopyStr(Message, 1, MaxStrLen(TempSIIHistoryBuffer."Error Message"));
-                        SIIDocUploadState.Modify;
+                        SIIDocUploadState.Modify();
                     end else
                         IsInvokeSoapRequest := true or IsInvokeSoapRequest;
-                TempSIIHistoryBuffer.Modify;
+                TempSIIHistoryBuffer.Modify();
             until TempSIIHistoryBuffer.Next = 0;
     end;
 
@@ -165,7 +185,7 @@ codeunit 10752 "SII Doc. Upload Management"
         if SkipPrePost then
             exit;
 
-        SIIXMLCreator.Reset;
+        SIIXMLCreator.Reset();
         CreateNewSessionRecord(SIISession);
         IsInvokeSoapRequest := false;
     end;
@@ -262,7 +282,7 @@ codeunit 10752 "SII Doc. Upload Management"
         end;
     end;
 
-    local procedure UploadDocumentsPerTransactionFilter(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; DocumentSource: Option; DocumentType: Option; IsCreditMemoRemovalFilter: Text)
+    local procedure UploadDocumentsPerTransactionFilter(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; IsCreditMemoRemovalFilter: Text)
     begin
         with SIIDocUploadState do begin
             SetRange("Document Source", DocumentSource);
@@ -302,7 +322,7 @@ codeunit 10752 "SII Doc. Upload Management"
             SIIDocUploadState."Document Source"::"Customer Ledger":
                 begin
                     if SIIDocUploadState."Transaction Type" = SIIDocUploadState."Transaction Type"::"Collection In Cash" then begin
-                        CustLedgerEntry.Init;
+                        CustLedgerEntry.Init();
                         CustLedgerEntry."Customer No." := SIIDocUploadState."CV No.";
                         CustLedgerEntry."Posting Date" := SIIDocUploadState."Posting Date";
                         CustLedgerEntry."Sales (LCY)" := SIIDocUploadState."Total Amount In Cash";
@@ -366,7 +386,7 @@ codeunit 10752 "SII Doc. Upload Management"
             if FindSet then
                 repeat
                     TempSIIHistoryBuffer := SIIHistory;
-                    TempSIIHistoryBuffer.Insert;
+                    TempSIIHistoryBuffer.Insert();
                 until Next = 0;
         end;
     end;
@@ -375,13 +395,13 @@ codeunit 10752 "SII Doc. Upload Management"
     var
         SIIHistory: Record "SII History";
     begin
-        TempSIIHistoryBuffer.Reset;
+        TempSIIHistoryBuffer.Reset();
         if TempSIIHistoryBuffer.FindSet then begin
             SetHistoryFilters(SIIHistory, IsManual);
             if SIIHistory.FindSet(true) then
                 repeat
                     SIIHistory := TempSIIHistoryBuffer;
-                    SIIHistory.Modify;
+                    SIIHistory.Modify();
                 until (SIIHistory.Next = 0) or (TempSIIHistoryBuffer.Next = 0);
         end;
     end;
@@ -404,7 +424,7 @@ codeunit 10752 "SII Doc. Upload Management"
     local procedure CreateNewSessionRecord(var SIISession: Record "SII Session")
     begin
         Clear(SIISession);
-        SIISession.Insert;
+        SIISession.Insert();
     end;
 
     local procedure ProcessBatchResponseCommunicationError(var TempSIIHistoryBuffer: Record "SII History" temporary; ErrorMessage: Text[250])
@@ -466,7 +486,8 @@ codeunit 10752 "SII Doc. Upload Management"
             if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Vendor Ledger" then
                 SIIDocUploadState.SetRange("External Document No.", DocumentNo)
             else
-                SIIDocUploadState.SetRange("Document No.", DocumentNo);
+                if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Customer Ledger" then
+                    SIIDocUploadState.SetRange("Document No.", DocumentNo);
             Found := SIIDocUploadState.FindFirst;
             if (not Found) and
                (SIIDocUploadState."Document Source" in [SIIDocUploadState."Document Source"::"Customer Ledger",
@@ -615,8 +636,41 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure GetAndCheckSetup(): Boolean
     begin
-        SIISetup.Get;
+        SIISetup.Get();
         exit(SIISetup.Enabled);
+    end;
+
+    [EventSubscriber(ObjectType::Table, 1262, 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure OnBeforeDeleteCertificate(var Rec: Record "Isolated Certificate"; RunTrigger: Boolean)
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if not SIISetup.Get() then
+            exit;
+
+        if SIISetup."Certificate Code" = '' then
+            exit;
+
+        if Rec.Code = SIISetup."Certificate Code" then begin
+            if not ConfirmManagement.GetResponseOrDefault(CertificateUsedInSIISetupQst, False) then
+                Error('');
+            SIISetup.Validate("Certificate Code", '');
+            SIISetup.Modify(true);
+        end;
+    end;
+
+    [NonDebuggable]
+    procedure AddCertificateToHttpClient(var HttpClient: HttpClient)
+    var
+        IsolatedCertificate: Record "Isolated Certificate";
+        CertificateManagement: Codeunit "Certificate Management";
+    begin
+        GetAndCheckSetup();
+        if not IsolatedCertificate.Get(SIISetup."Certificate Code") then
+            exit;
+        HttpClient.AddCertificate(
+            CertificateManagement.GetCertAsBase64String(IsolatedCertificate),
+            CertificateManagement.GetPassword(IsolatedCertificate));
     end;
 
     [IntegrationEvent(false, false)]

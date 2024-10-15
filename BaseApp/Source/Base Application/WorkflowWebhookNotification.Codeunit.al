@@ -73,7 +73,7 @@ codeunit 1545 "Workflow Webhook Notification"
             WorkflowWebhookNotification.SetErrorMessage('');
             WorkflowWebhookNotification.SetErrorDetails('');
             WorkflowWebhookNotification.Modify(true);
-            Commit;
+            Commit();
         end else begin
             Exception := GetLastErrorObject;
 
@@ -102,7 +102,7 @@ codeunit 1545 "Workflow Webhook Notification"
                 WorkflowWebhookNotification.SetErrorDetails(ErrorDetails);
                 WorkflowWebhookNotification.Status := WorkflowWebhookNotification.Status::Failed;
                 WorkflowWebhookNotification.Modify(true);
-                Commit;
+                Commit();
             end;
         end;
     end;
@@ -160,7 +160,7 @@ codeunit 1545 "Workflow Webhook Notification"
     begin
         if not FindNotificationRecord(WorkflowWebhookNotificationTable, WorkflowStepInstanceID) then begin
             // Create Notification Record
-            WorkflowWebhookNotificationTable.Init;
+            WorkflowWebhookNotificationTable.Init();
             WorkflowWebhookNotificationTable."Workflow Step Instance ID" := WorkflowStepInstanceID;
             WorkflowWebhookNotificationTable.Status := WorkflowWebhookNotificationTable.Status::Pending;
             WorkflowWebhookNotificationTable.Insert(true);

@@ -154,7 +154,7 @@ page 7000075 "Docs. in PO Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimension;
+                        ShowDimensions();
                     end;
                 }
                 action(Categorize)
@@ -168,7 +168,7 @@ page 7000075 "Docs. in PO Subform"
 
                     trigger OnAction()
                     begin
-                        Categorize;
+                        CategorizeDocs();
                     end;
                 }
                 action(Decategorize)
@@ -181,7 +181,7 @@ page 7000075 "Docs. in PO Subform"
 
                     trigger OnAction()
                     begin
-                        Decategorize;
+                        DecategorizeDocs();
                     end;
                 }
                 action(Navigate)
@@ -191,7 +191,7 @@ page 7000075 "Docs. in PO Subform"
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        NavigateDoc();
                     end;
                 }
             }
@@ -209,14 +209,14 @@ page 7000075 "Docs. in PO Subform"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Categorize()
+    procedure CategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(Doc);
         CarteraManagement.CategorizeDocs(Doc);
     end;
 
     [Scope('OnPrem')]
-    procedure Decategorize()
+    procedure DecategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(Doc);
         CarteraManagement.DecategorizeDocs(Doc);
@@ -246,15 +246,9 @@ page 7000075 "Docs. in PO Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure Navigate()
+    procedure NavigateDoc()
     begin
         CarteraManagement.NavigateDoc(Rec);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimension()
-    begin
-        ShowDimensions;
     end;
 }
 

@@ -233,10 +233,10 @@ report 216 "Archived Sales Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -260,7 +260,7 @@ report 216 "Archived Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line Archive"; "Sales Line Archive")
@@ -271,7 +271,7 @@ report 216 "Archived Sales Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -420,10 +420,10 @@ report 216 "Archived Sales Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -447,7 +447,7 @@ report 216 "Archived Sales Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Line Archive"."Dimension Set ID");
                             end;
@@ -472,7 +472,7 @@ report 216 "Archived Sales Order"
 
                         trigger OnPostDataItem()
                         begin
-                            TempSalesLineArchive.DeleteAll;
+                            TempSalesLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -484,7 +484,7 @@ report 216 "Archived Sales Order"
                             do
                                 MoreLines := TempSalesLineArchive.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             TempSalesLineArchive.SetRange("Line No.", 0, TempSalesLineArchive."Line No.");
                             SetRange(Number, 1, TempSalesLineArchive.Count);
                         end;
@@ -560,7 +560,7 @@ report 216 "Archived Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -608,7 +608,7 @@ report 216 "Archived Sales Order"
                                ("Sales Header Archive"."Currency Code" = '') or
                                (VATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -667,7 +667,7 @@ report 216 "Archived Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -758,26 +758,26 @@ report 216 "Archived Sales Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -914,7 +914,7 @@ report 216 "Archived Sales Order"
     begin
         TempSalesLineArchive.CopyTempLines("Sales Header Archive", TempSalesLine);
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
         TempSalesHeader.TransferFields("Sales Header Archive");
         TempSalesLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
         TempSalesLine.CalcVATAmountLines(0, TempSalesHeader, TempSalesLine, VATAmountLine);

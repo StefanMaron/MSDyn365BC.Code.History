@@ -31,7 +31,7 @@ report 7000087 "Batch Settl. Posted POs"
                     Delay := BankAcc."Delay for Notices";
 
                     if DueOnly and (PostingDate < "Due Date" + Delay) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TotalDocCount := TotalDocCount + 1;
                     DocCount := DocCount + 1;
@@ -76,7 +76,7 @@ report 7000087 "Batch Settl. Posted POs"
                                 GroupAmount := GroupAmount + "Remaining Amount";
                                 GroupAmountLCY := GroupAmountLCY + "Remaining Amt. (LCY)";
                                 VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                                VendLedgEntry.Modify;
+                                VendLedgEntry.Modify();
                             end;
                         "Document Type"::Bill:
                             begin
@@ -147,24 +147,24 @@ report 7000087 "Batch Settl. Posted POs"
                                               -NoRealVATBuffer.Amount);
                                         end;
                                         until NoRealVATBuffer.Next = 0;
-                                        NoRealVATBuffer.DeleteAll;
+                                        NoRealVATBuffer.DeleteAll();
                                     end;
                                 end;
 
                                 GroupAmount := GroupAmount + "Remaining Amount";
                                 GroupAmountLCY := GroupAmountLCY + "Remaining Amt. (LCY)";
                                 VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                                VendLedgEntry.Modify;
+                                VendLedgEntry.Modify();
                             end;
                     end;
                     if BGPOPostBuffer.Get('', '', VendLedgEntry."Entry No.") then begin
                         BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                        BGPOPostBuffer.Modify;
+                        BGPOPostBuffer.Modify();
                     end else begin
-                        BGPOPostBuffer.Init;
+                        BGPOPostBuffer.Init();
                         BGPOPostBuffer."Entry No." := VendLedgEntry."Entry No.";
                         BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                        BGPOPostBuffer.Insert;
+                        BGPOPostBuffer.Insert();
                     end;
                 end;
 
@@ -173,7 +173,7 @@ report 7000087 "Batch Settl. Posted POs"
                     VendLedgEntry2: Record "Vendor Ledger Entry";
                 begin
                     if (DocCount = 0) or (GroupAmount = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     with GenJnlLine do begin
                         VendLedgEntry2.Get(BGPOPostBuffer."Entry No.");
@@ -235,7 +235,7 @@ report 7000087 "Batch Settl. Posted POs"
                     end;
 
                     DocPost.PostSettlement(GenJnlLine);
-                    GenJnlLine.DeleteAll;
+                    GenJnlLine.DeleteAll();
 
                     DocPost.ClosePmtOrdIfEmpty(PostedPmtOrd, PostingDate);
 
@@ -247,13 +247,13 @@ report 7000087 "Batch Settl. Posted POs"
                         GLReg.FindLast;
                         GLReg."From VAT Entry No." := FromVATEntryNo;
                         GLReg."To VAT Entry No." := ToVATEntryNo;
-                        GLReg.Modify;
+                        GLReg.Modify();
                     end else begin
                         if ExistVATEntry then begin
                             GLReg.FindLast;
                             GLReg."From VAT Entry No." := FirstVATEntryNo;
                             GLReg."To VAT Entry No." := LastVATEntryNo;
-                            GLReg.Modify;
+                            GLReg.Modify();
                         end;
                     end;
                 end;
@@ -267,7 +267,7 @@ report 7000087 "Batch Settl. Posted POs"
                     ExistInvoice := false;
                     Counter := Count;
                     if (Counter > 1) and GLSetup."Unrealized VAT" then begin
-                        VATEntry.LockTable;
+                        VATEntry.LockTable();
                         if VATEntry.FindLast then
                             FromVATEntryNo := VATEntry."Entry No." + 1;
                     end;
@@ -290,7 +290,7 @@ report 7000087 "Batch Settl. Posted POs"
             begin
                 Window.Close;
 
-                Commit;
+                Commit();
 
                 Message(
                   Text1100003,
@@ -301,7 +301,7 @@ report 7000087 "Batch Settl. Posted POs"
             begin
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
 
                 GroupAmountLCY := 0;
@@ -363,7 +363,7 @@ report 7000087 "Batch Settl. Posted POs"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

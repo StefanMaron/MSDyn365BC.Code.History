@@ -1937,28 +1937,6 @@
                                 <VerticalAlign>Middle</VerticalAlign>
                               </Style>
                             </Textbox>
-                            <Textbox Name="textbox4">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=First(Fields!STRSUBSTNO_Text1100004_FORMAT_CurrReport_PAGENO__.Value)</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>0.423cm</Top>
-                              <Left>11.7cm</Left>
-                              <Height>0.423cm</Height>
-                              <Width>2.11349cm</Width>
-                              <Style>
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
                           </ReportItems>
                           <KeepTogether>true</KeepTogether>
                         </Rectangle>
@@ -2086,9 +2064,6 @@ End Function
         </Field>
         <Field Name="STRSUBSTNO_Text1100003_CopyText_">
           <DataField>STRSUBSTNO_Text1100003_CopyText_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1100004_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1100004_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>

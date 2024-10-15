@@ -19,11 +19,9 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
         field(6; "Document No."; Code[20])
         {
@@ -155,11 +153,9 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'On Hold';
         }
-        field(34; "Applies-to Doc. Type"; Option)
+        field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
         field(35; "Applies-to Doc. No."; Code[20])
         {
@@ -245,11 +241,9 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(51; "Bal. Account Type"; Option)
+        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(52; "Bal. Account No."; Code[20])
         {
@@ -747,6 +741,13 @@ table 25 "Vendor Ledger Entry"
         DocMisc: Codeunit "Document-Misc";
         CannotChangePmtMethodErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure ShowDoc(): Boolean
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -814,7 +815,7 @@ table 25 "Vendor Ledger Entry"
         VendLedgEntry: Record "Vendor Ledger Entry";
         DrillDownPageID: Integer;
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         DtldVendLedgEntry.CopyFilter("Vendor No.", VendLedgEntry."Vendor No.");
         DtldVendLedgEntry.CopyFilter("Currency Code", VendLedgEntry."Currency Code");
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 1", VendLedgEntry."Global Dimension 1 Code");
@@ -831,7 +832,7 @@ table 25 "Vendor Ledger Entry"
         VendLedgEntry: Record "Vendor Ledger Entry";
         DrillDownPageID: Integer;
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         DtldVendLedgEntry.CopyFilter("Vendor No.", VendLedgEntry."Vendor No.");
         DtldVendLedgEntry.CopyFilter("Currency Code", VendLedgEntry."Currency Code");
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 1", VendLedgEntry."Global Dimension 1 Code");

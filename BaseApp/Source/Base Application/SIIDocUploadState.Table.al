@@ -14,18 +14,14 @@ table 10752 "SII Doc. Upload State"
         {
             Caption = 'Entry No';
         }
-        field(3; "Document Source"; Option)
+        field(3; "Document Source"; Enum "SII Doc. Upload State Document Source")
         {
             Caption = 'Document Source';
             NotBlank = true;
-            OptionCaption = 'Customer Ledger,Vendor Ledger,Detailed Customer Ledger,Detailed Vendor Ledger';
-            OptionMembers = "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger";
         }
-        field(4; "Document Type"; Option)
+        field(4; "Document Type"; Enum "SII Doc. Upload State Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ',Payment,Invoice,Credit Memo';
-            OptionMembers = ,Payment,Invoice,"Credit Memo";
         }
         field(5; "Document No."; Code[35])
         {
@@ -275,7 +271,7 @@ table 10752 "SII Doc. Upload State"
               SIIDocUploadState.Id, SIIHistory."Upload Type"::"Collection In Cash", 4, false, SIIDocUploadState."Retry Accepted");
             exit(true);
         end;
-        SIIDocUploadState.Init;
+        SIIDocUploadState.Init();
         SIIDocUploadState."Document Source" := SIIDocUploadState."Document Source"::"Customer Ledger";
         SIIDocUploadState."Posting Date" := PostingDate;
         SetStatus(SIIDocUploadState);
@@ -286,7 +282,7 @@ table 10752 "SII Doc. Upload State"
         SIIDocUploadState.Validate("CV Name", Customer.Name);
         SIIDocUploadState.Validate("Country/Region Code", Customer."Country/Region Code");
         SIIDocUploadState.Validate("Total Amount In Cash", TotalAmount);
-        SIIDocUploadState.Insert;
+        SIIDocUploadState.Insert();
         SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type"::"Collection In Cash", 4, false, false);
         exit(true);
     end;
@@ -305,7 +301,7 @@ table 10752 "SII Doc. Upload State"
           PmtEntryNo, InvEntryNo, "Document Source"::"Detailed Customer Ledger", "Document Type"::Payment, DocumentNo, '', PostingDate);
     end;
 
-    local procedure CreateNewRequestInternal(EntryNo: Integer; InvEntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
+    local procedure CreateNewRequestInternal(EntryNo: Integer; InvEntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
     var
         SIIHistory: Record "SII History";
         SIIDocUploadState: Record "SII Doc. Upload State";
@@ -335,9 +331,9 @@ table 10752 "SII Doc. Upload State"
             exit;
         end;
 
-        TempSIIDocUploadState.Init;
+        TempSIIDocUploadState.Init();
         ValidateDocInfo(TempSIIDocUploadState, EntryNo, DocumentSource, DocumentType, DocumentNo);
-        SIIDocUploadState.Init;
+        SIIDocUploadState.Init();
         SIIDocUploadState := TempSIIDocUploadState;
         SIIDocUploadState."Document No." := DocumentNo;
         SIIDocUploadState."External Document No." := ExternalDocumentNo;
@@ -348,7 +344,7 @@ table 10752 "SII Doc. Upload State"
           SIIDocUploadState."Corrected Doc. No.", SIIDocUploadState."Corr. Posting Date", SIIDocUploadState."Posting Date");
         SIIDocUploadState."Version No." := SIIXMLCreator.GetSIIVersionNo;
         SetStatus(SIIDocUploadState);
-        SIIDocUploadState.Insert;
+        SIIDocUploadState.Insert();
 
         SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type"::Regular, 4, false, false);
     end;
@@ -365,7 +361,7 @@ table 10752 "SII Doc. Upload State"
             repeat
                 // We want latest first. Ideally we'd use something like 'by date desc', but since NAV does not allow us to do that,
                 // we rely on PK and that the date does not change in a weird way.
-                SIIHistory.Reset;
+                SIIHistory.Reset();
                 SIIHistory.Ascending(false);
                 SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                 SIIHistory.SetRange("Is Manual", false);
@@ -457,7 +453,7 @@ table 10752 "SII Doc. Upload State"
     end;
 
     [Scope('OnPrem')]
-    procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35])
+    procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -589,8 +585,8 @@ table 10752 "SII Doc. Upload State"
     begin
         CorrectedDocNo := '';
         CorrectionDate := 0D;
-        if (not ("Document Source" in ["Document Source"::"Customer Ledger", "Document Source"::"Vendor Ledger"])) or
-           ("Document Type" <> "Document Type"::"Credit Memo")
+        if ("Document Source" in ["Document Source"::"Detailed Customer Ledger", "Document Source"::"Detailed Vendor Ledger"]) or
+           ("Document Type" in ["Document Type"::Payment, "Document Type"::Invoice])
         then
             exit;
 

@@ -23,9 +23,6 @@ report 10713 "Purchases - AutoCredit Memo"
                     column(STRSUBSTNO_Text1100006_CopyText_; StrSubstNo(Text1100006, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text1100007_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1100007, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -325,7 +322,7 @@ report 10713 "Purchases - AutoCredit Memo"
                                 if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                                     TotalVATAmount := TotalVATAmount + Amount + (Amount * VATPostingSetup."VAT %") / 100;
                                 TotalAmount := TotalAmount + Amount;
-                                VATAmountLine.Init;
+                                VATAmountLine.Init();
                                 VATAmountLine."VAT Identifier" := "VAT Identifier";
                                 VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                                 VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -342,7 +339,7 @@ report 10713 "Purchases - AutoCredit Memo"
                                 VATAmountLine."VAT Amount" := (VATAmountLine."Amount Including VAT" * VATAmountLine."VAT %") / 100;
                                 VATAmountLine."EC Amount" := (VATAmountLine."Amount Including VAT" * VATAmountLine."EC %") / 100;
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             TotalInvDiscAmount += "Inv. Discount Amount";
                             TotalPmtDiscRcdAmount += "Pmt. Discount Amount";
@@ -352,12 +349,12 @@ report 10713 "Purchases - AutoCredit Memo"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -471,7 +468,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count < 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -491,7 +488,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Cr. Memo Hdr."."Buy-from Vendor No." = "Purch. Cr. Memo Hdr."."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total2; "Integer")
@@ -531,7 +528,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -548,7 +545,6 @@ report 10713 "Purchases - AutoCredit Memo"
                         TotalVATAmount := 0;
                         TotalAmountInclVAT := 0;
                     end;
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPreDataItem()
@@ -564,7 +560,7 @@ report 10713 "Purchases - AutoCredit Memo"
             trigger OnAfterGetRecord()
             begin
                 if "Purchaser Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     PurchaserText := '';
                 end else begin
                     SalesPurchPerson.Get("Purchaser Code");
@@ -608,7 +604,7 @@ report 10713 "Purchases - AutoCredit Memo"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 if CompanyInfo."VAT Registration No." = '' then
                     Error(Text1100000);
@@ -648,7 +644,7 @@ report 10713 "Purchases - AutoCredit Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

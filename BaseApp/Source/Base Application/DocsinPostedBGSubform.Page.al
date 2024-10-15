@@ -174,7 +174,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                     trigger OnAction()
                     begin
-                        Categorize;
+                        CategorizeDocs();
                     end;
                 }
                 action(Decategorize)
@@ -186,7 +186,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                     trigger OnAction()
                     begin
-                        Decategorize;
+                        DecategorizeDocs();
                     end;
                 }
                 group(Settle)
@@ -202,7 +202,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                         trigger OnAction()
                         begin
-                            Settle;
+                            SettleDocs();
                         end;
                     }
                     action("Partial Settlement")
@@ -228,7 +228,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                     trigger OnAction()
                     begin
-                        Reject;
+                        RejectDocs();
                     end;
                 }
                 action(Redraw)
@@ -241,7 +241,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDocs;
                     end;
                 }
                 action(Print)
@@ -264,7 +264,7 @@ page 7000005 "Docs. in Posted BG Subform"
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        NavigateDoc;
                     end;
                 }
             }
@@ -293,21 +293,21 @@ page 7000005 "Docs. in Posted BG Subform"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Categorize()
+    procedure CategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         CarteraManagement.CategorizePostedDocs(PostedDoc);
     end;
 
     [Scope('OnPrem')]
-    procedure Decategorize()
+    procedure DecategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         CarteraManagement.DecategorizePostedDocs(PostedDoc);
     end;
 
     [Scope('OnPrem')]
-    procedure Settle()
+    procedure SettleDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
@@ -324,7 +324,7 @@ page 7000005 "Docs. in Posted BG Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure Reject()
+    procedure RejectDocs()
     var
         PostedBillGr: Record "Posted Bill Group";
     begin
@@ -343,7 +343,7 @@ page 7000005 "Docs. in Posted BG Subform"
                 Error(Text1100003,
                   PostedBillGr.FieldCaption(Factoring));
         end;
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
@@ -355,9 +355,9 @@ page 7000005 "Docs. in Posted BG Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure Redraw()
+    procedure RedrawDocs()
     begin
-        PostedDoc.Reset;
+        PostedDoc.Reset();
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
             exit;
@@ -373,10 +373,7 @@ page 7000005 "Docs. in Posted BG Subform"
             Error(Text1100006);
         PostedDoc.SetRange("Document Type");
 
-
-
-
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
@@ -395,7 +392,7 @@ page 7000005 "Docs. in Posted BG Subform"
             exit;
 
         if PostedDoc."Document Type" = PostedDoc."Document Type"::Bill then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             repeat
                 CustLedgEntry.Get(PostedDoc."Entry No.");
                 CustLedgEntry.Mark(true);
@@ -404,7 +401,7 @@ page 7000005 "Docs. in Posted BG Subform"
             CurrPage.Update(false);
             REPORT.RunModal(REPORT::"Receivable Bill", true, false, CustLedgEntry);
         end else begin
-            SalesInvHeader.Reset;
+            SalesInvHeader.Reset();
             repeat
                 SalesInvHeader.Get(PostedDoc."Document No.");
                 SalesInvHeader.Mark(true);
@@ -416,7 +413,7 @@ page 7000005 "Docs. in Posted BG Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure Navigate()
+    procedure NavigateDoc()
     begin
         CarteraManagement.NavigatePostedDoc(Rec);
     end;

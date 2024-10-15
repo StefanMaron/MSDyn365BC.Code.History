@@ -21,6 +21,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
         isInitialized: Boolean;
 
@@ -67,7 +68,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Sales Price Setup with Line Discount and suggest new Sales Price.
         Initialize;
-        SalesPriceWorksheet.DeleteAll;
+        SalesPriceWorksheet.DeleteAll();
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         CreateSalesPrice(
@@ -99,7 +100,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Sales Price Setup. Suggest Item Price and implement new price.
         Initialize;
-        SalesPriceWorksheet.DeleteAll;
+        SalesPriceWorksheet.DeleteAll();
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         CreateSalesPrice(
@@ -136,7 +137,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Sales Price Setup.
         Initialize;
-        SalesPriceWorksheet.DeleteAll;
+        SalesPriceWorksheet.DeleteAll();
 
         // Create different Sales Prices for Customer, Customer Price Group and All Customer. Unit Prices and Quantities important for test.
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
@@ -186,9 +187,9 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Sales Price Setup for Campaign.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(false);
-        SalesPriceWorksheet.DeleteAll;
+        SalesPriceWorksheet.DeleteAll();
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         LibraryInventory.CreateItem(Item);
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(5, 2) + 10);  // Random values not important.
@@ -254,8 +255,8 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Item, Vendor and Item Vendor with Lead Time Calculation value.
         Initialize;
-        ManufacturingSetup.Get;
-        InventorySetup.Get;
+        ManufacturingSetup.Get();
+        InventorySetup.Get();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
@@ -379,23 +380,27 @@ codeunit 137201 "SCM Sales Price Wksht"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Sales Price Wksht");
         LibrarySetupStorage.Restore;
+        PriceListLine.DeleteAll();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
 
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
     end;
 
@@ -403,7 +408,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -416,7 +421,7 @@ codeunit 137201 "SCM Sales Price Wksht"
 
     local procedure CreateSalesPriceSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup"; var Item: Record Item; var Customer: Record Customer)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(false);
         LibraryInventory.CreateItem(Item);
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(5, 2) + 100);  // Random values not important.
@@ -426,16 +431,19 @@ codeunit 137201 "SCM Sales Price Wksht"
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Option; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryCosting.CreateSalesPrice(
           SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", Quantity);
         SalesPrice.Validate("Unit Price", UnitPrice);
         SalesPrice.Modify(true);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
 
     local procedure CreateSalesLineDiscount(Item: Record Item; CustomerNo: Code[20]; MinimumQty: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
+        PriceListLine: Record "Price List Line";
     begin
         // Random Value for Line Discount percentage is not important.
         LibraryERM.CreateLineDiscForCustomer(
@@ -443,25 +451,31 @@ codeunit 137201 "SCM Sales Price Wksht"
           SalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '', '', Item."Base Unit of Measure", MinimumQty);
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
     end;
 
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; Item: Record Item; VendorNo: Code[20]; Quantity: Decimal)
+    var
+        PriceListLine: Record "Price List Line";
     begin
         LibraryCosting.CreatePurchasePrice(
           PurchasePrice, VendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", Quantity);
         PurchasePrice.Validate("Direct Unit Cost", Item."Unit Cost" - LibraryRandom.RandInt(5));  // Value important for test.
         PurchasePrice.Modify(true);
+        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
     end;
 
     local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; MinimumQty: Decimal)
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
     begin
         // Random Value for Line Discount percentage is not important.
         LibraryERM.CreateLineDiscForVendor(
           PurchaseLineDiscount, Item."No.", VendorNo, WorkDate, '', '', Item."Base Unit of Measure", MinimumQty);
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
     end;
 
     local procedure UpdateItem(var Item: Record Item; FieldNo: Integer; Value: Variant)

@@ -289,6 +289,9 @@ page 9002 "Acc. Payables Coordinator RC"
             separator(Action1100005)
             {
                 IsHeader = true;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Warning AL0551: The action area Embedding can only contain actions';
+                ObsoleteTag = '16.0';
             }
         }
         area(sections)

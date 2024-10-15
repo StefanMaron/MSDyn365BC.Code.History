@@ -31,9 +31,6 @@ report 7000001 "Posted Bill Group Listing"
                     column(STRSUBSTNO_Text1100003_CopyText_; StrSubstNo(Text1100003, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text1100004_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1100004, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -301,8 +298,6 @@ report 7000001 "Posted Bill Group Listing"
                 begin
                     if Number > 1 then
                         CopyText := Text1100002;
-                    CurrReport.PageNo := 1;
-
                     OutputNo := OutputNo + 1;
                 end;
 
@@ -336,7 +331,7 @@ report 7000001 "Posted Bill Group Listing"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddress.Company(CompanyAddr, CompanyInfo);
             end;
         }

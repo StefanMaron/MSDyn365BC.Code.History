@@ -1744,9 +1744,6 @@ End Function
         <Field Name="HeaderText">
           <DataField>HeaderText</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO___Pagina">
-          <DataField>CurrReport_PAGENO___Pagina</DataField>
-        </Field>
         <Field Name="Integer_Number">
           <DataField>Integer_Number</DataField>
         </Field>

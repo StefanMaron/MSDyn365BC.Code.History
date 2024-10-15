@@ -24,7 +24,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
-        IncorrectEntriesErr: Label 'Check that the all the entries with the same %1 and a %2 and \', Comment = '%1 = Document No.;%2 = VAT Bus. Posting Group';
 
     [Test]
     [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
@@ -634,10 +633,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTStmtLine(OutStream, WorkDate, TransactionText, TransactionAmount, '');
         WriteCAMTFooter(OutStream);
-        TextToAccountMapping.Init;
+        TextToAccountMapping.Init();
         TextToAccountMapping."Mapping Text" := TransactionText;
         TextToAccountMapping."Credit Acc. No." := GLAccount."No.";
-        TextToAccountMapping.Insert;
+        TextToAccountMapping.Insert();
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
@@ -812,10 +811,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Manual Check");
         GenJnlLine.Modify(true);
-        Commit;
+        Commit();
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
-        Commit;
+        Commit();
 
         BankAccRecon.OpenNew;
         BankAccRecon.BankAccountNo.SetValue(BankAcc."No.");
@@ -1263,7 +1262,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetBanking;
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1471,7 +1470,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        GenJnlLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        VATEntry: Record "VAT Entry";
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 212403] VAT Entry is created when post Payment Reconciliation with enabled "Copy VAT Setup to Jnl. Line" in Payment Reconciliation
@@ -1485,11 +1485,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CreateBankAccReconciliationLineWithVATGLAcc(BankAccReconciliationLine, BankAccReconciliation);
 
         // [WHEN] Post Payment Reconciliation
-        asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
-        // [THEN] Error message thrown
-        Assert.ExpectedError(
-          StrSubstNo(IncorrectEntriesErr, GenJnlLine.FieldCaption("Document No."), GenJnlLine.FieldCaption("VAT Bus. Posting Group")));
+        // [THEN] VAT Entry is created for Payment Reconciliation
+        FindGLEntry(GLEntry, BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Account No.");
+        FilterPmtVATEntry(VATEntry, BankAccReconciliationLine."Statement No.", GLEntry."Transaction No.");
+        Assert.RecordCount(VATEntry, 1);
     end;
 
     [Test]
@@ -1541,7 +1542,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Copy VAT Setup to Jnl. Lines", true);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate("Account No.", GLAccount."No.");
@@ -1568,7 +1569,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate("Account No.", GLAccount."No.");
 
@@ -1590,9 +1591,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         Initialize();
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No.")));
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         GenJournalLine.TestField("Copy VAT Setup to Jnl. Lines", true);
     end;
@@ -1615,7 +1616,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalBatch.Modify(true);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.Insert(true);
@@ -1659,7 +1660,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalBatch.Modify(true);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
@@ -1688,7 +1689,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalLine.Validate("Copy VAT Setup to Jnl. Lines", false);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
-        GenJournalLine.Insert; // insert without trigger to avoid error on GenJournalBatch.GET
+        GenJournalLine.Insert(); // insert without trigger to avoid error on GenJournalBatch.GET
 
         GenJournalLine.TestField("Gen. Bus. Posting Group", '');
         GenJournalLine.TestField("Gen. Prod. Posting Group", '');
@@ -1723,32 +1724,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
         BankAccReconciliationLine.FindFirst;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CheckTableRelationStatementNoInPostedPmtPeconLineToPostedPmtReconHdr()
-    var
-        PostedPaymentReconLine: Record "Posted Payment Recon. Line";
-        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
-    begin
-        // [SCENARIO 346379] Field Statement No. in the table Posted Payment Recon. Line has a relation to table Posted Payment Recon. Hdr.
-        Initialize();
-
-        // [GIVEN] Created Posted Payment Recon. Header
-        PostedPaymentReconHdr.Init();
-        PostedPaymentReconHdr."Bank Account No." := LibraryERM.CreateBankAccountno();
-        PostedPaymentReconHdr."Statement No." := LibraryUtility.GenerateGUID();
-        PostedPaymentReconHdr.Insert();
-        Commit();
-
-        // [WHEN] Validate field "Statement No." in "Posted Payment Recon. Line"
-        PostedPaymentReconLine.Init();
-        PostedPaymentReconLine.Validate("Bank Account No.", PostedPaymentReconHdr."Bank Account No.");
-        PostedPaymentReconLine.Validate("Statement No.", PostedPaymentReconHdr."Statement No.");
-
-        // [THEN] The field validated correctly
-        PostedPaymentReconLine.TestField("Statement No.", PostedPaymentReconHdr."Statement No.");
     end;
 
     local procedure Initialize()
@@ -1837,10 +1812,10 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJnlLine.Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
         GenJnlLine.Validate("External Document No.", VendLedgEntry."External Document No.");
         GenJnlLine.Modify(true);
-        Commit;
+        Commit();
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateBankAccReconAndImportStmt(var BankAccRecon: Record "Bank Acc. Reconciliation"; var TempBlobUTF8: Codeunit "Temp Blob"; CurrencyCode: Code[10])
@@ -1975,7 +1950,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     local procedure ApplyAutomatically(var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
         PmtReconJnl.ApplyAutomatically.Invoke;
-        Commit;
+        Commit();
         PmtReconJnl.First;
     end;
 
@@ -2419,7 +2394,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GenJournalLine.Validate("Applies-to Doc. Type", VendLedgerEntry."Document Type");
         GenJournalLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
         GenJournalLine.Validate("External Document No.", VendLedgerEntry."External Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

@@ -42,9 +42,6 @@ report 116 Statement
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
                 PrintOnlyIfDetail = true;
-                column(CustomerCopyText; StrSubstNo(Text000Lbl, Format(CurrReport.PageNo)))
-                {
-                }
                 column(CustAddr1; CustAddr[1])
                 {
                 }
@@ -262,7 +259,7 @@ report 116 Statement
                                 CustLedgerEntry: Record "Cust. Ledger Entry";
                             begin
                                 if SkipReversedUnapplied("Detailed Cust. Ledg. Entry") or (Amount = 0) then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 RemainingAmount := 0;
                                 PrintLine := true;
                                 case "Entry Type" of
@@ -412,22 +409,22 @@ report 116 Statement
                         begin
                             if IncludeAgingBand then begin
                                 if ("Posting Date" > EndDate) and ("Due Date" >= EndDate) then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 if DateChoice = DateChoice::"Due Date" then
                                     if "Due Date" >= EndDate then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                             end;
                             CustLedgEntry := CustLedgEntry2;
                             CustLedgEntry.SetRange("Date Filter", 0D, EndDate);
                             CustLedgEntry.CalcFields("Remaining Amount");
                             "Remaining Amount" := CustLedgEntry."Remaining Amount";
                             if CustLedgEntry."Remaining Amount" = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             if IncludeAgingBand and ("Posting Date" <= EndDate) then
                                 UpdateBuffer(TempCurrency2.Code, GetDate("Posting Date", "Due Date"), "Remaining Amount");
                             if "Due Date" >= EndDate then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             ClearCompanyPicture;
                         end;
@@ -438,7 +435,7 @@ report 116 Statement
                                 SetRange("Due Date", 0D, EndDate - 1);
                             SetRange("Currency Code", TempCurrency2.Code);
                             if (not PrintEntriesDue) and (not IncludeAgingBand) then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -454,7 +451,7 @@ report 116 Statement
                                 IsFirstLoop := true
                             else
                                 if TempCurrency2.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
                             CustLedgerEntry.SetRange("Posting Date", 0D, EndDate);
                             CustLedgerEntry.SetRange("Currency Code", TempCurrency2.Code);
@@ -540,10 +537,10 @@ report 116 Statement
                         if Number = 1 then begin
                             ClearCompanyPicture;
                             if not TempAgingBandBuf.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempAgingBandBuf.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         AgingBandCurrencyCode := TempAgingBandBuf."Currency Code";
                         if AgingBandCurrencyCode = '' then
                             AgingBandCurrencyCode := GLSetup."LCY Code";
@@ -552,7 +549,7 @@ report 116 Statement
                     trigger OnPreDataItem()
                     begin
                         if not IncludeAgingBand then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
             }
@@ -561,7 +558,7 @@ report 116 Statement
             var
                 CustLedgerEntry: Record "Cust. Ledger Entry";
             begin
-                TempAgingBandBuf.DeleteAll;
+                TempAgingBandBuf.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal then
@@ -574,7 +571,7 @@ report 116 Statement
                     PrintLine := not CustLedgerEntry.IsEmpty;
                 end;
                 if not PrintLine then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FormatAddr.Customer(CustAddr, Customer);
                 PrintedCustomersList.Add("No.");
@@ -590,15 +587,15 @@ report 116 Statement
                 AgingBandEndingDate := EndDate;
                 CalcAgingBandDates;
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-                CustLedgerEntry.Reset;
+                CustLedgerEntry.Reset();
                 CustLedgerEntry.SetCurrentKey("Currency Code");
-                TempCurrency2.Init;
+                TempCurrency2.Init();
                 while CustLedgerEntry.FindFirst do begin
                     TempCurrency2.Code := CustLedgerEntry."Currency Code";
-                    TempCurrency2.Insert;
+                    TempCurrency2.Insert();
                     CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
                 end;
 
@@ -782,27 +779,27 @@ report 116 Statement
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LogInteractionEnable := true;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -816,7 +813,7 @@ report 116 Statement
             foreach CusNo in PrintedCustomersList do
                 if Customer.Get(CusNo) then begin
                     Customer."Last Statement No." := Customer."Last Statement No." + 1;
-                    Customer.Modify;
+                    Customer.Modify();
                     if LogInteraction then
                         SegManagement.LogDocument(
                           7, Format(Customer."Last Statement No."), 0, 0, DATABASE::Customer, Customer."No.", Customer."Salesperson Code", '',
@@ -954,10 +951,10 @@ report 116 Statement
         I: Integer;
         GoOn: Boolean;
     begin
-        TempAgingBandBuf.Init;
+        TempAgingBandBuf.Init();
         TempAgingBandBuf."Currency Code" := CurrencyCode;
         if not TempAgingBandBuf.Find then
-            TempAgingBandBuf.Insert;
+            TempAgingBandBuf.Insert();
         I := 1;
         GoOn := true;
         while (I <= 5) and GoOn do begin
@@ -988,7 +985,7 @@ report 116 Statement
                 end;
             I := I + 1;
         end;
-        TempAgingBandBuf.Modify;
+        TempAgingBandBuf.Modify();
     end;
 
     procedure SkipReversedUnapplied(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"): Boolean

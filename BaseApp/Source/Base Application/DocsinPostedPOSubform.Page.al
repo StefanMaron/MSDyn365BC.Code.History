@@ -161,7 +161,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimension;
+                        ShowDimensions();
                     end;
                 }
                 action(Categorize)
@@ -174,7 +174,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                     trigger OnAction()
                     begin
-                        Categorize;
+                        CategorizeDocs;
                     end;
                 }
                 action(Decategorize)
@@ -186,7 +186,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                     trigger OnAction()
                     begin
-                        Decategorize;
+                        DecategorizeDocs;
                     end;
                 }
                 group(Settle)
@@ -203,7 +203,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                         trigger OnAction()
                         begin
-                            Settle;
+                            SettleDocs();
                         end;
                     }
                     action(PartialSettlement)
@@ -230,7 +230,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDocs;
                     end;
                 }
                 action(Navigate)
@@ -240,7 +240,7 @@ page 7000076 "Docs. in Posted PO Subform"
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        NavigateDoc;
                     end;
                 }
             }
@@ -265,19 +265,19 @@ page 7000076 "Docs. in Posted PO Subform"
         VendLedgEntry: Record "Vendor Ledger Entry";
         CarteraManagement: Codeunit CarteraManagement;
 
-    local procedure Categorize()
+    local procedure CategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         CarteraManagement.CategorizePostedDocs(PostedDoc);
     end;
 
-    local procedure Decategorize()
+    local procedure DecategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         CarteraManagement.DecategorizePostedDocs(PostedDoc);
     end;
 
-    local procedure Settle()
+    local procedure SettleDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
@@ -293,7 +293,7 @@ page 7000076 "Docs. in Posted PO Subform"
         CurrPage.Update(false);
     end;
 
-    local procedure Redraw()
+    local procedure RedrawDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
@@ -310,7 +310,7 @@ page 7000076 "Docs. in Posted PO Subform"
             Error(Text1100006);
         PostedDoc.SetRange("Document Type");
 
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         repeat
             VendLedgEntry.Get(PostedDoc."Entry No.");
             VendLedgEntry.Mark(true);
@@ -321,7 +321,7 @@ page 7000076 "Docs. in Posted PO Subform"
         CurrPage.Update(false);
     end;
 
-    local procedure Navigate()
+    local procedure NavigateDoc()
     begin
         CarteraManagement.NavigatePostedDoc(Rec);
     end;
@@ -356,11 +356,6 @@ page 7000076 "Docs. in Posted PO Subform"
         PartialSettlePayable.SetTableView(PostedDoc);
         PartialSettlePayable.RunModal;
         CurrPage.Update(false);
-    end;
-
-    local procedure ShowDimension()
-    begin
-        ShowDimensions;
     end;
 }
 

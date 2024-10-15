@@ -34,7 +34,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 end;
 
                 if DueOnly and (PostingDate < "Due Date" + Delay) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 DocCount := DocCount + 1;
                 Window.Update(1, DocCount);
@@ -82,7 +82,7 @@ report 7000082 "Settle Docs. in Posted PO"
                             else
                                 CalcBankAccount("No.", "Remaining Amount", VendLedgEntry."Entry No.");
                             VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                            VendLedgEntry.Modify;
+                            VendLedgEntry.Modify();
                             OnAfterCreateInvoiceGenJnlLine(
                               GenJnlLine, VendLedgEntry, PostedDoc, PostedPmtOrd, FromJnl, ExistsNoRealVAT, ExistVATEntry,
                               IsRedrawn, FirstVATEntryNo, LastVATEntryNo, NoRealVATBuffer, BankAccPostBuffer);
@@ -161,7 +161,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                           "Dimension Set ID");
                                     end;
                                     until NoRealVATBuffer.Next = 0;
-                                    NoRealVATBuffer.DeleteAll;
+                                    NoRealVATBuffer.DeleteAll();
                                 end;
 
                                 "Currency Code" := TempCurrCode;
@@ -169,7 +169,7 @@ report 7000082 "Settle Docs. in Posted PO"
                             GroupAmount := GroupAmount + "Remaining Amount";
                             CalcBankAccount("No.", "Remaining Amount", VendLedgEntry."Entry No.");
                             VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                            VendLedgEntry.Modify;
+                            VendLedgEntry.Modify();
                             OnAfterCreateBillGenJnlLine(
                               GenJnlLine, VendLedgEntry, PostedDoc, PostedPmtOrd, FromJnl, ExistsNoRealVAT, ExistVATEntry,
                               IsRedrawn, FirstVATEntryNo, LastVATEntryNo, NoRealVATBuffer, BankAccPostBuffer);
@@ -253,7 +253,7 @@ report 7000082 "Settle Docs. in Posted PO"
                         end;
                     end;
                 end;
-                PostedPmtOrd.Modify;
+                PostedPmtOrd.Modify();
                 DocPost.PostSettlementForPostedPmtOrder(GenJnlLine, PostingDate);
                 OnAfterPostSettlementForPostedPmtOrder(PostedDoc, PostedPmtOrd);
 
@@ -265,13 +265,13 @@ report 7000082 "Settle Docs. in Posted PO"
                     GLReg.FindLast;
                     GLReg."From VAT Entry No." := FromVATEntryNo;
                     GLReg."To VAT Entry No." := ToVATEntryNo;
-                    GLReg.Modify;
+                    GLReg.Modify();
                 end else begin
                     if ExistVATEntry then begin
                         GLReg.FindLast;
                         GLReg."From VAT Entry No." := FirstVATEntryNo;
                         GLReg."To VAT Entry No." := LastVATEntryNo;
-                        GLReg.Modify;
+                        GLReg.Modify();
                     end;
                 end;
 
@@ -280,7 +280,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 if IsHandled then
                     exit;
 
-                Commit;
+                Commit();
 
                 if not HidePrintDialog then
                     Message(Text1100008, DocCount, GroupAmount);
@@ -291,7 +291,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 OnBeforePostedDocOnPreDataItem(PostedDoc, PostingDate);
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
                 DocCount := 0;
                 SumLCYAmt := 0;
@@ -302,7 +302,7 @@ report 7000082 "Settle Docs. in Posted PO"
                   Text1100000);
                 Counter := Count;
                 if (Counter > 1) and GLSetup."Unrealized VAT" then begin
-                    VATEntry.LockTable;
+                    VATEntry.LockTable();
                     if VATEntry.FindLast then
                         FromVATEntryNo := VATEntry."Entry No." + 1;
                 end;
@@ -354,7 +354,7 @@ report 7000082 "Settle Docs. in Posted PO"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -445,16 +445,16 @@ report 7000082 "Settle Docs. in Posted PO"
     begin
         if BankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
             BankAccPostBuffer.Amount := BankAccPostBuffer.Amount + Amount2;
-            BankAccPostBuffer.Modify;
+            BankAccPostBuffer.Modify();
         end else begin
-            BankAccPostBuffer.Init;
+            BankAccPostBuffer.Init();
             BankAccPostBuffer.Account := BankAcc2;
             BankAccPostBuffer.Amount := Amount2;
             BankAccPostBuffer."Entry No." := EntryNo;
             BankAccPostBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
             BankAccPostBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
             BankAccPostBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
-            BankAccPostBuffer.Insert;
+            BankAccPostBuffer.Insert();
         end;
     end;
 

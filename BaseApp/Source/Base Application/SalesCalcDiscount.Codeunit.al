@@ -40,7 +40,7 @@ codeunit 60 "Sales-Calc. Discount"
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         IsHandled: Boolean;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if UpdateHeader then
             SalesHeader.Find; // To ensure we have the latest - otherwise update fails.
 
@@ -50,11 +50,11 @@ codeunit 60 "Sales-Calc. Discount"
             exit;
 
         with SalesLine do begin
-            LockTable;
+            LockTable();
             SalesHeader.TestField("Customer Posting Group");
             CustPostingGr.Get(SalesHeader."Customer Posting Group");
 
-            SalesLine2.Reset;
+            SalesLine2.Reset();
             SalesLine2.SetRange("Document Type", "Document Type");
             SalesLine2.SetRange("Document No.", "Document No.");
             SalesLine2.SetRange("System-Created Entry", true);
@@ -63,12 +63,12 @@ codeunit 60 "Sales-Calc. Discount"
             if SalesLine2.FindSet(true, false) then
                 repeat
                     SalesLine2."Unit Price" := 0;
-                    SalesLine2.Modify;
+                    SalesLine2.Modify();
                     TempServiceChargeLine := SalesLine2;
-                    TempServiceChargeLine.Insert;
+                    TempServiceChargeLine.Insert();
                 until SalesLine2.Next = 0;
 
-            SalesLine2.Reset;
+            SalesLine2.Reset();
             SalesLine2.SetRange("Document Type", "Document Type");
             SalesLine2.SetRange("Document No.", "Document No.");
             SalesLine2.SetFilter(Type, '<>0');
@@ -82,7 +82,7 @@ codeunit 60 "Sales-Calc. Discount"
                 SalesHeader."Prices Including VAT", SalesHeader."Currency Code");
 
             if UpdateHeader then
-                SalesHeader.Modify;
+                SalesHeader.Modify();
 
             if SalesHeader."Posting Date" = 0D then
                 CurrencyDate := WorkDate
@@ -102,13 +102,13 @@ codeunit 60 "Sales-Calc. Discount"
                     TempServiceChargeLine.FindLast;
                     SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
-                    SalesLine2.Modify;
+                    SalesLine2.Modify();
                 end else begin
-                    SalesLine2.Reset;
+                    SalesLine2.Reset();
                     SalesLine2.SetRange("Document Type", "Document Type");
                     SalesLine2.SetRange("Document No.", "Document No.");
                     SalesLine2.FindLast;
-                    SalesLine2.Init;
+                    SalesLine2.Init();
                     if not UpdateHeader then
                         SalesLine2.SetSalesHeader(SalesHeader);
                     SalesLine2."Line No." := SalesLine2."Line No." + 10000;
@@ -127,7 +127,7 @@ codeunit 60 "Sales-Calc. Discount"
                     else
                         SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
-                    SalesLine2.Insert;
+                    SalesLine2.Insert();
                 end;
                 SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             end else
@@ -139,7 +139,7 @@ codeunit 60 "Sales-Calc. Discount"
                         end;
                     until TempServiceChargeLine.Next = 0;
 
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines"
             then
                 SalesLine2.SetRange("Allow Invoice Disc.", true);
@@ -217,7 +217,7 @@ codeunit 60 "Sales-Calc. Discount"
                         then
                             SalesLine2.Validate("Inv. Discount Amount");
                         SalesLine2."Recalculate Invoice Disc." := false;
-                        SalesLine2.Modify;
+                        SalesLine2.Modify();
                     end;
                 until SalesLine2.Next = 0;
             end;
@@ -229,7 +229,7 @@ codeunit 60 "Sales-Calc. Discount"
                     CustInvDisc.GetRec(
                       SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase, CustInvDiscFound);
 
-                SalesSetup.Get;
+                SalesSetup.Get();
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
                   SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
@@ -237,7 +237,7 @@ codeunit 60 "Sales-Calc. Discount"
                 SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
                 SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
                 if UpdateHeader then
-                    SalesHeader.Modify;
+                    SalesHeader.Modify();
 
                 TempVATAmountLine.SetInvoiceDiscountPercent(
                   CustInvDisc."Discount %", SalesHeader."Currency Code",
@@ -251,7 +251,7 @@ codeunit 60 "Sales-Calc. Discount"
                 SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
                 SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
                 if UpdateHeader then
-                    SalesHeader.Modify;
+                    SalesHeader.Modify();
 
                 TempVATAmountLine.SetInvoiceDiscountPercent(
                   CustInvDisc."Discount %", SalesHeader."Currency Code",
@@ -321,7 +321,7 @@ codeunit 60 "Sales-Calc. Discount"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Calc. Inv. Discount" then
             exit;
         with TempSalesHeader do begin

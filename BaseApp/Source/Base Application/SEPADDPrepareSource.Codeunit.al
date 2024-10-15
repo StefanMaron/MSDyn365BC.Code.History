@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
@@ -30,7 +30,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         CarteraDoc: Record "Cartera Doc.";
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
-        ToDirectDebitCollectionEntry.Reset;
+        ToDirectDebitCollectionEntry.Reset();
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
         BillGroup.Get(DirectDebitCollection.Identifier);
         CarteraDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.");
@@ -39,13 +39,13 @@ codeunit 1232 "SEPA DD-Prepare Source"
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
         if CarteraDoc.FindSet then
             repeat
-                ToDirectDebitCollectionEntry.Init;
+                ToDirectDebitCollectionEntry.Init();
                 ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
                 ToDirectDebitCollectionEntry."Entry No." := CarteraDoc."Entry No.";
                 ToDirectDebitCollectionEntry."Customer No." := CarteraDoc."Account No.";
                 ToDirectDebitCollectionEntry.Validate("Applies-to Entry No.", CarteraDoc."Entry No.");
                 ToDirectDebitCollectionEntry.Validate("Mandate ID", CarteraDoc."Direct Debit Mandate ID");
-                ToDirectDebitCollectionEntry.Insert;
+                ToDirectDebitCollectionEntry.Insert();
             until CarteraDoc.Next = 0;
 
         OnAfterCreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);

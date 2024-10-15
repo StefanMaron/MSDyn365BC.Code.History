@@ -55,14 +55,6 @@ table 10722 "New G/L Account"
         {
             Caption = 'No. 2';
         }
-        field(12; Comment; Boolean)
-        {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("New G/L Account"),
-                                                      "No." = FIELD("No.")));
-            Caption = 'Comment';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(13; Blocked; Boolean)
         {
             Caption = 'Blocked';

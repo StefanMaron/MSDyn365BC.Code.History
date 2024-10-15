@@ -29,7 +29,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                     Delay := BankAcc."Delay for Notices";
 
                     if DueOnly and (PostingDate < "Due Date" + Delay) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TotalDocCount := TotalDocCount + 1;
                     DocCount := DocCount + 1;
@@ -108,23 +108,23 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                                   -NoRealVATBuffer.Amount);
                             end;
                             until NoRealVATBuffer.Next = 0;
-                            NoRealVATBuffer.DeleteAll;
+                            NoRealVATBuffer.DeleteAll();
                         end;
                     end;
 
                     GroupAmount := GroupAmount + "Remaining Amount";
                     GroupAmountLCY := GroupAmountLCY + "Remaining Amt. (LCY)";
                     CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
-                    CustLedgEntry.Modify;
+                    CustLedgEntry.Modify();
 
                     if BGPOPostBuffer.Get('', '', CustLedgEntry."Entry No.") then begin
                         BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                        BGPOPostBuffer.Modify;
+                        BGPOPostBuffer.Modify();
                     end else begin
-                        BGPOPostBuffer.Init;
+                        BGPOPostBuffer.Init();
                         BGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
                         BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                        BGPOPostBuffer.Insert;
+                        BGPOPostBuffer.Insert();
                     end;
 
                     if (PostedBillGr."Dealing Type" = PostedBillGr."Dealing Type"::Discount) and
@@ -138,7 +138,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                     CustLedgEntry2: Record "Cust. Ledger Entry";
                 begin
                     if (DocCount = 0) or (GroupAmount = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if PostedBillGr.Factoring = PostedBillGr.Factoring::" " then begin
                         with GenJnlLine do begin
@@ -209,7 +209,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                         end;
                     end;
                     DocPost.PostSettlement(GenJnlLine);
-                    GenJnlLine.DeleteAll;
+                    GenJnlLine.DeleteAll();
 
                     DocPost.CloseBillGroupIfEmpty(PostedBillGr, PostingDate);
 
@@ -217,7 +217,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                         GLReg.FindLast;
                         GLReg."From VAT Entry No." := FirstVATEntryNo;
                         GLReg."To VAT Entry No." := LastVATEntryNo;
-                        GLReg.Modify;
+                        GLReg.Modify();
                     end;
                 end;
 
@@ -245,7 +245,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
             begin
                 Window.Close;
 
-                Commit;
+                Commit();
 
                 Message(
                   Text1100003,
@@ -256,7 +256,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
             begin
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
 
                 GroupAmountLCY := 0;
@@ -316,7 +316,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -413,7 +413,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
             "Shortcut Dimension 2 Code" := PostedDoc2."Global Dimension 2 Code";
             "Dimension Set ID" := PostedDoc2."Dimension Set ID";
             BGPOPostBuffer."Gain - Loss Amount (LCY)" := BGPOPostBuffer."Gain - Loss Amount (LCY)" + Amount;
-            BGPOPostBuffer.Modify;
+            BGPOPostBuffer.Modify();
             OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, CustLedgEntry, CustLedgEntry, PostedBillGr);
             Insert;
             SumLCYAmt := SumLCYAmt + "Amount (LCY)";

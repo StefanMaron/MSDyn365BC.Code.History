@@ -248,7 +248,7 @@ table 220 "Business Unit"
         if "Currency Code" = '' then
             exit(CurrencyFactor);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
 
         CurrExchRate.ChangeCompany("Company Name");

@@ -491,7 +491,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
             VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
-            VATPostingSetup.Insert;
+            VATPostingSetup.Insert();
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;
         LibraryPurchase.CreatePurchaseLine(
@@ -1022,7 +1022,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
 
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
@@ -1039,7 +1039,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Grace Period", NewDscGracePeriodFormula);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1048,7 +1048,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", NewPmtTolPercentage);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1057,7 +1057,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", NewPmtTolAmount);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1142,7 +1142,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure UpdateDueDateOnCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        CustLedgerEntry.Validate("Due Date", GetAnyAllowedDueDate(CustLedgerEntry."Posting Date", CustLedgerEntry."Payment Terms Code"));
+        CustLedgerEntry.Validate("Due Date", GetAnyDateAfter(CustLedgerEntry."Due Date"));
         CustLedgerEntry.Modify(true);
     end;
 
@@ -1154,7 +1154,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure UpdateDueDateOnVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        VendorLedgerEntry.Validate("Due Date", GetAnyAllowedDueDate(VendorLedgerEntry."Posting Date", VendorLedgerEntry."Payment Terms Code"));
+        VendorLedgerEntry.Validate("Due Date", GetAnyDateAfter(VendorLedgerEntry."Due Date"));
         VendorLedgerEntry.Modify(true);
     end;
 
@@ -1170,16 +1170,6 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         Evaluate(DateDelta, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         exit(CalcDate(DateDelta, ReferenceDate));
-    end;
-
-    local procedure GetAnyAllowedDueDate(PostingDate: Date; PaymentTermsCode: Code[10]): Date
-    var
-        PaymentTerms: Record "Payment Terms";
-        DateDelta: DateFormula;
-    begin
-        PaymentTerms.Get(PaymentTermsCode);
-        Evaluate(DateDelta, '<' + Format(LibraryRandom.RandIntInRange(0, PaymentTerms."Max. No. of Days till Due Date")) + 'D>');
-        exit(CalcDate(DateDelta, PostingDate));
     end;
 
     [IntegrationEvent(false, false)]

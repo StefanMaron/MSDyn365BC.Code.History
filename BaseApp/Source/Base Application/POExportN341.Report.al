@@ -253,7 +253,7 @@ report 7000060 "PO - Export N34.1"
                         Modify;
                         PreviousAccountNo := "Account No.";
 
-                        VendorBankAccount1.Reset;
+                        VendorBankAccount1.Reset();
                         VendorBankAccount1.SetRange("Vendor No.", "Account No.");
                         VendorBankAccount1.SetRange("Use For Electronic Payments", true);
                         if VendorBankAccount1.FindFirst then begin
@@ -297,8 +297,6 @@ report 7000060 "PO - Export N34.1"
 
                 trigger OnAfterGetRecord()
                 begin
-                    CurrReport.PageNo := 1;
-
                     if Number = 1 then // Original
                         Clear(CopyTxt)
                     else begin
@@ -350,7 +348,7 @@ report 7000060 "PO - Export N34.1"
                     else
                         BankAccount."Last Remittance Advice No." := Text1100001;
                     LastRemittanceAdvNo := BankAccount."Last Remittance Advice No.";
-                    BankAccount.Modify;
+                    BankAccount.Modify();
                 end else begin
                     if BankAccount."Last Remittance Advice No." <> '' then
                         LastRemittanceAdvNo := IncStr(BankAccount."Last Remittance Advice No.")
@@ -446,7 +444,7 @@ report 7000060 "PO - Export N34.1"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         TotalDoc10Vend := 0;

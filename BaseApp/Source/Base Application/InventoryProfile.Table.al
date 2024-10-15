@@ -110,28 +110,22 @@ table 99000853 "Inventory Profile"
         {
             Caption = 'Due Date';
         }
-        field(36; "Planning Flexibility"; Option)
+        field(36; "Planning Flexibility"; Enum "Inventory Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None,Reduce Only';
-            OptionMembers = Unlimited,"None","Reduce Only";
         }
         field(37; "Fixed Date"; Date)
         {
             Caption = 'Fixed Date';
         }
-        field(38; "Action Message"; Option)
+        field(38; "Action Message"; Enum "Action Message Type")
         {
             Caption = 'Action Message';
-            OptionCaption = ' ,New,Change Qty.,Reschedule,Resched.& Chg. Qty.,Cancel';
-            OptionMembers = " ",New,"Change Qty.",Reschedule,"Resched.& Chg. Qty.",Cancel;
         }
-        field(39; Binding; Option)
+        field(39; Binding; Enum "Reservation Binding")
         {
             Caption = 'Binding';
             Editable = false;
-            OptionCaption = ' ,Order-to-Order';
-            OptionMembers = " ","Order-to-Order";
         }
         field(40; "Quantity (Base)"; Decimal)
         {
@@ -303,7 +297,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveItemLedgerEntry: Codeunit "Item Ledger Entry-Reserve";
         AutoReservedQty: Decimal;
     begin
         "Source Type" := DATABASE::"Item Ledger Entry";
@@ -317,15 +310,14 @@ table 99000853 "Inventory Profile"
         "Quantity (Base)" := ItemLedgerEntry.Quantity;
         "Remaining Quantity (Base)" := ItemLedgerEntry."Remaining Quantity";
         ItemLedgerEntry.CalcFields("Reserved Quantity");
-        ReserveItemLedgerEntry.FilterReservFor(ReservEntry, ItemLedgerEntry);
+        ItemLedgerEntry.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := ItemLedgerEntry."Remaining Quantity" - ItemLedgerEntry."Reserved Quantity" + AutoReservedQty;
         "Unit of Measure Code" := ItemLedgerEntry."Unit of Measure Code";
         "Qty. per Unit of Measure" := 1;
         IsSupply := ItemLedgerEntry.Positive;
         "Due Date" := ItemLedgerEntry."Posting Date";
-        "Lot No." := ItemLedgerEntry."Lot No.";
-        "Serial No." := ItemLedgerEntry."Serial No.";
+        CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
         if TrackingExists then
             "Tracking Reference" := "Line No.";
         "Planning Flexibility" := "Planning Flexibility"::None;
@@ -336,7 +328,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromSalesLine(var SalesLine: Record "Sales Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         SalesLine.TestField(Type, SalesLine.Type::Item);
@@ -346,7 +337,7 @@ table 99000853 "Inventory Profile"
         "Location Code" := SalesLine."Location Code";
         "Bin Code" := SalesLine."Bin Code";
         SalesLine.CalcFields("Reserved Qty. (Base)");
-        ReserveSalesLine.FilterReservFor(ReservEntry, SalesLine);
+        SalesLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then begin
             SalesLine."Reserved Qty. (Base)" := -SalesLine."Reserved Qty. (Base)";
@@ -379,7 +370,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromComponent(var ProdOrderComp: Record "Prod. Order Component"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
         AutoReservedQty: Decimal;
     begin
         SetSource(
@@ -399,7 +389,7 @@ table 99000853 "Inventory Profile"
         ProdOrderComp.CalcFields("Reserved Qty. (Base)");
         if ProdOrderComp.Status in [ProdOrderComp.Status::Released, ProdOrderComp.Status::Finished] then
             ProdOrderComp.CalcFields("Act. Consumption (Qty)");
-        ReserveProdOrderComp.FilterReservFor(ReservEntry, ProdOrderComp);
+        ProdOrderComp.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := ProdOrderComp."Remaining Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)" + AutoReservedQty;
         Quantity := ProdOrderComp."Expected Quantity";
@@ -419,9 +409,6 @@ table 99000853 "Inventory Profile"
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
         ReservEntry: Record "Reservation Entry";
-        ReservePlanningComponent: Codeunit "Plng. Component-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
-        AsmLineReserve: Codeunit "Assembly Line-Reserve";
         ReservedQty: Decimal;
         AutoReservedQty: Decimal;
     begin
@@ -439,7 +426,7 @@ table 99000853 "Inventory Profile"
         "Due Time" := PlanningComponent."Due Time";
         "Planning Flexibility" := "Planning Flexibility"::None;
         "Planning Level Code" := PlanningComponent."Planning Level Code";
-        ReservePlanningComponent.FilterReservFor(ReservEntry, PlanningComponent);
+        PlanningComponent.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" :=
           PlanningComponent."Expected Quantity (Base)" - PlanningComponent."Reserved Qty. (Base)" + AutoReservedQty;
@@ -455,7 +442,7 @@ table 99000853 "Inventory Profile"
                     ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                     if ProdOrderComp."Reserved Qty. (Base)" > 0 then begin
                         ReservedQty := ProdOrderComp."Reserved Qty. (Base)";
-                        ReserveProdOrderComp.FilterReservFor(ReservEntry, ProdOrderComp);
+                        ProdOrderComp.SetReservationFilters(ReservEntry);
                         CalcReservedQty(ReservEntry, ReservedQty);
                         if ReservedQty > "Untracked Quantity" then
                             "Untracked Quantity" := 0
@@ -477,7 +464,7 @@ table 99000853 "Inventory Profile"
                     AsmLine.CalcFields("Reserved Qty. (Base)");
                     if AsmLine."Reserved Qty. (Base)" > 0 then begin
                         ReservedQty := AsmLine."Reserved Qty. (Base)";
-                        AsmLineReserve.FilterReservFor(ReservEntry, AsmLine);
+                        AsmLine.SetReservationFilters(ReservEntry);
                         CalcReservedQty(ReservEntry, ReservedQty);
                         if ReservedQty > "Untracked Quantity" then
                             "Untracked Quantity" := 0
@@ -535,7 +522,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromPurchaseLine(var PurchaseLine: Record "Purchase Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
@@ -544,7 +530,7 @@ table 99000853 "Inventory Profile"
         "Variant Code" := PurchaseLine."Variant Code";
         "Location Code" := PurchaseLine."Location Code";
         "Bin Code" := PurchaseLine."Bin Code";
-        ReservePurchLine.FilterReservFor(ReservEntry, PurchaseLine);
+        PurchaseLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         PurchaseLine.CalcFields("Reserved Qty. (Base)");
         if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then begin
@@ -576,7 +562,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         SetSource(DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
@@ -589,7 +574,7 @@ table 99000853 "Inventory Profile"
         "Planning Flexibility" := ProdOrderLine."Planning Flexibility";
         "Planning Level Code" := ProdOrderLine."Planning Level Code";
         ProdOrderLine.CalcFields("Reserved Qty. (Base)");
-        ReserveProdOrderLine.FilterReservFor(ReservEntry, ProdOrderLine);
+        ProdOrderLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)" + AutoReservedQty;
         "Min. Quantity" := ProdOrderLine."Reserved Qty. (Base)" - AutoReservedQty;
@@ -608,7 +593,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromAsmLine(var AsmLine: Record "Assembly Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        AsmLineReserve: Codeunit "Assembly Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         AsmLine.TestField(Type, AsmLine.Type::Item);
@@ -621,7 +605,7 @@ table 99000853 "Inventory Profile"
         "Location Code" := AsmLine."Location Code";
         "Bin Code" := AsmLine."Bin Code";
         AsmLine.CalcFields("Reserved Qty. (Base)");
-        AsmLineReserve.FilterReservFor(ReservEntry, AsmLine);
+        AsmLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := AsmLine."Remaining Quantity (Base)" - AsmLine."Reserved Qty. (Base)" + AutoReservedQty;
         Quantity := AsmLine.Quantity;
@@ -641,7 +625,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromAsmHeader(var AsmHeader: Record "Assembly Header"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
         AutoReservedQty: Decimal;
     begin
         SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, '', 0);
@@ -649,7 +632,7 @@ table 99000853 "Inventory Profile"
         "Variant Code" := AsmHeader."Variant Code";
         "Location Code" := AsmHeader."Location Code";
         "Bin Code" := AsmHeader."Bin Code";
-        AsmHeaderReserve.FilterReservFor(ReservEntry, AsmHeader);
+        AsmHeader.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         AsmHeader.CalcFields("Reserved Qty. (Base)");
         "Untracked Quantity" := AsmHeader."Remaining Quantity (Base)" - AsmHeader."Reserved Qty. (Base)" + AutoReservedQty;
@@ -671,7 +654,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromRequisitionLine(var RequisitionLine: Record "Requisition Line"; var TrackingEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         RequisitionLine.TestField(Type, RequisitionLine.Type::Item);
@@ -683,7 +665,7 @@ table 99000853 "Inventory Profile"
         "Location Code" := RequisitionLine."Location Code";
         "Bin Code" := RequisitionLine."Bin Code";
         RequisitionLine.CalcFields("Reserved Qty. (Base)");
-        ReserveReqLine.FilterReservFor(ReservEntry, RequisitionLine);
+        RequisitionLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingEntry);
         "Untracked Quantity" := RequisitionLine."Quantity (Base)" - RequisitionLine."Reserved Qty. (Base)" + AutoReservedQty;
         "Min. Quantity" := RequisitionLine."Reserved Qty. (Base)" - AutoReservedQty;
@@ -704,7 +686,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromOutboundTransfPlan(var RequisitionLine: Record "Requisition Line"; var TrackingEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         RequisitionLine.TestField(Type, RequisitionLine.Type::Item);
@@ -716,7 +697,7 @@ table 99000853 "Inventory Profile"
         "Location Code" := RequisitionLine."Transfer-from Code";
         "Bin Code" := RequisitionLine."Bin Code";
         RequisitionLine.CalcFields("Reserved Qty. (Base)");
-        ReserveReqLine.FilterReservFor(ReservEntry, RequisitionLine);
+        RequisitionLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingEntry);
         "Untracked Quantity" := RequisitionLine."Quantity (Base)" - RequisitionLine."Reserved Qty. (Base)" + AutoReservedQty;
         "Min. Quantity" := RequisitionLine."Reserved Qty. (Base)" - AutoReservedQty;
@@ -738,7 +719,6 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         DummyTempTrackingEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
-        ReserveTransLine: Codeunit "Transfer Line-Reserve";
         AutoReservedQty: Decimal;
         MinQtyInbnd: Decimal;
         MinQtyOutbnd: Decimal;
@@ -749,12 +729,12 @@ table 99000853 "Inventory Profile"
         "Location Code" := TransLine."Transfer-from Code";
 
         TransLine.CalcFields("Reserved Qty. Outbnd. (Base)", "Reserved Qty. Inbnd. (Base)");
-        ReserveTransLine.FilterReservFor(ReservEntry, TransLine, 0);
+        TransLine.SetReservationFilters(ReservEntry, 0);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingEntry);
         MinQtyOutbnd := TransLine."Reserved Qty. Outbnd. (Base)" - AutoReservedQty;
 
         CrntInvProfile := Rec;
-        ReserveTransLine.FilterReservFor(ReservEntry, TransLine, 1);
+        TransLine.SetReservationFilters(ReservEntry, 1);
         AutoReservedQty := TransferBindings(ReservEntry, DummyTempTrackingEntry);
         MinQtyInbnd := TransLine."Reserved Qty. Inbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
@@ -784,7 +764,6 @@ table 99000853 "Inventory Profile"
         ReservEntry: Record "Reservation Entry";
         DummyTempTrackingEntry: Record "Reservation Entry" temporary;
         CrntInvProfile: Record "Inventory Profile";
-        ReserveTransLine: Codeunit "Transfer Line-Reserve";
         AutoReservedQty: Decimal;
         MinQtyInbnd: Decimal;
         MinQtyOutbnd: Decimal;
@@ -795,12 +774,12 @@ table 99000853 "Inventory Profile"
         "Location Code" := TransLine."Transfer-to Code";
 
         TransLine.CalcFields("Reserved Qty. Outbnd. (Base)", "Reserved Qty. Inbnd. (Base)");
-        ReserveTransLine.FilterReservFor(ReservEntry, TransLine, 1);
+        TransLine.SetReservationFilters(ReservEntry, 1);
         AutoReservedQty := TransferBindings(ReservEntry, TrackingReservEntry);
         MinQtyInbnd := TransLine."Reserved Qty. Inbnd. (Base)" - AutoReservedQty;
 
         CrntInvProfile := Rec;
-        ReserveTransLine.FilterReservFor(ReservEntry, TransLine, 0);
+        TransLine.SetReservationFilters(ReservEntry, 0);
         AutoReservedQty := -TransferBindings(ReservEntry, DummyTempTrackingEntry);
         MinQtyOutbnd := TransLine."Reserved Qty. Outbnd. (Base)" - AutoReservedQty;
         Rec := CrntInvProfile;
@@ -829,7 +808,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromServLine(var ServLine: Record "Service Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        ServLineReserve: Codeunit "Service Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         ServLine.TestField(Type, ServLine.Type::Item);
@@ -838,7 +816,7 @@ table 99000853 "Inventory Profile"
         "Variant Code" := ServLine."Variant Code";
         "Location Code" := ServLine."Location Code";
         ServLine.CalcFields("Reserved Qty. (Base)");
-        ServLineReserve.FilterReservFor(ReservEntry, ServLine);
+        ServLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := ServLine."Outstanding Qty. (Base)" - ServLine."Reserved Qty. (Base)" + AutoReservedQty;
         Quantity := ServLine.Quantity;
@@ -858,7 +836,6 @@ table 99000853 "Inventory Profile"
     procedure TransferFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var TrackingReservEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         AutoReservedQty: Decimal;
     begin
         JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
@@ -868,7 +845,7 @@ table 99000853 "Inventory Profile"
         "Variant Code" := JobPlanningLine."Variant Code";
         "Location Code" := JobPlanningLine."Location Code";
         JobPlanningLine.CalcFields("Reserved Qty. (Base)");
-        JobPlanningLineReserve.FilterReservFor(ReservEntry, JobPlanningLine);
+        JobPlanningLine.SetReservationFilters(ReservEntry);
         AutoReservedQty := -TransferBindings(ReservEntry, TrackingReservEntry);
         "Untracked Quantity" := JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)" + AutoReservedQty;
         Quantity := JobPlanningLine.Quantity;
@@ -904,7 +881,7 @@ table 99000853 "Inventory Profile"
                    (ReservEntry."Source Type" <> DATABASE::"Item Ledger Entry")
                 then begin
                     TrackingEntry := ReservEntry;
-                    TrackingEntry.Insert;
+                    TrackingEntry.Insert();
                 end;
                 if ReservEntry."Reservation Status" < ReservEntry."Reservation Status"::Surplus
                 then
@@ -1070,8 +1047,7 @@ table 99000853 "Inventory Profile"
         TrkgReservEntry."Variant Code" := "Variant Code";
         TrkgReservEntry.Binding := Binding;
         TrkgReservEntry."Disallow Cancellation" := "Disallow Cancellation";
-        TrkgReservEntry."Lot No." := "Lot No.";
-        TrkgReservEntry."Serial No." := "Serial No.";
+        TrkgReservEntry.CopyTrackingFromInvtProfile(Rec);
         TrkgReservEntry."Expiration Date" := "Expiration Date";
 
         if IsSupply then
@@ -1115,7 +1091,7 @@ table 99000853 "Inventory Profile"
 
     local procedure GetExpectedReceiptDate(): Date
     begin
-        if "Action Message" in ["Action Message"::Reschedule, "Action Message"::"Resched.& Chg. Qty."] then
+        if "Action Message" in ["Action Message"::Reschedule, "Action Message"::"Resched. & Chg. Qty."] then
             exit("Original Due Date");
         exit("Due Date");
     end;
@@ -1128,6 +1104,30 @@ table 99000853 "Inventory Profile"
         "Source Ref. No." := SourceRefNo;
         "Source Batch Name" := SourceBatchName;
         "Source Prod. Order Line" := SourceProdOrderLine;
+    end;
+
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFromInvtProfile(InvtProfile: Record "Inventory Profile")
+    begin
+        "Serial No." := InvtProfile."Serial No.";
+        "Lot No." := InvtProfile."Lot No.";
+
+        OnAfterCopyTrackingFromInvtProfile(Rec, InvtProfile);
+    end;
+
+    procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        "Serial No." := ReservEntry."Serial No.";
+        "Lot No." := ReservEntry."Lot No.";
+
+        OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
     end;
 
     procedure SetTrackingFilter(InventoryProfile: Record "Inventory Profile")
@@ -1145,6 +1145,21 @@ table 99000853 "Inventory Profile"
     procedure TrackingExists(): Boolean
     begin
         exit(("Lot No." <> '') or ("Serial No." <> ''));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var InventoryProfile: Record "Inventory Profile"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromInvtProfile(var InventoryProfile: Record "Inventory Profile"; FromInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromReservEntry(var InventoryProfile: Record "Inventory Profile"; ReservEntry: Record "Reservation Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

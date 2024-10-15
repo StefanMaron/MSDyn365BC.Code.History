@@ -475,6 +475,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Foreign Currency Balance")
                         {
@@ -2061,7 +2064,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Phys. Invt. Counting Periods")
                 {
-                    ApplicationArea = Warehouse, Basic, Suite;
+                    ApplicationArea = Basic, Suite, Warehouse;
                     Caption = 'Physical Invtory Counting Periods';
                     RunObject = page "Phys. Invt. Counting Periods";
                 }

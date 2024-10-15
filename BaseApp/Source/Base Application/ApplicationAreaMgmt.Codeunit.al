@@ -110,7 +110,7 @@ codeunit 9178 "Application Area Mgmt."
             RecRef.Modify(true);
 
         UserPreference.SetFilter("User ID", UserId);
-        UserPreference.DeleteAll;
+        UserPreference.DeleteAll();
 
         SetupApplicationArea;
     end;
@@ -648,23 +648,23 @@ codeunit 9178 "Application Area Mgmt."
 
         // Always remove Preview from ExpTier options, because Preview features have gradated to premium
         if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Preview)) then
-            TempExperienceTierBuffer.Delete;
+            TempExperienceTierBuffer.Delete();
 
         // Always remove Advanced from ExpTier options
         if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Advanced)) then
-            TempExperienceTierBuffer.Delete;
+            TempExperienceTierBuffer.Delete();
 
         if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Basic)) then
-            TempExperienceTierBuffer.Delete;
+            TempExperienceTierBuffer.Delete();
 
         GetExperienceTierRec(ExperienceTierSetup);
         if not ExperienceTierSetup.Custom then
             if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Custom)) then
-                TempExperienceTierBuffer.Delete;
+                TempExperienceTierBuffer.Delete();
 
         if not ExperienceTierSetup.Invoicing then
             if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Invoicing)) then
-                TempExperienceTierBuffer.Delete;
+                TempExperienceTierBuffer.Delete();
 
         OnBeforeLookupExperienceTier(TempExperienceTierBuffer);
         if PAGE.RunModal(0, TempExperienceTierBuffer, TempExperienceTierBuffer."Experience Tier") = ACTION::LookupOK then begin
@@ -694,7 +694,7 @@ codeunit 9178 "Application Area Mgmt."
 
         if not GetExperienceTierRec(ExperienceTierSetup) then begin
             ExperienceTierSetup."Company Name" := CompanyName;
-            ExperienceTierSetup.Insert;
+            ExperienceTierSetup.Insert();
         end else
             if not ExperienceTierChanged then begin
                 Company.Get(CompanyName);
@@ -706,10 +706,10 @@ codeunit 9178 "Application Area Mgmt."
         FieldRef := RecRef.Field(TempExperienceTierBuffer."Field No.");
         SelectedAlreadySaved := FieldRef.Value;
         if not SelectedAlreadySaved then begin
-            RecRef.Init;
+            RecRef.Init();
             FieldRef.Value := true;
             RecRef.SetTable(ExperienceTierSetup);
-            ExperienceTierSetup.Modify;
+            ExperienceTierSetup.Modify();
         end;
 
         SetExperienceTierCurrentCompany(ExperienceTierSetup);
@@ -739,7 +739,7 @@ codeunit 9178 "Application Area Mgmt."
 
         if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then begin
             ApplicationAreaSetup."Company Name" := CopyStr(CompanyName, 1, StrLen(CompanyName));
-            ApplicationAreaSetup.Insert;
+            ApplicationAreaSetup.Insert();
         end;
 
         case true of
@@ -751,7 +751,7 @@ codeunit 9178 "Application Area Mgmt."
                 GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
             ExperienceTierSetup.Invoicing:
                 begin
-                    TempApplicationAreaSetup.Init;
+                    TempApplicationAreaSetup.Init();
                     TempApplicationAreaSetup.Invoicing := true;
                 end;
             else begin
@@ -768,7 +768,7 @@ codeunit 9178 "Application Area Mgmt."
         end;
 
         ApplicationAreaSetup.TransferFields(TempApplicationAreaSetup, false);
-        ApplicationAreaSetup.Modify;
+        ApplicationAreaSetup.Modify();
         SetupApplicationArea;
     end;
 

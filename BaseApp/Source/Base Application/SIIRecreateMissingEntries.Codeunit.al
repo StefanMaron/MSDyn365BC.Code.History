@@ -40,7 +40,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         UploadMissingCustInvoices(TempCustLedgerEntry, SIIMissingEntriesState."Last CLE No.");
         UploadMissingCustPayments(TempDetailedCustLedgEntry, SIIMissingEntriesState."Last DCLE No.");
         SIIMissingEntriesState."Entries Missing" := 0;
-        SIIMissingEntriesState.Modify;
+        SIIMissingEntriesState.Modify();
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
         SendTraceTagOn(StrSubstNo(MissingEntriesRecreateTxt, Format(EntriesMissing)));
     end;
@@ -121,7 +121,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         end;
     end;
 
-    local procedure RequestNeedsToBeCreated(PostingDate: Date; DocSource: Option; EntryNo: Integer): Boolean
+    local procedure RequestNeedsToBeCreated(PostingDate: Date; DocSource: Enum "SII Doc. Upload State Document Source"; EntryNo: Integer): Boolean
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
     begin
@@ -130,7 +130,7 @@ codeunit 10757 "SII Recreate Missing Entries"
           SIIDocUploadStateDoesNotExist(DocSource, EntryNo));
     end;
 
-    local procedure SIIDocUploadStateDoesNotExist(DocSource: Option; EntryNo: Integer): Boolean
+    local procedure SIIDocUploadStateDoesNotExist(DocSource: Enum "SII Doc. Upload State Document Source"; EntryNo: Integer): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -154,8 +154,8 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        TempVendLedgerEntry.Reset;
-        TempVendLedgerEntry.DeleteAll;
+        TempVendLedgerEntry.Reset();
+        TempVendLedgerEntry.DeleteAll();
 
         if LastEntryNo <> 0 then
             VendLedgerEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
@@ -170,9 +170,9 @@ codeunit 10757 "SII Recreate Missing Entries"
                 if RequestNeedsToBeCreated(VendLedgerEntry."Posting Date", SIIDocUploadState."Document Source"::"Vendor Ledger",
                      VendLedgerEntry."Entry No.")
                 then begin
-                    TempVendLedgerEntry.Init;
+                    TempVendLedgerEntry.Init();
                     TempVendLedgerEntry := VendLedgerEntry;
-                    TempVendLedgerEntry.Insert;
+                    TempVendLedgerEntry.Insert();
                 end;
             until VendLedgerEntry.Next = 0;
             LastEntryNo := VendLedgerEntry."Entry No.";
@@ -191,8 +191,8 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        TempDetailedVendorLedgEntry.Reset;
-        TempDetailedVendorLedgEntry.DeleteAll;
+        TempDetailedVendorLedgEntry.Reset();
+        TempDetailedVendorLedgEntry.DeleteAll();
 
         if LastEntryNo <> 0 then
             DetailedVendorLedgEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
@@ -212,9 +212,9 @@ codeunit 10757 "SII Recreate Missing Entries"
                          SIIDocUploadState."Document Source"::"Detailed Vendor Ledger",
                          DetailedVendorLedgEntry."Entry No.")
                     then begin
-                        TempDetailedVendorLedgEntry.Init;
+                        TempDetailedVendorLedgEntry.Init();
                         TempDetailedVendorLedgEntry := DetailedVendorLedgEntry;
-                        TempDetailedVendorLedgEntry.Insert;
+                        TempDetailedVendorLedgEntry.Insert();
                     end;
             until DetailedVendorLedgEntry.Next = 0;
             LastEntryNo := DetailedVendorLedgEntry."Entry No.";
@@ -230,8 +230,8 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        TempCustLedgerEntry.Reset;
-        TempCustLedgerEntry.DeleteAll;
+        TempCustLedgerEntry.Reset();
+        TempCustLedgerEntry.DeleteAll();
 
         if LastEntryNo <> 0 then
             CustLedgerEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
@@ -246,9 +246,9 @@ codeunit 10757 "SII Recreate Missing Entries"
                 if RequestNeedsToBeCreated(CustLedgerEntry."Posting Date", SIIDocUploadState."Document Source"::"Customer Ledger",
                      CustLedgerEntry."Entry No.")
                 then begin
-                    TempCustLedgerEntry.Init;
+                    TempCustLedgerEntry.Init();
                     TempCustLedgerEntry := CustLedgerEntry;
-                    TempCustLedgerEntry.Insert;
+                    TempCustLedgerEntry.Insert();
                 end;
             until CustLedgerEntry.Next = 0;
             LastEntryNo := CustLedgerEntry."Entry No.";
@@ -267,8 +267,8 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        TempDetailedCustLedgEntry.Reset;
-        TempDetailedCustLedgEntry.DeleteAll;
+        TempDetailedCustLedgEntry.Reset();
+        TempDetailedCustLedgEntry.DeleteAll();
 
         if LastEntryNo <> 0 then
             DetailedCustLedgEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
@@ -288,9 +288,9 @@ codeunit 10757 "SII Recreate Missing Entries"
                          SIIDocUploadState."Document Source"::"Detailed Customer Ledger",
                          DetailedCustLedgEntry."Entry No.")
                     then begin
-                        TempDetailedCustLedgEntry.Init;
+                        TempDetailedCustLedgEntry.Init();
                         TempDetailedCustLedgEntry := DetailedCustLedgEntry;
-                        TempDetailedCustLedgEntry.Insert;
+                        TempDetailedCustLedgEntry.Insert();
                     end;
             until DetailedCustLedgEntry.Next = 0;
             LastEntryNo := DetailedCustLedgEntry."Entry No.";
@@ -329,7 +329,7 @@ codeunit 10757 "SII Recreate Missing Entries"
             Window.Open(GetWindowOpenMessage(SourceMessage));
         RecRef.GetTable(Rec);
         Window.Update(1, RecRef.Caption);
-        TotalRecNo := RecRef.Count;
+        TotalRecNo := RecRef.Count();
     end;
 
     [Scope('OnPrem')]
@@ -366,9 +366,9 @@ codeunit 10757 "SII Recreate Missing Entries"
           TempVendorLedgerEntry.Count +
           TempCustLedgEntry.Count +
           TempDetailedVendorLedgEntry.Count +
-          TempDetailedCustLedgEntry.Count;
+          TempDetailedCustLedgEntry.Count();
         SIIMissingEntriesState."Last Missing Entries Check" := Today;
-        SIIMissingEntriesState.Modify;
+        SIIMissingEntriesState.Modify();
         SendTraceTagOn(StrSubstNo(EntriesMissingTxt, Format(SIIMissingEntriesState."Entries Missing")));
     end;
 

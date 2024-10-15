@@ -61,14 +61,14 @@ report 10700 "Set Period Trans. Nos."
             trigger OnAfterGetRecord()
             begin
                 if EndReached then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             var
                 GLEntry2: Record "G/L Entry";
             begin
-                Period.Reset;
+                Period.Reset();
                 Period.SetRange("New Fiscal Year", true);
                 Period.FindFirst;
                 if Period."Starting Date" > FromDate then
@@ -80,7 +80,7 @@ report 10700 "Set Period Trans. Nos."
                 "G/L Entry".SetCurrentKey("Posting Date", "Transaction No.");
                 "G/L Entry".SetRange("Posting Date", FromDate, ToDate);
                 if not "G/L Entry".FindFirst then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 GLEntry2.SetCurrentKey("Posting Date", "Transaction No.");
                 GLEntry2.FindFirst;
                 if "G/L Entry"."Entry No." = GLEntry2."Entry No." then

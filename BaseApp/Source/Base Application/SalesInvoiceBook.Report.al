@@ -17,9 +17,6 @@ report 10704 "Sales Invoice Book"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CompanyAddr_7_; CompanyAddr[7])
             {
             }
@@ -312,21 +309,21 @@ report 10704 "Sales Invoice Book"
                                     if VATBuffer3.Find then begin
                                         VATBuffer3.Base := VATBuffer3.Base + Base;
                                         VATBuffer3.Amount := VATBuffer3.Amount + Amount;
-                                        VATBuffer3.Modify;
+                                        VATBuffer3.Modify();
                                     end else begin
                                         VATBuffer3.Base := Base;
                                         VATBuffer3.Amount := Amount;
-                                        VATBuffer3.Insert;
+                                        VATBuffer3.Insert();
                                     end
                                 else
                                     if VATBuffer3.Find then begin
                                         VATBuffer3.Base := VATBuffer3.Base + "Additional-Currency Base";
                                         VATBuffer3.Amount := VATBuffer3.Amount + "Additional-Currency Amount";
-                                        VATBuffer3.Modify;
+                                        VATBuffer3.Modify();
                                     end else begin
                                         VATBuffer3.Base := "Additional-Currency Base";
                                         VATBuffer3.Amount := "Additional-Currency Amount";
-                                        VATBuffer3.Insert;
+                                        VATBuffer3.Insert();
                                     end
                             end;
                         end;
@@ -341,9 +338,9 @@ report 10704 "Sales Invoice Book"
                             Clear(PurchCrMemoHeader);
                             Clear(PurchInvHeader);
                             Clear(Vendor);
-                            PurchInvHeader.Reset;
-                            PurchCrMemoHeader.Reset;
-                            Vendor.Reset;
+                            PurchInvHeader.Reset();
+                            PurchCrMemoHeader.Reset();
+                            Vendor.Reset();
                             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                             case VATEntry6."Document Type" of
                                 "Document Type"::"Credit Memo":
@@ -445,7 +442,7 @@ report 10704 "Sales Invoice Book"
                             end;
 
                             if Fin then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             VATBuffer4 := VATBuffer3;
                             Fin := VATBuffer3.Next = 0;
                         end;
@@ -461,16 +458,16 @@ report 10704 "Sales Invoice Book"
                     trigger OnAfterGetRecord()
                     begin
                         if not Show then
-                            CurrReport.Break;
-                        VATBuffer3.DeleteAll;
+                            CurrReport.Break();
+                        VATBuffer3.DeleteAll();
                         NoSeriesAuxPrev := NoSeriesAux;
 
                         if "Document Type" = "Document Type"::"Credit Memo" then begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             NoSeriesAux := GLSetup."Autocredit Memo Nos.";
                         end;
                         if "Document Type" = "Document Type"::Invoice then begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             NoSeriesAux := GLSetup."Autoinvoice Nos.";
                         end;
 
@@ -488,14 +485,14 @@ report 10704 "Sales Invoice Book"
                     trigger OnPreDataItem()
                     begin
                         if not SortPostDate or not ShowAutoInvCred then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Generated Autodocument", true);
                         if Find('-') then;
                         if i = 1 then begin
                             repeat
-                                VatEntryTemporary.Init;
+                                VatEntryTemporary.Init();
                                 VatEntryTemporary.Copy(VATEntry6);
-                                VatEntryTemporary.Insert;
+                                VatEntryTemporary.Insert();
                                 VatEntryTemporary.Next;
                             until Next = 0;
                             if Find('-') then;
@@ -509,7 +506,7 @@ report 10704 "Sales Invoice Book"
                         VatEntryTemporary.SetFilter("Posting Date", '%1..%2', PrevData, VATEntry."Posting Date");
                         if VatEntryTemporary.Find('-') then begin
                             Show := true;
-                            VatEntryTemporary.DeleteAll;
+                            VatEntryTemporary.DeleteAll();
                         end else
                             Show := false;
                     end;
@@ -534,11 +531,11 @@ report 10704 "Sales Invoice Book"
                             if VATBuffer.Find then begin
                                 VATBuffer.Base := VATBuffer.Base - Base;
                                 VATBuffer.Amount := VATBuffer.Amount - Amount;
-                                VATBuffer.Modify;
+                                VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := -Base;
                                 VATBuffer.Amount := -Amount;
-                                VATBuffer.Insert;
+                                VATBuffer.Insert();
                             end;
                         end else begin
                             if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
@@ -546,16 +543,16 @@ report 10704 "Sales Invoice Book"
                             if VATBuffer.Find then begin
                                 VATBuffer.Base := VATBuffer.Base - "Additional-Currency Base";
                                 VATBuffer.Amount := VATBuffer.Amount - "Additional-Currency Amount";
-                                VATBuffer.Modify;
+                                VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := -"Additional-Currency Base";
                                 VATBuffer.Amount := -"Additional-Currency Amount";
-                                VATBuffer.Insert;
+                                VATBuffer.Insert();
                             end;
                         end;
                         TempVATEntry := VATEntry2;
                         if not TempVATEntry.Find then
-                            TempVATEntry.Insert;
+                            TempVATEntry.Insert();
                     end;
 
                     trigger OnPreDataItem()
@@ -573,7 +570,7 @@ report 10704 "Sales Invoice Book"
                         if not PrintAmountsInAddCurrency then
                             GLSetup.Get
                         else begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             Currency.Get(GLSetup."Additional Reporting Currency");
                         end;
 
@@ -683,7 +680,7 @@ report 10704 "Sales Invoice Book"
                     trigger OnAfterGetRecord()
                     begin
                         if Fin then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         VATBuffer2 := VATBuffer;
                         Fin := VATBuffer.Next = 0;
                         LineNo := LineNo + 1;
@@ -699,10 +696,10 @@ report 10704 "Sales Invoice Book"
 
                 trigger OnAfterGetRecord()
                 begin
-                    VATBuffer.DeleteAll;
+                    VATBuffer.DeleteAll();
                     TempVATEntry := VATEntry;
                     if TempVATEntry.Find then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     DocType := Format("Document Type");
                     if "Document Type" = "Document Type"::"Credit Memo" then
@@ -720,8 +717,8 @@ report 10704 "Sales Invoice Book"
                         SetCurrentKey(Type, "Posting Date", "Document Type", "Document No.", "Bill-to/Pay-to No.")
                     else
                         SetCurrentKey("No. Series", "Posting Date", "Document No.");
-                    TempVATEntry.Reset;
-                    TempVATEntry.DeleteAll;
+                    TempVATEntry.Reset();
+                    TempVATEntry.DeleteAll();
                 end;
             }
             dataitem(VATEntry4; "VAT Entry")
@@ -807,23 +804,23 @@ report 10704 "Sales Invoice Book"
                                     VarAmount2 := (VATBuffer.Amount + Amount) - VATBuffer.Amount;
                                     VATBuffer.Base := VATBuffer.Base + Base;
                                     VATBuffer.Amount := VATBuffer.Amount + Amount;
-                                    VATBuffer.Modify;
+                                    VATBuffer.Modify();
                                 end else begin
                                     VarBase2 := Base;
                                     VarAmount2 := Amount;
                                     VATBuffer.Base := Base;
                                     VATBuffer.Amount := Amount;
-                                    VATBuffer.Insert;
+                                    VATBuffer.Insert();
                                 end
                             else
                                 if VATBuffer.Find then begin
                                     VATBuffer.Base := VATBuffer.Base + "Additional-Currency Base";
                                     VATBuffer.Amount := VATBuffer.Amount + "Additional-Currency Amount";
-                                    VATBuffer.Modify;
+                                    VATBuffer.Modify();
                                 end else begin
                                     VATBuffer.Base := "Additional-Currency Base";
                                     VATBuffer.Amount := "Additional-Currency Amount";
-                                    VATBuffer.Insert;
+                                    VATBuffer.Insert();
                                 end
                         end;
                         if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
@@ -847,9 +844,9 @@ report 10704 "Sales Invoice Book"
                         Clear(PurchCrMemoHeader);
                         Clear(PurchInvHeader);
                         Clear(Vendor);
-                        PurchInvHeader.Reset;
-                        PurchCrMemoHeader.Reset;
-                        Vendor.Reset;
+                        PurchInvHeader.Reset();
+                        PurchCrMemoHeader.Reset();
+                        Vendor.Reset();
 
                         VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                         case VATEntry4."Document Type" of
@@ -953,7 +950,7 @@ report 10704 "Sales Invoice Book"
                     trigger OnAfterGetRecord()
                     begin
                         if Fin then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         VATBuffer2 := VATBuffer;
                         Fin := VATBuffer.Next = 0;
                         if VATBuffer2.Amount = 0 then begin
@@ -976,15 +973,15 @@ report 10704 "Sales Invoice Book"
 
                 trigger OnAfterGetRecord()
                 begin
-                    VATBuffer.DeleteAll;
+                    VATBuffer.DeleteAll();
                     NoSeriesAuxPrev := NoSeriesAux;
 
                     if "Document Type" = "Document Type"::"Credit Memo" then begin
-                        GLSetup.Get;
+                        GLSetup.Get();
                         NoSeriesAux := GLSetup."Autocredit Memo Nos.";
                     end;
                     if "Document Type" = "Document Type"::Invoice then begin
-                        GLSetup.Get;
+                        GLSetup.Get();
                         NoSeriesAux := GLSetup."Autoinvoice Nos.";
                     end;
 
@@ -999,7 +996,7 @@ report 10704 "Sales Invoice Book"
                 trigger OnPreDataItem()
                 begin
                     if not ShowAutoInvCred then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Generated Autodocument", true);
                     if Find('-') then;
                     SetFilter("Posting Date", VATEntry.GetFilter("Posting Date"));
@@ -1080,7 +1077,7 @@ report 10704 "Sales Invoice Book"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if PrintAmountsInAddCurrency then
                     HeaderText := StrSubstNo(Text1100002, GLSetup."Additional Reporting Currency")
                 else begin
@@ -1088,7 +1085,7 @@ report 10704 "Sales Invoice Book"
                     HeaderText := StrSubstNo(Text1100002, GLSetup."LCY Code");
                 end;
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyAddr[1] := CompanyInfo.Name;
                 CompanyAddr[2] := CompanyInfo."Name 2";
                 CompanyAddr[3] := CompanyInfo.Address;

@@ -113,15 +113,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Reconciliation - NamedType ICPartnerAccountTypeQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4055676525 - NamedType 2228785104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Check that the all the entries with the same]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Reconciliation - NamedType CheckVATEntryErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 2438184867" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be same.]]></Val>

@@ -269,7 +269,7 @@ page 1543 "WF Event/Response Comb. Matrix"
             if WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse."Function Name",
                  WFEventResponseCombination."Predecessor Type"::"Event", "Function Name")
             then
-                WFEventResponseCombination.Delete;
+                WFEventResponseCombination.Delete();
         end;
     end;
 }

@@ -38,7 +38,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -143,7 +143,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::"Pending Approval");
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchHeader);
         asserterror PurchaseOrder.Release.Invoke;
@@ -449,7 +449,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchHeader);
 
@@ -527,7 +527,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         PurchaseOrderList.OpenEdit;
         PurchaseOrderList.GotoRecord(PurchHeader);
 
@@ -638,8 +638,6 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         WorkflowStepArgument: Record "Workflow Step Argument";
-        DepreciationBook: Record "Depreciation Book";
-        VATPostingSetup: Record "VAT Posting Setup";
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO 379202] Release Purchase Order of Fixed Asset errors when POAP workflow filtering on Fixed Asset
@@ -657,19 +655,6 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [GIVEN] Purchase Order on Fixed Asset
         CreatePurchDocumentForFixedAsset(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandIntInRange(5000, 10000));
-
-        // [GIVEN] Purchase lines in the order have a depreciation book code
-        DepreciationBook.FindFirst;
-        VATPostingSetup.FindFirst;
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if PurchaseLine.FindSet then
-            repeat
-                PurchaseLine."Depreciation Book Code" := DepreciationBook.Code;
-                PurchaseLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-                PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-                PurchaseLine.Modify;
-            until PurchaseLine.Next = 0;
 
         // [WHEN] Release Purchase Order
         PurchaseOrderList.OpenView;
@@ -726,7 +711,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."Approver ID", CurrentUserSetup."User ID", ApprovalEntry.Status::Approved);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -784,7 +769,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Open);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."Approver ID", CurrentUserSetup."User ID", ApprovalEntry.Status::Canceled);
     end;

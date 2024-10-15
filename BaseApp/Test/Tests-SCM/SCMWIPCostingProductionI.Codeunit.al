@@ -1672,7 +1672,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [FEATURE] [Manufacturing] [Adjust Cost - Item Entries] [Last Direct Cost]
         // [SCENARIO 380782] When a BOM Component of a production Item is revalued before the Production Order is finished and the output is invoiced, the revaluation is included in Direct Unit Cost of the Item.
         Initialize;
-        GLSetup.Get;
+        GLSetup.Get();
 
         // [GIVEN] Production Item "I" with a BOM component "C".
         CreateManufacturingItem(ProdItem, CompItemNo);
@@ -1722,7 +1722,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] No Accounting periods
         // [GIVEN] "Automatic Cost Adjustment" is turned on in Inventory Setup
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -1759,7 +1759,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Production-I");
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData;
@@ -1769,7 +1769,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Production-I");
     end;
 
@@ -2154,7 +2154,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         ItemNo[1] := LibraryInventory.CreateItemNo;
         ItemNo[2] := LibraryInventory.CreateItemNo;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ProductionBOMNo[1] :=
           LibraryManufacturing.CreateCertifiedProductionBOM(
             ProductionBOMHeader, ItemNo[1], 1); // specific value needed for test
@@ -2293,7 +2293,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.FindFirst;
         ProdOrderComponent.Delete(true);
-        Commit;
+        Commit();
 
         ProdOrderLine.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
@@ -2315,7 +2315,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Validate(Status, ProductionOrder.Status);
         ProdOrderRoutingLine.Validate("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.Validate("Routing No.", ProductionOrder."Routing No.");
@@ -2347,10 +2347,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Create new Currency code and set Residual Gains Account and Residual Losses Account for Currency.
         CurrencyCode := CreateCurrency;
-        Commit;
+        Commit();
 
         // Update Additional Reporting Currency on G/L setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2377,7 +2377,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Currency.Validate("Realized G/L Gains Account", SelectGLAccountNo);
         Currency.Validate("Realized G/L Losses Account", SelectGLAccountNo);
         Currency.Modify(true);
-        Commit;  // Required to run the Test Case on RTC.
+        Commit();  // Required to run the Test Case on RTC.
 
         // Create Currency Exchange Rate.
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
@@ -2425,7 +2425,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         PurchaseLine.FindSet;
         repeat
             TempPurchaseLine := PurchaseLine;
-            TempPurchaseLine.Insert;
+            TempPurchaseLine.Insert();
         until PurchaseLine.Next = 0;
     end;
 

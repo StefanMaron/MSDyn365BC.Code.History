@@ -20,7 +20,7 @@ codeunit 5702 "Dist. Integration"
     begin
         with SalesLine2 do
             if Type = Type::Item then begin
-                ItemCrossReference.Reset;
+                ItemCrossReference.Reset();
                 ItemCrossReference.SetRange("Item No.", "No.");
                 ItemCrossReference.SetRange("Variant Code", "Variant Code");
                 ItemCrossReference.SetRange("Unit of Measure", "Unit of Measure Code");
@@ -83,7 +83,7 @@ codeunit 5702 "Dist. Integration"
     begin
         with PurchLine2 do
             if Type = Type::Item then begin
-                ItemCrossReference.Reset;
+                ItemCrossReference.Reset();
                 ItemCrossReference.SetRange("Item No.", "No.");
                 ItemCrossReference.SetRange("Variant Code", "Variant Code");
                 ItemCrossReference.SetRange("Unit of Measure", "Unit of Measure Code");
@@ -144,7 +144,7 @@ codeunit 5702 "Dist. Integration"
 
     local procedure FilterItemCrossReferenceByItemVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemVendor: Record "Item Vendor")
     begin
-        ItemCrossReference.Reset;
+        ItemCrossReference.Reset();
         ItemCrossReference.SetRange("Item No.", ItemVendor."Item No.");
         ItemCrossReference.SetRange("Variant Code", ItemVendor."Variant Code");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
@@ -154,7 +154,7 @@ codeunit 5702 "Dist. Integration"
 
     local procedure FillItemCrossReferenceFromItemVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemVend: Record "Item Vendor")
     begin
-        ItemCrossReference.Init;
+        ItemCrossReference.Init();
         ItemCrossReference.Validate("Item No.", ItemVend."Item No.");
         ItemCrossReference.Validate("Variant Code", ItemVend."Variant Code");
         ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
@@ -171,7 +171,7 @@ codeunit 5702 "Dist. Integration"
         ItemCrossReference: Record "Item Cross Reference";
     begin
         FillItemCrossReferenceFromItemVendor(ItemCrossReference, ItemVend);
-        ItemCrossReference.Insert;
+        ItemCrossReference.Insert();
     end;
 
     procedure InsertItemCrossReference(ItemVend: Record "Item Vendor")
@@ -188,7 +188,7 @@ codeunit 5702 "Dist. Integration"
         ItemCrossReference: Record "Item Cross Reference";
     begin
         FilterItemCrossReferenceByItemVendor(ItemCrossReference, ItemVend);
-        ItemCrossReference.DeleteAll;
+        ItemCrossReference.DeleteAll();
     end;
 
     procedure UpdateItemCrossReference(ItemVend: Record "Item Vendor"; xItemVend: Record "Item Vendor")
@@ -271,9 +271,9 @@ codeunit 5702 "Dist. Integration"
     begin
         ItemCrossReferenceToCheck.CopyFilters(ItemCrossReference);
         SetFiltersTypeAndTypeNoItemCrossRef(ItemCrossReferenceToCheck, CrossRefType, CrossRefTypeNo);
-        QtyCustOrVendCR := ItemCrossReferenceToCheck.Count;
+        QtyCustOrVendCR := ItemCrossReferenceToCheck.Count();
         SetFiltersBarCodeOrBlankTypeItemCrossRef(ItemCrossReferenceToCheck);
-        QtyBarCodeAndBlankCR := ItemCrossReferenceToCheck.Count;
+        QtyBarCodeAndBlankCR := ItemCrossReferenceToCheck.Count();
     end;
 
     local procedure BarCodeCRAreMappedToDifferentItems(var ItemCrossReference: Record "Item Cross Reference"): Boolean
@@ -335,7 +335,7 @@ codeunit 5702 "Dist. Integration"
         if ItemCrossReferenceToCopy.FindSet then
             repeat
                 TempItemCrossReference := ItemCrossReferenceToCopy;
-                TempItemCrossReference.Insert;
+                TempItemCrossReference.Insert();
             until ItemCrossReferenceToCopy.Next = 0;
     end;
 
@@ -402,7 +402,7 @@ codeunit 5702 "Dist. Integration"
                     exit;
             end;
 
-            LockTable;
+            LockTable();
 
             OnGetSpecialOrdersOnBeforeTestSalesHeader(SalesHeader);
 
@@ -418,8 +418,8 @@ codeunit 5702 "Dist. Integration"
             if Vendor.Get("Buy-from Vendor No.") then
                 Validate("Shipment Method Code", Vendor."Shipment Method Code");
 
-            PurchLine.LockTable;
-            SalesLine.LockTable;
+            PurchLine.LockTable();
+            SalesLine.LockTable();
 
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Document No.", "No.");
@@ -428,7 +428,7 @@ codeunit 5702 "Dist. Integration"
             else
                 NextLineNo := 10000;
 
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             SalesLine.SetRange("Special Order", true);
@@ -450,7 +450,7 @@ codeunit 5702 "Dist. Integration"
                                   SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
                                   ItemUnitOfMeasure."Qty. per Unit of Measure");
 
-                    PurchLine.Init;
+                    PurchLine.Init();
                     PurchLine."Document Type" := PurchLine."Document Type"::Order;
                     PurchLine."Document No." := "No.";
                     PurchLine."Line No." := NextLineNo;
@@ -461,7 +461,7 @@ codeunit 5702 "Dist. Integration"
                     PurchLine."Special Order Sales No." := SalesLine."Document No.";
                     PurchLine."Special Order Sales Line No." := SalesLine."Line No.";
                     OnBeforeInsertPurchLine(PurchLine, SalesLine);
-                    PurchLine.Insert;
+                    PurchLine.Insert();
                     OnAfterInsertPurchLine(PurchLine, SalesLine);
 
                     NextLineNo := NextLineNo + 10000;
@@ -471,7 +471,7 @@ codeunit 5702 "Dist. Integration"
                     SalesLine."Special Order Purchase No." := PurchLine."Document No.";
                     SalesLine."Special Order Purch. Line No." := PurchLine."Line No.";
                     OnBeforeSalesLineModify(SalesLine, PurchLine);
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                     OnAfterSalesLineModify(SalesLine, PurchLine);
                     if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
                         TransferExtendedText.InsertPurchExtText(PurchLine);
@@ -489,7 +489,7 @@ codeunit 5702 "Dist. Integration"
                   SalesHeader."No.");
 
             Modify; // Only version check
-            SalesHeader.Modify; // Only version check
+            SalesHeader.Modify(); // Only version check
         end;
     end;
 

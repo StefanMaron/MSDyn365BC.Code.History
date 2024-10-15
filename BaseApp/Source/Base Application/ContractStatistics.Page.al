@@ -349,7 +349,7 @@ page 6059 "Contract Statistics"
         ServLedgerEntry: Record "Service Ledger Entry";
     begin
         ClearAll;
-        ServLedgerEntry.Reset;
+        ServLedgerEntry.Reset();
         ServLedgerEntry.SetRange("Service Contract No.", "Contract No.");
         ServLedgerEntry.SetRange("Entry Type", ServLedgerEntry."Entry Type"::Sale);
         SetRange("Type Filter", "Type Filter"::"Service Contract");

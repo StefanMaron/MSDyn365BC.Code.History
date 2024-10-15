@@ -7,7 +7,7 @@ codeunit 61 "Sales-Disc. (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         SalesLine.Copy(Rec);
-        GLSetup.Get;
+        GLSetup.Get();
         with SalesLine do begin
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then

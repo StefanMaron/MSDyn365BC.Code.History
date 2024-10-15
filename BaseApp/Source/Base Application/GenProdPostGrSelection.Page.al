@@ -40,11 +40,11 @@ page 10735 "Gen. Prod. Post. Gr. Selection"
     [Scope('OnPrem')]
     procedure GetGPPGSelBuf(var TheGPPGSelectionBuf: Record "Gen. Prod. Post. Group Buffer")
     begin
-        TheGPPGSelectionBuf.DeleteAll;
+        TheGPPGSelectionBuf.DeleteAll();
         if Find('-') then
             repeat
                 TheGPPGSelectionBuf := Rec;
-                TheGPPGSelectionBuf.Insert;
+                TheGPPGSelectionBuf.Insert();
             until Next = 0;
     end;
 

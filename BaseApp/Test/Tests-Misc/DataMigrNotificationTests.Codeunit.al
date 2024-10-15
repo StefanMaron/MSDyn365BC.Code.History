@@ -29,7 +29,7 @@ codeunit 135021 "Data Migr. Notification Tests"
     begin
         // [SCENARIO] A Notification with an action to start data migration is shown when user visits the empty data migration overview page
         // [GIVEN] No Migration has started
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
         // [WHEN] User opens Data Migration Overview page
         DataMigrationOverview.OpenView;
         // [THEN] A notification is fired with an action to start the data migration wizzard
@@ -239,19 +239,19 @@ codeunit 135021 "Data Migr. Notification Tests"
         DataMigrationStatus: Record "Data Migration Status";
     begin
         // A Data Migration Status entry with Status:In Progress
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus.Status := MigrationStatus;
         DataMigrationStatus.Insert(true);
 
         // The corresponding job queue is running
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Data Migration Mgt.";
         JobQueueEntry.Status := JobQueueStatus;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
     end;
 
     local procedure InitializeCompletedMigrationWithItemEntriesToBePosted()
@@ -265,16 +265,16 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::Completed, JobQueueEntry.Status::Finished);
 
         // Create entries to be posted for items
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         ItemJournalTemplate.Name := 'IJTN';
         ItemJournalTemplate.Insert(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         ItemJournalBatch."Journal Template Name" := ItemJournalTemplate.Name;
         ItemJournalBatch.Name := 'JBN';
         ItemJournalBatch.Insert(true);
 
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine."Journal Batch Name" := 'JBN';
         ItemJournalLine."Journal Template Name" := ItemJournalTemplate.Name;
         ItemJournalLine."Item No." := 'IT001';
@@ -296,16 +296,16 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::Completed, JobQueueEntry.Status::Finished);
 
         // Create entries to be posted for items
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Name := 'GJTN';
         GenJournalTemplate.Insert(true);
 
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := 'JBN';
         GenJournalBatch.Insert(true);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := 'JBN';
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
@@ -313,7 +313,7 @@ codeunit 135021 "Data Migr. Notification Tests"
         GenJournalLine."Line No." := 1;
         GenJournalLine.Insert(true);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := 'JBN';
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
@@ -337,16 +337,16 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::Completed, JobQueueEntry.Status::Finished);
 
         // Create entries to be posted for items
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Name := 'GJTN';
         GenJournalTemplate.Insert(true);
 
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := 'JBN';
         GenJournalBatch.Insert(true);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := 'JBN';
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
@@ -371,24 +371,24 @@ codeunit 135021 "Data Migr. Notification Tests"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        JobQueueEntry.DeleteAll;
-        DataMigrationStatus.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        DataMigrationStatus.DeleteAll();
         if MyNotifications.Get(UserId, DataMigrationMgt.GetGlobalNotificationId) then begin
             MyNotifications.Enabled := true;
             MyNotifications.Modify(true);
         end;
         ItemJournalBatch.SetRange(Name, 'IJTN');
-        ItemJournalTemplate.DeleteAll;
+        ItemJournalTemplate.DeleteAll();
         ItemJournalBatch.SetRange(Name, 'JBN');
-        ItemJournalBatch.DeleteAll;
+        ItemJournalBatch.DeleteAll();
         ItemJournalLine.SetRange("Journal Batch Name", 'JBN');
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         GenJournalTemplate.SetRange(Name, 'GJTN');
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
         GenJournalBatch.SetRange(Name, 'JBN');
-        GenJournalBatch.DeleteAll;
+        GenJournalBatch.DeleteAll();
         GenJournalLine.SetRange("Journal Batch Name", 'JBN');
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
     end;
 
     [SendNotificationHandler]

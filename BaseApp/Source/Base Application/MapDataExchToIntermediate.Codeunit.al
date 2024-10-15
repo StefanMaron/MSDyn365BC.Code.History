@@ -17,8 +17,8 @@ codeunit 1214 "Map DataExch To Intermediate"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         // TempNameValueBuffer - used to "keep track" of node id - record No. relation for determining parent/child relation
-        TempNameValueBuffer.Reset;
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.Reset();
+        TempNameValueBuffer.DeleteAll();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", '');
@@ -98,7 +98,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         then
             exit;
 
-        IntermediateDataImport.Init;
+        IntermediateDataImport.Init();
         IntermediateDataImport.Validate("Data Exch. No.", DataExchField."Data Exch. No.");
         IntermediateDataImport.Validate("Table ID", DataExchFieldMapping."Target Table ID");
         IntermediateDataImport.Validate("Record No.", LineNo);
@@ -123,7 +123,7 @@ codeunit 1214 "Map DataExch To Intermediate"
     var
         ID: Integer;
     begin
-        TempNameValueBuffer.Reset;
+        TempNameValueBuffer.Reset();
         ID := 1;
         if TempNameValueBuffer.FindLast then
             ID := TempNameValueBuffer.ID + 1;

@@ -15,9 +15,6 @@ report 10711 "Detail Account Statement"
             {
                 DataItemTableView = SORTING("No.");
                 RequestFilterFields = "Date Filter", "No.", "Global Dimension 2 Filter", "Global Dimension 1 Filter";
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
@@ -308,7 +305,7 @@ report 10711 "Detail Account Statement"
                         SetFilter("Starting Date", '> %1 & <= %2', FromDate, PostDate);
 
                         if NotFound then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                 }
                 dataitem("G/L Entry"; "G/L Entry")
@@ -398,7 +395,7 @@ report 10711 "Detail Account Statement"
                         trigger OnAfterGetRecord()
                         begin
                             if Num = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TotalDebit := 0;
                             TotalCredit := 0;
                             GLAccount.SetRange("Date Filter");
@@ -446,7 +443,7 @@ report 10711 "Detail Account Statement"
                             if Num = 0 then begin
                                 SetRange("New Fiscal Year", true);
                                 Find('-');
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             end;
                         end;
                     }
@@ -680,7 +677,7 @@ report 10711 "Detail Account Statement"
                     trigger OnPreDataItem()
                     begin
                         Found := false;
-                        "Accounting Period".Reset;
+                        "Accounting Period".Reset();
                         "Accounting Period".SetRange("New Fiscal Year", true);
                         "Accounting Period".Find('+');
                         if ToDate <> NormalDate(ToDate) then
@@ -732,12 +729,12 @@ report 10711 "Detail Account Statement"
                             GLAcc2.SetRange("Date Filter", FromDate, ToDate);
                             GLAcc2.CalcFields("Debit Amount", "Credit Amount");
                             if (GLAcc2."Debit Amount" = 0) and (GLAcc2."Credit Amount" = 0) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                         end;
                     end else begin
                         if (GLAcc2."Balance at Date" = 0) and (not IncludeZeroBalance) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if ("Debit Amount" <> 0) or ("Credit Amount" <> 0) then
                             HaveEntries := false
                         else
@@ -749,7 +746,7 @@ report 10711 "Detail Account Statement"
                         (ClosingDate(CalcDate('<-1D>', EndPeriodDate)) <> ToDate) and
                         ("Net Change" = 0)) and IncludeAccountBalance and not IncludeZeroBalance
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     PreviusData := true;
 
@@ -766,7 +763,7 @@ report 10711 "Detail Account Statement"
                     GLFilterAccType := GetFilter("Account Type");
                     SetRange("Account Type", "Account Type"::Posting);
 
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if PrintAmountsInAddCurrency then
                         HeaderText := StrSubstNo(Text1100003, GLSetup."Additional Reporting Currency")
                     else begin

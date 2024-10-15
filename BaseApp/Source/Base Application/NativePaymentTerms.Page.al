@@ -176,7 +176,7 @@ page 2861 "Native - Payment Terms"
         if TempFieldSet.Get(DATABASE::"Payment Terms", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Payment Terms";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

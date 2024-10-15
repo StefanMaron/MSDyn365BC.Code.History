@@ -1,4 +1,4 @@
-﻿page 6660 "Posted Return Receipt"
+page 6660 "Posted Return Receipt"
 {
     Caption = 'Posted Return Receipt';
     InsertAllowed = false;

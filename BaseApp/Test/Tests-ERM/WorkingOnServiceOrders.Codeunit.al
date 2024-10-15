@@ -186,7 +186,7 @@ codeunit 136112 "Working On Service Orders"
 
         // 1. Setup: Set "One Service Item Line/Order" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
         ServiceMgtSetup.Validate("One Service Item Line/Order", true);
         ServiceMgtSetup.Modify(true);
@@ -217,7 +217,7 @@ codeunit 136112 "Working On Service Orders"
 
         // 1. Setup: Set "One Service Item Line/Order" field False on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
         ServiceMgtSetup.Validate("One Service Item Line/Order", false);
         ServiceMgtSetup.Modify(true);
@@ -260,7 +260,7 @@ codeunit 136112 "Working On Service Orders"
         // 2. Exercise: Post Service Order with Ship Option, Set "One Service Item Line/Order" field True on Service Management Setup.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         DefaultSetupValue := ServiceMgtSetup."One Service Item Line/Order";
         ServiceMgtSetup.Validate("One Service Item Line/Order", true);
         ServiceMgtSetup.Modify(true);
@@ -599,7 +599,7 @@ codeunit 136112 "Working On Service Orders"
             CreateServiceCost(ServiceCost, ServiceCost."Cost Type"::Travel, Customer."Service Zone Code")
         else begin
             CreateServiceCost(ServiceCost, ServiceCost."Cost Type"::Other, '');
-            ServiceMgtSetup.Get;
+            ServiceMgtSetup.Get();
             ServiceMgtSetup.Validate("Service Order Starting Fee", ServiceCost.Code);
             ServiceMgtSetup.Modify(true);
         end;
@@ -609,7 +609,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
 
         // 2. Exercise: Add fee to the Service Line by Insert Starting Fee function.
-        ServiceLine.Init;
+        ServiceLine.Init();
         if CostType = CostType::Travel then
             ServOrderManagement.InsertServCost(ServiceLine, 0, false)
         else
@@ -650,7 +650,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryService.CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
         UpdateQuantityOnServiceLine(ServiceLine, ServiceItemLine."Line No.");
-        Commit;
+        Commit();
 
         // 3. Verify: Verify that Shows Error "Type must be Resource" on Split Resource line for all Service Lines.
         VerifySplitLineError(ServiceLine);
@@ -972,11 +972,11 @@ codeunit 136112 "Working On Service Orders"
 
         // 1. Setup: Create multiple Service Orders.
         Initialize;
-        SalesAndReceivablesSetup.Get;
+        SalesAndReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         No := CreateServiceOrderWithPage;
         No2 := CreateServiceOrderWithPage;
-        Commit;
+        Commit();
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than WORKDATE through the handler.
         BatchPostOrders(No, No2);
@@ -1005,12 +1005,12 @@ codeunit 136112 "Working On Service Orders"
 
         // 1. Setup: Create multiple Service Orders.
         Initialize;
-        SalesAndReceivablesSetup.Get;
+        SalesAndReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         No := CreateServiceOrderWithPage;
         No2 := CreateServiceOrderWithPage;
         SetBlueLocation(No, No2);
-        Commit;
+        Commit();
 
         // 2. Exercise: Run the Batch Post Service Orders with a random date greater than WORKDATE through the handler.
         BatchPostOrders(No, No2);
@@ -1040,14 +1040,14 @@ codeunit 136112 "Working On Service Orders"
         Initialize;
 
         for Index := 1 to ArrayLen(ServiceHeader) do begin
-            ServiceHeader[Index].Init;
+            ServiceHeader[Index].Init();
             ServiceHeader[Index]."No." := LibraryUtility.GenerateGUID;
             ServiceHeader[Index].Status := ServiceHeader[Index].Status::Finished;
-            ServiceHeader[Index].Insert;
+            ServiceHeader[Index].Insert();
         end;
         RangeText := StrSubstNo('%1..%2', ServiceHeader[1]."No.", ServiceHeader[ArrayLen(ServiceHeader)]."No.");
 
-        Commit;
+        Commit();
         ServiceOrders.OpenEdit;
         ServiceOrders.FILTER.SetFilter("No.", RangeText);
         ServiceOrders.PostBatch.Invoke;
@@ -1271,7 +1271,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Working On Service Orders");
     end;
@@ -1307,7 +1307,7 @@ codeunit 136112 "Working On Service Orders"
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceMgtSetup: Record "Service Mgt. Setup"; Modified: Boolean) SetupModified: Boolean
     begin
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         SetupModified := ModifyServiceSetupCopyComment(ServiceMgtSetup, Modified);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         CreateServiceItemLine(ServiceHeader);
@@ -1350,7 +1350,7 @@ codeunit 136112 "Working On Service Orders"
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
           ServiceHeader."Document Type", ServiceHeader."No.", ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
-        ServiceCommentLine.Modify;
+        ServiceCommentLine.Modify();
     end;
 
     local procedure PostServiceOrderFaultCode(var TempServiceItemLine: Record "Service Item Line" temporary)
@@ -1381,7 +1381,7 @@ codeunit 136112 "Working On Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
         UpdateQuantityOnServiceLine(ServiceLine, ServiceItemLine."Line No.");
         TempServiceItemLine := ServiceItemLine;
-        TempServiceItemLine.Insert;
+        TempServiceItemLine.Insert();
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
@@ -1416,7 +1416,7 @@ codeunit 136112 "Working On Service Orders"
         // 1. Setup: Set "Link Service to Service Item" field as False on Service Management Setup, Create Standard Service Code, Create
         // Standard Service Line for Create Standard Service Code, Create Service Order - Service Header and Service Item Line.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         Customer.Get(CreateCustomer);
         SetupModified := ModifySetupLinkServiceItem(ServiceMgtSetup, Modified);
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
@@ -1680,13 +1680,13 @@ codeunit 136112 "Working On Service Orders"
     begin
         ServiceHeader."Document Type" := DocumentType;
         ServiceHeader."No." := DocumentNo;
-        ServiceHeader.Insert;
+        ServiceHeader.Insert();
 
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
           DocumentType, DocumentNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
-        ServiceCommentLine.Modify;
+        ServiceCommentLine.Modify();
     end;
 
     local procedure SelectServiceItem(var ServiceItem: Record "Service Item")
@@ -1714,7 +1714,7 @@ codeunit 136112 "Working On Service Orders"
         ServiceCommentLine.FindSet;
         repeat
             TempServiceCommentLine := ServiceCommentLine;
-            TempServiceCommentLine.Insert;
+            TempServiceCommentLine.Insert();
         until ServiceCommentLine.Next = 0;
     end;
 

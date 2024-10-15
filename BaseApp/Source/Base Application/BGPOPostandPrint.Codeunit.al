@@ -53,11 +53,11 @@ codeunit 7000003 "BG/PO-Post and Print"
           false,
           BillGr);
 
-        Commit;
+        Commit();
 
         if PostedBillGr.Get(BillGr."No.") then begin
             PostedBillGr.SetRecFilter;
-            CarteraReportSelection.Reset;
+            CarteraReportSelection.Reset();
             CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Bill Group");
             CarteraReportSelection.Find('-');
             repeat
@@ -101,11 +101,11 @@ codeunit 7000003 "BG/PO-Post and Print"
         PmtOrd.SetRecFilter;
         REPORT.RunModal(REPORT::"Post Payment Order", false, false, PmtOrd);
 
-        Commit;
+        Commit();
 
         if PostedPmtOrd.Get(PmtOrd."No.") then begin
             PostedPmtOrd.SetRecFilter;
-            CarteraReportSelection.Reset;
+            CarteraReportSelection.Reset();
             CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
             CarteraReportSelection.Find('-');
             repeat
@@ -130,40 +130,40 @@ codeunit 7000003 "BG/PO-Post and Print"
                 begin
                     BillGr.Get(Number);
                     BillGr."No. Printed" := BillGr."No. Printed" + 1;
-                    BillGr.Modify;
+                    BillGr.Modify();
                 end;
             Table = DATABASE::"Payment Order":
                 begin
                     PaymentOrder.Get(Number);
                     PaymentOrder."No. Printed" := PaymentOrder."No. Printed" + 1;
-                    PaymentOrder.Modify;
+                    PaymentOrder.Modify();
                 end;
             Table = DATABASE::"Posted Bill Group":
                 begin
                     PostedBillGr.Get(Number);
                     PostedBillGr."No. Printed" := PostedBillGr."No. Printed" + 1;
-                    PostedBillGr.Modify;
+                    PostedBillGr.Modify();
                 end;
             Table = DATABASE::"Closed Bill Group":
                 begin
                     ClosedBillGr.Get(Number);
                     ClosedBillGr."No. Printed" := ClosedBillGr."No. Printed" + 1;
-                    ClosedBillGr.Modify;
+                    ClosedBillGr.Modify();
                 end;
             Table = DATABASE::"Posted Payment Order":
                 begin
                     PostedPaymentOrder.Get(Number);
                     PostedPaymentOrder."No. Printed" := PostedPaymentOrder."No. Printed" + 1;
-                    PostedPaymentOrder.Modify;
+                    PostedPaymentOrder.Modify();
                 end;
             Table = DATABASE::"Closed Payment Order":
                 begin
                     ClosedPaymentOrder.Get(Number);
                     ClosedPaymentOrder."No. Printed" := ClosedPaymentOrder."No. Printed" + 1;
-                    ClosedPaymentOrder.Modify;
+                    ClosedPaymentOrder.Modify();
                 end;
         end;
-        Commit;
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

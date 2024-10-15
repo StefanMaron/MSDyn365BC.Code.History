@@ -16,7 +16,7 @@ report 10722 "Void Electronic Payments"
                 if not (("Account Type" = "Account Type"::Vendor) and ("Document Type" = "Document Type"::Payment) or
                         ("Account Type" = "Account Type"::Customer) and ("Document Type" = "Document Type"::Refund))
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                     if "Bal. Account No." <> BankAccount."No." then

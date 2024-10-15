@@ -137,7 +137,7 @@ page 7000077 "Docs. in Closed PO Subform"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDoc;
                     end;
                 }
                 action("Dime&nsions")
@@ -150,7 +150,7 @@ page 7000077 "Docs. in Closed PO Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimension;
+                        ShowDimensions;
                     end;
                 }
                 action(Navigate)
@@ -160,7 +160,7 @@ page 7000077 "Docs. in Closed PO Subform"
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        NavigateDoc;
                     end;
                 }
             }
@@ -174,12 +174,12 @@ page 7000077 "Docs. in Closed PO Subform"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Navigate()
+    procedure NavigateDoc()
     begin
         CarteraManagement.NavigateClosedDoc(Rec);
     end;
 
-    local procedure Redraw()
+    local procedure RedrawDoc()
     begin
         CurrPage.SetSelectionFilter(ClosedDoc);
         if not ClosedDoc.Find('=><') then
@@ -190,7 +190,7 @@ page 7000077 "Docs. in Closed PO Subform"
             Error(Text1100000);
         ClosedDoc.SetRange("Document Type");
 
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         repeat
             VendLedgEntry.Get(ClosedDoc."Entry No.");
             VendLedgEntry.Mark(true);
@@ -199,12 +199,6 @@ page 7000077 "Docs. in Closed PO Subform"
         VendLedgEntry.MarkedOnly(true);
         REPORT.RunModal(REPORT::"Redraw Payable Bills", true, false, VendLedgEntry);
         CurrPage.Update(false);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimension()
-    begin
-        ShowDimensions;
     end;
 }
 

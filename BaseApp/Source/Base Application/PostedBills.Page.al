@@ -320,7 +320,7 @@ page 7000067 "Posted Bills"
 
                     trigger OnAction()
                     begin
-                        Reject;
+                        RejectDocs();
                     end;
                 }
                 action(Redraw)
@@ -332,7 +332,7 @@ page 7000067 "Posted Bills"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDocs();
                     end;
                 }
                 separator(Action39)
@@ -444,7 +444,7 @@ page 7000067 "Posted Bills"
     [Scope('OnPrem')]
     procedure UpdateStatistics()
     begin
-        PostedDoc.Reset;
+        PostedDoc.Reset();
         PostedDoc.SetCurrentKey("Bank Account No.", "Bill Gr./Pmt. Order No.", Status,
           "Category Code", Redrawn, "Due Date", "Document Type");
         PostedDoc.CopyFilters(Rec);
@@ -483,7 +483,7 @@ page 7000067 "Posted Bills"
         if PostedDoc.Type <> PostedDoc.Type::Receivable then
             Error(Text1100004);
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
@@ -494,7 +494,7 @@ page 7000067 "Posted Bills"
     end;
 
     [Scope('OnPrem')]
-    procedure Reject()
+    procedure RejectDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
@@ -508,7 +508,7 @@ page 7000067 "Posted Bills"
             Error(
               Text1100006 +
               Text1100001);
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry.Mark(true);
@@ -519,7 +519,7 @@ page 7000067 "Posted Bills"
     end;
 
     [Scope('OnPrem')]
-    procedure Redraw()
+    procedure RedrawDocs()
     begin
         CurrPage.SetSelectionFilter(PostedDoc);
         if not PostedDoc.Find('=><') then
@@ -537,7 +537,7 @@ page 7000067 "Posted Bills"
         PostedDoc.SetRange("Document Type");
 
         if Type = Type::Receivable then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             repeat
                 CustLedgEntry.Get(PostedDoc."Entry No.");
                 CustLedgEntry.Mark(true);
@@ -546,7 +546,7 @@ page 7000067 "Posted Bills"
             CustLedgEntry.MarkedOnly(true);
             REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);
         end else begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             repeat
                 VendLedgEntry.Get(PostedDoc."Entry No.");
                 VendLedgEntry.Mark(true);

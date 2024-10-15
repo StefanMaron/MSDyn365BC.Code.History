@@ -143,7 +143,7 @@ codeunit 136115 "Service Quote"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         Customer.Get(ServiceHeader."Customer No.");
         Customer.Validate(Blocked, Customer.Blocked::All);
-        Customer.Modify;
+        Customer.Modify();
 
         // 2. Exercise: Convert Service Quote to Service Order.  Error should be thrown.
         asserterror LibraryService.CreateOrderFromQuote(ServiceHeader);
@@ -166,7 +166,7 @@ codeunit 136115 "Service Quote"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         Customer.Get(ServiceHeader."Customer No.");
         Customer.Validate("Privacy Blocked", true);
-        Customer.Modify;
+        Customer.Modify();
 
         // 2. Exercise: Convert Service Quote to Service Order.  Error should be thrown.
         asserterror LibraryService.CreateOrderFromQuote(ServiceHeader);
@@ -189,9 +189,9 @@ codeunit 136115 "Service Quote"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Quote);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         ServiceHeader."Salesperson Code" := SalespersonPurchaser.Code;
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
         SalespersonPurchaser.Validate("Privacy Blocked", true);
-        SalespersonPurchaser.Modify;
+        SalespersonPurchaser.Modify();
 
         // 2. Exercise: Convert Service Quote to Service Order.  Error should be thrown.
         asserterror LibraryService.CreateOrderFromQuote(ServiceHeader);
@@ -344,7 +344,7 @@ codeunit 136115 "Service Quote"
         LibraryService.SetupServiceMgtNoSeries;
         LibrarySales.SetStockoutWarning(false);
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
         isInitialized := true;
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Quote");

@@ -92,7 +92,7 @@ codeunit 134147 "ERM Reverse Register No Error"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLRegister.FindLast;
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);

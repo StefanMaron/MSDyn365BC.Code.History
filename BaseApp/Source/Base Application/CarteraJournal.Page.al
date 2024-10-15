@@ -459,9 +459,9 @@ page 7000036 "Cartera Journal"
                         Rec := OldLinDiaCar;
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if PostOk then begin
-                            DeleteAll;
+                            DeleteAll();
                             ClosingForbidden := false;
-                            Commit;
+                            Commit();
                         end;
                         MarkedOnly(false);
                         CurrPage.Update(false);
@@ -490,9 +490,9 @@ page 7000036 "Cartera Journal"
                         Rec := OldLinDiaCar;
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if PostOk then begin
-                            DeleteAll;
+                            DeleteAll();
                             ClosingForbidden := false;
-                            Commit;
+                            Commit();
                         end;
                         MarkedOnly(false);
                         CurrPage.Update(false);

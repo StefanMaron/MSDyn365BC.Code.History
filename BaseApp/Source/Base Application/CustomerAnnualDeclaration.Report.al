@@ -18,9 +18,6 @@ report 10702 "Customer - Annual Declaration"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -130,7 +127,7 @@ report 10702 "Customer - Annual Declaration"
                     until CustEntries.Next = 0;
                 SalesAmt := InvoiceAmt - CrMemoAmt;
                 if SalesAmt <= MinAmount then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 SalesAmt := SalesAmt + IgnoreAmt;
 
@@ -217,7 +214,7 @@ report 10702 "Customer - Annual Declaration"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::"Initial Entry");

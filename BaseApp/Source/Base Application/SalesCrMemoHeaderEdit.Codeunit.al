@@ -8,13 +8,13 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader := Rec;
-        SalesCrMemoHeader.LockTable;
+        SalesCrMemoHeader.LockTable();
         SalesCrMemoHeader.Find;
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
         SalesCrMemoHeader.TestField("No.", "No.");
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;
         UpdateSIIDocUploadState(Rec);
     end;
@@ -40,7 +40,7 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
         SIIDocUploadState.IDType := SalesCrMemoHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesCrMemoHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesCrMemoHeader."Succeeded VAT Registration No.";
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 }
 

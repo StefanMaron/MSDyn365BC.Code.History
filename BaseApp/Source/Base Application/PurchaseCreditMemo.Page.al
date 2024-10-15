@@ -1,4 +1,4 @@
-﻿page 52 "Purchase Credit Memo"
+page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
     PageType = Document;
@@ -806,7 +806,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
@@ -1457,7 +1457,6 @@
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
@@ -1480,6 +1479,9 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1525,7 +1527,7 @@
             NavigateAfterPost::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
-                    PurchaseHeader.Init;
+                    PurchaseHeader.Init();
                     PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
                     OnPostDocumentOnBeforePurchaseHeaderInsert(PurchaseHeader);
                     PurchaseHeader.Insert(true);
@@ -1580,7 +1582,7 @@
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         VendorCreditMemoNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
     end;
 

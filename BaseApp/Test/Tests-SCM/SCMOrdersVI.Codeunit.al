@@ -514,7 +514,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasePrices.VendNoFilterCtrl.SetValue('');
 
         // [THEN] Purchase Price is not created.
-        PurchasePrice.Init;
+        PurchasePrice.Init();
         PurchasePrice.SetRange("Vendor No.", VendorNo);
         Assert.RecordIsEmpty(PurchasePrice);
     end;
@@ -543,7 +543,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasePrices.ItemNoFIlterCtrl.SetValue('');
 
         // [THEN] Purchase Price is not created.
-        PurchasePrice.Init;
+        PurchasePrice.Init();
         PurchasePrice.SetRange("Item No.", ItemNo);
         Assert.RecordIsEmpty(PurchasePrice);
     end;
@@ -1031,8 +1031,6 @@ codeunit 137163 "SCM Orders VI"
         // [GIVEN] Purchase Invoice with Charge Item with line discount and invoice discount.
         Initialize;
 
-        UpdateDiscountOnPurchasePayableSetup(true);
-
         ExpdTotalDisAmt :=
           CreatePurchInvoiceWithItemChargeWithLnDiscAndInvDisc(
             PurchaseHeader, GeneralPostingSetup, false); // Prices Including VAT is disabled.
@@ -1044,8 +1042,6 @@ codeunit 137163 "SCM Orders VI"
         VerifyDiscountAmountInValueEntry(PostedDocNo, ExpdTotalDisAmt);
         VerifyDiscountAmountInGLEntry(
           PostedDocNo, GeneralPostingSetup."Purch. Line Disc. Account", GeneralPostingSetup."Purch. Inv. Disc. Account", -ExpdTotalDisAmt);
-
-        UpdateDiscountOnPurchasePayableSetup(false);
     end;
 
     [Test]
@@ -1629,7 +1625,7 @@ codeunit 137163 "SCM Orders VI"
           ProdOrderComponent, ProdOrderComponent.Status::Planned, ProductionOrder."No.", ProdOrderLine."Line No.");
 
         // [WHEN] Changing Item No on a new Production Order Line
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         ProdOrderLine.Validate("Line No.", 0);
         ProdOrderLine.Validate("Item No.", LibraryInventory.CreateItemNo);
 
@@ -1801,7 +1797,7 @@ codeunit 137163 "SCM Orders VI"
         LocationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -2432,7 +2428,7 @@ codeunit 137163 "SCM Orders VI"
         VendorCard: TestPage "Vendor Card";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         PurchasePrices.Trap;
         OpenVendorCard(VendorCard, Vendor."No.");
         VendorCard.Prices.Invoke;  // Open Purchase Price Page from Vendor Card.
@@ -3033,23 +3029,11 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateDiscountOnPurchasePayableSetup(IsDiscount: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        with PurchasesPayablesSetup do begin
-            Get;
-            "Post Invoice Discount" := IsDiscount;
-            "Post Line Discount" := IsDiscount;
-            Modify;
-        end;
-    end;
-
     local procedure UpdateExpectedCostPostingToGLOnInventorySetup(NewExpectedCostPostingToGL: Boolean) OldExpectedCostPostingToGL: Boolean
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryVariableStorage.Enqueue(ExpectedCostPostingToGLQst);
         LibraryVariableStorage.Enqueue(true);
         if NewExpectedCostPostingToGL then
@@ -3075,7 +3059,7 @@ codeunit 137163 "SCM Orders VI"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldExactCostReversingMandatory := PurchasesPayablesSetup."Exact Cost Reversing Mandatory";
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);

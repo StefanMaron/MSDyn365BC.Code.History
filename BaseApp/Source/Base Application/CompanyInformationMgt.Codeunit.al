@@ -41,7 +41,7 @@ codeunit 1306 "Company Information Mgt."
     begin
         if not PaymentRegistrationSetup.Get(UserId) then begin
             PaymentRegistrationSetup."User ID" := UserId;
-            PaymentRegistrationSetup.Insert;
+            PaymentRegistrationSetup.Insert();
         end;
         PaymentRegistrationSetup."Journal Template Name" := JournalTemplateName;
         PaymentRegistrationSetup."Journal Batch Name" := JournalBatchName;
@@ -49,7 +49,7 @@ codeunit 1306 "Company Information Mgt."
         PaymentRegistrationSetup."Bal. Account No." := BankAccount."No.";
         PaymentRegistrationSetup."Use this Account as Def." := true;
         PaymentRegistrationSetup."Auto Fill Date Received" := true;
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
     end;
 
     local procedure UpdateBankAccount(var BankAccount: Record "Bank Account"; CompanyInformation: Record "Company Information"; BankAccountPostingGroup: Code[20])
@@ -59,9 +59,9 @@ codeunit 1306 "Company Information Mgt."
 
         with CompanyInformation do begin
             if not BankAccount.Get(BankAccount."No.") then begin
-                BankAccount.Init;
+                BankAccount.Init();
                 BankAccount."No." := CompanyBankAccountTxt;
-                BankAccount.Insert;
+                BankAccount.Insert();
             end;
             BankAccount.Validate(Name, "Bank Name");
             BankAccount.Validate("CCC Bank No.", "CCC Bank No.");
@@ -72,7 +72,7 @@ codeunit 1306 "Company Information Mgt."
 
             if BankAccountPostingGroup <> '' then
                 BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup);
-            BankAccount.Modify;
+            BankAccount.Modify();
         end;
     end;
 
@@ -106,7 +106,7 @@ codeunit 1306 "Company Information Mgt."
         if Rec.IsTemporary then
             exit;
 
-        Company.LockTable;
+        Company.LockTable();
         if Company.Get(Rec.CurrentCompany) then
             if (Company."Display Name" <> Rec.Name) and (Rec.Name <> '') and (xRec.Name <> Rec.Name) then begin
                 Company.Validate("Display Name", Rec.Name);

@@ -34,7 +34,7 @@ codeunit 7000004 "Document-Move"
     procedure MoveBankAccDocs(BankAcc: Record "Bank Account")
     begin
         with BillGr do begin
-            LockTable;
+            LockTable();
             if BillGr2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");
@@ -44,7 +44,7 @@ codeunit 7000004 "Document-Move"
         end;
 
         with PostedBillGr do begin
-            LockTable;
+            LockTable();
             if PostedBillGr2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");
@@ -54,7 +54,7 @@ codeunit 7000004 "Document-Move"
         end;
 
         with ClosedBillGr do begin
-            LockTable;
+            LockTable();
             if ClosedBillGr2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");
@@ -69,7 +69,7 @@ codeunit 7000004 "Document-Move"
         end;
 
         with PmtOrd do begin
-            LockTable;
+            LockTable();
             if PmtOrd2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");
@@ -79,7 +79,7 @@ codeunit 7000004 "Document-Move"
         end;
 
         with PostedPmtOrd do begin
-            LockTable;
+            LockTable();
             if PostedPmtOrd2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");
@@ -89,7 +89,7 @@ codeunit 7000004 "Document-Move"
         end;
 
         with ClosedPmtOrd do begin
-            LockTable;
+            LockTable();
             if ClosedPmtOrd2.FindLast then;
             Reset;
             SetCurrentKey("Bank Account No.");

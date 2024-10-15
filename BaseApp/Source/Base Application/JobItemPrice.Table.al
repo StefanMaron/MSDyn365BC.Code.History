@@ -3,6 +3,9 @@ table 1013 "Job Item Price"
     Caption = 'Job Item Price';
     DrillDownPageID = "Job Item Prices";
     LookupPageID = "Job Item Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -123,7 +126,7 @@ table 1013 "Job Item Price"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         Job.Get("Job No.");
         TestField("Item No.");
     end;

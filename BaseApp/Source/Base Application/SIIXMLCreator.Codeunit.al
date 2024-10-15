@@ -234,13 +234,13 @@ codeunit 10750 "SII XML Creator"
         if TempVATEntryOut.FindFirst then begin
             TempVATEntryOut.Amount += VATAmount;
             TempVATEntryOut.Base += TempVATEntry.Base + TempVATEntry."Unrealized Base";
-            TempVATEntryOut.Modify;
+            TempVATEntryOut.Modify();
         end else begin
-            TempVATEntryOut.Init;
+            TempVATEntryOut.Init();
             TempVATEntryOut.Copy(TempVATEntry);
             TempVATEntryOut.Amount := VATAmount;
             TempVATEntryOut.Base := TempVATEntryOut.Base + TempVATEntryOut."Unrealized Base";
-            TempVATEntryOut.Insert;
+            TempVATEntryOut.Insert();
         end;
         TempVATEntryOut.SetRange("VAT %");
         TempVATEntryOut.SetRange("EC %");
@@ -721,7 +721,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure AddPurchVATEntries(var XMLNode: DotNet XmlNode; var TempVATEntry: Record "VAT Entry" temporary)
     begin
-        TempVATEntry.Reset;
+        TempVATEntry.Reset();
         TempVATEntry.SetCurrentKey("VAT %", "EC %");
         if TempVATEntry.FindSet then
             repeat
@@ -839,7 +839,7 @@ codeunit 10750 "SII XML Creator"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(Round(Base * ECPercentage / 100, GeneralLedgerSetup."Amount Rounding Precision"));
     end;
 
@@ -928,7 +928,7 @@ codeunit 10750 "SII XML Creator"
         end;
 
         // Generating XML node for NonExempt part
-        TempVATEntryCalculatedNonExempt.Reset;
+        TempVATEntryCalculatedNonExempt.Reset();
         TempVATEntryCalculatedNonExempt.SetCurrentKey("VAT %", "EC %");
         if TempVATEntryCalculatedNonExempt.FindSet then begin
             AddTipoDesgloseDetailHeader(
@@ -977,13 +977,13 @@ codeunit 10750 "SII XML Creator"
         if NonTaxableAmount = 0 then
             exit;
 
-        TempVATEntryCalculated.Reset;
+        TempVATEntryCalculated.Reset();
         if TempVATEntryCalculated.FindLast then;
 
-        TempVATEntryCalculated.Init;
+        TempVATEntryCalculated.Init();
         TempVATEntryCalculated."Entry No." += 1;
         TempVATEntryCalculated.Base := NonTaxableAmount;
-        TempVATEntryCalculated.Insert;
+        TempVATEntryCalculated.Insert();
     end;
 
     local procedure GetExemptionCode(VATEntry: Record "VAT Entry"; var ExemptionCode: Option): Boolean
@@ -1193,7 +1193,7 @@ codeunit 10750 "SII XML Creator"
                 TempVATEntryPerPercent.SetRange("EU Service", EUService);
             EntriesFound := TempVATEntryPerPercent.FindSet;
             if not EntriesFound then
-                TempVATEntryPerPercent.Init;
+                TempVATEntryPerPercent.Init();
             if EntriesFound or (ExemptExists and (not EUService)) then begin
                 AddTipoDesgloseDetailHeader(
                   TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
@@ -1212,7 +1212,7 @@ codeunit 10750 "SII XML Creator"
                     until TempVATEntryPerPercent.Next = 0;
                 end;
             end;
-            TempVATEntryPerPercent.DeleteAll;
+            TempVATEntryPerPercent.DeleteAll();
             if not NonTaxHandled then begin
                 Clear(DomesticXMLNode);
                 Clear(EUServiceXMLNode);
@@ -1336,7 +1336,7 @@ codeunit 10750 "SII XML Creator"
         CuotaDeducibleDecValue := Abs(CuotaDeducibleDecValue);
 
         // loop over and fill diffs
-        TempVATEntryPerPercent.Reset;
+        TempVATEntryPerPercent.Reset();
         TempVATEntryPerPercent.SetCurrentKey("VAT %", "EC %");
         if TempVATEntryPerPercent.FindSet then begin
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseIVA', '', 'sii', SiiTxt, XMLNode);
@@ -1504,7 +1504,7 @@ codeunit 10750 "SII XML Creator"
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoDesglose', '', 'sii', SiiTxt, XMLNode);
         TipoDesgloseXMLNode := XMLNode;
-        TempVATEntryPerPercent.Reset;
+        TempVATEntryPerPercent.Reset();
         TempVATEntryPerPercent.SetCurrentKey("VAT %", "EC %");
         NormalVATEntriesFound := TempVATEntryPerPercent.FindSet;
         if NormalVATEntriesFound or ExemptExists then
@@ -1767,7 +1767,7 @@ codeunit 10750 "SII XML Creator"
         if SIISetupInitialized then
             exit;
 
-        SIISetup.Get;
+        SIISetup.Get();
         SIISetup.TestField("Invoice Amount Threshold");
         SIISetup.TestField("SuministroInformacion Schema");
         SIISetup.TestField("SuministroLR Schema");
@@ -2042,7 +2042,7 @@ codeunit 10750 "SII XML Creator"
                 EntryNo += 1;
                 TempVATEntryPerPercent."Entry No." := EntryNo;
                 TempVATEntryPerPercent.Base := ExemptionBaseAmounts[ExemptionEntryIndex];
-                TempVATEntryPerPercent.Insert;
+                TempVATEntryPerPercent.Insert();
             end;
         Clear(ExemptionCausePresent);
         Clear(ExemptionBaseAmounts);
@@ -2067,7 +2067,7 @@ codeunit 10750 "SII XML Creator"
                     TempVATEntryCalculatedNonExempt.TransferFields(NoTaxableEntry);
                     TempVATEntryCalculatedNonExempt."Entry No." := EntryNo;
                     TempVATEntryCalculatedNonExempt.Amount := 0;
-                    TempVATEntryCalculatedNonExempt.Insert;
+                    TempVATEntryCalculatedNonExempt.Insert();
                 until NoTaxableEntry.Next = 0;
         end;
     end;

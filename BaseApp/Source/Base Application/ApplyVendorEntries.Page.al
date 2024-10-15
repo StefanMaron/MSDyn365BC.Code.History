@@ -1,4 +1,4 @@
-﻿page 233 "Apply Vendor Entries"
+page 233 "Apply Vendor Entries"
 {
     Caption = 'Apply Vendor Entries';
     DataCaptionFields = "Vendor No.";
@@ -28,7 +28,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
                     ToolTip = 'Specifies the document type of the entry to be applied.';
                 }
                 field("ApplyingVendLedgEntry.""Document No."""; ApplyingVendLedgEntry."Document No.")
@@ -638,12 +637,12 @@
             FindApplyingEntry;
         end;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         VendNameVisible := PurchSetup."Copy Vendor Name to Entries";
 
         AppliesToIDVisible := ApplnType <> ApplnType::"Applies-to Doc. No.";
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if CalcType = CalcType::GenJnlLine then
             CalcApplnAmount;
@@ -811,9 +810,9 @@
                 begin
                     ApplyingVendLedgEntry."Posting Date" := PurchHeader."Posting Date";
                     if PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order" then
-                        ApplyingVendLedgEntry."Document Type" := PurchHeader."Document Type"::"Credit Memo"
+                        ApplyingVendLedgEntry."Document Type" := ApplyingVendLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingVendLedgEntry."Document Type" := PurchHeader."Document Type";
+                        ApplyingVendLedgEntry."Document Type" := PurchHeader."Document Type".AsInteger();
                     ApplyingVendLedgEntry."Document No." := PurchHeader."No.";
                     ApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
                     ApplyingVendLedgEntry.Description := PurchHeader."Posting Description";
@@ -1067,7 +1066,7 @@
     local procedure FindAmountRounding()
     begin
         if ApplnCurrencyCode = '' then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision;
         end else
@@ -1156,7 +1155,7 @@
 
         repeat
             TempAppliedVendLedgEntry := AppliedVendLedgEntry;
-            TempAppliedVendLedgEntry.Insert;
+            TempAppliedVendLedgEntry.Insert();
         until AppliedVendLedgEntry.Next = 0;
 
         FromZeroGenJnl := (CurrentAmount = 0) and (Type = Type::GenJnlLine);
@@ -1236,7 +1235,7 @@
             if not DifferentCurrenciesInAppln then
                 DifferentCurrenciesInAppln := ApplnCurrencyCode <> TempAppliedVendLedgEntry."Currency Code";
 
-            TempAppliedVendLedgEntry.Delete;
+            TempAppliedVendLedgEntry.Delete();
             TempAppliedVendLedgEntry.SetRange(Positive);
 
         until not TempAppliedVendLedgEntry.FindFirst;

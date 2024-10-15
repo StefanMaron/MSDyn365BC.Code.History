@@ -40,18 +40,16 @@ table 82 "Item Journal Template"
         {
             Caption = 'Force Posting Report';
         }
-        field(9; Type; Option)
+        field(9; Type; Enum "Item Journal Template Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Transfer,Phys. Inventory,Revaluation,Consumption,Output,Capacity,Prod. Order';
-            OptionMembers = Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order";
 
             trigger OnValidate()
             begin
                 "Test Report ID" := REPORT::"Inventory Posting - Test";
                 "Posting Report ID" := REPORT::"Item Register - Quantity";
                 "Whse. Register Report ID" := REPORT::"Warehouse Register - Quantity";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::Item:
                         begin
@@ -232,7 +230,7 @@ table 82 "Item Journal Template"
         ItemJnlLine.SetRange("Journal Template Name", Name);
         ItemJnlLine.DeleteAll(true);
         ItemJnlBatch.SetRange("Journal Template Name", Name);
-        ItemJnlBatch.DeleteAll;
+        ItemJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

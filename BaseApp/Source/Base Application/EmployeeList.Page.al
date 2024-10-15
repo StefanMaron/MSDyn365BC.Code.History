@@ -1,4 +1,4 @@
-﻿page 5201 "Employee List"
+page 5201 "Employee List"
 {
     ApplicationArea = BasicHR;
     Caption = 'Employees';

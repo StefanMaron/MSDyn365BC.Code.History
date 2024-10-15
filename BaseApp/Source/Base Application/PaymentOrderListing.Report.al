@@ -29,9 +29,6 @@ report 7000010 "Payment Order Listing"
                     column(STRSUBSTNO_Text1100001_CopyText_; StrSubstNo(Text1100001, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1100002, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -281,7 +278,6 @@ report 7000010 "Payment Order Listing"
                         CopyText := Text1100000;
                         OutputNo += 1;
                     end;
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPreDataItem()
@@ -308,7 +304,7 @@ report 7000010 "Payment Order Listing"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddress.Company(CompanyAddr, CompanyInfo);
             end;
         }

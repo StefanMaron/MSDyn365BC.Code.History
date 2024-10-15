@@ -12,7 +12,7 @@ report 9200 "Void/Transmit Elec. Pmnts"
             trigger OnAfterGetRecord()
             begin
                 if SkipReport("Account Type", "Bal. Account Type", "Account No.", "Bal. Account No.", BankAccount."No.") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if FirstTime then begin
                     case UsageType of

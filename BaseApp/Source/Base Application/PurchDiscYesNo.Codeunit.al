@@ -6,7 +6,7 @@ codeunit 71 "Purch.-Disc. (Yes/No)"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
             if ConfirmManagement.GetResponseOrDefault(Text000, true) then
                 CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", Rec);

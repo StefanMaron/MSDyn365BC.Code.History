@@ -53,7 +53,7 @@ codeunit 133770 "ERM Remittance Report UT"
         CreatePaymentGenJnlLine(GenJournalLine, DocumentNo, PaymentAmount);
 
         // Exercise: Run the Report Remittance Advice - Journal.
-        Commit;
+        Commit();
         XmlParameters := REPORT.RunRequestPage(REPORT::"Remittance Advice - Journal");
         LibraryReportDataset.RunReportAndLoad(REPORT::"Remittance Advice - Journal", GenJournalLine, XmlParameters);
 

@@ -172,7 +172,7 @@ page 7000004 "Docs. in BG Subform"
 
                     trigger OnAction()
                     begin
-                        Categorize;
+                        CategorizeDocs();
                     end;
                 }
                 action(Decategorize)
@@ -184,7 +184,7 @@ page 7000004 "Docs. in BG Subform"
 
                     trigger OnAction()
                     begin
-                        Decategorize;
+                        DecategorizeDocs();
                     end;
                 }
                 action(Print)
@@ -231,14 +231,14 @@ page 7000004 "Docs. in BG Subform"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Categorize()
+    procedure CategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(Doc);
         CarteraManagement.CategorizeDocs(Doc);
     end;
 
     [Scope('OnPrem')]
-    procedure Decategorize()
+    procedure DecategorizeDocs()
     begin
         CurrPage.SetSelectionFilter(Doc);
         CarteraManagement.DecategorizeDocs(Doc);
@@ -267,7 +267,7 @@ page 7000004 "Docs. in BG Subform"
             exit;
 
         if Doc."Document Type" = Doc."Document Type"::Bill then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             repeat
                 CustLedgEntry.Get(Doc."Entry No.");
                 CustLedgEntry.Mark(true);
@@ -276,7 +276,7 @@ page 7000004 "Docs. in BG Subform"
             CustLedgEntry.MarkedOnly(true);
             CustLedgEntry.PrintBill(true);
         end else begin
-            SalesInvHeader.Reset;
+            SalesInvHeader.Reset();
             repeat
                 SalesInvHeader.Get(Doc."Document No.");
                 SalesInvHeader.Mark(true);

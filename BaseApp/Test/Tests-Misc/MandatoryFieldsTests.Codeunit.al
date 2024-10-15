@@ -201,8 +201,21 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(CompanyInformation.City.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Country/Region Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(CompanyInformation."CCC Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(CompanyInformation."CCC Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(CompanyInformation.IBAN.ShowMandatory, UnexpectedShowMandatoryValueTxt);
+
+        // if you set Bank Branch No. and Bank Account No., IBAN is no longer mandatory
+        CompanyInformation."Bank Branch No.".SetValue('0123');
+        CompanyInformation."Bank Account No.".SetValue('3176000000');
+        Assert.IsFalse(CompanyInformation.IBAN.ShowMandatory, UnexpectedShowMandatoryValueTxt);
+
+        // if you set IBAN, Bank Branch No. and Bank Account No. are no longer mandatory
+        CompanyInformation."Bank Branch No.".SetValue('');
+        CompanyInformation."Bank Account No.".SetValue('');
+        CompanyInformation.IBAN.SetValue('DK44 0123 3176 0000 00');
+        Assert.IsFalse(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsFalse(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         CompanyInformation.Close;
     end;
 
@@ -215,8 +228,6 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesInvoice.OpenNew;
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesInvoice."Payment Method Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesInvoice."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
         SalesInvoice.SalesLines.New;
         Assert.AreEqual(false, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -248,8 +259,6 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesOrder.OpenNew;
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesOrder."Payment Method Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesOrder."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
         SalesOrder.SalesLines.New;
         Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -299,8 +308,6 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesQuote.OpenNew;
         Assert.IsTrue(SalesQuote."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesQuote."Payment Method Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(SalesQuote."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesQuote.SalesLines.New;
         Assert.IsFalse(SalesQuote.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -357,8 +364,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(PurchaseInvoice."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
-        Assert.IsTrue(PurchaseInvoice."Payment Method Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseInvoice."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.PurchLines.New;
         Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -389,8 +394,6 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseOrder.OpenNew;
         Assert.IsTrue(PurchaseOrder."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseOrder."Payment Method Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Assert.IsTrue(PurchaseOrder."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         PurchaseOrder.PurchLines.New;
         Assert.IsFalse(PurchaseOrder.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -445,7 +448,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         PurchasesPayablesSetup.FindFirst;
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)
@@ -454,7 +457,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure DeleteAllTemplates()

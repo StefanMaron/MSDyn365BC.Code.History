@@ -166,7 +166,7 @@ report 10720 "Export Schedules to ASC format"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FileName := RBMgt.ServerTempFileName('asc');
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', '.-/'), 1, 9);
     end;

@@ -54,10 +54,10 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
 
         // Pre-Exercise
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         GenJnlLine."Data Exch. Entry No." := DataExch."Entry No.";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Exp. Pre-Mapping Gen. Jnl.", DataExch);
@@ -103,10 +103,10 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
 
         // Pre-Exercise
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         GenJnlLine."Data Exch. Entry No." := DataExch."Entry No.";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Exp. Post-Mapping Gen. Jnl.", DataExch);
@@ -161,10 +161,10 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         CreditTransferRegisterNo := CreditTransferRegister."No.";
 
         // Pre-Exercise
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         GenJnlLine."Data Exch. Entry No." := DataExch."Entry No.";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Exp. User Feedback Gen. Jnl.", DataExch);
@@ -204,10 +204,10 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
           GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
 
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         GenJournalLine."Data Exch. Entry No." := DataExch."Entry No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Exp. Pre-Mapping Gen. Jnl.", DataExch);
 
         PaymentExportData.SetRange("Data Exch Entry No.", GenJournalLine."Data Exch. Entry No.");

@@ -190,7 +190,7 @@ codeunit 138945 "BC Contact Lookup Tests"
 
     local procedure CreateContact(var Contact: Record Contact; Name: Text[50])
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.Validate("No.", LibraryUtility.GenerateGUID);
         Contact.Validate(Type, Contact.Type::Person);
         Contact.Validate(Name, Name);
@@ -243,10 +243,10 @@ codeunit 138945 "BC Contact Lookup Tests"
         LibraryVariableStorage.AssertEmpty;
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
-        Customer.DeleteAll;
-        Contact.DeleteAll;
+        Customer.DeleteAll();
+        Contact.DeleteAll();
 
         if IsInitialized then
             exit;

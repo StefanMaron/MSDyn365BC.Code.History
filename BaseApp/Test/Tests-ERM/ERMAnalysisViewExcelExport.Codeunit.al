@@ -45,7 +45,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock last date updated
         AnalysisView."Last Date Updated" := Today;
-        AnalysisView.Modify;
+        AnalysisView.Modify();
 
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
@@ -70,6 +70,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     [Scope('OnPrem')]
     procedure AnalysisViewDataSheetColumnCaptions()
     var
+        GLAccount: Record "G/L Account";
         Dimension: Record Dimension;
         AnalysisView: Record "Analysis View";
         AnalysisViewEntry: Record "Analysis View Entry";
@@ -85,8 +86,9 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export with indented G/L Account and indented dimensions makes proper column captions on data sheet
 
         // [GIVEN] G/L Account with indentation MaxLevel
-        MaxGLAccountLevel := 5;
-        GLAccountFilter := CreateIndentedGLAccount(GLAccountNo);
+        GLAccount.DeleteAll();
+        MaxGLAccountLevel := LibraryRandom.RandIntInRange(2, 5);
+        GLAccountFilter := CreateIndentedGLAccount(MaxGLAccountLevel, GLAccountNo);
 
         // [GIVEN] New dimension DIM with intended values
         MaxDimLevel := LibraryRandom.RandIntInRange(2, 5);
@@ -98,7 +100,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
-          AnalysisView, AnalysisViewEntry, GLAccountNo[5], DimensionValue,
+          AnalysisView, AnalysisViewEntry, GLAccountNo[3], DimensionValue,
           WorkDate);
 
         // [WHEN] Analisys View is being exported
@@ -149,6 +151,90 @@ codeunit 134236 "ERM Analysis View Excel Export"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure MultiLevelGLAccountFourSimpleDimensions()
+    var
+        GLAccount: Record "G/L Account";
+        AnalysisView: Record "Analysis View";
+        AnalysisViewEntry: Record "Analysis View Entry";
+        DimensionValue: array[4] of Record "Dimension Value";
+        GLAccountNo: array[5] of Code[20];
+        ServerFileName: Text;
+        MaxGLAccountLevel: Integer;
+        GLAccountFilter: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Export analysis view entry with multi-level G/L Account and 4 single-level-dimentions
+
+        // [GIVEN] G/L Account with indentation MaxLevel
+        GLAccount.DeleteAll();
+        MaxGLAccountLevel := LibraryRandom.RandIntInRange(2, 5);
+        GLAccountFilter := CreateIndentedGLAccount(MaxGLAccountLevel, GLAccountNo);
+
+        // [GIVEN] 4 new dimensions with values
+        CreateDimsWithValuesForAnalysisView(DimensionValue);
+        // [GIVEN] Analysis View with 4 dimensions
+        CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account", DimensionValue);
+
+        // [GIVEN] Mock analysis view entry
+        CreateAnalysisViewEntryWithDimension(
+          AnalysisView, AnalysisViewEntry, GLAccountNo[MaxGLAccountLevel + 1], DimensionValue,
+          WorkDate);
+
+        // [WHEN] Analisys View is being exported
+        ServerFileName :=
+          AnalysisViewExportToExcelGeneral(
+            AnalysisView, AmountField::Amount, '', GLAccountFilter, '', '', '', '', '',
+            AmountType::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+
+        // [THEN] Analysis View Entry exported to excel with all parent accounts
+        VerifyIndentedGLAccountSimpleDimensions(
+          ServerFileName, AnalysisViewEntry, MaxGLAccountLevel, GLAccountNo, DimensionValue);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DifferentLevelGLAccounts()
+    var
+        GLAccount: Record "G/L Account";
+        AnalysisView: Record "Analysis View";
+        AnalysisViewEntry: Record "Analysis View Entry";
+        DimensionValue: array[4] of Record "Dimension Value";
+        GLAccountNo: array[4] of Code[20];
+        ServerFileName: Text;
+        GLAccountFilter: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Export analysis view entry with different identation level G/L Accounts and 4 single-level-dimentions
+
+        // [GIVEN] Intermediate-level G/L Account with MaxLevel = n
+        GLAccount.DeleteAll();
+        GLAccountFilter := CreateDifferentLevelGLAccounts(GLAccountNo);
+
+        // [GIVEN] 4 new dimensions with values
+        CreateDimsWithValuesForAnalysisView(DimensionValue);
+        // [GIVEN] Analysis View with 4 dimensions
+        CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account", DimensionValue);
+
+        // [GIVEN] Mock analysis view entry
+        CreateAnalysisViewEntryWithDimension(
+          AnalysisView, AnalysisViewEntry, GLAccountNo[2], DimensionValue,
+          WorkDate);
+
+        // [WHEN] Analisys View is being exported
+        ServerFileName :=
+          AnalysisViewExportToExcelGeneral(
+            AnalysisView, AmountField::Amount, '', GLAccountFilter, '', '', '', '', '',
+            AmountType::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+
+        // [THEN] Analysis View Entry exported to excel
+        VerifyDIffIndentedAccountSimpleDimensions(
+          ServerFileName, AnalysisViewEntry, GLAccountNo, DimensionValue, GLAccountFilter);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -166,7 +252,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with different identation level Cash Flow Accounts and 4 single-level-dimentions
 
         // [GIVEN] Intermediate-level G/L Account with MaxLevel = n
-        CashFlowAccount.DeleteAll;
+        CashFlowAccount.DeleteAll();
         CFAccountFilter := CreateDifferentLevelCFAccounts(CFAccountNo);
 
         // [GIVEN] 4 new dimensions with values
@@ -297,7 +383,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock last date updated
         ItemAnalysisView."Last Date Updated" := Today;
-        ItemAnalysisView.Modify;
+        ItemAnalysisView.Modify();
 
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
@@ -459,6 +545,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     local procedure AnalysisViewExportToExcelGeneral(AnalysisView: Record "Analysis View"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text): Text
     var
         AnalysisViewEntry: Record "Analysis View Entry";
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
         ExportAnalysisView: Codeunit "Export Analysis View";
     begin
         SetCommonFiltersAnalysisViewEntry(
@@ -466,12 +553,29 @@ codeunit 134236 "ERM Analysis View Excel Export"
           Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, BusUnitFilter);
         AnalysisViewEntry.FindFirst;
         ExportAnalysisView.SetSkipDownload;
-        ExportAnalysisView.ExportData(
-          AnalysisViewEntry, false, false,
-          AmountField, false, DateFilter, AccFilter, BudgetFilter,
-          Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+        MakeAnalysisByDimParameters(AnalysisByDimParameters, AmountField, DateFilter, AccFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
+          Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+        ExportAnalysisView.ExportData(AnalysisViewEntry, AnalysisByDimParameters);
 
         exit(ExportAnalysisView.GetServerFileName);
+    end;
+
+    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text)
+    begin
+        with AnalysisByDimParameters do begin
+            "Show Amount Field" := AmountField;
+            "Date Filter" := DateFilter;
+            "Account Filter" := AccFilter;
+            "Budget Filter" := BudgetFilter;
+            "Dimension 1 Filter" := Dim1Filter;
+            "Dimension 2 Filter" := Dim2Filter;
+            "Dimension 3 Filter" := Dim3Filter;
+            "Dimension 4 Filter" := Dim4Filter;
+            "Amount Type" := AmountType;
+            "Closing Entries" := ClosingEntryFilter;
+            "Show Actual/Budgets" := ShowActualBudg;
+            "Bus. Unit Filter" := BusUnitFilter;
+        end;
     end;
 
     local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
@@ -495,7 +599,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisView."Dimension 2 Code" := DimensionValue[2]."Dimension Code";
         AnalysisView."Dimension 3 Code" := DimensionValue[3]."Dimension Code";
         AnalysisView."Dimension 4 Code" := DimensionValue[4]."Dimension Code";
-        AnalysisView.Modify;
+        AnalysisView.Modify();
     end;
 
     local procedure CreateAnalysisViewEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -508,7 +612,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisViewEntry."Dimension 4 Value Code" := DimensionValue[4].Code;
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
     end;
 
     local procedure CreateAnalysisViewCFEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -522,7 +626,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisViewEntry."Dimension 4 Value Code" := DimensionValue[4].Code;
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
     end;
 
     local procedure CreateAnalysisViewBudgetEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -564,6 +668,21 @@ codeunit 134236 "ERM Analysis View Excel Export"
             CreateDimWithValue(DimensionValue[i]);
     end;
 
+    local procedure CreateDifferentLevelGLAccounts(var GLAccountNo: array[4] of Code[20]): Text
+    var
+        GLAccountIndent: Codeunit "G/L Account-Indent";
+        EndAccountNo: Code[20];
+    begin
+        GLAccountNo[1] := CreateBeginTotalGLAccountNo;
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[3] := CreateBeginTotalGLAccountNo;
+        GLAccountNo[4] := LibraryERM.CreateGLAccountNo;
+        CreateEndTotalGLAccountNo;
+        EndAccountNo := CreateEndTotalGLAccountNo;
+        GLAccountIndent.Indent;
+        exit(StrSubstNo('%1..%2', GLAccountNo[1], EndAccountNo));
+    end;
+
     local procedure CreateDifferentLevelCFAccounts(var CFAccountNo: array[4] of Code[20]): Text
     var
         EndAccountNo: Code[20];
@@ -578,30 +697,31 @@ codeunit 134236 "ERM Analysis View Excel Export"
         exit(StrSubstNo('%1..%2', CFAccountNo[1], EndAccountNo));
     end;
 
-    local procedure CreateIndentedGLAccount(var GLAccountNo: array[5] of Code[20]): Text
+    local procedure CreateIndentedGLAccount(MaxLevel: Integer; var GLAccountNo: array[5] of Code[20]): Text
     var
-        GLAccount: Record "G/L Account";
+        GLAccountIndent: Codeunit "G/L Account-Indent";
+        i: Integer;
+        EndAccountNo: Code[20];
     begin
-        GLAccountNo[1] := FindCreateGLAccountNo('7', GLAccount."Account Type"::Heading);
-        GLAccountNo[2] := FindCreateGLAccountNo('70', GLAccount."Account Type"::Heading);
-        GLAccountNo[3] := FindCreateGLAccountNo('700', GLAccount."Account Type"::Heading);
-        GLAccountNo[4] := FindCreateGLAccountNo('7000', GLAccount."Account Type"::Heading);
-        GLAccountNo[5] := FindCreateGLAccountNo('7000001', GLAccount."Account Type"::Posting);
+        for i := 1 to MaxLevel do
+            GLAccountNo[i] := CreateBeginTotalGLAccountNo;
 
-        exit(StrSubstNo('%1..%2', GLAccountNo[1], GLAccountNo[5]));
+        GLAccountNo[MaxLevel + 1] := LibraryERM.CreateGLAccountNo;
+
+        for i := 1 to MaxLevel do
+            EndAccountNo := CreateEndTotalGLAccountNo;
+
+        GLAccountIndent.Indent;
+        exit(StrSubstNo('%1..%2', GLAccountNo[1], EndAccountNo));
     end;
 
-    local procedure FindCreateGLAccountNo(AccountNo: Code[20]; AccountType: Option): Code[20]
+    local procedure CreateBeginTotalGLAccountNo(): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
-        if not GLAccount.Get(AccountNo) then begin
-            GLAccount.Init;
-            GLAccount."No." := AccountNo;
-            GLAccount.Name := AccountNo;
-            GLAccount."Account Type" := AccountType;
-            GLAccount.Insert;
-        end;
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::"Begin-Total";
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -611,6 +731,16 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount, CashFlowAccount."Account Type"::Entry);
         exit(CashFlowAccount."No.");
+    end;
+
+    local procedure CreateEndTotalGLAccountNo(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccount."Account Type"::"End-Total";
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateBeginTotalCFAccountNo(): Code[20]
@@ -654,7 +784,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimCode);
         DimensionValue."Dimension Value Type" := DimensionValue."Dimension Value Type"::"Begin-Total";
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         exit(DimensionValue.Code);
     end;
 
@@ -664,7 +794,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimCode);
         DimensionValue."Dimension Value Type" := DimensionValue."Dimension Value Type"::"End-Total";
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         exit(DimensionValue.Code);
     end;
 
@@ -897,9 +1027,31 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, 12, Format(AnalysisViewEntry.Amount, 0, 9));
     end;
 
+    local procedure VerifyIndentedGLAccountSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; MaxGLAccountLevel: Integer; GLAccountNo: array[5] of Code[20]; DimensionValue: array[4] of Record "Dimension Value")
+    var
+        DateDec: Decimal;
+        i: Integer;
+    begin
+        LibraryReportValidation.SetFullFileName(ServerFileName);
+        LibraryReportValidation.OpenFile;
+
+        for i := 1 to MaxGLAccountLevel + 1 do
+            VerifyCellValueOnWorksheet(2, 2, i, GLAccountNo[i]);
+        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 2, DimensionValue[1].Code);
+        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 3, DimensionValue[2].Code);
+        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 4, DimensionValue[3].Code);
+        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 5, DimensionValue[4].Code);
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, MaxGLAccountLevel + 6));
+        Assert.AreEqual(
+          AnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
+        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 12, Format(AnalysisViewEntry.Amount, 0, 9));
+    end;
+
     local procedure VerifyDIffIndentedAccountSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; GLAccountNo: array[4] of Code[20]; DimensionValue: array[4] of Record "Dimension Value"; AccFilter: Text)
     var
-        DateDec: Decimal;    
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;

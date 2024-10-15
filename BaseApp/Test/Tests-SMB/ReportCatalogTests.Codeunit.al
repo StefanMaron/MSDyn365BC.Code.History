@@ -55,6 +55,14 @@ codeunit 139125 ReportCatalogTests
     end;
 
     [Test]
+    [HandlerFunctions('TrialBalanceReportHandler')]
+    [Scope('OnPrem')]
+    procedure TrialBalanceReport()
+    begin
+        SmallBusinessReportCatalogCU.RunTrialBalanceReport(true);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure DetailTrialBalanceReport()
     begin
@@ -145,6 +153,15 @@ codeunit 139125 ReportCatalogTests
 
         SavedPDFFile := FileManagement.ServerTempFileName('.pdf');
         CustomerStatement.SaveAsPdf(SavedPDFFile);
+        LibraryUtility.CheckFileNotEmpty(SavedPDFFile);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TrialBalanceReportHandler(var TrialBalance: TestRequestPage "Trial Balance")
+    begin
+        SavedPDFFile := FileManagement.ServerTempFileName('.pdf');
+        TrialBalance.SaveAsPdf(SavedPDFFile);
         LibraryUtility.CheckFileNotEmpty(SavedPDFFile);
     end;
 }

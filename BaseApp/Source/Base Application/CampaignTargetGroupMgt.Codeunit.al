@@ -47,7 +47,7 @@ codeunit 7030 "Campaign Target Group Mgt"
             if Continue = false then
                 exit;
         end;
-        CampaignTargetGr.LockTable;
+        CampaignTargetGr.LockTable();
         Found := false;
 
         with SegLine do begin
@@ -92,7 +92,7 @@ codeunit 7030 "Campaign Target Group Mgt"
             end;
         end;
         if Found then begin
-            Commit;
+            Commit();
             Message(Text000, Campaign.TableCaption, Campaign."No.")
         end else
             Error(Text002, SegLine.TableCaption, Campaign.TableCaption, SegLine.FieldCaption("Campaign Target"));
@@ -100,12 +100,12 @@ codeunit 7030 "Campaign Target Group Mgt"
 
     procedure DeactivateCampaign(var Campaign: Record Campaign; ShowMessage: Boolean)
     begin
-        CampaignTargetGr.LockTable;
+        CampaignTargetGr.LockTable();
 
         CampaignTargetGr.SetCurrentKey("Campaign No.");
         CampaignTargetGr.SetRange("Campaign No.", Campaign."No.");
         if not CampaignTargetGr.IsEmpty then
-            CampaignTargetGr.DeleteAll;
+            CampaignTargetGr.DeleteAll();
         if ShowMessage then
             Message(Text001, Campaign.TableCaption, Campaign."No.");
     end;
@@ -152,12 +152,12 @@ codeunit 7030 "Campaign Target Group Mgt"
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                         then
-                            CampaignTargetGr.Delete;
+                            CampaignTargetGr.Delete();
                     end else
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Contact, "Contact No.", "Campaign No.")
                         then
-                            CampaignTargetGr.Delete;
+                            CampaignTargetGr.Delete();
                 end;
             end;
     end;
@@ -203,12 +203,12 @@ codeunit 7030 "Campaign Target Group Mgt"
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Customer, ContBusRel."No.", "Campaign No.")
                         then
-                            CampaignTargetGr.Delete;
+                            CampaignTargetGr.Delete();
                     end else
                         if CampaignTargetGr.Get(
                              CampaignTargetGr.Type::Contact, "Contact No.", "Campaign No.")
                         then
-                            CampaignTargetGr.Delete;
+                            CampaignTargetGr.Delete();
                 end;
             end;
     end;
@@ -224,7 +224,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                 repeat
                     InsertTargetGroup(
                       CampaignTargetGr2.Type::Customer, Customer."No.", CampaignTargetGr2."Campaign No.");
-                    CampaignTargetGr2.Delete;
+                    CampaignTargetGr2.Delete();
                 until CampaignTargetGr2.Next = 0;
         end;
     end;
@@ -239,7 +239,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                 repeat
                     InsertTargetGroup(
                       CampaignTargetGr2.Type::Contact, CompanyContNo, CampaignTargetGr2."Campaign No.");
-                    CampaignTargetGr2.Delete;
+                    CampaignTargetGr2.Delete();
                 until CampaignTargetGr2.Next = 0;
         end;
     end;

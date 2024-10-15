@@ -15,9 +15,6 @@ report 10746 "Not Fully Applied Cash Pmts."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -74,10 +71,10 @@ report 10746 "Not Fully Applied Cash Pmts."
             begin
                 if "Bal. Account No." <> '' then begin
                     if not IsCashAccount(RetrieveBalAccount("Cust. Ledger Entry")) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     if not HasCashAccount("Cust. Ledger Entry") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

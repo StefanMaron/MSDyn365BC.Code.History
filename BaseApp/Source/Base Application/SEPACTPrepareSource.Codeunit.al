@@ -19,7 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -30,9 +30,9 @@ codeunit 1222 "SEPA CT-Prepare Source"
         PaymentOrder: Record "Payment Order";
         CarteraDoc: Record "Cartera Doc.";
     begin
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         PaymentOrder.Get(FromGenJnlLine.GetFilter("Document No."));
-        CarteraDoc.Reset;
+        CarteraDoc.Reset();
         CarteraDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.");
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
         CarteraDoc.SetRange("Collection Agent", CarteraDoc."Collection Agent"::Bank);

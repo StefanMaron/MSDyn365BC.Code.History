@@ -32,12 +32,10 @@ table 254 "VAT Entry"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
         field(7; Type; Option)
         {
@@ -64,12 +62,10 @@ table 254 "VAT Entry"
             Caption = 'Amount';
             Editable = false;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax,No Taxable VAT';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax","No Taxable VAT";
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -528,10 +524,17 @@ table 254 "VAT Entry"
         GLSetupRead: Boolean;
         IsBillDoc: Boolean;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -657,7 +660,7 @@ table 254 "VAT Entry"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         if GenPostingType = GenPostingType::Sale then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             "VAT Cash Regime" := GeneralLedgerSetup."VAT Cash Regime";
             exit;
         end;

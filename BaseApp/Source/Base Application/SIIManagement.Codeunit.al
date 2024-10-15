@@ -75,7 +75,7 @@ codeunit 10756 "SII Management"
         NotificationGuid := SetupNotification.Id;
         if MyNotifications.Get(UserId, NotificationGuid) then begin
             MyNotifications.Validate(Enabled, false);
-            MyNotifications.Modify;
+            MyNotifications.Modify();
         end else
             MyNotifications.InsertDefault(GetNotificationId, SiiNotificationNameTxt, 'SII', false);
     end;
@@ -107,7 +107,7 @@ codeunit 10756 "SII Management"
     begin
         NavApp.GetCurrentModuleInfo(Info);
         if not SIISetup.Get then begin
-            SIISetup.Init;
+            SIISetup.Init();
             SIISetup.Insert(true);
         end;
 
@@ -147,7 +147,7 @@ codeunit 10756 "SII Management"
 
         Cust.Get(CustNo);
         if (CorrectionType = SalesHeader."Correction Type"::Removal) and (CorrDocNo <> '') then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             CountryCode := CompanyInformation."Country/Region Code";
             VATRegNo := CompanyInformation."VAT Registration No.";
         end else begin
@@ -196,7 +196,7 @@ codeunit 10756 "SII Management"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." of
             GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.":
                 exit(VendorLedgerEntry."Vendor No.");
@@ -209,7 +209,7 @@ codeunit 10756 "SII Management"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." of
             GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.":
                 exit(CustLedgerEntry."Customer No.");
@@ -343,7 +343,7 @@ codeunit 10756 "SII Management"
         DocNumber := DocNumberFieldRef.Value;
 
         // search for the vat entry
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetRange("Transaction No.", TransactionNumber);
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocNumber);
@@ -376,7 +376,7 @@ codeunit 10756 "SII Management"
         DocNumber := DocNumberFieldRef.Value;
 
         // search for the vat entry
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetRange("Transaction No.", TransactionNumber);
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocNumber);
@@ -433,7 +433,7 @@ codeunit 10756 "SII Management"
     begin
         FindVatEntriesFromLedger(InvoiceDocLedgerEntryRecRef, SalesDocVATEntry);
 
-        PaymentVATEntry.Reset;
+        PaymentVATEntry.Reset();
         PaymentVATEntry.SetRange("Unrealized VAT Entry No.", SalesDocVATEntry."Entry No.");
         exit(PaymentVATEntry.FindSet);
     end;

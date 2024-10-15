@@ -107,7 +107,7 @@ report 7000084 "Partial Settl.- Receivable"
 
                 if AppliedAmt = RemainingAmt then begin
                     CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
-                    CustLedgEntry.Modify;
+                    CustLedgEntry.Modify();
                     RemainingAmt2 := 0;
                 end;
 
@@ -224,9 +224,9 @@ report 7000084 "Partial Settl.- Receivable"
                     CustLedgEntry.Open := true;
                 end;
                 OnBeforeModifyPostedDoc(PostedDoc, GenJnlLine, CustLedgEntry, PostedBillGr);
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
                 Modify;
-                PostedBillGr.Modify;
+                PostedBillGr.Modify();
 
                 DocPost.CloseBillGroupIfEmpty(PostedBillGr, PostingDate);
 
@@ -236,12 +236,12 @@ report 7000084 "Partial Settl.- Receivable"
                     GLReg.FindLast;
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
-                    GLReg.Modify;
+                    GLReg.Modify();
                 end;
 
                 OnAfterPostedDocOnPostDataItem(PostedDoc, GenJnlLine, CustLedgEntry, PostedBillGr);
 
-                Commit;
+                Commit();
                 Message(
                   Text1100006,
                   DocCount, RemainingAmt, PostedBillGr."No.", AppliedAmt);
@@ -251,7 +251,7 @@ report 7000084 "Partial Settl.- Receivable"
             begin
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
                 DocCount := 0;
                 TotalDisctdAmt := 0;
@@ -355,7 +355,7 @@ report 7000084 "Partial Settl.- Receivable"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

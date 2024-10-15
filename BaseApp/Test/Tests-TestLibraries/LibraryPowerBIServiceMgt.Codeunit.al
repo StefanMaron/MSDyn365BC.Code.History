@@ -36,10 +36,10 @@ codeunit 131016 "Library - Power BI Service Mgt"
     begin
         // Sets the system to use this codeunit for Power BI service calls instead of the default, by overwriting
         // values in table 6303.
-        AzureADMgtSetup.Get;
+        AzureADMgtSetup.Get();
         AzureADMgtSetup."PBI Service Mgt. Codeunit ID" := CODEUNIT::"Library - Power BI Service Mgt";
         AzureADMgtSetup."Auth Flow Codeunit ID" := CODEUNIT::"Library - Azure AD Auth Flow";
-        AzureADMgtSetup.Modify;
+        AzureADMgtSetup.Modify();
         with AzureADAppSetup do
             if not Get then begin
                 Init;
@@ -55,18 +55,18 @@ codeunit 131016 "Library - Power BI Service Mgt"
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
     begin
         // Adds a fake report to the mocked PBI account.
-        MockPowerBIReportBuffer.Init;
+        MockPowerBIReportBuffer.Init();
         MockPowerBIReportBuffer.ReportID := Id;
         MockPowerBIReportBuffer.ReportName := Name;
         MockPowerBIReportBuffer.Enabled := Enabled;
-        MockPowerBIReportBuffer.Insert;
+        MockPowerBIReportBuffer.Insert();
         if Enabled = true then begin
-            PowerBIReportConfiguration.Reset;
-            PowerBIReportConfiguration.Init;
+            PowerBIReportConfiguration.Reset();
+            PowerBIReportConfiguration.Init();
             PowerBIReportConfiguration."User Security ID" := UserSecurityId;
             PowerBIReportConfiguration.Context := ContextTxt;
             PowerBIReportConfiguration."Report ID" := Id;
-            PowerBIReportConfiguration.Insert;
+            PowerBIReportConfiguration.Insert();
         end;
     end;
 
@@ -83,8 +83,8 @@ codeunit 131016 "Library - Power BI Service Mgt"
     procedure ClearReports()
     begin
         // Empties the list of reports in the mocked PBI account.
-        MockPowerBIReportBuffer.Reset;
-        MockPowerBIReportBuffer.DeleteAll;
+        MockPowerBIReportBuffer.Reset();
+        MockPowerBIReportBuffer.DeleteAll();
         if not IsNull(BlobReportMap) then
             BlobReportMap.Clear
     end;
@@ -126,7 +126,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
                 Clear(TempPowerBIReportBuffer);
                 TempPowerBIReportBuffer.TransferFields(MockPowerBIReportBuffer);
                 TempPowerBIReportBuffer.Enabled := PowerBIServiceMgt.IsReportEnabled(TempPowerBIReportBuffer.ReportID, EnglishContext);
-                TempPowerBIReportBuffer.Insert;
+                TempPowerBIReportBuffer.Insert();
             until MockPowerBIReportBuffer.Next = 0;
 
             ExceptionMessage := MockExceptionMessage;

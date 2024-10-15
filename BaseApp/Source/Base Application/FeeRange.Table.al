@@ -135,7 +135,7 @@ table 7000019 "Fee Range"
             TotalCollExpensesAmt :=
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
-        CollExpenses.DeleteAll;
+        CollExpenses.DeleteAll();
     end;
 
     procedure CalcCollExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
@@ -155,15 +155,15 @@ table 7000019 "Fee Range"
         end;
         if CollExpenses.Get(Text1100001, '', EntryNo) then begin
             CollExpenses.Amount := CollExpenses.Amount + Amount;
-            CollExpenses.Modify;
+            CollExpenses.Modify();
         end else begin
-            CollExpenses.Init;
+            CollExpenses.Init();
             CollExpenses.Account := Text1100001;
             CollExpenses."Entry No." := EntryNo;
             // CollExpenses."Global Dimension 1 Code" := Dep;
             // CollExpenses."Global Dimension 2 Code" := Proj;
             CollExpenses.Amount := Amount;
-            CollExpenses.Insert;
+            CollExpenses.Insert();
         end;
     end;
 
@@ -182,7 +182,7 @@ table 7000019 "Fee Range"
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
         InitDiscExpensesAmt := TotalDiscExpensesAmt;
-        DiscExpenses.DeleteAll;
+        DiscExpenses.DeleteAll();
     end;
 
     procedure CalcDiscExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
@@ -204,15 +204,15 @@ table 7000019 "Fee Range"
 
         if DiscExpenses.Get(Text1100003, '', EntryNo) then begin
             DiscExpenses.Amount := DiscExpenses.Amount + Amount;
-            DiscExpenses.Modify;
+            DiscExpenses.Modify();
         end else begin
-            DiscExpenses.Init;
+            DiscExpenses.Init();
             DiscExpenses.Account := Text1100003;
             DiscExpenses."Entry No." := EntryNo;
             // DiscExpenses."Global Dimension 1 Code" := Dep;
             // DiscExpenses."Global Dimension 2 Code" := Proj;
             DiscExpenses.Amount := Amount;
-            DiscExpenses.Insert;
+            DiscExpenses.Insert();
         end;
     end;
 
@@ -239,13 +239,13 @@ table 7000019 "Fee Range"
                 Sum := Round(DiscExpenses.Amount * Factor, Currency."Amount Rounding Precision");
                 DiscExpenses.Amount := DiscExpenses.Amount + Sum;
                 InitDiscExpensesAmt := InitDiscExpensesAmt - Sum;
-                DiscExpenses.Modify;
+                DiscExpenses.Modify();
             until DiscExpenses.Next <= 0;
             if Round(InitDiscExpensesAmt, Currency."Amount Rounding Precision") <> 0 then begin
                 DiscExpenses.Find('+');
                 DiscExpenses.Amount := DiscExpenses.Amount + Round(InitDiscExpensesAmt, Currency."Amount Rounding Precision");
                 InitDiscExpensesAmt := 0;
-                DiscExpenses.Modify;
+                DiscExpenses.Modify();
             end;
         end;
         exit(DiscExpenses.Count);
@@ -270,7 +270,7 @@ table 7000019 "Fee Range"
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
         InitDiscInterestsAmt := TotalDiscInterestsAmt;
-        DiscInterests.DeleteAll;
+        DiscInterests.DeleteAll();
     end;
 
     procedure CalcDiscInterestsAmt(Code2: Code[20]; CurrencyCode2: Code[10]; NoOfDays: Integer; Amount: Decimal; EntryNo: Integer)
@@ -297,13 +297,13 @@ table 7000019 "Fee Range"
 
         if DiscInterests.Get(Text1100004, '', EntryNo) then begin
             DiscInterests.Amount := DiscInterests.Amount + Amount;
-            DiscInterests.Modify;
+            DiscInterests.Modify();
         end else begin
-            DiscInterests.Init;
+            DiscInterests.Init();
             DiscInterests.Account := Text1100004;
             DiscInterests."Entry No." := EntryNo;
             DiscInterests.Amount := Amount;
-            DiscInterests.Insert;
+            DiscInterests.Insert();
         end;
     end;
 
@@ -330,13 +330,13 @@ table 7000019 "Fee Range"
                 Sum := Round(DiscInterests.Amount * Factor, Currency."Amount Rounding Precision");
                 DiscInterests.Amount := DiscInterests.Amount + Sum;
                 InitDiscInterestsAmt := InitDiscInterestsAmt - Sum;
-                DiscInterests.Modify;
+                DiscInterests.Modify();
             until DiscInterests.Next <= 0;
             if Round(InitDiscInterestsAmt, Currency."Amount Rounding Precision") <> 0 then begin
                 DiscInterests.Find('+');
                 DiscInterests.Amount := DiscInterests.Amount + Round(InitDiscInterestsAmt, Currency."Amount Rounding Precision");
                 InitDiscInterestsAmt := 0;
-                DiscInterests.Modify;
+                DiscInterests.Modify();
             end;
         end;
         exit(DiscInterests.Count);
@@ -362,7 +362,7 @@ table 7000019 "Fee Range"
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
         InitRejExpensesAmt := TotalRejExpensesAmt;
-        RejExpenses.DeleteAll;
+        RejExpenses.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -385,13 +385,13 @@ table 7000019 "Fee Range"
 
         if RejExpenses.Get(Text1100005, '', EntryNo) then begin
             RejExpenses.Amount := RejExpenses.Amount + Amount;
-            RejExpenses.Modify;
+            RejExpenses.Modify();
         end else begin
-            RejExpenses.Init;
+            RejExpenses.Init();
             RejExpenses.Account := Text1100005;
             RejExpenses."Entry No." := EntryNo;
             RejExpenses.Amount := Amount;
-            RejExpenses.Insert;
+            RejExpenses.Insert();
         end;
     end;
 
@@ -420,13 +420,13 @@ table 7000019 "Fee Range"
                 Sum := Round(RejExpenses.Amount * Factor, Currency."Amount Rounding Precision");
                 RejExpenses.Amount := RejExpenses.Amount + Sum;
                 InitRejExpensesAmt := InitRejExpensesAmt - Sum;
-                RejExpenses.Modify;
+                RejExpenses.Modify();
             until RejExpenses.Next <= 0;
             if Round(InitRejExpensesAmt, Currency."Amount Rounding Precision") <> 0 then begin
                 RejExpenses.Find('+');
                 RejExpenses.Amount := RejExpenses.Amount + Round(InitRejExpensesAmt, Currency."Amount Rounding Precision");
                 InitRejExpensesAmt := 0;
-                RejExpenses.Modify;
+                RejExpenses.Modify();
             end;
         end;
         exit(RejExpenses.Count);
@@ -452,7 +452,7 @@ table 7000019 "Fee Range"
             TotalPmtOrdCollExpensesAmt :=
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
-        PmtOrdCollExpenses.DeleteAll;
+        PmtOrdCollExpenses.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -474,13 +474,13 @@ table 7000019 "Fee Range"
 
         if PmtOrdCollExpenses.Get(Text1100006, '', EntryNo) then begin
             PmtOrdCollExpenses.Amount := PmtOrdCollExpenses.Amount + Amount;
-            PmtOrdCollExpenses.Modify;
+            PmtOrdCollExpenses.Modify();
         end else begin
-            PmtOrdCollExpenses.Init;
+            PmtOrdCollExpenses.Init();
             PmtOrdCollExpenses.Account := Text1100006;
             PmtOrdCollExpenses."Entry No." := EntryNo;
             PmtOrdCollExpenses.Amount := Amount;
-            PmtOrdCollExpenses.Insert;
+            PmtOrdCollExpenses.Insert();
         end;
     end;
 
@@ -500,7 +500,7 @@ table 7000019 "Fee Range"
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
         InitRiskFactExpensesAmt := TotalRiskFactExpensesAmt;
-        RiskFactExpenses.DeleteAll;
+        RiskFactExpenses.DeleteAll();
     end;
 
     procedure CalcRiskFactExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
@@ -521,13 +521,13 @@ table 7000019 "Fee Range"
 
         if RiskFactExpenses.Get(Text1100007, '', EntryNo) then begin
             RiskFactExpenses.Amount := RiskFactExpenses.Amount + Amount;
-            RiskFactExpenses.Modify;
+            RiskFactExpenses.Modify();
         end else begin
-            RiskFactExpenses.Init;
+            RiskFactExpenses.Init();
             RiskFactExpenses.Account := Text1100007;
             RiskFactExpenses."Entry No." := EntryNo;
             RiskFactExpenses.Amount := Amount;
-            RiskFactExpenses.Insert;
+            RiskFactExpenses.Insert();
         end;
     end;
 
@@ -554,13 +554,13 @@ table 7000019 "Fee Range"
                 Sum := Round(RiskFactExpenses.Amount * Factor, Currency."Amount Rounding Precision");
                 RiskFactExpenses.Amount := RiskFactExpenses.Amount + Sum;
                 InitRiskFactExpensesAmt := InitRiskFactExpensesAmt - Sum;
-                RiskFactExpenses.Modify;
+                RiskFactExpenses.Modify();
             until RiskFactExpenses.Next <= 0;
             if Round(InitRiskFactExpensesAmt, Currency."Amount Rounding Precision") <> 0 then begin
                 RiskFactExpenses.Find('+');
                 RiskFactExpenses.Amount := RiskFactExpenses.Amount + Round(InitRiskFactExpensesAmt, Currency."Amount Rounding Precision");
                 InitRiskFactExpensesAmt := 0;
-                RiskFactExpenses.Modify;
+                RiskFactExpenses.Modify();
             end;
         end;
         exit(RiskFactExpenses.Count);
@@ -585,7 +585,7 @@ table 7000019 "Fee Range"
               Round(OperationFee."Charge Amt. per Operation", Currency."Amount Rounding Precision");
 
         InitUnriskFactExpensesAmt := TotalUnriskFactExpensesAmt;
-        UnriskFactExpenses.DeleteAll;
+        UnriskFactExpenses.DeleteAll();
     end;
 
     procedure CalcUnriskFactExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
@@ -606,13 +606,13 @@ table 7000019 "Fee Range"
 
         if UnriskFactExpenses.Get(Text1100008, '', EntryNo) then begin
             UnriskFactExpenses.Amount := UnriskFactExpenses.Amount + Amount;
-            UnriskFactExpenses.Modify;
+            UnriskFactExpenses.Modify();
         end else begin
-            UnriskFactExpenses.Init;
+            UnriskFactExpenses.Init();
             UnriskFactExpenses.Account := Text1100008;
             UnriskFactExpenses."Entry No." := EntryNo;
             UnriskFactExpenses.Amount := Amount;
-            UnriskFactExpenses.Insert;
+            UnriskFactExpenses.Insert();
         end;
     end;
 
@@ -639,14 +639,14 @@ table 7000019 "Fee Range"
                 Sum := Round(UnriskFactExpenses.Amount * Factor, Currency."Amount Rounding Precision");
                 UnriskFactExpenses.Amount := UnriskFactExpenses.Amount + Sum;
                 InitUnriskFactExpensesAmt := InitUnriskFactExpensesAmt - Sum;
-                UnriskFactExpenses.Modify;
+                UnriskFactExpenses.Modify();
             until UnriskFactExpenses.Next <= 0;
             if Round(InitUnriskFactExpensesAmt, Currency."Amount Rounding Precision") <> 0 then begin
                 UnriskFactExpenses.Find('+');
                 UnriskFactExpenses.Amount := UnriskFactExpenses.Amount +
                   Round(InitUnriskFactExpensesAmt, Currency."Amount Rounding Precision");
                 InitUnriskFactExpensesAmt := 0;
-                UnriskFactExpenses.Modify;
+                UnriskFactExpenses.Modify();
             end;
         end;
         exit(UnriskFactExpenses.Count);

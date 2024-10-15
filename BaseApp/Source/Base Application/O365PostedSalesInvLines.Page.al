@@ -155,7 +155,7 @@ page 2114 "O365 Posted Sales Inv. Lines"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

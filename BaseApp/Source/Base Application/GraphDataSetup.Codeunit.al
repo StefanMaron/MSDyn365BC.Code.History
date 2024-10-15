@@ -61,7 +61,7 @@ codeunit 5455 "Graph Data Setup"
             exit;
 
         EmptyRecordRef.Open(EntityRecRef.Number);
-        EmptyRecordRef.Init;
+        EmptyRecordRef.Init();
 
         MappingName := GetMappingCodeForTable(EntityRecRef.Number);
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", MappingName);

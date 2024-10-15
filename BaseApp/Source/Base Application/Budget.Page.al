@@ -680,7 +680,7 @@ page 113 Budget
         if GLAccBudgetBuf.GetFilter("Global Dimension 2 Filter") <> '' then
             GlobalDim2Filter := GLAccBudgetBuf.GetFilter("Global Dimension 2 Filter");
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         GlobalDim1FilterEnable :=
           (GLSetup."Global Dimension 1 Code" <> '') and
@@ -1020,10 +1020,10 @@ page 113 Budget
     begin
         GLBudgetName.Name := BudgetName;
         if not GLBudgetName.Find('=<>') then begin
-            GLBudgetName.Init;
+            GLBudgetName.Init();
             GLBudgetName.Name := Text004;
             GLBudgetName.Description := Text005;
-            GLBudgetName.Insert;
+            GLBudgetName.Insert();
         end;
         BudgetName := GLBudgetName.Name;
         GLAccBudgetBuf.SetRange("Budget Filter", BudgetName);

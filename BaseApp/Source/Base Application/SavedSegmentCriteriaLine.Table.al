@@ -19,11 +19,9 @@ table 5099 "Saved Segment Criteria Line"
             OptionCaption = 'Action,Filter';
             OptionMembers = "Action","Filter";
         }
-        field(4; "Action"; Option)
+        field(4; "Action"; Enum "Segment Criteria Line Action")
         {
             Caption = 'Action';
-            OptionCaption = ' ,Add Contacts,Remove Contacts (Reduce),Remove Contacts (Refine)';
-            OptionMembers = " ","Add Contacts","Remove Contacts (Reduce)","Remove Contacts (Refine)";
         }
         field(5; "Table No."; Integer)
         {

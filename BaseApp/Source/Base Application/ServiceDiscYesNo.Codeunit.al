@@ -7,7 +7,7 @@ codeunit 5951 "Service-Disc. (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         ServiceLine.Copy(Rec);
-        GLSetup.Get;
+        GLSetup.Get();
         with ServiceLine do begin
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then

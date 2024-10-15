@@ -137,7 +137,7 @@ page 7000008 "Docs. in Closed BG Subform"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDoc();
                     end;
                 }
                 action("Dime&nsions")
@@ -150,7 +150,7 @@ page 7000008 "Docs. in Closed BG Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimension;
+                        ShowDimensions;
                     end;
                 }
                 action(Navigate)
@@ -160,7 +160,7 @@ page 7000008 "Docs. in Closed BG Subform"
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        NavigateDoc;
                     end;
                 }
             }
@@ -174,13 +174,13 @@ page 7000008 "Docs. in Closed BG Subform"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Navigate()
+    procedure NavigateDoc()
     begin
         CarteraManagement.NavigateClosedDoc(Rec);
     end;
 
     [Scope('OnPrem')]
-    procedure Redraw()
+    procedure RedrawDoc()
     begin
         CurrPage.SetSelectionFilter(ClosedDoc);
         if not ClosedDoc.Find('=><') then
@@ -193,7 +193,7 @@ page 7000008 "Docs. in Closed BG Subform"
 
 
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(ClosedDoc."Entry No.");
             CustLedgEntry.Mark(true);
@@ -203,12 +203,6 @@ page 7000008 "Docs. in Closed BG Subform"
         REPORT.RunModal(REPORT::"Redraw Receivable Bills", true, false, CustLedgEntry);
 
         CurrPage.Update(false);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowDimension()
-    begin
-        ShowDimensions;
     end;
 }
 

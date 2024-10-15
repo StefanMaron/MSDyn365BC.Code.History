@@ -111,7 +111,7 @@ table 3 "Payment Terms"
 
         if Installment.WritePermission then begin
             Installment.SetRange("Payment Terms Code", Code);
-            Installment.DeleteAll;
+            Installment.DeleteAll();
         end;
     end;
 
@@ -126,8 +126,11 @@ table 3 "Payment Terms"
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SetLastModifiedDateTime;
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     var

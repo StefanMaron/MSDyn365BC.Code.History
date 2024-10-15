@@ -25,11 +25,11 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
         Which: Option "Ledger Entries","Budget Entries",Both;
     begin
         with CFWkshLine do begin
-            LockTable;
+            LockTable();
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit;
+                Commit();
                 exit;
             end;
 
@@ -40,7 +40,7 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
 
             DeleteLines;
 
-            Commit;
+            Commit();
         end;
 
         LicPermission.Get(
@@ -48,7 +48,7 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
           CODEUNIT::"Update Analysis View");
         if LicPermission."Execute Permission" = LicPermission."Execute Permission"::Yes then begin
             UpdateAnalysisView.UpdateAll(Which::"Ledger Entries", true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -57,7 +57,7 @@ codeunit 844 "Cash Flow Wksh.-Register Batch"
         CFWkshLine2: Record "Cash Flow Worksheet Line";
     begin
         CFWkshLine2.Copy(CFWkshLine);
-        CFWkshLine2.DeleteAll;
+        CFWkshLine2.DeleteAll();
     end;
 
     local procedure CreateWindow()

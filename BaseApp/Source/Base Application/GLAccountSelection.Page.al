@@ -41,11 +41,11 @@ page 10734 "G/L Account Selection"
     [Scope('OnPrem')]
     procedure GetGLAccSelBuf(var TheGLAccSelectionBuf: Record "G/L Account Buffer")
     begin
-        TheGLAccSelectionBuf.DeleteAll;
+        TheGLAccSelectionBuf.DeleteAll();
         if Find('-') then
             repeat
                 TheGLAccSelectionBuf := Rec;
-                TheGLAccSelectionBuf.Insert;
+                TheGLAccSelectionBuf.Insert();
             until Next = 0;
     end;
 

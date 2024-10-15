@@ -2036,29 +2036,6 @@
                                 <VerticalAlign>Middle</VerticalAlign>
                               </Style>
                             </Textbox>
-                            <Textbox Name="textbox4">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>0.42552cm</Top>
-                              <Left>12.08333cm</Left>
-                              <Height>0.423cm</Height>
-                              <Width>1.8cm</Width>
-                              <ZIndex>7</ZIndex>
-                              <Style>
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
                             <Textbox Name="BillGr__Currency_Code_1">
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -2325,9 +2302,6 @@ End Function</Code>
         </Field>
         <Field Name="STRSUBSTNO_Text1100001_CopyText_">
           <DataField>STRSUBSTNO_Text1100001_CopyText_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>

@@ -8,13 +8,13 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr := Rec;
-        PurchCrMemoHdr.LockTable;
+        PurchCrMemoHdr.LockTable();
         PurchCrMemoHdr.Find;
         PurchCrMemoHdr."Special Scheme Code" := "Special Scheme Code";
         PurchCrMemoHdr."Cr. Memo Type" := "Cr. Memo Type";
         PurchCrMemoHdr."Correction Type" := "Correction Type";
         PurchCrMemoHdr.TestField("No.", "No.");
-        PurchCrMemoHdr.Modify;
+        PurchCrMemoHdr.Modify();
         Rec := PurchCrMemoHdr;
         UpdateSIIDocUploadState(Rec);
     end;
@@ -40,7 +40,7 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         SIIDocUploadState.IDType := PurchCrMemoHdr."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchCrMemoHdr."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchCrMemoHdr."Succeeded VAT Registration No.";
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 }
 

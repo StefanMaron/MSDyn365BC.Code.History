@@ -39,7 +39,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         Initialize;
 
         // Deselect the shown cash flow card
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.Validate("CF No. on Chart in Role Center", '');
         CashFlowSetup.Modify(true);
         VerifyCashFlowOnRoleCenter('');
@@ -60,7 +60,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowCard.Close;
 
         // Select the card for RoleCenter then delete it
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.Validate("CF No. on Chart in Role Center", CashFlowNo);
         CashFlowSetup.Modify(true);
 
@@ -81,7 +81,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         Initialize;
 
         // Deselect the shown cash flow card
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.Validate("CF No. on Chart in Role Center", '');
         CashFlowSetup.Modify(true);
 
@@ -303,7 +303,7 @@ codeunit 134558 "ERM Cash Flow Pages"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         Assert.AreEqual(
           CashFlowSetup."CF No. on Chart in Role Center", CashFlowNo, 'Incorrect cash flow No. specified for role center chart in setup');
     end;
@@ -456,7 +456,7 @@ codeunit 134558 "ERM Cash Flow Pages"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.RunChangeGlobalDimensions(CreateDimension, CreateDimension);
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
@@ -539,7 +539,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowCard.ShowInChart.SetValue(true);
 
         // Verify
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         Assert.AreEqual(CashFlowForecast."No.", CashFlowSetup."CF No. on Chart in Role Center", UnexpectedChartCFNoTxt);
 
         // Tear down
@@ -571,7 +571,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // A confirm handler catches the warning that you override the CF No. on Chart in Role Center
 
         // Verify
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         Assert.AreEqual(CashFlowForecast."No.", CashFlowSetup."CF No. on Chart in Role Center", UnexpectedChartCFNoTxt);
 
         // Tear down
@@ -597,7 +597,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowForecast.Delete(true);
 
         // Verify
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         Assert.AreEqual(
           '', CashFlowSetup."CF No. on Chart in Role Center", 'CF No. on Chart in Role Center in CF Setup is expected to be empty.');
     end;
@@ -736,8 +736,8 @@ codeunit 134558 "ERM Cash Flow Pages"
 
     local procedure CleanUpJournal(CashFlowForecast: Record "Cash Flow Forecast"; CFAccount: Record "Cash Flow Account")
     begin
-        CashFlowForecast.Delete;
-        CFAccount.Delete;
+        CashFlowForecast.Delete();
+        CFAccount.Delete();
     end;
 
     local procedure OpenJournal(var CashFlowJournalPage: TestPage "Cash Flow Worksheet"; var CashFlowForecast: Record "Cash Flow Forecast"; var CashFlowAccount: Record "Cash Flow Account")
@@ -817,7 +817,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow Pages");
     end;
 
@@ -837,7 +837,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowForecastNo: Code[10];
     begin
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", GeneralLedgerSetup."Amount Rounding Precision");
         GeneralLedgerSetup.Modify(true);
         CashFlowForecastNo := FillCashFlowWorkSheetWithSalesOrder;

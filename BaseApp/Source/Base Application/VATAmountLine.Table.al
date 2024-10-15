@@ -68,12 +68,10 @@ table 290 "VAT Amount Line"
                 "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
             end;
         }
-        field(9; "VAT Calculation Type"; Option)
+        field(9; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax,No taxable VAT';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax","No taxable VAT";
         }
         field(10; "Tax Group Code"; Code[20])
         {
@@ -251,12 +249,18 @@ table 290 "VAT Amount Line"
     procedure InsertLine(): Boolean
     var
         VATAmountLine: Record "VAT Amount Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnInsertLine(Rec, IsHandled);
+        if IsHandled then
+            exit(true);
+
         if CurrencyCode <> '' then begin
             if Currency.Get(CurrencyCode) then;
             RoundingPrec := Currency."Invoice Rounding Precision";
         end else begin
-            GLSetup.Get;
+            GLSetup.Get();
             RoundingPrec := GLSetup."Inv. Rounding Precision (LCY)";
         end;
 
@@ -505,7 +509,7 @@ table 290 "VAT Amount Line"
         NewRemainder: Decimal;
     begin
         InitGlobals(NewCurrencyCode, false);
-        GLSetup.Get;
+        GLSetup.Get();
         if Find('-') then
             repeat
                 if "Inv. Disc. Base Amount" <> 0 then begin
@@ -690,7 +694,7 @@ table 290 "VAT Amount Line"
                    (PrevVATAmountLine."Tax Group Code" <> "Tax Group Code") or
                    (PrevVATAmountLine."Use Tax" <> "Use Tax")
                 then
-                    PrevVATAmountLine.Init;
+                    PrevVATAmountLine.Init();
                 if PricesIncludingVAT and not ("VAT %" = 0) then
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Normal VAT",
@@ -1040,6 +1044,11 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLineOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; FromVATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; IsHandled: Boolean)
     begin
     end;
 }

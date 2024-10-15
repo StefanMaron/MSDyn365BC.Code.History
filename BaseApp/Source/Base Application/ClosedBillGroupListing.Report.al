@@ -270,7 +270,7 @@ report 7000002 "Closed Bill Group Listing"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddress.Company(CompanyAddr, CompanyInfo);
             end;
         }

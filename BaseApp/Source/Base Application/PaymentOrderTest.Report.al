@@ -24,9 +24,6 @@ report 7000009 "Payment Order - Test"
                 column(USERID; UserId)
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
@@ -316,7 +313,7 @@ report 7000009 "Payment Order - Test"
                             DocPostBuffer."Entry No." := DocPostBuffer."Entry No." + 1;
                             DocPostBuffer."No. of Days" := NoOfDays;
                             DocPostBuffer.Amount := "Remaining Amt. (LCY)";
-                            DocPostBuffer.Insert;
+                            DocPostBuffer.Insert();
                         end;
 
                         if VendPostingGr."Bills Account" = '' then
@@ -330,12 +327,12 @@ report 7000009 "Payment Order - Test"
                         BalanceAccNo := VendPostingGr."Bills Account";
                         if BGPOPostBuffer.Get(AccountNo, BalanceAccNo) then begin
                             BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                            BGPOPostBuffer.Modify;
+                            BGPOPostBuffer.Modify();
                         end else begin
                             BGPOPostBuffer.Account := AccountNo;
                             BGPOPostBuffer."Balance Account" := BalanceAccNo;
                             BGPOPostBuffer.Amount := "Remaining Amount";
-                            BGPOPostBuffer.Insert;
+                            BGPOPostBuffer.Insert();
                         end;
                     end;
 
@@ -416,7 +413,7 @@ report 7000009 "Payment Order - Test"
                         RiskIncGr := "Posted Receiv. Bills Rmg. Amt.";
 
                         if not CalcExpenses then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(BankAcc; "Bank Account")
@@ -445,17 +442,17 @@ report 7000009 "Payment Order - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if "No." = PmtOrd."Bank Account No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         CalcFields("Posted Receiv. Bills Rmg. Amt.");
                         RiskIncGr := "Posted Receiv. Bills Rmg. Amt.";
 
                         if not DocPostBuffer.Find('-') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         Clear(FeeRange);
                         if not FeeRange.Find('=<>') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         FeeRange.InitCollExpenses("Operation Fees Code", "Currency Code");
                         with DocPostBuffer do
                             repeat
@@ -523,7 +520,7 @@ report 7000009 "Payment Order - Test"
                 if CompanyIsBlocked then
                     AddError(StrSubstNo(Text1100005, BankAcc2.TableCaption, "Bank Account No."));
 
-                Doc.Reset;
+                Doc.Reset();
                 Doc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.");
                 Doc.SetRange(Type, Doc.Type::Payable);
                 Doc.SetRange("Collection Agent", Doc."Collection Agent"::Bank);

@@ -265,7 +265,7 @@ table 287 "Customer Bank Account"
             Error(BankAccDeleteErr);
         if Customer.Get("Customer No.") and (Customer."Preferred Bank Account Code" = Code) then begin
             Customer."Preferred Bank Account Code" := '';
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 
@@ -273,7 +273,7 @@ table 287 "Customer Bank Account"
     begin
         if Customer.Get("Customer No.") then begin
             Customer."Preferred Bank Account Code" := Code;
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 

@@ -120,11 +120,11 @@ codeunit 1235 "XML Buffer Writer"
     begin
         if XMLBuffer.FindLast then;
 
-        ParentXMLBuffer.Init;
+        ParentXMLBuffer.Init();
         ParseXMLIteratively(XMLBuffer, ParentXMLBuffer);
 
         XmlReader.Close;
-        XMLBuffer.Reset;
+        XMLBuffer.Reset();
         XMLBuffer.SetRange("Import ID", XMLBuffer."Import ID");
         XMLBuffer.FindFirst;
     end;
@@ -277,7 +277,7 @@ codeunit 1235 "XML Buffer Writer"
 
         XMLBuffer.SetValueWithoutModifying(XmlReader.Value);
         XMLBuffer.Validate("Data Type", GetType(XMLBuffer.Value));
-        XMLBuffer.Modify;
+        XMLBuffer.Modify();
     end;
 
     procedure InsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; AttributeName: Text; AttributeValue: Text)

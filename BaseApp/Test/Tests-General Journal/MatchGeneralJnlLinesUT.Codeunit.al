@@ -460,7 +460,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Exercise
         CustLedgerEntry."Posting Date" := GenJnlLine."Posting Date" + LibraryRandom.RandInt(10);
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
 
         // Verify
@@ -488,7 +488,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Exercise
         VendorLedgerEntry."Posting Date" := GenJnlLine."Posting Date" + LibraryRandom.RandInt(10);
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
 
         // Verify
@@ -527,7 +527,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         // Setup
         SetupMappingToGL(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -574,7 +574,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -628,7 +628,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         // Setup
         SetupMappingToVendor(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -658,7 +658,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Add special chars.
         GenJnlLine.Description += ' {[(*)]}';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -680,7 +680,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         // Setup
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine.Amount := -GenJnlLine.Amount;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
 
         // Exercise.
@@ -899,7 +899,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         SetupMappingToCustomer(GenJnlLine, TextToAccMapping);
         GenJnlLine2.Copy(GenJnlLine);
         GenJnlLine2."Line No." := GenJnlLine."Line No." + 1;
-        GenJnlLine2.Insert;
+        GenJnlLine2.Insert();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -930,7 +930,7 @@ codeunit 134250 "Match General Jnl Lines UT"
             TextToAccMapping."Mapping Text" + LibraryUtility.GenerateRandomAlphabeticText(10, 1),
             1,
             MaxStrLen(GenJnlLine.Description));
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // [WHEN] Run Match General Journal Lines.
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -959,7 +959,7 @@ codeunit 134250 "Match General Jnl Lines UT"
             LibraryUtility.GenerateRandomAlphabeticText(10, 1) + TextToAccMapping."Mapping Text",
             1,
             MaxStrLen(GenJnlLine.Description));
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // [WHEN] Run Match General Journal Lines.
         CODEUNIT.Run(CODEUNIT::"Match General Journal Lines", GenJnlLine);
@@ -981,13 +981,13 @@ codeunit 134250 "Match General Jnl Lines UT"
         CustLedgerEntry.FindLast;
         LastEntryNo := CustLedgerEntry."Entry No.";
         InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amount);
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LastEntryNo + 1;
         CustLedgerEntry."Posting Date" := WorkDate;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
         CustLedgerEntry.Open := true;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         CustLedgerEntry.CalcFields("Remaining Amount");
     end;
 
@@ -998,13 +998,13 @@ codeunit 134250 "Match General Jnl Lines UT"
         VendorLedgerEntry.FindLast;
         LastEntryNo := VendorLedgerEntry."Entry No.";
         InsertDetailedVendorLedgerEntry(LastEntryNo + 1, Amount);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LastEntryNo + 1;
         VendorLedgerEntry."Posting Date" := WorkDate;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
         VendorLedgerEntry.Open := true;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
         VendorLedgerEntry.CalcFields("Remaining Amount");
     end;
 
@@ -1015,12 +1015,12 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         DetailedCustLedgEntry.FindLast;
         LastEntryNo := DetailedCustLedgEntry."Entry No.";
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry.Amount := Amount;
         DetailedCustLedgEntry."Amount (LCY)" := Amount;
-        DetailedCustLedgEntry.Insert;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure InsertDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; Amount: Decimal)
@@ -1030,12 +1030,12 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         DetailedVendorLedgEntry.FindLast;
         LastEntryNo := DetailedVendorLedgEntry."Entry No.";
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Entry No." := LastEntryNo + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry.Amount := Amount;
         DetailedVendorLedgEntry."Amount (LCY)" := Amount;
-        DetailedVendorLedgEntry.Insert;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure InsertGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; Amount: Decimal; Description: Text; PayerInfo: Text)
@@ -1047,7 +1047,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         if GenJnlLine.FindLast then
             LastLineNo := GenJnlLine."Line No.";
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Document No." := LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line");
         GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
@@ -1059,56 +1059,56 @@ codeunit 134250 "Match General Jnl Lines UT"
         GenJnlLine."Posting Date" := WorkDate;
         GenJnlLine.Amount := Amount;
         GenJnlLine."Amount (LCY)" := Amount;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
     end;
 
     local procedure InsertGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     begin
-        GenJnlBatch.Init;
+        GenJnlBatch.Init();
         GenJnlBatch."Journal Template Name" := InsertGenJnlTemplate;
         GenJnlBatch.Name :=
           LibraryUtility.GenerateRandomCode(GenJnlBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        GenJnlBatch.Insert;
+        GenJnlBatch.Insert();
     end;
 
     local procedure InsertGenJnlTemplate(): Code[10]
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        GenJnlTemplate.Init;
+        GenJnlTemplate.Init();
         GenJnlTemplate.Name :=
           LibraryUtility.GenerateRandomCode(GenJnlTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template");
-        GenJnlTemplate.Insert;
+        GenJnlTemplate.Insert();
         exit(GenJnlTemplate.Name);
     end;
 
     local procedure InsertCustomer(var Customer: Record Customer)
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Name := CopyStr(CreateGuid, 1, 50);
         Customer."Payment Terms Code" := InsertPaymentTerms;
         Customer."Payment Method Code" := InsertPaymentMethod;
-        Customer.Insert;
+        Customer.Insert();
     end;
 
     local procedure InsertVendor(var Vendor: Record Vendor)
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor);
         Vendor.Name := CopyStr(CreateGuid, 1, 50);
         Vendor."Payment Terms Code" := InsertPaymentTerms;
         Vendor."Payment Method Code" := InsertPaymentMethod;
-        Vendor.Insert;
+        Vendor.Insert();
     end;
 
     local procedure InsertPaymentTerms(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         PaymentTerms.Code := LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms");
-        PaymentTerms.Insert;
+        PaymentTerms.Insert();
         exit(PaymentTerms.Code);
     end;
 
@@ -1116,9 +1116,9 @@ codeunit 134250 "Match General Jnl Lines UT"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.Init;
+        PaymentMethod.Init();
         PaymentMethod.Code := LibraryUtility.GenerateRandomCode(PaymentMethod.FieldNo(Code), DATABASE::"Payment Method");
-        PaymentMethod.Insert;
+        PaymentMethod.Insert();
         exit(PaymentMethod.Code);
     end;
 
@@ -1143,9 +1143,9 @@ codeunit 134250 "Match General Jnl Lines UT"
 
     local procedure InsertGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
-        GLAccount.Insert;
+        GLAccount.Insert();
     end;
 
     [Normal]

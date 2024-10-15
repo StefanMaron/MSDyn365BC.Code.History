@@ -137,7 +137,7 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure SetGetErrorDetails()
     begin
         Initialize(EmptyText);
-        WorkflowWebhookNotificationTable.Init;
+        WorkflowWebhookNotificationTable.Init();
         WorkflowWebhookNotificationTable."Workflow Step Instance ID" := WorkflowStepInstanceID;
         WorkflowWebhookNotificationTable.SetErrorDetails('asdf');
         WorkflowWebhookNotificationTable.Insert(true);
@@ -186,7 +186,7 @@ codeunit 134217 "WFWH Notifications Tests"
         RetryCount := 2;
         EmptyText := '';
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
-        WorkflowWebhookNotificationTable.DeleteAll;
+        WorkflowWebhookNotificationTable.DeleteAll();
         WorkflowStepInstanceID := '{BE62A3E0-0518-498D-A27D-023E2736E9E1}';
         UnbindSubscription(MockOnPostNotificationRequest);
         BindSubscription(MockOnPostNotificationRequest);

@@ -122,19 +122,19 @@ table 7322 "Posted Whse. Shipment Header"
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         PostedWhseShptLine.SetRange("No.", "No.");
-        PostedWhseShptLine.DeleteAll;
+        PostedWhseShptLine.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Whse. Shipment");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
     var
         IsHandled: Boolean;
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             IsHandled := false;
             OnInsertOnBeforeTestWhseShipmentNos(WhseSetup, IsHandled);
@@ -152,7 +152,7 @@ table 7322 "Posted Whse. Shipment Header"
 
     procedure LookupPostedWhseShptHeader(var PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             PostedWhseShptHeader.FilterGroup := 2;
             PostedWhseShptHeader.SetRange("Location Code");

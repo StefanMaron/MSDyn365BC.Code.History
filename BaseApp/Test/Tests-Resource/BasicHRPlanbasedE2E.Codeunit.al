@@ -21,7 +21,6 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
@@ -37,12 +36,9 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Basic HR Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     [Test]
@@ -203,12 +199,10 @@ codeunit 135400 "Basic HR Plan-based E2E"
         EmployeeCard: TestPage "Employee Card";
     begin
         EmployeeCard.OpenNew;
-        EmployeeCard."First Family Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Family Name")),
-            1, MaxStrLen(Employee."First Family Name")));
-        EmployeeCard."Second Family Name".SetValue(
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Second Family Name")),
-            1, MaxStrLen(Employee."Second Family Name")));
+        EmployeeCard."First Name".SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
+        EmployeeCard."Last Name".SetValue(
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Last Name")), 1, MaxStrLen(Employee."Last Name")));
         EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail);
         EmployeeCard."Job Title".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Job Title")), 1, MaxStrLen(Employee."Job Title")));

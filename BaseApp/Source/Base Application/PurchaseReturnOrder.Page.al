@@ -1,4 +1,4 @@
-﻿page 6640 "Purchase Return Order"
+page 6640 "Purchase Return Order"
 {
     Caption = 'Purchase Return Order';
     PageType = Document;
@@ -961,6 +961,26 @@
                     DocPrint.PrintPurchHeader(Rec);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category10;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                begin
+                    PurchaseHeader := Rec;
+                    PurchaseHeader.SetRecFilter();
+                    DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
+                end;
+            }
             group(Release)
             {
                 Caption = 'Release';
@@ -1407,7 +1427,6 @@
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
         [InDataSet]
         JobQueueVisible: Boolean;
         [InDataSet]
@@ -1423,6 +1442,9 @@
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         OperationDescription: Text[500];
+
+    protected var
+        ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
 
     local procedure ActivateFields()
     begin

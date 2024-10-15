@@ -20,7 +20,7 @@ table 10710 "AEAT Transference Format XML"
             trigger OnValidate()
             begin
                 if "Indentation Level" > 0 then begin
-                    AEATTransferenceFormatXML.Reset;
+                    AEATTransferenceFormatXML.Reset();
                     AEATTransferenceFormatXML.SetRange("VAT Statement Name", "VAT Statement Name");
                     AEATTransferenceFormatXML.SetFilter("No.", '<%1', "No.");
                     AEATTransferenceFormatXML.SetRange("Indentation Level", "Indentation Level" - 1);

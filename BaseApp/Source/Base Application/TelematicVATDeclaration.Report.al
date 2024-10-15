@@ -39,21 +39,20 @@ report 10715 "Telematic VAT Declaration"
 
                 trigger OnPreDataItem()
                 begin
-                    TransferenceFormat.DeleteAll;
+                    TransferenceFormat.DeleteAll();
                     TemplateTransfFormat.SetRange("VAT Statement Name", "VAT Statement Name".Name);
                     TemplateTransfFormat.Find('-');
                     repeat
                         TransferenceFormat := TemplateTransfFormat;
                         if TransferenceFormat.Box = '' then
                             TransferenceFormat.Box := '**';
-                        TransferenceFormat.Insert;
+                        TransferenceFormat.Insert();
                     until TemplateTransfFormat.Next = 0;
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
                 if "Template Type" <> "Template Type"::"One Column Report" then
                     Error(Text1100004, VATDeclarationName.FieldCaption("Template Type"),
                       "Template Type"::"One Column Report");
@@ -61,7 +60,7 @@ report 10715 "Telematic VAT Declaration"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 SetRange("Statement Template Name", "VAT Declaration Line"."Statement Template Name");
                 SetRange(Name, "VAT Declaration Line"."Statement Name");
             end;
@@ -124,7 +123,7 @@ report 10715 "Telematic VAT Declaration"
 
     trigger OnPostReport()
     begin
-        TransferenceFormat.Reset;
+        TransferenceFormat.Reset();
         TransferenceFormat.Find('-');
         repeat
             if (TransferenceFormat.Value = '') and (TransferenceFormat.Type = TransferenceFormat.Type::Numerical) then
@@ -133,7 +132,7 @@ report 10715 "Telematic VAT Declaration"
 
         TransferenceFormat.SetRange(Type, TransferenceFormat.Type::Ask);
         PAGE.RunModal(10704, TransferenceFormat);
-        TransferenceFormat.Reset;
+        TransferenceFormat.Reset();
         TransferenceFormat.Find('-');
         repeat
             if TransferenceFormat.Type = TransferenceFormat.Type::Currency then begin
@@ -142,7 +141,7 @@ report 10715 "Telematic VAT Declaration"
             end;
         until TransferenceFormat.Next = 0;
 
-        TemplateTransfFormat.Reset;
+        TemplateTransfFormat.Reset();
         TemplateTransfFormat.SetRange("VAT Statement Name", "VAT Declaration Line"."Statement Name");
         if TemplateTransfFormat.FindSet then
             repeat
@@ -151,12 +150,12 @@ report 10715 "Telematic VAT Declaration"
                     repeat
                         if TemplateTransfFormat.Box = TransferenceFormat.Box then begin
                             TemplateTransfFormat.Value := TransferenceFormat.Value;
-                            TemplateTransfFormat.Modify;
+                            TemplateTransfFormat.Modify();
                         end;
                     until TransferenceFormat.Next = 0;
             until TemplateTransfFormat.Next = 0;
 
-        TransferenceFormat.Modify;
+        TransferenceFormat.Modify();
         FileGeneration(TransferenceFormat);
     end;
 
@@ -167,7 +166,7 @@ report 10715 "Telematic VAT Declaration"
             Header := Text1100000
         else
             Header := Text1100001 + "VAT Declaration Line".GetFilter("Date Filter");
-        GLSetup.Get;
+        GLSetup.Get();
         if PrintAmtInAddCurr then
             Currency.Get(GLSetup."Additional Reporting Currency");
     end;
@@ -182,10 +181,10 @@ report 10715 "Telematic VAT Declaration"
         Text1100007: Label '.txt';
         Text1100008: Label 'Transference format line Nº %1 must be integer';
         Text1100009: Label 'N';
-        Text1100010: Label '<Precision,';
-        Text1100011: Label '><Integer><Decimal>';
-        Text1100012: Label '<Integer>';
-        Text1100013: Label '><Decimal>';
+        Text1100010: Label '<Precision,', Locked = true;
+        Text1100011: Label '><Integer><Decimal>', Locked = true;
+        Text1100012: Label '<Integer>', Locked = true;
+        Text1100013: Label '><Decimal>', Locked = true;
         GLAccount: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         VATPostSetup: Record "VAT Posting Setup";
@@ -250,7 +249,7 @@ report 10715 "Telematic VAT Declaration"
                 end;
             VATStatementLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -355,7 +354,7 @@ report 10715 "Telematic VAT Declaration"
                 ;
             VATStatementLine2.Type::"EC Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -506,7 +505,7 @@ report 10715 "Telematic VAT Declaration"
                         StrLen(TransFormat.Value), '0') + TransFormat.Value;
                 end;
         end;
-        TransFormat.Modify;
+        TransFormat.Modify();
     end;
 
     [Scope('OnPrem')]

@@ -62,6 +62,7 @@ codeunit 6303 "Azure AD Auth Flow"
             OnAcquireTokenFromCache(ResourceName, AccessToken);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure AcquireTokenFromCacheState(ResourceName: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text) AccessToken: Text
     begin
@@ -92,6 +93,7 @@ codeunit 6303 "Azure AD Auth Flow"
             OnAcquireAcquireOnBehalfOfToken(ResourceName, AccessToken);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure AcquireOnBehalfOfTokenAndTokenCacheState(ResourceName: Text; var TokenCacheState: Text) AccessToken: Text
     begin

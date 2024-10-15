@@ -182,7 +182,7 @@ report 7000090 "Payment order - Export N34"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if CheckErrors then
                     Relat := '1'
                 else
@@ -244,7 +244,7 @@ report 7000090 "Payment order - Export N34"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
         VATRegNo := InsStr(PadStr('', MaxStrLen(VATRegNo) - StrLen(CompanyInfo."VAT Registration No."), ' '),
             CompanyInfo."VAT Registration No.", 1 + MaxStrLen(VATRegNo) - StrLen(CompanyInfo."VAT Registration No."));
@@ -294,8 +294,8 @@ report 7000090 "Payment order - Export N34"
     end;
 
     var
-        Text1100000: Label '<Integer>';
-        Text1100002: Label '<Day,2><month,2><year>';
+        Text1100000: Label '<Integer>', Locked = true;
+        Text1100002: Label '<Day,2><month,2><year>', Locked = true;
         Text1100003: Label 'Some data from the Bank Account of Vendor %1 are missing.';
         CompanyInfo: Record "Company Information";
         Vendor: Record Vendor;

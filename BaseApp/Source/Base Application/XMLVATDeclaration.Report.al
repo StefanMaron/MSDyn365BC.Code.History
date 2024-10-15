@@ -33,19 +33,19 @@ report 10718 "XML VAT Declaration"
                                 if Type = Type::Description then
                                     Evaluate(TotalAmount, Description);
                                 LoadValue(TempAEATTransFormatXML, TotalAmount);
-                                TempAEATTransFormatXML.Modify;
+                                TempAEATTransFormatXML.Modify();
                             until TempAEATTransFormatXML.Next = 0;
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempAEATTransFormatXML.DeleteAll;
+                    TempAEATTransFormatXML.DeleteAll();
                     AEATTransFormatXML.SetRange("VAT Statement Name", "VAT Statement Name".Name);
                     if AEATTransFormatXML.FindSet then
                         repeat
                             TempAEATTransFormatXML := AEATTransFormatXML;
-                            TempAEATTransFormatXML.Insert;
+                            TempAEATTransFormatXML.Insert();
                         until AEATTransFormatXML.Next = 0;
                 end;
             }
@@ -120,12 +120,12 @@ report 10718 "XML VAT Declaration"
     var
         FileManagement: Codeunit "File Management";
     begin
-        TempAEATTransFormatXML.Reset;
+        TempAEATTransFormatXML.Reset();
         TempAEATTransFormatXML.SetRange("VAT Statement Name", VATStatementName.Name);
         TempAEATTransFormatXML.SetRange(Ask, true);
         if TempAEATTransFormatXML.FindFirst then begin
             PAGE.RunModal(PAGE::"XML Transference Format", TempAEATTransFormatXML);
-            TempAEATTransFormatXML.Modify;
+            TempAEATTransFormatXML.Modify();
             TempAEATTransFormatXML.SetRange(Ask);
         end;
 
@@ -204,7 +204,7 @@ report 10718 "XML VAT Declaration"
                 end;
             VATStatementLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -295,7 +295,7 @@ report 10718 "XML VAT Declaration"
                 ;
             VATStatementLine2.Type::"EC Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -415,7 +415,7 @@ report 10718 "XML VAT Declaration"
             TransFormatXML."Value Type"::"Decimal Part":
                 TransFormatXML.Value := '0' + ConvertStr(Format(Amt, 0, '<Precision,2><Decimal>'), ',', '.');
         end;
-        TransFormatXML.Modify;
+        TransFormatXML.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -455,7 +455,7 @@ report 10718 "XML VAT Declaration"
                             NewXMLNode := ParentXMLNode;
                         end else
                             XMLDOMMgt.AddElement(ParentXMLNode, TempAEATTransFormatXML.Description, TempAEATTransFormatXML.Value, '', NewXMLNode);
-                        AEATTransFormatXML.Reset;
+                        AEATTransFormatXML.Reset();
                         AEATTransFormatXML.SetCurrentKey("VAT Statement Name", "Parent Line No.");
                         AEATTransFormatXML.SetRange("VAT Statement Name", AEATTransFormatXML."VAT Statement Name");
                         AEATTransFormatXML.SetRange("Parent Line No.", AEATTransFormatXML."No.");

@@ -3,6 +3,9 @@ table 1012 "Job Resource Price"
     Caption = 'Job Resource Price';
     DrillDownPageID = "Job Resource Prices";
     LookupPageID = "Job Resource Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -25,7 +28,7 @@ table 1012 "Job Resource Price"
 
             trigger OnValidate()
             begin
-                LockTable;
+                LockTable();
                 if "Job Task No." <> '' then begin
                     JT.Get("Job No.", "Job Task No.");
                     JT.TestField("Job Task Type", JT."Job Task Type"::Posting);
@@ -154,7 +157,7 @@ table 1012 "Job Resource Price"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         Job.Get("Job No.");
         if (Type = Type::Resource) and (Code = '') then
             FieldError(Code);

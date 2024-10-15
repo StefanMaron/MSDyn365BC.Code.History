@@ -19,7 +19,7 @@ codeunit 374 "Bank Acc. Recon. Apply Entries"
             case Type of
                 Type::"Check Ledger Entry":
                     begin
-                        CheckLedgEntry.Reset;
+                        CheckLedgEntry.Reset();
                         CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
                         CheckLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
                         CheckLedgEntry.SetRange(Open, true);

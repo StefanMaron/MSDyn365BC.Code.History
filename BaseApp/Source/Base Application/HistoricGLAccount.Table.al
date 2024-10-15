@@ -65,14 +65,6 @@ table 10721 "Historic G/L Account"
             Caption = 'No. 2';
             Editable = false;
         }
-        field(12; Comment; Boolean)
-        {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Historic G/L Account"),
-                                                      "No." = FIELD("No.")));
-            Caption = 'Comment';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(13; Blocked; Boolean)
         {
             Caption = 'Blocked';

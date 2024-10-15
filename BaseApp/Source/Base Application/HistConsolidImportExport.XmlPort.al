@@ -230,100 +230,100 @@ xmlport 10700 "Hist. Consolid. Import/Export"
     [Scope('OnPrem')]
     procedure SetGLAccount(var TempHistoricGLAccount: Record "Historic G/L Account")
     begin
-        "Historic G/L Account".Reset;
-        "Historic G/L Account".DeleteAll;
+        "Historic G/L Account".Reset();
+        "Historic G/L Account".DeleteAll();
         if TempHistoricGLAccount.Find('-') then
             repeat
                 "Historic G/L Account" := TempHistoricGLAccount;
-                "Historic G/L Account".Insert;
+                "Historic G/L Account".Insert();
             until TempHistoricGLAccount.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure GetGLAccount(var TempHistoricGLAccount: Record "Historic G/L Account")
     begin
-        TempHistoricGLAccount.Reset;
-        TempHistoricGLAccount.DeleteAll;
-        "Historic G/L Account".Reset;
+        TempHistoricGLAccount.Reset();
+        TempHistoricGLAccount.DeleteAll();
+        "Historic G/L Account".Reset();
         if "Historic G/L Account".Find('-') then
             repeat
                 TempHistoricGLAccount := "Historic G/L Account";
-                TempHistoricGLAccount.Insert;
+                TempHistoricGLAccount.Insert();
             until "Historic G/L Account".Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure SetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
-        "G/L Entry".Reset;
-        "G/L Entry".DeleteAll;
+        "G/L Entry".Reset();
+        "G/L Entry".DeleteAll();
         if TempGLEntry.Find('-') then
             repeat
                 "G/L Entry" := TempGLEntry;
-                "G/L Entry".Insert;
+                "G/L Entry".Insert();
             until TempGLEntry.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure GetGLEntry(var TempGLEntry: Record "G/L Entry")
     begin
-        TempGLEntry.Reset;
-        TempGLEntry.DeleteAll;
-        "G/L Entry".Reset;
+        TempGLEntry.Reset();
+        TempGLEntry.DeleteAll();
+        "G/L Entry".Reset();
         if "G/L Entry".Find('-') then
             repeat
                 TempGLEntry := "G/L Entry";
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until "G/L Entry".Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure SetEntryDim(var DimSetEntry: Record "Dimension Set Entry")
     begin
-        "Dimension Set Entry".Reset;
-        "Dimension Set Entry".DeleteAll;
+        "Dimension Set Entry".Reset();
+        "Dimension Set Entry".DeleteAll();
         if DimSetEntry.Find('-') then
             repeat
                 "Dimension Set Entry" := DimSetEntry;
-                "Dimension Set Entry".Insert;
+                "Dimension Set Entry".Insert();
             until DimSetEntry.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure GetEntryDim(var TempDimSetEntry: Record "Dimension Set Entry")
     begin
-        TempDimSetEntry.Reset;
-        TempDimSetEntry.DeleteAll;
-        "Dimension Set Entry".Reset;
+        TempDimSetEntry.Reset();
+        TempDimSetEntry.DeleteAll();
+        "Dimension Set Entry".Reset();
         if "Dimension Set Entry".Find('-') then
             repeat
                 TempDimSetEntry := "Dimension Set Entry";
-                TempDimSetEntry.Insert;
+                TempDimSetEntry.Insert();
             until "Dimension Set Entry".Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure SetExchRate(var TempExchRate: Record "Currency Exchange Rate")
     begin
-        "Currency Exchange Rate".Reset;
-        "Currency Exchange Rate".DeleteAll;
+        "Currency Exchange Rate".Reset();
+        "Currency Exchange Rate".DeleteAll();
         if TempExchRate.Find('-') then
             repeat
                 "Currency Exchange Rate" := TempExchRate;
-                "Currency Exchange Rate".Insert;
+                "Currency Exchange Rate".Insert();
             until TempExchRate.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure GetExchRate(var TempExchRate: Record "Currency Exchange Rate")
     begin
-        TempExchRate.Reset;
-        TempExchRate.DeleteAll;
-        "Currency Exchange Rate".Reset;
+        TempExchRate.Reset();
+        TempExchRate.DeleteAll();
+        "Currency Exchange Rate".Reset();
         if "Currency Exchange Rate".Find('-') then
             repeat
                 TempExchRate := "Currency Exchange Rate";
-                TempExchRate.Insert;
+                TempExchRate.Insert();
             until "Currency Exchange Rate".Next = 0;
     end;
 

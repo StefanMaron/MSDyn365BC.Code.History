@@ -164,7 +164,7 @@ codeunit 5980 "Service-Post"
 
         if WhseShip then
             WhseServiceRelease.Release(ServiceHeader);
-        Commit;
+        Commit();
 
         OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo);
 
@@ -180,14 +180,11 @@ codeunit 5980 "Service-Post"
     end;
 
     local procedure Initialize(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
-    var
-        ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
         OnBeforeInitialize(PassedServiceHeader, PassedServiceLine, PassedShip, PassedConsume, PassedInvoice, PreviewMode);
 
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
         TestMandatoryFields(PassedServiceHeader, PassedServiceLine);
-        ReportDistributionManagement.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
         ServDocumentsMgt.Initialize(PassedServiceHeader, PassedServiceLine);
 
         // Also calls procedure of the same name from ServDocMgt.
@@ -316,9 +313,9 @@ codeunit 5980 "Service-Post"
             Clear(ServiceShptHeader);
             Clear(ServiceInvHeader);
             Clear(ServiceCrMemoHeader);
-            ServiceSetup.Get;
+            ServiceSetup.Get();
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
             SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -375,11 +372,11 @@ codeunit 5980 "Service-Post"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        ServiceLine.LockTable;
+        ServiceLine.LockTable();
 
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
-            GLEntry.LockTable;
+            GLEntry.LockTable();
             if GLEntry.Find('+') then;
         end;
     end;
@@ -390,32 +387,32 @@ codeunit 5980 "Service-Post"
             TestDeleteHeader(ServiceHeader, ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
             if ServiceShptHeader."No." <> '' then begin
                 OnBeforeServiceShptHeaderInsert(ServiceShptHeader, ServiceHeader);
-                ServiceShptHeader.Insert;
-                ServiceShptLine.Init;
+                ServiceShptHeader.Insert();
+                ServiceShptLine.Init();
                 ServiceShptLine."Document No." := ServiceShptHeader."No.";
                 ServiceShptLine."Line No." := 10000;
                 ServiceShptLine.Description := SourceCode.Description;
-                ServiceShptLine.Insert;
+                ServiceShptLine.Insert();
             end;
 
             if ServiceInvHeader."No." <> '' then begin
                 OnBeforeServiceInvHeaderInsert(ServiceInvHeader, ServiceHeader);
-                ServiceInvHeader.Insert;
-                ServiceInvLine.Init;
+                ServiceInvHeader.Insert();
+                ServiceInvLine.Init();
                 ServiceInvLine."Document No." := ServiceInvHeader."No.";
                 ServiceInvLine."Line No." := 10000;
                 ServiceInvLine.Description := SourceCode.Description;
-                ServiceInvLine.Insert;
+                ServiceInvLine.Insert();
             end;
 
             if ServiceCrMemoHeader."No." <> '' then begin
                 OnBeforeServiceCrMemoHeaderInsert(ServiceCrMemoHeader, ServiceHeader);
-                ServiceCrMemoHeader.Insert;
-                ServiceCrMemoLine.Init;
+                ServiceCrMemoHeader.Insert();
+                ServiceCrMemoLine.Init();
                 ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
                 ServiceCrMemoLine."Line No." := 10000;
                 ServiceCrMemoLine.Description := SourceCode.Description;
-                ServiceCrMemoLine.Insert;
+                ServiceCrMemoLine.Insert();
             end;
         end;
     end;
@@ -426,8 +423,8 @@ codeunit 5980 "Service-Post"
         WarehouseShipmentLineLocal: Record "Warehouse Shipment Line";
         ServiceLine: Record "Service Line";
     begin
-        TempWarehouseShipmentHeader.DeleteAll;
-        TempWarehouseShipmentLine.DeleteAll;
+        TempWarehouseShipmentHeader.DeleteAll();
+        TempWarehouseShipmentLine.DeleteAll();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
@@ -444,10 +441,10 @@ codeunit 5980 "Service-Post"
                 repeat
                     if WarehouseShipmentLineLocal."Qty. to Ship" <> 0 then begin
                         TempWarehouseShipmentLine := WarehouseShipmentLineLocal;
-                        TempWarehouseShipmentLine.Insert;
+                        TempWarehouseShipmentLine.Insert();
                         WarehouseShipmentHeaderLocal.Get(WarehouseShipmentLineLocal."No.");
                         TempWarehouseShipmentHeader := WarehouseShipmentHeaderLocal;
-                        if TempWarehouseShipmentHeader.Insert then;
+                        if TempWarehouseShipmentHeader.Insert() then;
                     end;
                 until WarehouseShipmentLineLocal.Next = 0;
         until ServiceLine.Next = 0;

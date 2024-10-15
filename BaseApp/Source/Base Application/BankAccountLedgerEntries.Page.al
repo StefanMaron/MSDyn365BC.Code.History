@@ -1,4 +1,4 @@
-﻿page 372 "Bank Account Ledger Entries"
+page 372 "Bank Account Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Bank Account Ledger Entries';

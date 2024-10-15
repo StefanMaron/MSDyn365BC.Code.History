@@ -116,9 +116,9 @@ report 7320 "Whse. Adjustment Bin"
                 trigger OnPreDataItem()
                 begin
                     if Details then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    WhseEntry.Reset;
+                    WhseEntry.Reset();
                     WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
                     WhseEntry.SetRange("Item No.", "Warehouse Entry"."Item No.");
                     WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
@@ -127,7 +127,7 @@ report 7320 "Whse. Adjustment Bin"
                     WhseEntry.SetRange("Unit of Measure Code", "Warehouse Entry"."Unit of Measure Code");
                     WhseEntry.CalcSums("Qty. (Base)", Quantity);
                     if (WhseEntry."Qty. (Base)" = 0) and not ZeroQty then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(WhseEntry2; "Warehouse Entry")
@@ -189,9 +189,9 @@ report 7320 "Whse. Adjustment Bin"
                 trigger OnPreDataItem()
                 begin
                     if not Details then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if not Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -204,7 +204,7 @@ report 7320 "Whse. Adjustment Bin"
                         ;
                     SetRange("Bin Code", Location."Adjustment Bin Code");
                     if not Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             end;
 
@@ -212,7 +212,7 @@ report 7320 "Whse. Adjustment Bin"
             begin
                 Clear(Location);
                 if not Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

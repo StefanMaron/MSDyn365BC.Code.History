@@ -86,7 +86,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Sales Pmt. Disc. Debit Acc.");
                 if "Sales Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -160,7 +160,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Purch. Pmt. Disc. Credit Acc.");
                 if "Purch. Pmt. Disc. Credit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -254,7 +254,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Sales Pmt. Disc. Credit Acc.");
                 if "Sales Pmt. Disc. Credit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -268,7 +268,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Purch. Pmt. Disc. Debit Acc.");
                 if "Purch. Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -282,7 +282,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Sales Pmt. Tol. Debit Acc.");
                 if "Purch. Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -296,7 +296,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Sales Pmt. Tol. Credit Acc.");
                 if "Purch. Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -310,7 +310,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Purch. Pmt. Tol. Debit Acc.");
                 if "Purch. Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -324,7 +324,7 @@ table 252 "General Posting Setup"
             begin
                 CheckGLAcc("Purch. Pmt. Tol. Credit Acc.");
                 if "Purch. Pmt. Disc. Debit Acc." <> '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;
@@ -756,12 +756,12 @@ table 252 "General Posting Setup"
         PurchSetup: Record "Purchases & Payables Setup";
         PaymentTerms: Record "Payment Terms";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         PmtToleranceVisible := (GLSetup."Payment Tolerance %" > 0) or (GLSetup."Max. Payment Tolerance Amount" <> 0);
 
         PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesLineDiscVisible :=
           SalesSetup."Discount Posting" in [SalesSetup."Discount Posting"::"All Discounts",
                                             SalesSetup."Discount Posting"::"Line Discounts"];
@@ -769,7 +769,7 @@ table 252 "General Posting Setup"
           SalesSetup."Discount Posting" in [SalesSetup."Discount Posting"::"All Discounts",
                                             SalesSetup."Discount Posting"::"Invoice Discounts"];
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchLineDiscVisible :=
           PurchSetup."Discount Posting" in [PurchSetup."Discount Posting"::"All Discounts",
                                             PurchSetup."Discount Posting"::"Line Discounts"];
@@ -786,7 +786,7 @@ table 252 "General Posting Setup"
         SuggestSalesAccounts(RecRef);
         SuggestPurchAccounts(RecRef);
         SuggestInvtAccounts(RecRef);
-        RecRef.Modify;
+        RecRef.Modify();
     end;
 
     local procedure SuggestSalesAccounts(var RecRef: RecordRef)
@@ -866,14 +866,14 @@ table 252 "General Posting Setup"
     begin
         GenPostingSetupRecRef.Open(DATABASE::"General Posting Setup");
 
-        GenPostingSetupRecRef.Reset;
+        GenPostingSetupRecRef.Reset();
         GenPostingSetupFieldRef := GenPostingSetupRecRef.Field(FieldNo("Gen. Bus. Posting Group"));
         GenPostingSetupFieldRef.SetRange("Gen. Bus. Posting Group");
         GenPostingSetupFieldRef := GenPostingSetupRecRef.Field(FieldNo("Gen. Prod. Posting Group"));
         GenPostingSetupFieldRef.SetFilter('<>%1', "Gen. Prod. Posting Group");
         TempAccountUseBuffer.UpdateBuffer(GenPostingSetupRecRef, AccountFieldNo);
 
-        GenPostingSetupRecRef.Reset;
+        GenPostingSetupRecRef.Reset();
         GenPostingSetupFieldRef := GenPostingSetupRecRef.Field(FieldNo("Gen. Bus. Posting Group"));
         GenPostingSetupFieldRef.SetFilter('<>%1', "Gen. Bus. Posting Group");
         GenPostingSetupFieldRef := GenPostingSetupRecRef.Field(FieldNo("Gen. Prod. Posting Group"));
@@ -882,7 +882,7 @@ table 252 "General Posting Setup"
 
         GenPostingSetupRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);

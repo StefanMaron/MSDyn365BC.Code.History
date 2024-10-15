@@ -1,4 +1,4 @@
-﻿page 5157 "Customer Template Card"
+page 5157 "Customer Template Card"
 {
     Caption = 'Customer Template Card';
     PageType = Card;

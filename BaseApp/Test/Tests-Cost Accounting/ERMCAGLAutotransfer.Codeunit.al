@@ -43,7 +43,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align G/L Account", CostAccountingSetup."Align G/L Account"::"No Alignment");
         CostAccountingSetup.Validate("Align Cost Center Dimension", CostAccountingSetup."Align Cost Center Dimension"::"No Alignment");
         CostAccountingSetup.Validate("Align Cost Object Dimension", CostAccountingSetup."Align Cost Object Dimension"::"No Alignment");
@@ -60,7 +60,7 @@ codeunit 134818 "ERM CA G/L Autotransfer"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM CA G/L Autotransfer");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA G/L Autotransfer");
     end;
 

@@ -151,7 +151,6 @@ codeunit 7000000 CarteraManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure InsertReceivableDocs(var CarteraDoc2: Record "Cartera Doc.")
     var
         CarteraDoc: Record "Cartera Doc.";
@@ -204,7 +203,7 @@ codeunit 7000000 CarteraManagement
                BankAcc.Get(BillGr."Bank Account No.") and
                (BillGr.Factoring = BillGr.Factoring::" ")
             then begin
-                CarteraSetup.Get;
+                CarteraSetup.Get();
                 if CarteraSetup."Bills Discount Limit Warnings" then begin
                     SelectedAmount := 0;
                     repeat
@@ -243,18 +242,17 @@ codeunit 7000000 CarteraManagement
                 Modify;
                 if CustLedgEntry.Get("Entry No.") then begin
                     CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"BG/PO";
-                    CustLedgEntry.Modify;
+                    CustLedgEntry.Modify();
                     "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
                 end;
                 OnAfterInsertReceivableDocs(CarteraDoc, BillGr);
             until Next = 0;
 
             BillGr."No. Printed" := 0;
-            BillGr.Modify;
+            BillGr.Modify();
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure InsertPayableDocs(var CarteraDoc2: Record "Cartera Doc.")
     var
         CarteraDoc: Record "Cartera Doc.";
@@ -276,7 +274,7 @@ codeunit 7000000 CarteraManagement
             if not Confirm(Text1100004, false) then
                 exit;
 
-        CarteraSetup.Get;
+        CarteraSetup.Get();
         with CarteraDoc do begin
             Reset;
             SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted);
@@ -322,17 +320,16 @@ codeunit 7000000 CarteraManagement
                 Modify(true);
                 if VendLedgEntry.Get("Entry No.") then begin
                     VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"BG/PO";
-                    VendLedgEntry.Modify;
+                    VendLedgEntry.Modify();
                 end;
                 OnAfterInsertPayableDocs(CarteraDoc, PmtOrd);
             until Next = 0;
 
             PmtOrd."No. Printed" := 0;
-            PmtOrd.Modify;
+            PmtOrd.Modify();
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RemoveReceivableDocs(var CarteraDoc2: Record "Cartera Doc.")
     var
         BillGr: Record "Bill Group";
@@ -351,15 +348,14 @@ codeunit 7000000 CarteraManagement
                     Modify;
                     if CustLedgEntry.Get("Entry No.") then begin
                         CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::Cartera;
-                        CustLedgEntry.Modify;
+                        CustLedgEntry.Modify();
                     end;
                     OnAfterRemoveReceivableDocs(CarteraDoc2, BillGr);
                 until Next = 0;
-                BillGr.Modify;
+                BillGr.Modify();
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure RemovePayableDocs(var CarteraDoc2: Record "Cartera Doc.")
     var
         PaymentOrder: Record "Payment Order";
@@ -378,11 +374,11 @@ codeunit 7000000 CarteraManagement
                     Modify;
                     if VendLedgEntry.Get("Entry No.") then begin
                         VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::Cartera;
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                     end;
                     OnAfterRemovePayableDocs(CarteraDoc2, PaymentOrder);
                 until Next = 0;
-                PaymentOrder.Modify;
+                PaymentOrder.Modify();
             end;
     end;
 
@@ -394,7 +390,7 @@ codeunit 7000000 CarteraManagement
         CheckDiscCreditLimit: Page "Check Discount Credit Limit";
     begin
         with BillGr do begin
-            CarteraSetup.Get;
+            CarteraSetup.Get();
             if not CarteraSetup."Bills Discount Limit Warnings" then
                 exit;
             if ("Dealing Type" = "Dealing Type"::Discount) and BankAcc.Get("Bank Account No.") then begin
@@ -471,7 +467,7 @@ codeunit 7000000 CarteraManagement
                 Validate(Amount, -PostedDoc."Amount for Collection");
                 PostedDoc.TestField(Redrawn, false);
                 PostedDoc.Redrawn := true;
-                PostedDoc.Modify;
+                PostedDoc.Modify();
             end else
                 if ClosedDoc.Get(ClosedDoc.Type::Receivable, CustLedgEntry."Entry No.") then begin
                     if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
@@ -481,7 +477,7 @@ codeunit 7000000 CarteraManagement
                     Validate(Amount, -ClosedDoc."Amount for Collection");
                     ClosedDoc.TestField(Redrawn, false);
                     ClosedDoc.Redrawn := true;
-                    ClosedDoc.Modify;
+                    ClosedDoc.Modify();
                 end;
             "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, CustLedgEntry."Dimension Set ID");
         end;
@@ -548,7 +544,7 @@ codeunit 7000000 CarteraManagement
                 Validate(Amount, PostedDoc."Amount for Collection");
                 PostedDoc.TestField(Redrawn, false);
                 PostedDoc.Redrawn := true;
-                PostedDoc.Modify;
+                PostedDoc.Modify();
             end else
                 if ClosedDoc.Get(ClosedDoc.Type::Payable, VendLedgEntry."Entry No.") then begin
                     if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
@@ -558,7 +554,7 @@ codeunit 7000000 CarteraManagement
                     Validate(Amount, ClosedDoc."Amount for Collection");
                     ClosedDoc.TestField(Redrawn, false);
                     ClosedDoc.Redrawn := true;
-                    ClosedDoc.Modify;
+                    ClosedDoc.Modify();
                 end;
             "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, VendLedgEntry."Dimension Set ID");
         end;
@@ -620,7 +616,7 @@ codeunit 7000000 CarteraManagement
           "Remaining Amt. (LCY)",
           "Original Amt. (LCY)");
         CurrencyFactor := CustLedgEntry2.Amount / CustLedgEntry2."Amount (LCY)";
-        VATEntry2.Reset;
+        VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
 
@@ -630,7 +626,7 @@ codeunit 7000000 CarteraManagement
                 if LastConnectionNo <> VATEntry2."Sales Tax Connection No." then
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
 
-                VATEntry3.Reset;
+                VATEntry3.Reset();
                 if VATEntry3.FindLast then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
@@ -696,12 +692,12 @@ codeunit 7000000 CarteraManagement
                         if NoRealVATBuffer.Get(SalesVATUnrealAccount, SalesVATAccount, VATEntry2."Entry No.") then begin
                             NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount;
                         end else begin
-                            NoRealVATBuffer.Init;
+                            NoRealVATBuffer.Init();
                             NoRealVATBuffer.Account := SalesVATUnrealAccount;
                             NoRealVATBuffer."Balance Account" := SalesVATAccount;
                             NoRealVATBuffer.Amount := TotalVATAmount;
                             NoRealVATBuffer."Entry No." := VATEntry2."Entry No.";
-                            NoRealVATBuffer.Insert;
+                            NoRealVATBuffer.Insert();
                         end;
 
                         VATEntry := VATEntry2;
@@ -730,7 +726,7 @@ codeunit 7000000 CarteraManagement
                         VATEntry."Transaction No." := CustLedgEntry2."Transaction No.";
                         VATEntry."Unrealized VAT Entry No." := VATEntry2."Entry No.";
                         VATEntry.UpdateRates(VATPostingSetup);
-                        Test1 := VATEntry.Insert;
+                        Test1 := VATEntry.Insert();
 
                         VATEntry2."Remaining Unrealized Amount" :=
                           VATEntry2."Remaining Unrealized Amount" - VATEntry.Amount;
@@ -741,7 +737,7 @@ codeunit 7000000 CarteraManagement
                         VATEntry2."Add.-Curr. Rem. Unreal. Base" :=
                           VATEntry2."Add.-Curr. Rem. Unreal. Base" - VATEntry."Additional-Currency Base";
                         OnCustUnrealizedVATOnBeforeVATEntryModify(VATEntry, CustLedgEntry2, GenJnlLine);
-                        Test2 := VATEntry2.Modify;
+                        Test2 := VATEntry2.Modify();
                         LastVATEntryNo := VATEntryNo;
                     end;
                 end;
@@ -813,7 +809,7 @@ codeunit 7000000 CarteraManagement
           "Remaining Amt. (LCY)",
           "Original Amt. (LCY)");
         CurrencyFactor := VendLedgEntry2.Amount / VendLedgEntry2."Amount (LCY)";
-        VATEntry2.Reset;
+        VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", VendLedgEntry2."Transaction No.");
 
@@ -823,7 +819,7 @@ codeunit 7000000 CarteraManagement
                 if LastConnectionNo <> VATEntry2."Sales Tax Connection No." then
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
 
-                VATEntry3.Reset;
+                VATEntry3.Reset();
                 if VATEntry3.FindLast then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
@@ -895,24 +891,24 @@ codeunit 7000000 CarteraManagement
                         if NoRealVATBuffer.Get(PurchVATUnrealAccount, PurchVATAccount, VATEntry2."Entry No.") then begin
                             NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount;
                         end else begin
-                            NoRealVATBuffer.Init;
+                            NoRealVATBuffer.Init();
                             NoRealVATBuffer.Account := PurchVATUnrealAccount;
                             NoRealVATBuffer."Balance Account" := PurchVATAccount;
                             NoRealVATBuffer.Amount := TotalVATAmount;
                             NoRealVATBuffer."Entry No." := VATEntry2."Entry No.";
-                            NoRealVATBuffer.Insert;
+                            NoRealVATBuffer.Insert();
                         end;
 
                         if VATEntry2."VAT Calculation Type" = VATEntry2."VAT Calculation Type"::"Reverse Charge VAT" then
                             if NoRealVATBuffer.Get(ReverseChrgVATAcc, ReverseChrgVATUnrealAcc, VATEntry2."Entry No.") then
                                 NoRealVATBuffer.Amount := NoRealVATBuffer.Amount + TotalVATAmount
                             else begin
-                                NoRealVATBuffer.Init;
+                                NoRealVATBuffer.Init();
                                 NoRealVATBuffer.Account := ReverseChrgVATAcc;
                                 NoRealVATBuffer."Balance Account" := ReverseChrgVATUnrealAcc;
                                 NoRealVATBuffer.Amount := TotalVATAmount;
                                 NoRealVATBuffer."Entry No." := VATEntry2."Entry No.";
-                                NoRealVATBuffer.Insert;
+                                NoRealVATBuffer.Insert();
                             end;
 
                         VATEntry := VATEntry2;
@@ -941,7 +937,7 @@ codeunit 7000000 CarteraManagement
                         VATEntry."Transaction No." := VendLedgEntry2."Transaction No.";
                         VATEntry."Unrealized VAT Entry No." := VATEntry2."Entry No.";
                         VATEntry.UpdateRates(VATPostingSetup);
-                        Test1 := VATEntry.Insert;
+                        Test1 := VATEntry.Insert();
 
                         VATEntry2."Remaining Unrealized Amount" :=
                           VATEntry2."Remaining Unrealized Amount" - VATEntry.Amount;
@@ -951,7 +947,7 @@ codeunit 7000000 CarteraManagement
                           VATEntry2."Add.-Curr. Rem. Unreal. Amount" - VATEntry."Additional-Currency Amount";
                         VATEntry2."Add.-Curr. Rem. Unreal. Base" :=
                           VATEntry2."Add.-Curr. Rem. Unreal. Base" - VATEntry."Additional-Currency Base";
-                        Test2 := VATEntry2.Modify;
+                        Test2 := VATEntry2.Modify();
                         LastVATEntryNo := VATEntryNo;
                     end;
                 end;
@@ -1069,7 +1065,7 @@ codeunit 7000000 CarteraManagement
         if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Bill then
             PostDocBuffer.SetRange("No.", CustLedgEntry."Bill No.");
         PostDocBuffer.FindLast;
-        PostDocBuffer.Reset;
+        PostDocBuffer.Reset();
         exit(GetCombinedDimSetID(GenJnlLine, PostDocBuffer."Dimension Set ID"));
     end;
 
@@ -1090,12 +1086,12 @@ codeunit 7000000 CarteraManagement
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
     begin
-        TempGenJournalLine.Init;
+        TempGenJournalLine.Init();
         TempGenJournalLine."Posting Date" := PostingDate;
         TempGenJournalLine.Validate("Account Type", TempGenJournalLine."Account Type"::"G/L Account");
         TempGenJournalLine.Validate("Currency Code", CurrencyCode);
         TempGenJournalLine.Validate(Amount, AmountFCY);
-        TempGenJournalLine.Insert;
+        TempGenJournalLine.Insert();
         exit(TempGenJournalLine."Amount (LCY)");
     end;
 
@@ -1103,11 +1099,11 @@ codeunit 7000000 CarteraManagement
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
     begin
-        TempGenJournalLine.Init;
+        TempGenJournalLine.Init();
         TempGenJournalLine.Validate("Currency Code", CurrencyCode);
         TempGenJournalLine.Validate("Currency Factor", CurrencyFactor);
         TempGenJournalLine.Validate(Amount, AmountFCY);
-        TempGenJournalLine.Insert;
+        TempGenJournalLine.Insert();
         exit(TempGenJournalLine."Amount (LCY)");
     end;
 

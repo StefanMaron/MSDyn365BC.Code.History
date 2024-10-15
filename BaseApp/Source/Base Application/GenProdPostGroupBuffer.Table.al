@@ -74,14 +74,14 @@ table 10730 "Gen. Prod. Post. Group Buffer"
 
     local procedure SetGPPGSelection(var SelectedGPPGText: Text[1024]; var GPPGSelectionBuf: Record "Gen. Prod. Post. Group Buffer"; var FilterString: Text[1024])
     begin
-        SelectedGPPG.DeleteAll;
+        SelectedGPPG.DeleteAll();
         SelectedGPPGText := '';
         GPPGSelectionBuf.SetRange("Exclude from 349", true);
         if GPPGSelectionBuf.Find('-') then
             repeat
                 SelectedGPPG.Code := GPPGSelectionBuf.Code;
                 SelectedGPPG.Description := GPPGSelectionBuf.Description;
-                SelectedGPPG.Insert;
+                SelectedGPPG.Insert();
                 AddGPPGCodeToText(SelectedGPPG.Code, SelectedGPPGText, FilterString);
             until GPPGSelectionBuf.Next = 0;
     end;
@@ -123,14 +123,14 @@ table 10730 "Gen. Prod. Post. Group Buffer"
 
     local procedure SetNonDeductGPPGSelection340(var SelectedGPPGText: Text[1024]; var GPPGSelectionBuf: Record "Gen. Prod. Post. Group Buffer"; var FilterString: Text[1024])
     begin
-        NonDeductGPPG340.DeleteAll;
+        NonDeductGPPG340.DeleteAll();
         SelectedGPPGText := '';
         GPPGSelectionBuf.SetRange("Non Deduct. Prod. Post. Group", true);
         if GPPGSelectionBuf.FindFirst then
             repeat
                 NonDeductGPPG340.Code := GPPGSelectionBuf.Code;
                 NonDeductGPPG340.Description := GPPGSelectionBuf.Description;
-                NonDeductGPPG340.Insert;
+                NonDeductGPPG340.Insert();
                 AddGPPGCodeToText(NonDeductGPPG340.Code, SelectedGPPGText, FilterString);
             until GPPGSelectionBuf.Next = 0;
     end;

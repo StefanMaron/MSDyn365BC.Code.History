@@ -105,10 +105,10 @@ report 7000003 "Receivable Bill"
 
             trigger OnAfterGetRecord()
             begin
-                CustBankAcc.Init;
-                CustPmtAddress.Init;
+                CustBankAcc.Init();
+                CustPmtAddress.Init();
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
                 if PrintAmountsInLCY then begin
@@ -216,7 +216,7 @@ report 7000003 "Receivable Bill"
 
         trigger OnOpenPage()
         begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             DrawCity := CompanyInfo.City;
 
             DrawDate := WorkDate;
@@ -231,7 +231,7 @@ report 7000003 "Receivable Bill"
         Text1100000: Label 'The total amount of %1';
         Text1100001: Label '%1 is too big to be text-formatted';
         Text1100002: Label 'CERO ';
-        Text1100003: Label '<decimals>';
+        Text1100003: Label '<decimals>', Locked = true;
         Text1100004: Label 'CON ';
         Text1100005: Label 'MILLONES ';
         Text1100006: Label 'UN MILLÓN ';

@@ -35,7 +35,7 @@ report 7000099 "Post Bill Group"
 
                     if BillGr.Factoring <> BillGr.Factoring::" " then begin
                         PostDocToFactoring(Doc);
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                     CustLedgEntry.Get("Entry No.");
                     CustPostingGr.Get(CustLedgEntry."Customer Posting Group");
@@ -66,7 +66,7 @@ report 7000099 "Post Bill Group"
                         TempBGPOPostBuffer.Amount := TempBGPOPostBuffer.Amount + "Remaining Amount";
                         if "Currency Code" <> '' then
                             TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
-                        TempBGPOPostBuffer.Modify;
+                        TempBGPOPostBuffer.Modify();
                     end else begin
                         TempBGPOPostBuffer.Account := AccountNo;
                         TempBGPOPostBuffer."Balance Account" := BalanceAccount;
@@ -76,10 +76,10 @@ report 7000099 "Post Bill Group"
                         TempBGPOPostBuffer.Amount := "Remaining Amount";
                         if "Currency Code" <> '' then
                             TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
-                        TempBGPOPostBuffer.Insert;
+                        TempBGPOPostBuffer.Insert();
                     end;
 
-                    TempPostedDocBuffer.Init;
+                    TempPostedDocBuffer.Init();
                     TempPostedDocBuffer.TransferFields(Doc);
                     TempPostedDocBuffer."Original Document No." := "Original Document No.";
                     TempPostedDocBuffer."Category Code" := "Category Code";
@@ -87,7 +87,7 @@ report 7000099 "Post Bill Group"
                     TempPostedDocBuffer."Dealing Type" := BillGr."Dealing Type";
                     TempPostedDocBuffer."Remaining Amount" := "Remaining Amount";
                     TempPostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                    TempPostedDocBuffer.Insert;
+                    TempPostedDocBuffer.Insert();
                 end;
 
                 trigger OnPostDataItem()
@@ -102,7 +102,7 @@ report 7000099 "Post Bill Group"
                     if not TempBGPOPostBuffer.Find('-') then
                         exit;
 
-                    GenJnlLine.LockTable;
+                    GenJnlLine.LockTable();
                     GenJnlLine.SetRange("Journal Template Name", TemplName);
                     GenJnlLine.SetRange("Journal Batch Name", BatchName);
                     if GenJnlLine.FindLast then begin
@@ -169,7 +169,7 @@ report 7000099 "Post Bill Group"
 
                     if BillGr."Dealing Type" = BillGr."Dealing Type"::Collection then begin
                         FinishCode;
-                        Commit;
+                        Commit();
                         if BillGr.Factoring <> BillGr.Factoring::" " then
                             if not HidePrintDialog then
                                 Message(Text1100005, BillGr."No.")
@@ -277,7 +277,7 @@ report 7000099 "Post Bill Group"
 
                     FinishCode;
 
-                    Commit;
+                    Commit();
                     Message(Text1100008, BillGr."No.");
                 end;
 
@@ -404,7 +404,7 @@ report 7000099 "Post Bill Group"
 
     trigger OnPreReport()
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCode := SourceCodeSetup."Cartera Journal";
 
         if CurrReport.UseRequestPage then begin
@@ -473,8 +473,8 @@ report 7000099 "Post Bill Group"
         UpdateTables;
         Window.Close;
         if CurrReport.UseRequestPage then begin
-            Commit;
-            GenJnlLine.Reset;
+            Commit();
+            GenJnlLine.Reset();
             GenJnlTemplate.Get(TemplName);
             GenJnlLine.FilterGroup := 2;
             GenJnlLine.SetRange("Journal Template Name", TemplName);
@@ -492,11 +492,11 @@ report 7000099 "Post Bill Group"
         TempPostedDocBuffer.Find('-');
         repeat
             PostedDoc.Copy(TempPostedDocBuffer);
-            PostedDoc.Insert;
+            PostedDoc.Insert();
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Posted BG/PO";
             CustLedgEntry."Document Status" := PostedDoc.Status + 1;
-            CustLedgEntry.Modify;
+            CustLedgEntry.Modify();
         until TempPostedDocBuffer.Next = 0;
 
         BillGr.CalcFields(Amount);
@@ -506,14 +506,14 @@ report 7000099 "Post Bill Group"
         PostedBillGr."Discount Interests Amt." := FeeRange.GetTotalDiscInterestsAmt;
         PostedBillGr."Risked Factoring Exp. Amt." := FeeRange.GetTotalRiskFactExpensesAmt;
         PostedBillGr."Unrisked Factoring Exp. Amt." := FeeRange.GetTotalUnriskFactExpensesAmt;
-        PostedBillGr.Insert;
+        PostedBillGr.Insert();
 
         BankAcc."Last Bill Gr. No." := BillGr."No.";
         BankAcc."Date of Last Post. Bill Gr." := BillGr."Posting Date";
-        BankAcc.Modify;
+        BankAcc.Modify();
 
-        Doc.DeleteAll;
-        BillGr.Delete;
+        Doc.DeleteAll();
+        BillGr.Delete();
     end;
 
     local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Text: Text[250]; CustLedgEntry: Record "Cust. Ledger Entry"; CurrFactor: Decimal)
@@ -608,7 +608,7 @@ report 7000099 "Post Bill Group"
                 if "Currency Code" <> '' then
                     TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
                 TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                TempBGPOPostBuffer.Modify;
+                TempBGPOPostBuffer.Modify();
             end else begin
                 TempBGPOPostBuffer.Account := AccountNo;
                 TempBGPOPostBuffer."Balance Account" := BalanceAccount;
@@ -616,10 +616,10 @@ report 7000099 "Post Bill Group"
                 if "Currency Code" <> '' then
                     TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
                 TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                TempBGPOPostBuffer.Insert;
+                TempBGPOPostBuffer.Insert();
             end;
 
-            TempPostedDocBuffer.Init;
+            TempPostedDocBuffer.Init();
             TempPostedDocBuffer.TransferFields(Doc);
             TempPostedDocBuffer."Original Document No." := "Original Document No.";
             TempPostedDocBuffer."Category Code" := '';
@@ -628,7 +628,7 @@ report 7000099 "Post Bill Group"
             TempPostedDocBuffer.Factoring := BillGr.Factoring;
             TempPostedDocBuffer."Remaining Amount" := "Remaining Amount";
             TempPostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-            TempPostedDocBuffer.Insert;
+            TempPostedDocBuffer.Insert();
         end;
     end;
 
@@ -652,7 +652,7 @@ report 7000099 "Post Bill Group"
                 Currency2.Get("Currency Code");
                 RoundingPrec := Currency2."Amount Rounding Precision";
             end else begin
-                GLSetup.Get;
+                GLSetup.Get();
                 RoundingPrec := GLSetup."Amount Rounding Precision";
             end;
 
@@ -700,13 +700,13 @@ report 7000099 "Post Bill Group"
     begin
         if TempBankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
             TempBankAccPostBuffer.Amount := TempBankAccPostBuffer.Amount + Amount2;
-            TempBankAccPostBuffer.Modify;
+            TempBankAccPostBuffer.Modify();
         end else begin
-            TempBankAccPostBuffer.Init;
+            TempBankAccPostBuffer.Init();
             TempBankAccPostBuffer.Account := BankAcc2;
             TempBankAccPostBuffer."Entry No." := EntryNo;
             TempBankAccPostBuffer.Amount := Amount2;
-            TempBankAccPostBuffer.Insert;
+            TempBankAccPostBuffer.Insert();
         end;
     end;
 

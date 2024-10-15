@@ -79,7 +79,7 @@ page 7000053 "Payment Orders Analysis"
         CopyFilter("Global Dimension 2 Filter", Doc."Global Dimension 2 Code");
         CopyFilter("Category Filter", Doc."Category Code");
         CopyFilter("Due Date Filter", Doc."Due Date");
-        DocCount := Doc.Count;
+        DocCount := Doc.Count();
     end;
 
     local procedure CategoryFilterOnAfterValidate()

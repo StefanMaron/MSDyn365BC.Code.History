@@ -82,16 +82,16 @@ report 10742 "Test VAT Registration Number"
                         else
                             if CheckVATRegistrationNo = true then begin
                                 if VATRegistrationNoFormat.ValidateVATRegNo(Customer."VAT Registration No.", ErrorText) then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not CheckCustomers then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(Vendor; Vendor)
@@ -154,16 +154,16 @@ report 10742 "Test VAT Registration Number"
                         else
                             if CheckVATRegistrationNo = true then begin
                                 if VATRegistrationNoFormat.ValidateVATRegNo(Vendor."VAT Registration No.", ErrorText) then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not CheckVendors then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(Contact; Contact)
@@ -226,16 +226,16 @@ report 10742 "Test VAT Registration Number"
                         else
                             if CheckVATRegistrationNo = true then begin
                                 if VATRegistrationNoFormat.ValidateVATRegNo(Contact."VAT Registration No.", ErrorText) then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not CheckContacts then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
         }
@@ -291,7 +291,7 @@ report 10742 "Test VAT Registration Number"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CountryRegionCode := CompanyInfo."Country/Region Code";
     end;
 

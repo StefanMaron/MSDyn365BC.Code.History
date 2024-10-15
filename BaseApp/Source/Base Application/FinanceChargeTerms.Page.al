@@ -72,7 +72,7 @@ page 6 "Finance Charge Terms"
                 field("Detailed Lines Description"; "Detailed Lines Description")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines.';
+                    ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines if multiple interest rates are set up for different payment delay periods and the description must show the sum of these.';
                 }
                 field("Post Interest"; "Post Interest")
                 {

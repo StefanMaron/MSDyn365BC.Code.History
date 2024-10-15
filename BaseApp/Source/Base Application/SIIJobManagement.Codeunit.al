@@ -24,7 +24,7 @@ codeunit 10751 "SII Job Management"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
 
         case JobType of

@@ -156,7 +156,7 @@ report 6 "Trial Balance"
                     trigger OnAfterGetRecord()
                     begin
                         if BlankLineNo = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         BlankLineNo -= 1;
                     end;
@@ -298,10 +298,10 @@ report 6 "Trial Balance"
                 end;
 
                 if PrintAllHavingBal and ("Balance at Date" = 0) and ("Debit Amount" = 0) and ("Credit Amount" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GlobalNo < 1 then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if PrintAmountsInAddCurrency then
                         HeaderText := StrSubstNo(Text1100004, GLSetup."Additional Reporting Currency")
                     else begin
@@ -332,7 +332,10 @@ report 6 "Trial Balance"
             end;
 
             trigger OnPreDataItem()
+            var
+                UndefinedValue: Integer;
             begin
+                UndefinedValue := -1;
                 FromFec := 0D;
                 if GetFilter("Date Filter") = '' then
                     ToFec := DMY2Date(31, 12, 9999)
@@ -348,7 +351,7 @@ report 6 "Trial Balance"
                     GLFilterOption := GetRangeMin("Account Type");
                     SetRange("Account Type", GLFilterOption);
                 end else
-                    GLFilterOption := -1;
+                    GLFilterOption := UndefinedValue;
 
                 if CloseEntries then
                     if ToFec <> NormalDate(ToFec) then

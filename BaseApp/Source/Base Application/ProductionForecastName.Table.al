@@ -38,7 +38,7 @@ table 99000851 "Production Forecast Name"
             if GuiAllowed then
                 if not Confirm(Confirm001Qst, true, Name) then
                     Error('');
-            ProdForecastEntry.DeleteAll;
+            ProdForecastEntry.DeleteAll();
         end;
     end;
 

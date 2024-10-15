@@ -27,7 +27,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                 Delay := BankAcc."Delay for Notices";
 
                 if DueOnly and (PostingDate < "Due Date" + Delay) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 DocCount := DocCount + 1;
                 Window.Update(1, DocCount);
@@ -121,7 +121,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                               "Dimension Set ID");
                         end;
                         until NoRealVATBuffer.Next = 0;
-                        NoRealVATBuffer.DeleteAll;
+                        NoRealVATBuffer.DeleteAll();
                     end;
                     "Currency Code" := TempCurrCode;
                 end;
@@ -133,7 +133,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
 
                 GroupAmount := GroupAmount + "Remaining Amount";
                 CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
 
                 if (PostedBillGr."Dealing Type" = PostedBillGr."Dealing Type"::Discount) and
                    (PostedBillGr.Factoring <> PostedBillGr.Factoring::" ")
@@ -178,7 +178,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                                     Validate("Account Type", "Account Type"::"G/L Account");
                                     BankAccPostingGr.TestField("Liabs. for Disc. Bills Acc.");
                                     Validate("Account No.", BankAccPostingGr."Liabs. for Disc. Bills Acc.");
-                                    Validate("Source Type", "Account Type"::"Bank Account");
+                                    Validate("Source Type", "Source Type"::"Bank Account");
                                     Validate("Source No.", BankAcc."No.");
                                 end else begin
                                     Validate("Account Type", "Account Type"::"Bank Account");
@@ -239,7 +239,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                         end;
                     end;
                 end;
-                PostedBillGr.Modify;
+                PostedBillGr.Modify();
                 OnBeforePostSettlementForPostedBillGroup(GenJnlLine, PostedBillGr, PostingDate);
                 DocPost.PostSettlementForPostedBillGroup(GenJnlLine, PostingDate);
                 OnAfterPostSettlementForPostedBillGroup(GenJnlLine, PostedBillGr, PostingDate);
@@ -250,10 +250,10 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                     GLReg.FindLast;
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
-                    GLReg.Modify;
+                    GLReg.Modify();
                 end;
 
-                Commit;
+                Commit();
 
                 if not HidePrintDialog then
                     Message(Text1100008, DocCount, GroupAmount);
@@ -263,7 +263,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
             begin
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
                 DocCount := 0;
                 SumLCYAmt := 0;
@@ -320,7 +320,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -541,15 +541,15 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
 
         if BankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
             BankAccPostBuffer.Amount := BankAccPostBuffer.Amount + Amount2;
-            BankAccPostBuffer.Modify;
+            BankAccPostBuffer.Modify();
         end else begin
-            BankAccPostBuffer.Init;
+            BankAccPostBuffer.Init();
             BankAccPostBuffer.Account := BankAcc2;
             BankAccPostBuffer.Amount := Amount2;
             BankAccPostBuffer."Entry No." := EntryNo;
             BankAccPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
             BankAccPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-            BankAccPostBuffer.Insert;
+            BankAccPostBuffer.Insert();
         end;
     end;
 

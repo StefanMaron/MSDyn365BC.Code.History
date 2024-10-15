@@ -154,11 +154,9 @@ table 312 "Purchases & Payables Setup"
                 PrepaymentMgt.CreateAndStartJobQueueEntryPurchase("Prepmt. Auto Update Frequency");
             end;
         }
-        field(35; "Default Posting Date"; Option)
+        field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            OptionCaption = 'Work Date,No Date';
-            OptionMembers = "Work Date","No Date";
         }
         field(36; "Default Qty. to Receive"; Option)
         {
@@ -379,6 +377,19 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Exact Cost Reversing Mandatory';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            InitValue = "Lowest Price";
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+            end;
+        }
         field(10700; "Post Invoice Discount"; Boolean)
         {
             Caption = 'Post Invoice Discount';
@@ -394,7 +405,7 @@ table 312 "Purchases & Payables Setup"
             trigger OnValidate()
             begin
                 if "Post Payment Discount" then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Payment Discount Type", GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
                 end;
             end;

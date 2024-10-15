@@ -95,7 +95,7 @@ report 1126 "Cost Acctg. Statement"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 PageGroupNo := 1;
                 NewPage := false;
             end;

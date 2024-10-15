@@ -18,7 +18,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
         CarteraDoc: Record "Cartera Doc.";
         CarteraSetup: Record "Cartera Setup";
     begin
-        CustLedgEntry.LockTable;
+        CustLedgEntry.LockTable();
         if CustLedgEntry.FindSet then begin
             // Make Applies-to ID
             if CustLedgEntry."Applies-to ID" <> '' then
@@ -33,7 +33,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
             end;
             repeat
                 TempCustLedgEntry := CustLedgEntry;
-                TempCustLedgEntry.Insert;
+                TempCustLedgEntry.Insert();
             until CustLedgEntry.Next = 0;
         end;
 
@@ -71,7 +71,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
 
                 if CustLedgEntryToUpdate."Entry No." = ApplyingCustLedgEntry."Entry No." then
                     CustLedgEntryToUpdate."Applying Entry" := ApplyingCustLedgEntry."Applying Entry";
-                CustLedgEntryToUpdate.Modify;
+                CustLedgEntryToUpdate.Modify();
             until TempCustLedgEntry.Next = 0;
     end;
 }

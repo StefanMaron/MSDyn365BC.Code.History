@@ -169,7 +169,7 @@ codeunit 10701 "Elect. Pmts Management"
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Country/Region Code");
         if CompanyInfo."Country/Region Code" = 'ES' then
             OriginResident := true
@@ -268,7 +268,7 @@ codeunit 10701 "Elect. Pmts Management"
         CheckLedgEntry: Record "Check Ledger Entry";
         CheckLedgEntry2: Record "Check Ledger Entry";
     begin
-        CheckLedgEntry.Reset;
+        CheckLedgEntry.Reset();
         CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
         CheckLedgEntry.SetRange("Bank Account No.", BankAccountNo);
         CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Exported);
@@ -278,7 +278,7 @@ codeunit 10701 "Elect. Pmts Management"
                 CheckLedgEntry2 := CheckLedgEntry;
                 CheckLedgEntry2."Original Entry Status" := CheckLedgEntry2."Original Entry Status"::Exported;
                 CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Voided;
-                CheckLedgEntry2.Modify;
+                CheckLedgEntry2.Modify();
             until CheckLedgEntry.Next = 0;
     end;
 
@@ -290,7 +290,7 @@ codeunit 10701 "Elect. Pmts Management"
         TotalInternationalRegs := 0;
         TotalSpecialRegs := 0;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(3, 2);
         InsertIntegerValue(62, 2);
@@ -308,7 +308,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertHeaderRecType2()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(3, 2);
         InsertIntegerValue(62, 2);
@@ -323,7 +323,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertHeaderRecType3()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(3, 2);
         InsertIntegerValue(62, 2);
@@ -338,7 +338,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertHeaderRecType4()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(3, 2);
         InsertIntegerValue(62, 2);
@@ -383,7 +383,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertDomesticHeaderRec()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(4, 2);
         InsertIntegerValue(56, 2);
@@ -395,7 +395,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertDomesticRegsType1(VatRegNoVend: Text[12]; JnlLineAmount: Text[12]; PayeeCCC: Text[20]; ExpensesCode: Text[1]; PmtOrderConcept: Text[1]; BillType: Code[10])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         if BillType = '4' then
@@ -417,7 +417,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertDomesticRegsType1To8(VatRegNoVend: Text[12]; VendorName: Text[100]; BillType: Code[10])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         if BillType = '4' then
@@ -435,7 +435,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertDomesticTrailer(TotalDom10Amount: Integer; TotalAmount: Text[12])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(8, 2);
         InsertIntegerValue(56, 2);
@@ -490,7 +490,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertInterTransferBlockHeader()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(4, 2);
         InsertIntegerValue(60, 2);
@@ -502,7 +502,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertInterTransferBlockType1(VatRegNoVend: Text[12]; IBAN: Text[34]; PmtOrderConcept: Text[1])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(60, 2);
@@ -518,7 +518,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertInterTransferBlockType2(VATRegNoVend: Text[12]; JnlLineAmountLCY: Text[12]; ExpensesCode: Text[1]; CountryCodeVendBankAcc: Text[2]; SwiftCode: Text[11])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(60, 2);
@@ -537,7 +537,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertInterTransferBlockT3To9(VatRegNoVend: Text[12]; VendorName: Text[100])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(60, 2);
@@ -552,7 +552,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertInterTransferTrailer(TotalDom33Amount: Integer; TotalAmountLCY: Text[12])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(8, 2);
         InsertIntegerValue(60, 2);
@@ -621,7 +621,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockHeader()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(4, 2);
         InsertIntegerValue(61, 2);
@@ -633,7 +633,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockType1(VatRegNoVend: Text[12]; IBAN: Text[34]; PmtOrderConcept: Text[1])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -649,7 +649,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockType2(VATRegNoVend: Text[12]; JnlLineAmountLCY: Text[12]; ExpensesCode: Text[1]; CountryCodeVendBankAcc: Text[2]; SwiftCode: Text[11])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -668,7 +668,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockT3To9(VatRegNoVend: Text[12]; VendorName: Text[100])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -683,7 +683,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockType11(VatRegNoVend: Text[12]; JnlLineDescription: Text[35])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -698,7 +698,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockType12(VATRegNoVend: Text[12]; JnlLineDescription: Text[35])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -713,7 +713,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransBlockType13(VatRegNoVend: Text[12]; PmtType: Text[2]; StatisticalCode: Text[6]; CountryCodeVendBankAcc: Text[2]; VatSharesIssuer: Text[9]; FinanceOpNo: Text[8]; ISINCode: Text[12])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(6, 2);
         InsertIntegerValue(61, 2);
@@ -733,7 +733,7 @@ codeunit 10701 "Elect. Pmts Management"
     [Scope('OnPrem')]
     procedure InsertSpecialTransTrailer(TotalDom33Amount: Integer; TotalAmountLCY: Text[12])
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(8, 2);
         InsertIntegerValue(61, 2);
@@ -753,7 +753,7 @@ codeunit 10701 "Elect. Pmts Management"
     var
         FileMgt: Codeunit "File Management";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         NewLine;
         InsertIntegerValue(9, 2);
         InsertIntegerValue(62, 2);

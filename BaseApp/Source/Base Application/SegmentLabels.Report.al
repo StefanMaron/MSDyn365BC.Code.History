@@ -145,7 +145,7 @@ report 5065 "Segment - Labels"
             begin
                 NoOfRecords := 0;
                 SegLine.SetFilter("Segment No.", "No.");
-                NoOfRecords := SegLine.Count;
+                NoOfRecords := SegLine.Count();
             end;
         }
     }

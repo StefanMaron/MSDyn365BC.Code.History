@@ -83,7 +83,7 @@ codeunit 5331 "CRM Coupling Management"
 
         TempCRMIntegrationRecord := CRMIntegrationRecord;
         TempCRMIntegrationRecord.Skipped := false;
-        if TempCRMIntegrationRecord.Insert then;
+        if TempCRMIntegrationRecord.Insert() then;
     end;
 
     local procedure RemoveCoupledContactsForCustomer(RecordID: RecordID; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
@@ -118,7 +118,7 @@ codeunit 5331 "CRM Coupling Management"
                             CRMContact.Get(CRMID);
                             if CRMContact.ParentCustomerId = CRMAccount.AccountId then begin
                                 TempContact.Copy(Contact);
-                                TempContact.Insert;
+                                TempContact.Insert();
                             end;
                         end;
                     until Contact.Next = 0;

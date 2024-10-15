@@ -21,9 +21,6 @@ report 10723 "Main Accounting Book"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -274,7 +271,7 @@ report 10723 "Main Accounting Book"
                     SetFilter("Starting Date", '> %1 & <= %2', FromDate, PostDate);
 
                     if NotFound then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
             dataitem("G/L Entry"; "G/L Entry")
@@ -409,7 +406,7 @@ report 10723 "Main Accounting Book"
                     trigger OnAfterGetRecord()
                     begin
                         if Num = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         AccPeriodNum += 1;
                         TempTotalCreditHead := TotalCreditHead;
                         TempTotalDebitHead := TotalDebitHead;
@@ -465,7 +462,7 @@ report 10723 "Main Accounting Book"
                         if Num = 0 then begin
                             SetRange("New Fiscal Year", true);
                             Find('-');
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
                     end;
                 }
@@ -707,7 +704,7 @@ report 10723 "Main Accounting Book"
                 trigger OnPreDataItem()
                 begin
                     Found := false;
-                    "Accounting Period".Reset;
+                    "Accounting Period".Reset();
                     "Accounting Period".SetRange("New Fiscal Year", true);
                     "Accounting Period".Find('+');
                     if ToDate <> NormalDate(ToDate) then
@@ -736,7 +733,7 @@ report 10723 "Main Accounting Book"
                 Print := false;
                 if GLFilterAccType = Text1100000Lbl then begin
                     if StrLen("No.") <> 3 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 FromDate := GetRangeMin("Date Filter");
@@ -751,7 +748,7 @@ report 10723 "Main Accounting Book"
                 else
                     HaveEntries := CalcEntries(0D);
                 if (not HaveEntries) and (not ZeroBalance) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 InitPeriodDate := CalcPeriod(FromDate);
                 EndPeriodDate := CalcPeriodEnd(ToDate);
@@ -759,9 +756,9 @@ report 10723 "Main Accounting Book"
                     (ClosingDate(CalcDate('<-1D>', EndPeriodDate)) <> ToDate) and
                     ("Net Change" = 0) and (not ZeroBalance))
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if PrintAmountsInAddCurrency then
                     HeaderText := StrSubstNo(Text1100003, GLSetup."Additional Reporting Currency")
                 else begin

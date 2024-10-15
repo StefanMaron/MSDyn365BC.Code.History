@@ -60,8 +60,8 @@ codeunit 7000005 "Invoice-Split Payment"
             else
                 CurrencyFactor := "Currency Factor";
 
-            GLSetup.Get;
-            SalesSetup.Get;
+            GLSetup.Get();
+            SalesSetup.Get();
             TestField("Payment Terms Code");
             PaymentTerms.Get("Payment Terms Code");
             PaymentTerms.CalcFields("No. of Installments");
@@ -85,7 +85,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             // close invoice entry
             if PaymentMethod."Create Bills" then begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Posting Date" := "Posting Date";
                 GenJnlLine."Document Date" := "Document Date";
                 GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
@@ -158,7 +158,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             NextDueDate := "Due Date";
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
             GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
@@ -299,8 +299,8 @@ codeunit 7000005 "Invoice-Split Payment"
             else
                 CurrencyFactor := "Currency Factor";
 
-            GLSetup.Get;
-            PurchSetup.Get;
+            GLSetup.Get();
+            PurchSetup.Get();
             TestField("Payment Terms Code");
             PaymentTerms.Get("Payment Terms Code");
             PaymentTerms.CalcFields("No. of Installments");
@@ -323,7 +323,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             // close invoice entry
             if PaymentMethod."Create Bills" then begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Posting Date" := "Posting Date";
                 GenJnlLine."Document Date" := "Document Date";
                 GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Vendor);
@@ -391,7 +391,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             NextDueDate := "Due Date";
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
             GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Vendor);
@@ -667,8 +667,8 @@ codeunit 7000005 "Invoice-Split Payment"
             else
                 CurrencyFactor := "Currency Factor";
 
-            GLSetup.Get;
-            ServSetup.Get;
+            GLSetup.Get();
+            ServSetup.Get();
             TestField("Payment Terms Code");
             PaymentTerms.Get("Payment Terms Code");
             PaymentTerms.CalcFields("No. of Installments");
@@ -691,7 +691,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             // close invoice entry
             if PaymentMethod."Create Bills" then begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Posting Date" := "Posting Date";
                 GenJnlLine."Document Date" := "Document Date";
                 GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
@@ -750,7 +750,7 @@ codeunit 7000005 "Invoice-Split Payment"
 
             NextDueDate := "Due Date";
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
             GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);

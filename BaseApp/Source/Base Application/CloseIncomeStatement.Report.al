@@ -53,13 +53,13 @@ report 94 "Close Income Statement"
                                     TempDimBuf2."Table ID" := TempDimBuf."Table ID";
                                     TempDimBuf2."Dimension Code" := TempDimBuf."Dimension Code";
                                     TempDimBuf2."Dimension Value Code" := TempDimBuf."Dimension Value Code";
-                                    TempDimBuf2.Insert;
+                                    TempDimBuf2.Insert();
                                 end;
                             until TempSelectedDim.Next = 0;
 
                         DimensionBufferID := DimBufMgt.GetDimensionId(TempDimBuf2);
 
-                        EntryNoAmountBuf.Reset;
+                        EntryNoAmountBuf.Reset();
                         if ClosePerBusUnit and FieldActive("Business Unit Code") then
                             EntryNoAmountBuf."Business Unit Code" := "Business Unit Code"
                         else
@@ -68,11 +68,11 @@ report 94 "Close Income Statement"
                         if EntryNoAmountBuf.Find then begin
                             EntryNoAmountBuf.Amount := EntryNoAmountBuf.Amount + Amount;
                             EntryNoAmountBuf.Amount2 := EntryNoAmountBuf.Amount2 + "Additional-Currency Amount";
-                            EntryNoAmountBuf.Modify;
+                            EntryNoAmountBuf.Modify();
                         end else begin
                             EntryNoAmountBuf.Amount := Amount;
                             EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";
-                            EntryNoAmountBuf.Insert;
+                            EntryNoAmountBuf.Insert();
                         end;
                     end;
 
@@ -87,13 +87,13 @@ report 94 "Close Income Statement"
                     GlobalDimVal2: Code[20];
                     NewDimensionID: Integer;
                 begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Posting Date" := FiscYearClosingDate;
                     GenJnlLine."Document No." := DocNo;
                     GenJnlLine.Description := PostingDescription;
 
-                    EntryNoAmountBuf.Reset;
-                    MaxEntry := EntryNoAmountBuf.Count;
+                    EntryNoAmountBuf.Reset();
+                    MaxEntry := EntryNoAmountBuf.Count();
                     EntryCount := 0;
                     Window.Update(2, Text012);
                     Window.Update(3, 0);
@@ -116,7 +116,7 @@ report 94 "Close Income Statement"
                                 GenJnlLine."Source Currency Amount" := -EntryNoAmountBuf.Amount2;
                                 GenJnlLine."Business Unit Code" := EntryNoAmountBuf."Business Unit Code";
 
-                                TempDimBuf2.DeleteAll;
+                                TempDimBuf2.DeleteAll();
                                 DimBufMgt.RetrieveDimensions(EntryNoAmountBuf."Entry No.", TempDimBuf2);
                                 NewDimensionID := DimMgt.CreateDimSetIDFromDimBuf(TempDimBuf2);
                                 GenJnlLine."Dimension Set ID" := NewDimensionID;
@@ -131,7 +131,7 @@ report 94 "Close Income Statement"
                             end;
                         until EntryNoAmountBuf.Next = 0;
 
-                    EntryNoAmountBuf.DeleteAll;
+                    EntryNoAmountBuf.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -157,7 +157,7 @@ report 94 "Close Income Statement"
 
                     MaxEntry := Count;
 
-                    EntryNoAmountBuf.DeleteAll;
+                    EntryNoAmountBuf.DeleteAll();
                     EntryCount := 0;
 
                     LastWindowUpdateDateTime := CurrentDateTime;
@@ -175,7 +175,7 @@ report 94 "Close Income Statement"
 
             trigger OnPreDataItem()
             begin
-                NoOfAccounts := "G/L Account".Count;
+                NoOfAccounts := "G/L Account".Count();
             end;
         }
     }
@@ -369,7 +369,7 @@ report 94 "Close Income Statement"
         Window.Open(
           Text1100100);
 
-        NoOfRecords := GenJnlLine.Count;
+        NoOfRecords := GenJnlLine.Count();
         Window.Update(1, LineCount);
         repeat
             GenJnlLine2 := GenJnlLine;
@@ -397,8 +397,8 @@ report 94 "Close Income Statement"
                 Error('');
 
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        SourceCodeSetup.Get;
-        GLSetup.Get;
+        SourceCodeSetup.Get();
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then begin
             if RetainedEarningsGLAcc."No." = '' then
                 Error(Text002);
@@ -542,10 +542,10 @@ report 94 "Close Income Statement"
             end;
             if GenJnlLine.Amount <> 0 then
                 if not ((GenJnlLine.Amount = 0) and (GenJnlLine."Source Currency Amount" <> 0)) then
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
         end else
             if not ZeroGenJnlAmount then
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
     end;
 
     local procedure CalcSumsInFilter(var GLEntrySource: Record "G/L Entry"; var Offset: Integer)
@@ -585,7 +585,7 @@ report 94 "Close Income Statement"
                 DimBuf."Entry No." := EntryNo;
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                DimBuf.Insert;
+                DimBuf.Insert();
             until DimSetEntry.Next = 0;
     end;
 
@@ -665,7 +665,7 @@ report 94 "Close Income Statement"
                 BalLineBuffer.Amount := GenJnlLine.Amount;
                 BalLineBuffer."Additional-Currency Amount" := GenJnlLine."Source Currency Amount";
             end;
-            BalLineBuffer.Insert;
+            BalLineBuffer.Insert();
         end else begin
             if GenJnlLine."Additional-Currency Posting" =
                GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only"
@@ -676,7 +676,7 @@ report 94 "Close Income Statement"
                 BalLineBuffer."Additional-Currency Amount" :=
                   GenJnlLine."Source Currency Amount" + BalLineBuffer."Additional-Currency Amount";
             end;
-            BalLineBuffer.Modify;
+            BalLineBuffer.Modify();
         end;
     end;
 
@@ -707,7 +707,7 @@ report 94 "Close Income Statement"
                 end else
                     GenJnlLine.Validate(Amount, -BalLineBuffer.Amount);
                 GenJnlLine."System-Created Entry" := true;
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             until BalLineBuffer.Next = 0;
     end;
 

@@ -10,7 +10,7 @@ codeunit 7000008 "Document-Edit"
     trigger OnRun()
     begin
         CarteraDoc := Rec;
-        CarteraDoc.LockTable;
+        CarteraDoc.LockTable();
         CarteraDoc.Find;
         CarteraDoc."Category Code" := "Category Code";
         CarteraDoc."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
@@ -22,7 +22,7 @@ codeunit 7000008 "Document-Edit"
             CarteraDoc.Accepted := Accepted;
         end;
         OnBeforeModifyCarteraDoc(CarteraDoc, Rec);
-        CarteraDoc.Modify;
+        CarteraDoc.Modify();
         Rec := CarteraDoc;
     end;
 
@@ -43,7 +43,7 @@ codeunit 7000008 "Document-Edit"
                     begin
                         CustLedgEntry.Get("Entry No.");
                         CustLedgEntry."Due Date" := "Due Date";
-                        CustLedgEntry.Modify;
+                        CustLedgEntry.Modify();
                         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
                         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
                         DtldCustLedgEntry.ModifyAll("Initial Entry Due Date", "Due Date");
@@ -52,7 +52,7 @@ codeunit 7000008 "Document-Edit"
                     begin
                         VendLedgEntry.Get("Entry No.");
                         VendLedgEntry."Due Date" := "Due Date";
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Posting Date");
                         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
                         DtldVendLedgEntry.ModifyAll("Initial Entry Due Date", "Due Date");

@@ -98,7 +98,7 @@ page 2860 "Native - Units of Measure"
         if TempFieldSet.Get(DATABASE::"Unit of Measure", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Unit of Measure";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

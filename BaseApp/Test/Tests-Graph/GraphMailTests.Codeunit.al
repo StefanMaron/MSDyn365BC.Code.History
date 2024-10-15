@@ -49,14 +49,14 @@ codeunit 138926 "Graph Mail Tests"
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        GraphMailSetup.Insert;
+        GraphMailSetup.Insert();
 
         Assert.IsFalse(GraphMailSetup.IsEnabled, '');
 
         // Execute
         GraphMailSetup.Initialize(true);
         GraphMailSetup.Enabled := true;
-        GraphMailSetup.Modify;
+        GraphMailSetup.Modify();
 
         // Verify
         Assert.IsTrue(GraphMailSetup.IsEnabled, '');
@@ -275,7 +275,7 @@ codeunit 138926 "Graph Mail Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);

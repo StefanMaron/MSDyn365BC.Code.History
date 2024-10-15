@@ -63,7 +63,7 @@ report 7000080 "Post Payment Order"
                         if "Currency Code" <> '' then
                             BGPOPostBuffer."Gain - Loss Amount (LCY)" := BGPOPostBuffer."Gain - Loss Amount (LCY)" +
                               GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
-                        BGPOPostBuffer.Modify;
+                        BGPOPostBuffer.Modify();
                     end else begin
                         BGPOPostBuffer.Account := AccountNo;
                         BGPOPostBuffer."Balance Account" := BalanceAccount;
@@ -77,10 +77,10 @@ report 7000080 "Post Payment Order"
                                 "Remaining Amount",
                                 "Posting Date",
                                 "Currency Code");
-                        BGPOPostBuffer.Insert;
+                        BGPOPostBuffer.Insert();
                     end;
 
-                    PostedDocBuffer.Init;
+                    PostedDocBuffer.Init();
                     PostedDocBuffer.TransferFields("Cartera Doc.");
                     PostedDocBuffer."Category Code" := '';
                     PostedDocBuffer."Bank Account No." := PmtOrd."Bank Account No.";
@@ -88,7 +88,7 @@ report 7000080 "Post Payment Order"
                     PostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
                     PostedDocBuffer."Original Document No." := "Original Document No.";
                     OnBeforePostedDocBufferInsert(PostedDocBuffer, "Cartera Doc.", PmtOrd);
-                    PostedDocBuffer.Insert;
+                    PostedDocBuffer.Insert();
                 end;
 
                 trigger OnPostDataItem()
@@ -100,7 +100,7 @@ report 7000080 "Post Payment Order"
                     if not BGPOPostBuffer.Find('-') then
                         exit;
 
-                    GenJnlLine.LockTable;
+                    GenJnlLine.LockTable();
                     GenJnlLine.SetRange("Journal Template Name", TemplName);
                     GenJnlLine.SetRange("Journal Batch Name", BatchName);
                     if GenJnlLine.FindLast then begin
@@ -210,7 +210,7 @@ report 7000080 "Post Payment Order"
                     if IsHandled then
                         exit;
 
-                    Commit;
+                    Commit();
                     if not HidePrintDialog then
                         Message(Text1100005, PmtOrd."No.");
                     exit;
@@ -316,7 +316,7 @@ report 7000080 "Post Payment Order"
 
     trigger OnPreReport()
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCode := SourceCodeSetup."Cartera Journal";
 
         if CurrReport.UseRequestPage then begin
@@ -377,8 +377,8 @@ report 7000080 "Post Payment Order"
         UpdateTables;
         Window.Close;
         if CurrReport.UseRequestPage then begin
-            Commit;
-            GenJnlLine.Reset;
+            Commit();
+            GenJnlLine.Reset();
             GenJnlTemplate.Get(TemplName);
             GenJnlLine.FilterGroup := 2;
             GenJnlLine.SetRange("Journal Template Name", TemplName);
@@ -396,21 +396,21 @@ report 7000080 "Post Payment Order"
         PostedDocBuffer.Find('-');
         repeat
             PostedDoc.Copy(PostedDocBuffer);
-            PostedDoc.Insert;
+            PostedDoc.Insert();
             VendLedgEntry.Get(PostedDoc."Entry No.");
             VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Posted BG/PO";
             VendLedgEntry."Document Status" := PostedDoc.Status + 1;
             OnUpdateTablesOnBeforeVendLedgEntryModify(VendLedgEntry, PostedDoc, PmtOrd);
-            VendLedgEntry.Modify;
+            VendLedgEntry.Modify();
         until PostedDocBuffer.Next = 0;
 
         PmtOrd.CalcFields(Amount);
         PostedPmtOrd.TransferFields(PmtOrd);
         PostedPmtOrd."Payment Order Expenses Amt." := FeeRange.GetTotalPmtOrdCollExpensesAmt;
-        PostedPmtOrd.Insert;
+        PostedPmtOrd.Insert();
 
-        "Cartera Doc.".DeleteAll;
-        PmtOrd.Delete;
+        "Cartera Doc.".DeleteAll();
+        PmtOrd.Delete();
     end;
 
     local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer; EntryNo: Integer; CurrFactor: Decimal)

@@ -31,7 +31,7 @@ report 511 "Complete IC Inbox Action"
                         "IC Inbox Transaction"."Line Action"::Cancel:
                             begin
                                 HandledInboxJnlLine.TransferFields(InboxJnlLine2);
-                                HandledInboxJnlLine.Insert;
+                                HandledInboxJnlLine.Insert();
                             end;
                     end;
 
@@ -70,7 +70,7 @@ report 511 "Complete IC Inbox Action"
                         "IC Inbox Transaction"."Line Action"::Cancel:
                             begin
                                 HandledInboxSalesHeader.TransferFields(InboxSalesHeader2);
-                                HandledInboxSalesHeader.Insert;
+                                HandledInboxSalesHeader.Insert();
                                 DimMgt.SetICDocDimFilters(
                                   ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
                                 if ICDocDim.FindFirst then
@@ -82,7 +82,7 @@ report 511 "Complete IC Inbox Action"
                                     if Find('-') then
                                         repeat
                                             HandledInboxSalesLine.TransferFields(InboxSalesLine);
-                                            HandledInboxSalesLine.Insert;
+                                            HandledInboxSalesLine.Insert();
                                             DimMgt.SetICDocDimFilters(
                                               ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
                                             if ICDocDim.FindFirst then
@@ -119,7 +119,7 @@ report 511 "Complete IC Inbox Action"
                         "IC Inbox Transaction"."Line Action"::Cancel:
                             begin
                                 HandledInboxPurchHeader.TransferFields(InboxPurchHeader2);
-                                HandledInboxPurchHeader.Insert;
+                                HandledInboxPurchHeader.Insert();
                                 DimMgt.SetICDocDimFilters(
                                   ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
                                 if ICDocDim.FindFirst then
@@ -131,7 +131,7 @@ report 511 "Complete IC Inbox Action"
                                     if Find('-') then
                                         repeat
                                             HandledInboxPurchLine.TransferFields(InboxPurchLine);
-                                            HandledInboxPurchLine.Insert;
+                                            HandledInboxPurchLine.Insert();
                                             DimMgt.SetICDocDimFilters(
                                               ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code",
                                               "Transaction Source", "Line No.");
@@ -154,7 +154,7 @@ report 511 "Complete IC Inbox Action"
                 ICPartner: Record "IC Partner";
             begin
                 if "Line Action" = "Line Action"::"No Action" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 InboxTransaction2 := "IC Inbox Transaction";
                 if ("Source Type" = "Source Type"::Journal) and
                    (InboxTransaction2."Line Action" <> InboxTransaction2."Line Action"::Cancel) and
@@ -182,7 +182,7 @@ report 511 "Complete IC Inbox Action"
                       Text001, InboxTransaction2.FieldCaption("Transaction No."),
                       InboxTransaction2."Transaction No.", InboxTransaction2."IC Partner Code",
                       HandledInboxTransaction2.TableCaption);
-                InboxTransaction2.Delete;
+                InboxTransaction2.Delete();
 
                 ICIOMgt.HandleICComments(ICCommentLine."Table Name"::"IC Inbox Transaction",
                   ICCommentLine."Table Name"::"Handled IC Inbox Transaction", "Transaction No.",
@@ -392,7 +392,7 @@ report 511 "Complete IC Inbox Action"
     local procedure GetGLSetup()
     begin
         if not GLSetupFound then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupFound := true;
     end;
 

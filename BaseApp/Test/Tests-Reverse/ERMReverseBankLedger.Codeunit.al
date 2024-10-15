@@ -19,7 +19,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
-        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReverseErr: Label 'You cannot reverse Bank Account Ledger Entry No. %1 because the entry is closed.', Locked = true;
@@ -33,7 +32,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         isInitialized: Boolean;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         VoidType: Option "Unapply and void check","Void check only";
-        IncorrectCountErr: Label 'Incorrect count of G/L Entries';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -306,6 +304,29 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     [Test]
     [HandlerFunctions('VoidCheckPageHandler')]
     [Scope('OnPrem')]
+    procedure VoidCustomerBankAccLedgerEntry()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Setup: Create and Post General Journal line with non-empty Document type.
+        Initialize;
+        with GenJournalLine do begin
+            CreateAndPostGenJournalLine(
+              GenJournalLine, "Document Type"::Refund, "Account Type"::Customer, LibrarySales.CreateCustomerNo,
+              "Bank Payment Type"::"Manual Check", '', CreateBankAccount, LibraryRandom.RandDec(100, 2), '');
+
+            // Exercise: Void the created the check ledger entry.
+            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Void check only");
+
+            // Verify: Verify that Document type is not empty in the bank account ledger entry.
+            VerifyRefundBankAccLedgerEntry("Bal. Account No.", "Posting Date", "Document No.", -Amount, GetGenJnlSourceCode);
+            VerifyBankAccLedgerEntry("Bal. Account No.", WorkDate, "Document No.", Amount, GetFinVoidedSourceCode);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('VoidCheckPageHandler')]
+    [Scope('OnPrem')]
     procedure VoidBankCheckLedgerEntry()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -358,32 +379,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.TestField("Remaining Amount", -Amount);
         end;
-    end;
-
-    [Test]
-    [HandlerFunctions('VoidCheckPageHandler')]
-    [Scope('OnPrem')]
-    procedure VoidAndUnapplyVendCheckLedgEntryGLEntry()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Vendor: Record Vendor;
-        TransactionNo: Integer;
-    begin
-        // Test that sytem correctly void the check ledger entry and unapply the vendor ledger entry.
-
-        // Setup: Create and apply the general journal line for vendor and then post it.
-        Initialize;
-        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
-
-        ApplyGenJournalLineForBankPaymentType(GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.");
-
-        TransactionNo := FindLastTransactionNo;
-
-        // Exercise: Void and unapply the check ledger entry.
-        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Unapply and void check");
-
-        // Verify: Verify that system correctly creates G/L Entry.
-        VerifyGLAccGLEntry(GenJournalLine."Document No.", TransactionNo, Vendor."Vendor Posting Group", -GenJournalLine.Amount);
     end;
 
     [Test]
@@ -537,13 +532,13 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccReconciliationLine.CalcSums("Statement Amount");
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliationLine."Statement Amount");
         BankAccReconciliation.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Post Bank Account Reconcilation for "X"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] All Bank Account Ledger Entries of "X" are closed
-        BankAccountLedgerEntry.Reset;
+        BankAccountLedgerEntry.Reset();
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(BankAccountLedgerEntry);
@@ -642,14 +637,14 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Clear(GenJournalLine);
         CreatePaymentJournal(GenJournalLine);
         GenJournalLine.Validate("Posting Date", StartDate + 1);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         SuggestVendorPayments(GenJournalLine, Vendor."No.", BankAccountNo);
         GenJournalLine.SetRange("Account No.", Vendor."No.");
         GenJournalLine.FindFirst;
         GenJournalLine.Validate("Currency Code", '');
         GenJournalLine.Validate(Amount, InvoiceAmount / ExchangeRate[2]);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         // [WHEN] Print Check
         PrintCheck(GenJournalLine, BankAccountNo);
 
@@ -761,7 +756,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Initialize;
 
         LibraryERM.CreateBankAccount(BankAccount);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Suggest Bank Acc. Recon. Lines", true, false, BankAccount);
 
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, ''); // visible
@@ -844,7 +839,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
     end;
 
@@ -976,7 +971,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, CreatePaymentJournalTemplate);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -1038,14 +1033,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         CheckLedgerEntry.FindFirst;
     end;
 
-    local procedure FindLastTransactionNo(): Integer
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.FindLast;
-        exit(GLEntry."Transaction No.");
-    end;
-
     local procedure GetBankAccountLastCheckNo(BankAccountNo: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
@@ -1054,11 +1041,19 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         exit(BankAccount."Last Check No.");
     end;
 
+    local procedure GetGenJnlSourceCode(): Code[10]
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        exit(SourceCodeSetup."General Journal");
+    end;
+
     local procedure GetPmtJnlSourceCode(): Code[10]
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Payment Journal");
     end;
 
@@ -1066,7 +1061,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Financially Voided Check");
     end;
 
@@ -1228,6 +1223,17 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         end;
     end;
 
+    local procedure VerifyRefundBankAccLedgerEntry(BankAccountNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedSourceCode: Code[10])
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        with BankAccountLedgerEntry do begin
+            FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, "Document Type"::Refund, DocumentNo);
+            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
+            Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
+        end;
+    end;
+
     local procedure VerifyBankAccLedgerEntry(BankAccountNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedSourceCode: Code[10])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -1263,30 +1269,6 @@ codeunit 134134 "ERM Reverse Bank Ledger"
             SetRange("Source Code", GetFinVoidedSourceCode);
             Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);
         end;
-    end;
-
-    local procedure VerifyGLAccGLEntry(DocumentNo: Code[20]; LastTransactionNo: Integer; VendorPostingGroup: Code[20]; GLAmount: Decimal)
-    var
-        VendPostingGr: Record "Vendor Posting Group";
-        GLEntry: Record "G/L Entry";
-    begin
-        VendPostingGr.Get(VendorPostingGroup);
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetFilter("Transaction No.", '>%1', LastTransactionNo);
-        GLEntry.SetRange("Source Type", GLEntry."Source Type"::Vendor);
-
-        GLEntry.SetRange("G/L Account No.", VendPostingGr."Payables Account");
-        Assert.AreEqual(1, GLEntry.Count, IncorrectCountErr);
-        GLEntry.FindFirst;
-        GLEntry.TestField(Amount, -GLAmount);
-
-        GLEntry.SetRange("G/L Account No.", VendPostingGr."Bills Account");
-        Assert.AreEqual(2, GLEntry.Count, IncorrectCountErr);
-        GLEntry.FindSet;
-        GLEntry.TestField(Amount);
-        GLAmount := GLAmount * (GLEntry.Amount / Abs(GLEntry.Amount));
-        GLEntry.Next;
-        GLEntry.TestField(Amount, -GLAmount);
     end;
 
     [ModalPageHandler]

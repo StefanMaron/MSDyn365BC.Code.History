@@ -872,7 +872,7 @@ page 9183 "Generic Chart Setup"
           TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisTitleCode, GenericChartMgt.GetUserLanguage);
         TempGenericChartSetup."Z-Axis Field Caption" :=
           TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.ZAxisCaptionCode, GenericChartMgt.GetUserLanguage);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
         StoreTempXRecValues;
         FillMatrixWhenOpenPage;
         UpdateTempGenericChartYAXis;
@@ -926,7 +926,7 @@ page 9183 "Generic Chart Setup"
         i: Integer;
         "Count": Integer;
     begin
-        TempGenericChartYAxis.DeleteAll;
+        TempGenericChartYAxis.DeleteAll();
 
         if ChartCapableOfOptionalMeasures then
             Count := ArrayLen(DataColumn)
@@ -948,7 +948,7 @@ page 9183 "Generic Chart Setup"
                     TempGenericChartYAxis."Chart Type" := ChartType
                 else
                     TempGenericChartYAxis."Chart Type" := ChartTypeReduced[i];
-                TempGenericChartYAxis.Insert;
+                TempGenericChartYAxis.Insert();
             end;
     end;
 
@@ -1023,15 +1023,15 @@ page 9183 "Generic Chart Setup"
         GenericChartFiltersPage.SetTempGenericChart(TempGenericChartSetup);
         GenericChartFiltersPage.SetFilters(TempGenericChartFilter);
         GenericChartFiltersPage.SetTableView(TempGenericChartFilter);
-        Commit;
+        Commit();
         GenericChartFiltersPage.RunModal;
-        TempGenericChartFilter.DeleteAll;
+        TempGenericChartFilter.DeleteAll();
         Clear(FilterText);
         GenericChartFiltersPage.GetFilters(TempGenericChartFilter2);
         if TempGenericChartFilter2.FindSet then
             repeat
                 TempGenericChartFilter := TempGenericChartFilter2;
-                TempGenericChartFilter.Insert;
+                TempGenericChartFilter.Insert();
                 if TempGenericChartFilter."Filter Value" <> '' then
                     GenericChartMgt.BuildFilterText(FilterText,
                       CopyStr(
@@ -1083,11 +1083,11 @@ page 9183 "Generic Chart Setup"
 
     local procedure ClearAllVariables()
     begin
-        TempGenericChartSetup.DeleteAll;
-        TempGenericChartFilter.DeleteAll;
-        TempGenericChartYAxis.DeleteAll;
-        TempGenericChartCaptionsBuf.DeleteAll;
-        TempGenericChartMemoBuf.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
+        TempGenericChartFilter.DeleteAll();
+        TempGenericChartYAxis.DeleteAll();
+        TempGenericChartCaptionsBuf.DeleteAll();
+        TempGenericChartMemoBuf.DeleteAll();
 
         Clear(TempGenericChartFilter);
         Clear(TempGenericChartYAxis);

@@ -1,4 +1,4 @@
-﻿page 20 "General Ledger Entries"
+page 20 "General Ledger Entries"
 {
     AdditionalSearchTerms = 'g/l transactions';
     ApplicationArea = Basic, Suite;
@@ -559,7 +559,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

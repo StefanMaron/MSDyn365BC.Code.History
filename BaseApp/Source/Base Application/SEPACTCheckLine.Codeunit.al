@@ -32,7 +32,7 @@ codeunit 1223 "SEPA CT-Check Line"
         if IsHandled then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
             GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
 

@@ -48,7 +48,7 @@ table 7000010 "Operation Fee"
         FeeRange.SetRange(Code, Code);
         FeeRange.SetRange("Currency Code", "Currency Code");
         FeeRange.SetRange("Type of Fee", "Type of Fee");
-        FeeRange.DeleteAll;
+        FeeRange.DeleteAll();
     end;
 
     var

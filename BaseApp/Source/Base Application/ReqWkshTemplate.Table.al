@@ -81,7 +81,7 @@ table 244 "Req. Wksh. Template"
         ReqLine.SetRange("Worksheet Template Name", Name);
         ReqLine.DeleteAll(true);
         ReqWkshName.SetRange("Worksheet Template Name", Name);
-        ReqWkshName.DeleteAll;
+        ReqWkshName.DeleteAll();
     end;
 
     trigger OnInsert()

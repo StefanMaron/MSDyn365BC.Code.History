@@ -67,7 +67,7 @@ codeunit 130502 "Library - Item Tracking"
     begin
         CreateItemTrackingCode(ItemTrackingCode, SNSpecific, LNSpecific);
         ItemTrackingCode.Validate("Use Expiration Dates", true);
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
     end;
 
     procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; SNSpecific: Boolean; LNSpecific: Boolean)
@@ -90,7 +90,7 @@ codeunit 130502 "Library - Item Tracking"
     procedure CreateLotNoInformation(var LotNoInformation: Record "Lot No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50])
     begin
         Clear(LotNoInformation);
-        LotNoInformation.Init;
+        LotNoInformation.Init();
         LotNoInformation.Validate("Item No.", ItemNo);
         LotNoInformation.Validate("Variant Code", VariantCode);
         LotNoInformation.Validate("Lot No.", LotNo);
@@ -156,7 +156,7 @@ codeunit 130502 "Library - Item Tracking"
     procedure CreateSerialNoInformation(var SerialNoInformation: Record "Serial No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[50])
     begin
         Clear(SerialNoInformation);
-        SerialNoInformation.Init;
+        SerialNoInformation.Init();
         SerialNoInformation.Validate("Item No.", ItemNo);
         SerialNoInformation.Validate("Variant Code", VariantCode);
         SerialNoInformation.Validate("Serial No.", SerialNo);
@@ -235,7 +235,7 @@ codeunit 130502 "Library - Item Tracking"
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
 
-        Commit;
+        Commit();
         CalcWhseAdjmnt.SetItemJnlLine(ItemJournalLine);
         if DocumentNo = '' then
             DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", NewPostingDate, false);
@@ -518,7 +518,7 @@ codeunit 130502 "Library - Item Tracking"
                 end;
             DATABASE::"Warehouse Shipment Line":
                 begin
-                    WhseShptLine.Init;
+                    WhseShptLine.Init();
                     RecRef.SetTable(WhseShptLine);
                     // COPY FROM TAB 7321: OpenItemTrackingLines
                     WhseShptLine.TestField("No.");
@@ -547,7 +547,7 @@ codeunit 130502 "Library - Item Tracking"
                 end;
             DATABASE::"Warehouse Receipt Line":
                 begin
-                    WhseRcptLine.Init;
+                    WhseRcptLine.Init();
                     RecRef.SetTable(WhseRcptLine);
                     // COPY FROM TAB 7317: OpenItemTrackingLines
                     WhseRcptLine.TestField("No.");
@@ -696,7 +696,7 @@ codeunit 130502 "Library - Item Tracking"
         case RecRef.Number of
             DATABASE::"Warehouse Journal Line":
                 begin
-                    WhseJnlLine.Init;
+                    WhseJnlLine.Init();
                     RecRef.SetTable(WhseJnlLine);
                     // COPY FROM TAB 7311: OpenItemTrackingLines
                     WhseJnlLine.TestField("Item No.");
@@ -791,12 +791,12 @@ codeunit 130502 "Library - Item Tracking"
                 end;
             DATABASE::"Whse. Internal Put-away Line":
                 begin
-                    WhseInternalPutAwayLine.Init;
+                    WhseInternalPutAwayLine.Init();
                     RecRef.SetTable(WhseInternalPutAwayLine);
                     // COPY FROM TAB 7332: OpenItemTrackingLines
                     WhseInternalPutAwayLine.TestField("Item No.");
                     WhseInternalPutAwayLine.TestField("Qty. (Base)");
-                    WhseWkshLine.Init;
+                    WhseWkshLine.Init();
                     WhseWkshLine."Whse. Document Type" :=
                       WhseWkshLine."Whse. Document Type"::"Internal Put-away";
                     WhseWkshLine."Whse. Document No." := WhseInternalPutAwayLine."No.";
@@ -814,12 +814,12 @@ codeunit 130502 "Library - Item Tracking"
                 end;
             DATABASE::"Whse. Internal Pick Line":
                 begin
-                    WhseInternalPickLine.Init;
+                    WhseInternalPickLine.Init();
                     RecRef.SetTable(WhseInternalPickLine);
                     // COPY FROM TAB 7334: OpenItemTrackingLines
                     WhseInternalPickLine.TestField("Item No.");
                     WhseInternalPickLine.TestField("Qty. (Base)");
-                    WhseWkshLine.Init;
+                    WhseWkshLine.Init();
                     WhseWkshLine."Whse. Document Type" :=
                       WhseWkshLine."Whse. Document Type"::"Internal Pick";
                     WhseWkshLine."Whse. Document No." := WhseInternalPickLine."No.";

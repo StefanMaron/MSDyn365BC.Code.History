@@ -131,7 +131,7 @@ Fields!CompanyInfo__Bank_Account_No__.Value, 2)</Hidden>
                                             </Paragraphs>
                                             <Visibility>
                                               <Hidden>=Code.SetData(Fields!STRSUBSTNO_Text1100006_CopyText_.Value + Chr(177) + 
-Fields!STRSUBSTNO_Text1100007_FORMAT_CurrReport_PAGENO__.Value + Chr(177) + 
+"" + Chr(177) + 
 Fields!FORMAT__Purch__Cr__Memo_Hdr____Document_Date__0_4_.Value + Chr(177) + 
 Fields!AutoCredit_Memo_No_Caption.Value + Chr(177) + 
 Fields!Purch__Cr__Memo_Hdr____Autocredit_Memo_No__.Value + Chr(177) + 
@@ -3567,9 +3567,6 @@ End Function</Code>
         </Field>
         <Field Name="STRSUBSTNO_Text1100006_CopyText_">
           <DataField>STRSUBSTNO_Text1100006_CopyText_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1100007_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1100007_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>

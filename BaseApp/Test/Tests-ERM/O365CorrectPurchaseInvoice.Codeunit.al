@@ -88,7 +88,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // EXERCISE
         PostedPurchaseInvoices.OpenView;
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
-        LibraryVariableStorage.Enqueue(true); // for the confirm empty Corrected Invoice No.
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
         PurchaseInvoice.Trap;
         PostedPurchaseInvoices.CorrectInvoice.Invoke;
@@ -185,7 +184,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // EXERCISE
         PostedPurchaseInvoices.OpenView;
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
-        LibraryVariableStorage.Enqueue(true); // for the confirm empty Corrected Invoice No.
         LibraryVariableStorage.Enqueue(true); // for the cancel confirm handler
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
         PostedPurchaseCreditMemo.Trap;

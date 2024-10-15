@@ -19,7 +19,7 @@ table 7000020 "Payment Order"
                 CheckPrinted;
                 ResetPrinted;
 
-                CarteraSetup.Get;
+                CarteraSetup.Get();
                 NoSeriesMgt.TestManual(CarteraSetup."Payment Order Nos.");
                 "No. Series" := '';
 
@@ -150,7 +150,7 @@ table 7000020 "Payment Order"
 
             trigger OnLookup()
             begin
-                Currency.Reset;
+                Currency.Reset();
 
                 if Currency.Get("Currency Code") then;
                 Currencies.SetRecord(Currency);
@@ -174,7 +174,7 @@ table 7000020 "Payment Order"
                       StrSubstNo(Text1100001, TableCaption));
 
                 if "Currency Code" <> '' then begin
-                    Currency.Reset;
+                    Currency.Reset();
                     Currency.SetRange("Payment Orders", true);
                     Currency.Code := "Currency Code";
                     if not Currency.Find then
@@ -250,13 +250,13 @@ table 7000020 "Payment Order"
             Error(Text1100000);
 
         BGPOCommentLine.SetRange("BG/PO No.", "No.");
-        BGPOCommentLine.DeleteAll;
+        BGPOCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            CarteraSetup.Get;
+            CarteraSetup.Get();
             CarteraSetup.TestField("Payment Order Nos.");
             NoSeriesMgt.InitSeries(CarteraSetup."Payment Order Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -300,10 +300,10 @@ table 7000020 "Payment Order"
     begin
         with PmtOrd do begin
             PmtOrd := Rec;
-            CarteraSetup.Get;
+            CarteraSetup.Get();
             CarteraSetup.TestField("Payment Order Nos.");
             if NoSeriesMgt.SelectSeries(CarteraSetup."Payment Order Nos.", OldPmtOrd."No. Series", "No. Series") then begin
-                CarteraSetup.Get;
+                CarteraSetup.Get();
                 CarteraSetup.TestField("Payment Order Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := PmtOrd;

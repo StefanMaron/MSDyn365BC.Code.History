@@ -18,7 +18,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
         CarteraSetup: Record "Cartera Setup";
         CarteraDoc: Record "Cartera Doc.";
     begin
-        VendLedgEntry.LockTable;
+        VendLedgEntry.LockTable();
         if VendLedgEntry.FindSet then begin
             // Make Applies-to ID
             if VendLedgEntry."Applies-to ID" <> '' then
@@ -33,7 +33,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
             end;
             repeat
                 TempVendLedgEntry := VendLedgEntry;
-                TempVendLedgEntry.Insert;
+                TempVendLedgEntry.Insert();
             until VendLedgEntry.Next = 0;
         end;
 
@@ -73,7 +73,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
 
                 if VendLedgEntryToUpdate."Entry No." = ApplyingVendLedgEntry."Entry No." then
                     VendLedgEntryToUpdate."Applying Entry" := ApplyingVendLedgEntry."Applying Entry";
-                VendLedgEntryToUpdate.Modify;
+                VendLedgEntryToUpdate.Modify();
             until TempVendLedgEntry.Next = 0;
     end;
 }

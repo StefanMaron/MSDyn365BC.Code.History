@@ -143,7 +143,7 @@ page 7000007 "Closed Cartera Documents"
 
                     trigger OnAction()
                     begin
-                        Redraw;
+                        RedrawDoc;
                     end;
                 }
                 separator(Action1100000)
@@ -193,7 +193,7 @@ page 7000007 "Closed Cartera Documents"
         CarteraManagement: Codeunit CarteraManagement;
 
     [Scope('OnPrem')]
-    procedure Redraw()
+    procedure RedrawDoc()
     begin
         CurrPage.SetSelectionFilter(ClosedDoc);
         if not ClosedDoc.Find('=><') then
@@ -215,7 +215,7 @@ page 7000007 "Closed Cartera Documents"
               Text1100002 +
               Text1100003);
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(ClosedDoc."Entry No.");
             CustLedgEntry.Mark(true);

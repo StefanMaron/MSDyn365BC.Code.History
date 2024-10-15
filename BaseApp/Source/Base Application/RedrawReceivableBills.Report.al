@@ -40,7 +40,7 @@ report 7000096 "Redraw Receivable Bills"
                     CarteraManagement.ReverseReceivableDocPayment(GenJnlLine, CustLedgEntry);
                     IsOpenBill := false;
                 end;
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
 
                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
@@ -269,8 +269,8 @@ report 7000096 "Redraw Receivable Bills"
             begin
                 Window.Close;
                 // CarteraDimMgt.CopyJnlLinDim(GenJnlLine,GenJnlLine,TempJnlLineDim,JnlLineDim2);
-                Commit;
-                GenJnlLine.Reset;
+                Commit();
+                GenJnlLine.Reset();
                 GenJnlTemplate.Get(TemplName);
                 GenJnlLine.FilterGroup := 2;
                 GenJnlLine.SetRange("Journal Template Name", TemplName);
@@ -725,7 +725,7 @@ report 7000096 "Redraw Receivable Bills"
         if TempCVLedgEntryBuf.Find('-') then
             repeat
             begin
-                DtldCustLedgEntry.Reset;
+                DtldCustLedgEntry.Reset();
                 DtldCustLedgEntry.SetRange("Entry Type", EntryType::"Initial Entry");
                 DtldCustLedgEntry.SetRange("Posting Date", PostingDate);
                 DtldCustLedgEntry.SetRange("Document Type", TempCVLedgEntryBuf."Document Type"::Bill);
@@ -746,7 +746,7 @@ report 7000096 "Redraw Receivable Bills"
                           ExpAmountLCY,
                           EntryType::Expenses,
                           PostingDate);
-                        DtldCustLedgEntry.Modify;
+                        DtldCustLedgEntry.Modify();
                     end;
                 end;
             end;
@@ -756,14 +756,14 @@ report 7000096 "Redraw Receivable Bills"
     [Scope('OnPrem')]
     procedure TempCustLedgEntryInit(CustLedgEntry3: Record "Cust. Ledger Entry"; DocNo2: Code[20]; InitialDocAmount: Decimal; InitialDocAmountLCY: Decimal)
     begin
-        TempCVLedgEntryBuf.Init;
+        TempCVLedgEntryBuf.Init();
         TempCVLedgEntryBuf.TransferFields(CustLedgEntry3);
         TempCVLedgEntryBuf."CV No." := CustLedgEntry."Customer No.";
-        TempCVLedgEntryBuf.Insert;
+        TempCVLedgEntryBuf.Insert();
         TempCVLedgEntryBuf."Bill No." := DocNo2;
         TempCVLedgEntryBuf.Amount := InitialDocAmount;
         TempCVLedgEntryBuf."Amount (LCY)" := InitialDocAmountLCY;
-        TempCVLedgEntryBuf.Modify;
+        TempCVLedgEntryBuf.Modify();
     end;
 
     [Scope('OnPrem')]

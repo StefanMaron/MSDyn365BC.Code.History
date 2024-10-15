@@ -26,11 +26,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Description';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "VAT Statement Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Account Totaling,VAT Entry Totaling,Row Totaling,Description,EC Entry Totaling';
-            OptionMembers = "Account Totaling","VAT Entry Totaling","Row Totaling",Description,"EC Entry Totaling";
 
             trigger OnValidate()
             begin

@@ -21,10 +21,10 @@ codeunit 1812 "Data Migration Del G/L Account"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Reset;
+        GLAccount.Reset();
         if GLAccount.FindFirst then
-            GLAccount.DeleteAll;
-        Commit;
+            GLAccount.DeleteAll();
+        Commit();
     end;
 
     local procedure RemoveAccountsFromCustomerPostingGroup()
@@ -32,16 +32,16 @@ codeunit 1812 "Data Migration Del G/L Account"
         CustomerPostingGroup: Record "Customer Posting Group";
         CustomerCode: Code[20];
     begin
-        CustomerPostingGroup.Reset;
+        CustomerPostingGroup.Reset();
         if CustomerPostingGroup.FindSet then
             repeat
                 CustomerCode := CustomerPostingGroup.Code;
-                CustomerPostingGroup.Delete;
-                CustomerPostingGroup.Init;
+                CustomerPostingGroup.Delete();
+                CustomerPostingGroup.Init();
                 CustomerPostingGroup.Code := CustomerCode;
-                CustomerPostingGroup.Insert;
+                CustomerPostingGroup.Insert();
             until CustomerPostingGroup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromVendorPostingGroup()
@@ -49,16 +49,16 @@ codeunit 1812 "Data Migration Del G/L Account"
         VendorPostingGroup: Record "Vendor Posting Group";
         VendorCode: Code[20];
     begin
-        VendorPostingGroup.Reset;
+        VendorPostingGroup.Reset();
         if VendorPostingGroup.FindSet then
             repeat
                 VendorCode := VendorPostingGroup.Code;
-                VendorPostingGroup.Delete;
-                VendorPostingGroup.Init;
+                VendorPostingGroup.Delete();
+                VendorPostingGroup.Init();
                 VendorPostingGroup.Code := VendorCode;
-                VendorPostingGroup.Insert;
+                VendorPostingGroup.Insert();
             until VendorPostingGroup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromBankAccountPostingGroup()
@@ -66,29 +66,29 @@ codeunit 1812 "Data Migration Del G/L Account"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
         BankAccountCode: Code[20];
     begin
-        BankAccountPostingGroup.Reset;
+        BankAccountPostingGroup.Reset();
         if BankAccountPostingGroup.FindSet then
             repeat
                 BankAccountCode := BankAccountPostingGroup.Code;
-                BankAccountPostingGroup.Delete;
-                BankAccountPostingGroup.Init;
+                BankAccountPostingGroup.Delete();
+                BankAccountPostingGroup.Init();
                 BankAccountPostingGroup.Code := BankAccountCode;
-                BankAccountPostingGroup.Insert;
+                BankAccountPostingGroup.Insert();
             until BankAccountPostingGroup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromGenJournalBatch()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch.Reset;
+        GenJournalBatch.Reset();
         if GenJournalBatch.FindSet then
             repeat
                 GenJournalBatch."Bal. Account No." := '';
-                GenJournalBatch.Modify;
+                GenJournalBatch.Modify();
             until GenJournalBatch.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromGenPostingSetup()
@@ -97,31 +97,31 @@ codeunit 1812 "Data Migration Del G/L Account"
         GenBusPostingGroup: Code[20];
         GenProdPostingGroup: Code[20];
     begin
-        GenPostingSetup.Reset;
+        GenPostingSetup.Reset();
         if GenPostingSetup.FindSet then
             repeat
                 GenBusPostingGroup := GenPostingSetup."Gen. Bus. Posting Group";
                 GenProdPostingGroup := GenPostingSetup."Gen. Prod. Posting Group";
-                GenPostingSetup.Delete;
-                GenPostingSetup.Init;
+                GenPostingSetup.Delete();
+                GenPostingSetup.Init();
                 GenPostingSetup."Gen. Bus. Posting Group" := GenBusPostingGroup;
                 GenPostingSetup."Gen. Prod. Posting Group" := GenProdPostingGroup;
-                GenPostingSetup.Insert;
+                GenPostingSetup.Insert();
             until GenPostingSetup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromPaymentMethod()
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.Reset;
+        PaymentMethod.Reset();
         if PaymentMethod.FindSet then
             repeat
                 PaymentMethod."Bal. Account No." := '';
-                PaymentMethod.Modify;
+                PaymentMethod.Modify();
             until PaymentMethod.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromInventoryPostingSetup()
@@ -130,25 +130,25 @@ codeunit 1812 "Data Migration Del G/L Account"
         LocationCode: Code[10];
         InvPostingGroupCode: Code[20];
     begin
-        InventoryPostingSetup.Reset;
+        InventoryPostingSetup.Reset();
         if InventoryPostingSetup.FindSet then
             repeat
                 LocationCode := InventoryPostingSetup."Location Code";
                 InvPostingGroupCode := InventoryPostingSetup."Invt. Posting Group Code";
-                InventoryPostingSetup.Delete;
-                InventoryPostingSetup.Init;
+                InventoryPostingSetup.Delete();
+                InventoryPostingSetup.Init();
                 InventoryPostingSetup."Location Code" := LocationCode;
                 InventoryPostingSetup."Invt. Posting Group Code" := InvPostingGroupCode;
-                InventoryPostingSetup.Insert;
+                InventoryPostingSetup.Insert();
             until InventoryPostingSetup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromTaxSetup()
     var
         TaxSetup: Record "Tax Setup";
     begin
-        TaxSetup.Reset;
+        TaxSetup.Reset();
         if TaxSetup.FindSet then
             repeat
                 TaxSetup."Tax Account (Sales)" := '';
@@ -157,32 +157,32 @@ codeunit 1812 "Data Migration Del G/L Account"
                 TaxSetup."Unreal. Tax Acc. (Purchases)" := '';
                 TaxSetup."Reverse Charge (Purchases)" := '';
                 TaxSetup."Unreal. Rev. Charge (Purch.)" := '';
-                TaxSetup.Modify;
+                TaxSetup.Modify();
             until TaxSetup.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromAccountScheduleLine()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
-        AccScheduleLine.Reset;
+        AccScheduleLine.Reset();
         if AccScheduleLine.FindSet then
             repeat
-                if AccScheduleLine."Totaling Type" = 0 then begin
+                if AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::"Posting Accounts" then begin
                     AccScheduleLine.Totaling := '';
-                    AccScheduleLine.Modify;
+                    AccScheduleLine.Modify();
                 end
                   ;
             until AccScheduleLine.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveAccountsFromCurrency()
     var
         Currency: Record Currency;
     begin
-        Currency.Reset;
+        Currency.Reset();
         if Currency.FindSet then
             repeat
                 Currency."Unrealized Gains Acc." := '';
@@ -195,16 +195,16 @@ codeunit 1812 "Data Migration Del G/L Account"
                 Currency."Residual Losses Account" := '';
                 Currency."Conv. LCY Rndg. Credit Acc." := '';
                 Currency."Conv. LCY Rndg. Debit Acc." := '';
-                Currency.Modify;
+                Currency.Modify();
             until Currency.Next = 0;
-        Commit;
+        Commit();
     end;
 
     local procedure RemoveGLAccountsFromVATPostingSetup()
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         VATPostingSetup.ModifyAll("Sales VAT Account", '');
         VATPostingSetup.ModifyAll("Purchase VAT Account", '');
         VATPostingSetup.ModifyAll("Reverse Chrg. VAT Acc.", '');

@@ -1711,34 +1711,6 @@
                                 <VerticalAlign>Middle</VerticalAlign>
                               </Style>
                             </Textbox>
-                            <Textbox Name="PageCaption1">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                        <Color>Red</Color>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Left</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <Left>5.07937cm</Left>
-                              <Height>0.423cm</Height>
-                              <Width>0.5cm</Width>
-                              <Visibility>
-                                <Hidden>true</Hidden>
-                              </Visibility>
-                              <Style>
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
                           </ReportItems>
                           <KeepTogether>true</KeepTogether>
                         </Rectangle>
@@ -2486,9 +2458,6 @@ End Function</Code>
         </Field>
         <Field Name="STRSUBSTNO_Text1100001_CopyText_">
           <DataField>STRSUBSTNO_Text1100001_CopyText_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1100002_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>

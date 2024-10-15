@@ -36,12 +36,29 @@ page 5202 "Employee Picture"
                 Visible = CameraAvailable;
 
                 trigger OnAction()
+                var
+                    InStream: InStream;
                 begin
                     TestField("No.");
                     TestField("First Name");
                     TestField("Last Name");
 
-                    Camera.AddPicture(Rec, Rec.FieldNo(Image));
+                    if not CameraAvailable then
+                        exit;
+                    Camera.SetQuality(100); // 100%
+                    Camera.RunModal();
+                    if Camera.HasPicture() then begin
+                        if Image.HasValue then
+                            if not Confirm(OverrideImageQst) then
+                                exit;
+
+                        Camera.GetPicture(InStream);
+                        Image.ImportStream(Instream, 'Employee Picture');
+                        if not Modify(true) then
+                            Insert(true);
+                    end;
+
+                    Clear(Camera);
                 end;
             }
             action(ImportPicture)
@@ -135,7 +152,7 @@ page 5202 "Employee Picture"
     end;
 
     var
-        Camera: Codeunit Camera;
+        Camera: Page Camera;
         [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';

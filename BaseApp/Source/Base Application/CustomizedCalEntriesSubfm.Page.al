@@ -20,7 +20,6 @@ page 7605 "Customized Cal. Entries Subfm"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Source Type';
-                    OptionCaption = 'Company,Customer,Vendor,Location,Shipping Agent';
                     ToolTip = 'Specifies the source type for the calendar entry.';
                     Visible = false;
                 }
@@ -135,7 +134,7 @@ page 7605 "Customized Cal. Entries Subfm"
 
     trigger OnOpenPage()
     begin
-        DateRec.Reset;
+        DateRec.Reset();
         DateRec.SetFilter("Period Start", '>=%1', 00000101D);
     end;
 
@@ -173,7 +172,7 @@ page 7605 "Customized Cal. Entries Subfm"
     var
         CustomizedCalendarChange: Record "Customized Calendar Change";
     begin
-        CustomizedCalendarChange.Reset;
+        CustomizedCalendarChange.Reset();
         CustomizedCalendarChange.SetRange("Source Type", "Source Type");
         CustomizedCalendarChange.SetRange("Source Code", "Source Code");
         CustomizedCalendarChange.SetRange("Additional Source Code", "Additional Source Code");
@@ -181,12 +180,12 @@ page 7605 "Customized Cal. Entries Subfm"
         CustomizedCalendarChange.SetRange("Recurring System", CustomizedCalendarChange."Recurring System"::" ");
         CustomizedCalendarChange.SetRange(Date, Date);
         if CustomizedCalendarChange.FindFirst then
-            CustomizedCalendarChange.Delete;
+            CustomizedCalendarChange.Delete();
 
         if not IsInBaseCalendar then begin
             CustomizedCalendarChange := Rec;
             OnUpdateCusomizedCalendarChanges(CustomizedCalendarChange);
-            CustomizedCalendarChange.Insert;
+            CustomizedCalendarChange.Insert();
         end;
     end;
 

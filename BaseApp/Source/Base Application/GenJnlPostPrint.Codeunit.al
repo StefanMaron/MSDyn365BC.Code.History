@@ -74,7 +74,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                     Message(JournalsScheduledMsg);
             end else begin
                 if GLReg2.FindFirst then begin
-                    GLReg2.LockTable;
+                    GLReg2.LockTable();
                     GLReg2.FindLast;
                 end;
 

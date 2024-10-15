@@ -40,7 +40,7 @@ report 7000092 "Bill group - Export N19"
                            (CustCCCControlDigits <> '**')
                         then begin
                             CustBankAcc."CCC Control Digits" := CustCCCControlDigits;
-                            CustBankAcc.Modify;
+                            CustBankAcc.Modify();
                         end;
                     end;
 
@@ -211,7 +211,7 @@ report 7000092 "Bill group - Export N19"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Find('-');
                 BankAcc.Get("Bank Account No.");
@@ -317,7 +317,7 @@ report 7000092 "Bill group - Export N19"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', ' .-/'), 1, 9);
         SilentMode := false;
     end;
@@ -352,10 +352,10 @@ report 7000092 "Bill group - Export N19"
         Text1100002: Label 'Do you want to continue?.';
         Text1100003: Label 'Process cancelled by request of user.';
         Text1100005: Label 'Some data for Bank Account %1 are missing.';
-        Text1100006: Label '<integer>';
+        Text1100006: Label '<integer>', Locked = true;
         Text1100007: Label 'There is not %1 %2 for %3 %4.';
         Text1100008: Label 'Bill';
-        Text1100009: Label '<Integer>';
+        Text1100009: Label '<Integer>', Locked = true;
         Text1100010: Label 'DEVOL.';
         CompanyInfo: Record "Company Information";
         Customer: Record Customer;
@@ -457,7 +457,7 @@ report 7000092 "Bill group - Export N19"
             if Datemax < Doc2."Due Date" then
                 Datemax := Doc2."Due Date";
         until Doc2.Next = 0;
-        Doc2.Reset;
+        Doc2.Reset();
         exit(Datemax);
     end;
 

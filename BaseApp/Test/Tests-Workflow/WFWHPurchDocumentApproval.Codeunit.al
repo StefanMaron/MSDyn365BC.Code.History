@@ -42,8 +42,8 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
-        UserSetup.DeleteAll;
-        WorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        WorkflowWebhookEntry.DeleteAll();
         LibraryWorkflow.DisableAllWorkflows;
         RemoveBogusUser;
         if IsInitialized then
@@ -100,7 +100,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrderAndSendForApproval(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
-        Commit;
+        Commit();
 
         // Exercise
         PurchaseOrderList.OpenView;
@@ -131,7 +131,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         PurchaseOrderList.OpenView;
@@ -223,7 +223,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -255,7 +255,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderPageSendForApproval(PurchaseHeader);
         MakeCurrentUserAnApprover;
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -287,7 +287,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderPageSendForApproval(PurchaseHeader);
         MakeCurrentUserAnApprover;
 
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -320,7 +320,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderPageSendForApproval(PurchaseHeader);
         ChangeWorkflowWebhookEntryInitiatedBy(PurchaseHeader.Id, BogusUserIdTxt);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -353,7 +353,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -386,7 +386,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         // Exercise
         asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
@@ -417,7 +417,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         // Verify
         Assert.AreEqual(1, DummyWorkflowWebhookEntry.Count, UnexpectedNoOfApprovalEntriesErr);
@@ -760,13 +760,13 @@ codeunit 134215 "WFWH Purch. Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;
 
         WorkflowWebhookEntry."Initiated By User ID" := InitiatedByUserID;
-        WorkflowWebhookEntry.Modify;
+        WorkflowWebhookEntry.Modify();
     end;
 
     local procedure CreateAndEnableOpenPurchaseOrderWorkflowDefinition(ResponseUserID: Code[50]): Code[20]
@@ -823,7 +823,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -838,7 +838,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -878,7 +878,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;

@@ -4082,9 +4082,6 @@ End Function</Code>
         <Field Name="STRSUBSTNO_Text1100005_CopyText_">
           <DataField>STRSUBSTNO_Text1100005_CopyText_</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text1100006_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1100006_FORMAT_CurrReport_PAGENO__</DataField>
-        </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>
         </Field>

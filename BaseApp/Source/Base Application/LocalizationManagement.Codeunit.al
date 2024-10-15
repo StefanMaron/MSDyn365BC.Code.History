@@ -9,7 +9,7 @@ codeunit 10760 "Localization Management"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         exit(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY");
     end;
 

@@ -217,7 +217,7 @@ page 7000009 "Bill Groups"
                     begin
                         if not Find then
                             exit;
-                        BillGr.Reset;
+                        BillGr.Reset();
                         BillGr := Rec;
                         BillGr.SetRecFilter;
                         REPORT.Run(REPORT::"Bill Group - Test", true, false, BillGr);

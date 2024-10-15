@@ -65,23 +65,10 @@ page 10751 "SII Setup"
             }
             group(Certificate)
             {
-                field("Certificate Installed"; CertificateHasValue)
+                field("Certificate Code"; "Certificate Code")
                 {
                     ApplicationArea = All;
-                    Editable = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
-                    ObsoleteTag = '15.3';
-                }
-                field(Password; Password)
-                {
-                    ApplicationArea = All;
-                    Enabled = CertificateHasValue;
-                    ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the password to the SII service.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
-                    ObsoleteTag = '15.3';
+                    ToolTip = 'Specifies the code of certificate.';
                 }
             }
             group(Endpoints)
@@ -138,44 +125,6 @@ page 10751 "SII Setup"
     {
         area(processing)
         {
-            action(ImportCert)
-            {
-                ApplicationArea = All;
-                Caption = 'Import certificate';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This action will not be is use in the next version and replaced by the Certificate Code.';
-                Image = UserCertificate;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                ToolTip = 'Choose your digital certificate file, and import it. You will need it to send the SII document.';
-                ObsoleteTag = '15.3';
-
-                trigger OnAction()
-                begin
-                    ImportCertificate;
-                end;
-            }
-            action(DeleteCert)
-            {
-                ApplicationArea = All;
-                Caption = 'Delete certificate';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This action will not be is use in the next version and replaced by the Certificate Code.';
-                Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                ToolTip = 'Delete your digital certificate file. SII will be disabled.';
-                ObsoleteTag = '15.3';
-
-                trigger OnAction()
-                begin
-                    DeleteCertificate;
-                end;
-            }
             action(InitialSend)
             {
                 ApplicationArea = All;
@@ -209,11 +158,6 @@ page 10751 "SII Setup"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        CertificateHasValue := Certificate.HasValue;
-    end;
-
     trigger OnOpenPage()
     begin
         Reset;
@@ -224,15 +168,7 @@ page 10751 "SII Setup"
         SetDefaults();
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if IsEnabled and (CloseAction = ACTION::OK) then
-            ValidateCertificatePassword;
-    end;
-
     var
-        [InDataSet]
-        CertificateHasValue: Boolean;
         InitialUploadQst: Label 'Do you want to transmit all documents from the 1st of Janurary 2017 to the 30th of June 2017?';
 }
 

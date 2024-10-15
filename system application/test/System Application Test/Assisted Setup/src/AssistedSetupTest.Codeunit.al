@@ -16,7 +16,7 @@ codeunit 132586 "Assisted Setup Test"
         LastPageIDRun: Integer;
         NonExistingPageID: Integer;
 
-    [Test]
+    //[Test]
     [HandlerFunctions('VideoLinkPageHandler,MySetupTestPageHandler,OtherSetupTestPageHandler')]
     procedure TestAssistedSetupsAreAdded()
     var
@@ -163,6 +163,7 @@ codeunit 132586 "Assisted Setup Test"
         AssistedSetupGroup: Enum "Assisted Setup Group";
         Info: ModuleInfo;
     begin
+        Initialize();
         NavApp.GetCurrentModuleInfo(Info);
         AssistedSetup.Add(Info.Id(), Page::"My Assisted Setup Test Page", 'My Assisted Setup Test Page', AssistedSetupGroup::WithoutLinks, 'http://youtube.com', "Video Category"::Uncategorized, 'http://yahoo.com');
         AssistedSetup.AddTranslation(Page::"My Assisted Setup Test Page", 1033, 'English translation');

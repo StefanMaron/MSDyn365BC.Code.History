@@ -24,9 +24,6 @@ report 7000008 "Bill Group - Test"
                 column(USERID; UserId)
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
@@ -389,7 +386,7 @@ report 7000008 "Bill Group - Test"
                             DocPostBuffer."Entry No." := DocPostBuffer."Entry No." + 1;
                             DocPostBuffer."No. of Days" := NoOfDays;
                             DocPostBuffer.Amount := "Remaining Amt. (LCY)";
-                            DocPostBuffer.Insert;
+                            DocPostBuffer.Insert();
                         end;
 
                         if CustPostingGr."Bills Account" = '' then
@@ -403,12 +400,12 @@ report 7000008 "Bill Group - Test"
                         BalanceAccNo := CustPostingGr."Bills Account";
                         if BGPOPostBuffer.Get(AccountNo, BalanceAccNo) then begin
                             BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
-                            BGPOPostBuffer.Modify;
+                            BGPOPostBuffer.Modify();
                         end else begin
                             BGPOPostBuffer.Account := AccountNo;
                             BGPOPostBuffer."Balance Account" := BalanceAccNo;
                             BGPOPostBuffer.Amount := "Remaining Amount";
-                            BGPOPostBuffer.Insert;
+                            BGPOPostBuffer.Insert();
                         end;
                     end;
 
@@ -672,7 +669,7 @@ report 7000008 "Bill Group - Test"
                         CreditLimitExceeded := RiskIncGr > "Credit Limit for Discount";
 
                         if not CalcExpenses then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(BankAcc; "Bank Account")
@@ -788,7 +785,7 @@ report 7000008 "Bill Group - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if "No." = BillGr."Bank Account No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         SetRange("Dealing Type Filter", 1); // Discount
                         CalcFields("Posted Receiv. Bills Rmg. Amt.");
@@ -799,11 +796,11 @@ report 7000008 "Bill Group - Test"
                         CreditLimitExceeded := RiskIncGr > "Credit Limit for Discount";
 
                         if not DocPostBuffer.Find('-') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         Clear(FeeRange);
                         if not FeeRange.Find('=<>') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if BillGr."Dealing Type" = BillGr."Dealing Type"::Discount then begin
                             FeeRange.InitDiscExpenses("Operation Fees Code", "Currency Code");
                             FeeRange.InitDiscInterests("Operation Fees Code", "Currency Code");
@@ -910,7 +907,7 @@ report 7000008 "Bill Group - Test"
                 if CompanyIsBlocked then
                     AddError(StrSubstNo(Text1100008, BankAcc2.TableCaption, "Bank Account No."));
 
-                Doc.Reset;
+                Doc.Reset();
                 Doc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.");
                 Doc.SetRange(Type, Doc.Type::Receivable);
                 Doc.SetRange("Collection Agent", Doc."Collection Agent"::Bank);

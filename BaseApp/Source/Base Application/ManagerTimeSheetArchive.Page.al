@@ -31,7 +31,7 @@ page 961 "Manager Time Sheet Archive"
 
                     trigger OnValidate()
                     begin
-                        TimeSheetHeaderArchive.Reset;
+                        TimeSheetHeaderArchive.Reset();
                         TimeSheetMgt.FilterTimeSheetsArchive(TimeSheetHeaderArchive, TimeSheetHeaderArchive.FieldNo("Approver User ID"));
                         TimeSheetMgt.CheckTimeSheetArchiveNo(TimeSheetHeaderArchive, CurrTimeSheetNo);
                         CurrPage.SaveRecord;

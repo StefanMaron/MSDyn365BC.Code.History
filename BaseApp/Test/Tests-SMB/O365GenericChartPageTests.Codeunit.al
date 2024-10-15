@@ -45,7 +45,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartDefinition: Record "Chart Definition";
         ChartMgt: Codeunit "Chart Management";
     begin
-        ChartDefinition.DeleteAll;
+        ChartDefinition.DeleteAll();
         ChartMgt.PopulateChartDefinitionTable;
         Assert.RecordCount(ChartDefinition, 8);
     end;
@@ -145,7 +145,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         AccountSchedulesChartSetup.Get('', XIncomeAndExpenseChartNameTxt);
         if AccountSchedulesChartSetup."Look Ahead" then begin
             AccountSchedulesChartSetup."Look Ahead" := false;
-            AccountSchedulesChartSetup.Modify;
+            AccountSchedulesChartSetup.Modify();
         end;
         VerifyPeriodLengthAccSchedChart(BusinessChartBuffer."Period Length"::Day, false);
         VerifyPeriodLengthAccSchedChart(BusinessChartBuffer."Period Length"::Week, false);
@@ -156,7 +156,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         // Look Ahead
         AccountSchedulesChartSetup.Get('', XIncomeAndExpenseChartNameTxt);
         AccountSchedulesChartSetup."Look Ahead" := true;
-        AccountSchedulesChartSetup.Modify;
+        AccountSchedulesChartSetup.Modify();
         VerifyPeriodLengthAccSchedChart(BusinessChartBuffer."Period Length"::Day, false);
         VerifyPeriodLengthAccSchedChart(BusinessChartBuffer."Period Length"::Week, false);
         VerifyPeriodLengthAccSchedChart(BusinessChartBuffer."Period Length"::Month, false);
@@ -186,7 +186,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         // Acc Schedule Chart. X-Axis Column/Line - status text = chart name + start date
         AccountSchedulesChartSetup.Get('', XIncomeAndExpenseChartNameTxt);
         AccountSchedulesChartSetup."Base X-Axis on" := AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column";
-        AccountSchedulesChartSetup.Modify;
+        AccountSchedulesChartSetup.Modify();
         ChartDefinition.Get(CODEUNIT::"Acc. Sched. Chart Management", XIncomeAndExpenseChartNameTxt);
         ChartMgt.SetPeriodLength(ChartDefinition, BusinessChartBuffer, BusinessChartBuffer."Period Length", true);
         BusinessChartBuffer."Period Filter Start Date" := WorkDate;
@@ -382,7 +382,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if LastUsedChart.Get(UserId) then begin
             RestoreLastUsedChart := LastUsedChart;
             Restore := true;
-            LastUsedChart.Delete;
+            LastUsedChart.Delete();
         end;
 
         // [GIVEN] Cassie selected chart type "Cash Flow" on Business Assistance part of "Business Manager" role center
@@ -403,9 +403,9 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         LastUsedChart.TestField("Chart Name", SavedLastUsedChart."Chart Name");
         LastUsedChart.TestField("Code Unit ID", SavedLastUsedChart."Code Unit ID");
 
-        LastUsedChart.Delete;
+        LastUsedChart.Delete();
         if Restore then
-            RestoreLastUsedChart.Insert;
+            RestoreLastUsedChart.Insert();
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -423,10 +423,10 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if ChartDefinition.FindSet(true) then
             repeat
                 ChartDefinition.Enabled := true;
-                ChartDefinition.Modify;
+                ChartDefinition.Modify();
             until ChartDefinition.Next = 0;
 
-        LastUsedChart.DeleteAll;
+        LastUsedChart.DeleteAll();
 
         CreateAccScheduleChart(XIncomeAndExpenseChartNameTxt);
         CreateAccScheduleChart(XCashFlowChartNameTxt);
@@ -440,7 +440,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Generic Chart Page Tests");
     end;
 
@@ -451,7 +451,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if AccountSchedulesChartSetup.Get('', Name) then
             exit;
         AccountSchedulesChartSetup.Name := Name;
-        AccountSchedulesChartSetup.Insert;
+        AccountSchedulesChartSetup.Insert();
     end;
 
     local procedure CreateCustomer()
@@ -471,14 +471,14 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if CustLedgEntry.FindLast then
             EntryNo := CustLedgEntry."Entry No." + 1;
 
-        CustLedgEntry.Init;
+        CustLedgEntry.Init();
         CustLedgEntry."Entry No." := EntryNo;
         CustLedgEntry."Due Date" := WorkDate;
         CustLedgEntry."Amount (LCY)" := 100;
         CustLedgEntry.Open := true;
         if CustPostingGroup.FindFirst then
             CustLedgEntry."Customer Posting Group" := CustPostingGroup.Code;
-        CustLedgEntry.Insert;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateVendLedgEntry()
@@ -490,12 +490,12 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if VendLedgEntry.FindLast then
             EntryNo := VendLedgEntry."Entry No." + 1;
 
-        VendLedgEntry.Init;
+        VendLedgEntry.Init();
         VendLedgEntry."Entry No." := EntryNo;
         VendLedgEntry."Due Date" := WorkDate;
         VendLedgEntry."Amount (LCY)" := 100;
         VendLedgEntry.Open := true;
-        VendLedgEntry.Insert;
+        VendLedgEntry.Insert();
     end;
 
     local procedure DatapointClicked(CUId: Integer; Name: Text; BusinessChartBuffer: Record "Business Chart Buffer")

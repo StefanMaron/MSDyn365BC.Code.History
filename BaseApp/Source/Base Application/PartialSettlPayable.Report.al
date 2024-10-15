@@ -71,7 +71,7 @@ report 7000085 "Partial Settl. - Payable"
                               AppliedAmt, ExistVATEntry, FirstVATEntryNo, LastVATEntryNo, NoRealVATBuffer);
                             if AppliedAmt = RemainingAmt then begin
                                 VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                                VendLedgEntry.Modify;
+                                VendLedgEntry.Modify();
                                 RemainingAmt2 := 0;
                             end;
                         end;
@@ -146,7 +146,7 @@ report 7000085 "Partial Settl. - Payable"
 
                             if AppliedAmt = "Remaining Amount" then begin
                                 VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
-                                VendLedgEntry.Modify;
+                                VendLedgEntry.Modify();
                             end;
                         end;
                 end;
@@ -246,9 +246,9 @@ report 7000085 "Partial Settl. - Payable"
                 end;
 
                 OnBeforePostedDocModify(PostedDoc, GenJnlLine, VendLedgEntry, PostedPmtOrd);
-                VendLedgEntry.Modify;
+                VendLedgEntry.Modify();
                 Modify;
-                PostedPmtOrd.Modify;
+                PostedPmtOrd.Modify();
 
                 DocPost.ClosePmtOrdIfEmpty(PostedPmtOrd, PostingDate);
 
@@ -258,11 +258,11 @@ report 7000085 "Partial Settl. - Payable"
                     GLReg.FindLast;
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
-                    GLReg.Modify;
+                    GLReg.Modify();
                 end;
 
                 OnAfterPostedDocOnPostDataItem(PostedDoc, GenJnlLine, VendLedgEntry, PostedPmtOrd);
-                Commit;
+                Commit();
 
                 Message(
                   Text1100006,
@@ -273,7 +273,7 @@ report 7000085 "Partial Settl. - Payable"
             begin
                 DocPost.CheckPostingDate(PostingDate);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
                 DocCount := 0;
                 SumLCYAmt := 0;
@@ -375,7 +375,7 @@ report 7000085 "Partial Settl. - Payable"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

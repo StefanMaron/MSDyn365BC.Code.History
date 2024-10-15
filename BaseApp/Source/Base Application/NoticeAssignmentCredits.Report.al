@@ -168,7 +168,7 @@ report 7000050 "Notice Assignment Credits"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.TestField(City);
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
 
@@ -254,10 +254,10 @@ report 7000050 "Notice Assignment Credits"
         Text1100000: Label 'we have signed a Factoring Agreement with %1.';
         Text1100001: Label 'in which your company may be involved, have been assigned irrevocably to %1.';
         Text1100002: Label ', a ';
-        Text1100003: Label '<Day>';
+        Text1100003: Label '<Day>', Locked = true;
         Text1100004: Label ' de ';
-        Text1100005: Label '<Month text>';
-        Text1100006: Label '<Year4>';
+        Text1100005: Label '<Month text>', Locked = true;
+        Text1100006: Label '<Year4>', Locked = true;
         Text1100007: Label 'Nú CCC del Factor: ', Locked = true;
         CompanyInfo: Record "Company Information";
         BankAcc: Record "Bank Account";

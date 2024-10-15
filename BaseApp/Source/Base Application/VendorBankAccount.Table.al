@@ -282,7 +282,7 @@ table 288 "Vendor Bank Account"
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 
@@ -290,7 +290,7 @@ table 288 "Vendor Bank Account"
     begin
         if Vendor.Get("Vendor No.") then begin
             Vendor."Preferred Bank Account Code" := Code;
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 

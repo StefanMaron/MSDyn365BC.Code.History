@@ -18,9 +18,6 @@ report 10703 "Vendor - Annual Declaration"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -129,7 +126,7 @@ report 10703 "Vendor - Annual Declaration"
                     until VendEntries.Next = 0;
                 PurchaseAmt := InvoiceAmt - CrMemoAmt;
                 if PurchaseAmt <= MinAmount then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 PurchaseAmt := PurchaseAmt - IgnoreAmt;
 
@@ -215,7 +212,7 @@ report 10703 "Vendor - Annual Declaration"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendLedgEntry.Reset;
+        DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Initial Entry");

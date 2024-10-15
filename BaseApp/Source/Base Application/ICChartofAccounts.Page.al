@@ -203,7 +203,7 @@ page 605 "IC Chart of Accounts"
             exit;
 
         ICGLAccEmpty := not ICGLAcc.FindFirst;
-        ICGLAcc.LockTable;
+        ICGLAcc.LockTable();
         if GLAcc.Find('-') then
             repeat
                 if GLAcc."Account Type" = 4 then
@@ -211,13 +211,13 @@ page 605 "IC Chart of Accounts"
                 if not ICGLAccEmpty then
                     ICGLAccExists := ICGLAcc.Get(GLAcc."No.");
                 if not ICGLAccExists and not GLAcc.Blocked then begin
-                    ICGLAcc.Init;
+                    ICGLAcc.Init();
                     ICGLAcc."No." := GLAcc."No.";
                     ICGLAcc.Name := GLAcc.Name;
                     ICGLAcc."Account Type" := GLAcc."Account Type";
                     ICGLAcc."Income/Balance" := GLAcc."Income/Balance";
                     ICGLAcc.Validate(Indentation, PrevIndentation);
-                    ICGLAcc.Insert;
+                    ICGLAcc.Insert();
                 end;
                 PrevIndentation := GLAcc.Indentation;
                 if GLAcc."Account Type" = 3 then
@@ -234,7 +234,7 @@ page 605 "IC Chart of Accounts"
         FileName: Text[1024];
         StartFileName: Text[1024];
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         StartFileName := CompanyInfo."IC Inbox Details";
         if StartFileName <> '' then begin
@@ -262,7 +262,7 @@ page 605 "IC Chart of Accounts"
         FileName: Text;
         DefaultFileName: Text;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         DefaultFileName := CompanyInfo."IC Inbox Details";
         if DefaultFileName <> '' then

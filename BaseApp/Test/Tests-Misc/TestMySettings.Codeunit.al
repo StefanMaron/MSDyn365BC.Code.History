@@ -25,7 +25,7 @@ codeunit 139006 "Test My Settings"
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
 
     [Test]
-    [HandlerFunctions('AvailableRoleCentersHandler,HandleSessionSettings')]
+    [HandlerFunctions('AvailableRoleCentersHandler,StandardSessionSettingsHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestChangeRoleCenterFromMySettings()
     var
@@ -39,6 +39,7 @@ codeunit 139006 "Test My Settings"
 
         MySettings.OpenEdit;
         MySettings.UserRoleCenter.AssistEdit;
+        Message(''); // This dummy message is needed in some configurtions as the card function can show a message box under certain conditions, but not in all contries
         LibraryVariableStorage.Dequeue(ProfileVar);
         AllProfile := ProfileVar;
         MySettings.UserRoleCenter.AssertEquals(AllProfile.Caption);
@@ -56,7 +57,7 @@ codeunit 139006 "Test My Settings"
     var
         MySettings: TestPage "My Settings";
     begin
-        // [WHEN] The user changes the Role Center in "My Settings" window
+        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
         Initialize;
 
         MySettings.OpenEdit;
@@ -329,7 +330,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns FALSE when the record is out of the filters.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Two Customers "C1" and "C2"
         LibrarySales.CreateCustomer(Customer[1]);
@@ -356,7 +357,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns TRUE when the record is within the filter.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -382,7 +383,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT] [Purchase] [External Document No.] [UI]
         // [SCENARIO 272152] "Purchase document with same external document number already exists." is enabled by default
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         MyNotificationsPage.OpenView;
 
@@ -400,8 +401,8 @@ codeunit 139006 "Test My Settings"
         Clear(UserPersonalization."Profile ID");
         Clear(UserPersonalization."App ID");
         Clear(UserPersonalization.Scope);
-        UserPersonalization.Modify;
-        MyAccount.DeleteAll;
+        UserPersonalization.Modify();
+        MyAccount.DeleteAll();
     end;
 
     local procedure PrepareTwoGLAccountsWithGLEntries(var GLAccountNo: array[2] of Code[20]; var GLAccountBalance: array[2] of Decimal)
@@ -427,9 +428,9 @@ codeunit 139006 "Test My Settings"
     local procedure PrepareTotalingGLAccount(TotalingValue: Text[250]; var TotalingGLAccount: Record "G/L Account"; var TotalingBalance: Decimal)
     begin
         LibraryERM.CreateGLAccount(TotalingGLAccount);
-        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::Heading;
+        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::"End-Total";
         TotalingGLAccount.Totaling := TotalingValue;
-        TotalingGLAccount.Modify;
+        TotalingGLAccount.Modify();
         TotalingGLAccount.CalcFields(Balance);
         TotalingBalance := TotalingGLAccount.Balance;
     end;
@@ -475,7 +476,7 @@ codeunit 139006 "Test My Settings"
         MyNotifications.Enabled := true;
         MyNotifications."Apply to Table Filter".CreateOutStream(FiltersOutStream);
         FiltersOutStream.Write(StrSubstNo(MyNotificationFilterTxt, FilterValue));
-        MyNotifications.Modify;
+        MyNotifications.Modify();
     end;
 
     [ModalPageHandler]
@@ -575,9 +576,15 @@ codeunit 139006 "Test My Settings"
 
     [SessionSettingsHandler]
     [Scope('OnPrem')]
-    procedure HandleSessionSettings(var TestSessionSettings: SessionSettings): Boolean
+    procedure StandardSessionSettingsHandler(var TestSessionSettings: SessionSettings): Boolean
     begin
         exit(false);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Text: Text[1024])
+    begin
     end;
 }
 

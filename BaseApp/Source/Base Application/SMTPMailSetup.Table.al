@@ -81,6 +81,19 @@ table 409 "SMTP Mail Setup"
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    /// <summary>
+    /// Checks if SMTP Mail Setup record has been initialized.
+    /// </summary>
+    /// <returns>True if there is an SMTP Mail Setup record.</returns>
+    procedure HasSetup(): Boolean
+    begin
+        exit(not IsEmpty());
+    end;
+
+    /// <summary>
+    /// Checks if SMTP Mail Setup record has been initialized and initialize it if it has not.
+    /// </summary>
+    /// <returns>True if SMTP has been setup with an SMTP Server.</returns>
     procedure GetSetup(): Boolean
     var
         MailManagement: Codeunit "Mail Management";

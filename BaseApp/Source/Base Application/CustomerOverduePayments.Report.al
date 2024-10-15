@@ -15,9 +15,6 @@ report 10747 "Customer - Overdue Payments"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -241,10 +238,10 @@ report 10747 "Customer - Overdue Payments"
                     begin
                         if Number = 1 then begin
                             if not AppldCustLedgEntryTmp.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if AppldCustLedgEntryTmp.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if AppldCustLedgEntryTmp."Posting Date" > AppldCustLedgEntryTmp."Initial Entry Due Date" then begin
                             DaysOverdue := AppldCustLedgEntryTmp."Posting Date" - AppldCustLedgEntryTmp."Initial Entry Due Date";
@@ -392,8 +389,8 @@ report 10747 "Customer - Overdue Payments"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         InvCustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        AppldCustLedgEntryTmp.Reset;
-        AppldCustLedgEntryTmp.DeleteAll;
+        AppldCustLedgEntryTmp.Reset();
+        AppldCustLedgEntryTmp.DeleteAll();
         InvCustLedgEntry.Get(CustLedgEntryNo);
 
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
@@ -438,7 +435,7 @@ report 10747 "Customer - Overdue Payments"
                                 AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
                             AppldCustLedgEntryTmp.Amount := -AppldCustLedgEntryTmp.Amount;
                             AppldCustLedgEntryTmp."Amount (LCY)" := -AppldCustLedgEntryTmp."Amount (LCY)";
-                            if AppldCustLedgEntryTmp.Insert then;
+                            if AppldCustLedgEntryTmp.Insert() then;
                         end;
                     end;
                 until Next = 0;
@@ -459,7 +456,7 @@ report 10747 "Customer - Overdue Payments"
             AppldCustLedgEntryTmp."Currency Code" := PayCustLedgEntry."Currency Code";
             if ShowPayments = ShowPayments::"Legally Overdue" then
                 AppldCustLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate;
-            if AppldCustLedgEntryTmp.Insert then;
+            if AppldCustLedgEntryTmp.Insert() then;
         end;
     end;
 
@@ -536,7 +533,7 @@ report 10747 "Customer - Overdue Payments"
                     AppldCustLedgEntryTmp."Amount (LCY)" := -InvCustLedgEntry."Remaining Amt. (LCY)";
                     AppldCustLedgEntryTmp."Document No." := '';
                     AppldCustLedgEntryTmp."Posting Date" := EndDate;
-                    if AppldCustLedgEntryTmp.Insert then;
+                    if AppldCustLedgEntryTmp.Insert() then;
                 end;
             end;
     end;

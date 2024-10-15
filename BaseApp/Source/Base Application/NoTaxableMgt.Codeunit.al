@@ -695,7 +695,7 @@ codeunit 10740 "No Taxable Mgt."
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
         GLSetupRead := true;
     end;
 

@@ -1,4 +1,4 @@
-﻿page 284 Allocations
+page 284 Allocations
 {
     AutoSplitKey = true;
     Caption = 'Allocations';

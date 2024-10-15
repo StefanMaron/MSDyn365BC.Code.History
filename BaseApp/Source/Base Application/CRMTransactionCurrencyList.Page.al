@@ -1,7 +1,7 @@
 page 5345 "CRM TransactionCurrency List"
 {
     ApplicationArea = Suite;
-    Caption = 'Transaction Currencies - Microsoft Dynamics 365 Sales';
+    Caption = 'Transaction Currencies - Common Data Service';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Transactioncurrency";
@@ -20,7 +20,7 @@ page 5345 "CRM TransactionCurrency List"
                     ApplicationArea = Suite;
                     Caption = 'ISO Currency Code';
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies the ISO currency code, which is required in Dynamics 365 Sales.';
+                    ToolTip = 'Specifies the ISO currency code, which is required in Common Data Service.';
                 }
                 field(CurrencyName; CurrencyName)
                 {
@@ -32,7 +32,7 @@ page 5345 "CRM TransactionCurrency List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled';
-                    ToolTip = 'Specifies if the Dynamics 365 Sales record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
                 }
             }
         }
@@ -61,15 +61,12 @@ page 5345 "CRM TransactionCurrency List"
         end;
     end;
 
-    trigger OnInit()
-    begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-    end;
-
     trigger OnOpenPage()
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+
         FilterGroup(4);
         SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Transactioncurrency"));
         FilterGroup(0);

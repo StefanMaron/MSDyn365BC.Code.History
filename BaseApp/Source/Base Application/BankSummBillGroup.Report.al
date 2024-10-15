@@ -21,9 +21,6 @@ report 7000004 "Bank - Summ. Bill Group"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(BankAcc_TABLECAPTION__________BankAccTableFilter; TableCaption + ': ' + BankAccTableFilter)
             {
             }

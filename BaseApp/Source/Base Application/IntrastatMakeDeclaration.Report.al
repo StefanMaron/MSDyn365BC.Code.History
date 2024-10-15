@@ -50,7 +50,7 @@ report 593 "Intrastat - Make Declaration"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     "Tariff No." := DelChr("Tariff No.");
                     TestField("Tariff No.");
@@ -117,7 +117,7 @@ report 593 "Intrastat - Make Declaration"
                 trigger OnPostDataItem()
                 begin
                     "Intrastat Jnl. Batch".Reported := true;
-                    "Intrastat Jnl. Batch".Modify;
+                    "Intrastat Jnl. Batch".Modify();
 
                     // avoid I/O exception error
                     IntraFile.Close;
@@ -128,7 +128,7 @@ report 593 "Intrastat - Make Declaration"
                     Window.Open(
                       '#1###################################################\\' +
                       '@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\');
-                    TotalRecNo := "Intrastat Jnl. Line".Count;
+                    TotalRecNo := "Intrastat Jnl. Line".Count();
 
                     Window.Update(1, StrSubstNo(Text1100001, FileName));
                 end;

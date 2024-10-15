@@ -16,7 +16,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         OutputQty: Decimal;
     begin
         if not Item.Get(SourceInvtAdjmtEntryOrder."Item No.") then
-            Item.Init;
+            Item.Init();
 
         OnCalculateOnAfterGetItem(Item, SourceInvtAdjmtEntryOrder);
 
@@ -99,7 +99,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                         if Positive = IsPositiveOutputs then begin
                             ReversedQty := CalcExactCostReversingQty(TempItemLedgEntry);
 
-                            OldActInvtAdjmtEntryOrder.Init;
+                            OldActInvtAdjmtEntryOrder.Init();
                             CalcActualOutputCosts(OldActInvtAdjmtEntryOrder, "Entry No.");
 
                             NewActInvtAdjmtEntryOrder := RemActInvtAdjmtEntryOrder;

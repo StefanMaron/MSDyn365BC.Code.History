@@ -22,11 +22,9 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
         }
         field(6; "No."; Code[20])
         {
@@ -189,12 +187,10 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax,No Taxable VAT';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax","No Taxable VAT";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -577,6 +573,11 @@ table 5995 "Service Cr.Memo Line"
         key(Key11; "Customer No.")
         {
         }
+        key(Key12; "Document No.", Type)
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = Amount;
+        }
     }
 
     fieldgroups
@@ -594,11 +595,11 @@ table 5995 "Service Cr.Memo Line"
 
     procedure CalcVATAmountLines(ServCrMemoHeader: Record "Service Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", ServCrMemoHeader."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServCrMemoLine(Rec);
                 if ServCrMemoHeader."Prices Including VAT" then
                     TempVATAmountLine."Prices Including VAT" := true;
@@ -611,7 +612,7 @@ table 5995 "Service Cr.Memo Line"
         ServiceCMHeader: Record "Service Cr.Memo Header";
     begin
         if not ServiceCMHeader.Get("Document No.") then
-            ServiceCMHeader.Init;
+            ServiceCMHeader.Init();
         if ServiceCMHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
         exit('2,0,' + GetFieldCaption(FieldNumber));
@@ -657,7 +658,7 @@ table 5995 "Service Cr.Memo Line"
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Credit Memo");

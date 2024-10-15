@@ -194,7 +194,7 @@ report 12 "VAT Statement"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 SetRange("VAT Statement Name".Name, "VAT Statement Line".GetFilter("VAT Statement Line"."Statement Name"));
             end;
         }
@@ -256,7 +256,7 @@ report 12 "VAT Statement"
         if not UseAmtsInAddCurr then
             GLSetup.Get
         else begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
         end;
     end;
@@ -462,7 +462,7 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin
@@ -556,7 +556,7 @@ report 12 "VAT Statement"
                 ;
             VATStmtLine2.Type::"EC Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
                     then begin

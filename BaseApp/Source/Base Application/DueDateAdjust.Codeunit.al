@@ -34,7 +34,7 @@ codeunit 10700 "Due Date-Adjust"
         if Vendor."Non-Paymt. Periods Code" <> '' then
             SetNonPaymentPeriodFilterAndFields(NonPaymentPeriod, NonPaymentPeriod."Table Name"::Vendor, Vendor."Non-Paymt. Periods Code")
         else begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             SetNonPaymentPeriodFilterAndFields(
               NonPaymentPeriod, NonPaymentPeriod."Table Name"::"Company Information", CompanyInfo."Non-Paymt. Periods Code")
         end;
@@ -51,7 +51,7 @@ codeunit 10700 "Due Date-Adjust"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         SetPaymentDayFilterAndFields(PaymentDay, PaymentDay."Table Name"::"Company Information", CompanyInformation."Payment Days Code");
     end;
 

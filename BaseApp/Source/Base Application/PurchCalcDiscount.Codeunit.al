@@ -41,7 +41,7 @@ codeunit 70 "Purch.-Calc.Discount"
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         IsHandled: Boolean;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
 
         IsHandled := false;
         OnBeforeCalcPurchaseDiscount(PurchHeader, IsHandled, PurchLine2, UpdateHeader);
@@ -49,11 +49,11 @@ codeunit 70 "Purch.-Calc.Discount"
             exit;
 
         with PurchLine do begin
-            LockTable;
+            LockTable();
             PurchHeader.TestField("Vendor Posting Group");
             VendPostingGr.Get(PurchHeader."Vendor Posting Group");
 
-            PurchLine2.Reset;
+            PurchLine2.Reset();
             PurchLine2.SetRange("Document Type", "Document Type");
             PurchLine2.SetRange("Document No.", "Document No.");
             PurchLine2.SetFilter(Type, '<>0');
@@ -63,12 +63,12 @@ codeunit 70 "Purch.-Calc.Discount"
             if PurchLine2.FindSet(true, false) then
                 repeat
                     PurchLine2."Direct Unit Cost" := 0;
-                    PurchLine2.Modify;
+                    PurchLine2.Modify();
                     TempServiceChargeLine := PurchLine2;
-                    TempServiceChargeLine.Insert;
+                    TempServiceChargeLine.Insert();
                 until PurchLine2.Next = 0;
 
-            PurchLine2.Reset;
+            PurchLine2.Reset();
             PurchLine2.SetRange("Document Type", "Document Type");
             PurchLine2.SetRange("Document No.", "Document No.");
             PurchLine2.SetFilter(Type, '<>0');
@@ -82,7 +82,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 PurchHeader."Prices Including VAT", PurchHeader."Currency Code");
 
             if UpdateHeader then
-                PurchHeader.Modify;
+                PurchHeader.Modify();
 
             if PurchHeader."Posting Date" = 0D then
                 CurrencyDate := WorkDate
@@ -109,13 +109,13 @@ codeunit 70 "Purch.-Calc.Discount"
                             Currency."Unit-Amount Rounding Precision"))
                     else
                         PurchLine2.Validate("Direct Unit Cost", VendInvDisc."Service Charge");
-                    PurchLine2.Modify;
+                    PurchLine2.Modify();
                 end else begin
-                    PurchLine2.Reset;
+                    PurchLine2.Reset();
                     PurchLine2.SetRange("Document Type", "Document Type");
                     PurchLine2.SetRange("Document No.", "Document No.");
                     PurchLine2.Find('+');
-                    PurchLine2.Init;
+                    PurchLine2.Init();
                     if not UpdateHeader then
                         PurchLine2.SetPurchHeader(PurchHeader);
                     PurchLine2."Line No." := PurchLine2."Line No." + 10000;
@@ -138,7 +138,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     else
                         PurchLine2.Validate("Direct Unit Cost", VendInvDisc."Service Charge");
                     PurchLine2."System-Created Entry" := true;
-                    PurchLine2.Insert;
+                    PurchLine2.Insert();
                 end;
                 PurchLine2.CalcVATAmountLines(0, PurchHeader, PurchLine2, TempVATAmountLine);
             end else
@@ -150,7 +150,7 @@ codeunit 70 "Purch.-Calc.Discount"
                         end;
                     until TempServiceChargeLine.Next = 0;
 
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
                 PurchLine2.SetRange("Allow Invoice Disc.", true);
             if PurchLine2.Find('-') then
@@ -224,7 +224,7 @@ codeunit 70 "Purch.-Calc.Discount"
                         then
                             PurchLine2.Validate("Inv. Discount Amount");
                         PurchLine2."Recalculate Invoice Disc." := false;
-                        PurchLine2.Modify;
+                        PurchLine2.Modify();
                     end;
                 until PurchLine2.Next = 0;
             PurchLine2 := PurchLine;
@@ -241,7 +241,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 PurchHeader."Invoice Discount Calculation" := PurchHeader."Invoice Discount Calculation"::"%";
                 PurchHeader."Invoice Discount Value" := VendInvDisc."Discount %";
                 if UpdateHeader then
-                    PurchHeader.Modify;
+                    PurchHeader.Modify();
 
                 TempVATAmountLine.SetInvoiceDiscountPercent(
                   VendInvDisc."Discount %", PurchHeader."Currency Code",
@@ -254,7 +254,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 PurchHeader."Invoice Discount Calculation" := PurchHeader."Invoice Discount Calculation"::"%";
                 PurchHeader."Invoice Discount Value" := VendInvDisc."Discount %";
                 if UpdateHeader then
-                    PurchHeader.Modify;
+                    PurchHeader.Modify();
 
                 TempVATAmountLine.SetInvoiceDiscountPercent(
                   VendInvDisc."Discount %", PurchHeader."Currency Code",
@@ -282,7 +282,7 @@ codeunit 70 "Purch.-Calc.Discount"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if not PurchSetup."Calc. Inv. Discount" then
             exit;
         with PurchHeader do begin

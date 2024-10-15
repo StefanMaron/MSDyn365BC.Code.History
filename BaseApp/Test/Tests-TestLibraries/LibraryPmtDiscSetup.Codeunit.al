@@ -1,6 +1,6 @@
 codeunit 131303 "Library - Pmt Disc Setup"
 {
-    // Library to fix Payment Discount releated issues in ES Country Build.
+    // Library for Payment Discount Test Cases.
 
 
     trigger OnRun()
@@ -20,13 +20,13 @@ codeunit 131303 "Library - Pmt Disc Setup"
 
     procedure GetPmtDiscGracePeriod(): Text
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(Format(GeneralLedgerSetup."Payment Discount Grace Period"));
     end;
 
     procedure GetPmtTolerancePct(): Decimal
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Payment Tolerance %");
     end;
 
@@ -48,26 +48,21 @@ codeunit 131303 "Library - Pmt Disc Setup"
 
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)
     begin
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::" ");
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Adjust for Payment Disc.", AdjustForPaymentDisc);
-        if GeneralLedgerSetup."Adjust for Payment Disc." then
-            GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Adjust for Payment Disc.")
-        else
-            GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Pmt. Disc. Excl. VAT");
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetPmtDiscExclVAT(PmtDiscExclVAT: Boolean)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Pmt. Disc. Excl. VAT", PmtDiscExclVAT);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetPmtDiscGracePeriod(GracePeriod: DateFormula)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Grace Period", GracePeriod);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -78,13 +73,6 @@ codeunit 131303 "Library - Pmt Disc Setup"
     begin
         Evaluate(GracePeriod, DateFormulaText);
         SetPmtDiscGracePeriod(GracePeriod);
-    end;
-
-    procedure SetPmtDiscType(PaymentDiscountType: Option)
-    begin
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup.Validate("Payment Discount Type", PaymentDiscountType);
-        GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetPmtTolerance(PaymentTolerancePct: Decimal)
@@ -113,14 +101,14 @@ codeunit 131303 "Library - Pmt Disc Setup"
 
     procedure SetPmtToleranceWarning(PmtToleranceWarning: Boolean)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance Warning", PmtToleranceWarning);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetPmtDiscToleranceWarning(PmtDiscToleranceWarning: Boolean)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Warning", PmtDiscToleranceWarning);
         GeneralLedgerSetup.Modify(true);
     end;

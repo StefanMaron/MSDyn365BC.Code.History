@@ -1,4 +1,4 @@
-﻿page 569 "Chart of Accs. (Analysis View)"
+page 569 "Chart of Accs. (Analysis View)"
 {
     Caption = 'Chart of Accs. (Analysis View)';
     Editable = false;

@@ -7,11 +7,6 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
-    var
-        LibraryERM: Codeunit "Library - ERM";
-        PCS: Label 'PCS';
-        BOX: Label 'BOX';
-
     procedure InitializeCountry()
     begin
         exit;
@@ -64,12 +59,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateAccountInCustomerPostingGroup()
     begin
-        UpdateCustomerPostingGroup;
+        exit;
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
     begin
-        UpdateVendorPostingGroup;
+        exit;
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -89,17 +84,17 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        exit;
     end;
 
     procedure UpdateInventoryPostingSetup()
     begin
-        UpdateAccountsInInventoryPostingSetup;
+        exit;
     end;
 
     procedure UpdateGenJournalTemplate()
     begin
-        UpdateForceDocBalGenJournalTemplate;
+        exit;
     end;
 
     procedure UpdateGeneralLedgerSetup()
@@ -113,21 +108,13 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdatePurchasesPayablesSetup()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
-        PurchasesPayablesSetup."Correct. Doc. No. Mandatory" := false;
-        PurchasesPayablesSetup.Modify;
+        exit;
     end;
 
     procedure UpdateSalesReceivablesSetup()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
-        SalesReceivablesSetup."Correct. Doc. No. Mandatory" := false;
-        SalesReceivablesSetup.Modify;
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -141,18 +128,13 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure CreateUnitsOfMeasure()
-    var
-        UnitofMeasure: Record "Unit of Measure";
     begin
-        if not UnitofMeasure.Get(PCS) then
-            CreateUnitOfMeasure(PCS);
-        if not UnitofMeasure.Get(BOX) then
-            CreateUnitOfMeasure(BOX);
+        exit;
     end;
 
     procedure CreateTransportMethodTableData()
     begin
-        UpdateTransportMethod;
+        exit;
     end;
 
     procedure UpdateFAPostingGroup()
@@ -205,9 +187,9 @@ codeunit 131305 "Library - ERM Country Data"
         CompanyInformation: Record "Company Information";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     procedure AmountOnBankAccountLedgerEntriesPage(var BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries"): Decimal
@@ -220,125 +202,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
-    end;
-
-    local procedure CreateGLAccount(): Code[20]
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        exit(GLAccount."No.");
-    end;
-
-    local procedure UpdateAccountsInGeneralPostingSetup()
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        if GeneralPostingSetup.FindSet then
-            repeat
-                if GeneralPostingSetup."Purch. Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
-                if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
-                if GeneralPostingSetup."Sales Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
-                if GeneralPostingSetup."Sales Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount);
-                if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
-                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
-                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
-                if GeneralPostingSetup."Overhead Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount);
-                if GeneralPostingSetup."Purchase Variance Account" = '' then
-                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
-                if GeneralPostingSetup."COGS Account (Interim)" = '' then
-                    GeneralPostingSetup.Validate("COGS Account (Interim)", CreateGLAccount);
-                if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
-                    GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", CreateGLAccount);
-                GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
-    end;
-
-    local procedure UpdateForceDocBalGenJournalTemplate()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        GenJournalTemplate.SetRange("Force Doc. Balance", false);
-        if GenJournalTemplate.FindSet then
-            GenJournalTemplate.ModifyAll("Force Doc. Balance", true);  // This field is FALSE by defualt in ES.
-    end;
-
-    local procedure UpdateCustomerPostingGroup()
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
-    begin
-        if CustomerPostingGroup.FindSet then
-            repeat
-                if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
-                    CustomerPostingGroup.Modify(true);
-                end;
-                if CustomerPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
-                    CustomerPostingGroup.Modify(true);
-                end;
-            until CustomerPostingGroup.Next = 0;
-    end;
-
-    local procedure UpdateVendorPostingGroup()
-    var
-        VendorPostingGroup: Record "Vendor Posting Group";
-    begin
-        if VendorPostingGroup.FindSet then
-            repeat
-                if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
-                    VendorPostingGroup.Modify(true);
-                end;
-                if VendorPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
-                    VendorPostingGroup.Modify(true);
-                end;
-            until VendorPostingGroup.Next = 0;
-    end;
-
-    local procedure CreateUnitOfMeasure("Code": Text)
-    var
-        UnitofMeasure: Record "Unit of Measure";
-    begin
-        UnitofMeasure.Init;
-        UnitofMeasure.Code := Code;
-        UnitofMeasure.Description := Code;
-        UnitofMeasure.Insert;
-    end;
-
-    local procedure UpdateAccountsInInventoryPostingSetup()
-    var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-    begin
-        if InventoryPostingSetup.FindSet then
-            repeat
-                if InventoryPostingSetup."Subcontracted Variance Account" = '' then
-                    InventoryPostingSetup.Validate("Subcontracted Variance Account", CreateGLAccount);
-                if InventoryPostingSetup."Inventory Account (Interim)" = '' then
-                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
-                InventoryPostingSetup.Modify(true);
-            until InventoryPostingSetup.Next = 0;
-    end;
-
-    local procedure UpdateTransportMethod()
-    var
-        TransportMethod: Record "Transport Method";
-    begin
-        // To avoid error related to Entry/Exit Point, updating Transport Method Table.
-        if TransportMethod.FindSet then
-            repeat
-                TransportMethod.Validate("Port/Airport", false);
-                TransportMethod.Modify(true);
-            until TransportMethod.Next = 0;
     end;
 }
 

@@ -33,7 +33,7 @@ codeunit 136124 "Service Adjust Costs/Prices"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Adjust Costs/Prices");
     end;
 

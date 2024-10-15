@@ -1,4 +1,4 @@
-﻿table 27 Item
+table 27 Item
 {
     Caption = 'Item';
     DataCaptionFields = "No.", Description;
@@ -44,7 +44,7 @@
                     if NonstockItem.FindFirst then
                         if NonstockItem.Description = '' then begin
                             NonstockItem.Description := Description;
-                            NonstockItem.Modify;
+                            NonstockItem.Modify();
                         end;
                 end;
             end;
@@ -79,8 +79,6 @@
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
                     TestNoOpenEntriesExist(FieldCaption("Base Unit of Measure"));
 
-                    "Sales Unit of Measure" := "Base Unit of Measure";
-                    "Purch. Unit of Measure" := "Base Unit of Measure";
                     if "Base Unit of Measure" <> '' then begin
                         // If we can't find a Unit of Measure with a GET,
                         // then try with International Standard Code, as some times it's used as Code
@@ -92,19 +90,21 @@
                         end;
 
                         if not ItemUnitOfMeasure.Get("No.", "Base Unit of Measure") then begin
-                            ItemUnitOfMeasure.Init;
+                            ItemUnitOfMeasure.Init();
                             if IsTemporary then
                                 ItemUnitOfMeasure."Item No." := "No."
                             else
                                 ItemUnitOfMeasure.Validate("Item No.", "No.");
                             ItemUnitOfMeasure.Validate(Code, "Base Unit of Measure");
                             ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-                            ItemUnitOfMeasure.Insert;
+                            ItemUnitOfMeasure.Insert();
                         end else begin
                             if ItemUnitOfMeasure."Qty. per Unit of Measure" <> 1 then
                                 Error(BaseUnitOfMeasureQtyMustBeOneErr, "Base Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
                         end;
                     end;
+                    "Sales Unit of Measure" := "Base Unit of Measure";
+                    "Purch. Unit of Measure" := "Base Unit of Measure";
                 end;
             end;
         }
@@ -467,9 +467,9 @@
                 if TariffNumber.Get("Tariff No.") then
                     exit;
 
-                TariffNumber.Init;
+                TariffNumber.Init();
                 TariffNumber."No." := "Tariff No.";
-                TariffNumber.Insert;
+                TariffNumber.Insert();
             end;
         }
         field(48; "Duty Unit Conversion"; Decimal)
@@ -806,7 +806,7 @@
                 SalesSetup: Record "Sales & Receivables Setup";
             begin
                 if "Price Includes VAT" then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     if SalesSetup."VAT Bus. Posting Gr. (Price)" <> '' then
                         "VAT Bus. Posting Gr. (Price)" := SalesSetup."VAT Bus. Posting Gr. (Price)";
                     VATPostingSetup.Get("VAT Bus. Posting Gr. (Price)", "VAT Prod. Posting Group");
@@ -927,17 +927,15 @@
                 Validate("Price/Profit Calculation");
             end;
         }
-        field(100; Reserve; Option)
+        field(100; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Reserve';
             InitValue = Optional;
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
 
             trigger OnValidate()
             begin
-                if Reserve <> Reserve::Never then
+                if Reserve in [Reserve::Optional, Reserve::Always] then
                     TestField(Type, Type::Inventory);
             end;
         }
@@ -1312,19 +1310,35 @@
             OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
             OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
         }
-        field(5419; "Replenishment System"; Option)
+        field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Replenishment System';
-            OptionCaption = 'Purchase,Prod. Order,,Assembly';
-            OptionMembers = Purchase,"Prod. Order",,Assembly;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if "Replenishment System" <> "Replenishment System"::Assembly then
-                    TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                if "Replenishment System" <> "Replenishment System"::Purchase then
-                    TestField(Type, Type::Inventory);
+                case "Replenishment System" of
+                    "Replenishment System"::Purchase:
+                        TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
+                    "Replenishment System"::"Prod. Order":
+                        begin
+                            TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
+                            TestField(Type, Type::Inventory);
+                        end;
+                    "Replenishment System"::Transfer:
+                        begin
+                            IsHandled := false;
+                            OnValidateReplenishmentSystemCaseTransfer(Rec, IsHandled);
+                            if not IsHandled then
+                                error(ReplenishmentSystemTransferErr);
+                        end;
+                    "Replenishment System"::Assembly:
+                        TestField(Type, Type::Inventory);
+                    else
+                        OnValidateReplenishmentSystemCaseElse(Rec);
+                end;
             end;
         }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
@@ -2005,6 +2019,11 @@
                 UpdateItemCategoryCode;
             end;
         }
+        field(8510; "Over-Receipt Code"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+        }
         field(10700; "Cost Regulation %"; Decimal)
         {
             Caption = 'Cost Regulation %';
@@ -2051,7 +2070,7 @@
                     ProdBOMHeader.Get("Production BOM No.");
                     ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
                     if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
-                        MfgSetup.Get;
+                        MfgSetup.Get();
                         if MfgSetup."Dynamic Low-Level Code" then
                             CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
                     end;
@@ -2255,11 +2274,9 @@
             Editable = false;
             FieldClass = FlowField;
         }
-        field(99000773; "Order Tracking Policy"; Option)
+        field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
         {
             Caption = 'Order Tracking Policy';
-            OptionCaption = 'None,Tracking Only,Tracking & Action Msg.';
-            OptionMembers = "None","Tracking Only","Tracking & Action Msg.";
 
             trigger OnValidate()
             var
@@ -2283,20 +2300,20 @@
                     if ReservEntry.Find('-') then
                         repeat
                             ActionMessageEntry.SetRange("Reservation Entry", ReservEntry."Entry No.");
-                            ActionMessageEntry.DeleteAll;
+                            ActionMessageEntry.DeleteAll();
                             if "Order Tracking Policy" = "Order Tracking Policy"::None then
                                 if ReservEntry.TrackingExists then begin
                                     TempReservationEntry := ReservEntry;
                                     TempReservationEntry."Reservation Status" := TempReservationEntry."Reservation Status"::Surplus;
-                                    TempReservationEntry.Insert;
+                                    TempReservationEntry.Insert();
                                 end else
-                                    ReservEntry.Delete;
+                                    ReservEntry.Delete();
                         until ReservEntry.Next = 0;
 
                     if TempReservationEntry.Find('-') then
                         repeat
                             ReservEntry := TempReservationEntry;
-                            ReservEntry.Modify;
+                            ReservEntry.Modify();
                         until TempReservationEntry.Next = 0;
                 end;
             end;
@@ -2435,14 +2452,6 @@
 
         MoveEntries.MoveItemEntries(Rec);
 
-        ServiceItem.Reset;
-        ServiceItem.SetRange("Item No.", "No.");
-        if ServiceItem.Find('-') then
-            repeat
-                ServiceItem.Validate("Item No.", '');
-                ServiceItem.Modify(true);
-            until ServiceItem.Next = 0;
-
         DeleteRelatedData;
     end;
 
@@ -2578,6 +2587,7 @@
         UnitOfMeasureNotExistErr: Label 'The Unit of Measure with Code %1 does not exist.', Comment = '%1 = Code of Unit of measure';
         ItemLedgEntryTableCaptionTxt: Label 'Item Ledger Entry';
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
+        ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
 
     local procedure DeleteRelatedData()
     var
@@ -2591,112 +2601,107 @@
         ItemBudgetEntry.SetRange("Item No.", "No.");
         ItemBudgetEntry.DeleteAll(true);
 
-        ItemSub.Reset;
+        ItemSub.Reset();
         ItemSub.SetRange(Type, ItemSub.Type::Item);
         ItemSub.SetRange("No.", "No.");
-        ItemSub.DeleteAll;
+        ItemSub.DeleteAll();
 
-        ItemSub.Reset;
+        ItemSub.Reset();
         ItemSub.SetRange("Substitute Type", ItemSub."Substitute Type"::Item);
         ItemSub.SetRange("Substitute No.", "No.");
-        ItemSub.DeleteAll;
+        ItemSub.DeleteAll();
 
-        SKU.Reset;
+        SKU.Reset();
         SKU.SetCurrentKey("Item No.");
         SKU.SetRange("Item No.", "No.");
-        SKU.DeleteAll;
+        SKU.DeleteAll();
 
         CatalogItemMgt.NonstockItemDel(Rec);
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         ItemVend.SetCurrentKey("Item No.");
         ItemVend.SetRange("Item No.", "No.");
-        ItemVend.DeleteAll;
+        ItemVend.DeleteAll();
 
         SalesPrice.SetRange("Item No.", "No.");
-        SalesPrice.DeleteAll;
+        SalesPrice.DeleteAll();
 
         SalesLineDisc.SetRange(Type, SalesLineDisc.Type::Item);
         SalesLineDisc.SetRange(Code, "No.");
-        SalesLineDisc.DeleteAll;
+        SalesLineDisc.DeleteAll();
 
         SalesPrepmtPct.SetRange("Item No.", "No.");
-        SalesPrepmtPct.DeleteAll;
+        SalesPrepmtPct.DeleteAll();
 
         PurchPrice.SetRange("Item No.", "No.");
-        PurchPrice.DeleteAll;
+        PurchPrice.DeleteAll();
 
         PurchLineDisc.SetRange("Item No.", "No.");
-        PurchLineDisc.DeleteAll;
+        PurchLineDisc.DeleteAll();
 
         PurchPrepmtPct.SetRange("Item No.", "No.");
-        PurchPrepmtPct.DeleteAll;
+        PurchPrepmtPct.DeleteAll();
 
         ItemTranslation.SetRange("Item No.", "No.");
-        ItemTranslation.DeleteAll;
+        ItemTranslation.DeleteAll();
 
         ItemUnitOfMeasure.SetRange("Item No.", "No.");
-        ItemUnitOfMeasure.DeleteAll;
+        ItemUnitOfMeasure.DeleteAll();
 
         ItemVariant.SetRange("Item No.", "No.");
-        ItemVariant.DeleteAll;
+        ItemVariant.DeleteAll();
 
         ExtTextHeader.SetRange("Table Name", ExtTextHeader."Table Name"::Item);
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.DeleteAll(true);
 
         ItemAnalysisViewEntry.SetRange("Item No.", "No.");
-        ItemAnalysisViewEntry.DeleteAll;
+        ItemAnalysisViewEntry.DeleteAll();
 
         ItemAnalysisBudgViewEntry.SetRange("Item No.", "No.");
-        ItemAnalysisBudgViewEntry.DeleteAll;
+        ItemAnalysisBudgViewEntry.DeleteAll();
 
         PlanningAssignment.SetRange("Item No.", "No.");
-        PlanningAssignment.DeleteAll;
+        PlanningAssignment.DeleteAll();
 
-        BOMComp.Reset;
+        BOMComp.Reset();
         BOMComp.SetRange("Parent Item No.", "No.");
-        BOMComp.DeleteAll;
+        BOMComp.DeleteAll();
 
-        TroubleshSetup.Reset;
+        TroubleshSetup.Reset();
         TroubleshSetup.SetRange(Type, TroubleshSetup.Type::Item);
         TroubleshSetup.SetRange("No.", "No.");
-        TroubleshSetup.DeleteAll;
+        TroubleshSetup.DeleteAll();
 
         ResSkillMgt.DeleteItemResSkills("No.");
         DimMgt.DeleteDefaultDim(DATABASE::Item, "No.");
 
-        ItemIdent.Reset;
+        ItemIdent.Reset();
         ItemIdent.SetCurrentKey("Item No.");
         ItemIdent.SetRange("Item No.", "No.");
-        ItemIdent.DeleteAll;
-
-        ServiceItemComponent.Reset;
-        ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
-        ServiceItemComponent.SetRange("No.", "No.");
-        ServiceItemComponent.ModifyAll("No.", '');
+        ItemIdent.DeleteAll();
 
         BinContent.SetCurrentKey("Item No.");
         BinContent.SetRange("Item No.", "No.");
-        BinContent.DeleteAll;
+        BinContent.DeleteAll();
 
         ItemCrossReference.SetRange("Item No.", "No.");
-        ItemCrossReference.DeleteAll;
+        ItemCrossReference.DeleteAll();
 
         MyItem.SetRange("Item No.", "No.");
-        MyItem.DeleteAll;
+        MyItem.DeleteAll();
 
         if not SocialListeningSearchTopic.IsEmpty then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Item, "No.");
-            SocialListeningSearchTopic.DeleteAll;
+            SocialListeningSearchTopic.DeleteAll();
         end;
 
-        ItemAttributeValueMapping.Reset;
+        ItemAttributeValueMapping.Reset();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", "No.");
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
 
         OnAfterDeleteRelatedData(Rec);
     end;
@@ -2716,7 +2721,7 @@
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
     begin
         TestField("No.");
-        ItemVend.Reset;
+        ItemVend.Reset();
         ItemVend.SetRange("Item No.", "No.");
         ItemVend.SetRange("Vendor No.", ItemVend."Vendor No.");
         ItemVend.SetRange("Variant Code", ItemVend."Variant Code");
@@ -2739,7 +2744,7 @@
                 if Vend.Get(ItemVend."Vendor No.") then
                     ItemVend."Lead Time Calculation" := Vend."Lead Time Calculation";
         end;
-        ItemVend.Reset;
+        ItemVend.Reset();
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -2751,7 +2756,7 @@
             DimMgt.SaveDefaultDim(DATABASE::Item, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -2845,7 +2850,7 @@
     local procedure GetInvtSetup()
     begin
         if not HasInvtSetup then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             HasInvtSetup := true;
         end;
     end;
@@ -2869,7 +2874,7 @@
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -2966,7 +2971,7 @@
     var
         StdCostWksh: Record "Standard Cost Worksheet";
     begin
-        StdCostWksh.Reset;
+        StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::Item);
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty then
@@ -3011,7 +3016,7 @@
 
     local procedure CheckBOM(CurrFieldNo: Integer)
     begin
-        BOMComp.Reset;
+        BOMComp.Reset();
         BOMComp.SetCurrentKey(Type, "No.");
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetRange("No.", "No.");
@@ -3109,7 +3114,7 @@
 
     local procedure CheckServLine(CurrFieldNo: Integer)
     begin
-        ServInvLine.Reset;
+        ServInvLine.Reset();
         ServInvLine.SetCurrentKey(Type, "No.");
         ServInvLine.SetRange(Type, ServInvLine.Type::Item);
         ServInvLine.SetRange("No.", "No.");
@@ -3125,7 +3130,7 @@
     var
         ProductionBOMVersion: Record "Production BOM Version";
     begin
-        ProdBOMLine.Reset;
+        ProdBOMLine.Reset();
         ProdBOMLine.SetCurrentKey(Type, "No.");
         ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
         ProdBOMLine.SetRange("No.", "No.");
@@ -3148,7 +3153,7 @@
 
     local procedure CheckServContractLine(CurrFieldNo: Integer)
     begin
-        ServiceContractLine.Reset;
+        ServiceContractLine.Reset();
         ServiceContractLine.SetRange("Item No.", "No.");
         if not ServiceContractLine.IsEmpty then begin
             if CurrFieldNo = 0 then
@@ -3198,7 +3203,7 @@
                 exit(false);
             "Prevent Negative Inventory"::Default:
                 begin
-                    InventorySetup.Get;
+                    InventorySetup.Get();
                     exit(InventorySetup."Prevent Negative Inventory");
                 end;
         end;
@@ -3256,7 +3261,7 @@
 
     procedure TryGetItemNo(var ReturnValue: Text[50]; ItemText: Text; DefaultCreate: Boolean): Boolean
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         exit(TryGetItemNoOpenCard(ReturnValue, ItemText, DefaultCreate, true, not InvtSetup."Skip Prompt to Create Item"));
     end;
 
@@ -3355,7 +3360,7 @@
 
         Item.Description := ItemName;
         Item.Modify(true);
-        Commit;
+        Commit();
         if not ShowItemCard then
             exit(Item."No.");
         Item.SetRange("No.", Item."No.");
@@ -3594,12 +3599,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindItemVendOnAfterSetFilters(var ItemVend: Record "Item Vendor"; Item: Record Item);
+    local procedure OnValidateReplenishmentSystemCaseElse(var Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTryGetItemNoOpenCardOnAfterSetItemFilters(var Item: Record Item; var ItemFilterContains: Text);
+    local procedure OnValidateReplenishmentSystemCaseTransfer(var Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemVendOnAfterSetFilters(var ItemVend: Record "Item Vendor"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryGetItemNoOpenCardOnAfterSetItemFilters(var Item: Record Item; var ItemFilterContains: Text)
     begin
     end;
 
@@ -3607,7 +3622,7 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");
         exit(not ItemLedgEntry.IsEmpty);

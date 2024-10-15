@@ -16,11 +16,9 @@ table 325 "VAT Posting Setup"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
-        field(3; "VAT Calculation Type"; Option)
+        field(3; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax,No Taxable VAT';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax","No Taxable VAT";
 
             trigger OnValidate()
             begin
@@ -63,7 +61,7 @@ table 325 "VAT Posting Setup"
                 TestNotSalesTax(FieldCaption("Unrealized VAT Type"));
 
                 if "Unrealized VAT Type" > 0 then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if not GLSetup."Unrealized VAT" and not GLSetup."Prepayment Unrealized VAT" then
                         GLSetup.TestField("Unrealized VAT", true);
                 end;
@@ -78,7 +76,7 @@ table 325 "VAT Posting Setup"
                 TestNotSalesTax(FieldCaption("Adjust for Payment Discount"));
 
                 if "Adjust for Payment Discount" then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField(
                       "Payment Discount Type", GLSetup."Payment Discount Type"::"Adjust for Payment Disc.");
                 end;
@@ -409,7 +407,7 @@ table 325 "VAT Posting Setup"
 
     procedure SetAccountsVisibility(var UnrealizedVATVisible: Boolean; var AdjustForPmtDiscVisible: Boolean)
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         UnrealizedVATVisible := GLSetup."Unrealized VAT" or GLSetup."Prepayment Unrealized VAT";
         AdjustForPmtDiscVisible := GLSetup."Adjust for Payment Disc.";
     end;
@@ -420,7 +418,7 @@ table 325 "VAT Posting Setup"
     begin
         RecRef.GetTable(Rec);
         SuggestVATAccounts(RecRef);
-        RecRef.Modify;
+        RecRef.Modify();
     end;
 
     local procedure SuggestVATAccounts(var RecRef: RecordRef)
@@ -454,14 +452,14 @@ table 325 "VAT Posting Setup"
     begin
         VATPostingSetupRecRef.Open(DATABASE::"VAT Posting Setup");
 
-        VATPostingSetupRecRef.Reset;
+        VATPostingSetupRecRef.Reset();
         VATPostingSetupFieldRef := VATPostingSetupRecRef.Field(FieldNo("VAT Bus. Posting Group"));
         VATPostingSetupFieldRef.SetRange("VAT Bus. Posting Group");
         VATPostingSetupFieldRef := VATPostingSetupRecRef.Field(FieldNo("VAT Prod. Posting Group"));
         VATPostingSetupFieldRef.SetFilter('<>%1', "VAT Prod. Posting Group");
         TempAccountUseBuffer.UpdateBuffer(VATPostingSetupRecRef, AccountFieldNo);
 
-        VATPostingSetupRecRef.Reset;
+        VATPostingSetupRecRef.Reset();
         VATPostingSetupFieldRef := VATPostingSetupRecRef.Field(FieldNo("VAT Bus. Posting Group"));
         VATPostingSetupFieldRef.SetFilter('<>%1', "VAT Bus. Posting Group");
         VATPostingSetupFieldRef := VATPostingSetupRecRef.Field(FieldNo("VAT Prod. Posting Group"));
@@ -470,7 +468,7 @@ table 325 "VAT Posting Setup"
 
         VATPostingSetupRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);

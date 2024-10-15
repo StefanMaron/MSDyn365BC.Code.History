@@ -149,6 +149,13 @@ table 338 "Entry Summary"
     var
         Text001: Label 'You cannot select more than %1 units.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure UpdateAvailable()
     begin
         "Total Available Quantity" :=
@@ -160,11 +167,37 @@ table 338 "Entry Summary"
 
     procedure HasQuantity(): Boolean
     begin
-        exit(("Total Quantity" <> 0) or
+        exit(
+          ("Total Quantity" <> 0) or
           ("Qty. Alloc. in Warehouse" <> 0) or
           ("Total Requested Quantity" <> 0) or
           ("Current Pending Quantity" <> 0) or
           ("Double-entry Adjustment" <> 0));
+    end;
+
+    procedure HasSameTracking(EntrySummary: Record "Entry Summary") SameTracking: Boolean
+    begin
+        SameTracking :=
+          ("Serial No." = EntrySummary."Serial No.") and
+          ("Lot No." = EntrySummary."Lot No.");
+
+        OnAfterHasSameTracking(Rec, EntrySummary, SameTracking);
+    end;
+
+    procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        "Serial No." := ReservEntry."Serial No.";
+        "Lot No." := ReservEntry."Lot No.";
+
+        OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
+    end;
+
+    procedure CopyTrackingFromSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        "Serial No." := TrackingSpecification."Serial No.";
+        "Lot No." := TrackingSpecification."Lot No.";
+
+        OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
 
     procedure QtyAvailableToSelectFromBin() AvailQty: Decimal
@@ -185,18 +218,55 @@ table 338 "Entry Summary"
     begin
         SetRange("Serial No.", EntrySummary."Serial No.");
         SetRange("Lot No.", EntrySummary."Lot No.");
+
+        OnAfterSetTrackingFilterFromEntrySummary(Rec, EntrySummary);
     end;
 
     procedure SetTrackingFilterFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservationEntry."Serial No.");
         SetRange("Lot No.", ReservationEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromReservEntry(Rec, ReservationEntry);
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
+
+        OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTracking(ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary"; var SameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromSpec(var ToEntrySummary: Record "Entry Summary"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromEntrySummary(var ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromSpec(var ToEntrySummary: Record "Entry Summary"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
 }
 

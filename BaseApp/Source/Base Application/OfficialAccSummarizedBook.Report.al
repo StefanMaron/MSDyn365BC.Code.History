@@ -26,9 +26,6 @@ report 10716 "Official Acc.Summarized Book"
             column(HeaderText; HeaderText)
             {
             }
-            column(CurrReport_PAGENO___Pagina; CurrReport.PageNo + Pagina)
-            {
-            }
             column(Integer_Number; Number)
             {
             }
@@ -125,7 +122,7 @@ report 10716 "Official Acc.Summarized Book"
                 begin
                     if GLFilterAccType = GLFilterAccType::Heading then begin
                         if StrLen("No.") <> 3 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                     CreditAmt := 0;
                     DebitAmt := 0;
@@ -147,13 +144,13 @@ report 10716 "Official Acc.Summarized Book"
                     TFTotalDebitAmt := TotalDebitAmt - DebitAmt;
 
                     if not ((DebitAmt <> 0) or (CreditAmt <> 0)) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not PrintClose then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Date Filter", ClosingDate(ToDate));
                     if GLFilterAccType = GLFilterAccType::Heading then
                         SetRange("Account Type", "Account Type"::Heading)
@@ -223,7 +220,7 @@ report 10716 "Official Acc.Summarized Book"
                 begin
                     if GLFilterAccType = GLFilterAccType::Heading then begin
                         if StrLen("No.") <> 3 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     CreditAmt := 0;
@@ -291,7 +288,7 @@ report 10716 "Official Acc.Summarized Book"
                     TotalDebitAmt := 0;
 
                     if not ((DebitAmt <> 0) or (CreditAmt <> 0)) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -311,7 +308,7 @@ report 10716 "Official Acc.Summarized Book"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if PrintAmountsInAddCurrency then
                     HeaderText := StrSubstNo(Text1100000, GLSetup."Additional Reporting Currency")
                 else begin

@@ -5056,9 +5056,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="CompanyAddr_7_">
           <DataField>CompanyAddr_7_</DataField>
         </Field>

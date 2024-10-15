@@ -7,12 +7,12 @@ codeunit 7000009 "Posted Cartera Doc.- Edit"
     trigger OnRun()
     begin
         PostedDoc := Rec;
-        PostedDoc.LockTable;
+        PostedDoc.LockTable();
         PostedDoc.Find;
         PostedDoc."Category Code" := "Category Code";
         PostedDoc."Due Date" := "Due Date";
         OnBeforeModifyPostedCarteraDoc(PostedDoc, Rec);
-        PostedDoc.Modify;
+        PostedDoc.Modify();
         Rec := PostedDoc;
     end;
 

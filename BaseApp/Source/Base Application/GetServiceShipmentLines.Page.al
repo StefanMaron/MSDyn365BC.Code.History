@@ -1,4 +1,4 @@
-﻿page 5994 "Get Service Shipment Lines"
+page 5994 "Get Service Shipment Lines"
 {
     Caption = 'Get Service Shipment Lines';
     Editable = false;
@@ -212,7 +212,7 @@
     var
         ServiceShptLine: Record "Service Shipment Line";
     begin
-        TempServiceShptLine.Reset;
+        TempServiceShptLine.Reset();
         TempServiceShptLine.CopyFilters(Rec);
         TempServiceShptLine.SetRange("Document No.", "Document No.");
         if not TempServiceShptLine.FindFirst then begin
@@ -221,7 +221,7 @@
             if not ServiceShptLine.FindFirst then
                 exit(false);
             TempServiceShptLine := ServiceShptLine;
-            TempServiceShptLine.Insert;
+            TempServiceShptLine.Insert();
         end;
         if "Line No." = TempServiceShptLine."Line No." then
             exit(true);

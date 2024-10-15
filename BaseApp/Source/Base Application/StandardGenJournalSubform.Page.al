@@ -1,4 +1,4 @@
-﻿page 752 "Standard Gen. Journal Subform"
+page 752 "Standard Gen. Journal Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

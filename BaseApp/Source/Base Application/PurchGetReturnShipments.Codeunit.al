@@ -36,7 +36,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
         with ReturnShptLine2 do begin
             SetFilter("Return Qty. Shipped Not Invd.", '<>0');
             if Find('-') then begin
-                PurchLine.LockTable;
+                PurchLine.LockTable();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
                 PurchLine.SetRange("Document No.", PurchHeader."No.");
                 PurchLine."Document Type" := PurchHeader."Document Type";
@@ -85,8 +85,8 @@ codeunit 6648 "Purch.-Get Return Shipments"
                  PurchOrderLine."Document Type"::"Return Order",
                  "Return Order No.", "Return Order Line No.")
             then begin
-                ItemChargeAssgntPurch.LockTable;
-                ItemChargeAssgntPurch.Reset;
+                ItemChargeAssgntPurch.LockTable();
+                ItemChargeAssgntPurch.Reset();
                 ItemChargeAssgntPurch.SetRange("Document Type", PurchOrderLine."Document Type");
                 ItemChargeAssgntPurch.SetRange("Document No.", PurchOrderLine."Document No.");
                 ItemChargeAssgntPurch.SetRange("Document Line No.", PurchOrderLine."Line No.");
@@ -162,7 +162,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                         end;
 
                         if InsertChargeAssgnt and (ItemChargeAssgntPurch2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntPurch2.Insert;
+                            ItemChargeAssgntPurch2.Insert();
                             QtyToAssign := QtyToAssign - ItemChargeAssgntPurch2."Qty. to Assign";
                         end;
                     end;

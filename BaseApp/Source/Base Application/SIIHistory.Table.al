@@ -106,7 +106,7 @@ table 10750 "SII History"
         then
             exit;
 
-        SIIHistory.Init;
+        SIIHistory.Init();
         SIIHistory."Request Date" := CurrentDateTime;
         SIIHistory."Document State Id" := DocUploadId;
         if SIIDocUploadState.Status <> SIIDocUploadState.Status::"Not Supported" then
@@ -117,7 +117,7 @@ table 10750 "SII History"
         SIIHistory."Upload Type" := UploadType;
         SIIHistory."Is Manual" := IsManual;
         SIIHistory."Retry Accepted" := IsAcceptedWithErrorRetry;
-        SIIHistory.Insert;
+        SIIHistory.Insert();
 
         SIIDocUploadState.Get(DocUploadId);
         if SIIDocUploadState.Status <> SIIDocUploadState.Status::"Not Supported" then
@@ -133,7 +133,7 @@ table 10750 "SII History"
             SIIDocUploadState."Country/Region Code" := Customer."Country/Region Code";
             SIIDocUploadState."VAT Registration No." := Customer."VAT Registration No.";
         end;
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
 
         exit(SIIHistory.Id);
     end;
@@ -147,7 +147,7 @@ table 10750 "SII History"
         BuildDocumentStatus(SIIDocUploadState);
 
         Modify;
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -176,7 +176,7 @@ table 10750 "SII History"
         BuildDocumentStatus(SIIDocUploadState);
 
         Modify;
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 
     local procedure BuildDocumentStatus(var SIIDocUploadState: Record "SII Doc. Upload State")
@@ -236,7 +236,7 @@ table 10750 "SII History"
         SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::"Accepted With Errors");
         SIIDocUploadState.Validate("Accepted By User ID", UserId);
         SIIDocUploadState.Validate("Accepted Date Time", CurrentDateTime);
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
 
         Status := Status::"Accepted With Errors";
         "Error Message" := StrSubstNo(MarkAsAcceptedErr, UserId, CurrentDateTime);
@@ -255,7 +255,7 @@ table 10750 "SII History"
         SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::Failed);
         SIIDocUploadState.Validate("Accepted By User ID", '');
         SIIDocUploadState.Validate("Accepted Date Time", 0DT);
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
 
         Status := Status::Failed;
         "Error Message" := StrSubstNo(MarkAsNotAcceptedErr, UserId, CurrentDateTime);

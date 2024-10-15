@@ -535,7 +535,7 @@ report 36 "Fiscal Year Balance"
 
     procedure SetEndingDate()
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', PeriodStartingDate);
         AccountingPeriod.FindFirst;
         PeriodEndingDate := AccountingPeriod."Starting Date" - 1;
@@ -558,7 +558,7 @@ report 36 "Fiscal Year Balance"
 
     local procedure CheckIndentationLevel()
     begin
-        GLIndent.Reset;
+        GLIndent.Reset();
         MaxIndent := '';
         if GLIndent.Find('-') then
             repeat

@@ -97,7 +97,7 @@ report 5811 "Calc. Inventory Value - Test"
                 else
                     OK := TempErrorBuf.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Clear(ItemLedgEntryErrBuf);
                 if TempErrorBuf."Source Table" = DATABASE::Item then begin
@@ -115,7 +115,7 @@ report 5811 "Calc. Inventory Value - Test"
 
             trigger OnPreDataItem()
             begin
-                TempErrorBuf.Reset;
+                TempErrorBuf.Reset();
                 TempErrorBuf.SetCurrentKey("Source Table", "Source No.", "Source Ref. No.");
             end;
         }
@@ -167,7 +167,7 @@ report 5811 "Calc. Inventory Value - Test"
                 else
                     OK := ProdBOMVersionErrBuf.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if ProdBOMVersionErrBuf."Version Code" = '' then begin
                     ProdBOMHeader.Get(ProdBOMVersionErrBuf."Production BOM No.");
@@ -179,7 +179,7 @@ report 5811 "Calc. Inventory Value - Test"
                     ProdBOMVersionErrBuf."Starting Date" := ProdBOMVersion."Starting Date";
                     ProdBOMVersionErrBuf.Status := ProdBOMVersion.Status;
                 end;
-                ProdBOMVersionErrBuf.Modify;
+                ProdBOMVersionErrBuf.Modify();
             end;
         }
         dataitem(RtngVersionErrBufLoop; "Integer")
@@ -230,7 +230,7 @@ report 5811 "Calc. Inventory Value - Test"
                 else
                     OK := RtngVersionErrBuf.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if RtngVersionErrBuf."Version Code" = '' then begin
                     RtngHeader.Get(RtngVersionErrBuf."Routing No.");
@@ -242,7 +242,7 @@ report 5811 "Calc. Inventory Value - Test"
                     RtngVersionErrBuf."Starting Date" := RtngVersion."Starting Date";
                     RtngVersionErrBuf.Status := RtngVersion.Status;
                 end;
-                RtngVersionErrBuf.Modify;
+                RtngVersionErrBuf.Modify();
             end;
         }
     }

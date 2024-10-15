@@ -132,11 +132,12 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Authentication Type] [SaaS] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Authentication Type" is not visible
         asserterror CRMConnectionSetupPage."Authentication Type".Activate;
         Assert.ExpectedError(IsNotFoundOnThePageErr);
@@ -151,12 +152,13 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Authentication Type] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is not SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Authentication Type" is not visible
         Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Visible, 'Authentication Type is not visible.')
     end;
@@ -170,10 +172,11 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Authentication Type] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [WHEN] Open CRM Connection Setup Page
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        CRMConnectionSetupPage.OpenEdit;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" is editable
         Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is not editable.')
     end;
@@ -280,11 +283,12 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Domain] [SaaS] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Domain" is not visible
         asserterror CRMConnectionSetupPage.Domain.Activate;
         Assert.ExpectedError(IsNotFoundOnThePageErr);
@@ -299,12 +303,13 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Domain] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is not SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Domain" is visible
         Assert.IsTrue(CRMConnectionSetupPage.Domain.Visible, 'Domain is not visible.')
     end;
@@ -317,10 +322,11 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Domain] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [WHEN] Open CRM Connection Setup Page
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        CRMConnectionSetupPage.OpenEdit;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Domain" is not editable
         Assert.IsFalse(CRMConnectionSetupPage.Domain.Editable, 'Domain is editable.')
     end;
@@ -334,11 +340,12 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Connection String] [SaaS] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Connection String" is not visible
         asserterror CRMConnectionSetupPage."Connection String".Activate;
         Assert.ExpectedError(IsNotFoundOnThePageErr);
@@ -353,12 +360,13 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Connection String] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         // [GIVEN] It is not SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
         // [THEN] "Connection String" is visible
         Assert.IsTrue(CRMConnectionSetupPage."Connection String".Visible, 'Connection String is not visible.')
     end;
@@ -372,16 +380,17 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Connection String] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [GIVEN] CRM Connection Setup "Is Enabled" is Yes
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."User Name" := 'user@test.net';
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
         Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
         Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
@@ -396,16 +405,17 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Connection String] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [GIVEN] CRM Connection Setup "Is Enabled" is Yes, "Authentication Type" = IFD
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."User Name" := 'user@test.net';
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::IFD;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
         Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
         Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
@@ -421,15 +431,16 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Connection String] [UI]
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [GIVEN] CRM Connection Setup "Is Enabled" is No, "Authentication Type" = OAuth
         CRMConnectionSetup."Is Enabled" := false;
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::OAuth;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
         Assert.IsTrue(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is not editable.');
         Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is not editable.');
@@ -446,11 +457,12 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String] [UI]
         // [SCENARIO] "Connection String" control should not be editable if "Auth Type" is 'O365' or 'AD'
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [WHEN] "Auth Type" is 'O365'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
@@ -476,11 +488,12 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String] [UI]
         // [SCENARIO] "Connection String" control should be editable if "Auth Type" is 'OAuth' or 'IFD'
-        Initialize;
+        Initialize();
+        InitializeCDSConnectionSetup();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Open CRM Connection Setup Page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [WHEN] "Auth Type" is 'OAuth'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::OAuth;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
@@ -506,9 +519,9 @@ codeunit 139178 "CRM Connection String"
         // [SCENARIO] Blank "Connection String" is getting filled on attempt to connect
         // [GIVEN] Connection is set, but "Connection String" is blank
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Clear(CRMConnectionSetup."Server Connection String");
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         // [WHEN] Connect
         CRMConnectionSetup.UnregisterConnection;
         CRMConnectionSetup.RegisterConnection;
@@ -517,7 +530,7 @@ codeunit 139178 "CRM Connection String"
         Assert.ExpectedMessage('AuthType=Office365;', ConnectionString);
         Assert.ExpectedMessage('Password={PASSWORD}', ConnectionString);
         // [THEN] "Connection String" is saved to the record
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Assert.ExpectedMessage(ConnectionString, CRMConnectionSetup.GetConnectionString);
     end;
 
@@ -532,9 +545,9 @@ codeunit 139178 "CRM Connection String"
         // [SCENARIO] Blank "Connection String" is getting filled on attempt to connect on the temp rec
         // [GIVEN] Temp Connection is set, but "Connection String" is blank
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Clear(CRMConnectionSetup."Server Connection String");
-        CRMConnectionSetup.Delete;
+        CRMConnectionSetup.Delete();
         // [WHEN] Connect
         CRMConnectionSetup.UnregisterConnection;
         CRMConnectionSetup.RegisterConnection;
@@ -714,7 +727,7 @@ codeunit 139178 "CRM Connection String"
         LibraryCRMIntegration.ConfigureCRM;
 
         // [GIVEN] "Auth Type" is 'O365'
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."User Name" := 'sync@domain.com';
         CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::Office365);
 
@@ -751,7 +764,7 @@ codeunit 139178 "CRM Connection String"
         CreateCRMUser(CRMSystemuser, User."User Name", 'admin@domain.com');
 
         // [GIVEN] "Auth Type" is 'AD'
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."User Name" := 'domain\sync';
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
 
@@ -795,7 +808,7 @@ codeunit 139178 "CRM Connection String"
         // [GIVEN] Connection String is filled
         ConnectionStringValue := LibraryUtility.GenerateRandomText(100) + '{PASSWORD}';
         CRMConnectionSetup.SetConnectionString(ConnectionStringValue);
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         Assert.ExpectedMessage(ConnectionStringValue, CRMConnectionSetup.GetConnectionString);
 
         // [WHEN] Connection string is updated with empty value
@@ -811,8 +824,19 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
+    end;
+
+    local procedure InitializeCDSConnectionSetup()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup."Is Enabled" := true;
+        CDSConnectionSetup."User Name" := 'user@test.net';
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
     end;
 
     [ConfirmHandler]
@@ -827,7 +851,7 @@ codeunit 139178 "CRM Connection String"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
         CRMSystemuser.DomainName := DomainUserName;
         CRMSystemuser.Validate(InternalEMailAddress, IntEmail);
-        CRMSystemuser.Modify;
+        CRMSystemuser.Modify();
     end;
 
     local procedure CreateUser(var User: Record User; AuthEmail: Text[250])
@@ -836,7 +860,7 @@ codeunit 139178 "CRM Connection String"
         User.SetRange("Windows Security ID", Sid);
         User.FindFirst;
         User.Validate("Authentication Email", AuthEmail);
-        User.Modify;
+        User.Modify();
     end;
 }
 

@@ -38,7 +38,7 @@ report 7000091 "Bill group - Export N58"
                             DocMisc.CheckControlDigit(CustCCCControlDigits, CustCCCBankCode, CustCCCAccNo, CustCCCBankBranchNo);
                             if (CustBankAcc."CCC Control Digits" <> CustCCCControlDigits) and (CustCCCControlDigits <> '**') then begin
                                 CustBankAcc."CCC Control Digits" := CustCCCControlDigits;
-                                CustBankAcc.Modify;
+                                CustBankAcc.Modify();
                             end;
                         end;
                     end;
@@ -223,7 +223,7 @@ report 7000091 "Bill group - Export N58"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Find('-');
 
@@ -333,7 +333,7 @@ report 7000091 "Bill group - Export N58"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', ' .-/'), 1, 9);
         SilentMode := false;
     end;
@@ -365,8 +365,8 @@ report 7000091 "Bill group - Export N58"
         Text1100002: Label 'Do you want to continue?.';
         Text1100003: Label 'Process cancelled by request of user.';
         Text1100004: Label 'Some data for Bank Account %1 are missing.';
-        Text1100006: Label '<Integer>';
-        Text1100007: Label '<integer>';
+        Text1100006: Label '<Integer>', Locked = true;
+        Text1100007: Label '<integer>', Locked = true;
         Text1100008: Label 'Bill';
         Text1100009: Label 'DEVOL.';
         CompanyInfo: Record "Company Information";

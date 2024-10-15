@@ -209,7 +209,7 @@ codeunit 2158 "O365 Document Send Mgt"
             O365DocumentSentHistory.SetRange(Notified, false);
 
         O365DocumentSentHistory.SetRange("Job Last Status", O365DocumentSentHistory."Job Last Status"::Error);
-        DocumentsFailedSending := O365DocumentSentHistory.Count;
+        DocumentsFailedSending := O365DocumentSentHistory.Count();
     end;
 
     local procedure SetAllToNotified()

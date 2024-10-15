@@ -65,11 +65,11 @@ report 10710 "Make 349 Declaration"
                         exit;
                 PreVATRegNo := "VAT Registration No.";
 
-                Customer2.Reset;
+                Customer2.Reset();
                 Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
                 if Customer2.FindSet then begin
                     repeat
-                        VATCredSales.Reset;
+                        VATCredSales.Reset();
                         VATCredSales.SetRange(Type, VATCredSales.Type::Sale);
                         VATCredSales.SetRange("Document Type", VATCredSales."Document Type"::"Credit Memo");
                         VATCredSales.SetRange("Bill-to/Pay-to No.", Customer2."No.");
@@ -93,7 +93,7 @@ report 10710 "Make 349 Declaration"
                         InsertCustWarningsFromSalesCrMemoLine;
                     until Customer2.Next = 0;
 
-                    Commit;
+                    Commit();
                 end;
             end;
 
@@ -114,11 +114,11 @@ report 10710 "Make 349 Declaration"
                         exit;
                 PreVATRegNo := "VAT Registration No.";
 
-                Vendor2.Reset;
+                Vendor2.Reset();
                 Vendor2.SetRange("VAT Registration No.", "VAT Registration No.");
                 if Vendor2.FindSet then begin
                     repeat
-                        VATCredPurch.Reset;
+                        VATCredPurch.Reset();
                         VATCredPurch.SetRange(Type, VATCredPurch.Type::Purchase);
                         VATCredPurch.SetRange("Document Type", VATCredPurch."Document Type"::"Credit Memo");
                         VATCredPurch.SetRange("Bill-to/Pay-to No.", Vendor2."No.");
@@ -141,7 +141,7 @@ report 10710 "Make 349 Declaration"
                         InsertVendWarningsFromPurchCrMemoLine;
                     until Vendor2.Next = 0;
 
-                    Commit;
+                    Commit();
                 end;
             end;
 
@@ -153,9 +153,9 @@ report 10710 "Make 349 Declaration"
                     else begin
                         CVWarning349.SetRecord(CustVendWarning349);
                         if (CVWarning349.RunModal in [ACTION::Cancel, ACTION::OK]) and CVWarning349.Cancelled then begin
-                            CustVendWarning349.Reset;
-                            CustVendWarning349.DeleteAll;
-                            Commit;
+                            CustVendWarning349.Reset();
+                            CustVendWarning349.DeleteAll();
+                            Commit();
                             Error(Text1100011);
                         end;
                     end;
@@ -213,7 +213,7 @@ report 10710 "Make 349 Declaration"
                     AccumOrigDeclAmountTri := 0;
                     NoTaxableAmountOpTri := 0;
                     NoTaxableAmountEUService := 0;
-                    Customer2.Reset;
+                    Customer2.Reset();
                     Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
                     if Customer2.FindSet then begin
                         repeat
@@ -282,7 +282,7 @@ report 10710 "Make 349 Declaration"
 
                             CorrIncludedForOpTriAmount := false;
 
-                            CustVendWarning349.Reset;
+                            CustVendWarning349.Reset();
                             CustVendWarning349.SetRange(Type, CustVendWarning349.Type::Sale);
                             CustVendWarning349.SetRange("Customer/Vendor No.", Customer2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
@@ -318,7 +318,7 @@ report 10710 "Make 349 Declaration"
                                                           CustVendWarning349_2."Previous Declared Amount";
                                                         SummarizeBaseAmount(VATEntry, CustVendWarning349_2."Original Declared Amount", AccOrigDeclAmount);
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -334,7 +334,7 @@ report 10710 "Make 349 Declaration"
                                         ThirdPartyAlreadyExported := false;
                                         EUServiceAlreadyExported := false;
 
-                                        CustVendWarning349_2.Reset;
+                                        CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet then
                                             if CustVendWarning349_2.Count > 1 then begin
@@ -346,7 +346,7 @@ report 10710 "Make 349 Declaration"
                                                         AccumOrigDeclAmountEUService :=
                                                           AccumOrigDeclAmountEUService + CustVendWarning349_2."Original Declared Amount";
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -358,7 +358,7 @@ report 10710 "Make 349 Declaration"
                                         else
                                             EUServiceAlreadyExported := true;
 
-                                        CustVendWarning349_2.Reset;
+                                        CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet then
@@ -370,7 +370,7 @@ report 10710 "Make 349 Declaration"
                                                     if "VAT Registration No." <> '' then begin
                                                         AccumOrigDeclAmountTri := AccumOrigDeclAmountTri + CustVendWarning349_2."Original Declared Amount";
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -558,7 +558,7 @@ report 10710 "Make 349 Declaration"
                     AccumOrigDeclAmountTri := 0;
                     NoTaxableAmountEUService := 0;
 
-                    Vendor2.Reset;
+                    Vendor2.Reset();
                     Vendor2.SetRange("VAT Registration No.", "VAT Registration No.");
                     if Vendor2.Find('-') then begin
                         repeat
@@ -625,7 +625,7 @@ report 10710 "Make 349 Declaration"
 
                             CorrIncludedForOpTriAmount := false;
 
-                            CustVendWarning349.Reset;
+                            CustVendWarning349.Reset();
                             CustVendWarning349.SetRange(Type, CustVendWarning349.Type::Purchase);
                             CustVendWarning349.SetRange("Customer/Vendor No.", Vendor2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
@@ -657,7 +657,7 @@ report 10710 "Make 349 Declaration"
                                                     if "VAT Registration No." <> '' then begin
                                                         AccumOrigDeclAmount := AccumOrigDeclAmount + CustVendWarning349_2."Original Declared Amount";
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -671,7 +671,7 @@ report 10710 "Make 349 Declaration"
                                         ThirdPartyAlreadyExported := false;
                                         EUServiceAlreadyExported := false;
 
-                                        CustVendWarning349_2.Reset;
+                                        CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet then
                                             if CustVendWarning349_2.Count > 1 then begin
@@ -682,7 +682,7 @@ report 10710 "Make 349 Declaration"
                                                     if "VAT Registration No." <> '' then begin
                                                         AccumOrigDeclAmountEUService := AccumOrigDeclAmountEUService + CustVendWarning349_2."Original Declared Amount";
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -694,7 +694,7 @@ report 10710 "Make 349 Declaration"
                                         else
                                             EUServiceAlreadyExported := true;
 
-                                        CustVendWarning349_2.Reset;
+                                        CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet then
@@ -706,7 +706,7 @@ report 10710 "Make 349 Declaration"
                                                     if "VAT Registration No." <> '' then begin
                                                         AccumOrigDeclAmountTri := AccumOrigDeclAmountTri + CustVendWarning349_2."Original Declared Amount";
                                                         CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify;
+                                                        CustVendWarning349_2.Modify();
                                                     end;
                                                 until CustVendWarning349_2.Next = 0;
                                             end else begin
@@ -860,9 +860,9 @@ report 10710 "Make 349 Declaration"
                     if not Confirm(StrSubstNo(Text1100015, Customer.TableCaption, Vendor.TableCaption,
                            Customer.FieldCaption("VAT Registration No.")), false)
                     then begin
-                        CustVendWarning349.Reset;
-                        CustVendWarning349.DeleteAll;
-                        Commit;
+                        CustVendWarning349.Reset();
+                        CustVendWarning349.DeleteAll();
+                        Commit();
                         OutFile.Close;
                         Erase(FileName);
                         Error(Text1100011);
@@ -1009,7 +1009,7 @@ report 10710 "Make 349 Declaration"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VatRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', '.-/'), 1, 9);
         NoOperations := 0;
         NoOfRectShips := 0;
@@ -1059,8 +1059,8 @@ report 10710 "Make 349 Declaration"
             Message(Text1100013);
         end;
 
-        CustVendWarning349.Reset;
-        CustVendWarning349.DeleteAll;
+        CustVendWarning349.Reset();
+        CustVendWarning349.DeleteAll();
 
         ToFile := Text1100016 + '.txt';
         if ReportFileName <> '' then
@@ -1284,7 +1284,7 @@ report 10710 "Make 349 Declaration"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CInfoShipToCountryRegCode := FindEUCountryRegionCode(CompanyInfo."Ship-to Country/Region Code");
     end;
 
@@ -1323,7 +1323,7 @@ report 10710 "Make 349 Declaration"
                 case VATEntry."Document Type" of
                     VATEntry."Document Type"::Invoice:
                         begin
-                            SourceCodeSetup.Get;
+                            SourceCodeSetup.Get();
                             if VATEntry."Source Code" = SourceCodeSetup.Sales then begin
                                 if SalesInvHeader.Get(DocNo) then begin
                                     if SalesInvHeader."Location Code" <> '' then begin
@@ -1354,7 +1354,7 @@ report 10710 "Make 349 Declaration"
                                                             if GetCountryfromLocation(SalesInvLines."Location Code") <> CountryCode then
                                                                 LocationDifferentCountryCode := true;
                                                             TempSalesInvLines := SalesInvLines;
-                                                            TempSalesInvLines.Insert;
+                                                            TempSalesInvLines.Insert();
                                                         end;
                                                     end else
                                                         if CompInforShipToCountryCode then begin
@@ -1363,7 +1363,7 @@ report 10710 "Make 349 Declaration"
                                                               GetExportedAmountIn349(SalesInvHeader."Currency Code",
                                                                 SalesInvHeader."Currency Factor", SalesInvLines.Amount);
                                                             TempSalesInvLines := SalesInvLines;
-                                                            TempSalesInvLines.Insert;
+                                                            TempSalesInvLines.Insert();
                                                         end;
                                                 until SalesInvLines.Next = 0;
                                         end;
@@ -1397,14 +1397,14 @@ report 10710 "Make 349 Declaration"
                                                             if GetCountryfromLocation(ServiceInvLines."Location Code") <> CountryCode then
                                                                 LocationDifferentCountryCode := true;
                                                             TempServiceInvLines := ServiceInvLines;
-                                                            TempServiceInvLines.Insert;
+                                                            TempServiceInvLines.Insert();
                                                         end;
                                                     end else
                                                         if CompInforShipToCountryCode then begin
                                                             EUCountryLinesLocationCode := true;
                                                             AmountToIncludeIn349 := AmountToIncludeIn349 + ServiceInvLines.Amount;
                                                             TempServiceInvLines := ServiceInvLines;
-                                                            TempServiceInvLines.Insert;
+                                                            TempServiceInvLines.Insert();
                                                         end;
                                                 until ServiceInvLines.Next = 0;
                                         end;
@@ -1418,7 +1418,7 @@ report 10710 "Make 349 Declaration"
                         end;
                     VATEntry."Document Type"::"Credit Memo":
                         begin
-                            SourceCodeSetup.Get;
+                            SourceCodeSetup.Get();
                             if VATEntry."Source Code" = SourceCodeSetup.Sales then begin
                                 if SalesCrMemoHeader.Get(DocNo) then begin
                                     if SalesCrMemoHeader."Location Code" <> '' then begin
@@ -1520,7 +1520,7 @@ report 10710 "Make 349 Declaration"
                                                         if GetCountryfromLocation(PurchInvLines."Location Code") <> CountryCode then
                                                             LocationDifferentCountryCode := true;
                                                         TempPurchInvLines := PurchInvLines;
-                                                        TempPurchInvLines.Insert;
+                                                        TempPurchInvLines.Insert();
                                                     end;
                                                 end else
                                                     if CompInforShipToCountryCode then begin
@@ -1529,7 +1529,7 @@ report 10710 "Make 349 Declaration"
                                                           GetExportedAmountIn349(PurchInvHeader."Currency Code",
                                                             PurchInvHeader."Currency Factor", PurchInvLines.Amount);
                                                         TempPurchInvLines := PurchInvLines;
-                                                        TempPurchInvLines.Insert;
+                                                        TempPurchInvLines.Insert();
                                                     end;
                                             until PurchInvLines.Next = 0;
                                     end;
@@ -1862,7 +1862,7 @@ report 10710 "Make 349 Declaration"
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
         if CustVendWarning349.FindLast then;
-        CustVendWarning349.Init;
+        CustVendWarning349.Init();
         CustVendWarning349."Entry No." := CustVendWarning349."Entry No." + 1;
         CustVendWarning349.Type := CustVendWarning349.Type::Purchase;
         CustVendWarning349."Customer/Vendor No." := No;
@@ -1878,7 +1878,7 @@ report 10710 "Make 349 Declaration"
             CustVendWarning349.Sign := '-'
         else
             CustVendWarning349.Sign := '+';
-        CustVendWarning349.Insert;
+        CustVendWarning349.Insert();
     end;
 
     local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Option; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; DeliveryOperationCode: Option)
@@ -1886,7 +1886,7 @@ report 10710 "Make 349 Declaration"
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
         if CustVendWarning349.FindLast then;
-        CustVendWarning349.Init;
+        CustVendWarning349.Init();
         CustVendWarning349."Entry No." := CustVendWarning349."Entry No." + 1;
         CustVendWarning349.Type := CustVendWarning349.Type::Sale;
         CustVendWarning349."Customer/Vendor No." := No;
@@ -1904,7 +1904,7 @@ report 10710 "Make 349 Declaration"
             CustVendWarning349.Sign := '-'
         else
             CustVendWarning349.Sign := '+';
-        CustVendWarning349.Insert;
+        CustVendWarning349.Insert();
     end;
 
     local procedure InsertCustWarningsFromSalesCrMemoLine()

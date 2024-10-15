@@ -137,7 +137,7 @@ table 1500 "Workflow Buffer"
         Workflow: Record Workflow;
         WorkflowCategory: Record "Workflow Category";
     begin
-        TempWorkflowBuffer.Init;
+        TempWorkflowBuffer.Init();
         TempWorkflowBuffer."Category Code" := CategoryCode;
         TempWorkflowBuffer."Workflow Code" := WorkflowCode;
         TempWorkflowBuffer.Indentation := Indent;
@@ -148,7 +148,7 @@ table 1500 "Workflow Buffer"
             if Workflow.Get(WorkflowCode) then
                 TempWorkflowBuffer.Description := Workflow.Description;
 
-        if TempWorkflowBuffer.Insert then;
+        if TempWorkflowBuffer.Insert() then;
     end;
 
     procedure CopyWorkflow(WorkflowBuffer: Record "Workflow Buffer")
@@ -165,8 +165,8 @@ table 1500 "Workflow Buffer"
             ToWorkflow.Code := FromWorkflow.Code;
         while ToWorkflow.Get(ToWorkflow.Code) do
             ToWorkflow.Code := IncStr(ToWorkflow.Code);
-        ToWorkflow.Init;
-        ToWorkflow.Insert;
+        ToWorkflow.Init();
+        ToWorkflow.Insert();
         CopyWorkflow.InitCopyWorkflow(FromWorkflow, ToWorkflow);
         CopyWorkflow.UseRequestPage(false);
         CopyWorkflow.Run;

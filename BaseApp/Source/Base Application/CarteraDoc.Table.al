@@ -329,11 +329,11 @@ table 7000002 "Cartera Doc."
             if Type = Type::Receivable then begin
                 BillGr.Get("Bill Gr./Pmt. Order No.");
                 BillGr."No. Printed" := 0;
-                BillGr.Modify;
+                BillGr.Modify();
             end else begin
                 PmtOrd.Get("Bill Gr./Pmt. Order No.");
                 PmtOrd."No. Printed" := 0;
-                PmtOrd.Modify;
+                PmtOrd.Modify();
             end;
     end;
 

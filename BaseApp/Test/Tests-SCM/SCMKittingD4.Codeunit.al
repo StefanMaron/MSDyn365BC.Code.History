@@ -56,7 +56,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         isInitialized := true;
 
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D4");
     end;
@@ -78,7 +78,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         MfgSetup: Record "Manufacturing Setup";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         exit(CalcDate(MfgSetup."Default Safety Lead Time", Date));
     end;
 
@@ -89,18 +89,18 @@ codeunit 137093 "SCM Kitting - D4"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -109,13 +109,13 @@ codeunit 137093 "SCM Kitting - D4"
     local procedure SetupItemJournal()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -158,7 +158,7 @@ codeunit 137093 "SCM Kitting - D4"
     local procedure SetRandComponentQuantityPer(var BOMComponent: Record "BOM Component"): Decimal
     begin
         BOMComponent.Validate("Quantity per", RandInt5);
-        BOMComponent.Modify;
+        BOMComponent.Modify();
         exit(BOMComponent."Quantity per");
     end;
 
@@ -380,7 +380,7 @@ codeunit 137093 "SCM Kitting - D4"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure SetVariantOnComponent(var BOMComponent: Record "BOM Component"; VariantCode: Code[10])
@@ -451,7 +451,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Gross Requirement", GrossReq);
         ExpAsmAvailTestBuf.Validate("Expected Inventory", ExpInventory);
@@ -462,7 +462,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Gross Requirement", GrossReq);
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", SchedRcpts);
         AssertAvailabilityLine(AssemblyHeader, ExpAsmAvailTestBuf);
@@ -686,7 +686,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [GIVEN] Create Item and Assembly Header for this item
         Initialize;
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup."Posted Assembly Order Nos." := LibraryERM.CreateNoSeriesCode;
         AssemblySetup.Modify(true);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 0, '');
@@ -710,7 +710,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [GIVEN] Set Assembly Setup field to empty and create Item
         Initialize;
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup."Posted Assembly Order Nos." := '';
         AssemblySetup.Modify(true);
 
@@ -868,12 +868,12 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", QtyOnInventory);
         ExpAsmAvailTestBuf.Validate(Inventory, QtyAssembled);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
 
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnInventory);
         ExpAsmAvailTestBuf.Validate("Able To Assemble", QtyOnInventory);
@@ -884,12 +884,12 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", QtyOnAssemble - QtyAssembled);
         ExpAsmAvailTestBuf.Validate(Inventory, QtyAssembled);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
 
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnInventory - QtyAssembled);
         ExpAsmAvailTestBuf.Validate("Able To Assemble", QtyOnAssemble - QtyAssembled);
@@ -925,7 +925,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, 1);
 
         // [THEN] Assembly Availability page is shown: "Inventory" = "Q" on page header
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate(Inventory, QtyInInventory);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
     end;
@@ -963,7 +963,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, 1);
 
         // [THEN] Assembly Availability page is shown: "Inventory" = "Q1" on page header
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate(Inventory, QtyOnInventory);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
     end;
@@ -1001,7 +1001,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, ItemVariantCode, WorkDate2, 1);
 
         // [THEN] Assembly Availability page is shown: "Inventory" = "Q2" on page header
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate(Inventory, QtyOnInventory);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
     end;
@@ -1096,7 +1096,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Earliest Availability Date", 0D);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         ExpAsmAvailTestBuf."Document Line No." := 1;
@@ -1161,7 +1161,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Earliest Availability Date", 0D);
         ExpAsmAvailTestBuf.Validate("Able To Assemble", ExpectedQuantity);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
@@ -1249,7 +1249,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", ExpectedQuantity);
         ExpAsmAvailTestBuf.Validate("Earliest Availability Date", CalcSafeDate(EarliestDate));
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
@@ -1281,7 +1281,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [GIVEN] Have a Component Item of an Assembly Item in inventory. Qty = Q
         // [GIVEN] Create an Assembly Order AO2 within Check-Avail. period with Qty = Q2, where (Q2 < Q)
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         DateWithinCheckAvailPeriod := CalcDate(CompanyInfo."Check-Avail. Period Calc.", WorkDate2);
         AbleToAsmQty :=
           -CreateAssemblyOrderMissingInventory(LateAssemblyHeader, BOMComponentNo, DateWithinCheckAvailPeriod, LocationBlue.Code, true);
@@ -1294,7 +1294,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblyHeader.Validate(Quantity, AbleToAsmQty * 3);
 
         // [THEN] Availability warning page shows: "Able To Assemble" = (Q - Q2) decreased by the Asm. Order AO2
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", AbleToAsmQty);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         // [THEN] "Gross requirement" = not reserved Qty of the Asm. Order AO2
@@ -1322,7 +1322,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [GIVEN] Have a Component Item of an Assembly Item in inventory. Qty = Q
         // [GIVEN] Create an Assembly Order AO2 within Check-Avail. period with Qty = Q2, where (Q2 < Q)
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         DateWithinCheckAvailPeriod := GetEndDateOfCheckAvailPeriod(CalcDate(CompanyInfo."Check-Avail. Period Calc.", WorkDate2));
         AbleToAsmQty :=
           -CreateAssemblyOrderMissingInventory(LateAssemblyHeader, BOMComponentNo, DateWithinCheckAvailPeriod, LocationBlue.Code, true);
@@ -1336,7 +1336,7 @@ codeunit 137093 "SCM Kitting - D4"
         LateAssemblyHeader.ShowAvailability;
 
         // [THEN] Availability page shows "Able To Assemble" = (Q - Q1) decreased by the Asm. Order AO1
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", LateAssemblyHeader.Quantity + AbleToAsmQty - AssemblyHeader.Quantity);
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", AssemblyHeader.Quantity);
         AssertAvailabilityHeader(LateAssemblyHeader, ExpAsmAvailTestBuf);
@@ -1400,7 +1400,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [THEN] Verify Availability page:
         // [THEN] "Able To Assemble" decreased by the first transfer
         // [THEN] "Earliest Availability Date" is the receipt date of the second transfer
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", AssemblyHeader.Quantity - MissedQty - QtyToTransfer);
         ExpAsmAvailTestBuf.Validate("Earliest Availability Date", CalcSafeDate(RestoringTransferDate));
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
@@ -1418,7 +1418,7 @@ codeunit 137093 "SCM Kitting - D4"
         CompanyInfo: Record "Company Information";
         AvailableToPromise: Codeunit "Available to Promise";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(AvailableToPromise.AdjustedEndingDate(Date + 1, CompanyInfo."Check-Avail. Time Bucket"));
     end;
 
@@ -1507,7 +1507,7 @@ codeunit 137093 "SCM Kitting - D4"
     var
         ExpAsmAvailTestBuf: Record "Asm. Availability Test Buffer";
     begin
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", AbleToAssemble);
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         ExpAsmAvailTestBuf."Document Line No." := 1;
@@ -1925,7 +1925,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, QtyOnAssemble);
 
         // [THEN] Header's "Able To Assemble" is minimal of "Able To Assemble" in lines
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", MinValue(AbleToAssemble[1], AbleToAssemble[2]));
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         // [THEN] Line's "Expected Inventory" shows components inventory (Q1, Q2)
@@ -2169,7 +2169,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", QtyOnPO);
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnPO);
@@ -2210,7 +2210,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", QtyOnRPO);
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnRPO);
@@ -2256,7 +2256,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", QtyOnSRO);
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnSRO);
@@ -2304,7 +2304,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Scheduled Receipts", QtyOnTO);
         ExpAsmAvailTestBuf.Validate("Expected Inventory", QtyOnTO);
@@ -2358,7 +2358,7 @@ codeunit 137093 "SCM Kitting - D4"
         ChangeUOMOnAsmOrder(AssemblyHeader, UnitOfMeasure.Code);
 
         // [THEN] Assembly Availability header: "Able To Assemble" is minimal of "Able To Assemble" in lines
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", MinValue(AbleToAssemble[1], AbleToAssemble[2]));
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         // [THEN] Assembly Availability line: "Able To Assemble" = "Q1" / ("Qp1" * "Qp")
@@ -2415,7 +2415,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, QtyOnAssemble);
 
         // [THEN] Assembly Availability header: "Able To Assemble" is minimal of "Able To Assemble" in lines
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf.Validate("Able To Assemble", MinValue(AbleToAssemble[1], AbleToAssemble[2]));
         AssertAvailabilityHeader(AssemblyHeader, ExpAsmAvailTestBuf);
         // [THEN] Assembly Availability line: "Able To Assemble" = "Q1" / ("Qp1" * "QU1")
@@ -2554,7 +2554,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", '', '', WorkDate2, QtyOnAssemble + 1);
 
         // [THEN] Assembly Availability page is shown: "Expected Inventory" = ("QA" * "Qp"), "Able To Assemble" = "QA"
-        ExpAsmAvailTestBuf.Init;
+        ExpAsmAvailTestBuf.Init();
         ExpAsmAvailTestBuf."Document Line No." := 1;
         ExpAsmAvailTestBuf.Validate("Expected Inventory", BOMComponent."Quantity per" * QtyOnAssemble);
         ExpAsmAvailTestBuf.Validate("Able To Assemble", QtyOnAssemble);

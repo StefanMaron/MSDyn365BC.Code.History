@@ -13,7 +13,7 @@ report 7000095 "Categorize Documents"
             trigger OnPreDataItem()
             begin
                 ModifyAll("Category Code", CategoryCode);
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

@@ -216,6 +216,13 @@ table 1208 "Direct Debit Collection Entry"
             OptionCaption = 'New,Canceled,File Created,Posted,Closed';
             OptionMembers = New,Canceled,"File Created",Posted,Closed;
         }
+        field(22; "Payment Reference"; Code[50])
+        {
+            CalcFormula = Lookup ("Cust. Ledger Entry"."Payment Reference" WHERE("Entry No." = FIELD("Applies-to Entry No.")));
+            Caption = 'Payment Reference';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys
@@ -244,7 +251,7 @@ table 1208 "Direct Debit Collection Entry"
     begin
         if "Entry No." = 0 then begin
             DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "Direct Debit Collection No.");
-            LockTable;
+            LockTable();
             if DirectDebitCollectionEntry.FindLast then;
             "Entry No." := DirectDebitCollectionEntry."Entry No." + 1;
         end;
@@ -269,7 +276,7 @@ table 1208 "Direct Debit Collection Entry"
     begin
         "Direct Debit Collection No." := DirectDebitCollectionNo;
         SetRange("Direct Debit Collection No.", DirectDebitCollectionNo);
-        LockTable;
+        LockTable();
         if FindLast then;
         "Entry No." += 1;
         Init;
@@ -317,7 +324,6 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine.InsertPaymentFileError(Text);
     end;
 
-    [Scope('OnPrem')]
     procedure InsertPaymentFileErrorWithDetails(ErrorText: Text; AddnlInfo: Text)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -370,17 +376,16 @@ table 1208 "Direct Debit Collection Entry"
         exit(AmountAlreadyInCollection);
     end;
 
-    [Scope('OnPrem')]
     procedure SetTodayAsTransferDateForOverdueEnries()
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "Direct Debit Collection No.");
         DirectDebitCollectionEntry.SetRange(Status, DirectDebitCollectionEntry.Status::New);
-        DirectDebitCollectionEntry.SetFilter("Transfer Date", '<%1', Today);
+        DirectDebitCollectionEntry.SetFilter("Transfer Date", '<%1', Today());
         if DirectDebitCollectionEntry.FindSet(true) then
             repeat
-                DirectDebitCollectionEntry.Validate("Transfer Date", Today);
+                DirectDebitCollectionEntry.Validate("Transfer Date", Today());
                 DirectDebitCollectionEntry.Modify(true);
                 Codeunit.Run(Codeunit::"SEPA DD-Check Line", DirectDebitCollectionEntry);
             until DirectDebitCollectionEntry.Next() = 0;

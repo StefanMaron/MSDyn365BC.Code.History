@@ -15,9 +15,6 @@ report 10748 "Vendor - Overdue Payments"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -277,10 +274,10 @@ report 10748 "Vendor - Overdue Payments"
                     begin
                         if Number = 1 then begin
                             if not AppldVendLedgEntryTmp.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if AppldVendLedgEntryTmp.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         TempDetailedVendorLedgEntry.Get(AppldVendLedgEntryTmp."Entry No.");
 
                         DaysOverdue := AppldVendLedgEntryTmp."Posting Date" - TempDetailedVendorLedgEntry."Posting Date";
@@ -462,9 +459,9 @@ report 10748 "Vendor - Overdue Payments"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         InvVendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        AppldVendLedgEntryTmp.Reset;
-        AppldVendLedgEntryTmp.DeleteAll;
-        TempDetailedVendorLedgEntry.DeleteAll;
+        AppldVendLedgEntryTmp.Reset();
+        AppldVendLedgEntryTmp.DeleteAll();
+        TempDetailedVendorLedgEntry.DeleteAll();
         InvVendLedgEntry.Get(VendLedgEntryNo);
 
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
@@ -509,7 +506,7 @@ report 10748 "Vendor - Overdue Payments"
                                 AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
                             AppldVendLedgEntryTmp.Amount := -AppldVendLedgEntryTmp.Amount;
                             AppldVendLedgEntryTmp."Amount (LCY)" := -AppldVendLedgEntryTmp."Amount (LCY)";
-                            if AppldVendLedgEntryTmp.Insert then;
+                            if AppldVendLedgEntryTmp.Insert() then;
                             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
                         end;
                     end;
@@ -531,7 +528,7 @@ report 10748 "Vendor - Overdue Payments"
             AppldVendLedgEntryTmp."Currency Code" := PayVendLedgEntry."Currency Code";
             if ShowPayments = ShowPayments::"Legally Overdue" then
                 AppldVendLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate;
-            if AppldVendLedgEntryTmp.Insert then;
+            if AppldVendLedgEntryTmp.Insert() then;
             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
         end;
     end;
@@ -609,7 +606,7 @@ report 10748 "Vendor - Overdue Payments"
                     AppldVendLedgEntryTmp."Amount (LCY)" := -InvVendLedgEntry."Remaining Amt. (LCY)";
                     AppldVendLedgEntryTmp."Document No." := '';
                     AppldVendLedgEntryTmp."Posting Date" := EndDate;
-                    if AppldVendLedgEntryTmp.Insert then;
+                    if AppldVendLedgEntryTmp.Insert() then;
                     InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
                 end;
             end;
@@ -706,10 +703,10 @@ report 10748 "Vendor - Overdue Payments"
     [Scope('OnPrem')]
     procedure InsertDtldVLEDocumentDateBuffer(EntryNo: Integer; DocumentDate: Date)
     begin
-        TempDetailedVendorLedgEntry.Init;
+        TempDetailedVendorLedgEntry.Init();
         TempDetailedVendorLedgEntry."Entry No." := EntryNo;
         TempDetailedVendorLedgEntry."Posting Date" := DocumentDate;
-        if TempDetailedVendorLedgEntry.Insert then;
+        if TempDetailedVendorLedgEntry.Insert() then;
     end;
 }
 

@@ -31,7 +31,7 @@ codeunit 135527 "Employee Entity E2E Test"
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -151,7 +151,7 @@ codeunit 135527 "Employee Entity E2E Test"
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyEmployeeSimpleProperties(EmployeeJSON: Text; Employee: Record Employee)
@@ -159,8 +159,8 @@ codeunit 135527 "Employee Entity E2E Test"
         Assert.AreNotEqual('', EmployeeJSON, EmptyJSONErr);
         LibraryGraphMgt.VerifyIDInJson(EmployeeJSON);
         VerifyPropertyInJSON(EmployeeJSON, 'number', Employee."No.");
-        VerifyPropertyInJSON(EmployeeJSON, 'givenName', Employee.Name);
-        VerifyPropertyInJSON(EmployeeJSON, 'surname', Employee."First Family Name");
+        VerifyPropertyInJSON(EmployeeJSON, 'givenName', Employee."First Name");
+        VerifyPropertyInJSON(EmployeeJSON, 'surname', Employee."Last Name");
     end;
 
     local procedure VerifyPropertyInJSON(JSON: Text; PropertyName: Text; ExpectedValue: Text)
@@ -181,10 +181,10 @@ codeunit 135527 "Employee Entity E2E Test"
         JSONManagement.GetJSONObject(JsonObject);
         if Employee."No." = '' then
             Employee."No." := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, false);
-        if Employee.Name = '' then
-            Employee.Name := Employee."No.";
+        if Employee."First Name" = '' then
+            Employee."First Name" := Employee."No.";
         JSONManagement.AddJPropertyToJObject(JsonObject, 'number', Employee."No.");
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'givenName', Employee.Name);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'givenName', Employee."First Name");
         EmployeeJSON := JSONManagement.WriteObjectToString;
     end;
 }

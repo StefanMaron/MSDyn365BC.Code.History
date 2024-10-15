@@ -540,9 +540,9 @@ page 10752 "SII History"
                     else
                         if not SIIHistory."Is Manual" then begin
                             SIIHistory."Is Manual" := true;
-                            SIIHistory.Modify;
+                            SIIHistory.Modify();
                             SIIDocUploadState."Is Manual" := true;
-                            SIIDocUploadState.Modify;
+                            SIIDocUploadState.Modify();
                         end;
             until SIIDocUploadState.Next = 0;
         end;
@@ -554,7 +554,7 @@ page 10752 "SII History"
         with SIIHistory do
             if not TempSIIDocUploadState.Get("Document State Id") then begin
                 TempSIIDocUploadState.Id := "Document State Id";
-                TempSIIDocUploadState.Insert;
+                TempSIIDocUploadState.Insert();
 
                 if Status <> Status::Pending then
                     // We set 1 retry for manual call.
@@ -565,7 +565,7 @@ page 10752 "SII History"
                         Modify;
                         SIIDocUploadState.Get("Document State Id");
                         SIIDocUploadState."Is Manual" := true;
-                        SIIDocUploadState.Modify;
+                        SIIDocUploadState.Modify();
                     end;
             end;
     end;

@@ -10,10 +10,10 @@ codeunit 7000092 "Bill group - Export N19"
     begin
         DirectDebitCollection.Get(GetRangeMin("Direct Debit Collection No."));
         BillGroupNo := DirectDebitCollection.Identifier;
-        DirectDebitCollection.Delete;
+        DirectDebitCollection.Delete();
         if not BillGroup.Get(BillGroupNo) then
             Error(ExportDirectDebitErr);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Bill group - Export N19", true, false, BillGroup);
     end;
 

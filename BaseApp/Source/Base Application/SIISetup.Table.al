@@ -15,28 +15,23 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                if Enabled and not Certificate.HasValue then
+                if Enabled and ("Certificate Code" = '') then
                     Error(CannotEnableWithoutCertificateErr);
             end;
         }
         field(3; Certificate; BLOB)
         {
-            ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
-            ObsoleteState = Pending;
-            Caption = 'Certificate';
+            ObsoleteReason = 'Replaced with the Certificate Code field.';
+            ObsoleteState = Removed;
             ObsoleteTag = '15.3';
+            Caption = 'Certificate';
         }
         field(4; Password; Text[250])
         {
-            ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
-            ObsoleteState = Pending;
-            Caption = 'Password';
+            ObsoleteReason = 'Replaced with the Certificate Code field.';
+            ObsoleteState = Removed;
             ObsoleteTag = '15.3';
-
-            trigger OnValidate()
-            begin
-                ValidateCertificatePassword;
-            end;
+            Caption = 'Password';
         }
         field(5; InvoicesIssuedEndpointUrl; Text[250])
         {
@@ -125,6 +120,16 @@ table 10751 "SII Setup"
         {
             InitValue = 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd';
         }
+        field(42; "Certificate Code"; Code[20])
+        {
+            TableRelation = "Isolated Certificate";
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                Enabled := "Certificate Code" <> '';
+            end;
+        }
     }
 
     keys
@@ -146,71 +151,8 @@ table 10751 "SII Setup"
 
     var
         CannotEnableWithoutCertificateErr: Label 'The setup cannot be enabled without a valid certificate.';
-        TaxpayerCertificateImportedMsg: Label 'The taxpayer certificate has been successfully imported.';
-        CertificatePasswordIncorrectErr: Label 'The certificate could not get loaded. The password for the certificate may be incorrect.';
-        CerFileFilterExtensionTxt: Label 'All Files (*.*)|*.*';
-        CerFileFilterTxt: Label 'cer p12 crt pfx', Locked = true;
-        ImportFileTxt: Label 'Select a file to import';
         SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
-
-    [Scope('OnPrem')]
-    procedure ImportCertificate()
-    var
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
-        RecordRef: RecordRef;
-    begin
-        if FileManagement.BLOBImportWithFilter(TempBlob, ImportFileTxt, '', CerFileFilterExtensionTxt, CerFileFilterTxt) = '' then
-            exit;
-
-        Clear(Certificate);
-
-        RecordRef.GetTable(Rec);
-        TempBlob.ToRecordRef(RecordRef, FieldNo(Certificate));
-        RecordRef.SetTable(Rec);
-        Validate(Enabled, true);
-        Modify(true);
-
-        Message(TaxpayerCertificateImportedMsg);
-    end;
-
-    [Scope('OnPrem')]
-    procedure DeleteCertificate()
-    begin
-        Clear(Certificate);
-        Password := '';
-        Validate(Enabled, false);
-        Modify(true);
-    end;
-
-    [TryFunction]
-    [Scope('OnPrem')]
-    procedure LoadCertificateFromBlob(var Cert: DotNet X509Certificate2)
-    var
-        BlobIn: InStream;
-        MemStream: DotNet MemoryStream;
-    begin
-        CalcFields(Certificate);
-        if not Certificate.HasValue or (Password = '') then
-            Error('');
-
-        Certificate.CreateInStream(BlobIn);
-        MemStream := MemStream.MemoryStream;
-        CopyStream(MemStream, BlobIn);
-        Cert := Cert.X509Certificate2(MemStream.ToArray, Password);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ValidateCertificatePassword()
-    var
-        Cert: DotNet X509Certificate2;
-    begin
-        if not LoadCertificateFromBlob(Cert) then
-            Error(CertificatePasswordIncorrectErr);
-    end;
-
-    [Scope('OnPrem')]
     procedure IsEnabled(): Boolean
     begin
         if not Get then
@@ -228,4 +170,3 @@ table 10751 "SII Setup"
     end;
 
 }
-

@@ -157,7 +157,7 @@ report 303 "Vendor Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not Vend.Get("Vendor No.") then
-                        Vend.Init;
+                        Vend.Init();
 
                     DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
                     DtldVendLedgEntry.CalcSums(Amount, "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)");

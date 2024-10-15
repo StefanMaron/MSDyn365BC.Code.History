@@ -503,7 +503,7 @@ report 1303 "Standard Sales - Draft Invoice"
                     if "VAT Clause Code" <> '' then
                         if VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0) then begin
                             VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                            VATAmountLine.Modify;
+                            VATAmountLine.Modify();
                         end;
 
                     FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
@@ -519,7 +519,7 @@ report 1303 "Standard Sales - Draft Invoice"
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -540,7 +540,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -552,7 +552,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
@@ -669,7 +669,7 @@ report 1303 "Standard Sales - Draft Invoice"
 
                     if ShowVATClause("VAT Clause Code") then begin
                         VATClauseLine := VATAmountLine;
-                        if VATClauseLine.Insert then;
+                        if VATClauseLine.Insert() then;
                     end;
                 end;
 
@@ -716,9 +716,9 @@ report 1303 "Standard Sales - Draft Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Clause Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATClause.GetDescription(Header);
                 end;
 
@@ -874,9 +874,9 @@ report 1303 "Standard Sales - Draft Invoice"
             begin
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
-                VATAmountLine.DeleteAll;
-                VATClauseLine.DeleteAll;
-                Line.DeleteAll;
+                VATAmountLine.DeleteAll();
+                VATClauseLine.DeleteAll();
+                Line.DeleteAll();
                 Clear(SalesPost);
                 SalesPost.GetSalesLines(Header, Line, 0);
                 OnAfterSalesPostGetSalesLines(Header, Line);
@@ -982,10 +982,10 @@ report 1303 "Standard Sales - Draft Invoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1129,7 +1129,7 @@ report 1303 "Standard Sales - Draft Invoice"
 
     local procedure CreateReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
             ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then begin

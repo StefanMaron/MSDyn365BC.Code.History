@@ -76,7 +76,7 @@ page 475 "VAT Statement Preview Line"
                             Type::"VAT Entry Totaling",
                             Type::"EC Entry Totaling":
                                 begin
-                                    VATEntry.Reset;
+                                    VATEntry.Reset();
                                     if not
                                        VATEntry.SetCurrentKey(
                                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")

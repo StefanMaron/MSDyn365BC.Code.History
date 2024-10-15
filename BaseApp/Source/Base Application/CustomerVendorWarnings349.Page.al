@@ -257,7 +257,7 @@ page 10736 "Customer/Vendor Warnings 349"
         "Previous Declared Amount" := 0;
 
         if Type = Type::Sale then begin
-            TempSalesCrMemoHeader.DeleteAll;
+            TempSalesCrMemoHeader.DeleteAll();
             Cust.Get("Customer/Vendor No.");
             Cust2.SetRange("VAT Registration No.", Cust."VAT Registration No.");
             if Cust2.FindSet then
@@ -268,7 +268,7 @@ page 10736 "Customer/Vendor Warnings 349"
                     NoTaxableMgt.CalcNoTaxableAmountCustomerSimple(NormalAmount, AmountEUService, AmountOpTri, Cust2."No.", FromDate, ToDate, '');
                 until Cust2.Next = 0;
         end else begin
-            TempPurchCrMemoHdr.DeleteAll;
+            TempPurchCrMemoHdr.DeleteAll();
             Vendor.Get("Customer/Vendor No.");
             Vendor2.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
             if Vendor2.FindSet then
@@ -337,9 +337,9 @@ page 10736 "Customer/Vendor Warnings 349"
                     if SalesCrMemoHeader.FindSet then
                         repeat
                             if not TempSalesCrMemoHeader.Get(SalesCrMemoHeader."No.") then begin
-                                TempSalesCrMemoHeader.Init;
+                                TempSalesCrMemoHeader.Init();
                                 TempSalesCrMemoHeader."No." := SalesCrMemoHeader."No.";
-                                TempSalesCrMemoHeader.Insert;
+                                TempSalesCrMemoHeader.Insert();
                                 TotalAmount +=
                                   GetVATBaseFromCrMemoVATEntry(SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date",
                                     SalesCrMemoHeader."Bill-to Customer No.");
@@ -354,9 +354,9 @@ page 10736 "Customer/Vendor Warnings 349"
                     if PurchCrMemoHdr.FindSet then
                         repeat
                             if not TempPurchCrMemoHdr.Get(PurchCrMemoHdr."No.") then begin
-                                TempPurchCrMemoHdr.Init;
+                                TempPurchCrMemoHdr.Init();
                                 TempPurchCrMemoHdr."No." := PurchCrMemoHdr."No.";
-                                TempPurchCrMemoHdr.Insert;
+                                TempPurchCrMemoHdr.Insert();
                                 TotalAmount +=
                                   GetVATBaseFromCrMemoVATEntry(PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date",
                                     PurchCrMemoHdr."Pay-to Vendor No.");

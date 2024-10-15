@@ -56,14 +56,6 @@ table 10725 "Hist. G/L Account (An. View)"
         {
             Caption = 'No. 2';
         }
-        field(12; Comment; Boolean)
-        {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Historic G/L Account"),
-                                                      "No." = FIELD("No.")));
-            Caption = 'Comment';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(13; Blocked; Boolean)
         {
             Caption = 'Blocked';
@@ -490,7 +482,7 @@ table 10725 "Hist. G/L Account (An. View)"
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");

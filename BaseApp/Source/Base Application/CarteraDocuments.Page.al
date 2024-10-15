@@ -365,7 +365,7 @@ page 7000003 "Cartera Documents"
 
         if Doc.Type = Doc.Type::Receivable then begin
             if Doc."Document Type" = Doc."Document Type"::Bill then begin
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 repeat
                     CustLedgEntry.Get(Doc."Entry No.");
                     CustLedgEntry.Mark(true);
@@ -374,7 +374,7 @@ page 7000003 "Cartera Documents"
                 CustLedgEntry.MarkedOnly(true);
                 CustLedgEntry.PrintBill(true);
             end else begin
-                SalesInvHeader.Reset;
+                SalesInvHeader.Reset();
                 repeat
                     SalesInvHeader.Get(Doc."Document No.");
                     SalesInvHeader.Mark(true);
@@ -384,7 +384,7 @@ page 7000003 "Cartera Documents"
                 SalesInvHeader.PrintRecords(true);
             end;
         end else begin
-            PurchInvHeader.Reset;
+            PurchInvHeader.Reset();
             repeat
                 PurchInvHeader.Get(Doc."Document No.");
                 PurchInvHeader.Mark(true);
@@ -406,7 +406,7 @@ page 7000003 "Cartera Documents"
         if not Doc.Find('-') then
             exit;
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         repeat
             CustLedgEntry.Get(Doc."Entry No.");
             CustLedgEntry.Mark(true);

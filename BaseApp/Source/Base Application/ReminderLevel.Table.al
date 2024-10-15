@@ -74,11 +74,11 @@ table 293 "Reminder Level"
 
         ReminderText.SetRange("Reminder Terms Code", "Reminder Terms Code");
         ReminderText.SetRange("Reminder Level", "No.");
-        ReminderText.DeleteAll;
+        ReminderText.DeleteAll();
 
         CurrencyForReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
         CurrencyForReminderLevel.SetRange("No.", "No.");
-        CurrencyForReminderLevel.DeleteAll;
+        CurrencyForReminderLevel.DeleteAll();
     end;
 
     trigger OnRename()

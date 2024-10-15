@@ -203,7 +203,7 @@ page 7000050 "Payment Orders"
                     begin
                         if not Find then
                             exit;
-                        PmtOrd.Reset;
+                        PmtOrd.Reset();
                         PmtOrd := Rec;
                         PmtOrd.SetRecFilter;
                         REPORT.Run(REPORT::"Payment Order - Test", true, false, PmtOrd);

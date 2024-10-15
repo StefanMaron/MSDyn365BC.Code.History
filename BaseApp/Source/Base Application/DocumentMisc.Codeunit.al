@@ -24,7 +24,6 @@ codeunit 7000007 "Document-Misc"
         Text1100008: Label 'Partial Document settlement %1 Customer No. %2';
         Text1100009: Label 'Partial Document settlement %1';
 
-    [Scope('OnPrem')]
     procedure UpdateReceivableDueDate(var CustLedgEntry: Record "Cust. Ledger Entry")
     var
         Doc: Record "Cartera Doc.";
@@ -37,7 +36,7 @@ codeunit 7000007 "Document-Misc"
                     begin
                         Doc.Get(Doc.Type::Receivable, "Entry No.");
                         Doc.Validate("Due Date", "Due Date");
-                        Doc.Modify;
+                        Doc.Modify();
                     end;
                 "Document Situation"::"Posted BG/PO":
                     Error(
@@ -51,7 +50,6 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePayableDueDate(var VendLedgEntry: Record "Vendor Ledger Entry")
     var
         Doc: Record "Cartera Doc.";
@@ -64,7 +62,7 @@ codeunit 7000007 "Document-Misc"
                     begin
                         Doc.Get(Doc.Type::Payable, "Entry No.");
                         Doc."Due Date" := "Due Date";
-                        Doc.Modify;
+                        Doc.Modify();
                     end;
                 "Document Situation"::"Posted BG/PO":
                     Error(
@@ -78,7 +76,6 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure DocType(PmtMethodCode: Code[10]): Code[10]
     var
         PaymentMethod: Record "Payment Method";
@@ -98,7 +95,6 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure DocType2(PmtMethodCode: Code[10]): Code[10]
     var
         PaymentMethod: Record "Payment Method";
@@ -116,7 +112,7 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    local procedure CalcControlDigit(Branch: Text[30]; Bank: Text[30]): Text[2]
+    procedure CalcControlDigit(Branch: Text[30]; Bank: Text[30]): Text[2]
     var
         CarteraSetup: Record "Cartera Setup";
         Weight: Text[30];
@@ -127,7 +123,7 @@ codeunit 7000007 "Document-Misc"
         BankDigit: Integer;
         WeightDigit: Integer;
     begin
-        CarteraSetup.Get;
+        CarteraSetup.Get();
         Weight := CarteraSetup."CCC Ctrl Digits Check String";
         Digit1 := 0;
         Digit2 := 0;
@@ -173,14 +169,13 @@ codeunit 7000007 "Document-Misc"
         exit(Format(Digit1) + Format(Digit2));
     end;
 
-    [Scope('OnPrem')]
     procedure CheckControlDigit(var CustCCCControlDigits: Text[2]; CustCCCBankBranchNo: Text[30]; CustCCCAccNo: Text[30]; Cust2: Text[30])
     var
         CarteraSetup: Record "Cartera Setup";
         CustBankAcc: Record "Customer Bank Account";
         MessageTxt: Text[150];
     begin
-        CarteraSetup.Get;
+        CarteraSetup.Get();
         if CarteraSetup."CCC Ctrl Digits Check String" <> '' then
             if CustCCCControlDigits <> '' then begin
                 if CalcControlDigit(CustCCCBankBranchNo + Cust2, CustCCCAccNo) <> CustCCCControlDigits then begin
@@ -202,7 +197,6 @@ codeunit 7000007 "Document-Misc"
                 CustCCCControlDigits := '**';
     end;
 
-    [Scope('OnPrem')]
     procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; AccNo: Code[20]; DocNo: Code[20]; BillNo: Code[20]; TypeDoc: Option Bill,Invoice; CustAccNo: Code[20])
     var
         Description2: Text[50];
@@ -228,7 +222,6 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRegisterCode(CurrCode: Code[10]; var RegisterCode: Integer; var RegisterString: Text[2]): Boolean
     var
         CarteraSetup: Record "Cartera Setup";
@@ -243,7 +236,6 @@ codeunit 7000007 "Document-Misc"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckBankSuffix(SuffixBankAccNo: Code[20]; BillGrBankAccNo: Code[20]): Boolean
     begin
         if SuffixBankAccNo <> BillGrBankAccNo then

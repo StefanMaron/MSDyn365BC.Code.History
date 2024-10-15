@@ -36,7 +36,7 @@ codeunit 6060 "Hybrid Deployment"
         ConnectionStringFailureErr: Label 'The connection string is invalid.';
         SqlTimeoutErr: Label 'The server timed out while attempting to connect to the specified SQL server.';
         TooManyReplicationRunsErr: Label 'Cannot start replication because a replication is currently in progress. Please try again at a later time.';
-        NoAdfCapacityErr: Label 'The Intelligent Cloud is temporarily unable to process your request. Please try again at a later time.';
+        NoAdfCapacityErr: Label 'The cloud migration service is temporarily unable to process your request. Please try again at a later time.';
 
     [Scope('OnPrem')]
     procedure Initialize(SourceProductId: Text)
@@ -213,7 +213,7 @@ codeunit 6060 "Hybrid Deployment"
         IntelligentCloudStatus: Record "Intelligent Cloud Status";
     begin
         IntelligentCloudStatus.ModifyAll("Synced Version", 0);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -264,8 +264,8 @@ codeunit 6060 "Hybrid Deployment"
         if not HybridDeploymentSetup.IsEmpty then
             exit;
 
-        HybridDeploymentSetup.Init;
-        HybridDeploymentSetup.Insert;
+        HybridDeploymentSetup.Init();
+        HybridDeploymentSetup.Insert();
     end;
 
     local procedure EnableIntelligentCloud(Enabled: Boolean)
@@ -273,12 +273,12 @@ codeunit 6060 "Hybrid Deployment"
         IntelligentCloud: Record "Intelligent Cloud";
     begin
         if not IntelligentCloud.Get then begin
-            IntelligentCloud.Init;
+            IntelligentCloud.Init();
             IntelligentCloud.Enabled := Enabled;
-            IntelligentCloud.Insert;
+            IntelligentCloud.Insert();
         end else begin
             IntelligentCloud.Enabled := Enabled;
-            IntelligentCloud.Modify;
+            IntelligentCloud.Modify();
         end;
     end;
 

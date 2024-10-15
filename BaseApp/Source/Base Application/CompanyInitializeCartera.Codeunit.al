@@ -36,19 +36,19 @@ codeunit 7000010 "Company-Initialize Cartera"
     local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[50])
     begin
         SourceCodeDefCode := Code;
-        SourceCode.Init;
+        SourceCode.Init();
         SourceCode.Code := Code;
         SourceCode.Description := Description;
-        if SourceCode.Insert then;
+        if SourceCode.Insert() then;
     end;
 
     local procedure InsertBGPORepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
     begin
-        CarteraReportSelection.Init;
+        CarteraReportSelection.Init();
         CarteraReportSelection.Usage := ReportUsage;
         CarteraReportSelection.Sequence := Sequence;
         CarteraReportSelection."Report ID" := ReportID;
-        CarteraReportSelection.Insert;
+        CarteraReportSelection.Insert();
     end;
 }
 

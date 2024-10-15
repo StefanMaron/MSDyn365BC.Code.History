@@ -194,7 +194,7 @@ report 7000093 "Bill group - Export N32"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Find('-');
 
@@ -313,7 +313,7 @@ report 7000093 "Bill group - Export N32"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', ' .-/'), 1, 9);
     end;
 
@@ -348,11 +348,11 @@ report 7000093 "Bill group - Export N32"
         Text1100003: Label 'Do you want to continue?.';
         Text1100004: Label 'Process cancelled by request of user.';
         Text1100005: Label 'Some data for Bank Account %1 are missing.';
-        Text1100006: Label '<integer>';
+        Text1100006: Label '<integer>', Locked = true;
         Text1100007: Label 'There is no bank account information for Customer %1.';
         Text1100008: Label 'Some data from the Bank Account of Customer %1 are missing.';
         Text1100009: Label 'Bill';
-        Text1100010: Label '<Integer>';
+        Text1100010: Label '<Integer>', Locked = true;
         CompanyInfo: Record "Company Information";
         Customer: Record Customer;
         CustLedgEntry: Record "Cust. Ledger Entry";

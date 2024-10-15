@@ -97,7 +97,7 @@ table 5430 "Planning Error Log"
             "Entry No." := PlanningErrorLog."Entry No." + 1;
 
         PlanningErrorLog := Rec;
-        PlanningErrorLog.Insert;
+        PlanningErrorLog.Insert();
         exit(true);
     end;
 

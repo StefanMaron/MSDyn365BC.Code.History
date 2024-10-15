@@ -63,14 +63,14 @@ table 10726 "G/L Account Buffer"
     [Scope('OnPrem')]
     procedure SetGLAccSelection(var SelectedGLAccText: Text[250]; var GLAccSelectionBuf: Record "G/L Account Buffer"; var FilterString: Text[250])
     begin
-        SelectedGLAcc.DeleteAll;
+        SelectedGLAcc.DeleteAll();
         SelectedGLAccText := '';
         GLAccSelectionBuf.SetRange("Include G/L Acc. in 347", true);
         if GLAccSelectionBuf.Find('-') then
             repeat
                 SelectedGLAcc."No." := GLAccSelectionBuf."No.";
                 SelectedGLAcc.Name := GLAccSelectionBuf.Name;
-                SelectedGLAcc.Insert;
+                SelectedGLAcc.Insert();
                 AddGLAccNoToText(SelectedGLAcc."No.", SelectedGLAccText, FilterString);
             until GLAccSelectionBuf.Next = 0;
     end;

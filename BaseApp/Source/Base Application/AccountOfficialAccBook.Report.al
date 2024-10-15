@@ -20,9 +20,6 @@ report 10706 "Account - Official Acc. Book"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO___FirstPage; CurrReport.PageNo + FirstPage)
-            {
-            }
             column(Text1100003___GLDateFilter; Text1100003 + GLDateFilter)
             {
             }
@@ -303,7 +300,7 @@ report 10706 "Account - Official Acc. Book"
                     trigger OnAfterGetRecord()
                     begin
                         if not GLAccount.Get("G/L Account No.") then
-                            GLAccount.Init;
+                            GLAccount.Init();
 
                         if not PrintAmountsInAddCurrency then begin
                             TotalDebitAmt := TotalDebitAmt + "Debit Amount";
@@ -330,7 +327,7 @@ report 10706 "Account - Official Acc. Book"
                 trigger OnAfterGetRecord()
                 begin
                     if (GroupPostingDate = "Posting Date") and (GroupPeriodTransNo = "Period Trans. No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     GroupPostingDate := "Posting Date";
                     GroupPeriodTransNo := "Period Trans. No.";
@@ -340,7 +337,7 @@ report 10706 "Account - Official Acc. Book"
                     TempDate := "Posting Date";
                     if TempDate > ClosingDate(NextAccPeriod."Starting Date" - 1) then begin
                         OldDate := "Posting Date";
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
 
                     CurrTransNo := "Period Trans. No.";
@@ -348,7 +345,7 @@ report 10706 "Account - Official Acc. Book"
                         if (CurrTransNo < FromPerTransNo) or
                            (CurrTransNo > ToPerTransNo)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     TFTotalCreditAmt := TotalCreditAmt + CreditAmt;
                     TFTotalDebitAmt := TotalDebitAmt + DebitAmt;
@@ -360,7 +357,7 @@ report 10706 "Account - Official Acc. Book"
                 trigger OnPreDataItem()
                 begin
                     if TableEnd or LoopEnd then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not FirstRec then
                         SetFilter("Posting Date", '>= %1 & <= %2', OldDate, ToDate);
@@ -435,7 +432,7 @@ report 10706 "Account - Official Acc. Book"
                 trigger OnPreDataItem()
                 begin
                     if LoopEnd then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if TempDate <= ClosingDate(NextAccPeriod."Starting Date" - 1) then
                         TableEnd := true;
@@ -443,7 +440,7 @@ report 10706 "Account - Official Acc. Book"
                        (ToDate < ClosingDate(NextAccPeriod."Starting Date" - 1))
                     then begin
                         LoopEnd := true;
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
 
                     OpenCloseDate := NextAccPeriod."Starting Date" - 1;
@@ -462,14 +459,14 @@ report 10706 "Account - Official Acc. Book"
                         if (OpenClosePerTransNo < FromPerTransNo) or
                            (OpenClosePerTransNo > ToPerTransNo)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if LoopEnd then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if PrintAmountsInAddCurrency then
                     HeaderText := Text1100004 + ' ' + GLSetup."Additional Reporting Currency"
@@ -483,7 +480,7 @@ report 10706 "Account - Official Acc. Book"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }
@@ -555,7 +552,7 @@ report 10706 "Account - Official Acc. Book"
         FromDate := "G/L Entry Group".GetRangeMin("Posting Date");
         ToDate := "G/L Entry Group".GetRangeMax("Posting Date");
         InitPeriodDate := CalcPeriod(FromDate);
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         if InitPeriodDate <> FromDate then begin
             GLEntry.SetRange("Posting Date", InitPeriodDate, CalcDate('<-1D>', FromDate));
             if GLEntry.Find('-') then

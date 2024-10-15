@@ -3277,9 +3277,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO___FirstPage">
-          <DataField>CurrReport_PAGENO___FirstPage</DataField>
-        </Field>
         <Field Name="Text1100003___GLDateFilter">
           <DataField>Text1100003___GLDateFilter</DataField>
         </Field>

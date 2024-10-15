@@ -40,7 +40,7 @@ report 7000083 "Redraw Payable Bills"
                     IsOpenBill := false;
                 end;
 
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
 
                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                 NewDocAmount := -GenJnlLine.Amount;
@@ -153,14 +153,14 @@ report 7000083 "Redraw Payable Bills"
                 if ArePostedDocs then
                     PostedPmtOrd.Modify
                 else
-                    ClosedPmtOrd.Modify;
+                    ClosedPmtOrd.Modify();
                 if GenJnlLine.Find('-') then
                     repeat
                         GenJnlLine2 := GenJnlLine;
                         GenJnlPostLine.Run(GenJnlLine2);
                     until GenJnlLine.Next = 0;
 
-                Commit;
+                Commit();
 
                 Message(Text1100005, DocCount);
             end;
@@ -168,7 +168,7 @@ report 7000083 "Redraw Payable Bills"
             trigger OnPreDataItem()
             begin
                 ReasonCode := '';
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCode := SourceCodeSetup."Cartera Journal";
 
                 DocPost.CheckPostingDate(PostingDate);

@@ -198,7 +198,7 @@ report 7000089 "Bill group - Export factoring"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
         NameCompany := CompanyInfo.Name;
         NameCompany := PadStr(NameCompany, 30, ' ');
@@ -220,10 +220,10 @@ report 7000089 "Bill group - Export factoring"
         Text1100001: Label 'The Bank Suffix selected belongs to a %1  different than the %2. \';
         Text1100002: Label 'Do you want to continue?.';
         Text1100003: Label 'Process cancelled by request of user.';
-        Text1100004: Label '<year><Month,2><Day,2>';
+        Text1100004: Label '<year><Month,2><Day,2>', Locked = true;
         Text1100005: Label 'Bill Group %1 cannot be sent to factoring';
         Text1100006: Label 'Some data for Bank Account %1 are missing.';
-        Text1100007: Label '<Year><Month,2><Day,2>';
+        Text1100007: Label '<Year><Month,2><Day,2>', Locked = true;
         Text1100009: Label 'B';
         Text1100010: Label 'R';
         Text1100011: Label 'I';
@@ -265,7 +265,7 @@ report 7000089 "Bill group - Export factoring"
     [Scope('OnPrem')]
     procedure GetCurrencyCode(Doc: Record "Cartera Doc."; var "Code": Text[3])
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if Doc."Currency Code" = '' then
             Code := CopyStr(GLSetup."LCY Code", 1, 3)
         else begin

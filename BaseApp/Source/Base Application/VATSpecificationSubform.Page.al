@@ -196,7 +196,7 @@ page 576 "VAT Specification Subform"
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        DeleteAll;
+        DeleteAll();
         if NewVATAmountLine.Find('-') then
             repeat
                 Copy(NewVATAmountLine);
@@ -211,7 +211,7 @@ page 576 "VAT Specification Subform"
 
     procedure GetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        NewVATAmountLine.DeleteAll;
+        NewVATAmountLine.DeleteAll();
         if Find('-') then
             repeat
                 NewVATAmountLine.Copy(Rec);
@@ -219,7 +219,7 @@ page 576 "VAT Specification Subform"
                     NewVATAmountLine."VAT %" := 0;
                     NewVATAmountLine."EC %" := 0;
                 end;
-                NewVATAmountLine.Insert;
+                NewVATAmountLine.Insert();
             until Next = 0;
     end;
 

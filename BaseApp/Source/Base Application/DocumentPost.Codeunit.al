@@ -70,7 +70,7 @@ codeunit 7000006 "Document-Post"
                ("Applies-to Doc. Type" in ["Applies-to Doc. Type"::Bill, "Applies-to Doc. Type"::Invoice]) and
                not SystemCreated
             then begin
-                CarteraDoc.Reset;
+                CarteraDoc.Reset();
                 CarteraDoc.SetCurrentKey(Type, "Document No.");
                 CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
                 CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
@@ -89,7 +89,7 @@ codeunit 7000006 "Document-Post"
                                                                             Invoice)) and
                not SystemCreated
             then begin
-                CarteraDoc.Reset;
+                CarteraDoc.Reset();
                 CarteraDoc.SetCurrentKey(Type, "Document No.");
                 CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
                 CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
@@ -114,7 +114,7 @@ codeunit 7000006 "Document-Post"
         OldCustLedgEntry: Record "Cust. Ledger Entry";
         CustBankAccCode: Record "Customer Bank Account";
     begin
-        CarteraDoc.Init;
+        CarteraDoc.Init();
         GJLInfoToDoc(GenJnlLine, CarteraDoc);
         with CVLedgEntryBuf do begin
             CarteraDoc.Type := CarteraDoc.Type::Receivable;
@@ -126,7 +126,7 @@ codeunit 7000006 "Document-Post"
             if CompanyInfo.Get and CustBankAccCode.Get("CV No.", GenJnlLine."Recipient Bank Account") then
                 CarteraDoc.Place := CopyStr(CompanyInfo."Post Code", 1, 2) = CopyStr(CustBankAccCode."Post Code", 1, 2);
             // Check the Doc no.
-            OldCustLedgEntry.Reset;
+            OldCustLedgEntry.Reset();
             OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
             OldCustLedgEntry.SetRange("Document No.", "Document No.");
             if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
@@ -145,7 +145,7 @@ codeunit 7000006 "Document-Post"
             CarteraDoc."From Journal" := true;
 
         OnBeforeCreateReceivableDoc(CarteraDoc, GenJnlLine, CVLedgEntryBuf);
-        CarteraDoc.Insert;
+        CarteraDoc.Insert();
         OnAfterCreateReceivableDoc(CarteraDoc, GenJnlLine, CVLedgEntryBuf);
         CVLedgEntryBuf."Document Situation" := CVLedgEntryBuf."Document Situation"::Cartera;
         CVLedgEntryBuf."Document Status" := CVLedgEntryBuf."Document Status"::Open;
@@ -157,7 +157,7 @@ codeunit 7000006 "Document-Post"
         OldVendLedgEntry: Record "Vendor Ledger Entry";
         ElectPmtMgmt: Codeunit "Elect. Pmts Management";
     begin
-        CarteraDoc.Init;
+        CarteraDoc.Init();
         GJLInfoToDoc(GenJnlLine, CarteraDoc);
         with CVLedgEntryBuf do begin
             CarteraDoc.Type := CarteraDoc.Type::Payable;
@@ -167,7 +167,7 @@ codeunit 7000006 "Document-Post"
             CarteraDoc."Original Amount" := -"Remaining Amount";
             CarteraDoc."Original Amount (LCY)" := -"Remaining Amt. (LCY)";
             // Check the Doc no.
-            OldVendLedgEntry.Reset;
+            OldVendLedgEntry.Reset();
             OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             OldVendLedgEntry.SetRange("Document No.", "Document No.");
             if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
@@ -188,7 +188,7 @@ codeunit 7000006 "Document-Post"
         ElectPmtMgmt.GetTransferType(CarteraDoc."Account No.", CarteraDoc."Remaining Amount", CarteraDoc."Transfer Type", true);
 
         OnBeforeCreatePayableDoc(CarteraDoc, GenJnlLine, CVLedgEntryBuf);
-        CarteraDoc.Insert;
+        CarteraDoc.Insert();
         OnAfterCreatePayableDoc(CarteraDoc, GenJnlLine, CVLedgEntryBuf);
         CVLedgEntryBuf."Document Situation" := CVLedgEntryBuf."Document Situation"::Cartera;
         CVLedgEntryBuf."Document Status" := CVLedgEntryBuf."Document Status"::Open;
@@ -234,7 +234,7 @@ codeunit 7000006 "Document-Post"
                     CarteraDoc."Document Type" := 1;
             end;
             if "Account Type" = "Account Type"::Customer then begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if "Recipient Bank Account" <> '' then begin
                     CustBankAcc.Get("Account No.", "Recipient Bank Account");
                     CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
@@ -266,9 +266,9 @@ codeunit 7000006 "Document-Post"
         with CustLedgEntry do begin
             if not DocLock then begin
                 DocLock := true;
-                CarteraDoc.LockTable;
-                PostedCarteraDoc.LockTable;
-                ClosedCarteraDoc.LockTable;
+                CarteraDoc.LockTable();
+                PostedCarteraDoc.LockTable();
+                ClosedCarteraDoc.LockTable();
                 if CarteraDoc2.FindLast then;
                 if PostedCarteraDoc2.FindLast then;
                 if ClosedCarteraDoc2.FindLast then;
@@ -308,8 +308,8 @@ codeunit 7000006 "Document-Post"
                             ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
                             ClosedCarteraDoc."Amount for Collection" := 0;
                             ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
-                            ClosedCarteraDoc.Insert;
-                            CarteraDoc.Delete;
+                            ClosedCarteraDoc.Insert();
+                            CarteraDoc.Delete();
                             "Document Situation" := "Document Situation"::"Closed Documents";
                             "Document Status" := "Document Status"::Honored;
                             if "Document Type" <> "Document Type"::Invoice then
@@ -359,7 +359,7 @@ codeunit 7000006 "Document-Post"
                                 "Document Status" := "Document Status"::Redrawn;
                             Modify;
                         end;
-                        PostedCarteraDoc.Modify;
+                        PostedCarteraDoc.Modify();
                     end;
                 "Document Situation"::"Closed BG/PO", "Document Situation"::"Closed Documents":
                     begin
@@ -384,7 +384,7 @@ codeunit 7000006 "Document-Post"
                                 "Document Status" := "Document Status"::Redrawn;
                             Modify;
                         end;
-                        ClosedCarteraDoc.Modify;
+                        ClosedCarteraDoc.Modify();
                         Modify;
                         if (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Bill) or
                            (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Invoice)
@@ -408,12 +408,12 @@ codeunit 7000006 "Document-Post"
         with VendLedgEntry do begin
             if not DocLock then begin
                 DocLock := true;
-                CarteraDoc.LockTable;
-                PostedCarteraDoc.LockTable;
+                CarteraDoc.LockTable();
+                PostedCarteraDoc.LockTable();
                 if CarteraDoc2.FindLast then;
                 if PostedCarteraDoc2.FindLast then;
                 if ClosedCarteraDoc2.FindLast then;
-                ClosedCarteraDoc.LockTable;
+                ClosedCarteraDoc.LockTable();
             end;
             if "Remaining Amount" = 0 then
                 "Remaining Amt. (LCY)" := 0;
@@ -450,8 +450,8 @@ codeunit 7000006 "Document-Post"
                             ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
                             ClosedCarteraDoc."Amount for Collection" := 0;
                             ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
-                            ClosedCarteraDoc.Insert;
-                            CarteraDoc.Delete;
+                            ClosedCarteraDoc.Insert();
+                            CarteraDoc.Delete();
                             "Document Situation" := "Document Situation"::"Closed Documents";
                             "Document Status" := "Document Status"::Honored;
                             if "Document Type" <> "Document Type"::Invoice then
@@ -475,7 +475,7 @@ codeunit 7000006 "Document-Post"
                             "Document Status" := "Document Status"::Honored;
                             Modify;
                         end;
-                        PostedCarteraDoc.Modify;
+                        PostedCarteraDoc.Modify();
                     end;
                 "Document Situation"::"Closed BG/PO":
                     begin
@@ -491,7 +491,7 @@ codeunit 7000006 "Document-Post"
                             ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
                             ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
                         end;
-                        ClosedCarteraDoc.Modify;
+                        ClosedCarteraDoc.Modify();
                     end;
             end;
         end;
@@ -526,7 +526,7 @@ codeunit 7000006 "Document-Post"
         AllowPostingTo: Date;
         AllowPostingFrom: Date;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if UserId <> '' then
             if UserSetup.Get(UserId) then begin
                 AllowPostingFrom := UserSetup."Allow Posting From";
@@ -561,16 +561,16 @@ codeunit 7000006 "Document-Post"
                 Find('-');
                 repeat
                     ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
-                    ClosedCarteraDoc.Insert;
+                    ClosedCarteraDoc.Insert();
                     CustLedgEntry.Get(ClosedCarteraDoc."Entry No.");
                     CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed BG/PO";
-                    CustLedgEntry.Modify;
+                    CustLedgEntry.Modify();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
                 ClosedBillGroup.TransferFields(PostedBillGroup);
                 ClosedBillGroup."Closing Date" := PostingDate;
-                ClosedBillGroup.Insert;
-                PostedBillGroup.Delete;
+                ClosedBillGroup.Insert();
+                PostedBillGroup.Delete();
             end;
         end;
     end;
@@ -593,16 +593,16 @@ codeunit 7000006 "Document-Post"
                 Find('-');
                 repeat
                     ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
-                    ClosedCarteraDoc.Insert;
+                    ClosedCarteraDoc.Insert();
                     VendLedgEntry.Get(ClosedCarteraDoc."Entry No.");
                     VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed BG/PO";
-                    VendLedgEntry.Modify;
+                    VendLedgEntry.Modify();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
                 ClosedPmtOrd.TransferFields(PostedPmtOrd);
                 ClosedPmtOrd."Closing Date" := PostingDate;
-                ClosedPmtOrd.Insert;
-                PostedPmtOrd.Delete;
+                ClosedPmtOrd.Insert();
+                PostedPmtOrd.Delete();
             end;
         end;
     end;
@@ -640,7 +640,7 @@ codeunit 7000006 "Document-Post"
                ("Applies-to Doc. Type" = "Applies-to Doc. Type"::Bill) and
                not "System-Created Entry"
             then begin
-                CarteraDoc.Reset;
+                CarteraDoc.Reset();
                 CarteraDoc.SetCurrentKey(Type, "Document No.");
                 CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
                 CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
@@ -693,7 +693,7 @@ codeunit 7000006 "Document-Post"
             TempJnlBatchName := "Journal Batch Name";
 
             if Print then begin
-                GLReg.LockTable;
+                GLReg.LockTable();
                 if GLReg.FindLast then;
             end;
 
@@ -794,14 +794,14 @@ codeunit 7000006 "Document-Post"
         NextDtldBufferEntryNo: Integer;
     begin
         Clear(DtldCVLedgEntryBuf);
-        DtldCVLedgEntryBuf.Reset;
+        DtldCVLedgEntryBuf.Reset();
         if DtldCVLedgEntryBuf.FindLast then
             NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
         else
             NextDtldBufferEntryNo := 1;
 
         CustLedgEntry2.CalcFields(Amount);
-        DtldCVLedgEntryBuf.Init;
+        DtldCVLedgEntryBuf.Init();
         DtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
         DtldCVLedgEntryBuf."Cust. Ledger Entry No." := CustLedgEntry2."Entry No.";
         DtldCVLedgEntryBuf."Entry Type" := EntryType;
@@ -832,14 +832,14 @@ codeunit 7000006 "Document-Post"
         NextDtldBufferEntryNo: Integer;
     begin
         Clear(DtldCVLedgEntryBuf);
-        DtldCVLedgEntryBuf.Reset;
+        DtldCVLedgEntryBuf.Reset();
         if DtldCVLedgEntryBuf.FindLast then
             NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
         else
             NextDtldBufferEntryNo := 1;
 
         VendLedgEntry2.CalcFields(Amount);
-        DtldCVLedgEntryBuf.Init;
+        DtldCVLedgEntryBuf.Init();
         DtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
         DtldCVLedgEntryBuf."Vendor Ledger Entry No." := VendLedgEntry2."Entry No.";
         DtldCVLedgEntryBuf."Entry Type" := EntryType;
@@ -870,7 +870,7 @@ codeunit 7000006 "Document-Post"
         GLSetup: Record "General Ledger Setup";
     begin
         if CurrCode <> '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             exit(
               Round(
                 CurrExchRate.ExchangeAmtLCYToFCY(
@@ -995,8 +995,8 @@ codeunit 7000006 "Document-Post"
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             if not DocLock then begin
                 DocLock := true;
-                CarteraDoc.LockTable;
-                ClosedCarteraDoc.LockTable;
+                CarteraDoc.LockTable();
+                ClosedCarteraDoc.LockTable();
                 if CarteraDoc2.FindLast then;
                 if ClosedCarteraDoc2.FindLast then;
             end;
@@ -1034,7 +1034,7 @@ codeunit 7000006 "Document-Post"
                                 ClosedCarteraDoc."Remaining Amt. (LCY)" := ClosedCarteraDoc."Remaining Amt. (LCY)" +
                                   ("Remaining Amt. (LCY)" - ClosedCarteraDoc."Remaining Amt. (LCY)");
                                 ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Rejected;
-                                ClosedCarteraDoc.Modify;
+                                ClosedCarteraDoc.Modify();
                                 "Document Situation" := "Document Situation"::"Closed Documents";
                                 "Document Status" := "Document Status"::Rejected;
                                 Modify;
@@ -1043,8 +1043,8 @@ codeunit 7000006 "Document-Post"
                                 CarteraDoc.Type := CarteraDoc.Type::Receivable;
                                 CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + "Remaining Amount";
                                 CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" + "Remaining Amt. (LCY)";
-                                CarteraDoc.Insert;
-                                ClosedCarteraDoc.Delete;
+                                CarteraDoc.Insert();
+                                ClosedCarteraDoc.Delete();
                                 "Document Situation" := "Document Situation"::Cartera;
                                 "Document Status" := "Document Status"::Open;
                                 Modify;
@@ -1085,10 +1085,10 @@ codeunit 7000006 "Document-Post"
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             if not DocLock then begin
                 DocLock := true;
-                CarteraDoc.LockTable;
+                CarteraDoc.LockTable();
                 if CarteraDoc2.FindLast then;
                 if ClosedCarteraDoc2.FindLast then;
-                ClosedCarteraDoc.LockTable;
+                ClosedCarteraDoc.LockTable();
             end;
             if "Remaining Amount" = 0 then
                 "Remaining Amt. (LCY)" := 0;
@@ -1113,8 +1113,8 @@ codeunit 7000006 "Document-Post"
                             CarteraDoc.Type := CarteraDoc.Type::Payable;
                             CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - "Remaining Amount";
                             CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" - "Remaining Amt. (LCY)";
-                            CarteraDoc.Insert;
-                            ClosedCarteraDoc.Delete;
+                            CarteraDoc.Insert();
+                            ClosedCarteraDoc.Delete();
                             "Document Situation" := "Document Situation"::Cartera;
                             "Document Status" := "Document Status"::Open;
                             Modify;

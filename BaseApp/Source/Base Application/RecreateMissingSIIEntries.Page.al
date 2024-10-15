@@ -147,7 +147,7 @@ page 10753 "Recreate Missing SII Entries"
             Error(SIISetupNotEnabledErr);
 
         if not SIIMissingEntriesState.Get then
-            SIIMissingEntriesState.Init;
+            SIIMissingEntriesState.Init();
         FromDate := SIISetup."Starting Date";
         GetSourceEntries(SIIMissingEntriesState."Entries Missing" <> 0); // if missing entry was found by Job Queue Entry - run full scan
     end;

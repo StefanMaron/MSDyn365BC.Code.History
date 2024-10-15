@@ -40,11 +40,11 @@ page 10737 "Gen. Prod. Post. Selection 340"
     [Scope('OnPrem')]
     procedure GetGPPGSelBuf(var TheGPPGSelectionBuf: Record "Gen. Prod. Post. Group Buffer")
     begin
-        TheGPPGSelectionBuf.DeleteAll;
+        TheGPPGSelectionBuf.DeleteAll();
         if FindFirst then
             repeat
                 TheGPPGSelectionBuf := Rec;
-                TheGPPGSelectionBuf.Insert;
+                TheGPPGSelectionBuf.Insert();
             until Next = 0;
     end;
 

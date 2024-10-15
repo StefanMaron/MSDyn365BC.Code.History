@@ -29,12 +29,10 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Caption = 'Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
         field(6; "Document No."; Code[20])
         {
@@ -212,12 +210,10 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Caption = 'Use Additional-Currency Amount';
             DataClassification = SystemMetadata;
         }
-        field(35; "Initial Document Type"; Option)
+        field(35; "Initial Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Initial Document Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
         field(36; "Applied CV Ledger Entry No."; Integer)
         {
@@ -338,18 +334,18 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
         // DtldCVLedgEntryBuf.TESTFIELD("Entry Type" );
 
-        NewDtldCVLedgEntryBuf.Init;
+        NewDtldCVLedgEntryBuf.Init();
         NewDtldCVLedgEntryBuf := DtldCVLedgEntryBuf;
 
         if NextDtldBufferEntryNo = 0 then begin
-            DtldCVLedgEntryBuf.Reset;
+            DtldCVLedgEntryBuf.Reset();
             if DtldCVLedgEntryBuf.FindLast then
                 NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
             else
                 NextDtldBufferEntryNo := 1;
         end;
 
-        DtldCVLedgEntryBuf.Reset;
+        DtldCVLedgEntryBuf.Reset();
         DtldCVLedgEntryBuf.SetRange("CV Ledger Entry No.", CVLedgEntryBuf."Entry No.");
         DtldCVLedgEntryBuf.SetRange("Entry Type", NewDtldCVLedgEntryBuf."Entry Type");
         DtldCVLedgEntryBuf.SetRange("Posting Date", NewDtldCVLedgEntryBuf."Posting Date");
@@ -390,13 +386,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
               DtldCVLedgEntryBuf."Additional-Currency Amount" +
               NewDtldCVLedgEntryBuf."Additional-Currency Amount";
             OnInsertDtldCVLedgEntryOnBeforeModify(DtldCVLedgEntryBuf);
-            DtldCVLedgEntryBuf.Modify;
+            DtldCVLedgEntryBuf.Modify();
         end else begin
             NewDtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
             NextDtldBufferEntryNo := NextDtldBufferEntryNo + 1;
             DtldCVLedgEntryBuf := NewDtldCVLedgEntryBuf;
             OnInsertDtldCVLedgEntryOnBeforeInsert(DtldCVLedgEntryBuf);
-            DtldCVLedgEntryBuf.Insert;
+            DtldCVLedgEntryBuf.Insert();
         end;
 
         CVLedgEntryBuf."Amount to Apply" := NewDtldCVLedgEntryBuf.Amount + CVLedgEntryBuf."Amount to Apply";
@@ -408,7 +404,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             CVLedgEntryBuf."Original Amount" := NewDtldCVLedgEntryBuf.Amount;
             CVLedgEntryBuf."Original Amt. (LCY)" := NewDtldCVLedgEntryBuf."Amount (LCY)";
         end;
-        DtldCVLedgEntryBuf.Reset;
+        DtldCVLedgEntryBuf.Reset();
     end;
 
     procedure CopyPostingGroupsFromVATEntry(VATEntry: Record "VAT Entry")
@@ -488,7 +484,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
     procedure FindVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer)
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetCurrentKey("Transaction No.");
         VATEntry.SetRange("Transaction No.", TransactionNo);
         VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");

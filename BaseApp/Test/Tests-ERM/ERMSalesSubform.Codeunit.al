@@ -27,6 +27,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
+        CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
         BlanketOrderMsg: Label 'has been created from blanket order';
         ExternalDocNoErr: Label '"External Doc. No." is not available on the "Blanket Sales Order" page';
         UnitofMeasureCodeIsEditableMsg: Label 'Unit of Measure Code should not be editable.', Comment = '%1: FieldCaption';
@@ -47,7 +48,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -69,7 +70,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesInvoice: TestPage "Sales Invoice";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -93,7 +94,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -151,7 +152,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoiceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -186,7 +187,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -210,7 +211,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -234,7 +235,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
@@ -267,7 +268,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -297,7 +298,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -325,7 +326,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -356,7 +357,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -384,7 +385,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -413,7 +414,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
 
@@ -435,7 +436,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
@@ -464,14 +465,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesInvoice(SalesHeader, SalesInvoice);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         SalesInvoice.CalculateInvoiceDiscount.Invoke;
         CheckInvoiceStatistics(SalesInvoice);
@@ -485,7 +486,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 47 "Sales Invoice Subform" is NOT editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Sales Invoice with one line containing Item "I".
@@ -506,7 +507,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 47 "Sales Invoice Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Sales Invoice with one line containing Item "I".
@@ -530,7 +531,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -552,7 +553,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrder: TestPage "Sales Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
@@ -573,7 +574,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
@@ -629,7 +630,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
@@ -665,7 +666,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -691,7 +692,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -715,7 +716,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -739,7 +740,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -771,7 +772,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -798,7 +799,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -825,7 +826,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -851,7 +852,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -881,7 +882,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         SalesHeader.Validate(Invoice, true);
@@ -904,7 +905,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
@@ -933,14 +934,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesOrder(SalesHeader, SalesOrder);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         SalesOrder.CalculateInvoiceDiscount.Invoke;
         CheckOrderStatistics(SalesOrder);
@@ -954,7 +955,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 46 "Sales Order Subform" is NOT editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Sales Order with one line containing Item "I".
@@ -975,7 +976,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 46 "Sales Order Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Sales Order with one line containing Item "I".
@@ -999,7 +1000,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -1021,7 +1022,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesQuote: TestPage "Sales Quote";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
@@ -1042,7 +1043,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
@@ -1097,7 +1098,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1121,7 +1122,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1145,7 +1146,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -1176,7 +1177,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -1204,7 +1205,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -1231,7 +1232,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1263,7 +1264,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1293,7 +1294,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1315,7 +1316,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
@@ -1344,14 +1345,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         SalesQuote.CalculateInvoiceDiscount.Invoke;
         CheckQuoteStatistics(SalesQuote);
@@ -1365,7 +1366,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 95 "Sales Quote Subform" is NOT editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Sales Quote with one line containing Item "I".
@@ -1386,7 +1387,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 95 "Sales Quote Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Sales Quote with one line containing Item "I".
@@ -1410,7 +1411,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -1431,7 +1432,7 @@ codeunit 134393 "ERM Sales Subform"
         BlanketSalesOrder: TestPage "Blanket Sales Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateBlanketOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, BlanketSalesOrder);
@@ -1453,7 +1454,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateBlanketOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, BlanketSalesOrder);
@@ -1508,7 +1509,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1532,7 +1533,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1556,7 +1557,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -1587,7 +1588,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -1615,7 +1616,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -1642,7 +1643,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1674,7 +1675,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1704,7 +1705,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1714,7 +1715,7 @@ codeunit 134393 "ERM Sales Subform"
         AnswerYesToAllConfirmDialogs;
         BlanketSalesOrder.MakeOrder.Invoke;
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesHeader.FindFirst;
 
@@ -1732,7 +1733,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
@@ -1761,14 +1762,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateBlanketOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenBlanketOrder(SalesHeader, BlanketSalesOrder);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         BlanketSalesOrder.CalculateInvoiceDiscount.Invoke;
         CheckBlanketOrderStatistics(BlanketSalesOrder);
@@ -1785,7 +1786,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -1806,7 +1807,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrder: TestPage "Sales Return Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateReturnOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesReturnOrder);
@@ -1827,7 +1828,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateReturnOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesReturnOrder);
@@ -1883,7 +1884,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateReturnOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesReturnOrder);
@@ -1918,7 +1919,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1941,7 +1942,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1965,7 +1966,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -1997,7 +1998,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -2026,7 +2027,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -2053,7 +2054,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2085,7 +2086,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2115,7 +2116,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2144,7 +2145,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         SalesHeader.Validate(Invoice, true);
@@ -2167,7 +2168,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
@@ -2196,14 +2197,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateReturnOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesReturnOrder(SalesHeader, SalesReturnOrder);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         SalesReturnOrder.CalculateInvoiceDiscount.Invoke;
         CheckReturnOrderStatistics(SalesReturnOrder);
@@ -2220,7 +2221,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -2242,7 +2243,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
@@ -2265,7 +2266,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
@@ -2283,17 +2284,17 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo.SalesLines.First;
         CheckCreditMemoStatistics(SalesCreditMemo);
 
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
-        UnitOfMeasure.Insert;
+        UnitOfMeasure.Insert();
 
-        ItemUOM.Init;
+        ItemUOM.Init();
         ItemUOM.Validate("Item No.", Item."No.");
         ItemUOM.Validate(Code, UnitOfMeasure.Code);
         ItemUOM.Validate("Qty. per Unit of Measure", 5);
-        ItemUOM.Insert;
+        ItemUOM.Insert();
         SalesCreditMemo.SalesLines."Unit of Measure Code".SetValue(ItemUOM.Code);
         TotalAmount := ItemQuantity * Item."Unit Price" * 5;
         SalesCreditMemo.SalesLines.Next;
@@ -2337,7 +2338,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2361,7 +2362,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2385,7 +2386,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -2417,7 +2418,7 @@ codeunit 134393 "ERM Sales Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -2446,7 +2447,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         CreateCustomer(NewCustomer);
 
@@ -2473,7 +2474,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2505,7 +2506,7 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2535,13 +2536,13 @@ codeunit 134393 "ERM Sales Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToConfirmDialog;
         SalesCreditMemo.Post.Invoke;
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
@@ -2565,7 +2566,7 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -2588,7 +2589,7 @@ codeunit 134393 "ERM Sales Subform"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         Customer."Currency Code" := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
@@ -2617,14 +2618,14 @@ codeunit 134393 "ERM Sales Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         SetAllowManualDisc;
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
 
-        LibraryVariableStorage.Enqueue(ChangeConfirmMsg);
+        LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
         SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
         CheckCreditMemoStatistics(SalesCreditMemo);
@@ -2638,7 +2639,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Credit Memo]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 96 "Sales Cr. Memo Subform" is  editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Sales Credit Memo with one line containing Item "I".
@@ -2659,7 +2660,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Sales Credit Memo]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 96 "Sales Cr. Memo Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Sales Credit Memo with one line containing Item "I".
@@ -2680,7 +2681,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Blanket Order] [Sales]
         // [SCENARIO 375875] Blanket Sales Order Page should have "External Document No." enabled
-        Initialize;
+        Initialize();
 
         BlanketSalesOrder.Trap;
         BlanketSalesOrder.OpenNew;
@@ -2704,7 +2705,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Totals] [Dimension]
         // [SCENARIO 376946] No Dimension Set Tree Node should be created on calculating Totals
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer);
         // [GIVEN] Sales Credit Memo with Invoice Discount but not Dimensions
         GLAccountNo := CreateGLAccountForInvoiceRounding(Customer."Customer Posting Group");
@@ -2726,7 +2727,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemo.Close;
 
         // [THEN] No Dimension Set Tree Node is created for "D"
-        DimSetTreeNode.Init; // PreCAL trick
+        DimSetTreeNode.Init(); // PreCAL trick
         DimSetTreeNode.SetRange("Dimension Value ID", DimValueID);
         Assert.RecordIsEmpty(DimSetTreeNode);
     end;
@@ -2740,7 +2741,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Totals] [Service charge] [Invoice Discount]
         // [SCENARIO 378348] It should be not possible to change sales line account number for released document
-        Initialize;
+        Initialize();
 
         CreateCustomerWithServiceChargeDiscount(Customer);
 
@@ -2767,7 +2768,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UT] [Unit of Measure]
         // [SCENARIO 161627] Lookup is active for "Unit of Measure Code" field for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Sales Document with one line containing Item "I".
@@ -2801,13 +2802,13 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UT] [Unit of Measure]
         // [SCENARIO 161627] Lookup is active for "Unit of Measure Code" field for a Resource.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Document with one line containing a Resource.
         LibraryResource.CreateResource(Resource, '');
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Resource.Modify;
+        Resource.Modify();
         ResourceUOMCode := Resource."Base Unit of Measure";
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
@@ -2833,7 +2834,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Sales Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears. If confirmation is declined, then "Inv. Discount Amount" is not changed.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 2 lines
         // [GIVEN] Sales Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
@@ -2867,7 +2868,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Sales Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears. If confirmation is acepted, then "Inv. Discount Amount" is changed.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 2 lines
         // [GIVEN] Sales Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
@@ -2902,7 +2903,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Sales Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -2930,7 +2931,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 217135] Currency Captions in Sales Order Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::Order);
@@ -2950,7 +2951,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesOrderSubformTotalAmountCaptions(SalesOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -2965,7 +2966,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Quote]
         // [SCENARIO 217135] Currency Captions in Sales Quote Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote "SQ" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -2985,7 +2986,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesQuotePage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesQuoteSubformTotalAmountCaptions(SalesQuotePage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3000,7 +3001,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Invoice]
         // [SCENARIO 217135] Currency Captions in Sales Invoice Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice "SI" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3020,7 +3021,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesInvoiceSubformTotalAmountCaptions(SalesInvoicePage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3035,7 +3036,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Credit Memo]
         // [SCENARIO 217135] Currency Captions in Sales Credit Memo Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo "SCM" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -3055,7 +3056,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCreditMemoPage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesCreditMemoSubformTotalAmountCaptions(SalesCreditMemoPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3070,7 +3071,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Blanket Order]
         // [SCENARIO 217135] Currency Captions in Blanket Sales Order Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order "BSO" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
@@ -3090,7 +3091,7 @@ codeunit 134393 "ERM Sales Subform"
         BlanketSalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesBlanketOrderSubformTotalAmountCaptions(BlanketSalesOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3105,7 +3106,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [FCY] [Return Order]
         // [SCENARIO 217135] Currency Captions in Sales Return Order Subform is set to defult value if Sales Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order "SRO" with Currency Code "CC"
         CurrencyCode := CreateSalesHeaderWithCurrencyCode(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -3125,7 +3126,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckSalesReturnOrderSubformTotalAmountCaptions(SalesReturnOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3138,7 +3139,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Quote]
         // [SCENARIO 281160] Major sales quote subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales quote page and pick new customer
         SalesQuote.OpenNew;
@@ -3176,7 +3177,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Quote]
         // [SCENARIO 281160] Major sales quote subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales quote page and pick new customer
         SalesQuote.OpenNew;
@@ -3214,7 +3215,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Invoice]
         // [SCENARIO 281160] Major sales invoice subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales invoice page and pick new customer
         SalesInvoice.OpenNew;
@@ -3252,7 +3253,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Invoice]
         // [SCENARIO 281160] Major sales invoice subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales invoice page and pick new customer
         SalesInvoice.OpenNew;
@@ -3290,7 +3291,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Order]
         // [SCENARIO 281160] Major sales order subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales order page and pick new customer
         SalesOrder.OpenNew;
@@ -3329,7 +3330,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Order]
         // [SCENARIO 281160] Major sales order subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales order page and pick new customer
         SalesOrder.OpenNew;
@@ -3367,7 +3368,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Credit Memo]
         // [SCENARIO 281160] Major sales credit memo subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales credit memo page and pick new customer
         SalesCreditMemo.OpenNew;
@@ -3405,7 +3406,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Credit Memo]
         // [SCENARIO 281160] Major sales credit memo subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales credit memo page and pick new customer
         SalesCreditMemo.OpenNew;
@@ -3443,7 +3444,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Return Order]
         // [SCENARIO 281160] Major sales return order subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales return order page and pick new customer
         SalesReturnOrder.OpenNew;
@@ -3481,7 +3482,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [UI] [Return Order]
         // [SCENARIO 281160] Major sales return order subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Sales return order page and pick new customer
         SalesReturnOrder.OpenNew;
@@ -3523,13 +3524,13 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Service Item]
         // [SCENARIO 294617] Posted sales invoice statistics shows proper value of Adjusted Cost (LCY) Adjusted Profit (LCY) for item with type Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
         LibraryInventory.CreateServiceTypeItem(Item);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandDec(100, 2));
-        Item.Modify;
+        Item.Modify();
 
         // [GIVEN] Create and post sales order with item "I", Quantity = 1
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3558,6 +3559,53 @@ codeunit 134393 "ERM Sales Subform"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoStatisticsServiceItem()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        SalesCreditMemoStatistics: TestPage "Sales Credit Memo Statistics";
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Service Item]
+        // [SCENARIO 294617] Posted sales credit memo statistics shows proper value of Adjusted Cost (LCY) and Adjusted Profit (LCY) for item with type Service
+        Initialize();
+
+        // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
+        LibraryInventory.CreateServiceTypeItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandDec(100, 2));
+        Item.Modify();
+
+        // [GIVEN] Create and post sales credit memo with item "I", Quantity = 1
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Statistics for posted credit memo is being opened
+        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", PostedCrMemoNo);
+        SalesCreditMemoStatistics.Trap;
+        PostedSalesCreditMemo.Statistics.Invoke;
+
+        // [THEN] Adjusted Cost (LCY) = 60
+        Assert.AreNearlyEqual(
+          SalesLine.Quantity * Item."Unit Cost",
+          SalesCreditMemoStatistics.AdjustedCostLCY.AsDEcimal,
+          LibraryERM.GetAmountRoundingPrecision,
+          'Invalid Adjusted Cost (LCY) value');
+
+        // [THEN] Adjusted Profit (LCY) = 40
+        Assert.AreNearlyEqual(
+          SalesLine.Quantity * (Item."Unit Price" - Item."Unit Cost"),
+          SalesCreditMemoStatistics.AdjustedProfitLCY.AsDEcimal,
+          LibraryERM.GetAmountRoundingPrecision,
+          'Invalid Adjusted Profit (LCY) value');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure Order_SetAndCleanCurrencyCode()
@@ -3572,7 +3620,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Sales Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3600,7 +3648,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Invoice] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Sales Invoice page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3628,7 +3676,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Quote] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Sales Quote page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3656,7 +3704,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Credit Memo] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Sales Credit Memo page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3685,7 +3733,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Return Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Sales Return Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3714,7 +3762,7 @@ codeunit 134393 "ERM Sales Subform"
         // [FEATURE] [FCY] [Blanket Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Blanket Sales Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3738,7 +3786,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Caption] [UT]
         // [SCENARIO 310753] Captions endings of "Unit Price"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Sell-to Customer is changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Document with Sell-to Customer "C1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Unit Price"/"Line Amount" of Sales Line have captions "Unit Price Incl. VAT"/"Line Amount Incl. VAT".
@@ -3765,7 +3813,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Caption] [UT]
         // [SCENARIO 310753] Captions endings of "Unit Price"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Bill-to Customer is changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Document with Bill-to Customer "C1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Unit Price"/"Line Amount" of Sales Line have captions "Unit Price Incl. VAT"/"Line Amount Incl. VAT".
@@ -3791,7 +3839,7 @@ codeunit 134393 "ERM Sales Subform"
     begin
         // [FEATURE] [Caption] [UT] [Customer Template]
         // [SCENARIO 310753] Captions endings of "Unit Price"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Bill-to Customer Template is changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote with Bill-to Customer Template "C1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Unit Price"/"Line Amount" of Sales Line have captions "Unit Price Incl. VAT"/"Line Amount Incl. VAT".
@@ -3834,10 +3882,10 @@ codeunit 134393 "ERM Sales Subform"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Subform");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
     end;
 
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)
@@ -3860,14 +3908,14 @@ codeunit 134393 "ERM Sales Subform"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateItemWithGivenNumberOfAdditionalUOMs(var Item: Record Item; NoOfAdditionalUOMs: Integer)
@@ -4375,9 +4423,9 @@ codeunit 134393 "ERM Sales Subform"
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccountNo);
         CustomerPostingGroup.Modify(true);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         exit(GLAccountNo);
     end;
 
@@ -4390,7 +4438,7 @@ codeunit 134393 "ERM Sales Subform"
         LibraryDimension.CreateDefaultDimensionGLAcc(
           DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
         exit(DimensionValue."Dimension Value ID");
     end;
 
@@ -4709,7 +4757,7 @@ codeunit 134393 "ERM Sales Subform"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", false);
         SalesReceivablesSetup.Modify(true);
     end;

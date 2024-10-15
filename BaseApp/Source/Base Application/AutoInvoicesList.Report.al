@@ -37,9 +37,6 @@ report 10714 "AutoInvoices List"
             column(CompanyAddr_1_; CompanyAddr[1])
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -168,23 +165,23 @@ report 10714 "AutoInvoices List"
                                 VarAmount2 := Amount;
                                 VATBuffer.Base := VATBuffer.Base + Base;
                                 VATBuffer.Amount := VATBuffer.Amount + Amount;
-                                VATBuffer.Modify;
+                                VATBuffer.Modify();
                             end else begin
                                 VarBase2 := Base;
                                 VarAmount2 := Amount;
                                 VATBuffer.Base := Base;
                                 VATBuffer.Amount := Amount;
-                                VATBuffer.Insert;
+                                VATBuffer.Insert();
                             end
                         else
                             if VATBuffer.Find then begin
                                 VATBuffer.Base := VATBuffer.Base + "Additional-Currency Base";
                                 VATBuffer.Amount := VATBuffer.Amount + "Additional-Currency Amount";
-                                VATBuffer.Modify;
+                                VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := "Additional-Currency Base";
                                 VATBuffer.Amount := "Additional-Currency Amount";
-                                VATBuffer.Insert;
+                                VATBuffer.Insert();
                             end;
                     end;
                     if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
@@ -314,7 +311,7 @@ report 10714 "AutoInvoices List"
                 trigger OnAfterGetRecord()
                 begin
                     if Fin then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     VATBuffer2 := VATBuffer;
                     Fin := VATBuffer.Next = 0;
 
@@ -350,9 +347,9 @@ report 10714 "AutoInvoices List"
 
             trigger OnAfterGetRecord()
             begin
-                VATBuffer.DeleteAll;
+                VATBuffer.DeleteAll();
                 NoSeriesAuxPrev := NoSeriesAux;
-                GLSetUp.Get;
+                GLSetUp.Get();
                 if "Document Type" = "Document Type"::"Credit Memo" then
                     NoSeriesAux := GLSetUp."Autocredit Memo Nos.";
                 if "Document Type" = "Document Type"::Invoice then
@@ -364,7 +361,7 @@ report 10714 "AutoInvoices List"
                     VarNotAmountReverse := 0;
                 end;
 
-                GLSetUp.Get;
+                GLSetUp.Get();
                 if PrintAmountsInAddCurrency then
                     HeaderText := StrSubstNo(Text1100002, GLSetUp."Additional Reporting Currency")
                 else begin
@@ -375,7 +372,7 @@ report 10714 "AutoInvoices List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyAddr[1] := CompanyInfo.Name;
                 CompanyAddr[2] := CompanyInfo."Name 2";
                 CompanyAddr[3] := CompanyInfo.Address;

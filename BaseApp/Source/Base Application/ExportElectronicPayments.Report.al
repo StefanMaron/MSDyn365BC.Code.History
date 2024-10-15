@@ -213,7 +213,7 @@ report 10721 "Export Electronic Payments"
                                     AmountPaid := -ExportAmount;
                             end;
 
-                        VendorBankAccount1.Reset;
+                        VendorBankAccount1.Reset();
                         VendorBankAccount1.SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
                         VendorBankAccount1.SetRange("Use For Electronic Payments", true);
                         if VendorBankAccount1.FindFirst then begin
@@ -234,18 +234,16 @@ report 10721 "Export Electronic Payments"
                     trigger OnPreDataItem()
                     begin
                         if ("Gen. Journal Line"."Applies-to ID" = '') and ("Gen. Journal Line"."Applies-to Doc. No." = '') then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if "Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    CurrReport.PageNo := 1;
-
                     if Number = 1 then begin// Original
                         Clear(CopyTxt);
                         CopyTxt := '';
@@ -400,7 +398,7 @@ report 10721 "Export Electronic Payments"
                     else
                         BankAccount."Last Remittance Advice No." := Text1100001;
                     LastRemittanceAdvNo := BankAccount."Last Remittance Advice No.";
-                    BankAccount.Modify;
+                    BankAccount.Modify();
                 end else begin
                     if BankAccount."Last Remittance Advice No." <> '' then
                         LastRemittanceAdvNo := IncStr(BankAccount."Last Remittance Advice No.")
@@ -502,7 +500,7 @@ report 10721 "Export Electronic Payments"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         TotalDoc10Vend := 0;
@@ -586,7 +584,7 @@ report 10721 "Export Electronic Payments"
         AmountPaid := 0;
 
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");

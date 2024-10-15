@@ -1,0 +1,44 @@
+codeunit 104103 "UPG SII Certificate"
+{
+    Subtype = Upgrade;
+
+    trigger OnRun()
+    begin
+    end;
+
+    trigger OnUpgradePerCompany()
+    begin
+        MoveCertificateFromBlobToIsolatedStorage();
+    end;
+
+    local procedure MoveCertificateFromBlobToIsolatedStorage()
+    var
+        SIISetup: Record "SII Setup";
+        IsolatedCertificate: Record "Isolated Certificate";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        TempBlob: Codeunit "Temp Blob";
+        CertificateManagement: Codeunit "Certificate Management";
+        MoveCertificate: Boolean;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateSIICertificateTag()) then
+            exit;
+
+        if SIISetup.Get() then begin
+            SIISetup.Calcfields(Certificate);
+            MoveCertificate := SIISetup.Certificate.HasValue();
+        end;
+        if MoveCertificate then begin
+            TempBlob.FromRecord(SIISetup, SIISetup.FieldNo(Certificate));
+            IsolatedCertificate.Password := CopyStr(SIISetup.Password,1,MaxStrLen(IsolatedCertificate.Password));
+            CertificateManagement.InitIsolatedCertificateFromBlob(IsolatedCertificate, TempBlob);
+            IsolatedCertificate.Insert(true);
+            SIISetup."Certificate Code" := IsolatedCertificate.Code;
+            Clear(SIISetup.Certificate);
+            SIISetup.Password := '';
+            SIISetup.Modify();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateSIICertificateTag());
+    end;
+}

@@ -74,20 +74,20 @@ report 713 "Inventory - Customer Sales"
                     begin
                         if Number = 1 then begin
                             if not TempValueEntryBuf.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempValueEntryBuf.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     trigger OnPostDataItem()
                     begin
-                        TempValueEntryBuf.DeleteAll;
+                        TempValueEntryBuf.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        TempValueEntryBuf.Reset;
+                        TempValueEntryBuf.Reset();
                     end;
                 }
 
@@ -188,7 +188,7 @@ report 713 "Inventory - Customer Sales"
             DiscountAmount := CalcDiscountAmount("Entry No.");
 
             if ValueEntryBuf."Item No." = '' then begin
-                ValueEntryBuf.Init;
+                ValueEntryBuf.Init();
                 ValueEntryBuf."Item No." := "Item No.";
                 ValueEntryBuf."Source No." := "Source No.";
             end;
@@ -204,7 +204,7 @@ report 713 "Inventory - Customer Sales"
         TempValueEntryBuf := ValueEntryBuf;
         ReportLineNo += 1;
         TempValueEntryBuf."Entry No." := ReportLineNo;
-        TempValueEntryBuf.Insert;
+        TempValueEntryBuf.Insert();
         Clear(ValueEntryBuf);
     end;
 

@@ -23,9 +23,6 @@ report 10712 "Purchases - AutoInvoice"
                     column(STRSUBSTNO_Text1100005_CopyText_; StrSubstNo(Text1100005, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text1100006_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1100006, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CompanyAddr_1_; CompanyAddr[1])
                     {
                     }
@@ -312,7 +309,7 @@ report 10712 "Purchases - AutoInvoice"
                                 if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                                     TotalVATAmount := TotalVATAmount + Amount + (Amount * VATPostingSetup."VAT %") / 100;
                                 TotalAmount := TotalAmount + Amount;
-                                VATAmountLine.Init;
+                                VATAmountLine.Init();
                                 VATAmountLine."VAT Identifier" := "VAT Identifier";
                                 VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                                 VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -330,10 +327,10 @@ report 10712 "Purchases - AutoInvoice"
                                 VATAmountLine."VAT Amount" := (VATAmountLine."Amount Including VAT" * VATAmountLine."VAT %") / 100;
                                 VATAmountLine."EC Amount" := (VATAmountLine."Amount Including VAT" * VATAmountLine."EC %") / 100;
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             if not PurchInvHeader.Get("Document No.") then
-                                PurchInvHeader.Init;
+                                PurchInvHeader.Init();
 
                             if PurchInvHeader."Prices Including VAT" then
                                 DirectUnitCostCaption := StrSubstNo('%1 %2', FieldCaption("Direct Unit Cost"), Text1100009)
@@ -345,12 +342,12 @@ report 10712 "Purchases - AutoInvoice"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -464,7 +461,7 @@ report 10712 "Purchases - AutoInvoice"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.Count < 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -503,7 +500,7 @@ report 10712 "Purchases - AutoInvoice"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Inv. Header"."Buy-from Vendor No." = "Purch. Inv. Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -543,7 +540,7 @@ report 10712 "Purchases - AutoInvoice"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -562,8 +559,6 @@ report 10712 "Purchases - AutoInvoice"
                         CopyText := Text1100004;
                         OutputNo := OutputNo + 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                     TotalVATAmount := 0;
                     TotalAmount := 0;
                 end;
@@ -623,7 +618,7 @@ report 10712 "Purchases - AutoInvoice"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 if CompanyInfo."VAT Registration No." = '' then
                     Error(Text1100000);
@@ -663,7 +658,7 @@ report 10712 "Purchases - AutoInvoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

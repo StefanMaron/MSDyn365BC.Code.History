@@ -39,7 +39,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         // Setup file definition
         AllObj.SetRange("Object Type", AllObj."Object Type"::XMLport);
         AllObj.FindFirst;
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", AllObj."Object ID", 0, '', '');
@@ -102,7 +102,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -159,7 +159,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -206,7 +206,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -256,7 +256,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -306,7 +306,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -361,7 +361,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
@@ -620,11 +620,11 @@ codeunit 132541 "Test Bank Mapping Generic"
 
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID;
-        DataExchLineDef.Modify;
+        DataExchLineDef.Modify();
 
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
         DataExchColumnDef.Path := CopyStr(DataExchLineDef."Data Line Tag" + DataExchColumnDef.Name, 1, MaxStrLen(DataExchColumnDef.Path));
-        DataExchColumnDef.Modify;
+        DataExchColumnDef.Modify();
 
         // Verify.
         Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
@@ -645,11 +645,11 @@ codeunit 132541 "Test Bank Mapping Generic"
 
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchLineDef."Data Line Tag" := LibraryUtility.GenerateGUID;
-        DataExchLineDef.Modify;
+        DataExchLineDef.Modify();
 
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
         DataExchColumnDef.Path := CopyStr(DataExchLineDef."Data Line Tag", 1, StrLen(DataExchLineDef."Data Line Tag") - 1);
-        DataExchColumnDef.Modify;
+        DataExchColumnDef.Modify();
 
         // Verify.
         Assert.IsFalse(DataExchColumnDef.IsOfDataLine, 'Column should not be on the data line.');
@@ -668,11 +668,11 @@ codeunit 132541 "Test Bank Mapping Generic"
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
         DataExchDef."File Type" := DataExchDef."File Type"::"Fixed Text";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
         DataExchColumnDef.Path := LibraryUtility.GenerateGUID;
-        DataExchColumnDef.Modify;
+        DataExchColumnDef.Modify();
 
         // Verify.
         Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
@@ -693,7 +693,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, '', 1, 'Amount', true, DataExchColumnDef."Data Type"::Decimal, '', 'en-US', '');
         DataExchColumnDef.Path := LibraryUtility.GenerateGUID;
-        DataExchColumnDef.Modify;
+        DataExchColumnDef.Modify();
 
         // Verify.
         Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
@@ -761,7 +761,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), '', DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
@@ -802,7 +802,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         RecRef: RecordRef;
     begin
         // Setup file definition
-        TestDataExchDestTable.DeleteAll;
+        TestDataExchDestTable.DeleteAll();
         DataExchDef.InsertRec(
           LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), '', DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
@@ -830,7 +830,7 @@ codeunit 132541 "Test Bank Mapping Generic"
 
     local procedure CreateTemplate(var RecRef: RecordRef; var TestDataExchDestTable: Record "Test Data Exch. Dest Table")
     begin
-        TestDataExchDestTable.Init;
+        TestDataExchDestTable.Init();
         TestDataExchDestTable.KeyH1 := 1;
         TestDataExchDestTable.KeyH2 := 'SomeCode';
         TestDataExchDestTable.NonKey := 'None';

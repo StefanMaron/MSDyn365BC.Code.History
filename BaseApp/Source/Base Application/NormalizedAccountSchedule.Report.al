@@ -69,7 +69,7 @@ report 10717 "Normalized Account Schedule"
             trigger OnPreDataItem()
             begin
                 if not GeneralIdData then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 NextPageGroupNo := 0;
             end;
@@ -423,7 +423,7 @@ report 10717 "Normalized Account Schedule"
         if GeneralIdData and (CloseDate = 0D) then
             Error(Text1100000);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         SplitCompanyName(CompanyInfo, CompName);
 
         "Acc. Schedule Name".Find('-');
@@ -431,7 +431,7 @@ report 10717 "Normalized Account Schedule"
         ColumnLayoutName := "Acc. Schedule Name"."Default Column Layout";
         // AccSchedManagement.SetAccSchedName(PrintAmountsInAddCurrency);
         InitAccSched;
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

@@ -72,6 +72,8 @@ codeunit 130509 "Library - Sales"
         LibraryERM.SetSearchGenPostingTypeSales;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        LibraryUtility.UpdateSetupNoSeriesCode(
+          DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
 
         Clear(Customer);
         Customer.Insert(true);
@@ -120,7 +122,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
     begin
-        CustomerBankAccount.Init;
+        CustomerBankAccount.Init();
         CustomerBankAccount.Validate("Customer No.", CustomerNo);
         CustomerBankAccount.Validate(
           Code,
@@ -133,7 +135,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateCustomerPostingGroup(var CustomerPostingGroup: Record "Customer Posting Group")
     begin
-        CustomerPostingGroup.Init;
+        CustomerPostingGroup.Init();
         CustomerPostingGroup.Validate(Code,
           LibraryUtility.GenerateRandomCode(CustomerPostingGroup.FieldNo(Code), DATABASE::"Customer Posting Group"));
         CustomerPostingGroup.Validate("Receivables Account", LibraryERM.CreateGLAccountNo);
@@ -149,13 +151,12 @@ codeunit 130509 "Library - Sales"
         CustomerPostingGroup.Validate("Interest Account", LibraryERM.CreateGLAccountWithSalesSetup);
         CustomerPostingGroup.Validate("Additional Fee Account", LibraryERM.CreateGLAccountWithSalesSetup);
         CustomerPostingGroup.Validate("Add. Fee per Line Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        CustomerPostingGroup.Validate("Bills Account", LibraryERM.CreateGLAccountNo);
         CustomerPostingGroup.Insert(true);
     end;
 
     procedure CreateCustomerPriceGroup(var CustomerPriceGroup: Record "Customer Price Group")
     begin
-        CustomerPriceGroup.Init;
+        CustomerPriceGroup.Init();
         CustomerPriceGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(CustomerPriceGroup.FieldNo(Code), DATABASE::"Customer Price Group"));
         CustomerPriceGroup.Validate(Description, CustomerPriceGroup.Code);
@@ -165,7 +166,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
-        CustomerTemplate.Init;
+        CustomerTemplate.Init();
         CustomerTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(CustomerTemplate.FieldNo(Code), DATABASE::"Customer Template"));
         CustomerTemplate.Insert(true);
 
@@ -177,7 +178,7 @@ codeunit 130509 "Library - Sales"
     var
         CustomerTemplate: Record "Customer Template";
     begin
-        CustomerTemplate.Init;
+        CustomerTemplate.Init();
         CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Customer Posting Group", FindCustomerPostingGroup);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
@@ -350,12 +351,6 @@ codeunit 130509 "Library - Sales"
           "External Document No.",
           CopyStr(LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("External Document No."), DATABASE::"Sales Header"), 1, 20));
         SetCorrDocNoSales(SalesHeader);
-        SalesHeader.Validate(
-          "Operation Description",
-          PadStr(SalesHeader."Operation Description", MaxStrLen(SalesHeader."Operation Description"), 'A'));
-        SalesHeader.Validate(
-          "Operation Description 2",
-          PadStr(SalesHeader."Operation Description 2", MaxStrLen(SalesHeader."Operation Description 2"), 'B'));
         SalesHeader.Modify(true);
 
         OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
@@ -395,7 +390,7 @@ codeunit 130509 "Library - Sales"
     var
         RecRef: RecordRef;
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         RecRef.GetTable(SalesLine);
@@ -461,7 +456,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateSalesperson(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
-        SalespersonPurchaser.Init;
+        SalespersonPurchaser.Init();
         SalespersonPurchaser.Validate(
           Code, LibraryUtility.GenerateRandomCode(SalespersonPurchaser.FieldNo(Code), DATABASE::"Salesperson/Purchaser"));
         SalespersonPurchaser.Validate(Name, SalespersonPurchaser.Code);  // Validating Name as Code because value is not important.
@@ -470,7 +465,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateSalesPrepaymentPct(var SalesPrepaymentPct: Record "Sales Prepayment %"; SalesType: Option; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date)
     begin
-        SalesPrepaymentPct.Init;
+        SalesPrepaymentPct.Init();
         SalesPrepaymentPct.Validate("Item No.", ItemNo);
         SalesPrepaymentPct.Validate("Sales Type", SalesType);
         SalesPrepaymentPct.Validate("Sales Code", SalesCode);
@@ -482,7 +477,7 @@ codeunit 130509 "Library - Sales"
     var
         RecRef: RecordRef;
     begin
-        SalesCommentLine.Init;
+        SalesCommentLine.Init();
         SalesCommentLine.Validate("Document Type", DocumentType);
         SalesCommentLine.Validate("No.", No);
         SalesCommentLine.Validate("Document Line No.", DocumentLineNo);
@@ -516,7 +511,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateShipToAddress(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
     begin
-        ShipToAddress.Init;
+        ShipToAddress.Init();
         ShipToAddress.Validate("Customer No.", CustomerNo);
         ShipToAddress.Validate(
           Code,
@@ -529,7 +524,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateStandardSalesCode(var StandardSalesCode: Record "Standard Sales Code")
     begin
-        StandardSalesCode.Init;
+        StandardSalesCode.Init();
         StandardSalesCode.Validate(
           Code,
           CopyStr(
@@ -545,7 +540,7 @@ codeunit 130509 "Library - Sales"
     var
         RecRef: RecordRef;
     begin
-        StandardSalesLine.Init;
+        StandardSalesLine.Init();
         StandardSalesLine.Validate("Standard Sales Code", StandardSalesCode);
         RecRef.GetTable(StandardSalesLine);
         StandardSalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, StandardSalesLine.FieldNo("Line No.")));
@@ -554,7 +549,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateCustomerSalesCode(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; CustomerNo: Code[20]; "Code": Code[10])
     begin
-        StandardCustomerSalesCode.Init;
+        StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode.Validate("Customer No.", CustomerNo);
         StandardCustomerSalesCode.Validate(Code, Code);
         StandardCustomerSalesCode.Insert(true);
@@ -562,7 +557,7 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateCustomerMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; CustomerBankCode: Code[20]; FromDate: Date; ToDate: Date)
     begin
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.Validate("Customer No.", CustomerNo);
         SEPADirectDebitMandate.Validate("Customer Bank Account Code", CustomerBankCode);
         SEPADirectDebitMandate.Validate("Valid From", FromDate);
@@ -573,10 +568,10 @@ codeunit 130509 "Library - Sales"
 
     procedure CreateStandardText(var StandardText: Record "Standard Text"): Code[20]
     begin
-        StandardText.Init;
+        StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
         StandardText.Description := LibraryUtility.GenerateGUID;
-        StandardText.Insert;
+        StandardText.Insert();
         exit(StandardText.Code);
     end;
 
@@ -585,10 +580,10 @@ codeunit 130509 "Library - Sales"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        StandardText.Init;
+        StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
         StandardText.Description := LibraryUtility.GenerateGUID;
-        StandardText.Insert;
+        StandardText.Insert();
         LibrarySmallBusiness.CreateExtendedTextHeader(
           ExtendedTextHeader, ExtendedTextHeader."Table Name"::"Standard Text", StandardText.Code);
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
@@ -710,7 +705,6 @@ codeunit 130509 "Library - Sales"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.SetFilter("Bills Account", '<>%1', '');
         if not CustomerPostingGroup.FindFirst then
             CreateCustomerPostingGroup(CustomerPostingGroup);
         exit(CustomerPostingGroup.Code);
@@ -889,21 +883,21 @@ codeunit 130509 "Library - Sales"
 
     procedure SetAllowVATDifference(AllowVATDifference: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Allow VAT Difference", AllowVATDifference);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetAllowDocumentDeletionBeforeDate(Date: Date)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Allow Document Deletion Before", Date);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetApplnBetweenCurrencies(ApplnBetweenCurrencies: Option)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Appln. between Currencies", ApplnBetweenCurrencies);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -930,7 +924,7 @@ codeunit 130509 "Library - Sales"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Discount Posting", DiscountPosting);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -939,14 +933,14 @@ codeunit 130509 "Library - Sales"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Discount Posting" := DiscountPosting;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     procedure SetCalcInvDiscount(CalcInvDiscount: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -954,30 +948,26 @@ codeunit 130509 "Library - Sales"
     procedure SetCorrDocNoSales(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
-                if "Corrected Invoice No." = '' then begin
-                    "Corrected Invoice No." := LibraryUtility.GenerateGUID; // Skip validation (localization).
-                    Modify(true);
-                end;
+            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then;
     end;
 
     procedure SetCreditWarnings(CreditWarnings: Option)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetCreditWarningsToNoWarnings()
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetExactCostReversingMandatory(ExactCostReversingMandatory: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -986,42 +976,21 @@ codeunit 130509 "Library - Sales"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLFreightAccountNo);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetInvoiceRounding(InvoiceRounding: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
-        SalesReceivablesSetup.Modify(true);
-    end;
-
-    procedure SetPostInvoiceDiscount(PostInvoiceDiscount: Boolean)
-    begin
-        SalesReceivablesSetup.Get;
-        SalesReceivablesSetup.Validate("Post Invoice Discount", PostInvoiceDiscount);
-        SalesReceivablesSetup.Modify(true);
-    end;
-
-    procedure SetPostLineDiscount(PostLineDiscount: Boolean)
-    begin
-        SalesReceivablesSetup.Get;
-        SalesReceivablesSetup.Validate("Post Line Discount", PostLineDiscount);
-        SalesReceivablesSetup.Modify(true);
-    end;
-
-    procedure SetPostPaymentDiscount(PostPaymentDiscount: Boolean)
-    begin
-        SalesReceivablesSetup.Get;
-        SalesReceivablesSetup.Validate("Post Payment Discount", PostPaymentDiscount);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetStockoutWarning(StockoutWarning: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1030,7 +999,7 @@ codeunit 130509 "Library - Sales"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Prevent Negative Inventory", PreventNegativeInventory);
         InventorySetup.Modify(true);
     end;
@@ -1039,49 +1008,49 @@ codeunit 130509 "Library - Sales"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Archive Quotes", SalesReceivablesSetup."Archive Quotes"::Always);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetArchiveOrders(ArchiveOrders: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Archive Orders", ArchiveOrders);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetArchiveBlanketOrders(ArchiveBlanketOrders: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Archive Blanket Orders", ArchiveBlanketOrders);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetArchiveReturnOrders(ArchiveReturnOrders: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Archive Return Orders", ArchiveReturnOrders);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetExtDocNo(ExtDocNoMandatory: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Ext. Doc. No. Mandatory", ExtDocNoMandatory);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetPostWithJobQueue(PostWithJobQueue: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Post with Job Queue", PostWithJobQueue);
         SalesReceivablesSetup.Modify(true);
     end;
 
     procedure SetPostAndPrintWithJobQueue(PostAndPrintWithJobQueue: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Post & Print with Job Queue", PostAndPrintWithJobQueue);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1189,18 +1158,18 @@ codeunit 130509 "Library - Sales"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Ignore Updated Addresses" := true;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     procedure DisableSalesSetupIgnoreUpdatedAddresses()
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Ignore Updated Addresses" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
