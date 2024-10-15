@@ -16,6 +16,9 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if (Rec."Document Type" <> Rec."Document Type"::Order) or
            (Rec.Status = Rec.Status::Open) or
            RunTrigger // RunTrigger is expected to be FALSE on removal of Sales Order Header on posting

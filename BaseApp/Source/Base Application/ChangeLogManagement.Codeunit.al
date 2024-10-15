@@ -1,4 +1,4 @@
-codeunit 423 "Change Log Management"
+﻿codeunit 423 "Change Log Management"
 {
     Permissions = TableData "Change Log Setup" = r,
                   TableData "Change Log Setup (Table)" = r,
@@ -312,6 +312,7 @@ codeunit 423 "Change Log Management"
                 exit;
         end;
 
+        OnLogModificationOnBeforeRecRefLoopStart(RecRef, xRecRef);
         for i := 1 to RecRef.FieldCount do begin
             FldRef := RecRef.FieldIndex(i);
             xFldRef := xRecRef.FieldIndex(i);
@@ -546,6 +547,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogModificationOnBeforeRecRefLoopStart(var RecRef: RecordRef; var xRecRef: RecordRef)
     begin
     end;
 }

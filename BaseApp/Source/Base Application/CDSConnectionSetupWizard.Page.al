@@ -700,6 +700,7 @@ page 7201 "CDS Connection Setup Wizard"
         GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
+        [NonDebuggable]
         UserPassword: Text;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
         UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';

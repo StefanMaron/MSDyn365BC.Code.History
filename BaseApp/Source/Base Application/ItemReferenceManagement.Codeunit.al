@@ -27,19 +27,7 @@
 
         with SalesLine2 do
             if Type = Type::Item then begin
-                ItemReference.Reset();
-                ItemReference.SetRange("Item No.", "No.");
-                ItemReference.SetRange("Variant Code", "Variant Code");
-                ItemReference.SetRange("Unit of Measure", "Unit of Measure Code");
-                ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
-                ItemReference.SetRange("Reference Type No.", "Sell-to Customer No.");
-                ItemReference.SetRange("Reference No.", "Item Reference No.");
-                if ItemReference.FindFirst() then
-                    Found := true
-                else begin
-                    ItemReference.SetRange("Reference No.");
-                    Found := ItemReference.FindFirst();
-                end;
+                FindItemReferenceForSalesLine(SalesLine2);
 
                 if Found then begin
                     "Item Reference No." := ItemReference."Reference No.";
@@ -68,6 +56,30 @@
                     OnAfterSalesItemItemRefNotFound(SalesLine2, ItemVariant);
                 end;
             end;
+    end;
+
+    local procedure FindItemReferenceForSalesLine(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindItemReferenceForSalesLine(SalesLine, ItemReference, Found, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemReference.Reset();
+        ItemReference.SetRange("Item No.", SalesLine."No.");
+        ItemReference.SetRange("Variant Code", SalesLine."Variant Code");
+        ItemReference.SetRange("Unit of Measure", SalesLine."Unit of Measure Code");
+        ItemReference.SetRange("Reference Type", SalesLine."Item Reference Type"::Customer);
+        ItemReference.SetRange("Reference Type No.", SalesLine."Sell-to Customer No.");
+        ItemReference.SetRange("Reference No.", SalesLine."Item Reference No.");
+        if ItemReference.FindFirst() then
+            Found := true
+        else begin
+            ItemReference.SetRange("Reference No.");
+            Found := ItemReference.FindFirst();
+        end;
     end;
 
     procedure ReferenceLookupSalesItem(var SalesLine2: Record "Sales Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -626,6 +638,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEnterSalesItemReference(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindItemReferenceForSalesLine(SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

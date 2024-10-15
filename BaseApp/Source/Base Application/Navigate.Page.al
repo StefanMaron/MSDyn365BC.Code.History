@@ -1075,6 +1075,8 @@
         FindPostedInvtReceipt();
         FindPostedInvtShipment();
         FindIssuedDeliveryReminderHeader();
+
+        OnAfterFindPostedDocuments(DocNoFilter, PostingDateFilter);
     end;
 
     local procedure FindIncomingDocumentRecords()
@@ -1823,7 +1825,14 @@
     end;
 
     local procedure ShowEmployeeLedgerEntries()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowEmployeeLedgerEntries(EmplLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         PAGE.Run(PAGE::"Employee Ledger Entries", EmplLedgEntry);
     end;
 
@@ -2151,6 +2160,11 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterFindPostedDocuments(var DocNoFilter: Text; var PostingDateFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
     begin
     end;
@@ -2186,7 +2200,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSource(SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
+    local procedure OnAfterSetSource(var SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
     begin
     end;
 
@@ -2197,6 +2211,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; var IsHandled: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SOSalesHeader: Record "Sales Header"; var SISalesHeader: Record "Sales Header"; var SCMSalesHeader: Record "Sales Header"; var SROSalesHeader: Record "Sales Header"; var GLEntry: Record "G/L Entry"; var VATEntry: Record "VAT Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowEmployeeLedgerEntries(var EmplLedgEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

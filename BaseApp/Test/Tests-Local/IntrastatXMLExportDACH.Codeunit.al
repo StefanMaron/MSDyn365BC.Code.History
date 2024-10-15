@@ -483,6 +483,8 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [GIVEN] "Partner VAT ID" is not filled in
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
         MockIntrastatJnlLine(IntrastatJnlLine, ExportTypeGlb::Receipt, false);
+        IntrastatJnlLine.Validate("Partner VAT ID", '');
+        IntrastatJnlLine.Modify(true);
         ModifyCountryRegionIntrastatCode(IntrastatJnlLine."Country/Region of Origin Code", '');
 
         // [WHEN] Export XML
@@ -811,7 +813,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         PrepareIntraJnlForBasicScenario(IntrastatJnlBatch, DummyIntrastatJnlLineSpec);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
-        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
 
         // [THEN] XML has been exported with two Declarations: Receipt (items spec "S1", "S2"), Shipment (items spec "S3", "S4")
         ExtractXMLFromZipFile(ZipFileName, TempBlob);
@@ -852,7 +854,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
-        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
 
         // [THEN] XML has been exported with Amount = 0, Statistical Value = 100
         ExtractXMLFromZipFile(ZipFileName, TempBlob);
@@ -1337,6 +1339,96 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    procedure PartnerVATIDIsRequiredForExportShipmentLine()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 407459] "Partner VAT ID" is checked on run report "Intrastat - Disk Tax Auth DE" on Shipment lines
+        Initialize();
+
+        // [GIVEN] Intrastat shipment line with blanked "Partner VAT ID"
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
+        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
+        IntrastatJnlLine.Validate("Partner VAT ID", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE"
+        asserterror RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+
+        // [THEN] An error occurs that "Partner VAT ID" should have a value
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlLine.FieldName("Partner VAT ID"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    procedure CountryRegionOfOriginIsRequiredForExportShipmentLine()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 407459] "Country/Region of Origin Code" is checked on run report "Intrastat - Disk Tax Auth DE" on Shipment lines
+        Initialize();
+
+        // [GIVEN] Intrastat shipment line with blanked "Country/Region of Origin Code"
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
+        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE"
+        asserterror RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+
+        // [THEN] An error occurs that "Country/Region of Origin Code" should have a value
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlLine.FieldName("Country/Region of Origin Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    procedure ExportTwoIdenticalLinesDiffersOnlyByPartnerVATID()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
+        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
+        TempBlob: Codeunit "Temp Blob";
+        ZipFileName: Text;
+    begin
+        // [SCENARIO 407652] Export two identical Intrastat journal lines which differs only by Partner VAT ID
+        Initialize();
+
+        // [GIVEN] Two identical Intrastat journal lines, one has Partner VAT ID = "A", another = "B"
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
+        CreateIntrastatJnlLine(IntrastatJnlLine[1], IntrastatJnlLineSpec, IntrastatJnlBatch);
+        CreateIntrastatJnlLine(IntrastatJnlLine[2], IntrastatJnlLineSpec, IntrastatJnlBatch);
+        IntrastatJnlLine[2].Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        IntrastatJnlLine[2].Modify(true);
+
+        // [WHEN] Run report "Intrastat - Disk Tax Auth DE"
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
+        ExtractXMLFromZipFile(ZipFileName, TempBlob);
+
+        // [THEN] XML has been exported with two item declarations: one with Partner VAT ID = "A", another with "B"
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item', 2);
+        LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath(
+          '/INSTAT/Envelope/Declaration/Item/partnerId', IntrastatJnlLine[1]."Partner VAT ID", 1);
+        LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath(
+          '/INSTAT/Envelope/Declaration/Item/partnerId', IntrastatJnlLine[2]."Partner VAT ID", 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1347,8 +1439,8 @@ codeunit 142086 "Intrastat XML Export DACH"
 
         UpdateCompanyInformation;
         UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
-        LibrarySetupStorage.Save(DATABASE::"Company Information");
-        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
+        LibrarySetupStorage.Save(Database::"Company Information");
+        LibrarySetupStorage.Save(Database::"Intrastat Setup");
         Commit();
     end;
 
@@ -1387,6 +1479,7 @@ codeunit 142086 "Intrastat XML Export DACH"
             "Country/Region of Origin Code" := IntrastatJnlLineSpec."Country/Region of Origin Code";
             "Supplementary Units" := IntrastatJnlLineSpec."Supplementary Units";
             "Document No." := IntrastatJnlLineSpec."Document No.";
+            "Partner VAT ID" := IntrastatJnlLineSpec."Partner VAT ID";
             Date := IntrastatJnlLineSpec.Date;
 
             Validate(Quantity, LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
@@ -1417,12 +1510,13 @@ codeunit 142086 "Intrastat XML Export DACH"
             "Country/Region of Origin Code" := CreateCountryRegionCode;
             "Supplementary Units" := SU;
             "Document No." := LibraryUtility.GenerateGUID;
+            "Partner VAT ID" := LibraryUtility.GenerateGUID();
             Date := WorkDate();
         end;
     end;
 
     local procedure CreateReceiptAndShipmentIntrastatJnlLines(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch");
-    VAR
+    var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
     begin
@@ -1475,11 +1569,11 @@ codeunit 142086 "Intrastat XML Export DACH"
     end;
 
     local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatchName: Code[10]; LineType: Option);
-    BEGIN
+    begin
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatchName);
         IntrastatJnlLine.SetRange(Type, LineType);
         IntrastatJnlLine.FindFirst();
-    END;
+    end;
 
     local procedure GetMaterialNumber(TestSubmission: Boolean): Text
     var

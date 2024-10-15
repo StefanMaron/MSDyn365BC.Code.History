@@ -279,7 +279,7 @@ codeunit 144061 "Intrastat AT"
         RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
 
         // [THEN] File content is correct
-        // TFS 344448: A period text in the file is correct
+        // TFS 344448, 406878: A period text in the file is correct
         VerifyIntrastatMakeDiskFiles(IntrastatJnlLine, FilenameSales, FilenamePurchase);
     end;
 
@@ -896,7 +896,7 @@ codeunit 144061 "Intrastat AT"
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         PeriodText :=
-          StrSubstNo('DTM+320:%1%2:610', CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2), IntrastatJnlBatch."Statistics Period");
+          StrSubstNo('DTM+320:%1%2:610', '20', IntrastatJnlBatch."Statistics Period");
         VerifyStringInstancesInFile(FilenameSales, PeriodText, 1);
 
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt);
