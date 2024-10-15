@@ -477,7 +477,7 @@ page 5123 "Opportunity List"
     end;
 
     var
-        Text001: Label 'untitled';
+        OpportunitiesTxt: Label 'Opportunities';
         OppNotStarted: Boolean;
         OppInProgress: Boolean;
         CRMIntegrationEnabled: Boolean;
@@ -490,14 +490,14 @@ page 5123 "Opportunity List"
     begin
         case true of
             BuildCaptionContact(CaptionStr, GetFilter("Contact Company No.")),
-          BuildCaptionContact(CaptionStr, GetFilter("Contact No.")),
-          BuildCaptionSalespersonPurchaser(CaptionStr, GetFilter("Salesperson Code")),
-          BuildCaptionCampaign(CaptionStr, GetFilter("Campaign No.")),
-          BuildCaptionSegmentHeader(CaptionStr, GetFilter("Segment No.")):
-                exit(CaptionStr)
+            BuildCaptionContact(CaptionStr, GetFilter("Contact No.")),
+            BuildCaptionSalespersonPurchaser(CaptionStr, GetFilter("Salesperson Code")),
+            BuildCaptionCampaign(CaptionStr, GetFilter("Campaign No.")),
+            BuildCaptionSegmentHeader(CaptionStr, GetFilter("Segment No.")):
+                exit(CaptionStr);
         end;
 
-        exit(Text001);
+        exit(OpportunitiesTxt);
     end;
 
     local procedure BuildCaptionContact(var CaptionText: Text[260]; "Filter": Text): Boolean

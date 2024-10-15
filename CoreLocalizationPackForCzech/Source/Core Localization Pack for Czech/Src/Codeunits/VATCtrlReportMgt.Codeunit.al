@@ -229,8 +229,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             TempVATEntryGlobal.SetRange("VAT Registration No.", TempVATEntry."VAT Registration No.");
             TempVATEntryGlobal.SetRange("External Document No.", TempVATEntry."External Document No.");
             TempVATEntryGlobal.SetRange("Posting Date", TempVATEntry."Posting Date");
-            if TempVATEntry."VAT Calculation Type" <> TempVATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                TempVATEntryGlobal.SetFilter(Amount, '<>0');
             if TempVATEntryGlobal.FindSet() then begin
                 TempBudgetBufferVATEntry.Init();
                 TempBudgetBufferVATEntry."G/L Account No." := TempVATEntry."Document No.";
@@ -471,9 +469,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
         TempDropShptPostBuffer.Reset();
         TempDropShptPostBuffer.DeleteAll();
 
-        if VATEntry.Amount = 0 then
-            exit;
-
         if (VATEntry.Base <> 0) or (VATEntry."Advance Base" <> 0) then
             case SectionCode of
                 'A1':
@@ -488,6 +483,9 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
                     end;
                 'B1':
                     begin
+                        if VATEntry.Amount = 0 then
+                            exit;
+
                         VATEntry.TestField(Type, VATEntry.Type::Purchase);
                         case VATEntry."Document Type" of
                             VATEntry."Document Type"::Invoice:
@@ -522,7 +520,7 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
         SalesInvoiceLine.SetRange(SalesInvoiceLine."VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
         SalesInvoiceLine.SetFilter(SalesInvoiceLine.Type, '<>%1', SalesInvoiceLine.Type::" ");
         SalesInvoiceLine.SetFilter(SalesInvoiceLine.Quantity, '<>0');
-        SalesInvoiceLine.SetFilter("Tariff No. CZL", '<>%1', '');
+        SalesInvoiceLine.SetRange("Prepayment Line", false);
         if SalesInvoiceLine.FindSet(false, false) then begin
             if SalesInvoiceHeader."No." <> SalesInvoiceLine."Document No." then
                 SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
@@ -567,7 +565,7 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
         PurchInvLine.SetRange(PurchInvLine."VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
         PurchInvLine.SetFilter(PurchInvLine.Type, '<>%1', PurchInvLine.Type::" ");
         PurchInvLine.SetFilter(PurchInvLine.Quantity, '<>0');
-        PurchInvLine.SetFilter("Tariff No. CZL", '<>%1', '');
+        PurchInvLine.SetRange("Prepayment Line", false);
         if PurchInvLine.FindSet(false, false) then begin
             if PurchInvHeader."No." <> PurchInvLine."Document No." then
                 PurchInvHeader.Get(PurchInvLine."Document No.");

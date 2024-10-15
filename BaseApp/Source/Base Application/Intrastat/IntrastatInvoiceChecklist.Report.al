@@ -3,7 +3,7 @@ report 31061 "Intrastat - Invoice Checklist"
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
     //       //aaa
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatInvoiceChecklist.rdlc';
+    RDLCLayout = './Intrastat/IntrastatInvoiceChecklist.rdlc';
 
     Caption = 'Intrastat - Invoice Checklist';
 

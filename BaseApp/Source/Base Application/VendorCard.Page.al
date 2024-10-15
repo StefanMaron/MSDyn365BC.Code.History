@@ -88,6 +88,10 @@
                     Editable = false;
                     Enabled = BalanceOfCustEnable;
                     ToolTip = 'Specifies the customer''s balance which is connected with certain vendor';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.7';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     var

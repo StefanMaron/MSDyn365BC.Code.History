@@ -161,7 +161,8 @@ page 31112 "VAT Ctrl. Report Subform CZL"
                 action("&Navigate")
                 {
                     ApplicationArea = VAT;
-                    Caption = '&Navigate';
+                    Caption = 'Find Entries';
+                    Ellipsis = true;
                     Image = Navigate;
                     ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 

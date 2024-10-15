@@ -454,6 +454,12 @@ report 1305 "Standard Sales - Order Conf."
                 column(ShipmentDate_Line_Lbl; PostedShipmentDateLbl)
                 {
                 }
+                column(PlannedShipmentDate_Line; Format("Planned Shipment Date"))
+                {
+                }
+                column(PlannedShipmentDate_Line_Lbl; FieldCaption("Planned Shipment Date"))
+                {
+                }
                 column(Quantity_Line; FormattedQuantity)
                 {
                 }

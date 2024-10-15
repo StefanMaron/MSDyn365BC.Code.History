@@ -105,6 +105,10 @@ page 21 "Customer Card"
                     Editable = false;
                     Enabled = BalanceOfVendEnable;
                     ToolTip = 'Specifies the vendor''s balance which is connected with certain customer';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.7';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     var
@@ -2368,6 +2372,17 @@ page 21 "Customer Card"
             else
                 OpenApprovalEntriesExistCurrUser := false;
         end;
+
+        // NAVCZ
+        if Vend.Get(GetLinkedVendor) then begin
+            Vend.CalcFields("Balance (LCY)");
+            BalanceAsVend := Vend."Balance (LCY)";
+            BalanceOfVendEnable := true;
+        end else begin
+            BalanceAsVend := 0;
+            BalanceOfVendEnable := false;
+        end;
+        // NAVCZ
     end;
 
     trigger OnInit()

@@ -240,8 +240,6 @@ codeunit 31100 VATControlReportManagement
                 TempVATEntryGlobal.SetRange("VAT Registration No.", TempVATEntry."VAT Registration No.");
                 TempVATEntryGlobal.SetRange("External Document No.", TempVATEntry."External Document No.");
                 TempVATEntryGlobal.SetRange("Posting Date", TempVATEntry."Posting Date");
-                if TempVATEntry."VAT Calculation Type" <> TempVATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                    TempVATEntryGlobal.SetFilter(Amount, '<>0');
                 if TempVATEntryGlobal.FindSet then begin
                     Init;
                     "G/L Account No." := TempVATEntry."Document No.";
@@ -496,9 +494,6 @@ codeunit 31100 VATControlReportManagement
         TempDropShptPostBuffer.Reset();
         TempDropShptPostBuffer.DeleteAll();
 
-        if VATEntry.Amount = 0 then
-            exit;
-
         with VATEntry do begin
             if (Base <> 0) or (Amount <> 0) or ("Advance Base" <> 0) then
                 case SectionCode of
@@ -514,6 +509,9 @@ codeunit 31100 VATControlReportManagement
                         end;
                     'B1':
                         begin
+                            if VATEntry.Amount = 0 then
+                                exit;
+
                             TestField(Type, Type::Purchase);
                             case "Document Type" of
                                 "Document Type"::Invoice:
@@ -550,7 +548,7 @@ codeunit 31100 VATControlReportManagement
             SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter(Quantity, '<>0');
-            SetFilter("Tariff No.", '<>%1', '');
+            SetRange("Prepayment Line", false);
             if FindSet(false, false) then begin
                 SalesInvHdr.Get("Document No.");
                 repeat
@@ -597,7 +595,7 @@ codeunit 31100 VATControlReportManagement
             SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter(Quantity, '<>0');
-            SetFilter("Tariff No.", '<>%1', '');
+            SetRange("Prepayment Line", false);
             if FindSet(false, false) then begin
                 PurchInvHdr.Get("Document No.");
                 repeat

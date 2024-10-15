@@ -571,6 +571,7 @@ report 7151 "Item Dimensions - Total"
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisSelectedDim: Record "Analysis Selected Dimension";
+        TempEscapeFilterItem: Record "Item" temporary;
     begin
         if ItemAnalysisViewCode = '' then
             Error(Text000);
@@ -597,10 +598,14 @@ report 7151 "Item Dimensions - Total"
                 TempItem.Init();
                 TempItem := Item;
                 TempItem.Insert();
-            until Item.Next = 0;
-            ItemRange := ItemRange + '..' + Item."No.";
+            until Item.Next() = 0;
+
             if TempAnalysisSelectedDim.FindFirst and (TempAnalysisSelectedDim."Dimension Value Filter" <> '') then
-                ItemRange := TempAnalysisSelectedDim."Dimension Value Filter";
+                ItemRange := TempAnalysisSelectedDim."Dimension Value Filter"
+            else begin
+                TempEscapeFilterItem.SetRange("No.", ItemRange, Item."No.");
+                ItemRange := TempEscapeFilterItem.GetFilter("No.");
+            end;
         end;
 
         TempLocation.Init();
@@ -688,7 +693,7 @@ report 7151 "Item Dimensions - Total"
         FindFirstDim: array[4] of Boolean;
         DimCode: array[4] of Text[30];
         DimValCode: array[3] of Code[20];
-        DimValName: array[3] of Text[50];
+        DimValName: array[3] of Text[100];
         DimValNameIndent: array[3] of Integer;
         ShowBold: array[3] of Boolean;
         LevelFilter: array[3] of Text[250];
@@ -712,7 +717,7 @@ report 7151 "Item Dimensions - Total"
         PostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
         LowestLevel: Boolean;
         ThisDimValCode: Code[20];
-        ThisDimValName: Text[50];
+        ThisDimValName: Text[100];
         ThisTotaling: Text[250];
         ThisIndentation: Integer;
         ThisPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
@@ -797,7 +802,7 @@ report 7151 "Item Dimensions - Total"
     var
         Totaling: Text[250];
         LowestLevel: Boolean;
-        ThisDimValName: Text[50];
+        ThisDimValName: Text[100];
         ThisIndentation: Integer;
         ThisPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
         HasValue: Boolean;
@@ -924,7 +929,7 @@ report 7151 "Item Dimensions - Total"
                             SearchResult := TempItem.Next <> 0;
                     if SearchResult then begin
                         IterationDimValCode := TempItem."No.";
-                        IterationDimValName := TempItem.Description;
+                        IterationDimValName := CopyStr(TempItem.Description, 1, MaxStrLen(IterationDimValName));
                         IterationIndentation := 0;
                         IterationPostingType := 0;
                     end;
@@ -941,9 +946,9 @@ report 7151 "Item Dimensions - Total"
                     if SearchResult then begin
                         IterationDimValCode := TempLocation.Code;
                         if TempLocation.Code <> '' then
-                            IterationDimValName := TempLocation.Name
+                            IterationDimValName := CopyStr(TempLocation.Name, 1, MaxStrLen(IterationDimValName))
                         else
-                            IterationDimValName := Text009;
+                            IterationDimValName := CopyStr(Text009, 1, MaxStrLen(IterationDimValName));
                         IterationIndentation := 0;
                         IterationPostingType := 0;
                     end;
@@ -978,6 +983,8 @@ report 7151 "Item Dimensions - Total"
     end;
 
     local procedure SetAnalysisLineFilter(AnalysisViewDimCode: Text[30]; AnalysisViewFilter: Text[250]; SetFilter: Boolean; Totaling: Text[250])
+    var
+        TempAnalysisLine: Record "Analysis Line" temporary;
     begin
         if Totaling <> '' then
             AnalysisViewFilter := Totaling;
@@ -987,8 +994,10 @@ report 7151 "Item Dimensions - Total"
             TempItem.TableCaption:
                 begin
                     ItemFilterSet := SetFilter;
-                    if SetFilter then
-                        AnalysisLine.Range := AnalysisViewFilter
+                    if SetFilter then begin
+                        TempAnalysisLine.SetFilter(Range, '%1', AnalysisViewFilter);
+                        AnalysisLine.Range := TempAnalysisLine.GetFilter(Range);
+                    end
                     else
                         AnalysisLine.Range := ItemRange;
                 end;

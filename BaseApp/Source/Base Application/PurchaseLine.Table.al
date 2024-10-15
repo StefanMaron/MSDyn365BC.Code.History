@@ -253,7 +253,6 @@
             var
                 Item: Record Item;
                 ConfirmManagement: Codeunit "Confirm Management";
-                PriceCalculation: Interface "Price Calculation";
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
@@ -300,12 +299,9 @@
                 end;
                 "Bin Code" := '';
 
-                GetPurchHeader();
-                GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-                if not ("Copied From Posted Doc." and IsCreditDocType()) then 
-                    PriceCalculation.ApplyPrice(FieldNo("Location Code"));
-                GetLineWithCalculatedPrice(PriceCalculation);
-                Validate("Direct Unit Cost");
+                if Type = Type::Item then
+                    if "Location Code" <> xRec."Location Code" then
+                        PlanPriceCalcByField(FieldNo("Location Code"));
 
                 if "Location Code" = '' then begin
                     if InvtSetup.Get then
@@ -326,6 +322,8 @@
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
+
+                UpdateDirectUnitCostByField(FieldNo("Location Code"));
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -722,8 +720,10 @@
                       Round(
                         (UnitCostCurrency - "Direct Unit Cost" + "Line Discount Amount" / Quantity) /
                         ("Direct Unit Cost" - "Line Discount Amount" / Quantity) * 100, 0.00001);
-                    if IndirectCostPercent >= 0 then
+                    if IndirectCostPercent >= 0 then begin
                         "Indirect Cost %" := IndirectCostPercent;
+                        CheckLineTypeOnIndirectCostPercentUpdate();
+                    end;
                 end;
 
                 UpdateSalesCostFromUnitCostLCY();
@@ -1047,8 +1047,7 @@
                 TestField("No.");
                 TestStatusOpen;
 
-                if Type = Type::"Charge (Item)" then
-                    TestField("Indirect Cost %", 0);
+                CheckLineTypeOnIndirectCostPercentUpdate();
 
                 if (Type = Type::Item) and ("Prod. Order No." = '') then begin
                     GetItem(Item);
@@ -4267,6 +4266,19 @@
         LineAmount := "Line Amount" - "Inv. Discount Amount";
 
         OnAfterCalcLineAmount(Rec, LineAmount);
+    end;
+
+    local procedure CheckLineTypeOnIndirectCostPercentUpdate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Type <> Type::Item then
+            TestField("Indirect Cost %", 0);
     end;
 
     local procedure CalcQtyPerUnitOfMeasure(Item: Record Item)
@@ -9237,6 +9249,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReturnReasonCode(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

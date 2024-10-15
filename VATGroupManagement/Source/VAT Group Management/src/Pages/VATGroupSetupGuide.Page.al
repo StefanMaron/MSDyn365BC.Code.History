@@ -152,8 +152,8 @@ page 4705 "VAT Group Setup Guide"
                 field(GroupSettlementGenJnlTempl; GroupSettleGenJnlTempl)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Group Settlement Document Nos.';
-                    ToolTip = 'Specifies the number series used for the document to post the Group VAT to the settlement account.';
+                    Caption = 'Group Settlement General Journal Template';
+                    ToolTip = 'Specifies the general journal template used for the document to post the Group VAT to the settlement account.';
                     TableRelation = "Gen. Journal Template".Name;
                     trigger OnValidate()
                     begin

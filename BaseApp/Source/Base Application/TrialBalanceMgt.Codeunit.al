@@ -83,7 +83,7 @@ codeunit 1318 "Trial Balance Mgt."
                         ColumnLayoutArr[Counter, Offset] := TempColumnLayout;
                         AccScheduleLineArr[Counter] := AccScheduleLine;
                         AccSchedManagement.CalcColumnDates(TempColumnLayout, FromDate, ToDate, FiscalStartDate);
-                        PeriodCaptionTxt[Offset] := StrSubstNo('%1..%2', FromDate, ToDate);
+                        PeriodCaptionTxt[Offset] := StrSubstNo('%1: %2..%3', TempColumnLayout."Column Header", FromDate, ToDate);
                         Offset := Offset - 1;
                         TempNoOfColumns := TempNoOfColumns - 1;
                     until (TempColumnLayout.Next = 0) or (TempNoOfColumns = 0);

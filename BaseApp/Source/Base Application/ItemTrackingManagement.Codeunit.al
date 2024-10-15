@@ -1296,6 +1296,9 @@
         WhseItemTrackingLine.CopyTrackingFromReservEntry(SourceReservEntry);
         WhseItemTrackingLine."Quantity (Base)" := -SourceReservEntry."Quantity (Base)";
 
+        if Abs(WhseWkshLine."Qty. Handled (Base)") > Abs(WhseItemTrackingLine."Quantity (Base)") then
+            WhseWkshLine."Qty. Handled (Base)" := WhseItemTrackingLine."Quantity (Base)";
+
         if WhseWkshLine."Qty. Handled (Base)" <> 0 then begin
             WhseItemTrackingLine."Quantity Handled (Base)" := WhseWkshLine."Qty. Handled (Base)";
             WhseItemTrackingLine."Qty. Registered (Base)" := WhseWkshLine."Qty. Handled (Base)";

@@ -303,6 +303,7 @@ table 11710 "Issued Payment Order Header"
         LineNo: Integer;
     begin
         IssuedPmtOrdLn.SetRange("Payment Order No.", "No.");
+        IssuedPmtOrdLn.SetRange(Status, IssuedPmtOrdLn.Status::" ");
         if IssuedPmtOrdLn.IsEmpty then
             exit;
 

@@ -209,17 +209,29 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
-        // NAVCZ
-        if DateRowFilter <> '' then
-            SetFilter("Date Row Filter", DateRowFilter);
-        if (VATPeriodStartDate <> 0D) or (VATPeriodEndDate <> 0D) then begin
-            SetRange("Date Filter", VATPeriodStartDate, VATPeriodEndDate);
-            DateFilter := GetFilter("Date Filter");
-        end else
+        if ValuesPassed then begin
+            Selection := PassedSelection;
+            PeriodSelection := PassedPeriodSelection;
+            DateFilter := PassedDateFilter;
+        end else begin
             // NAVCZ
+            if DateRowFilter <> '' then
+                SetFilter("Date Row Filter", DateRowFilter);
+            if (VATPeriodStartDate <> 0D) or (VATPeriodEndDate <> 0D) then begin
+                SetRange("Date Filter", VATPeriodStartDate, VATPeriodEndDate);
+                DateFilter := GetFilter("Date Filter");
+            end else
+                // NAVCZ
             DateFilter := '';
+        end;
         UpdateSubForm();
     end;
+
+    var
+        PassedSelection: Enum "VAT Statement Report Selection";
+        PassedPeriodSelection: Enum "VAT Statement Report Period Selection";
+        PassedDateFilter: Text[30];
+        ValuesPassed: Boolean;
 
     protected var
         Selection: Enum "VAT Statement Report Selection";
@@ -244,6 +256,14 @@ page 474 "VAT Statement Preview"
         NewSelection := Selection;
         NewPeriodSelection := PeriodSelection;
         NewUseAmtsInAddCurr := UseAmtsInAddCurr;
+    end;
+
+    procedure SetParameters(NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewDateFilter: Text[30])
+    begin
+        PassedSelection := NewSelection;
+        PassedPeriodSelection := NewPeriodSelection;
+        PassedDateFilter := NewDateFilter;
+        ValuesPassed := true;
     end;
 
     local procedure OpenandClosedSelectionOnPush()

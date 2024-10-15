@@ -250,7 +250,8 @@ page 31165 "Posted Cash Document CZP"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find Entries';
+                Ellipsis = true;
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

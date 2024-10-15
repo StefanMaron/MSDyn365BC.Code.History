@@ -418,17 +418,8 @@
                             NextVATEntryNo := NextVATEntryNo + 1;
 
                             // Close current VAT entries
-                            if PostSettlement then begin
-                                VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
-                                VATEntry.ModifyAll("VAT Settlement No.", CopyStr(DocNo, 1, MaxStrLen(VATEntry."VAT Settlement No."))); // NAVCZ
-                                VATEntry.ModifyAll(Closed, true);
-
-                                // NAVCZ
-                                VATEntry2.Get(NextVATEntryNo);
-                                VATEntry2."VAT Settlement No." := CopyStr(DocNo, 1, MaxStrLen(VATEntry2."VAT Settlement No."));
-                                VATEntry2.Modify();
-                                // NAVCZ
-                            end;
+                            if PostSettlement then
+                                CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
                         end;
                     }
 
@@ -741,7 +732,6 @@
         GenJnlLine2: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
-        VATEntry2: Record "VAT Entry";
         TaxJurisdiction: Record "Tax Jurisdiction";
         GLSetup: Record "General Ledger Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -974,6 +964,27 @@
         OnAfterIncrementGenPostingType(OldGenPostingType, NewGenPostingType);
     end;
 
+    local procedure CloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer)
+    var
+        VATEntryNext: Record "VAT Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
+        VATEntry.ModifyAll("VAT Settlement No.", CopyStr(DocNo, 1, MaxStrLen(VATEntry."VAT Settlement No."))); // NAVCZ
+        VATEntry.ModifyAll(Closed, true);
+
+        // NAVCZ
+        VATEntryNext.Get(NextVATEntryNo);
+        VATEntryNext."VAT Settlement No." := CopyStr(DocNo, 1, MaxStrLen(VATEntryNext."VAT Settlement No."));
+        VATEntryNext.Modify();
+        // NAVCZ
+    end;
+
     local procedure IsNotSettlement(GenPostingType: Enum "General Posting Type"): Boolean
     begin
         exit(
@@ -999,6 +1010,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -240,7 +240,14 @@
             trigger OnAfterGetRecord()
             var
                 DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+                FilteredCustomer: Record Customer;
             begin
+                FilteredCustomer.CopyFilters(Customer);
+                FilteredCustomer.SetFilter("Date Filter", '..%1', PeriodStartDate[2]);
+                FilteredCustomer.SetRange("No.", "No.");
+                if FilteredCustomer.IsEmpty() then
+                    CurrReport.Skip();
+
                 PrintLine := false;
                 LineTotalCustBalance := 0;
                 CopyFilter("Currency Filter", DtldCustLedgEntry."Currency Code");

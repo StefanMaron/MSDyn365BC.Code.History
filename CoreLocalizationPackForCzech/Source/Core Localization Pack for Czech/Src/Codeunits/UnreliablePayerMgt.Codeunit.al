@@ -25,26 +25,29 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
     var
         TempBlobResponse: Codeunit "Temp Blob";
         InsertEntryCount: Integer;
-        VATRegNoCount: Integer;
-        MaxVATRegNoCount: Integer;
-        CurrVATRegNoCount: Integer;
+        RemainingRecordCount: Integer;
+        RecordLimit: Integer;
+        RecordCountToSend: Integer;
+        Index: Integer;
     begin
         GetUnreliablePayerServiceSetup();
-        VATRegNoCount := GetVATRegNoCount();
-        if VATRegNoCount = 0 then
+        RemainingRecordCount := GetVATRegNoCount();
+        if RemainingRecordCount = 0 then
             exit(false);
 
-        MaxVATRegNoCount := GetMaxVATRegNoCount();
+        RecordLimit := GetVATRegNoLimit();
+        Index := 1;
         repeat
-            CurrVATRegNoCount := MaxVATRegNoCount;
-            if VATRegNoCount <= MaxVATRegNoCount then
-                CurrVATRegNoCount := VATRegNoCount;
-            if not GetUnrPayerStatus(VATRegNoList, TempBlobResponse) then
+            RecordCountToSend := RecordLimit;
+            if RemainingRecordCount <= RecordLimit then
+                RecordCountToSend := RemainingRecordCount;
+            if not GetUnrPayerStatus(VATRegNoList.GetRange(Index, RecordCountToSend), TempBlobResponse) then
                 exit(false);
 
             InsertEntryCount += ImportUnrPayerStatusResponse(TempBlobResponse);
-            VATRegNoCount -= CurrVATRegNoCount;
-        until VATRegNoCount = 0;
+            RemainingRecordCount -= RecordCountToSend;
+            Index += RecordCountToSend;
+        until RemainingRecordCount = 0;
 
         if ShowMessage then
             Message(ImportSuccessfulMsg, InsertEntryCount);
@@ -53,9 +56,14 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
 
     procedure ImportUnrPayerStatusForVendor(Vendor: Record Vendor): Boolean
     var
+        CheckDisabledMsg: Label 'Check is disabled for vendor %1.', Comment = '%1 = Vendor No.';
         VatRegNoEmptyMsg: Label 'Check is not possible.\%1 must not be empty and must match %2 in %3.', Comment = '%1 = VAT Registration No. FieldCaption, %2 =  Country/Region CodeFieldCaption, %3 = CompanyInfromation TabeCaption';
     begin
         GetUnreliablePayerServiceSetup();
+        if Vendor."Disable Unreliab. Check CZL" then begin
+            Message(CheckDisabledMsg, Vendor."No.");
+            exit(false);
+        end;
         if not Vendor.IsUnreliablePayerCheckPossibleCZL() then begin
             Message(VatRegNoEmptyMsg, Vendor.FieldCaption("VAT Registration No."), CompanyInformation.FieldCaption("Country/Region Code"), CompanyInformation.TableCaption());
             exit(false);
@@ -113,11 +121,8 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
         exit(UnreliablePayerListCZL.GetInsertEntryCount());
     end;
 
-    local procedure GetMaxVATRegNoCount(): Integer
+    local procedure GetVATRegNoLimit(): Integer
     begin
-        GetUnreliablePayerServiceSetup();
-        if UnrelPayerServiceSetupCZL."Unr.Payer Request Record Limit" <> 0 then
-            exit(UnrelPayerServiceSetupCZL."Unr.Payer Request Record Limit");
         exit(UnreliablePayerWSCZL.GetInputRecordLimit());
     end;
 
@@ -349,12 +354,12 @@ codeunit 11758 "Unreliable Payer Mgt. CZL"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure  OnBeforeConfirmProcess(ConfirmQuestion: Text; var IsHandled: Boolean);
+    local procedure OnBeforeConfirmProcess(ConfirmQuestion: Text; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure  OnIsConfirmDialogAllowed(var IsAllowed: Boolean)
+    local procedure OnIsConfirmDialogAllowed(var IsAllowed: Boolean)
     begin
     end;
 

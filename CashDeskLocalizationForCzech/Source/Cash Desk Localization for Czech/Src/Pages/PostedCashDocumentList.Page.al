@@ -127,7 +127,8 @@ page 31167 "Posted Cash Document List CZP"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find Entries';
+                Ellipsis = true;
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

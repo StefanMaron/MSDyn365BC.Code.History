@@ -875,14 +875,17 @@ codeunit 137062 "SCM Sales & Receivables"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerFALSE')]
+    [HandlerFunctions('ConfirmHandlerFALSE,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithoutAvailableReservedQuantity()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Verify Reserved Quantity on Sales Order with Sales Return Order when Quantity not available for Reservation.
         // Setup.
         Initialize(false);
         SalesOrderWithReservedQuantity(true);  // Multiple Sales Order as True.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure SalesOrderWithReservedQuantity(MultipleSalesOrder: Boolean)
@@ -1667,6 +1670,16 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue variable.
         Assert.IsTrue(StrPos(Question, ExpectedMessage) > 0, Question);
         Reply := true;
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [RecallNotificationHandler]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

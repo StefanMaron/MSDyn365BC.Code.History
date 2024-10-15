@@ -59,7 +59,14 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                field("Entry Type"; EntryType)
+                field("Entry Type"; "Entry Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Entry Type';
+                    ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+                    Visible = false;
+                }
+                field(EntryType; EntryType)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Type';
@@ -67,9 +74,9 @@
 
                     trigger OnValidate()
                     begin
+                        Rec."Entry Type" := EntryType;
                         CheckEntryType();
-
-                        Validate("Entry Type", EntryType);
+                        Rec.Validate("Entry Type");
                     end;
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
@@ -810,12 +817,14 @@
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        CheckEntryType();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine(xRec);
+        Rec.SetUpNewLine(xRec);
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Rec."Entry Type" := Rec."Entry Type"::Purchase;
+        EntryType := Rec."Entry Type";
         Clear(ShortcutDimCode);
     end;
 
@@ -828,7 +837,7 @@
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -900,8 +909,8 @@
 
     local procedure CheckEntryType()
     begin
-        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
-            Error(Text000, "Entry Type");
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(Text000, Rec."Entry Type");
     end;
 
     [IntegrationEvent(false, false)]
