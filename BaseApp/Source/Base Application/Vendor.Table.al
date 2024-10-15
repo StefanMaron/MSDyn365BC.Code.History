@@ -1439,7 +1439,7 @@
         {
             AutoFormatType = 1;
             CalcFormula = Sum(Contributions."Gross Amount" WHERE("Vendor No." = FIELD("No."),
-                                                                  "Payment Date" = FIELD("Date Filter")));
+                                                                  "Related Date" = FIELD("Date Filter")));
             Caption = 'Soc. Sec. Company Base';
             FieldClass = FlowField;
         }
@@ -2354,7 +2354,7 @@
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() and (Vendor.Count() = 1) then
             exit(Vendor."No.");
         Vendor.SetRange(Name);
 
