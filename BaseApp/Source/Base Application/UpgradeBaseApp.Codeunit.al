@@ -86,7 +86,6 @@
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
         UpgradeRemoveSmartListGuidedExperience();
-        UpgradeCRMIntegrationRecord();
 
         UseCustomLookupInPrices();
         FillItemChargeAssignmentQtyToHandle();
@@ -105,6 +104,7 @@
         UpgradeAccountSchedulesToFinancialReports();
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
+        UpgradeCRMSDK91ToDataverseSDK();
         UpdatePurchaserOnRequisitionLines();
         SendCloudMigrationUsageTelemetry();
         UpdateCustLedgerEntrySetYourReference();
@@ -118,6 +118,8 @@
         UpgradeMapCurrencySymbol();
         UpgradeOptionMapping();
         UpdateProductionSourceCode();
+        UpgradeICGLAccountNoInPostedGenJournalLine();
+        UpgradeICGLAccountNoInStandardGeneralJournalLine();
     end;
 
     local procedure ClearTemporaryTables()
@@ -774,53 +776,6 @@
             UNTIL SalesCrMemoEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesCrMemoEntityBufferUpgradeTag());
-    end;
-
-    local procedure UpgradeCRMIntegrationRecord()
-    begin
-        SetCoupledFlags();
-        SetOptionMappingCoupledFlags();
-    end;
-
-    local procedure SetCoupledFlags()
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        EnvironmentInformation: Codeunit "Environment Information";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag()) then
-            exit;
-
-        if EnvironmentInformation.IsSaaS() then
-            if CRMIntegrationRecord.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                exit;
-
-        if CRMIntegrationRecord.FindSet() then
-            repeat
-                CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true, false)
-            until CRMIntegrationRecord.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRepeatedSetCoupledFlagsUpgradeTag());
-    end;
-
-    local procedure SetOptionMappingCoupledFlags()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetOptionMappingCoupledFlagsUpgradeTag()) then
-            exit;
-
-        if CRMOptionMapping.FindSet() then
-            repeat
-                CRMIntegrationManagement.SetCoupledFlag(CRMOptionMapping, true);
-            until CRMOptionMapping.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetOptionMappingCoupledFlagsUpgradeTag());
     end;
 
     local procedure UpdateSalesDocumentFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; SellTo: Boolean; BillTo: Boolean; ShipTo: Boolean)
@@ -2740,6 +2695,37 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCRMSDK90UpgradeTag());
     end;
 
+    local procedure UpgradeCRMSDK91ToDataverseSDK()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCRMSDK91UpgradeTag()) then
+            exit;
+
+        if not EnvironmentInformation.IsSaaS() then begin
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCRMSDK91UpgradeTag());
+            exit;
+        end;
+
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup."Proxy Version" = 91 then begin
+                CRMConnectionSetup.Validate("Proxy Version", 100);
+                CRMConnectionSetup.Modify();
+            end;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Proxy Version" = 91 then begin
+                CDSConnectionSetup.Validate("Proxy Version", 100);
+                CDSConnectionSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCRMSDK91UpgradeTag());
+    end;
+
     local procedure FillItemChargeAssignmentQtyToHandle()
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
@@ -2883,11 +2869,13 @@
 
         if IntelligentCloud.Get() then begin
             FeatureTelemetry.LogUptake('0000JMJ', 'Cloud Migration', Enum::"Feature Uptake Status"::Used);
-            TelemetryDimensions.Add('MigrationDateTime', Format(IntelligentCloud.SystemModifiedAt, 0, 9)); 
+            TelemetryDimensions.Add('MigrationDateTime', Format(IntelligentCloud.SystemModifiedAt, 0, 9));
             FeatureTelemetry.LogUsage('0000JMK', 'Cloud Migration', 'Base app - Tenant used cloud migration', TelemetryDimensions);
         end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
     end;
-    
+
     local procedure UpdateCustLedgerEntrySetYourReference()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -3148,11 +3136,9 @@
 #if not CLEAN22
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
 #endif
-        CRMAccount: Record "CRM Account";
-        CRMInvoice: Record "CRM Invoice";
-        CRMSalesorder: Record "CRM Salesorder";
-        CRMOptionMapping: Record "CRM Option Mapping";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        TempCRMAccount: Record "CRM Account" temporary;
+        TempCRMInvoice: Record "CRM Invoice" temporary;
+        TempCRMSalesorder: Record "CRM Salesorder" temporary;
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -3166,45 +3152,45 @@
         IntegrationFieldMapping.SetFilter("Integration Table Mapping Name", 'CUSTOMER|VENDOR|PAYMENT TERMS');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 15);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMAccount.FieldNo(PaymentTermsCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMAccount.FieldNo(PaymentTermsCodeEnum));
 
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'POSTEDSALESINV-INV');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 24);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMInvoice.FieldNo(PaymentTermsCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMInvoice.FieldNo(PaymentTermsCodeEnum));
 
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'SALESORDER-ORDER');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 28);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMSalesorder.FieldNo(PaymentTermsCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMSalesorder.FieldNo(PaymentTermsCodeEnum));
 
         //Shipment Method
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetFilter("Integration Table Mapping Name", 'CUSTOMER|VENDOR|SHIPMENT METHOD');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 75);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMAccount.FieldNo(Address1_FreightTermsCodeEnum));
 
         //Shipping Agent
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetFilter("Integration Table Mapping Name", 'CUSTOMER|VENDOR|SHIPPING AGENT');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 80);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMAccount.FieldNo(Address1_ShippingMethodCodeEnum));
 
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'POSTEDSALESINV-INV');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 23);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMInvoice.FieldNo(ShippingMethodCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMInvoice.FieldNo(ShippingMethodCodeEnum));
 
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'SALESORDER-ORDER');
         IntegrationFieldMapping.SetRange("Integration Table Field No.", 27);
         if not IntegrationFieldMapping.IsEmpty() then
-            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", CRMSalesorder.FieldNo(ShippingMethodCodeEnum));
+            IntegrationFieldMapping.ModifyAll("Integration Table Field No.", TempCRMSalesorder.FieldNo(ShippingMethodCodeEnum));
 
         if IntegrationTableMapping.Get('CUSTOMER') then begin
             IntegrationTableMapping."Dependency Filter" += '|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT';
@@ -3220,11 +3206,54 @@
         CDSFailedOptionMapping.DeleteAll();
 #endif
 
-        if CRMOptionMapping.FindSet() then
-            repeat
-                CRMIntegrationManagement.SetCoupledFlag(CRMOptionMapping, true);
-            until CRMOptionMapping.Next() = 0;
-
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetOptionMappingUpgradeTag());
+    end;
+
+    local procedure UpgradeICGLAccountNoInPostedGenJournalLine()
+    var
+        PostedGenJournalLine: Record "Posted Gen. Journal Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PostedGenJournalLineDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag()) then
+            exit;
+
+        PostedGenJournalLine.SetFilter("IC Partner G/L Acc. No.", '<> ''''');
+        if PostedGenJournalLine.IsEmpty() then
+            exit;
+
+        PostedGenJournalLineDataTransfer.SetTables(Database::"Posted Gen. Journal Line", Database::"Posted Gen. Journal Line");
+        PostedGenJournalLineDataTransfer.AddSourceFilter(PostedGenJournalLine.FieldNo("IC Partner G/L Acc. No."), '<> ''''');
+        PostedGenJournalLineDataTransfer.AddConstantValue("IC Journal Account Type"::"G/L Account", PostedGenJournalLine.FieldNo("IC Account Type"));
+        PostedGenJournalLineDataTransfer.AddFieldValue(PostedGenJournalLine.FieldNo("IC Partner G/L Acc. No."), PostedGenJournalLine.FieldNo("IC Account No."));
+        PostedGenJournalLineDataTransfer.CopyFields();
+        Clear(PostedGenJournalLineDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag());
+    end;
+
+    local procedure UpgradeICGLAccountNoInStandardGeneralJournalLine()
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        StandardGeneralJournalLineDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag()) then
+            exit;
+
+        StandardGeneralJournalLine.SetFilter("IC Partner G/L Acc. No.", '<> ''''');
+        if StandardGeneralJournalLine.IsEmpty() then
+            exit;
+
+        StandardGeneralJournalLineDataTransfer.SetTables(Database::"Standard General Journal Line", Database::"Standard General Journal Line");
+        StandardGeneralJournalLineDataTransfer.AddSourceFilter(StandardGeneralJournalLine.FieldNo("IC Partner G/L Acc. No."), '<> ''''');
+        StandardGeneralJournalLineDataTransfer.AddConstantValue("IC Journal Account Type"::"G/L Account", StandardGeneralJournalLine.FieldNo("IC Account Type"));
+        StandardGeneralJournalLineDataTransfer.AddFieldValue(StandardGeneralJournalLine.FieldNo("IC Partner G/L Acc. No."), StandardGeneralJournalLine.FieldNo("IC Account No."));
+        StandardGeneralJournalLineDataTransfer.CopyFields();
+        Clear(StandardGeneralJournalLineDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICPartnerGLAccountNoUpgradeTag());
     end;
 }

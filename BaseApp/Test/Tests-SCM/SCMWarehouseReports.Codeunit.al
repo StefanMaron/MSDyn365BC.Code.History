@@ -2291,6 +2291,50 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,PutAwayListReportHandler')]
+    [Scope('OnPrem')]
+    procedure PostAndPrintWareHouseReceiptWithPostDimAnalysisRec()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseRcptLine: Record "Warehouse Receipt Line";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        AnalysisView: Record "Analysis View";
+        ReportExecuted: Boolean;
+    begin
+        // [SCENARIO 462800] Analysis View Update on Posting setup at true cause "Report.RunModal is allowed in write..." error during Warehouse Receipt Post and Print
+        Initialize();
+
+        // [GIVEN] Create Analysis View with Dimensions.
+        CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account");
+
+        // [GIVEn] Create WarehouseSetup
+        CreateWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Create Item.
+        CreateItem(Item);
+
+        // [GIVEN] Create a Warehouse receipt by new Purchase order with a warehouse location
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, WhseRcptLine, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Post warehouse receipt with post and print option
+        LibraryVariableStorage.Enqueue(WhsePostAndPrintMsg);
+        LibraryVariableStorage.Enqueue(NumberOfDocPrintedMsg);
+        PostAndPrintRcpt(WhseRcptLine);
+        ReportExecuted := true;
+
+        // [THEN] Report should be executed based on report configured on report selection warehouse.
+        Assert.AreEqual(ReportExecuted, LibraryVariableStorage.DequeueBoolean(), ReportExecutedErr);
+
+        // Tear down.
+        WarehouseEmployee.Delete(true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3176,6 +3220,39 @@ codeunit 137305 "SCM Warehouse Reports"
     local procedure PostAndPrintRcpt(var WhseRcptLine: Record "Warehouse Receipt Line")
     begin
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Receipt + Print", WhseRcptLine);
+    end;
+
+    procedure CreateAnalysisViewWithDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
+    var
+        Dimension: Record Dimension;
+        i: Integer;
+    begin
+        CreateAnalysisView(AnalysisView, AccountSource);
+        AnalysisView."Update on Posting" := true;
+        if Dimension.FindSet() then
+            repeat
+                i := i + 1;
+                case i of
+                    1:
+                        AnalysisView."Dimension 1 Code" := Dimension.Code;
+                    2:
+                        AnalysisView."Dimension 2 Code" := Dimension.Code;
+                    3:
+                        AnalysisView."Dimension 3 Code" := Dimension.Code;
+                    4:
+                        AnalysisView."Dimension 4 Code" := Dimension.Code;
+                end;
+            until (i = 4) or (Dimension.Next() = 0);
+        AnalysisView.Modify();
+        CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
+    end;
+
+    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
+    begin
+        AnalysisView.Init();
+        AnalysisView.Code := Format(LibraryRandom.RandIntInRange(1, 10000));
+        AnalysisView."Account Source" := AccountSource;
+        AnalysisView.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]

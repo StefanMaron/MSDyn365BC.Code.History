@@ -62,6 +62,11 @@ table 10740 "No Taxable Entry"
         {
             Caption = 'EU 3-Party Trade';
         }
+        field(18; Closed; Boolean)
+        {
+            Caption = 'Closed';
+            Editable = false;
+        }
         field(19; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -189,8 +194,11 @@ table 10740 "No Taxable Entry"
         key(Key6; "No. Series", "VAT Reporting Date", "Document No.")
         {
         }
+        key(Key10; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date")
+        {
+            SumIndexFields = Base;
+        }
     }
-
     fieldgroups
     {
     }

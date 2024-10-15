@@ -23,9 +23,14 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         PurchInvAlreadyExistErr: Label 'Purchase Invoice %1 already exists for this vendor.', Comment = '%1 = purchase invoice no.';
         PurchInvExistsInRepErr: Label 'Purchase Invoice %1 already exists.', Comment = '%1 = external document no.';
+        TransactionErr: Label 'Transaction %1 is out of balance by %2.', Comment = '%1 = Transaction no., %2 = Amount';
+        ErrorTextNumberLbl: Label 'ErrorTextNumber';
 
     [Test]
     [Scope('OnPrem')]
@@ -513,6 +518,40 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
 
+    [Test]
+    [HandlerFunctions('GenJournalTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyNoInconsistentWarningShouldShowWhenRunGenJournalTestReportWithDocumentTypeBlank()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        GenJournalLine: array[3] of record "Gen. Journal Line";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 464051] The General Journal - Test report shows inconsistent warnings when the document type blank is used in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Create Vendor with Payment Method and Term
+        CreateVendorWithPaymentMethodAndTerm(Vendor);
+
+        // [GIVEN] Create and post invoice
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Cartera Journal Template, General Journal Batch and Journal Lines against different Bills
+        PrepareCarteraJournalTemplateWithBatchAndCarteraJournalLines(GenJournalLine, Vendor, InvoiceNo);
+        UpdateCarteraJournalLineBill(GenJournalLine[3], GenJournalLine[1]."Applies-to Bill No.", GenJournalLine[1]."Debit Amount" + GenJournalLine[2]."Debit Amount");
+        Commit();
+
+        // [WHEN] Run "General Journal - Test" report against General Journal Line
+        REPORT.Run(REPORT::"General Journal - Test");
+
+        // [VERIFY] Verify: No Warning issue found in the Report "General Journal - Test"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist(ErrorTextNumberLbl, StrSubstNo(TransactionErr, GenJournalLine[3]."Transaction No.", GenJournalLine[3].Amount));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
@@ -634,6 +673,93 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         Assert.RecordCount(VendorLedgerEntry, 2);
     end;
 
+    local procedure CreateVendorWithPaymentMethodAndTerm(var Vendor: Record Vendor)
+    var
+        PaymentTerm: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+    begin
+        CreateBillToCarteraPaymentMethod(PaymentMethod);
+        CreatePaymentTermWithMulipleInstallments(PaymentTerm);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Payment Terms Code", PaymentTerm.Code);
+        Vendor.Modify(true);
+    end;
+
+    procedure CreateBillToCarteraPaymentMethod(var PaymentMethod: Record "Payment Method")
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+
+        PaymentMethod.Validate("Create Bills", true);
+        PaymentMethod.Validate("Collection Agent", PaymentMethod."Collection Agent"::Bank);
+        PaymentMethod.Validate("Bill Type", PaymentMethod."Bill Type"::IOU);
+        PaymentMethod.Modify(true);
+    end;
+
+    local procedure CreatePaymentTermWithMulipleInstallments(var PaymentTerm: Record "Payment Terms")
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerm);
+        PaymentTerm.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
+        PaymentTerm.Validate("VAT distribution", PaymentTerm."VAT distribution"::Proportional);
+        Evaluate(PaymentTerm."Due Date Calculation", '<30D>');
+        PaymentTerm.Modify(true);
+
+        LibraryCarteraPayables.CreateMultipleInstallments(PaymentTerm.Code, 3);
+    end;
+
+    local procedure PrepareCarteraJournalTemplateWithBatchAndCarteraJournalLines(var GenJournalLine: array[3] of Record "Gen. Journal Line"; Vendor: Record Vendor; InvoiceNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: Code[20];
+        Index: Integer;
+    begin
+        GenJournalTemplate.Get(LibraryJournals.SelectGenJournalTemplate("Gen. Journal Template Type"::Cartera, Page::"Cartera Journal"));
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        DocumentNo := LibraryUtility.GenerateRandomCode20(7, 81);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        for Index := 1 to ArrayLen(GenJournalLine) do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine[Index], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+                "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Vendor, Vendor."No.", 0);
+
+            GenJournalLine[Index].Validate("Document No.", DocumentNo);
+            GenJournalLine[Index].Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::Bill);
+            GenJournalLine[Index].Validate("Applies-to Doc. No.", InvoiceNo);
+            GenJournalLine[Index].Validate("Applies-to Bill No.", Format(Index));
+            GenJournalLine[Index].Validate("Debit Amount", GetApplyAmountToJnlLineFromVendLedgEntry("Gen. Journal Document Type"::Bill, InvoiceNo, Format(Index)));
+            GenJournalLine[Index].Modify(true);
+        end;
+    end;
+
+    local procedure UpdateCarteraJournalLineBill(GenJournalLine: Record "Gen. Journal Line"; BillNo: Code[20]; CreditAmount: Decimal)
+    begin
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::" ");
+        GenJournalLine.Validate("Applies-to Doc. No.", '');
+        GenJournalLine.Validate("Applies-to Bill No.", '');
+        GenJournalLine.Validate("Debit Amount", 0);
+        GenJournalLine.Validate("Document Type", "Gen. Journal Document Type"::Bill);
+        GenJournalLine.Validate("Bill No.", BillNo);
+        GenJournalLine.Validate("Credit Amount", CreditAmount);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure GetApplyAmountToJnlLineFromVendLedgEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BillNo: Code[20]): Decimal
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetAutoCalcFields("Credit Amount");
+
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Bill No.", BillNo);
+        if VendorLedgerEntry.FindFirst() then
+            exit(VendorLedgerEntry."Credit Amount");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test")
@@ -660,6 +786,20 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
     procedure PurchDocumentPrepmtTestRequestPageHandler(var PurchasePrepmtDocTest: TestRequestPage "Purchase Prepmt. Doc. - Test")
     begin
         PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test")
+    var
+        JournalTemplateName, JournalBatchName : Code[10];
+    begin
+        JournalTemplateName := CopyStr(LibraryVariableStorage.DequeueText(), 1, 10);
+        JournalBatchName := CopyStr(LibraryVariableStorage.DequeueText(), 1, 10);
+
+        GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
+        GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

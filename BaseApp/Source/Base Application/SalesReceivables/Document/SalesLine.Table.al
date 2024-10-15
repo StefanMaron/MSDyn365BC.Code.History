@@ -369,8 +369,6 @@
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
 
-                DeleteWarehouseRequest(xRec);
-
                 OnAfterValidateLocationCode(Rec, xRec);
             end;
         }
@@ -1467,6 +1465,7 @@
 
             trigger OnValidate()
             var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1521,6 +1520,7 @@
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
+                SIISchemeCodeMgt.UpdateSalesSpecialSchemeCodeInSalesLine(Rec);
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3347,6 +3347,10 @@
             Editable = false;
             MinValue = 0;
         }
+        field(10704; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
     }
 
     keys
@@ -3495,8 +3499,6 @@
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Sales.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
-
-        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -6135,7 +6137,7 @@
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0)
                         then
                             VATAmountLine.InsertNewLine(
-                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "VAT %", "Line Amount" >= 0, false, "EC %");
+                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "VAT %", "Line Amount" >= 0, false, "EC %", 0);
 
                         OnCalcVATAmountLinesOnBeforeQtyTypeCase(VATAmountLine, SalesLine, SalesHeader);
                         case QtyType of
@@ -7718,6 +7720,8 @@
     end;
 
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
+    var
+        InvDiscountAmount: Decimal;
     begin
         TestJobPlanningLine();
         TestStatusOpen();
@@ -7727,14 +7731,27 @@
             Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") *
             "Line Discount %" / 100, Currency."Amount Rounding Precision");
         if DropInvoiceDiscountAmount then begin
+            InvDiscountAmount := "Inv. Discount Amount";
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
             "Pmt. Discount Amount" := 0;
+	        if InvDiscountAmount <> 0 then
+                ReduceInvoiceDiscValueOnHeader(InvDiscountAmount);
         end;
         OnValidateLineDiscountPercentOnBeforeUpdateAmounts(Rec, CurrFieldNo);
         UpdateAmounts();
 
         OnAfterValidateLineDiscountPercent(Rec, CurrFieldNo);
+    end;
+
+    local procedure ReduceInvoiceDiscValueOnHeader(InvDiscountAmount: Decimal)
+    begin
+        if IsNullGuid(SalesHeader.SystemId) then
+            exit;
+        if SalesHeader."Invoice Discount Value" = 0 then
+            exit;
+        SalesHeader."Invoice Discount Value" -= InvDiscountAmount;
+        SalesHeader.Modify(true);
     end;
 
     local procedure ValidateVATProdPostingGroup()
@@ -8551,22 +8568,6 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
-    end;
-
-    local procedure DeleteWarehouseRequest(SalesLine: Record "Sales Line")
-    var
-        WarehouseRequest: Record "Warehouse Request";
-    begin
-        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        if ((SalesLine."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or ((SalesLine."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0)) then
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound)
-        else
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
-        WarehouseRequest.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
-        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
-        WarehouseRequest.SetRange("Location Code", SalesLine."Location Code");
-        if not WarehouseRequest.IsEmpty() then
-            WarehouseRequest.DeleteAll(true);
     end;
 
     internal procedure SaveLookupSelection(Selected: RecordRef)

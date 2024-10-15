@@ -852,19 +852,23 @@ page 233 "Apply Vendor Entries"
     end;
 
     procedure SetApplyingVendLedgEntry()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
+        IsHandled := false;
+        OnBeforeSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType, IsHandled);
+        if not IsHandled then begin
+            case CalcType of
+                CalcType::"Purchase Header":
+                    SetApplyingVendLedgEntryPurchaseHeader();
+                CalcType::"Gen. Jnl. Line":
+                    SetApplyingVendLedgEntryGenJnlLine();
+                CalcType::Direct:
+                    SetApplyingVendLedgEntryDirect();
+            end;
 
-        case CalcType of
-            CalcType::"Purchase Header":
-                SetApplyingVendLedgEntryPurchaseHeader();
-            CalcType::"Gen. Jnl. Line":
-                SetApplyingVendLedgEntryGenJnlLine();
-            CalcType::Direct:
-                SetApplyingVendLedgEntryDirect();
+            CalcApplnAmount();
         end;
-
-        CalcApplnAmount();
 
         OnAfterSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
     end;
@@ -993,128 +997,132 @@ page 233 "Apply Vendor Entries"
     end;
 
     procedure CalcApplnAmount()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcApplnAmount(Rec, GenJnlLine);
+        IsHandled := false;
+        OnBeforeCalcApplnAmount(Rec, GenJnlLine, PurchHeader, AppliedVendLedgEntry, CalcType, ApplnType, IsHandled);
+        if not IsHandled then begin
+            AppliedAmount := 0;
+            PmtDiscAmount := 0;
+            DifferentCurrenciesInAppln := false;
 
-        AppliedAmount := 0;
-        PmtDiscAmount := 0;
-        DifferentCurrenciesInAppln := false;
+            case CalcType of
+                CalcType::Direct:
+                    begin
+                        FindAmountRounding();
+                        VendEntryApplID := UserId;
+                        if VendEntryApplID = '' then
+                            VendEntryApplID := '***';
 
-        case CalcType of
-            CalcType::Direct:
-                begin
-                    FindAmountRounding();
-                    VendEntryApplID := UserId;
-                    if VendEntryApplID = '' then
-                        VendEntryApplID := '***';
+                        VendLedgEntry := TempApplyingVendLedgEntry;
 
-                    VendLedgEntry := TempApplyingVendLedgEntry;
+                        AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
+                        AppliedVendLedgEntry.SetRange("Vendor No.", Rec."Vendor No.");
+                        AppliedVendLedgEntry.SetRange(Open, true);
+                        if AppliesToID = '' then
+                            AppliedVendLedgEntry.SetRange("Applies-to ID", VendEntryApplID)
+                        else
+                            AppliedVendLedgEntry.SetRange("Applies-to ID", AppliesToID);
 
-                    AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
-                    AppliedVendLedgEntry.SetRange("Vendor No.", Rec."Vendor No.");
-                    AppliedVendLedgEntry.SetRange(Open, true);
-                    if AppliesToID = '' then
-                        AppliedVendLedgEntry.SetRange("Applies-to ID", VendEntryApplID)
-                    else
-                        AppliedVendLedgEntry.SetRange("Applies-to ID", AppliesToID);
+                        if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
+                            VendLedgEntry.CalcFields("Remaining Amount");
+                            AppliedVendLedgEntry.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
+                        end;
 
-                    if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
-                        VendLedgEntry.CalcFields("Remaining Amount");
-                        AppliedVendLedgEntry.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
+                        HandleChosenEntries(
+                            CalcType::Direct, VendLedgEntry."Remaining Amount", VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
                     end;
+                CalcType::"Gen. Jnl. Line":
+                    begin
+                        FindAmountRounding();
+                        if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then
+                            CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
 
-                    HandleChosenEntries(
-                        CalcType::Direct, VendLedgEntry."Remaining Amount", VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-                end;
-            CalcType::"Gen. Jnl. Line":
-                begin
-                    FindAmountRounding();
-                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then
-                        CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
+                        case ApplnType of
+                            ApplnType::"Applies-to Doc. No.":
+                                begin
+                                    AppliedVendLedgEntry := Rec;
+                                    with AppliedVendLedgEntry do begin
+                                        CalcFields("Remaining Amount");
+                                        if "Currency Code" <> ApplnCurrencyCode then begin
+                                            "Remaining Amount" :=
+                                            CurrExchRate.ExchangeAmtFCYToFCY(
+                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
+                                            "Remaining Pmt. Disc. Possible" :=
+                                            CurrExchRate.ExchangeAmtFCYToFCY(
+                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
+                                            "Amount to Apply" :=
+                                            CurrExchRate.ExchangeAmtFCYToFCY(
+                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
+                                        end;
 
-                    case ApplnType of
-                        ApplnType::"Applies-to Doc. No.":
-                            begin
-                                AppliedVendLedgEntry := Rec;
-                                with AppliedVendLedgEntry do begin
-                                    CalcFields("Remaining Amount");
-                                    if "Currency Code" <> ApplnCurrencyCode then begin
-                                        "Remaining Amount" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-                                        "Remaining Pmt. Disc. Possible" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
-                                        "Amount to Apply" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
+                                        if "Amount to Apply" <> 0 then
+                                            AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
+                                        else
+                                            AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
+
+                                        if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(
+                                            GenJnlLine, AppliedVendLedgEntry, 0, false) and
+                                        ((Abs(GenJnlLine.Amount) + ApplnRoundingPrecision >=
+                                            Abs(AppliedAmount - "Remaining Pmt. Disc. Possible")) or
+                                            (GenJnlLine.Amount = 0))
+                                        then
+                                            PmtDiscAmount := "Remaining Pmt. Disc. Possible";
+
+                                        if not DifferentCurrenciesInAppln then
+                                            DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
                                     end;
-
-                                    if "Amount to Apply" <> 0 then
-                                        AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
-                                    else
-                                        AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
-
-                                    if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(
-                                         GenJnlLine, AppliedVendLedgEntry, 0, false) and
-                                       ((Abs(GenJnlLine.Amount) + ApplnRoundingPrecision >=
-                                         Abs(AppliedAmount - "Remaining Pmt. Disc. Possible")) or
-                                        (GenJnlLine.Amount = 0))
-                                    then
-                                        PmtDiscAmount := "Remaining Pmt. Disc. Possible";
-
-                                    if not DifferentCurrenciesInAppln then
-                                        DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
+                                    CheckRounding();
                                 end;
-                                CheckRounding();
-                            end;
-                        ApplnType::"Applies-to ID":
-                            begin
-                                GenJnlLine2 := GenJnlLine;
-                                AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
-                                AppliedVendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
-                                AppliedVendLedgEntry.SetRange(Open, true);
-                                AppliedVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                            ApplnType::"Applies-to ID":
+                                begin
+                                    GenJnlLine2 := GenJnlLine;
+                                    AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
+                                    AppliedVendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+                                    AppliedVendLedgEntry.SetRange(Open, true);
+                                    AppliedVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-                                HandleChosenEntries(
-                                    CalcType::"Gen. Jnl. Line", GenJnlLine2.Amount, GenJnlLine2."Currency Code", GenJnlLine2."Posting Date");
-                            end;
-                    end;
-                end;
-            CalcType::"Purchase Header":
-                begin
-                    FindAmountRounding();
-
-                    case ApplnType of
-                        ApplnType::"Applies-to Doc. No.":
-                            begin
-                                AppliedVendLedgEntry := Rec;
-                                with AppliedVendLedgEntry do begin
-                                    CalcFields("Remaining Amount");
-
-                                    if "Currency Code" <> ApplnCurrencyCode then
-                                        "Remaining Amount" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-
-                                    AppliedAmount := AppliedAmount + Round("Remaining Amount", AmountRoundingPrecision);
-
-                                    if not DifferentCurrenciesInAppln then
-                                        DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
+                                    HandleChosenEntries(
+                                        CalcType::"Gen. Jnl. Line", GenJnlLine2.Amount, GenJnlLine2."Currency Code", GenJnlLine2."Posting Date");
                                 end;
-                                CheckRounding();
-                            end;
-                        ApplnType::"Applies-to ID":
-                            with VendLedgEntry do begin
-                                AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
-                                AppliedVendLedgEntry.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
-                                AppliedVendLedgEntry.SetRange(Open, true);
-                                AppliedVendLedgEntry.SetRange("Applies-to ID", PurchHeader."Applies-to ID");
-
-                                HandleChosenEntries(CalcType::"Purchase Header", ApplyingAmount, ApplnCurrencyCode, ApplnDate);
-                            end;
+                        end;
                     end;
-                end;
+                CalcType::"Purchase Header":
+                    begin
+                        FindAmountRounding();
+
+                        case ApplnType of
+                            ApplnType::"Applies-to Doc. No.":
+                                begin
+                                    AppliedVendLedgEntry := Rec;
+                                    with AppliedVendLedgEntry do begin
+                                        CalcFields("Remaining Amount");
+
+                                        if "Currency Code" <> ApplnCurrencyCode then
+                                            "Remaining Amount" :=
+                                            CurrExchRate.ExchangeAmtFCYToFCY(
+                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
+
+                                        AppliedAmount := AppliedAmount + Round("Remaining Amount", AmountRoundingPrecision);
+
+                                        if not DifferentCurrenciesInAppln then
+                                            DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
+                                    end;
+                                    CheckRounding();
+                                end;
+                            ApplnType::"Applies-to ID":
+                                with VendLedgEntry do begin
+                                    AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
+                                    AppliedVendLedgEntry.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
+                                    AppliedVendLedgEntry.SetRange(Open, true);
+                                    AppliedVendLedgEntry.SetRange("Applies-to ID", PurchHeader."Applies-to ID");
+
+                                    HandleChosenEntries(CalcType::"Purchase Header", ApplyingAmount, ApplnCurrencyCode, ApplnDate);
+                                end;
+                        end;
+                    end;
+            end;
         end;
 
         OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount, CalcType, AppliedVendLedgEntry, GenJnlLine);
@@ -1548,7 +1556,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCalcApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: record "Purchase Header"; AppliedVendLedgEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; ApplnType: Enum "Vendor Apply-to Type"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1583,7 +1591,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetApplyingVendLedgEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; var CalcType: enum "Vendor Apply Calculation Type")
+    local procedure OnBeforeSetApplyingVendLedgEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; var CalcType: enum "Vendor Apply Calculation Type"; var IsHandled: Boolean)
     begin
     end;
 

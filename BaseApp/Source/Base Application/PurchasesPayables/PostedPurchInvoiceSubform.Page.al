@@ -171,7 +171,6 @@ page 139 "Posted Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
-                    Visible = true;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
@@ -184,6 +183,23 @@ page 139 "Posted Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the invoice line could have been included in an invoice discount calculation.';
                     Visible = false;
+                }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
                 }
                 field("Job No."; Rec."Job No.")
                 {
@@ -518,8 +534,11 @@ page 139 "Posted Purch. Invoice Subform"
     end;
 
     trigger OnOpenPage()
+    var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         SetDimensionsVisibility();
+        ShowNonDedVATInLines := NonDeductibleVAT.ShowNonDeductibleVATInLines();
     end;
 
     var
@@ -538,6 +557,7 @@ page 139 "Posted Purch. Invoice Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        ShowNonDedVATInLines: Boolean;
 
     procedure ShowDocumentLineTracking()
     var

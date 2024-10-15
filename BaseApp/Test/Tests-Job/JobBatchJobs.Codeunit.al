@@ -1408,6 +1408,39 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure VerifyJobJournalLineBlankAfterPosting()
+    var
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine: Record "Job Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 463554] When a line is posted in the Job Journal, an "empty" journal line remains afterwards.
+        Initialize();
+
+        // [GIVEN] Create "Job Task" and "Job Planning Line".
+        CreateJobAndJobTask(JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
+
+        // [GIVEN] Create "Job Journal Batch" and "Document No.".
+        CreateJobJournalBatch(JobJournalBatch);
+        Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(JobJournalLine.FieldNo("Document No."), DATABASE::"Job Journal Line"));
+
+        // [GIVEN] Create Job Journal Line.
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+
+        // [WHEN] Post Job Journal Line.
+        PostJobJournalBatch(JobJournalLine);
+
+        // [VERIFY] Verify no line inserted after posting of Job Journal Line.
+        JobJournalLine.SetRange("Journal Template Name", JobJournalBatch."Journal Template Name");
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalBatch.Name);
+        Assert.IsTrue(JobJournalLine.IsEmpty(), '');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,JobTransferToSalesInvoiceHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure VerifySalesInvoiceNotCreatedForNegativeJobPlanningLine()
@@ -2665,6 +2698,12 @@
         JobList.OpenEdit;
         JobList.FILTER.SetFilter("No.", JobNo);
         JobList."Attached Documents".Documents.AssertEquals(1);
+    end;
+
+    local procedure PostJobJournalBatch(var JobJournalLine: Record "Job Journal Line")
+    begin
+        // Post job journal batch
+        Codeunit.Run(Codeunit::"Job Jnl.-Post Batch", JobJournalLine);
     end;
 
     local procedure CreateAndPostJobJournalLineWithResourceAndNegativeQuantity(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")

@@ -358,6 +358,18 @@ codeunit 144075 "ERM No Taxable VAT"
         NoTaxableEntry.TestField(Base, SalesLine.Amount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableEntriesPage()
+    var
+        NoTaxableEntries: TestPage "No Taxable Entries";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 437076] Closed field is accessible on No Taxable Entries Page
+        NoTaxableEntries.OpenView();
+        Assert.IsTrue(NoTaxableEntries.Closed.Enabled(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

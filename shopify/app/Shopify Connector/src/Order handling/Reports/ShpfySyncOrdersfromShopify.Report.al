@@ -19,7 +19,7 @@ report 30104 "Shpfy Sync Orders from Shopify"
             {
                 DataItemLink = "Shop Code" = field(Code);
                 DataItemLinkReference = Shop;
-                RequestFilterFields = "Fully Paid", "Risk Level", "Financial Status", "Fulfillment Status", Confirmed, "Import Action", "Attribute Key Filter", "Attribute Key Exists";
+                RequestFilterFields = "Fully Paid", "Risk Level", "Financial Status", "Fulfillment Status", Confirmed, "Import Action", "Attribute Key Filter", "Attribute Key Exists", "Channel Name", "Order No.";
 
                 trigger OnPreDataItem()
                 var

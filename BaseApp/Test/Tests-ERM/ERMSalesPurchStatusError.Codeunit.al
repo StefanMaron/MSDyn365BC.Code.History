@@ -1852,6 +1852,33 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesCreditMemoWithPostedNoSeriesSameAsNoSeriesInSalesSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [FEATURE] [No. Series] [Sales] [Credit Memo]
+        // [SCENARIO 469643] When in Sales Setup, Posted Cr.Memo Nos. is same as Cr.Memo Nos., posted document should have same Doc. No.  
+        Initialize();
+
+        // [GIVEN] "Sales & Receivables Setup" with the same values for "Credit Memo Nos." and "Posted Credit Memo Nos."
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", SalesReceivablesSetup."Credit Memo Nos.");
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] created credit memo 
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+
+        // [WHEN] posting Sales Cr. Memo
+        PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Posted Document Should have same Document No.
+        SalesCrMemoHeader.Get(SalesHeader."No.");
+    end;
+
+    [Test]
     procedure PostPurchaseCreditMemoManualNoSeries()
     var
         PurchaseHeader: Record "Purchase Header";

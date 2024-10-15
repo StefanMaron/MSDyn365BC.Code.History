@@ -1126,6 +1126,7 @@ report 10707 "Make 347 Declaration"
         GLEntryLoc.SetRange("Transaction No.", CustLedgerEntryParam."Transaction No.");
         GLEntryLoc.SetRange("Document No.", CustLedgerEntryParam."Document No.");
         GLEntryLoc.SetRange("Document Type", GLEntryLoc."Document Type"::Payment);
+        GLEntryLoc.SetFilter("Bal. Account Type", '<>%1', GLEntryLoc."Bal. Account Type"::"Bank Account");
         if GLEntryLoc.FindSet() then
             repeat
                 if IsCashAccount(GLEntryLoc."G/L Account No.") then

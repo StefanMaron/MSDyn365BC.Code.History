@@ -900,6 +900,72 @@
         ICGLAccount.Insert(true);
     end;
 
+    procedure CreateDimension(var Dimension: Record Dimension)
+    begin
+        Dimension.Init();
+        Dimension.Validate(
+          "Code",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(Dimension.FieldNo("Code"), DATABASE::Dimension), 1,
+            LibraryUtility.GetFieldLength(DATABASE::Dimension, Dimension.FieldNo("Code"))));
+        Dimension.Validate(Name, Dimension."Code");  // Validating Code as Name because value is not important.
+        Dimension.Insert(true);
+    end;
+
+    procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        CreateDimension(Dimension);
+        CreateDimensionValue(DimensionValue, Dimension.Code);
+    end;
+
+    procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
+    begin
+        DimensionValue.Init();
+        DimensionValue.Validate(
+          "Code",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo("Code"), DATABASE::"Dimension Value"), 1,
+            LibraryUtility.GetFieldLength(DATABASE::"Dimension Value", DimensionValue.FieldNo("Code"))));
+        DimensionValue.Validate("Dimension Code", DimensionCode);
+        DimensionValue.Validate(Name, DimensionValue."Code");  // Validating Code as Name because value is not important.
+        DimensionValue.Insert(true);
+    end;
+
+    procedure CreateICDimension(var ICDimension: Record "IC Dimension")
+    begin
+        ICDimension.Init();
+        ICDimension.Validate(
+          "Code",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(ICDimension.FieldNo("Code"), DATABASE::"IC Dimension"), 1,
+            LibraryUtility.GetFieldLength(DATABASE::"IC Dimension", ICDimension.FieldNo("Code"))));
+        ICDimension.Validate(Name, ICDimension."Code");  // Validating Code as Name because value is not important.
+        ICDimension.Insert(true);
+    end;
+
+    procedure CreateICDimensionValue(var ICDimensionValue: Record "IC Dimension Value")
+    var
+        ICDimension: Record "IC Dimension";
+    begin
+        CreateICDimension(ICDimension);
+        CreateICDimensionValue(ICDimensionValue, ICDimension.Code);
+    end;
+
+    procedure CreateICDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionCode: Code[20])
+    begin
+        ICDimensionValue.Init();
+        ICDimensionValue.Validate(
+          "Code",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(ICDimensionValue.FieldNo("Code"), DATABASE::"IC Dimension Value"), 1,
+            LibraryUtility.GetFieldLength(DATABASE::"IC Dimension Value", ICDimensionValue.FieldNo("Code"))));
+        ICDimensionValue.Validate("Dimension Code", DimensionCode);
+        ICDimensionValue.Validate(Name, ICDimensionValue."Code");  // Validating Code as Name because value is not important.
+        ICDimensionValue.Insert(true);
+    end;
+
     procedure CreateICPartner(var ICPartner: Record "IC Partner")
     begin
         ICPartner.Init();

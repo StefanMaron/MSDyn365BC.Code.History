@@ -300,6 +300,7 @@
 
                 "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
+                NonDeductibleVAT.ValidateNonDedVATPctInGenJnlLine(Rec);
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
                 UpdateSalesPurchLCY();
@@ -927,6 +928,7 @@
 
                 "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
+                NonDeductibleVAT.ValidateNonDedVATPctInGenJnlLine(Rec);
 
                 UpdateSalesPurchLCY();
 
@@ -1342,6 +1344,7 @@
                         CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "Bal. VAT Amount", "Currency Factor"));
                 OnValidateBalVATPctOnAfterAssignBalVATAmountLCY("Bal. VAT Amount (LCY)");
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
+                NonDeductibleVAT.ValidateNonDedVATPctInGenJnlLine(Rec);
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
                 UpdateSalesPurchLCY();
@@ -1398,6 +1401,7 @@
                           "Posting Date", "Currency Code",
                           "Bal. VAT Amount", "Currency Factor"));
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
+                NonDeductibleVAT.ValidateNonDedVATPctInGenJnlLine(Rec);
 
                 UpdateSalesPurchLCY();
             end;
@@ -2035,8 +2039,7 @@
 
             trigger OnValidate()
             begin
-                if "VAT Reporting Date" = 0D then
-                    InitVATDate();
+                InitVATDateIfEmpty();
             end;
         }
         field(130; "IC Account Type"; Enum "IC Journal Account Type")
@@ -2773,6 +2776,64 @@
                     FieldError("Recurring Method");
             end;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+
+            trigger OnValidate()
+            begin
+                GetCurrency();
+                NonDeductibleVAT.Calculate(Rec, Currency);
+            end;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base';
+            Editable = false;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6203; "Non-Deductible VAT Base LCY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base LCY';
+            Editable = false;
+        }
+        field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount LCY';
+            Editable = false;
+        }
+        field(6205; "Non-Deductible VAT Base ACY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base ACY';
+            Editable = false;
+        }
+        field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount ACY';
+            Editable = false;
+        }
+        field(6207; "FA G/L Account No."; Code[20])
+        {
+            Caption = 'FA G/L Account No.';
+            Editable = false;
+        }
+        field(6208; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -3236,7 +3297,7 @@
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
-        InitVATDate();
+        InitVATDateIfEmpty();
 
         if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") and ("Account Type" = "Account Type"::Vendor) then
             ElectPmtMgmt.GetTransferType("Account No.", Amount, "Transfer Type", false);
@@ -3321,6 +3382,7 @@
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         Window: Dialog;
         DeferralDocType: Enum "Deferral Document Type";
         CurrencyCode: Code[10];
@@ -3416,9 +3478,10 @@
         OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
-    local procedure InitVATDate()
+    local procedure InitVATDateIfEmpty()
     begin
-        "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+        if "VAT Reporting Date" = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
     end;
 
     local procedure BlankJobNo(CurrentFieldNo: Integer)
@@ -8845,6 +8908,7 @@ then
         PostingGroupChangeInterface: Interface "Posting Group Change Method";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeCheckPostingGroupChange(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
@@ -8852,21 +8916,21 @@ then
             TestField("Account No.");
             case "Account Type" of
                 "Account Type"::Customer:
-                    begin
-                        Customer.Get("Account No.");
-                        Customer.TestField("Allow Multiple Posting Groups");
-                        SalesReceivablesSetup.Get();
-                        PostingGroupChangeInterface := SalesReceivablesSetup."Check Multiple Posting Groups";
-                        PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
-                    end;
+                    if SalesReceivablesSetup.Get() then
+                        if SalesReceivablesSetup."Allow Multiple Posting Groups" then begin
+                            Customer.Get("Account No.");
+                            Customer.TestField("Allow Multiple Posting Groups");
+                            PostingGroupChangeInterface := SalesReceivablesSetup."Check Multiple Posting Groups";
+                            PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
+                        end;
                 "Account Type"::Vendor:
-                    begin
-                        Vendor.Get("Account No.");
-                        Vendor.TestField("Allow Multiple Posting Groups");
-                        PurchasesPayablesSetup.Get();
-                        PostingGroupChangeInterface := PurchasesPayablesSetup."Check Multiple Posting Groups";
-                        PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
-                    end;
+                    if PurchasesPayablesSetup.Get() then
+                        if PurchasesPayablesSetup."Allow Multiple Posting Groups" then begin
+                            Vendor.Get("Account No.");
+                            Vendor.TestField("Allow Multiple Posting Groups");
+                            PostingGroupChangeInterface := PurchasesPayablesSetup."Check Multiple Posting Groups";
+                            PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
+                        end;
                 else
                     error(CannotChangePostingGroupForAccountTypeErr, "Account Type");
             end;

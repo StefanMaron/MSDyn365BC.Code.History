@@ -21,16 +21,11 @@ table 325 "VAT Posting Setup"
             Caption = 'VAT Calculation Type';
             trigger OnValidate()
             begin
-                FailIfVATPostingSetupHasVATEntries();
-                case "VAT Calculation Type" of
-                    "VAT Calculation Type"::"No Taxable VAT":
-                        TestField("VAT+EC %", 0);
-                    "VAT Calculation Type"::"Normal VAT":
-                        if "No Taxable Type" <> 0 then
-                            TestField("VAT+EC %", 0);
-                    else
-                        "No Taxable Type" := 0;
-                end;
+                if not (("VAT Calculation Type" = "VAT Calculation Type"::"No Taxable VAT") and (xRec."VAT Calculation Type" = xrec."VAT Calculation Type"::"Normal VAT")) then
+                    FailIfVATPostingSetupHasVATEntries();
+                CheckZeroVATRateForNoTaxableVAT("VAT+EC %", FieldCaption("VAT+EC %"));
+                if "VAT Calculation Type" <> "VAT Calculation Type"::"No Taxable VAT" then
+                    "No Taxable Type" := "No Taxable Type"::" ";
             end;
         }
         field(4; "VAT+EC %"; Decimal)
@@ -42,7 +37,7 @@ table 325 "VAT Posting Setup"
 
             trigger OnValidate()
             begin
-                TestNoTaxableRate("VAT+EC %");
+                CheckZeroVATRateForNoTaxableVAT("VAT+EC %", FieldCaption("VAT+EC %"));
                 TestNotSalesTax(FieldCaption("VAT %"));
                 CheckVATIdentifier();
             end;
@@ -195,6 +190,44 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Blocked';
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("VAT %"), 1, 100));
+            end;
+        }
+        field(6201; "Non-Ded. Sales VAT Account"; Code[20])
+        {
+            Caption = 'Non-Deductible Sales VAT Account';
+            TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
+                CheckGLAcc("Non-Ded. Sales VAT Account");
+            end;
+        }
+        field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
+        {
+            Caption = 'Non-Deductible Purchase VAT Account';
+            TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Purchase VAT Account"), 1, 100));
+                CheckGLAcc("Non-Ded. Purchase VAT Account");
+            end;
+        }
+        field(6203; "Allow Non-Deductible VAT"; Enum "Allow Non-Deductible VAT Type")
+        {
+            Caption = 'Allow Non-Deductible VAT';
+        }
         field(10700; "EC %"; Decimal)
         {
             Caption = 'EC %';
@@ -204,7 +237,7 @@ table 325 "VAT Posting Setup"
 
             trigger OnValidate()
             begin
-                TestNoTaxableRate("EC %");
+                CheckZeroVATRateForNoTaxableVAT("EC %", FieldCaption("EC %"));
                 "VAT+EC %" := "VAT %" + "EC %";
             end;
         }
@@ -217,7 +250,7 @@ table 325 "VAT Posting Setup"
 
             trigger OnValidate()
             begin
-                TestNoTaxableRate("VAT %");
+                CheckZeroVATRateForNoTaxableVAT("VAT %", FieldCaption("VAT %"));
                 CheckVATIdentifier();
                 "VAT+EC %" := "VAT %" + "EC %";
             end;
@@ -241,14 +274,7 @@ table 325 "VAT Posting Setup"
             trigger OnValidate()
             begin
                 if "No Taxable Type" <> 0 then
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"No Taxable VAT":
-                            exit;
-                        "VAT Calculation Type"::"Normal VAT":
-                            TestField("VAT %", 0);
-                        else
-                            FieldError("VAT Calculation Type");
-                    end;
+                    TestField("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
             end;
         }
         field(10707; "Sales Special Scheme Code"; Enum "SII Sales Upload Scheme Code")
@@ -302,6 +328,7 @@ table 325 "VAT Posting Setup"
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         VATPostingSetupHasVATEntriesErr: Label 'You cannot change the VAT posting setup because it has been used to generate VAT entries. Changing the setup now can cause inconsistencies in your financial data.';
         InconsitencyOfRegimeCodeAndVATClauseErr: Label 'If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.';
+        NoTaxableSetupErr: Label 'The %1 for VAT Calculation Type = No Taxable VAT must be 0.', Comment = '%1 = VAT or EC percent.';
 
     local procedure FailIfVATPostingSetupHasVATEntries()
     var
@@ -309,8 +336,8 @@ table 325 "VAT Posting Setup"
     begin
         VATEntry.SetRange("VAT Bus. Posting Group", Rec."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
-        
-        if not VATEntry.IsEmpty() then    
+
+        if not VATEntry.IsEmpty() then
             Error(VATPostingSetupHasVATEntriesErr);
     end;
 
@@ -511,18 +538,6 @@ table 325 "VAT Posting Setup"
         end;
     end;
 
-    local procedure TestNoTaxableRate(Rate: Decimal)
-    begin
-        case "VAT Calculation Type" of
-            "VAT Calculation Type"::"No Taxable VAT":
-                if Rate <> 0 then
-                    FieldError("VAT Calculation Type");
-            "VAT Calculation Type"::"Normal VAT":
-                if Rate <> 0 then
-                    TestField("No Taxable Type", 0);
-        end;
-    end;
-
     [Scope('OnPrem')]
     procedure IsNoTaxable() NoTaxable: Boolean
     var
@@ -557,6 +572,14 @@ table 325 "VAT Posting Setup"
            ("Sales Special Scheme Code" = "Sales Special Scheme Code"::"01 General")
         then
             Error(InconsitencyOfRegimeCodeAndVATClauseErr);
+    end;
+
+    local procedure CheckZeroVATRateForNoTaxableVAT(VATPct: Decimal; FromFieldName: Text)
+    begin
+        if (("VAT Calculation Type" = "VAT Calculation Type"::"No Taxable VAT") and
+            (VATPct <> 0))
+        then
+            Error(NoTaxableSetupErr, FromFieldName);
     end;
 
     [IntegrationEvent(false, false)]

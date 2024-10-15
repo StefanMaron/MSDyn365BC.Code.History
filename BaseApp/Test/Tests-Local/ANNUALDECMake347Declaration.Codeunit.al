@@ -1595,6 +1595,69 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
           'Combined Amount is wrong, reading from vendor 1');
     end;
 
+    [Test]
+    [HandlerFunctions('Make347DeclarationReportHandler')]
+    [Scope('OnPrem')]
+    procedure TestValidateInvoiceAmountForBankCash()
+    var
+        CustLedgerEntryPayment: Record "Cust. Ledger Entry";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        GLAccount: Record "G/L Account";
+        GenJournalLinePayment: Record "Gen. Journal Line";
+        GenJournalLinePayment2: Record "Gen. Journal Line";
+        GLAccount1: Record "G/L Account";
+        account1: Code[20];
+        InvoiceAmount: Decimal;
+        CashAmount: Decimal;
+        CustNo: Code[20];
+        InvoiceNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[500];
+    begin
+        // [SCENARIO 463364] The G/L Acc. for Payments in Cash is not always respected if you run the Make 347 Declaration in the Spanish version.
+
+        // [GIVEN] Setup Initialize, create a G/L account, and set initial random cash and invoice amount
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount1);
+        CashAmount := LibraryRandom.RandDec(5000, 2);
+        InvoiceAmount := CashAmount + LibraryRandom.RandDec(2000, 2);
+
+        // [GIVEN] Setup: create customer and post sales invoice
+        CustNo :=
+          Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
+        InvoiceNo := Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(CustNo, InvoiceAmount);
+
+        // [GIVEN] Setup: post cash receipt for the customer
+        LibraryERM.CreateGLAccount(GLAccount);
+        Test347DeclarationParameter.GLAccForPaymentsInCash := GLAccount1."No.";
+        Library347Declaration.CreateAndPostCashReceiptJournal(GenJournalLinePayment, GLAccount, CustNo, CashAmount);
+        CreateAndPostGeneralJournalLine(GenJournalLinePayment."Document Type"::Payment,
+            GenJournalLinePayment."Account Type"::"G/L Account", GLAccount1."No.", CashAmount / 2, 0);
+
+        // [THEN] Setup: apply cash receipt to sales invoice
+        // - find the Invoice customer ledger entry
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice,
+          InvoiceNo);
+        // - find the Payment customer ledger entry
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntryPayment, CustLedgerEntryPayment."Document Type"::Payment,
+          GenJournalLinePayment."Document No.");
+        // - apply the payment to the invoice
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntryInvoice, CashAmount);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryPayment);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryInvoice);
+
+        // [WHEN] Exercise
+        FileName := RunMake347DeclarationReport;
+
+        // [VERIFY] Verify: 
+        ValidateFileHasLineForCustomer(FileName, CustNo);
+        Line := ReadLineWithCustomerOrVendor(FileName, CustNo);
+        // Check that the line has the right invoice amount
+        Assert.AreEqual(PadInteger(InvoiceAmount * 100, 15), ReadTotalInvoicedAmount(Line), 'Wrong invoice amount');
+        // Check that the line has the right cash amount
+        Assert.AreEqual(PadInteger(0, 15), ReadAmountReceivedInCash(Line), 'Wrong cash amount');
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1873,6 +1936,43 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     local procedure ValidateFileHasLineForCustomer(FileName: Text[1024]; CustOrVendNo: Code[20])
     begin
         Library347Declaration.ValidateFileHasLineForCustomer(FileName, CustOrVendNo);
+    end;
+
+    procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
+    var
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Create G/L Account
+        //LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // Setup: Find a Cash Receipts journal template
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.FindFirst();
+
+        // Setup: Create new journal batch
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        // Setup: Create Invoice journal line for the customer and with the right Debit amount
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          DocumentType, AccountType, AccountNo, 0);
+        if DebitAmount > 0 then
+            GenJournalLine.Validate("Debit Amount", DebitAmount)
+        else
+            GenJournalLine.Validate("Credit Amount", CreditAmount);
+        GenJournalLine.Modify(true);
+        Commit();
+
+        // Setup: Post the journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [MessageHandler]

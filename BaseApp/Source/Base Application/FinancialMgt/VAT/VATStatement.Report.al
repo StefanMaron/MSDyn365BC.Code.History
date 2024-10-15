@@ -517,6 +517,35 @@ report 12 "VAT Statement"
                                     Amount := Amount + Base;
                                 end;
                             end;
+                        VATStmtLine2."Amount Type"::"Non-Deductible Amount":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount ACY");
+                                if VATReportSetup.Get() then;
+                                if VATReportSetup."Report VAT Base" then
+                                    Base := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Non-Deductible Base":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Full Amount":
+                            begin
+                                VATEntry.CalcSums(
+                                    Base, "Additional-Currency Base", Amount, "Additional-Currency Amount",
+                                    "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount :=
+                                    ConditionalAdd(0, VATEntry.Amount + VATEntry."Non-Deductible VAT Amount", VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
+                                if VATReportSetup.Get() then;
+                                if VATReportSetup."Report VAT Base" then
+                                    Base := ConditionalAdd(0, VATEntry.Base + VATEntry."Non-Deductible VAT Base", VATEntry."Additional-Currency Base" + VATEntry."Non-Deductible VAT Base ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Full Base":
+                            begin
+                                VATEntry.CalcSums(Base, "Additional-Currency Base", "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry.Base + VATEntry."Non-Deductible VAT Base", VATEntry."Additional-Currency Base" + VATEntry."Non-Deductible VAT Base ACY");
+                            end;
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
                                 VATEntry.CalcSums("Unrealized Amount", "Add.-Currency Unrealized Amt.");
@@ -707,6 +736,14 @@ report 12 "VAT Statement"
                 NoTaxableEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
             else
                 "VAT Statement Line".CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
+        case Selection of
+            Selection::Open:
+                NoTaxableEntry.SetRange(Closed, false);
+            Selection::Closed:
+                NoTaxableEntry.SetRange(Closed, true);
+            else
+                NoTaxableEntry.SetRange(Closed);
+        end;
         if NoTaxableEntry.IsEmpty() then
             exit(0);
 

@@ -36,6 +36,7 @@ codeunit 147524 "SII Documents No Taxable"
         FieldErr: Label '%1 must not be %2';
         TestFieldCodeErr: Label 'TestField';
         TableErrorStrErr: Label 'TableErrorStr';
+        NoTaxableSetupErr: Label 'The %1 for VAT Calculation Type = No Taxable VAT must be 0.', Comment = '%1 = VAT or EC percent.';
 
     [Test]
     [Scope('OnPrem')]
@@ -795,7 +796,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] Stan can specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <zero>
+        // [SCENARIO 466990] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <zero>
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and "VAT %" = <zero>
@@ -804,10 +805,16 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup.Validate("VAT %", 0);
 
         // [WHEN] Validate "No Taxable Type" = "Non Taxable Art 7-14 and others"
-        VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
+        asserterror
+          VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
-        // [THEN] "No Taxable Type" = "Non Taxable Art 7-14 and others" in VAT Posting Setup
-        VATPostingSetup.TestField("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
+        // [THEN] Error when set "No Taxable Type" = "Non Taxable Art 7-14 and others" in VAT Posting Setup
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(
+            TestFieldErr,
+            VATPostingSetup.FieldCaption("VAT Calculation Type"),
+            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
     end;
 
     [Test]
@@ -817,7 +824,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <non-zero>
+        // [SCENARIO 466990] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <non-zero>
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and "VAT %" = 10.0%
@@ -828,10 +835,13 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate "No Taxable Type" = "Non Taxable Art 7-14 and others"
         asserterror VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
-        // [THEN] Error VAT % must be equal to '0'  in VAT Posting Setup: VAT Bus. Posting Group=, VAT Prod. Posting Group=. Current value is '10.0'.
-        Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT %"), 0, VATPostingSetup.TableCaption()));
+        // [THEN] Error VAT Calculation Type must be equal to 'No Taxable VAT' in VAT Posting Setup.
         Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(
+          StrSubstNo(
+            TestFieldErr,
+            VATPostingSetup.FieldCaption("VAT Calculation Type"),
+            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
     end;
 
     [Test]
@@ -841,7 +851,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Full VAT]
-        // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Full VAT
+        // [SCENARIO 466990] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Full VAT
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Full VAT
@@ -853,9 +863,12 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Full VAT
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(
+            TestFieldErr,
+            VATPostingSetup.FieldCaption("VAT Calculation Type"),
+            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
     end;
 
     [Test]
@@ -865,7 +878,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Sales Tax]
-        // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Sales Tax
+        // [SCENARIO 466990] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Sales Tax
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Sales Tax
@@ -877,9 +890,12 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Sales Tax
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(
+            TestFieldErr,
+            VATPostingSetup.FieldCaption("VAT Calculation Type"),
+            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
     end;
 
     [Test]
@@ -889,7 +905,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Reverse Charge VAT]
-        // [SCENARIO 231012] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Reverse Charge VAT
+        // [SCENARIO 466990] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Reverse Charge VAT
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Reverse Charge VAT
@@ -901,9 +917,12 @@ codeunit 147524 "SII Documents No Taxable"
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
 
         // [THEN] Error VAT Calculation Type must not be Reverse Charge VAT
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(
+            TestFieldErr,
+            VATPostingSetup.FieldCaption("VAT Calculation Type"),
+            VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", VATPostingSetup.TableCaption));
     end;
 
     [Test]
@@ -913,7 +932,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] When change VAT Calculation Type to Normal VAT in VAT Posting Setup with <zero> VAT+EC % then No Taxable Type is not changed
+        // [SCENARIO 466990] When change VAT Calculation Type to Normal VAT in VAT Posting Setup with <zero> VAT+EC % then No Taxable Type is reset to ""
         Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT and No Taxable Type "Non Taxable Art 7-14 and others"
@@ -925,32 +944,8 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate VAT Calculation Type = Normal VAT in VAT Posting Setup
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
-        // [THEN] "No Taxable Type" = "Non Taxable Art 7-14 and others" in VAT Posting Setup
-        VATPostingSetup.TestField("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NoTaxableTypeWhenSwitchToNormalVATWithNonZeroVATPlusECRate()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] When change VAT Calculation Type to Normal VAT in VAT Posting Setup with <non-zero> VAT+EC % and <non-blank> No Taxable Type
-        // [SCENARIO 278919] Then error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Initialize();
-
-        // [GIVEN] VAT Posting Setup with "No Taxable Type" = "Non Taxable Art 7-14 and others" and VAT+EC % = 10%
-        VATPostingSetup.Init();
-        VATPostingSetup."No Taxable Type" := VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others";
-        VATPostingSetup."VAT+EC %" := LibraryRandom.RandDecInRange(10, 20, 2);
-
-        // [WHEN] Validate VAT Calculation Type = Normal VAT in VAT Posting Setup
-        asserterror VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-        // [THEN] Error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        // [THEN] "No Taxable Type" reset to "" in VAT Posting Setup
+        VATPostingSetup.TestField("No Taxable Type", VATPostingSetup."No Taxable Type"::" ");
     end;
 
     [Test]
@@ -1026,7 +1021,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT+EC %]
-        // [SCENARIO 278919] When change VAT Calculation Type to No Taxable VAT in VAT Posting Setup with <non-zero> VAT+EC % then error
+        // [SCENARIO 466990] When change VAT Calculation Type to No Taxable VAT in VAT Posting Setup with <non-zero> VAT+EC % then error
         Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT+EC % = 10.0
@@ -1037,9 +1032,10 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate VAT Calculation Type = No Taxable VAT
         asserterror VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
 
-        // [THEN] Error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        // [THEN] Error VAT+EC % must be equal to '0' in VAT Posting Setup
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+          StrSubstNo(NoTaxableSetupErr, VATPostingSetup.FieldCaption("VAT+EC %")));
     end;
 
     [Test]
@@ -1049,7 +1045,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT+EC %]
-        // [SCENARIO 278919] When validate <non-zero> VAT+EC % in No Taxable VAT Posting Setup then error
+        // [SCENARIO 466990] When validate <non-zero> VAT+EC % in No Taxable VAT Posting Setup then error
         Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
@@ -1059,10 +1055,10 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate VAT+EC % = 10.0 in VAT Posting Setup
         asserterror VATPostingSetup.Validate("VAT+EC %", LibraryRandom.RandDecInRange(10, 20, 2));
 
-        // [THEN] Error VAT Calculation Type must not be No Taxable VAT
+        // [THEN] Error that VAT + EC % must be 0 for the VAT Calculation Type 
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(NoTaxableSetupErr, VATPostingSetup.FieldCaption("VAT+EC %")));
     end;
 
     [Test]
@@ -1072,7 +1068,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT %]
-        // [SCENARIO 278919] When validate <non-zero> VAT % in No Taxable VAT Posting Setup then error
+        // [SCENARIO 466990] When validate <non-zero> VAT % in No Taxable VAT Posting Setup then error
         Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
@@ -1082,10 +1078,10 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate VAT % = 10.0 in VAT Posting Setup
         asserterror VATPostingSetup.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
 
-        // [THEN] Error VAT Calculation Type must not be No Taxable VAT
+        // [THEN] Error that VAT % must be 0 for the VAT Calculation Type 
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(NoTaxableSetupErr, VATPostingSetup.FieldCaption("VAT %")));
     end;
 
     [Test]
@@ -1095,7 +1091,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT] [No Taxable VAT] [EC %]
-        // [SCENARIO 278919] When validate <non-zero> EC % in No Taxable VAT Posting Setup then error
+        // [SCENARIO 466990] When validate <non-zero> EC % in No Taxable VAT Posting Setup then error
         Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
@@ -1105,10 +1101,10 @@ codeunit 147524 "SII Documents No Taxable"
         // [WHEN] Validate EC % = 10.0 in VAT Posting Setup
         asserterror VATPostingSetup.Validate("EC %", LibraryRandom.RandDecInRange(10, 20, 2));
 
-        // [THEN] Error VAT Calculation Type must not be No Taxable VAT
+        // [THEN] Error that EC % must be 0 for the VAT Calculation Type 
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(FieldErr, VATPostingSetup.FieldCaption("VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"));
-        Assert.ExpectedErrorCode(TableErrorStrErr);
+          StrSubstNo(NoTaxableSetupErr, VATPostingSetup.FieldCaption("EC %")));
     end;
 
     [Test]
@@ -1137,52 +1133,6 @@ codeunit 147524 "SII Documents No Taxable"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATPlusECRateWhenNormalVATWithNoTaxableType()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] When validate VAT+EC % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize();
-
-        // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
-        VATPostingSetup.Init();
-        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
-
-        // [WHEN] Validate VAT+EC % = 10.0 in VAT Posting Setup
-        asserterror VATPostingSetup.Validate("VAT+EC %", LibraryRandom.RandDecInRange(10, 20, 2));
-
-        // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATRateWhenNormalVATWithNoTaxableType()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] When validate VAT % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize();
-
-        // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
-        VATPostingSetup.Init();
-        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
-
-        // [WHEN] Validate VAT % = 10.0 in VAT Posting Setup
-        asserterror VATPostingSetup.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
-
-        // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATRateWhenNormalVATWithoutNoTaxableType()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1203,29 +1153,6 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] Then VAT % = 10.0 in VAT Posting Setup
         VATPostingSetup.TestField("VAT %", VatRate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ECRateWhenNormalVATWithNoTaxableType()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
-        // [SCENARIO 278919] When validate EC % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize();
-
-        // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
-        VATPostingSetup.Init();
-        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
-
-        // [WHEN] Validate EC % = 10.0 in VAT Posting Setup
-        asserterror VATPostingSetup.Validate("EC %", LibraryRandom.RandDecInRange(10, 20, 2));
-
-        // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     [Test]
@@ -2135,21 +2062,21 @@ codeunit 147524 "SII Documents No Taxable"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSujeta_SalesWhenNormalVATNonTaxableDueToLocalizationRules()
+    procedure NoSujeta_SalesWhenVATNonTaxableDueToLocalizationRules()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        // [FEATURE] [Sales] [Normal VAT] [No Taxable Type]
-        // [SCENARIO 278911] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
-        // [SCENARIO 278911] When Sales Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
+        // [FEATURE] [Sales] [No Taxable Type]
+        // [SCENARIO 466990] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
+        // [SCENARIO 466990] When Sales Invoice was posted with No Taxable VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
         Initialize();
 
-        // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
+        // [GIVEN] VAT Posting Setup with No Taxable VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT",
           VATPostingSetup."No Taxable Type"::"Non Taxable Due To Localization Rules", 0);
 
         // [GIVEN] Posted Sales Invoice with Amount 1000.0
@@ -2167,7 +2094,7 @@ codeunit 147524 "SII Documents No Taxable"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSujeta_ServWhenNormalVATNonTaxableDueToLocalizationRules()
+    procedure NoSujeta_ServWhenNonTaxableDueToLocalizationRules()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         ServiceHeader: Record "Service Header";
@@ -2175,14 +2102,14 @@ codeunit 147524 "SII Documents No Taxable"
         XMLDoc: DotNet XmlDocument;
         Amount: Decimal;
     begin
-        // [FEATURE] [Service] [Normal VAT] [No Taxable Type]
-        // [SCENARIO 278911] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
-        // [SCENARIO 278911] When Service Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
+        // [FEATURE] [Service] [No Taxable Type]
+        // [SCENARIO 466990] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
+        // [SCENARIO 466990] When Service Invoice was posted with No Taxable VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
         Initialize();
 
-        // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
+        // [GIVEN] VAT Posting Setup with No Taxable VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT",
           VATPostingSetup."No Taxable Type"::"Non Taxable Due To Localization Rules", 0);
 
         // [GIVEN] Posted Service Invoice with Amount 1000.0
@@ -2200,21 +2127,21 @@ codeunit 147524 "SII Documents No Taxable"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSujeta_PurchWhenNormalVATNonTaxableDueToLocalizationRules()
+    procedure NoSujeta_PurchWhenVATNonTaxableDueToLocalizationRules()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        // [FEATURE] [Purchase] [Normal VAT] [No Taxable Type]
-        // [SCENARIO 278911] XML has node sii:BaseImponible
-        // [SCENARIO 278911] When Purchase Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
+        // [FEATURE] [Purchase] [No Taxable Type]
+        // [SCENARIO 466990] XML has node sii:BaseImponible
+        // [SCENARIO 466990] When Purchase Invoice was posted with No Taxable VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
         Initialize();
 
-        // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
+        // [GIVEN] VAT Posting Setup with No Taxable VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT",
           VATPostingSetup."No Taxable Type"::"Non Taxable Due To Localization Rules", 0);
 
         // [GIVEN] Posted Purchase Invoice with Amount 1000.0

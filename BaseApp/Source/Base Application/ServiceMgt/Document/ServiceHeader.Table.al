@@ -2498,6 +2498,13 @@
         field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
         {
             Caption = 'Special Scheme Code';
+
+            trigger OnValidate()
+            var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+            begin
+                SIISchemeCodeMgt.UpdateServiceSpecialSchemeCodeInSalesHeader(Rec, xRec);
+            end;
         }
         field(10710; "Operation Description"; Text[250])
         {
@@ -4901,10 +4908,12 @@
         if ("Customer Posting Group" <> xRec."Customer Posting Group") and (xRec."Customer Posting Group" <> '') then begin
             TestField("Bill-to Customer No.");
             BillToCustomer.Get("Bill-to Customer No.");
-            BillToCustomer.TestField("Allow Multiple Posting Groups");
             GetServiceMgtSetup();
-            PostingGroupChangeInterface := ServiceMgtSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            if ServiceMgtSetup."Allow Multiple Posting Groups" then begin
+                BillToCustomer.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := ServiceMgtSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            end;
         end;
     end;
 

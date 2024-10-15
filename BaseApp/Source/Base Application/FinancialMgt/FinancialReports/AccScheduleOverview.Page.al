@@ -827,9 +827,11 @@ page 490 "Acc. Schedule Overview"
 
                 action(DisplayNone)
                 {
-                    Caption = 'None';
+                    Caption = 'Hide options';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the page should be viewed with no filter options displayed';
+                    Enabled = ViewLayout <> "Financial Report View Layout"::"Show None";
+                    Image = ClearFilter;
                     trigger OnAction()
                     begin
                         ViewLayout := "Financial Report View Layout"::"Show None";
@@ -838,9 +840,11 @@ page 490 "Acc. Schedule Overview"
                 }
                 action(DisplayFiltersOnly)
                 {
-                    Caption = 'Filters only';
+                    Caption = 'Show filters';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the page should be viewed with dimension filter options displayed';
+                    Enabled = ViewLayout <> "Financial Report View Layout"::"Show Filters Only";
+                    Image = Filter;
                     trigger OnAction()
                     begin
                         ViewLayout := "Financial Report View Layout"::"Show Filters Only";
@@ -849,9 +853,11 @@ page 490 "Acc. Schedule Overview"
                 }
                 action(DisplayAll)
                 {
-                    Caption = 'All';
+                    Caption = 'Show all options';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the page should be viewed with options and dimension filters';
+                    Enabled = ViewLayout <> "Financial Report View Layout"::"Show All";
+                    Image = FilterLines;
                     trigger OnAction()
                     begin
                         ViewLayout := "Financial Report View Layout"::"Show All";
@@ -920,6 +926,7 @@ page 490 "Acc. Schedule Overview"
                 group(DisplayPromoted)
                 {
                     Caption = 'Show';
+                    ShowAs = SplitButton;
                     actionref(ShowNone_Promoted; DisplayNone)
                     {
                     }

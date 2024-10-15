@@ -289,6 +289,38 @@ page 1171 "User Task Card"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        ShouldOpenToViewPendingTasks: Boolean;
+    begin
+        if IsShowingMyPendingTasks or Evaluate(ShouldOpenToViewPendingTasks, GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
+            SetPageToShowMyPendingUserTasks();
+        FilterUserTasks();
+        FilteredUserTask.SetAutoCalcFields("Created By User Name", "Assigned To User Name", "Completed By User Name");
+    end;
+
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Found: Boolean;
+    begin
+        FilteredUserTask := Rec;
+        Found := FilteredUserTask.find(Which);
+        if Found then
+            Rec := FilteredUserTask;
+        exit(Found);
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    var
+        NewSteps: Integer;
+    begin
+        FilteredUserTask := Rec;
+        NewSteps := FilteredUserTask.Next(Steps);
+        if NewSteps <> 0 then
+            Rec := FilteredUserTask;
+        exit(NewSteps);
+    end;
+
     trigger OnAfterGetRecord()
     begin
         MultiLineTextControl := Rec.GetDescription();
@@ -305,6 +337,8 @@ page 1171 "User Task Card"
     end;
 
     var
+        FilteredUserTask: Record "User Task";
+        IsShowingMyPendingTasks: Boolean;
         InvalidPageTypeErr: Label 'You must specify a list page.';
         PageTok: Label 'Page';
         ReportTok: Label 'Report';
@@ -329,6 +363,21 @@ page 1171 "User Task Card"
             exit(PageTok);
 
         exit(ReportTok);
+    end;
+
+    local procedure FilterUserTasks()
+    var
+        UserTaskManagement: Codeunit "User Task Management";
+        DueDateFilterOptions: Option "NONE",TODAY,THIS_WEEK;
+    begin
+        if IsShowingMyPendingTasks then
+            UserTaskManagement.SetFiltersToShowMyUserTasks(FilteredUserTask, DueDateFilterOptions::NONE);
+    end;
+
+    procedure SetPageToShowMyPendingUserTasks()
+    begin
+        // This functions sets up this page to show pending tasks assigned to current user
+        IsShowingMyPendingTasks := true;
     end;
 }
 

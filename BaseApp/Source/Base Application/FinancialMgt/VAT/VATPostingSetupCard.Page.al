@@ -42,6 +42,18 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
                 }
+                field("Allow Non-Deductible VAT"; Rec."Allow Non-Deductible VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the Non-Deductible VAT is considered for this particular combination of VAT business posting group and VAT product posting group.';
+                    Visible = NonDeductibleVATVisible;
+                }
+                field("Non-Deductible VAT %"; Rec."Non-Deductible VAT %")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the percentage of the transaction amount to which VAT is not applied.';
+                    Visible = NonDeductibleVATVisible;
+                }
                 field("EC %"; Rec."EC %")
                 {
                     ApplicationArea = Basic, Suite;
@@ -127,6 +139,12 @@ page 473 "VAT Posting Setup Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post purchase VAT for the particular combination of business group and product group.';
+                }
+                field("Non-Ded. Purchase VAT Account"; Rec."Non-Ded. Purchase VAT Account")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the account associated with the VAT amount that is not deducted due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
                 }
                 field("Purch. VAT Unreal. Account"; Rec."Purch. VAT Unreal. Account")
                 {
@@ -217,13 +235,17 @@ page 473 "VAT Posting Setup Card"
     }
 
     trigger OnOpenPage()
+    var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         SetAccountsVisibility(UnrealizedVATVisible, AdjustForPmtDiscVisible);
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
     end;
 
     var
         CopyVATPostingSetup: Report "Copy - VAT Posting Setup";
         UnrealizedVATVisible: Boolean;
         AdjustForPmtDiscVisible: Boolean;
+        NonDeductibleVATVisible: Boolean;
 }
 

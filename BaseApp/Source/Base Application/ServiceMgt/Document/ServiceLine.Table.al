@@ -1069,6 +1069,7 @@
             trigger OnValidate()
             var
                 VATPostingSetup: Record "VAT Posting Setup";
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
             begin
                 TestStatusOpen();
                 GetServHeader();
@@ -1088,6 +1089,7 @@
                         "Unit Price" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
                         Currency."Unit-Amount Rounding Precision"));
                 UpdateAmounts();
+                SIISchemeCodeMgt.UpdatePurchSpecialSchemeCodeInServiceine(Rec);
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -1559,6 +1561,7 @@
                         "Qty. per Unit of Measure" := 1;
                 end;
 
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, Item);
                 Validate(Quantity);
                 UpdateUnitPriceByField(FieldNo("Unit of Measure Code"), true);
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
@@ -2580,6 +2583,10 @@
             AutoFormatType = 1;
             Caption = 'EC Difference';
             Editable = false;
+        }
+        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
         }
     }
 
@@ -6513,6 +6520,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
 

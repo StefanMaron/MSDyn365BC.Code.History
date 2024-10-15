@@ -1,4 +1,4 @@
-codeunit 1012 "Job Jnl.-Post Line"
+﻿codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = rimd,
                   TableData "Job Register" = rimd,
@@ -108,7 +108,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                 UpdateJobJnlLineSourceCurrencyAmounts(JobJnlLine2);
 
             ShouldPostUsage := JobJnlLine2."Entry Type" = JobJnlLine2."Entry Type"::Usage;
-            OnCodeOnAfterCalcShouldPostUsage(JobJnlLine2, ShouldPostUsage);
+            OnCodeOnAfterCalcShouldPostUsage(JobJnlLine2, ShouldPostUsage, JobLedgEntryNo);
             if ShouldPostUsage then
                 case Type of
                     Type::Resource:
@@ -528,9 +528,9 @@ codeunit 1012 "Job Jnl.-Post Line"
     begin
         with JobJnlLineToUpdate do begin
             "Total Cost" := Round("Unit Cost" * Quantity, AmtRoundingPrecision);
-            "Total Cost (LCY)" := Round("Unit Cost (LCY)" * Quantity, AmtRoundingPrecision);
+            "Total Cost (LCY)" := Round("Unit Cost (LCY)" * Quantity, GLSetup."Amount Rounding Precision");
             "Total Price" := Round("Unit Price" * Quantity, AmtRoundingPrecision);
-            "Total Price (LCY)" := Round("Unit Price (LCY)" * Quantity, AmtRoundingPrecision);
+            "Total Price (LCY)" := Round("Unit Price (LCY)" * Quantity, GLSetup."Amount Rounding Precision");
         end;
     end;
 
@@ -767,7 +767,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterCalcShouldPostUsage(var JobJournalLine2: Record "Job Journal Line"; var ShouldPostUsage: Boolean)
+    local procedure OnCodeOnAfterCalcShouldPostUsage(var JobJournalLine2: Record "Job Journal Line"; var ShouldPostUsage: Boolean; var JobLedgEntryNo: Integer)
     begin
     end;
 

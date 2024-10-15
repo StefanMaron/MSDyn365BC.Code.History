@@ -624,7 +624,8 @@
                 IsHandled := false;
                 OnGetVendLedgEntriesOnBeforeLoop(VendLedgEntry, PostingDate, LastDueDateToPayReq, Future, IsHandled);
                 if not IsHandled then begin
-                    SaveAmount();
+                    if IsNotAppliedToCurrentBatchLine(GenJnlLine, VendLedgEntry) then
+                        SaveAmount();
                     if VendLedgEntry."Accepted Pmt. Disc. Tolerance" or (VendLedgEntry."Accepted Payment Tolerance" <> 0) then begin
                         VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                         VendLedgEntry."Accepted Payment Tolerance" := 0;
@@ -696,11 +697,16 @@
         CurrencyBalance: Decimal;
         PrevCurrency: Code[10];
         IsHandled: Boolean;
+        GenJnlAmountLCY: Decimal;
     begin
         IsHandled := false;
         OnBeforeCheckAmounts(TempPayableVendorLedgerEntry, OriginalAmtAvailable, AmountAvailable, StopPayments, Future, Vendor, IsHandled);
         if IsHandled then
             exit;
+
+        CalculateGenJnlLineAmountLCY(GenJnlAmountLCY);
+        if (GenJnlAmountLCY > 0) and (AmountAvailable > GenJnlAmountLCY) then
+            AmountAvailable := AmountAvailable - GenJnlAmountLCY;
 
         TempPayableVendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         TempPayableVendorLedgerEntry.SetRange(Future, Future);
@@ -728,6 +734,17 @@
                 StopPayments := true;
         end;
         TempPayableVendorLedgerEntry.Reset();
+    end;
+
+    local procedure CalculateGenJnlLineAmountLCY(var GenJnlAmountLCY: Decimal)
+    var
+        GenJournalLine3: Record "Gen. Journal Line";
+    begin
+        GenJournalLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name");
+        GenJournalLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJournalLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GenJournalLine3.CalcSums("Amount (LCY)");
+        GenJnlAmountLCY := GenJournalLine3."Amount (LCY)";
     end;
 
     local procedure MakeGenJnlLines()

@@ -373,7 +373,6 @@ table 271 "Bank Account Ledger Entry"
     Local procedure SetBankAccReconciliationLine(GenJnlLine: Record "Gen. Journal Line")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         if GenJnlLine."Linked Table ID" <> Database::"Bank Acc. Reconciliation Line" then
             exit;
@@ -382,11 +381,6 @@ table 271 "Bank Account Ledger Entry"
         if not BankAccReconciliationLine.GetBySystemId(GenJnlLine."Linked System ID") then
             exit;
         if "Bank Account No." <> BankAccReconciliationLine."Bank Account No." then
-            exit;
-        BankAccountLedgerEntry.SetCurrentKey("Statement No.", "Statement Line No.");
-        BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
-        BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-        if not BankAccountLedgerEntry.IsEmpty() then
             exit;
         "Statement Status" := "Statement Status"::"Bank Acc. Entry Applied";
         "Statement No." := BankAccReconciliationLine."Statement No.";
@@ -401,7 +395,7 @@ table 271 "Bank Account Ledger Entry"
             exit;
         if not BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", "Bank Account No.", "Statement No.", "Statement Line No.") then
             exit;
-        if BankAccReconciliationLine."Statement Amount" = Amount then begin
+        if (BankAccReconciliationLine."Statement Amount" = Amount) or (BankAccReconciliationLine.Difference = Amount) then begin
             BankAccReconciliationLine."Applied Amount" += Amount;
             BankAccReconciliationLine.Difference := BankAccReconciliationLine."Statement Amount" - BankAccReconciliationLine."Applied Amount";
             BankAccReconciliationLine."Applied Entries" += 1;
@@ -445,10 +439,10 @@ table 271 "Bank Account Ledger Entry"
 
         if ((Rec."Statement Status" = Rec."Statement Status"::"Bank Acc. Entry Applied") and
            (Rec."Statement No." <> '') and (Rec."Statement Line No." <> 0)) then
-           exit(Rec."Statement No.");
+            exit(Rec."Statement No.");
 
         exit('');
-   end;
+    end;
 
     procedure IsApplied(): Boolean
     begin

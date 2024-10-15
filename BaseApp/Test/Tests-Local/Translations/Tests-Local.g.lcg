@@ -3488,6 +3488,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Make 349 Declaration - NamedType WrongCountryCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1151467462 - NamedType 3549502005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Calculation Type must be equal to 'No Taxable VAT'  in VAT Posting Setup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Taxable Documents - NamedType VATCalcTypeMustBeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1071400811 - NamedType 218166550" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Are you SURE you want to Void all of the Cartera Electronic Payments in Order]]></Val>
@@ -3605,6 +3614,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout - Local - NamedType GLAccountNoLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2534060936 - NamedType 3725120024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ErrorTextNumber]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Same Ext. Doc. No. In FY - NamedType ErrorTextNumberLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2534060936 - NamedType 3268343927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase Invoice %1 already exists for this vendor.]]></Val>
@@ -3621,6 +3639,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = external document no.]D;]A;(LookupHint=Codeunit Same Ext. Doc. No. In FY - NamedType PurchInvExistsInRepErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2534060936 - NamedType 3415229691" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Transaction %1 is out of balance by %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transaction no., %2 = Amount]D;]A;(LookupHint=Codeunit Same Ext. Doc. No. In FY - NamedType TransactionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1111279632 - NamedType 4134082808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3992,6 +4019,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents No Taxable - NamedType IncorrectXMLDocErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3734030123 - NamedType 3541819960" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 for VAT Calculation Type = No Taxable VAT must be 0.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = VAT or EC percent.]D;]A;(LookupHint=Codeunit SII Documents No Taxable - NamedType NoTaxableSetupErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3734030123 - NamedType 3524789898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TableErrorStr]]></Val>
@@ -4316,6 +4352,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Special Scheme Code Tests - NamedType CannotInsertMoreThanThreeCodesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3849314057 - NamedType 2551427998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a Field Caption like Currency Code]D;]A;(LookupHint=Codeunit SII Special Scheme Code Tests - NamedType ConfirmChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3849314057 - NamedType 366426057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.]]></Val>
@@ -4503,6 +4548,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Update Doc. Info - NamedType XPathSalesIDOtroTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2395523379 - NamedType 2551427998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a Field Caption like Currency Code]D;]A;(LookupHint=Codeunit SIIDocumentTests - NamedType ConfirmChangeQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2395523379 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
