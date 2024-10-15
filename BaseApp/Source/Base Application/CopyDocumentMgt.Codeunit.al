@@ -1591,7 +1591,7 @@
                 ToSalesLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                 ToSalesLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             end;
-            
+
             ToSalesLine.UpdateWithWarehouseShip;
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
                 GetItem(ToSalesLine."No.");
@@ -1880,7 +1880,7 @@
             if IsDeferralToBeCopied(DeferralDocType, ToPurchLine."Document Type", FromPurchDocType) then
                 ToPurchLine.Validate("Deferral Code", FromPurchLine."Deferral Code");
         end else begin
-            SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference");
+            SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference", FromPurchLine."VAT Difference (LCY)");
             if IsDeferralToBeCopied(DeferralDocType, ToPurchLine."Document Type", FromPurchDocType) then
                 if IsDeferralPosted(DeferralDocType, FromPurchDocType) then
                     CopyPostedDeferral := true
@@ -2015,7 +2015,7 @@
     begin
         // NAVCZ
         if not SalesHeader.Get(FromDocType, FromDocNo) then
-            SalesHeader.Get(ToSalesLine."Document Type",ToSalesLine."Document No.");
+            SalesHeader.Get(ToSalesLine."Document Type", ToSalesLine."Document No.");
         if SalesHeader."Shipment Method Code" <> '' then
             ShipmentMethod.Get(SalesHeader."Shipment Method Code");
         // NAVCZ
@@ -2054,7 +2054,7 @@
     begin
         // NAVCZ
         if not PurchHeader.Get(FromDocType, FromDocNo) then
-            PurchHeader.Get(ToPurchLine."Document Type",ToPurchLine."Document No.");
+            PurchHeader.Get(ToPurchLine."Document Type", ToPurchLine."Document No.");
         if PurchHeader."Shipment Method Code" <> '' then
             ShipmentMethod.Get(PurchHeader."Shipment Method Code");
         // NAVCZ
@@ -5956,7 +5956,7 @@
         end;
     end;
 
-    local procedure SetDefaultValuesToPurchLine(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; VATDifference: Decimal)
+    local procedure SetDefaultValuesToPurchLine(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; VATDifference: Decimal; VATDifferenceLCY: Decimal)
     begin
         InitPurchLineFields(ToPurchLine);
 
@@ -5975,6 +5975,7 @@
         else
             ToPurchLine.InitQtyToReceive;
         ToPurchLine."VAT Difference" := VATDifference;
+        ToPurchLine."VAT Difference (LCY)" := VATDifferenceLCY; // NAVCZ
         ToPurchLine."Receipt No." := '';
         ToPurchLine."Receipt Line No." := 0;
         if not CreateToHeader then

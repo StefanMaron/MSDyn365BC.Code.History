@@ -1024,6 +1024,53 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists('TotalLineAmount', PaymentAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('VendorPrePaymentJournalHandler')]
+    [Scope('OnPrem')]
+    procedure VendorPrePaymentJournalPrintTwoDifferentWithOneDocumentNo()
+    var
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        Vendor: array[2] of Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
+        // [SCENARIO] "Vendor Pre-Payment Journal" report print separately 2 Gen. Journal lines for different vendors, but with one "Document No".
+        Initialize;
+
+        // [GIVEN] "Document No." was generated
+        DocumentNo := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(DocumentNo));
+        ClearGeneralJournalLines(GenJournalBatch);
+
+        // [GIVEN] Created first Vendor and related "Gen. Journal Line"
+        CreateVendor(Vendor[1]);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[1], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[1]."Document Type"::Payment,
+          GenJournalLine[1]."Account Type"::Vendor, Vendor[1]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[1]."Document No." := DocumentNo;
+        GenJournalLine[1].Modify(true);
+
+        // [GIVEN] Created second Vendor and related "Gen. Journal Line"
+        CreateVendor(Vendor[2]);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[2]."Document Type"::Payment,
+          GenJournalLine[2]."Account Type"::Vendor, Vendor[2]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[2]."Document No." := DocumentNo;
+        GenJournalLine[2].Modify(true);
+
+        // [WHEN] Run report 317 "Vendor Pre-Payment Journal"
+        RunVendorPrePaymentJournal(GenJournalLine[1]);
+
+        // [THEN] Verify both "Gen. Journal Line" are printed
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', Vendor[1]."No.");
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', Vendor[2]."No.");
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[2].Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports III");

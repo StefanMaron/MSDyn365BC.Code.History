@@ -45,6 +45,7 @@ codeunit 1641 "Setup Email Logging"
         MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
         InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
         InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
+        InitializedRedirectUrlTelemetryTxt: Label 'The redirect URL has been initialized.', Locked = true;
         EmailLoggingClientIdAKVSecretNameLbl: Label 'emaillogging-clientid', Locked = true;
         EmailLoggingClientSecretAKVSecretNameLbl: Label 'emaillogging-clientsecret', Locked = true;
         TenantOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/%1/oauth2', Locked = true;
@@ -292,6 +293,19 @@ codeunit 1641 "Setup Email Logging"
         if not IsNullGuid(MarketingSetup."Exchange Account Password Key") then
             IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
         Clear(MarketingSetup."Exchange Account Password Key");
+
+        Clear(MarketingSetup."Exchange Client Id");
+        Clear(MarketingSetup."Exchange Redirect URL");
+
+        if not IsNullGuid(MarketingSetup."Exchange Client Secret Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Client Secret Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Client Secret Key");
+
+        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Tenant Id Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Tenant Id Key");
+
+        Clear(MarketingSetup."Email Logging Enabled");
 
         MarketingSetup.Modify();
         Commit();
@@ -638,16 +652,19 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         RedirectURL: Text;
     begin
-        if EnvironmentInformation.IsSaaS() then
+        OnGetEmailLoggingRedirectURL(RedirectURL);
+        if RedirectURL <> '' then begin
+            SendTraceTag('0000DUZ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedRedirectUrlTelemetryTxt, DataClassification::SystemMetadata);
             exit(RedirectURL);
+        end;
+
+        if EnvironmentInformation.IsSaaS() then
+            exit('');
 
         if MarketingSetup.Get() then
-            RedirectURL := MarketingSetup."Exchange Redirect URL";
+            exit(MarketingSetup."Exchange Redirect URL");
 
-        if RedirectURL = '' then
-            OnGetEmailLoggingRedirectURL(RedirectURL);
-
-        exit(RedirectURL);
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

@@ -190,12 +190,18 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Invoice, ServiceHeader."Document Type"::"Credit Memo"] then
-            DocumentDate := ServiceHeader."Posting Date"
+        if ServiceHeader."No." = '' then
+            DocumentDate := ServiceLine."Posting Date"
         else
-            DocumentDate := ServiceHeader."Order Date";
+            if ServiceHeader."Document Type" in
+                [ServiceHeader."Document Type"::Invoice, ServiceHeader."Document Type"::"Credit Memo"]
+            then
+                DocumentDate := ServiceHeader."Posting Date"
+            else
+                DocumentDate := ServiceHeader."Order Date";
         if DocumentDate = 0D then
             DocumentDate := WorkDate();
+        OnAfterGetDocumentDate(DocumentDate, ServiceHeader, ServiceLine);
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -247,6 +253,11 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDocumentDate(var DocumentDate: Date; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
     begin
     end;
 

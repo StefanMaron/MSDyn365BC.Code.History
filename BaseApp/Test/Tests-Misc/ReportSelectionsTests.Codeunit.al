@@ -1541,6 +1541,49 @@ codeunit 134421 "Report Selections Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,SelectSendingOptionHandler,TestAddressEMailDialogHandler')]
+    [Scope('OnPrem')]
+    procedure BuyFromContactNoEmailWhenSendingPurchaseDocument()
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Email] [Purchase]
+        // [SCENARIO 372081] Purchase document Send suggests E-mail of "Buy-from Contact No.".
+        Initialize();
+        SetupReportSelectionsVendor(true, true);
+
+        // [GIVEN] Vendor with E-mail "e1@v.com".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Vendor.Modify(true);
+
+        // [GIVEN] Person Contact "C" with Email "e2@v.com" for Vendor.
+        LibraryMarketing.CreatePersonContact(Contact);
+        Commit();
+        ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
+        Contact.Validate("Company No.", ContactBusinessRelation."Contact No.");
+        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Contact.Modify(true);
+
+        // [GIVEN] Purchase Order with "Buy-from Contact No." = "C".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Buy-from Contact No.", Contact."No.");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Choosing Send for Purchase Order.
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.SendRecords();
+
+        // [THEN] In opened Email Dialog field Email is equal to e2@v.com".
+        Assert.AreEqual(Contact."E-Mail", LibraryVariableStorage.DequeueText(), WrongEmailAddressErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2232,6 +2275,13 @@ codeunit 134421 "Report Selections Tests"
         FileName := LibraryReportDataset.GetFileName;
         LibraryVariableStorage.Enqueue(FileName);
         PurchaseReturnShipment.SaveAsXml(FileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := true;
     end;
 
     [ConfirmHandler]

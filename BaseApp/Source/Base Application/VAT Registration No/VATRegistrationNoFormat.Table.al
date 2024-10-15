@@ -82,18 +82,21 @@ table 381 "VAT Registration No. Format"
 
         case TableID of
             DATABASE::Customer:
-                CheckCust(VATRegNo, Number);
+                if not CheckCust(VATRegNo, Number) then
+                    exit(false);
             DATABASE::Vendor:
-                CheckVendor(VATRegNo, Number);
+                if not CheckVendor(VATRegNo, Number) then
+                    exit(false);
             DATABASE::Contact:
-                CheckContact(VATRegNo, Number);
+                if not CheckContact(VATRegNo, Number) then
+                    exit(false);
             else
                 OnTestTable(VATRegNo, CountryCode, Number, TableID);
         end;
         exit(true);
     end;
 
-    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cust: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
@@ -128,11 +131,15 @@ table 381 "VAT Registration No. Format"
         end;
         Check :=
           Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Customer, Number); // NAVCZ
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text002, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
-    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Vend: Record Vendor;
         RegistrationCountryRegion: Record "Registration Country/Region";
@@ -160,11 +167,15 @@ table 381 "VAT Registration No. Format"
         end;
         Check :=
           Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Vendor, Number); // NAVCZ
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text003, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
-    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20])
+    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cont: Record Contact;
         RegistrationCountryRegion: Record "Registration Country/Region";
@@ -192,8 +203,12 @@ table 381 "VAT Registration No. Format"
         end;
         Check :=
           Check and CheckRegCountryRegion(TextString, VATRegNo, RegistrationCountryRegion."Account Type"::Contact, Number); // NAVCZ
-        if not Check then
+        if not Check then begin
             Message(StrSubstNo(Text004, TextString));
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
     [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]

@@ -407,8 +407,16 @@ table 5079 "Marketing Setup"
     begin
         SendTraceTag('0000BY0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetExchangeAccountPasswordTxt, DataClassification::SystemMetadata);
 
-        if IsNullGuid("Exchange Account Password Key") then
+        if Password = '' then
+            if not IsNullGuid("Exchange Account Password Key") then begin
+                IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
+                exit;
+            end;
+
+        if IsNullGuid("Exchange Account Password Key") then begin
             "Exchange Account Password Key" := CreateGuid;
+            Modify();
+        end;
 
         IsolatedStorageManagement.Set("Exchange Account Password Key", Password, DATASCOPE::Company);
     end;
@@ -505,28 +513,29 @@ table 5079 "Marketing Setup"
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ResetExchangeTenantId()
-    var
-        EmptyGuid: Guid;
     begin
-        SetExchangeTenantId(EmptyGuid);
+        SetExchangeTenantId('');
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure SetExchangeTenantId(TenantId: Text)
     begin
+        if TenantId = '' then
+            if not IsNullGuid("Exchange Tenant Id Key") then begin
+                IsolatedStorageManagement.Delete("Exchange Tenant Id Key", DATASCOPE::Company);
+                SendTraceTag('0000D9K', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdClearedTxt, DataClassification::SystemMetadata);
+                exit;
+            end;
+
         if IsNullGuid("Exchange Tenant Id Key") then begin
             "Exchange Tenant Id Key" := CreateGuid();
             Modify();
         end;
 
         IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
-        if TenantId <> '' then
-            SendTraceTag('0000D9J', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdSetTxt, DataClassification::SystemMetadata)
-        else
-            SendTraceTag('0000D9K', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdClearedTxt, DataClassification::SystemMetadata);
+        SendTraceTag('0000D9J', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdSetTxt, DataClassification::SystemMetadata);
     end;
-
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -536,10 +545,8 @@ table 5079 "Marketing Setup"
     begin
         if IsNullGuid("Exchange Tenant Id Key") or
            not IsolatedStorage.Contains("Exchange Tenant Id Key", DATASCOPE::Company)
-        then begin
-            SendTraceTag('0000CF8', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
-            Error(ExchangeAccountNotConfiguredErr);
-        end;
+        then
+            exit('');
 
         IsolatedStorageManagement.Get("Exchange Tenant Id Key", DATASCOPE::Company, TenantId);
         exit(TenantId);

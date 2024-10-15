@@ -128,7 +128,7 @@ page 21 "Customer Card"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which transactions with the customer that cannot be blocked, for example, because the customer is insolvent.';
+                    ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
                 }
                 field("Privacy Blocked"; "Privacy Blocked")
                 {

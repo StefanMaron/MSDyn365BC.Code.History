@@ -14,12 +14,12 @@ page 320 "VAT Statement Names"
                 ShowCaption = false;
                 field(Name; Name)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT statement name.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement name.';
                 }
                 field(Control1220034; Comments)
@@ -55,7 +55,7 @@ page 320 "VAT Statement Names"
         {
             action("Edit VAT Statement")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'Edit VAT Statement';
                 Image = SetupList;
                 Promoted = true;
@@ -69,7 +69,7 @@ page 320 "VAT Statement Names"
             }
             action("&Print")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
@@ -111,7 +111,7 @@ page 320 "VAT Statement Names"
         {
             action("EC Sales List")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'EC Sales List';
                 Image = "Report";
                 RunObject = Report "EC Sales List";

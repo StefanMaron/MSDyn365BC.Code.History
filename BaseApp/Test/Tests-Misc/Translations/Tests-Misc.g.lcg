@@ -7502,6 +7502,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Return Period UT - NamedType PositivePeriodReminderCalcErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3911894280 - NamedType 3186712645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong namespace uri.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit XML Buffer Tests - NamedType WrongNamespaceUriErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 553235983 - NamedType 603840373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The InnertText for XML Attribute %1 of XML Node %2 was not found.]]></Val>

@@ -1204,6 +1204,7 @@
                     xRec := Rec;
                     "Sell-to Customer Name" := Customer.Name;
                     Validate("Sell-to Customer No.", Customer."No.");
+                    GetShippingTime(FieldNo("Sell-to Customer Name"));
                     if "No." <> '' then
                         StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
                 end;
@@ -6110,7 +6111,7 @@
                 end;
                 SalesLine."Purchase Order No." := TempSalesLine."Purchase Order No.";
                 SalesLine."Purch. Order Line No." := TempSalesLine."Purch. Order Line No.";
-                SalesLine."Drop Shipment" := SalesLine."Purch. Order Line No." <> 0;
+                SalesLine."Drop Shipment" := TempSalesLine."Drop Shipment";
             end;
             SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;

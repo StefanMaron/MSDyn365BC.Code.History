@@ -15,22 +15,22 @@
                 ShowCaption = false;
                 field("Row No."; "Row No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement line.';
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the VAT statement line will include.';
                 }
                 field("Amount Type"; "Amount Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts, or the base amounts on which the VAT is calculated.';
                 }
                 field("G/L Amount Type"; "G/L Amount Type")
@@ -40,12 +40,12 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Gen. Posting Type"; "Gen. Posting Type")
@@ -97,7 +97,7 @@
                 }
                 field(ColumnValue; ColumnValue)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     BlankZero = true;
                     Caption = 'Column Amount';
@@ -194,7 +194,7 @@
                                     PAGE.Run(PAGE::"VAT Entries", VATEntry);
                                 end;
                             Type::"Row Totaling",
-                          Type::Description, Type::Formula: // NAVCZ
+                            Type::Description, Type::Formula: // NAVCZ
                                 Error(Text000, FieldCaption(Type), Type);
                         end;
 
