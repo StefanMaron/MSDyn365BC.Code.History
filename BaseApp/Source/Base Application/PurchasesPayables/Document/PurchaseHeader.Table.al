@@ -5956,11 +5956,9 @@
 
         Validate("Sell-to Customer No.", '');
 
-        if "Location Code" = '' then begin
-            if "Buy-from Vendor No." <> '' then
-                GetVend("Buy-from Vendor No.");
-            UpdateLocationCode(Vend."Location Code");
-        end;
+        if "Buy-from Vendor No." <> '' then
+            GetVend("Buy-from Vendor No.");
+        UpdateLocationCode(Vend."Location Code");
     end;
 
     procedure CheckForBlockedLines()
