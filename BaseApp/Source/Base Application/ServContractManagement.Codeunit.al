@@ -1347,6 +1347,8 @@ codeunit 5940 ServContractManagement
         ServHeader: Record "Service Header";
         InvoiceFrom: Date;
         InvoiceTo: Date;
+        PartInvoiceFrom: Date;
+        PartInvoiceTo: Date;
         ServiceApplyEntry: Integer;
     begin
         GetNextInvoicePeriod(ServContractToInvoice, InvoiceFrom, InvoiceTo);
@@ -1371,6 +1373,19 @@ codeunit 5940 ServContractManagement
                                 then
                                     CreateDetailedServLine(ServHeader, ServContractLine, "Contract Type", "Contract No.");
 
+                        if Prepaid then
+                            if (ServContractLine."Starting Date" < "Next Invoice Date") and (ServContractLine."Invoiced to Date" = 0D) then begin
+                                PartInvoiceFrom := ServContractLine."Starting Date";
+                                PartInvoiceTo := "Next Invoice Date" - 1;
+                                ServiceApplyEntry :=
+                                  CreateServiceLedgerEntry(
+                                    ServHeader, "Contract Type", "Contract No.", CalcDate('<-CM>', PartInvoiceFrom), PartInvoiceTo,
+                                    false, false, ServContractLine."Line No.");
+                                if ServiceApplyEntry <> 0 then
+                                    CreateServLine(ServHeader, "Contract Type", "Contract No.", PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, false);
+                                ServiceApplyEntry := 0;
+                            end;
+
                         ServiceApplyEntry :=
                           CreateServiceLedgerEntry(
                             ServHeader, "Contract Type", "Contract No.", InvoiceFrom, InvoiceTo,
@@ -1379,7 +1394,7 @@ codeunit 5940 ServContractManagement
                         if ServiceApplyEntry <> 0 then
                             CreateServLine(
                               ServHeader, "Contract Type", "Contract No.",
-                              GetMaxDate(ServContractLine."Starting Date", InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
+                              CountLineInvFrom(false, ServContractLine, InvoiceFrom), InvoiceTo, ServiceApplyEntry, false);
                     until ServContractLine.Next = 0;
             end;
             CreateLastServLines(ServHeader, "Contract Type", "Contract No.");
@@ -1906,23 +1921,14 @@ codeunit 5940 ServContractManagement
         OnAfterFilterServContractLine(ServContractLine, ContractNo, ContractType);
     end;
 
-    local procedure CountLineInvFrom(SigningContract: Boolean; var ServContractLine: Record "Service Contract Line"; InvFrom: Date) LineInvFrom: Date
+    local procedure CountLineInvFrom(SigningContract: Boolean; ServContractLine: Record "Service Contract Line"; InvFrom: Date) LineInvFrom: Date
     begin
-        if SigningContract then begin
-            if ServContractLine."Invoiced to Date" = 0D then
-                LineInvFrom := ServContractLine."Starting Date"
-            else
+        if ServContractLine."Invoiced to Date" = 0D then
+            LineInvFrom := ServContractLine."Starting Date"
+        else
+            if SigningContract then begin
                 if ServContractLine."Invoiced to Date" <> CalcDate('<CM>', ServContractLine."Invoiced to Date") then
                     LineInvFrom := ServContractLine."Invoiced to Date" + 1
-        end else
-            if ServContractLine."Invoiced to Date" = 0D then begin
-                if ServContractLine."Starting Date" >= CalcDate('<-CM>', ServContractLine."Starting Date") then
-                    LineInvFrom := ServContractLine."Starting Date"
-                else
-                    if ServContractLine."Starting Date" <= InvFrom then
-                        LineInvFrom := CalcDate('<CM+1D>', ServContractLine."Starting Date")
-                    else
-                        LineInvFrom := 0D;
             end else
                 LineInvFrom := InvFrom;
     end;
@@ -2130,13 +2136,6 @@ codeunit 5940 ServContractManagement
             NextEntry += 1;
             DueDate := CalcDate('<1M>', DueDate);
         end;
-    end;
-
-    local procedure GetMaxDate(FirstDate: Date; SecondDate: Date): Date
-    begin
-        if FirstDate > SecondDate then
-            exit(FirstDate);
-        exit(SecondDate);
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])

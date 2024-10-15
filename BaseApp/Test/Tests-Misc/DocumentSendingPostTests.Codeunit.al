@@ -402,6 +402,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -1432,6 +1433,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a Service invoice and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -1833,6 +1835,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a service credit memo and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -3365,6 +3368,8 @@ codeunit 139151 DocumentSendingPostTests
         LibraryERM.CreatePostCode(PostCode);
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Rename(LibraryUtility.GenerateRandomText(2));
+        CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
+        CountryRegion.Modify();
 
         Commit;
         IsInitialized := true;
