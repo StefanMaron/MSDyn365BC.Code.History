@@ -895,6 +895,84 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler')]
+    procedure CancelPurchaseInvoiceCreatedViaGetReceiptLinesWithItemTracking()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Get Receipt Lines]
+        // [SCENARIO 400516] Restore item tracking in the original purchase order when the invoice is created via "Get Receipt Lines" and then canceled.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        Item.Get(CreateTrackedItem());
+
+        // [GIVEN] Purchase order.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Add two purchase lines, quantity = 1, assign lot no.
+        for i := 1 to ArrayLen(PurchaseLine) do begin
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(
+                PurchaseLine[i], PurchaseHeader, Item."No.", LibraryRandom.RandDec(10, 2), 1);
+            LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+            LibraryVariableStorage.Enqueue(PurchaseLine[i].Quantity);
+            LibraryVariableStorage.Enqueue(PurchaseLine[i].Quantity);
+            PurchaseLine[i].OpenItemTrackingLines();
+        end;
+
+        // [GIVEN] Receive purchase order.
+        PurchRcptHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
+
+        // [GIVEN] Create purchase invoice using "Get Receipt Lines".
+        // [GIVEN] Post the invoice.
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, "Purchase Document Type"::Invoice, Vendor."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+
+        // [WHEN] Cancel the posted invoice.
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [THEN] Item tracking is restored in the original purchase order.
+        // [THEN] "Quantity Handled" = "Quantity Invoiced" = 0 in item tracking for each purchase line.
+        for i := 1 to ArrayLen(PurchaseLine) do begin
+            PurchaseLine[i].Find();
+            TrackingSpecification.SetSourceFilter(
+                Database::"Purchase Line", PurchaseLine[i]."Document Type".AsInteger(), PurchaseLine[i]."Document No.",
+                PurchaseLine[i]."Line No.", false);
+            Assert.RecordIsEmpty(TrackingSpecification);
+
+            ReservationEntry.SetSourceFilter(
+                Database::"Purchase Line", PurchaseLine[i]."Document Type".AsInteger(), PurchaseLine[i]."Document No.",
+                PurchaseLine[i]."Line No.", false);
+            ReservationEntry.FindFirst();
+            ReservationEntry.TestField("Quantity Invoiced (Base)", 0);
+        end;
+
+        // [THEN] The purchase order can be posted again.
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PurchasesSetup: Record "Purchases & Payables Setup";

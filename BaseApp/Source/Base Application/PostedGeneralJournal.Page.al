@@ -6,6 +6,7 @@ page 182 "Posted General Journal"
     SourceTable = "Posted Gen. Journal Line";
     UsageCategory = History;
     DeleteAllowed = false;
+    SourceTableView = sorting("G/L Register No.") order(descending);
 
     layout
     {
@@ -305,12 +306,15 @@ page 182 "Posted General Journal"
         Bold: Boolean;
         CurrentJnlBatchName: Code[10];
         CurrentJnlTemplateName: Code[10];
+        GLRegisterNo: Integer;
 
     trigger OnAfterGetRecord()
     begin
-        Bold := Indentation = 0;
-        SetCurrentKey("G/L Register No.");
-        SetAscending("G/L Register No.", false);
+        if GLRegisterNo <> "G/L Register No." then begin
+            Bold := true;
+            GLRegisterNo := "G/L Register No.";
+        end else
+            Bold := false;
     end;
 
     local procedure SetTemplateBatchName()

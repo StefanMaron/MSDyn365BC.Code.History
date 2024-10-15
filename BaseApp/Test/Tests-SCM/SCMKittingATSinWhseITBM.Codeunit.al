@@ -22,6 +22,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         MSG_NOT_ON_INVT: Label 'Item ';
         MSG_QTY_BASE_NOT: Label 'Qty. to Handle (Base) in the item tracking';
@@ -2248,6 +2249,52 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         CreateItems(Tracking::LotSerial);
 
         NormalPostingIT(LocationBM, 100, 0, WhseActivityType::None, MSG_QTY_BASE_NOT, true, false, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostBatchRequestValuesHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure BatchPostAssemblyOrdersRequestValuesNotOverriddenWhenRunInBackground()
+    var
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] Saved Request page values are not overridden when running the batch job in background.
+
+        // [GIVEN] Saved request page values.
+        LibraryVariableStorage.Enqueue(true);
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(ClientType::Desktop);
+        RequestPageXML := Report.RunRequestPage(Report::"Batch Post Assembly Orders", RequestPageXML);
+
+        // [WHEN] Running the request page in the background.
+        LibraryVariableStorage.Enqueue(false);
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
+        RequestPageXML := Report.RunRequestPage(Report::"Batch Post Assembly Orders", RequestPageXML);
+
+        // [THEN] The saved request page values are not overriden (see PostBatchRequestValuesHandler).
+
+        // [WHEN] Running the request page as desktop.
+        LibraryVariableStorage.Enqueue(false);
+        TestClientTypeSubscriber.SetClientType(ClientType::Desktop);
+        asserterror RequestPageXML := Report.RunRequestPage(Report::"Batch Post Assembly Orders", RequestPageXML);
+
+        // [THEN] The saved request page values are overridden.
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostBatchRequestValuesHandler(var PostBatchForm: TestRequestPage "Batch Post Assembly Orders")
+    begin
+        if LibraryVariableStorage.DequeueBoolean() then begin
+            PostBatchForm.PostingDate.SetValue(20200101D);
+            PostBatchForm.ReplacePostingDate.SetValue(true);
+            PostBatchForm.OK.Invoke();
+        end else begin
+            Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');
+        end;
     end;
 }
 

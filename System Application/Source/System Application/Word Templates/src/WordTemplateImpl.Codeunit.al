@@ -723,6 +723,9 @@ codeunit 9988 "Word Template Impl."
     local procedure GetMergeFieldsForRecord(TableId: Integer; var MailMergeFields: List of [Text]; PrependValue: Text)
     var
         FieldRec: Record Field;
+        MailMergeFieldsCount: Dictionary of [Text, Integer];
+        Counter: Integer;
+        AppendValue: Text;
     begin
         FieldRec.SetRange(TableNo, TableId);
         FieldRec.SetFilter(Class, '<>%1', FieldRec.Class::FlowFilter);
@@ -733,7 +736,8 @@ codeunit 9988 "Word Template Impl."
                                                              FieldRec.Type::TableFilter);
         if FieldRec.FindSet() then
             repeat
-                MailMergeFields.Add(PrependValue + FieldRec."Field Caption");
+                AppendValue := GetAppendValue(FieldRec."Field Caption", Counter, MailMergeFieldsCount);
+                MailMergeFields.Add(StrSubstNo(MergeFieldTok, PrependValue, FieldRec."Field Caption", AppendValue));
             until FieldRec.Next() = 0;
     end;
 
@@ -810,7 +814,10 @@ codeunit 9988 "Word Template Impl."
     local procedure WriteDataStream(RecordRef: RecordRef; OutStream: OutStream; WriteNames: Boolean; PrependValue: Text)
     var
         FieldRef: FieldRef;
+        MailMergeFieldsCount: Dictionary of [Text, Integer];
         Field: Integer;
+        Counter: Integer;
+        AppendValue: Text;
     begin
         for Field := 1 to RecordRef.FieldCount() do begin
             FieldRef := RecordRef.FieldIndex(Field);
@@ -821,9 +828,10 @@ codeunit 9988 "Word Template Impl."
                                                                                      FieldRef.Type::RecordId]) then begin
                 if FieldRef.Class = FieldClass::FlowField then
                     FieldRef.CalcField();
-                if WriteNames then
-                    OutStream.WriteText(PrependValue + FieldRef.Caption())
-                else
+                if WriteNames then begin
+                    AppendValue := GetAppendValue(FieldRef.Caption(), Counter, MailMergeFieldsCount);
+                    OutStream.WriteText(StrSubstNo(MergeFieldTok, PrependValue, FieldRef.Caption(), AppendValue));
+                end else
                     OutStream.WriteText(Format(FieldRef.Value()));
                 if Field < RecordRef.FieldCount() then
                     OutStream.WriteText('|');
@@ -850,7 +858,10 @@ codeunit 9988 "Word Template Impl."
     local procedure WriteDataDict(RecordRef: RecordRef; var Data: Dictionary of [Text, Text]; PrependValue: Text)
     var
         FieldRef: FieldRef;
+        MailMergeFieldsCount: Dictionary of [Text, Integer];
         Field: Integer;
+        Counter: Integer;
+        AppendValue: Text;
     begin
         for Field := 1 to RecordRef.FieldCount() do begin
             FieldRef := RecordRef.FieldIndex(Field);
@@ -861,7 +872,8 @@ codeunit 9988 "Word Template Impl."
                                                                                      FieldRef.Type::RecordId]) then begin
                 if FieldRef.Class = FieldClass::FlowField then
                     FieldRef.CalcField();
-                Data.Set(PrependValue + FieldRef.Caption(), Format(FieldRef.Value()));
+                AppendValue := GetAppendValue(FieldRef.Caption(), Counter, MailMergeFieldsCount);
+                Data.Set(StrSubstNo(MergeFieldTok, PrependValue, FieldRef.Caption(), AppendValue), Format(FieldRef.Value()));
             end;
         end;
     end;
@@ -954,6 +966,18 @@ codeunit 9988 "Word Template Impl."
         until (Length > 5) or (StrLen(ObjectCaption) < Position);
     end;
 
+    local procedure GetAppendValue(Caption: Text; var Counter: Integer; var MailMergeFieldsCount: Dictionary of [Text, Integer]): Text
+    begin
+        if MailMergeFieldsCount.Get(Caption, Counter) then begin
+            Counter += 1;
+            MailMergeFieldsCount.Set(Caption, Counter);
+            exit(StrSubstNo(AppendPatternTxt, Counter));
+        end else begin
+            MailMergeFieldsCount.Set(Caption, 1);
+            exit('');
+        end;
+    end;
+
     local procedure IsAlphabetic(Character: Char): Boolean
     begin
         exit(Character in ['A' .. 'Z']);
@@ -1018,9 +1042,11 @@ codeunit 9988 "Word Template Impl."
         RelatedTableIdsLengthErr: Label 'The length of the related table IDs (%1), does not match the length of the related table codes (%2).', Comment = '%1 - Length of related table IDs list, %2 Length of related table codes list';
         FilenamePatternTxt: Label '%1.%2', Locked = true;
         PrependPatternTxt: Label '%1_', Locked = true;
+        AppendPatternTxt: Label '_%1', Locked = true;
         EmptyTemplateNamePatternTxt: Label '%1.%2', Locked = true;
         TemplateNamePatternTxt: Label '%1_%2.%3', Locked = true;
         ExpressionFilterTok: Label '%1|', Locked = true;
+        MergeFieldTok: Label '%1%2%3', Locked = true;
         ReservedCharsTok: Label '<|>|:|\/|\\|\||\?|\*|\"', Locked = true;
         WordTemplatesCategoryTxt: Label 'AL Word Templates', Locked = true;
         DownloadedTemplateTxt: Label 'Template downloaded: %1 (%2).', Comment = '%1 - System ID, %2 - Table ID', Locked = true;

@@ -1245,8 +1245,6 @@ page 5050 "Contact Card"
                 Caption = 'Word Template';
                 ToolTip = 'Apply a Word template on the contact.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category5;
 
                 trigger OnAction()
                 var
@@ -1261,10 +1259,8 @@ page 5050 "Contact Card"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Send an email to this contact.';
 
                 trigger OnAction()

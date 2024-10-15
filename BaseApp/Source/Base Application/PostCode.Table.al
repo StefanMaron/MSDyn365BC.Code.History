@@ -141,6 +141,8 @@ table 225 "Post Code"
             CountryCode := PostCodeRec."Country/Region Code";
             CountyTxt := PostCodeRec.County;
         end;
+
+        OnAfterValidateCity(Rec, CityTxt, PostCode, CountyTxt, CountryCode, UseDialog);
     end;
 
     procedure ValidatePostCode(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
@@ -178,6 +180,8 @@ table 225 "Post Code"
             CountryCode := PostCodeRec."Country/Region Code";
             CountyTxt := PostCodeRec.County;
         end;
+
+        OnAfterValidatePostCode(Rec, CityTxt, PostCode, CountyTxt, CountryCode, UseDialog);
     end;
 
     procedure UpdateFromSalesHeader(SalesHeader: Record "Sales Header"; PostCodeChanged: Boolean)
@@ -299,6 +303,16 @@ table 225 "Post Code"
             CountryCode := PostCodeRec."Country/Region Code";
             CountyTxt := PostCodeRec.County;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCity(var PostCodeRec: Record "Post Code"; var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostCode(var PostCodeRec: Record "Post Code"; var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

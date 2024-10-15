@@ -298,6 +298,7 @@ page 5847 "Average Cost Calc. Overview"
         AvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
         AvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         AvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        OnInitTempTableOnAfterAvgCostCalcOverviewSetFilters(AvgCostCalcOverview, Item);
 
         GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
         AvgCostCalcOverview.Reset();
@@ -322,6 +323,7 @@ page 5847 "Average Cost Calc. Overview"
         AvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
         AvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         AvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        OnExpandAllOnAfterAvgCostCalcOverviewSetFilters(AvgCostCalcOverview, Item);
 
         GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
@@ -409,6 +411,16 @@ page 5847 "Average Cost Calc. Overview"
     begin
         if Type = Type::"Closing Entry" then
             DocumentLineNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExpandAllOnAfterAvgCostCalcOverviewSetFilters(var AvgCostCalcOverview: Record "Average Cost Calc. Overview" temporary; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitTempTableOnAfterAvgCostCalcOverviewSetFilters(var AvgCostCalcOverview: Record "Average Cost Calc. Overview" temporary; var Item: Record Item)
+    begin
     end;
 }
 
