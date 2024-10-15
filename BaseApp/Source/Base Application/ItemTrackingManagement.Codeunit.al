@@ -1,4 +1,4 @@
-﻿codeunit 6500 "Item Tracking Management"
+codeunit 6500 "Item Tracking Management"
 {
     Permissions = TableData "Item Entry Relation" = rd,
                   TableData "Value Entry Relation" = rd,
@@ -99,19 +99,6 @@
         OnAfterCreateTrackingSpecification(ToTrackingSpecification, FromReservEntry);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replace by GetItemTrackingSetup.', '16.0')]
-    procedure GetItemTrackingSettings(var ItemTrackingCode: Record "Item Tracking Code"; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output"; Inbound: Boolean; var SNRequired: Boolean; var LotRequired: Boolean; var SNInfoRequired: Boolean; var LotInfoRequired: Boolean)
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        GetItemTrackingSetup(ItemTrackingCode, "Item Ledger Entry Type".FromInteger(EntryType), Inbound, ItemTrackingSetup);
-        SNRequired := ItemTrackingSetup."Serial No. Required";
-        LotRequired := ItemTrackingSetup."Lot No. Required";
-        SNInfoRequired := ItemTrackingSetup."Serial No. Info Required";
-        LotInfoRequired := ItemTrackingSetup."Lot No. Info Required";
-    end;
-#endif
 
     procedure GetItemTrackingSetup(var ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean; var ItemTrackingSetup: Record "Item Tracking Setup")
     begin
@@ -388,7 +375,7 @@
         TempHandlingSpecification.Reset();
         TempHandlingSpecification.DeleteAll();
         if SumPerTracking then
-            TempHandlingSpecification.SetCurrentKey("Lot No.", "Serial No.");
+            TempHandlingSpecification.SetTrackingKey();
 
         if ReservEntry.FindSet() then begin
             GetItemTrackingCode(ReservEntry."Item No.", ItemTrackingCode);
@@ -1387,32 +1374,53 @@
               WhseItemTrkgLine."Quantity (Base)" - WhseItemTrkgLine."Quantity Handled (Base)");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InitItemTrackingForTempWhseWorksheetLine().', '19.0')]
     procedure InitItemTrkgForTempWkshLine(WhseDocType: Option; WhseDocNo: Code[20]; WhseDocLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
+    begin
+        InitItemTrackingForTempWhseWorksheetLine(
+            "Warehouse Worksheet Document Type".FromInteger(WhseDocType), WhseDocNo, WhseDocLineNo,
+            SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
+    end;
+#endif
+
+    procedure InitItemTrackingForTempWhseWorksheetLine(WhseDocType: Enum "Warehouse Worksheet Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     var
         TempWhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        InitWhseWkshLine(TempWhseWkshLine, WhseDocType, WhseDocNo, WhseDocLineNo, SourceType, SourceSubtype, SourceNo,
-          SourceLineNo, SourceSublineNo);
+        InitWhseWorksheetLine(
+            TempWhseWkshLine, WhseDocType, WhseDocNo, WhseDocLineNo,
+            SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
         InitTrackingSpecification(TempWhseWkshLine);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InitWhseWorksheetLine().', '19.0')]
     procedure InitWhseWkshLine(var WhseWkshLine: Record "Whse. Worksheet Line"; WhseDocType: Option; WhseDocNo: Code[20]; WhseDocLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
+    begin
+        InitWhseWorksheetLine(
+            WhseWkshLine, "Warehouse Worksheet Document Type".FromInteger(WhseDocType), WhseDocNo, WhseDocLineNo,
+            SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
+    end;
+#endif
+
+    procedure InitWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Enum "Warehouse Worksheet Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        WhseWkshLine.Init();
-        WhseWkshLine."Whse. Document Type" := WhseDocType;
-        WhseWkshLine."Whse. Document No." := WhseDocNo;
-        WhseWkshLine."Whse. Document Line No." := WhseDocLineNo;
-        WhseWkshLine."Source Type" := SourceType;
-        WhseWkshLine."Source Subtype" := SourceSubtype;
-        WhseWkshLine."Source No." := SourceNo;
-        WhseWkshLine."Source Line No." := SourceLineNo;
-        WhseWkshLine."Source Subline No." := SourceSublineNo;
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine."Whse. Document Type" := WhseDocType;
+        WhseWorksheetLine."Whse. Document No." := WhseDocNo;
+        WhseWorksheetLine."Whse. Document Line No." := WhseDocLineNo;
+        WhseWorksheetLine."Source Type" := SourceType;
+        WhseWorksheetLine."Source Subtype" := SourceSubtype;
+        WhseWorksheetLine."Source No." := SourceNo;
+        WhseWorksheetLine."Source Line No." := SourceLineNo;
+        WhseWorksheetLine."Source Subline No." := SourceSublineNo;
 
-        if WhseDocType = WhseWkshLine."Whse. Document Type"::Production then begin
+        if WhseDocType = "Warehouse Worksheet Document Type"::Production then begin
             ProdOrderComponent.Get(SourceSubtype, SourceNo, SourceLineNo, SourceSublineNo);
-            WhseWkshLine."Qty. Handled (Base)" := ProdOrderComponent."Qty. Picked (Base)";
+            WhseWorksheetLine."Qty. Handled (Base)" := ProdOrderComponent."Qty. Picked (Base)";
         end;
     end;
 
@@ -1422,7 +1430,7 @@
     begin
         if TempWhseItemTrackingLine.FindSet then
             repeat
-                WhseItemTrackingLine.SetCurrentKey("Serial No.", "Lot No.");
+                WhseItemTrackingLine.SetTrackingKey();
                 WhseItemTrackingLine.SetTrackingFilterFromSpec(TempWhseItemTrackingLine);
                 WhseItemTrackingLine.SetSourceFilter(
                   TempWhseItemTrackingLine."Source Type", TempWhseItemTrackingLine."Source Subtype", TempWhseItemTrackingLine."Source ID",
@@ -1455,7 +1463,7 @@
                 WhseItemTrkgLine.SetSourceFilter(SourceType, 0, "No.", "Line No.", false);
                 WhseItemTrkgLine.DeleteAll();
                 WhseItemTrkgLine.Init();
-                WhseItemTrkgLine.SetCurrentKey("Serial No.", "Lot No.");
+                WhseItemTrkgLine.SetTrackingKey();
                 repeat
                     OnBeforeInsertWhseItemTrkgLinesLoop(PostedWhseReceiptLine, WhseItemEntryRelation, WhseItemTrkgLine);
                     WhseItemTrkgLine.SetTrackingFilterFromRelation(WhseItemEntryRelation);
@@ -1612,7 +1620,7 @@
             Error(Text005, Item.FieldCaption("No."), ItemNo);
     end;
 
-#if not CLEAN16
+#if not CLEAN19
     [Obsolete('Replaced by GetWhseItemTrkgSetup or CheckWhseItemTrkgSetup(ItemNo: Code[20])', '16.0')]
     procedure CheckWhseItemTrkgSetup(ItemNo: Code[20]; var SNRequired: Boolean; var LNRequired: Boolean; ShowError: Boolean)
     var
@@ -1749,8 +1757,8 @@
 
             TempTrkgSpec1.Reset();
             TempTrkgSpec2.Reset();
-            TempTrkgSpec1.SetCurrentKey("Lot No.", "Serial No.");
-            TempTrkgSpec2.SetCurrentKey("Lot No.", "Serial No.");
+            TempTrkgSpec1.SetTrackingKey();
+            TempTrkgSpec2.SetTrackingKey();
             if TempTrkgSpec1.FindSet() then
                 repeat
                     TempTrkgSpec2.SetTrackingFilterFromSpec(TempTrkgSpec1);
@@ -1801,10 +1809,10 @@
                 TempSourceSpec."Quantity (Base)" := ReservMgt.GetSourceRecordValue(ReservEntry2, false, 1);
                 if TempTrkgSpec3."Source Type" = DATABASE::"Transfer Line" then begin
                     TempTrkgSpec3.ModifyAll("Location Code", ReservEntry2."Location Code");
-                    ItemTrackingLines.SetFormRunMode(4);
+                    ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Transfer);
                 end else
                     if FromReservEntry."Source Type" <> ReservEntry2."Source Type" then // If different it is drop shipment
-                        ItemTrackingLines.SetFormRunMode(3);
+                        ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
                 ItemTrackingLines.RegisterItemTrackingLines(TempSourceSpec, AvailabilityDate, TempTrkgSpec3);
             end;
         end;
@@ -2040,12 +2048,15 @@
           SerialNoInfo."Item No.", SerialNoInfo."Variant Code", SerialNoInfo."Serial No.", NewSerialNo);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure FindLastItemLedgerEntry().', '19.0')]
     procedure GetLotSNDataSet(ItemNo: Code[20]; VariantCode: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         exit(FindLastItemLedgerEntry(ItemNo, VariantCode, ItemTrackingSetup, ItemLedgEntry));
     end;
+#endif
 
     procedure FindLastItemLedgerEntry(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     var
@@ -2090,6 +2101,8 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure ExistingExpirationDate with parameter Item Tracking Setup.', '19.0')]
     procedure ExistingExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; TestMultiple: Boolean; var EntriesExist: Boolean) ExpiryDate: Date
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -2097,7 +2110,9 @@
         ItemTrackingSetup."Serial No." := SerialNo;
         ItemTrackingSetup."Lot No." := LotNo;
         exit(ExistingExpirationDate(ItemNo, VariantCode, ItemTrackingSetup, TestMultiple, EntriesExist));
+
     end;
+#endif
 
     procedure ExistingExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; TestMultiple: Boolean; var EntriesExist: Boolean) ExpiryDate: Date
     var
@@ -2158,6 +2173,8 @@
                 ItemLedgerEntry."Item No.", ItemLedgerEntry."Variant Code", ItemTrackingSetup, TestMultiple, EntriesExist));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by ExistingExpirationDateAndQty() with parameter Item Tracking Setup.', '19.0')]
     procedure ExistingExpirationDateAndQty(ItemNo: Code[20]; VariantCode: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; var SumOfEntries: Decimal): Date
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -2166,6 +2183,7 @@
         ItemTrackingSetup."Lot No." := LotNo;
         exit(ExistingExpirationDateAndQty(ItemNo, VariantCode, ItemTrackingSetup, SumOfEntries));
     end;
+#endif
 
     procedure ExistingExpirationDateAndQty(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; var SumOfEntries: Decimal) ExpDate: Date
     var
@@ -2189,6 +2207,8 @@
             until ItemLedgEntry.Next() = 0;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure ExistingWarrantyDate().', '19.0')]
     procedure ExistingWarrantyDate(ItemNo: Code[20]; VariantCode: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; var EntriesExist: Boolean) WarDate: Date
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -2197,6 +2217,7 @@
         ItemTrackingSetup."Lot No." := LotNo;
         exit(ExistingWarrantyDate(ItemNo, VariantCode, ItemTrackingSetup, EntriesExist));
     end;
+#endif
 
     procedure ExistingWarrantyDate(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; var EntriesExist: Boolean) WarrantyDate: Date
     var
@@ -2303,6 +2324,8 @@
         EntriesExist := SumOfEntries < 0;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by GetWhseExpirationDate() with parameter Item Tracking Setup.', '19.0')]
     procedure GetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var ExpiryDate: Date) ExpDateFound: Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -2311,6 +2334,7 @@
         ItemTrackingSetup."Lot No." := LotNo;
         exit(GetWhseExpirationDate(ItemNo, VariantCode, Location, ItemTrackingSetup, ExpiryDate));
     end;
+#endif
 
     procedure GetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; ItemTrackingSetup: Record "Item Tracking Setup"; var ExpiryDate: Date) ExpiryDateFound: Boolean
     var
@@ -2332,6 +2356,8 @@
             ExpiryDate, ExpiryDateFound);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure GetWhseWarrantyDate() with parameter Item Tracking Setup.', '19.0')]
     procedure GetWhseWarrantyDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var WarrantyDate: Date): Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -2340,6 +2366,7 @@
         ItemTrackingSetup."Lot No." := LotNo;
         exit(GetWhseWarrantyDate(ItemNo, VariantCode, Location, ItemTrackingSetup, WarrantyDate));
     end;
+#endif
 
     procedure GetWhseWarrantyDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; ItemTrackingSetup: Record "Item Tracking Setup"; var Warrantydate: Date): Boolean
     var
@@ -2404,19 +2431,6 @@
 
         OnAfterTestExpDateOnTrackingSpecNew(TempTrackingSpecification);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by ReservEntry.GetItemTrackingEntryType.', '16.0')]
-    procedure ItemTrackingOption(LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]) OptionValue: Integer
-    var
-        ReservEntry: Record "Reservation Entry";
-    begin
-        ReservEntry."Serial No." := SerialNo;
-        ReservEntry."Lot No." := LotNo;
-        ReservEntry."Package No." := CDNo;
-        OptionValue := ReservEntry.GetItemTrackingEntryType().AsInteger();
-    end;
-#endif
 
     procedure CalcQtyBaseRegistered(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"): Decimal
     var
@@ -3018,6 +3032,8 @@
         exit(ItemTrackingCode."Strict Expiration Posting");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure WhseItemTrkgLineExists() with parameter Item Tracking Setup.', '19.0')]
     procedure WhseItemTrkgLineExists(SourceId: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50]): Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -3029,6 +3045,7 @@
                 SourceId, SourceType, SourceSubtype, SourceBatchName, SourceProdOrderLine, SourceRefNo,
                 LocationCode, ItemTrackingSetup));
     end;
+#endif
 
     procedure WhseItemTrkgLineExists(SourceId: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
@@ -3822,10 +3839,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnAfterGetWhseItemTrkgSetupOnAfterItemTrackingCodeGet.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseItemTrkgSetupOnAfterItemTrackingCodeGet(var ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetWhseItemTrkgSetupOnAfterItemTrackingCodeGet(var ItemTrackingCode: Record "Item Tracking Code"; var WhseItemTrackingSetup: Record "Item Tracking Setup")

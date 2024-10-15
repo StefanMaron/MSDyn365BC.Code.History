@@ -44,6 +44,12 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies where you want the contact name to appear in mailing addresses.';
                 }
+                field("Req.Country/Reg. Code in Addr."; "Req.Country/Reg. Code in Addr.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether to clear the Post Code, City, and County fields when the value in the Country/Region Code field is changed.';
+                }
                 field("Inv. Rounding Precision (LCY)"; "Inv. Rounding Precision (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -229,6 +235,12 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies which type of amounts are shown in journals and in ledger entries windows. Amount Only: The Amount and Amount (LCY) fields are shown. Debit/Credit Only: The Debit Amount, Debit Amount (LCY), Credit Amount, and Credit Amount (LCY) fields are shown. All Amounts: All amount fields are shown. ';
+                }
+                field(PostingPreviewType; "Posting Preview Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the amount of detail to include in the posting preview. Standard gives an overview of entries grouped by type, and you can choose the type of entry to view details. Extended displays the details for G/L entries and VAT entries.';
                 }
                 field(SEPANonEuroExport; "SEPA Non-Euro Export")
                 {
@@ -818,4 +830,5 @@ page 118 "General Ledger Setup"
           ("Shortcut Dimension 8 Code" <> xGeneralLedgerSetup."Shortcut Dimension 8 Code"));
     end;
 }
+
 

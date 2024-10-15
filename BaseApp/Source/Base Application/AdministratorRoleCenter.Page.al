@@ -1,6 +1,6 @@
 page 9018 "Administrator Role Center"
 {
-    Caption = 'IT Manager', Comment = '{Dependency=Match,"ProfileDescription_ITMANAGER"}';
+    Caption = 'IT Manager';
     PageType = RoleCenter;
 
     layout

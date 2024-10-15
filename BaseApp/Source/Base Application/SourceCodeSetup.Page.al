@@ -229,6 +229,20 @@ page 279 "Source Code Setup"
                     ToolTip = 'Specifies the code linked to entries that are posted using the Date Compress Vendor Ledger batch job.';
                 }
             }
+            group(Employees)
+            {
+                Caption = 'Employees';
+                field("Employee Entry Application"; "Employee Entry Application")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted from the Apply Employee Entries window.';
+                }
+                field("Unapplied Empl. Entry Appln."; "Unapplied Empl. Entry Appln.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code assigned to entries that are posted from the Unapply Employee Entries window.';
+                }
+            }
             group(Inventory)
             {
                 Caption = 'Inventory';
@@ -489,45 +503,6 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted by running the Transfer Budget to Actual batch job.';
-                }
-            }
-            group(Payroll)
-            {
-                Caption = 'Payroll';
-                field("Vacation Order"; "Vacation Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the vacation order.';
-                }
-                field("Sick Leave Order"; "Sick Leave Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the sick leave order.';
-                }
-                field("Travel Order"; "Travel Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the travel order.';
-                }
-                field("Other Absence Order"; "Other Absence Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the other absence orders.';
-                }
-                field("Payroll Calculation"; "Payroll Calculation")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the advance payroll calculation.';
-                }
-                field("Compress Payroll Journal"; "Compress Payroll Journal")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the compress payroll journal.';
-                }
-                field("Employee Journal"; "Employee Journal")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for the employee journal.';
                 }
             }
         }

@@ -60,23 +60,6 @@ codeunit 144518 "ERM Tax Dimension Mgt."
 
     [Test]
     [Scope('OnPrem')]
-    procedure SetDimFilters2TaxPRLine()
-    var
-        DimValue: Record "Dimension Value";
-        TaxRegTemplate: Record "Tax Register Template";
-        TaxRegPREntry: Record "Tax Register PR Entry";
-    begin
-        Initialize;
-        InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
-        TaxDimMgt.SetDimFilters2TaxPRLine(TaxRegTemplate, TaxRegPREntry);
-        Assert.AreEqual(
-          DimValue.Code,
-          TaxRegPREntry.GetFilter("Dimension 1 Value Code"),
-          StrSubstNo(WrongFilterValueErr, TaxRegPREntry.FieldCaption("Dimension 1 Value Code"), TaxRegPREntry.TableCaption));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SetDimFilters2TaxGLRecordRef()
     var
         DimValue: Record "Dimension Value";
@@ -111,27 +94,6 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegRecordRef.Open(DATABASE::"Tax Register Item Entry");
         TaxDimMgt.SetDimFilters2TaxItemRecordRef(TaxRegTemplate, TaxRegRecordRef);
         TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegItemEntry.FieldNo("Dimension 1 Value Code"));
-        Assert.AreEqual(
-          DimValue.Code,
-          TaxRegFieldRef.GetFilter,
-          StrSubstNo(WrongFilterValueErr, TaxRegFieldRef.Caption, TaxRegRecordRef.Caption));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SetDimFilters2TaxPRRecordRef()
-    var
-        DimValue: Record "Dimension Value";
-        TaxRegTemplate: Record "Tax Register Template";
-        TaxRegPREntry: Record "Tax Register PR Entry";
-        TaxRegRecordRef: RecordRef;
-        TaxRegFieldRef: FieldRef;
-    begin
-        Initialize;
-        InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
-        TaxRegRecordRef.Open(DATABASE::"Tax Register PR Entry");
-        TaxDimMgt.SetDimFilters2TaxPRRecordRef(TaxRegTemplate, TaxRegRecordRef);
-        TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegPREntry.FieldNo("Dimension 1 Value Code"));
         Assert.AreEqual(
           DimValue.Code,
           TaxRegFieldRef.GetFilter,

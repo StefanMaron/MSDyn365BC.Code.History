@@ -8,10 +8,12 @@
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-                  TableData "Purchase Price Access" = rd,
-                  TableData "Purchase Discount Access" = rd,
+#if not CLEAN19
                   TableData "Purchase Price" = rd,
-                  TableData "Purchase Line Discount" = rd;
+                  TableData "Purchase Line Discount" = rd,
+#endif
+                  TableData "Purchase Price Access" = rd,
+                  TableData "Purchase Discount Access" = rd;
 
     fields
     {
@@ -256,7 +258,7 @@
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
 
                 if "Country/Region Code" <> xRec."Country/Region Code" then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(38; Comment; Boolean)
@@ -1096,6 +1098,11 @@
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
@@ -1463,7 +1470,7 @@
         }
         field(12404; "Customer Name"; Text[50])
         {
-            CalcFormula = Lookup (Customer.Name WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Customer No.")));
             Caption = 'Customer Name';
             Editable = false;
             FieldClass = FlowField;
@@ -1535,7 +1542,7 @@
         field(12427; "G/L Starting Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1549,7 +1556,7 @@
         field(12428; "G/L Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1563,7 +1570,7 @@
         field(12429; "G/L Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("Source Type" = CONST(Vendor),
                                                                 "Source No." = FIELD("No."),
                                                                 "G/L Account No." = FIELD("G/L Account Filter"),
                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1577,7 +1584,7 @@
         field(12430; "G/L Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("Source Type" = CONST(Vendor),
                                                                  "Source No." = FIELD("No."),
                                                                  "G/L Account No." = FIELD("G/L Account Filter"),
                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1591,7 +1598,7 @@
         field(12431; "G/L Balance to Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
+            CalcFormula = Sum("G/L Entry".Amount WHERE("Source Type" = CONST(Vendor),
                                                         "Source No." = FIELD("No."),
                                                         "G/L Account No." = FIELD("G/L Account Filter"),
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -1602,12 +1609,14 @@
             Editable = false;
             FieldClass = FlowField;
         }
+#pragma warning disable AS0044
         field(12432; "Vendor Type"; Option)
         {
             Caption = 'Vendor Type';
-            OptionCaption = 'Vendor,Resp. Employee,Tax Authority,Person';
-            OptionMembers = Vendor,"Resp. Employee","Tax Authority",Person;
+            OptionCaption = 'Vendor,Resp. Employee,Tax Authority';
+            OptionMembers = Vendor,"Resp. Employee","Tax Authority";
         }
+#pragma warning restore AS0044
         field(12480; "KPP Code"; Code[10])
         {
             Caption = 'KPP Code';
@@ -1707,6 +1716,9 @@
         {
         }
         key(Key16; SystemModifiedAt)
+        {
+        }
+        key(Key17; "Coupled to CRM")
         {
         }
     }
@@ -2523,7 +2535,7 @@
         Contact := VendorContact;
     end;
 
-    local procedure SetDefaultPurchaser()
+    protected procedure SetDefaultPurchaser()
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
@@ -2554,7 +2566,7 @@
         PriceSource.Validate("Source No.", "No.");
     end;
 
-    local procedure VATRegistrationValidation()
+    procedure VATRegistrationValidation()
     var
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
@@ -2672,12 +2684,30 @@
         if IsTemporary then
             exit;
 
+        if not GraphMgtGeneralTools.IsApiEnabled() then
+            exit;
+
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdatePaymentMethodId();
+    end;
+
+    procedure UpdateReferencedIds(var PrevVendor: Record Vendor)
+    var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+    begin
+        if IsTemporary then
+            exit;
+
         if not GraphMgtGeneralTools.IsApiEnabled then
             exit;
 
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdatePaymentMethodId;
+        if Rec."Currency Code" <> PrevVendor."Currency Code" then
+            UpdateCurrencyId;
+        if Rec."Payment Terms Code" <> PrevVendor."Payment Terms Code" then
+            UpdatePaymentTermsId;
+        if Rec."Payment Method Code" <> PrevVendor."Payment Method Code" then
+            UpdatePaymentMethodId;
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -2852,6 +2882,7 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2864,5 +2895,6 @@
     local procedure OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
+#endif
 }
 

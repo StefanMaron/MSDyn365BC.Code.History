@@ -10,8 +10,8 @@ report 5206 "Employee - Qualifications"
     {
         dataitem("Employee Qualification"; "Employee Qualification")
         {
-            DataItemTableView = SORTING("Person No.", "Line No.");
-            RequestFilterFields = "Person No.", "Qualification Code";
+            DataItemTableView = SORTING("Employee No.", "Line No.");
+            RequestFilterFields = "Employee No.", "Qualification Code";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -24,10 +24,10 @@ report 5206 "Employee - Qualifications"
             column(EmployeeQualificationFilter; EmployeeQualificationFilter)
             {
             }
-            column(Employee_Qualification__Employee_No__; "Person No.")
+            column(Employee_Qualification__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Person.GetFullName)
+            column(Employee_FullName; Employee.GetFullName)
             {
             }
             column(Employee_Qualification__Qualification_Code_; "Qualification Code")
@@ -75,7 +75,7 @@ report 5206 "Employee - Qualifications"
 
             trigger OnAfterGetRecord()
             begin
-                Person.Get("Person No.");
+                Employee.Get("Employee No.");
             end;
         }
     }
@@ -102,7 +102,7 @@ report 5206 "Employee - Qualifications"
     end;
 
     var
-        Person: Record Person;
+        Employee: Record Employee;
         EmployeeQualificationFilter: Text;
         Employee___QualificationsCaptionLbl: Label 'Employee - Qualifications';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

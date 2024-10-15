@@ -10,8 +10,8 @@ report 5208 "Employee - Relatives"
     {
         dataitem("Employee Relative"; "Employee Relative")
         {
-            DataItemTableView = SORTING("Person No.", "Line No.");
-            RequestFilterFields = "Person No.", "Relative Code";
+            DataItemTableView = SORTING("Employee No.", "Line No.");
+            RequestFilterFields = "Employee No.", "Relative Code";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -24,10 +24,10 @@ report 5208 "Employee - Relatives"
             column(RelativeFilter; RelativeFilter)
             {
             }
-            column(Employee_Relative__Employee_No__; "Person No.")
+            column(Employee_Relative__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Person.GetFullName)
+            column(Employee_FullName; Employee.FullName)
             {
             }
             column(Employee_Relative__Relative_Code_; "Relative Code")
@@ -63,7 +63,7 @@ report 5208 "Employee - Relatives"
 
             trigger OnAfterGetRecord()
             begin
-                Person.Get("Person No.");
+                Employee.Get("Employee No.");
             end;
         }
     }
@@ -90,7 +90,7 @@ report 5208 "Employee - Relatives"
     end;
 
     var
-        Person: Record Person;
+        Employee: Record Employee;
         RelativeFilter: Text;
         Employee___RelativesCaptionLbl: Label 'Employee - Relatives';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

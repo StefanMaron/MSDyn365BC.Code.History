@@ -140,6 +140,24 @@ table 7323 "Posted Whse. Shipment Line"
         {
             Caption = 'Shipment Date';
         }
+        field(50; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(51; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(60; "Posted Source Document"; Enum "Warehouse Shipment Posted Source Document")
         {
             Caption = 'Posted Source Document';

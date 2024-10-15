@@ -18,7 +18,6 @@ codeunit 136903 "Employee Reports"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryReportValidation: Codeunit "Library - Report Validation";
-        LibraryHRPTestMngt: Codeunit "Library - HRP";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -39,13 +38,13 @@ codeunit 136903 "Employee Reports"
 
         // 1. Setup: Create Employee and Relative.
         Initialize;
-        Employee.Get(LibraryHRPTestMngt.CreateNewEmployee(WorkDate, 10000 + LibraryRandom.RandInt(10000)));
-        CreateEmployeeRelative(EmployeeRelative, Employee."Person No.");
+        LibraryHumanResource.CreateEmployee(Employee);
+        CreateEmployeeRelative(EmployeeRelative, Employee."No.");
 
         // 2. Exercise: Generate the Employee - Relatives Report.
         Commit();
         Clear(EmployeeRelatives);
-        EmployeeRelative.SetRange("Person No.", EmployeeRelative."Person No.");
+        EmployeeRelative.SetRange("Employee No.", EmployeeRelative."Employee No.");
         EmployeeRelatives.SetTableView(EmployeeRelative);
         EmployeeRelatives.Run;
 
@@ -117,10 +116,32 @@ codeunit 136903 "Employee Reports"
     end;
 
     [Test]
+    [HandlerFunctions('EmployeeQualificationsArticleReportHandler')]
     [Scope('OnPrem')]
     procedure EmployeeQualifications()
+    var
+        EmployeeQualification: Record "Employee Qualification";
+        Employee: Record Employee;
+        EmployeeQualifications: Report "Employee - Qualifications";
     begin
-        exit; // RU TAB5203 "Employee Qualification" Key differs from W1
+        // Test that value of Description and From Date in Employee - Qualifications matches the value of Description
+        // and From Date in corresponding Employee Qualification.
+
+        // 1. Setup: Create Employee.
+        Initialize;
+        LibraryHumanResource.CreateEmployee(Employee);
+        CreateEmployeeQualifications(EmployeeQualification, Employee."No.");
+
+        // 2. Exercise: Generate the Employee - Qualifications Report.
+        Commit();
+        Clear(EmployeeQualifications);
+        EmployeeQualification.SetRange("Employee No.", EmployeeQualification."Employee No.");
+        EmployeeQualifications.SetTableView(EmployeeQualification);
+        EmployeeQualifications.Run;
+
+        // 3. Verify: Verify that value of Description and From Date in Employee - Qualifications matches the value of Description
+        // and From Date in corresponding Employee Qualification.
+        VerifyEmployeeQualifications(EmployeeQualification);
     end;
 
     [Test]
@@ -270,10 +291,33 @@ codeunit 136903 "Employee Reports"
     end;
 
     [Test]
+    [HandlerFunctions('EmployeeAlternativeAddressReportHandler')]
     [Scope('OnPrem')]
     procedure EmployeeAlternativeAddress()
+    var
+        Employee: Record Employee;
+        AlternativeAddress: Record "Alternative Address";
+        EmployeeAltAddresses: Report "Employee - Alt. Addresses";
     begin
-        exit; // RU TAB5201 "Alternative Address" Key differs from W1
+        // Test that the values of Alternative Address and Post Code in Employee - Alt. Addresses Report must match
+        // in Corresponding Employee Table values.
+
+        // 1. Setup: Create Employee.
+        Initialize;
+        LibraryHumanResource.CreateEmployee(Employee);
+        CreateAlternativeAddress(AlternativeAddress, Employee."No.");
+        AttachAlternativeAddress(Employee, AlternativeAddress.Code);
+
+        // 2. Exercise: Generate Employee - Alt. Addresses Report.
+        Commit();
+        Clear(EmployeeAltAddresses);
+        Employee.SetRange("No.", Employee."No.");
+        EmployeeAltAddresses.SetTableView(Employee);
+        EmployeeAltAddresses.Run;
+
+        // 3. Verify: Test that the values of Alternative Address and Post Code in Employee - Alt. Addresses Report must match
+        // Corresponding Employee Table values.
+        VerifyAlternativeAddress(Employee, AlternativeAddress);
     end;
 
     [Test]
@@ -289,7 +333,7 @@ codeunit 136903 "Employee Reports"
 
         // 1. Setup: Create Employee.
         Initialize;
-        Employee.Get(LibraryHRPTestMngt.CreateNewEmployee(WorkDate, 10000 + LibraryRandom.RandInt(10000)));
+        CreateEmployeeList(Employee);
 
         // 2. Exercise: Generate Resource Journal - Test.
         Commit();
@@ -1109,8 +1153,8 @@ codeunit 136903 "Employee Reports"
     var
         Employee: Record Employee;
         EmployeeAbsence: Record "Employee Absence";
-        TimeActivity: Record "Time Activity";
-        TimeActivityDescription: array[3] of Text[100];
+        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsenceDescription: array[3] of Text[100];
         TotalAbsence: array[3] of Decimal;
         i: Integer;
         j: Integer;
@@ -1123,10 +1167,10 @@ codeunit 136903 "Employee Reports"
         LibraryHumanResource.CreateEmployee(Employee);
 
         for i := 1 to ArrayLen(TotalAbsence) do begin
-            LibraryTimeSheet.CreateTimeActivity(TimeActivity);
-            TimeActivityDescription[i] := TimeActivity.Description;
+            LibraryTimeSheet.CreateCauseOfAbsence(CauseOfAbsence);
+            CauseOfAbsenceDescription[i] := CauseOfAbsence.Description;
             for j := 1 to LibraryRandom.RandIntInRange(5, 10) do begin
-                CreateEmployeeAbsenceWithCause(EmployeeAbsence, Employee."No.", LibraryRandom.RandDate(50), TimeActivity.Code);
+                CreateEmployeeAbsenceWithCause(EmployeeAbsence, Employee."No.", LibraryRandom.RandDate(50), CauseOfAbsence.Code);
                 TotalAbsence[i] += EmployeeAbsence."Quantity (Base)";
             end;
         end;
@@ -1137,7 +1181,7 @@ codeunit 136903 "Employee Reports"
         Report.Run(Report::"Employee - Absences by Causes", true, false, EmployeeAbsence);
 
         // [THEN] Total Absence for each "Cause of Absence" is equal to summ of "Quantity (Base)" of corresponding "Employee Absence" records.
-        VerifyTotalAbsenceEmployeeAbsencesByCauses(TimeActivityDescription, TotalAbsence);
+        VerifyTotalAbsenceEmployeeAbsencesByCauses(CauseOfAbsenceDescription, TotalAbsence);
     end;
 
     local procedure Initialize()
@@ -1175,29 +1219,75 @@ codeunit 136903 "Employee Reports"
         Employee.Modify(true);
     end;
 
+    local procedure AttachAlternativeAddress(Employee: Record Employee; AltAddressCode: Code[10])
+    begin
+        // Use TODAY instead of WORKDATE because original code uses TODAY.
+        Employee.Validate("Alt. Address Code", AltAddressCode);
+        Employee.Validate("Alt. Address Start Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', Today));
+        Employee.Validate("Alt. Address End Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', Today));
+        Employee.Modify(true);
+    end;
+
     local procedure AttachBirthDate(var Employee: Record Employee)
     begin
         Employee.Validate("Birth Date", WorkDate);
         Employee.Modify(true);
     end;
 
-    local procedure CreateEmployeeAbsence(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date)
+    local procedure CreateAlternativeAddress(var AlternativeAddress: Record "Alternative Address"; EmployeeNo: Code[20])
     var
-        TimeActivity: Record "Time Activity";
+        PostCode: Record "Post Code";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
     begin
-        LibraryTimeSheet.FindCauseOfAbsence(TimeActivity);
-        CreateEmployeeAbsenceWithCause(EmployeeAbsence, EmployeeNo, FromDate, TimeActivity.Code);
+        LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
+
+        LibraryHumanResource.CreateAlternativeAddress(AlternativeAddress, EmployeeNo);
+        AlternativeAddress.Validate(
+          Address,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(AlternativeAddress.FieldNo(Address), DATABASE::"Alternative Address"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Alternative Address", AlternativeAddress.FieldNo(Address))));
+        AlternativeAddress.Validate("Country/Region Code", PostCode."Country/Region Code");
+        AlternativeAddress.Validate("Post Code", PostCode.Code);
+        AlternativeAddress.Modify(true);
     end;
 
-    local procedure CreateEmployeeAbsenceWithCause(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date; TimeActivityCode: Code[10])
+    local procedure CreateEmployeeAbsence(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date)
+    var
+        CauseOfAbsence: Record "Cause of Absence";
+    begin
+        LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
+        CreateEmployeeAbsenceWithCause(EmployeeAbsence, EmployeeNo, FromDate, CauseOfAbsence.Code);
+    end;
+
+    local procedure CreateEmployeeAbsenceWithCause(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date; CauseOfAbsenceCode: Code[10])
     begin
         LibraryHumanResource.CreateEmployeeAbsence(EmployeeAbsence);
         EmployeeAbsence.Validate("Employee No.", EmployeeNo);
         EmployeeAbsence.Validate("From Date", FromDate);
         EmployeeAbsence.Validate("To Date", FromDate);
-        EmployeeAbsence.Validate("Cause of Absence Code", TimeActivityCode);
+        EmployeeAbsence.Validate("Cause of Absence Code", CauseOfAbsenceCode);
         EmployeeAbsence.Validate(Quantity, LibraryRandom.RandDecInRange(100, 200, 2));
         EmployeeAbsence.Modify(true);
+    end;
+
+    local procedure CreateEmployeeQualifications(var EmployeeQualification: Record "Employee Qualification"; EmployeeNo: Code[20])
+    begin
+        LibraryHumanResource.CreateEmployeeQualification(EmployeeQualification, EmployeeNo);
+        EmployeeQualification.Validate("Qualification Code", FindQualification);
+        EmployeeQualification.Validate("From Date", WorkDate);
+        EmployeeQualification.Validate("To Date", WorkDate);
+        EmployeeQualification.Validate(Type, EmployeeQualification.Type::Internal);
+        EmployeeQualification.Validate(
+          "Institution/Company",
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(EmployeeQualification.FieldNo("Institution/Company"), DATABASE::"Employee Qualification"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Employee Qualification", EmployeeQualification.FieldNo("Institution/Company"))));
+
+        EmployeeQualification.Modify(true);
     end;
 
     local procedure CreateEmployeeRelative(var EmployeeRelative: Record "Employee Relative"; EmployeeNo: Code[20])
@@ -1283,6 +1373,14 @@ codeunit 136903 "Employee Reports"
         exit(EmployeeStatisticsGroup.Code);
     end;
 
+    local procedure FindQualification(): Code[10]
+    var
+        Qualification: Record Qualification;
+    begin
+        LibraryHumanResource.CreateQualification(Qualification);
+        exit(Qualification.Code);
+    end;
+
     local procedure ModifyMiscellaneousArticle(var MiscArticleInformation: Record "Misc. Article Information"; EmployeeNo: Code[20])
     begin
         LibraryHumanResource.CreateMiscArticleInformation(MiscArticleInformation, EmployeeNo, FindMiscellaneousArticle);
@@ -1313,6 +1411,25 @@ codeunit 136903 "Employee Reports"
           "Mobile Phone No.",
           Format(LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100) + LibraryRandom.RandInt(100)));
         Employee.Modify(true);
+    end;
+
+    local procedure VerifyAlternativeAddress(Employee: Record Employee; AlternativeAddress: Record "Alternative Address")
+    var
+        CountryRegion: Record "Country/Region";
+        FormatAddress: Codeunit "Format Address";
+        PostCodeCity: Text[90];
+        County: Text[50];
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('AlternativeAddr_Address', AlternativeAddress.Address);
+
+        CountryRegion.Get(AlternativeAddress."Country/Region Code");
+        FormatAddress.FormatPostCodeCity(
+          PostCodeCity, County, AlternativeAddress.City, AlternativeAddress."Post Code", AlternativeAddress.County, CountryRegion.Code);
+        LibraryReportDataset.AssertCurrentRowValueEquals('PostCodeCityText', PostCodeCity);
     end;
 
     local procedure VerifyEmployee(Employee: Record Employee)
@@ -1376,6 +1493,19 @@ codeunit 136903 "Employee Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Misc__Article_Information__Serial_No__', MiscArticleInformation."Serial No.");
     end;
 
+    local procedure VerifyEmployeeQualifications(EmployeeQualification: Record "Employee Qualification")
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Employee_Qualification__Qualification_Code_', EmployeeQualification."Qualification Code");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the confidential code');
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification_Description', EmployeeQualification.Description);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification__From_Date_', Format(EmployeeQualification."From Date"));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification__Institution_Company_',
+          EmployeeQualification."Institution/Company");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification__To_Date_', Format(EmployeeQualification."To Date"));
+    end;
+
     local procedure VerifyEmployeeRelative(EmployeeRelative: Record "Employee Relative")
     begin
         LibraryReportDataset.LoadDataSetFile;
@@ -1400,7 +1530,7 @@ codeunit 136903 "Employee Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Absence_Quantity', EmployeeAbsence.Quantity);
     end;
 
-    local procedure VerifyTotalAbsenceEmployeeAbsencesByCauses(TimeActivityDescription: array[3] of Text[100]; TotalAbsence: array[3] of Decimal)
+    local procedure VerifyTotalAbsenceEmployeeAbsencesByCauses(CauseOfAbsenceDescription: array[3] of Text[100]; TotalAbsence: array[3] of Decimal)
     var
         RowNo: Integer;
         ColumnNo: Integer;
@@ -1409,10 +1539,10 @@ codeunit 136903 "Employee Reports"
         LibraryReportValidation.OpenExcelFile();
 
         for i := 1 to ArrayLen(TotalAbsence) do begin
-            LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(TimeActivityDescription[i], 1, RowNo, ColumnNo);
+            LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(CauseOfAbsenceDescription[i], 1, RowNo, ColumnNo);
             RowNo :=
               LibraryReportValidation.FindRowNoFromColumnNoAndValueInsideArea(
-                ColumnNo, TimeActivityDescription[i], StrSubstNo('>%1', Format(RowNo)));
+                ColumnNo, CauseOfAbsenceDescription[i], StrSubstNo('>%1', Format(RowNo)));
             ColumnNo := LibraryReportValidation.FindColumnNoFromColumnCaption('Base Unit of Measure');
             LibraryReportValidation.VerifyCellValue(RowNo, ColumnNo, LibraryReportValidation.FormatDecimalValue(TotalAbsence[i]));
         end;

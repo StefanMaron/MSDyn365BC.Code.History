@@ -1,6 +1,6 @@
 page 9019 "CEO and President Role Center"
 {
-    Caption = 'President', Comment = '{Dependency=Match,"ProfileDescription_PRESIDENT"}';
+    Caption = 'President';
     PageType = RoleCenter;
 
     layout
@@ -279,34 +279,6 @@ page 9019 "CEO and President Role Center"
         }
         area(processing)
         {
-            group(Organization)
-            {
-                Caption = 'Organization';
-                action("Vacation Schedule")
-                {
-                    Caption = 'Vacation Schedule';
-                    Image = CheckList;
-                    RunObject = Page "Vacation Schedule Worksheet";
-                }
-                action("Staff List")
-                {
-                    Caption = 'Staff List';
-                    Image = CustomerList;
-                    RunObject = Page "Staff List";
-                }
-                action("Organisation Structure")
-                {
-                    Caption = 'Organisation Structure';
-                    Image = Hierarchy;
-                    RunObject = Page "Organization Structure";
-                }
-                action(Timesheet)
-                {
-                    Caption = 'Timesheet';
-                    Image = Timesheet;
-                    RunObject = Page "Timesheet Status";
-                }
-            }
             group(Turnovers)
             {
                 Caption = 'Turnovers';

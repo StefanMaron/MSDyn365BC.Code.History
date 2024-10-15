@@ -1,4 +1,4 @@
-﻿page 256 "Payment Journal"
+page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -563,15 +563,19 @@
             group(Control24)
             {
                 ShowCaption = false;
+#if not CLEAN19
                 fixed(Control80)
                 {
                     ShowCaption = false;
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'This control is no longer consider needed';
+                    ObsoleteReason = 'This control is no longer considered needed';
                     ObsoleteTag = '16.0';
                     group(Control82)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control is no longer considered needed';
+                        ObsoleteTag = '19.0';
                         ShowCaption = false;
                         field(OverdueWarningText; OverdueWarningText)
                         {
@@ -579,9 +583,13 @@
                             Style = Unfavorable;
                             StyleExpr = TRUE;
                             ToolTip = 'Specifies the text that is displayed for overdue payments.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control is no longer considered needed';
+                            ObsoleteTag = '19.0';
                         }
                     }
                 }
+#endif
                 fixed(Control1903561801)
                 {
                     ShowCaption = false;
@@ -1279,7 +1287,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1292,6 +1300,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category8;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1314,7 +1323,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);

@@ -49,7 +49,6 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "Date Compr. Register" = RimD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Detailed Vendor Ledg. Entry" = Rimd,
-                  tabledata "Employee Ledger Entry" = Rmd,
                   tabledata "Exch. Rate Adjmt. Reg." = RimD,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Budget Entry" = RIMD,

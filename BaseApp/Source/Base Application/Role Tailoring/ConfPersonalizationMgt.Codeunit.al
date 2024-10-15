@@ -15,8 +15,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         NoCurrentProfileErr: Label 'Could not find a profile for the current user.';
         FileDoesNotExistErr: Label 'The file %1 does not exist.', Comment = '%1 File Path';
         UrlConfigureParameterTxt: Label 'customize', Locked = true;
-        UrlProfileParameterTxt: Label 'profile=%1', Comment = '%1 = the profile ID for the profile we want to load for the session', Locked = true;
-        UserCreatedAppNameTxt: Label '(User-created)';
+        UrlProfileParameterTxt: Label 'profile', Locked = true;
         CouldNotExportProfilesErr: Label 'Cannot export the profiles because one or more of them contain an error.';
         ExportProfilesWithWarningsQst: Label 'There is an error in one or more of the profiles that you are exporting. You can export the profiles anyway, but you should fix the errors before you import them. Typically, import fails for profiles with errors.';
         CouldNotCopyProfileErr: Label 'The profile could not be copied.';
@@ -139,21 +138,15 @@ codeunit 9170 "Conf./Personalization Mgt."
         OnAfterCopyProfile(AllProfile, NewAllProfile);
     end;
 
+#if not CLEAN19
+    [Obsolete('Use function "GetAppName" from Codeunit "Extension Management".', '19.0')]
     procedure ResolveAppNameFromAppId(AppId: Guid) AppName: Text
     var
-        PublishedApplication: Record "Published Application";
+        ExtensionManagement: Codeunit "Extension Management";
     begin
-        if IsNullGuid(AppId) then
-            exit(UserCreatedAppNameTxt);
-
-        if PublishedApplication.ReadPermission then begin
-            PublishedApplication.SetRange(ID, AppId);
-            PublishedApplication.SetRange("Tenant Visible", true);
-
-            if PublishedApplication.FindFirst() then
-                AppName := PublishedApplication.Name;
-        end;
+        exit(ExtensionManagement.GetAppName(AppId));
     end;
+#endif
 
     procedure ClearProfileConfiguration(AllProfile: Record "All Profile")
     var
@@ -262,36 +255,25 @@ codeunit 9170 "Conf./Personalization Mgt."
         exit(InstalledLanguages.Contains(LanguageName));
     end;
 
+#if not CLEAN19
+#pragma warning disable AA0139
+    [Obsolete('Please use the method "ValidateTimeZone" from codeunit "Time Zone Selection".', '19.0')]
     procedure ValidateTimeZone(var TimeZoneText: Text)
     var
-        TimeZone: Record "Time Zone";
+        TimeZoneSelection: Codeunit "Time Zone Selection";
     begin
-        TimeZone.Get(FindTimeZoneNo(TimeZoneText));
-        TimeZoneText := TimeZone.ID;
+        TimeZoneSelection.ValidateTimeZone(TimeZoneText);
     end;
 
+    [Obsolete('Please use the method "LookupTimeZone" from codeunit "Time Zone Selection".', '19.0')]
     procedure LookupTimeZone(var TimeZoneText: Text): Boolean
     var
-        TimeZone: Record "Time Zone";
+        TimeZoneSelection: Codeunit "Time Zone Selection";
     begin
-        TimeZone."No." := FindTimeZoneNo(TimeZoneText);
-        if PAGE.RunModal(PAGE::"Time Zones", TimeZone) = ACTION::LookupOK then begin
-            TimeZoneText := TimeZone.ID;
-            exit(true);
-        end;
+        exit(TimeZoneSelection.LookupTimeZone(TimeZoneText));
     end;
-
-    local procedure FindTimeZoneNo(TimeZoneText: Text): Integer
-    var
-        TimeZone: Record "Time Zone";
-    begin
-        TimeZone.SetRange(ID, TimeZoneText);
-        if not TimeZone.FindFirst then begin
-            TimeZone.SetFilter(ID, '''@*' + TimeZoneText + '*''');
-            TimeZone.Find('=<>');
-        end;
-        exit(TimeZone."No.");
-    end;
+#pragma warning restore
+#endif
 
     procedure DownloadProfileConfigurationPackage()
     var
@@ -348,10 +330,15 @@ codeunit 9170 "Conf./Personalization Mgt."
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Use function "GetPageId" from codeunit "User Settings" instead.', '19.0')]
     procedure GetSettingsPageID(): Integer
+    var
+        UserSettings: Codeunit "User Settings";
     begin
-        exit(PAGE::"My Settings");
+        exit(UserSettings.GetPageId());
     end;
+#endif
 
     procedure RaiseOnOpenRoleCenterEvent()
     begin
@@ -364,17 +351,16 @@ codeunit 9170 "Conf./Personalization Mgt."
         RoleCenterId := DefaultRoleCenterID;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OpenSettings', '', false, false)]
-    local procedure OpenSettings()
+#if not CLEAN19
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Settings", 'OnBeforeOpenSettings', '', false, false)]
+    local procedure OpenSettings(var Handled: Boolean)
     var
         SettingsPageID: Integer;
-        Handled: Boolean;
     begin
-        SettingsPageID := GetSettingsPageID;
+        SettingsPageID := GetSettingsPageID();
         OnBeforeOpenSettings(SettingsPageID, Handled);
-        if not Handled then
-            PAGE.Run(SettingsPageID);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure SetOtherProfilesAsNonDefault(NewDefaultAllProfile: Record "All Profile")
@@ -463,28 +449,12 @@ codeunit 9170 "Conf./Personalization Mgt."
     var
         UriBuilder: Codeunit "Uri Builder";
         Uri: Codeunit Uri;
-        BaseUrl: Text;
-        QueryString: Text;
     begin
         UriBuilder.Init(GetUrl(ClientType::Web));
 
-        // From the DotNet UriBuilder.Query Property documentation:
-        //   *Note* Do not append a string directly to this property. If the length of Query is greater than 1, retrieve the property value as a string, 
-        //   remove the leading question mark, append the new query string, and set the property with the combined string. 
-        // Should be moved to a URL helper codeunit when time allows, that also checks that we are not adding query parameters that are there already
-        QueryString := UriBuilder.GetQuery();
-        QueryString := DelChr(QueryString, '<', '?');
-        if StrLen(QueryString) > 0 then
-            QueryString := StrSubstNo('%1&%2&%3',
-                QueryString,
-                UrlConfigureParameterTxt,
-                StrSubstNo(UrlProfileParameterTxt, Uri.EscapeDataString(AllProfile."Profile ID")))
-        else
-            QueryString := StrSubstNo('%1&%2',
-                UrlConfigureParameterTxt,
-                StrSubstNo(UrlProfileParameterTxt, Uri.EscapeDataString(AllProfile."Profile ID")));
+        UriBuilder.AddQueryFlag(UrlConfigureParameterTxt);
+        UriBuilder.AddQueryParameter(UrlProfileParameterTxt, AllProfile."Profile ID");
 
-        UriBuilder.SetQuery(QueryString);
         UriBuilder.GetUri(Uri);
         exit(Uri.GetAbsoluteUri());
     end;
@@ -498,7 +468,7 @@ codeunit 9170 "Conf./Personalization Mgt."
     var
         DotNetUri: Codeunit DotNet_Uri;
     begin
-        exit(StrSubstNo(UrlProfileParameterTxt, DotNetUri.EscapeDataString(BusinessManagerProfileIDTxt)));
+        exit(StrSubstNo('%1=%2', UrlProfileParameterTxt, DotNetUri.EscapeDataString(BusinessManagerProfileIDTxt)));
     end;
 
     procedure OpenProfileCustomizationUrl(AllProfile: Record "All Profile")
@@ -577,9 +547,18 @@ codeunit 9170 "Conf./Personalization Mgt."
     begin
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Settings", 'OnGetDefaultProfile', '', false, false)]
+    local procedure OnGetDefaultProfile(var AllProfile: Record "All Profile")
+    begin
+        TryGetDefaultProfileForCurrentUser(AllProfile)
+    end;
+
+#if not CLEAN19
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenSettings(var SettingsPageID: Integer; var Handled: Boolean)
+    [Obsolete('Use the event OnBeforeOpenSettings from Codeunit User Settings instead.', '19.0')]
+    procedure OnBeforeOpenSettings(var SettingsPageID: Integer; var Handled: Boolean)
     begin
     end;
+#endif
 
 }

@@ -183,6 +183,7 @@ page 35602 "Tax Authorities"
                 separator(Action1210023)
                 {
                 }
+#if not CLEAN19
                 action("Cross Re&ferences")
                 {
                     Caption = 'Cross Re&ferences';
@@ -191,15 +192,23 @@ page 35602 "Tax Authorities"
                     RunPageLink = "Cross-Reference Type" = CONST(Vendor),
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 separator(Action1210025)
                 {
                 }
+#if not CLEAN19
                 action("Combine Vendors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Combine Vendors';
                     Image = BusinessRelation;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by W1 action MergeDuplicate in Vendor Card.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -209,6 +218,7 @@ page 35602 "Tax Authorities"
                         JoinEntries.Run;
                     end;
                 }
+#endif
             }
         }
     }

@@ -602,26 +602,6 @@
             SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CopyTrackingFrom procedures.', '16.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
-    begin
-        "Serial No." := SerialNo;
-        "Lot No." := LotNo;
-        "Package No." := CDNo;
-        "Warranty Date" := WarrantyDate;
-        "Expiration Date" := ExpirationDate;
-    end;
-
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '16.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-        SetRange("Package No.", CDNo);
-    end;
-#endif
-
     procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
     begin
         SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
@@ -684,6 +664,16 @@
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
 
         OnAfterSetTrackingFilterFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
+    procedure SetTrackingKey()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetTrackingKey(Rec, IsHandled);
+        if not IsHandled then
+            SetCurrentKey("Serial No.", "Lot No.", "Package No.");
     end;
 
     procedure HasSameTracking(WhseItemTrackingLine: Record "Whse. Item Tracking Line") IsSameTracking: Boolean
@@ -857,6 +847,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitExpirationDate(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; xWhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTrackingKey(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
     begin
     end;
 }

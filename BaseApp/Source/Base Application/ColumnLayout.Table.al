@@ -66,11 +66,9 @@ table 334 "Column Layout"
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
         }
-        field(12; "Rounding Factor"; Option)
+        field(12; "Rounding Factor"; Enum "Analysis Rounding Factor")
         {
             Caption = 'Rounding Factor';
-            OptionCaption = 'None,1,1000,1000000';
-            OptionMembers = "None","1","1000","1000000";
         }
         field(13; "Show Indented Lines"; Option)
         {
@@ -103,8 +101,6 @@ table 334 "Column Layout"
         {
             Caption = 'Business Unit Totaling';
             TableRelation = "Business Unit";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(16; "Dimension 1 Totaling"; Text[80])
@@ -112,40 +108,24 @@ table 334 "Column Layout"
             AccessByPermission = TableData Dimension = R;
             CaptionClass = GetCaptionClass(5);
             Caption = 'Dimension 1 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
         }
         field(17; "Dimension 2 Totaling"; Text[80])
         {
             AccessByPermission = TableData Dimension = R;
             CaptionClass = GetCaptionClass(6);
             Caption = 'Dimension 2 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
         }
         field(18; "Dimension 3 Totaling"; Text[80])
         {
             AccessByPermission = TableData "Dimension Combination" = R;
             CaptionClass = GetCaptionClass(7);
             Caption = 'Dimension 3 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
         }
         field(19; "Dimension 4 Totaling"; Text[80])
         {
             AccessByPermission = TableData "Dimension Combination" = R;
             CaptionClass = GetCaptionClass(8);
             Caption = 'Dimension 4 Totaling';
-            //This property is currently not supported
-            //TestTableRelation = false;
-            //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
-            //ValidateTableRelation = false;
         }
         field(20; "Cost Center Totaling"; Text[80])
         {
@@ -158,6 +138,11 @@ table 334 "Column Layout"
         field(30; "Comparison Period Formula LCID"; Integer)
         {
             Caption = 'Comparison Period Formula LCID';
+        }
+        field(35; "Budget Name"; Code[10])
+        {
+            Caption = 'Budget Name';
+            TableRelation = "G/L Budget Name";
         }
         field(12400; "Dimension 1 Corr. Totaling"; Text[80])
         {

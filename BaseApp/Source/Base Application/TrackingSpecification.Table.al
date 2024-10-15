@@ -32,6 +32,8 @@ table 336 "Tracking Specification"
                 then
                     FieldError("Quantity (Base)", StrSubstNo(Text002, FieldCaption("Quantity Handled (Base)")));
 
+                "Quantity (Base)" := UOMMgt.RoundAndValidateQty("Quantity (Base)", "Qty. Rounding Precision (Base)", FieldCaption("Quantity (Base)"));
+
                 IsHandled := false;
                 OnValidateQuantityBaseOnBeforeCheckItemTrackingChange(Rec, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -115,6 +117,15 @@ table 336 "Tracking Specification"
             Editable = false;
             InitValue = 1;
         }
+        field(31; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(38; "Appl.-to Item Entry"; Integer)
         {
             Caption = 'Appl.-to Item Entry';
@@ -183,6 +194,7 @@ table 336 "Tracking Specification"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
             begin
                 if ("Qty. to Handle (Base)" * "Quantity (Base)" < 0) or
                    (Abs("Qty. to Handle (Base)") > Abs("Quantity (Base)")
@@ -191,6 +203,8 @@ table 336 "Tracking Specification"
                     Error(Text001, "Quantity (Base)" - "Quantity Handled (Base)");
 
                 OnValidateQtyToHandleOnBeforeInitQtyToInvoice(Rec, xRec, CurrFieldNo);
+
+                "Qty. to Handle (Base)" := UOMMgt.RoundAndValidateQty("Qty. to Handle (Base)", "Qty. Rounding Precision (Base)", FieldCaption("Qty. to Handle (Base)"));
 
                 InitQtyToInvoice();
                 "Qty. to Handle" := CalcQty("Qty. to Handle (Base)");
@@ -211,6 +225,8 @@ table 336 "Tracking Specification"
                     Error(
                       Text000,
                       "Qty. to Handle (Base)" + "Quantity Handled (Base)" - "Quantity Invoiced (Base)");
+
+                "Qty. to Invoice (Base)" := UOMMgt.RoundAndValidateQty("Qty. to Invoice (Base)", "Qty. Rounding Precision (Base)", FieldCaption("Qty. to Invoice (Base)"));
 
                 "Qty. to Invoice" := CalcQty("Qty. to Invoice (Base)");
                 CheckSerialNoQty();
@@ -551,7 +567,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           AsmHeader."Item No.", AsmHeader.Description, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Bin Code",
-          AsmHeader."Qty. per Unit of Measure");
+          AsmHeader."Qty. per Unit of Measure", AsmHeader."Qty. Rounding Precision (Base)");
         SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, '', 0);
         SetQuantities(
           AsmHeader."Quantity (Base)", AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
@@ -566,7 +582,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           AsmLine."No.", AsmLine.Description, AsmLine."Location Code", AsmLine."Variant Code", AsmLine."Bin Code",
-          AsmLine."Qty. per Unit of Measure");
+          AsmLine."Qty. per Unit of Measure", AsmLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", '', 0);
         SetQuantities(
@@ -582,7 +598,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           ItemJnlLine."Item No.", ItemJnlLine.Description, ItemJnlLine."Location Code", ItemJnlLine."Variant Code",
-          ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure");
+          ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure", ItemJnlLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.",
           ItemJnlLine."Journal Batch Name", 0);
@@ -598,7 +614,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           InvtDocLine."Item No.", InvtDocLine.Description, InvtDocLine."Location Code", InvtDocLine."Variant Code",
-          InvtDocLine."Bin Code", InvtDocLine."Qty. per Unit of Measure");
+          InvtDocLine."Bin Code", InvtDocLine."Qty. per Unit of Measure", InvtDocLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Invt. Document Line", InvtDocLine."Document Type".AsInteger(), InvtDocLine."Document No.", InvtDocLine."Line No.", '', 0);
         SetQuantities(
@@ -611,7 +627,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           JobJnlLine."No.", JobJnlLine.Description, JobJnlLine."Location Code", JobJnlLine."Variant Code", JobJnlLine."Bin Code",
-          JobJnlLine."Qty. per Unit of Measure");
+          JobJnlLine."Qty. per Unit of Measure", JobJnlLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Job Journal Line", JobJnlLine."Entry Type".AsInteger(), JobJnlLine."Journal Template Name", JobJnlLine."Line No.",
           JobJnlLine."Journal Batch Name", 0);
@@ -627,7 +643,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           PurchLine."No.", PurchLine.Description, PurchLine."Location Code", PurchLine."Variant Code", PurchLine."Bin Code",
-          PurchLine."Qty. per Unit of Measure");
+          PurchLine."Qty. per Unit of Measure", PurchLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", '', 0);
         if PurchLine.IsCreditDocType then
@@ -649,7 +665,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
             ProdOrderLine."Item No.", ProdOrderLine.Description, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
-            ProdOrderLine."Qty. per Unit of Measure");
+            ProdOrderLine."Qty. per Unit of Measure", ProdOrderLine."Qty. Rounding Precision (Base)");
         SetSource(
             DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
         SetQuantities(
@@ -665,7 +681,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
             ProdOrderComp."Item No.", ProdOrderComp.Description, ProdOrderComp."Location Code", ProdOrderComp."Variant Code",
-            ProdOrderComp."Bin Code", ProdOrderComp."Qty. per Unit of Measure");
+            ProdOrderComp."Bin Code", ProdOrderComp."Qty. per Unit of Measure", ProdOrderComp."Qty. Rounding Precision (Base)");
         SetSource(
             DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.", '',
             ProdOrderComp."Prod. Order Line No.");
@@ -685,7 +701,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           PlanningComponent."Item No.", PlanningComponent.Description, PlanningComponent."Location Code",
-          PlanningComponent."Variant Code", '', PlanningComponent."Qty. per Unit of Measure");
+          PlanningComponent."Variant Code", '', PlanningComponent."Qty. per Unit of Measure", PlanningComponent."Qty. Rounding Precision (Base)");
         SetSource(DATABASE::"Planning Component", 0, PlanningComponent."Worksheet Template Name", PlanningComponent."Line No.",
           PlanningComponent."Worksheet Batch Name", PlanningComponent."Worksheet Line No.");
         NetQuantity :=
@@ -701,7 +717,7 @@ table 336 "Tracking Specification"
     begin
         Init();
         SetItemData(
-          ReqLine."No.", ReqLine.Description, ReqLine."Location Code", ReqLine."Variant Code", '', ReqLine."Qty. per Unit of Measure");
+          ReqLine."No.", ReqLine.Description, ReqLine."Location Code", ReqLine."Variant Code", '', ReqLine."Qty. per Unit of Measure", ReqLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Requisition Line", 0, ReqLine."Worksheet Template Name", ReqLine."Line No.", ReqLine."Journal Batch Name", 0);
         SetQuantities(
@@ -715,7 +731,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           SalesLine."No.", SalesLine.Description, SalesLine."Location Code", SalesLine."Variant Code", SalesLine."Bin Code",
-          SalesLine."Qty. per Unit of Measure");
+          SalesLine."Qty. per Unit of Measure", SalesLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
         if SalesLine.IsCreditDocType then
@@ -736,7 +752,7 @@ table 336 "Tracking Specification"
         Init();
         SetItemData(
           ServiceLine."No.", ServiceLine.Description, ServiceLine."Location Code", ServiceLine."Variant Code", ServiceLine."Bin Code",
-          ServiceLine."Qty. per Unit of Measure");
+          ServiceLine."Qty. per Unit of Measure", ServiceLine."Qty. Rounding Precision (Base)");
         SetSource(
           DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", '', 0);
 
@@ -772,7 +788,7 @@ table 336 "Tracking Specification"
                     Init();
                     SetItemData(
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-from Code", TransLine."Variant Code",
-                      TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure");
+                      TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
                     SetSource(
                       DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
                       TransLine."Derived From Line No.");
@@ -786,7 +802,7 @@ table 336 "Tracking Specification"
                     Init();
                     SetItemData(
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-to Code", TransLine."Variant Code",
-                      TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure");
+                      TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
                     SetSource(
                       DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
                       TransLine."Derived From Line No.");
@@ -930,7 +946,7 @@ table 336 "Tracking Specification"
 
         if IsReclass() then begin
             "New Expiration Date" := "Expiration Date";
-            ItemTrackingSetup.CopyTrackingFromTrackingSpec(Rec);
+            ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(Rec);
             "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", ItemTrackingSetup, EntriesExist);
         end;
 
@@ -998,6 +1014,12 @@ table 336 "Tracking Specification"
         "Variant Code" := VariantCode;
         "Bin Code" := BinCode;
         "Qty. per Unit of Measure" := QtyPerUoM;
+    end;
+
+    local procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; QtyPerUoM: Decimal; QtyRoundingPrecision: Decimal)
+    begin
+        SetItemData(ItemNo, ItemDescription, LocationCode, VariantCode, BinCode, QtyPerUoM);
+        "Qty. Rounding Precision (Base)" := QtyRoundingPrecision;
     end;
 
     procedure SetQuantities(QtyBase: Decimal; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyToInvoice: Decimal; QtyToInvoiceBase: Decimal; QtyHandledBase: Decimal; QtyInvoicedBase: Decimal)
@@ -1284,6 +1306,16 @@ table 336 "Tracking Specification"
         SetRange("Lot No.", WhseActivityLine."Lot No.");
 
         OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure SetTrackingKey()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetTrackingKey(Rec, IsHandled);
+        if not IsHandled then
+            SetCurrentKey("Lot No.", "Serial No.", "Package No.");
     end;
 
     procedure SetSkipSerialNoQtyValidation(NewSkipSerialNoQtyValidation: Boolean)
@@ -1781,6 +1813,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitExpirationDate(var TrackingSpecification: Record "Tracking Specification"; xRec: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTrackingKey(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 

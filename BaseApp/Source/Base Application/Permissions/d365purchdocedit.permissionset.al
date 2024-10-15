@@ -10,13 +10,17 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Company Information" = R,
                   tabledata Contact = RIMD,
                   tabledata "Contact Business Relation" = R,
+                  tabledata "Cost Type" = RIMD,
                   tabledata Currency = RM,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = Rm,
                   tabledata Employee = R,
+                  tabledata "G/L Account" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "Item Charge" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracing Buffer" = Rimd,

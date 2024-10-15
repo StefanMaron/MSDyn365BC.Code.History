@@ -110,12 +110,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                     InsertDirectTransLine(DirectTransHeader, TransLine);
                 until TransLine.Next() = 0;
 
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt();
-            end;
+            MakeInventoryAdjustment();
 
             LockTable();
             "Last Shipment No." := DirectTransHeader."No.";
@@ -124,8 +119,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
             TransLine.SetRange(Quantity);
             DeleteOneTransferOrder(TransHeader, TransLine);
-
-            Clear(InvtAdjmt);
             Window.Close();
         end;
 
@@ -149,7 +142,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DocSignMgt: Codeunit "Doc. Signature Management";
         SourceCode: Code[10];
@@ -413,6 +405,14 @@ codeunit 5856 "TransferOrder-Post Transfer"
                         until TempWhseJnlLine2.Next() = 0;
                 end;
         end;
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 }
 

@@ -164,10 +164,6 @@ page 26552 "Statutory Report Tables"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the internal source number associated with the statutory report table.';
                 }
-                field(Exception; Exception)
-                {
-                    ApplicationArea = Basic, Suite;
-                }
             }
         }
     }

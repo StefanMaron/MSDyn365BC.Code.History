@@ -37,7 +37,6 @@ page 99000764 "Routing List"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of this routing.';
-                    Visible = false;
                 }
                 field("Version Nos."; "Version Nos.")
                 {

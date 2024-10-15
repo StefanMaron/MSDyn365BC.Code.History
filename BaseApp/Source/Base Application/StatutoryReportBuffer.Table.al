@@ -14,8 +14,8 @@ table 26568 "Statutory Report Buffer"
             Caption = 'Requisites Group Name';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(3; "Table Code"; Code[20])
         {

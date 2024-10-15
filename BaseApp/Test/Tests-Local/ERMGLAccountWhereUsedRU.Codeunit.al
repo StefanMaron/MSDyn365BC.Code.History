@@ -64,51 +64,6 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
         FAChargeList."No.".AssertEquals(FACharge."No.");
     end;
 
-    [Test]
-    [HandlerFunctions('WhereUsedHandler')]
-    [Scope('OnPrem')]
-    procedure CheckPayrollPostingGroup()
-    var
-        PayrollPostingGroup: Record "Payroll Posting Group";
-    begin
-        // [SCENARIO 263861] Payroll Posting Group should be shown on Where-Used page
-        Initialize;
-
-        // [GIVEN] Payroll Posting Group with "Future Vacation G/L Acc. No." = "G"
-        CreatePayrollPostingGroup(PayrollPostingGroup);
-
-        // [WHEN] Run Where-Used function for G/L Accoun "G"
-        CalcGLAccWhereUsed.CheckGLAcc(PayrollPostingGroup."Future Vacation G/L Acc. No.");
-
-        // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
-        ValidateWhereUsedRecord(
-          PayrollPostingGroup.TableCaption,
-          PayrollPostingGroup.FieldCaption("Future Vacation G/L Acc. No."),
-          StrSubstNo('%1=%2', PayrollPostingGroup.FieldCaption(Code), PayrollPostingGroup.Code));
-    end;
-
-    [Test]
-    [HandlerFunctions('WhereUsedShowDetailsHandler')]
-    [Scope('OnPrem')]
-    procedure ShowDetailsWhereUsedPayrollPostingGroup()
-    var
-        PayrollPostingGroup: Record "Payroll Posting Group";
-        PayrollPostingGroups: TestPage "Payroll Posting Groups";
-    begin
-        // [SCENARIO 263861] Payroll Posting Groups page should be open on Show Details action from Where-Used page
-        Initialize;
-
-        // [GIVEN] Payroll Posting Group "Code" = "PPG" with "Future Vacation G/L Acc. No." = "G"
-        CreatePayrollPostingGroup(PayrollPostingGroup);
-
-        // [WHEN] Run Where-Used function for G/L Accoun "G"
-        PayrollPostingGroups.Trap;
-        CalcGLAccWhereUsed.CheckGLAcc(PayrollPostingGroup."Future Vacation G/L Acc. No.");
-
-        // [THEN] Payroll Posting Groups page opened with "Code" = "PPG"
-        PayrollPostingGroups.Code.AssertEquals(PayrollPostingGroup.Code);
-    end;
-
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -124,17 +79,6 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
             "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo;
-            Insert;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure CreatePayrollPostingGroup(var PayrollPostingGroup: Record "Payroll Posting Group")
-    begin
-        with PayrollPostingGroup do begin
-            Init;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payroll Posting Group");
-            "Future Vacation G/L Acc. No." := LibraryERM.CreateGLAccountNo;
             Insert;
         end;
     end;

@@ -573,7 +573,7 @@ codeunit 143015 "Library - Tax Accounting"
             "Section Code" := SectionCode;
             "Debit Account No." := LibraryERM.CreateGLAccountNo;
             "Credit Account No." := LibraryERM.CreateGLAccountNo;
-            "Register Type" := "Register Type"::Payroll;
+            "Register Type" := "Register Type"::Item;
             "Entry No." := 1;
         end;
     end;

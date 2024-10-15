@@ -46,7 +46,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
 
                     trigger OnValidate()
                     begin
-                        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         RespCrFilterOnAfterValidate;
                     end;
                 }
@@ -58,14 +58,12 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                 {
                     ApplicationArea = Service;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year';
                     ToolTip = 'Specifies by which period amounts are displayed.';
                 }
                 field(AmountType; AmountType)
                 {
                     ApplicationArea = Service;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -101,8 +99,9 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                         PeriodStart := WorkDate;
                     Clear(MatrixForm);
 
-                    MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, AmountType, PeriodType,
-                      RespCrFilter, PeriodStart);
+                    MatrixForm.LoadMatrix(
+                        MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, AmountType,
+                        PeriodType, RespCrFilter, PeriodStart);
                     MatrixForm.RunModal;
                 end;
             }
@@ -118,7 +117,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -133,7 +132,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -148,7 +147,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
     begin
         if PeriodStart = 0D then
             PeriodStart := WorkDate;
-        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -159,13 +158,12 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
         MATRIX_CaptionRange: Text;
         PKFirstRecInCurrSet: Text;
         MATRIX_CurrentNoOfColumns: Integer;
-        AmountType: Option "Net Change","Balance at Date";
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        AmountType: Enum "Analysis Amount Type";
+        PeriodType: Enum "Analysis Period Type";
         RespCrFilter: Text[250];
         PeriodStart: Date;
-        SetWanted: Option Initial,Previous,Same,Next;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -182,8 +180,9 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
         RecRef.GetTable(MatrixRecord);
         RecRef.SetTable(MatrixRecord);
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
-          MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
+            MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MatrixRecord.SetPosition(PKFirstRecInCurrSet);
             MatrixRecord.Find;

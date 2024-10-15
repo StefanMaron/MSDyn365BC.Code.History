@@ -31,7 +31,6 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Posted Assembly Header" = rm,
                   TableData "Posted Assembly Line" = rm,
                   TableData "Job WIP G/L Entry" = rm,
-                  TableData "Employee Payroll Entry" = rm,
                   TableData "Production Order" = rm,
                   TableData "Prod. Order Line" = rm,
                   TableData "Prod. Order Component" = rm,
@@ -77,13 +76,7 @@ codeunit 483 "Change Global Dimensions"
                   TableData "G/L Correspondence Entry" = rm,
                   TableData "Posted FA Doc. Header" = rm,
                   TableData "Posted FA Doc. Line" = rm,
-                  TableData "Tax Diff. Ledger Entry" = rm,
-                  TableData "Absence Line" = rm,
-                  TableData "Posted Absence Line" = rm,
-                  TableData "Employee Ledger Entry" = rm,
-                  TableData "Posted Payroll Document" = rm,
-                  TableData "Posted Payroll Document Line" = rm,
-                  TableData "Payroll Ledger Entry" = rm;
+                  TableData "Tax Diff. Ledger Entry" = rm;
     TableNo = "Change Global Dim. Log Entry";
 
     trigger OnRun()

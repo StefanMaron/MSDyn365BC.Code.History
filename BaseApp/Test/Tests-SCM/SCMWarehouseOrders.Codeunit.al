@@ -3311,7 +3311,7 @@ codeunit 137161 "SCM Warehouse Orders"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -3550,7 +3550,7 @@ codeunit 137161 "SCM Warehouse Orders"
         end;
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3728,14 +3728,14 @@ codeunit 137161 "SCM Warehouse Orders"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure UpdateLotNoAndQuantityToHandleOnWarehousePickLines(SourceNo: Code[20]; ActionType: Option; LotNo: Code[50])
+    local procedure UpdateLotNoAndQuantityToHandleOnWarehousePickLines(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; LotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         UpdateLotNoAndQtyToHandleOnWhsePickLines(WarehouseActivityLine, SourceNo, ActionType, LotNo);
     end;
 
-    local procedure UpdateLotNoAndQuantityToHandleOnWarehousePickLinesForBin(SourceNo: Code[20]; ActionType: Option; LotNo: Code[50]; BinCode: Code[20])
+    local procedure UpdateLotNoAndQuantityToHandleOnWarehousePickLinesForBin(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; LotNo: Code[50]; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3749,7 +3749,7 @@ codeunit 137161 "SCM Warehouse Orders"
         WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
     end;
 
-    local procedure UpdateLotNoAndQtyToHandleOnWhsePickLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActionType: Option; LotNo: Code[50])
+    local procedure UpdateLotNoAndQtyToHandleOnWhsePickLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; LotNo: Code[50])
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         FindWarehouseActivityLine(

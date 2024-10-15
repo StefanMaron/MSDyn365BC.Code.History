@@ -26,8 +26,6 @@ codeunit 15 "Gen. Jnl.-Show Card"
                             PAGE.Run(PAGE::"Resp. Employee Card", Vend);
                         Vend."Vendor Type"::"Tax Authority":
                             PAGE.Run(PAGE::"Tax Authority/Fund Card", Vend);
-                        Vend."Vendor Type"::Person:
-                            PAGE.Run(PAGE::"Person Vendor Card", Vend);
                     end;
                 end;
             "Account Type"::"Bank Account":

@@ -327,7 +327,6 @@ table 26550 "Statutory Report"
         Text031: Label '%1 cannot be %2 because %3 is not empty.';
         Text032: Label 'This function is allowed for classic client only.';
         CurrInsCategoryCode: Code[2];
-        Exception: Option " ","RSV1 Section 2";
 
     [Scope('OnPrem')]
     procedure CreateReportData(ReportDataNo: Code[20]; StartDate: Date; EndDate: Date; DataSource: Option Database,Excel)
@@ -352,53 +351,49 @@ table 26550 "Statutory Report"
         StatutoryReportTable.SetRange("Report Code", Code);
         if StatutoryReportTable.FindSet then begin
             repeat
-                if StatutoryReportTable.Exception > 0 then
-                    ProcessExceptions(StatutoryReportTable, DataHeaderNo, StartDate, EndDate)
-                else begin
-                    StatReportExcelSheet."Report Code" := Code;
-                    StatReportExcelSheet."Table Code" := StatutoryReportTable.Code;
-                    StatReportExcelSheet."Report Data No." := DataHeaderNo;
-                    StatReportExcelSheet."Sheet Name" := StatutoryReportTable."Excel Sheet Name";
-                    if not StatReportExcelSheet.Find then
-                        StatReportExcelSheet.Insert(true);
+                StatReportExcelSheet."Report Code" := Code;
+                StatReportExcelSheet."Table Code" := StatutoryReportTable.Code;
+                StatReportExcelSheet."Report Data No." := DataHeaderNo;
+                StatReportExcelSheet."Sheet Name" := StatutoryReportTable."Excel Sheet Name";
+                if not StatReportExcelSheet.Find then
+                    StatReportExcelSheet.Insert(true);
 
-                    if StatutoryReportTable."Int. Source Type" <> StatutoryReportTable."Int. Source Type"::" " then begin
-                        StatReportTableRow.SetRange("Report Code", Code);
-                        StatReportTableRow.SetRange("Table Code", StatutoryReportTable.Code);
-                        StatReportTableColumn.SetRange("Report Code", Code);
-                        StatReportTableColumn.SetRange("Table Code", StatutoryReportTable.Code);
+                if StatutoryReportTable."Int. Source Type" <> StatutoryReportTable."Int. Source Type"::" " then begin
+                    StatReportTableRow.SetRange("Report Code", Code);
+                    StatReportTableRow.SetRange("Table Code", StatutoryReportTable.Code);
+                    StatReportTableColumn.SetRange("Report Code", Code);
+                    StatReportTableColumn.SetRange("Table Code", StatutoryReportTable.Code);
 
-                        if StatReportTableRow.FindSet then
-                            repeat
-                                if StatReportTableColumn.FindSet then
-                                    repeat
-                                        CreateCellFromIntSource(
-                                          DataHeaderNo,
-                                          Code,
-                                          StatutoryReportTable.Code,
-                                          StatReportTableRow."Line No.",
-                                          StatReportTableColumn."Line No.",
-                                          StartDate,
-                                          EndDate,
-                                          StatReportExcelSheet."Sheet Name");
-                                    until StatReportTableColumn.Next() = 0;
-                            until StatReportTableRow.Next() = 0;
+                    if StatReportTableRow.FindSet then
+                        repeat
+                            if StatReportTableColumn.FindSet then
+                                repeat
+                                    CreateCellFromIntSource(
+                                      DataHeaderNo,
+                                      Code,
+                                      StatutoryReportTable.Code,
+                                      StatReportTableRow."Line No.",
+                                      StatReportTableColumn."Line No.",
+                                      StartDate,
+                                      EndDate,
+                                      StatReportExcelSheet."Sheet Name");
+                                until StatReportTableColumn.Next() = 0;
+                        until StatReportTableRow.Next() = 0;
 
-                        TableIndividualRequisite.SetRange("Report Code", Code);
-                        TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
-                        if TableIndividualRequisite.FindSet then
-                            repeat
-                                CreateCellFromIntSource(
-                                  DataHeaderNo,
-                                  Code,
-                                  StatutoryReportTable.Code,
-                                  TableIndividualRequisite."Line No.",
-                                  0,
-                                  StartDate,
-                                  EndDate,
-                                  StatReportExcelSheet."Sheet Name");
-                            until TableIndividualRequisite.Next() = 0;
-                    end;
+                    TableIndividualRequisite.SetRange("Report Code", Code);
+                    TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
+                    if TableIndividualRequisite.FindSet then
+                        repeat
+                            CreateCellFromIntSource(
+                              DataHeaderNo,
+                              Code,
+                              StatutoryReportTable.Code,
+                              TableIndividualRequisite."Line No.",
+                              0,
+                              StartDate,
+                              EndDate,
+                              StatReportExcelSheet."Sheet Name");
+                        until TableIndividualRequisite.Next() = 0;
                 end;
             until StatutoryReportTable.Next() = 0;
             exit(true);
@@ -408,115 +403,16 @@ table 26550 "Statutory Report"
     end;
 
     [Scope('OnPrem')]
-    procedure ProcessExceptions(StatutoryReportTable: Record "Statutory Report Table"; DataHeaderNo: Code[20]; StartDate: Date; EndDate: Date)
-    begin
-        case StatutoryReportTable.Exception of
-            StatutoryReportTable.Exception::"RSV1 Section 2":
-                Exception_RSV1_2012_Section2(StatutoryReportTable, DataHeaderNo, StartDate, EndDate);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure Exception_RSV1_2012_Section2(StatutoryReportTable: Record "Statutory Report Table"; DataHeaderNo: Code[20]; StartDate: Date; EndDate: Date)
-    var
-        StatReportTableRow: Record "Stat. Report Table Row";
-        StatReportTableColumn: Record "Stat. Report Table Column";
-        TableIndividualRequisite: Record "Table Individual Requisite";
-        StatReportExcelSheet: Record "Stat. Report Excel Sheet";
-        StatutoryReportDataValue: Record "Statutory Report Data Value";
-    begin
-        Exception := Exception::"RSV1 Section 2";
-
-        Create_RSV1_2012_Sec2_Sheet(StatutoryReportTable, DataHeaderNo, StartDate, EndDate, '01');
-        Create_RSV1_2012_Sec2_Sheet(StatutoryReportTable, DataHeaderNo, StartDate, EndDate, '03');
-
-        Exception := Exception::" ";
-    end;
-
-    [Scope('OnPrem')]
-    procedure Create_RSV1_2012_Sec2_Sheet(StatutoryReportTable: Record "Statutory Report Table"; DataHeaderNo: Code[20]; StartDate: Date; EndDate: Date; InsuranceFeeCategoryCode: Code[2])
-    var
-        StatReportTableRow: Record "Stat. Report Table Row";
-        StatReportTableColumn: Record "Stat. Report Table Column";
-        TableIndividualRequisite: Record "Table Individual Requisite";
-        StatReportExcelSheet: Record "Stat. Report Excel Sheet";
-        StatutoryReportDataValue: Record "Statutory Report Data Value";
-    begin
-        CurrInsCategoryCode := InsuranceFeeCategoryCode;
-
-        StatReportExcelSheet."Report Code" := Code;
-        StatReportExcelSheet."Table Code" := StatutoryReportTable.Code;
-        StatReportExcelSheet."Report Data No." := DataHeaderNo;
-        StatReportExcelSheet."Parent Sheet Name" := StatutoryReportTable."Excel Sheet Name";
-        StatReportExcelSheet."New Page" := true;
-        case InsuranceFeeCategoryCode of
-            '01':
-                begin
-                    StatReportExcelSheet."Sheet Name" := StatutoryReportTable."Excel Sheet Name";
-                    StatReportExcelSheet."Sequence No." := 1;
-                end;
-            '03':
-                begin
-                    StatReportExcelSheet."Sequence No." := 1;
-                    StatReportExcelSheet."Sheet Name" := StatutoryReportTable."Excel Sheet Name" + ' (2)';
-                end;
-        end;
-        if not StatReportExcelSheet.Find then
-            StatReportExcelSheet.Insert(true);
-
-        StatutoryReportTable.TestField("Int. Source Type", StatutoryReportTable."Int. Source Type"::"Payroll Analysis Report");
-        StatReportTableRow.SetRange("Report Code", Code);
-        StatReportTableRow.SetRange("Table Code", StatutoryReportTable.Code);
-        StatReportTableColumn.SetRange("Report Code", Code);
-        StatReportTableColumn.SetRange("Table Code", StatutoryReportTable.Code);
-
-        if StatReportTableRow.FindSet then
-            repeat
-                if StatReportTableColumn.FindSet then
-                    repeat
-                        CreateCellFromIntSource(
-                          DataHeaderNo,
-                          Code,
-                          StatutoryReportTable.Code,
-                          StatReportTableRow."Line No.",
-                          StatReportTableColumn."Line No.",
-                          StartDate,
-                          EndDate,
-                          StatReportExcelSheet."Sheet Name");
-                    until StatReportTableColumn.Next() = 0;
-            until StatReportTableRow.Next() = 0;
-
-        TableIndividualRequisite.SetRange("Report Code", Code);
-        TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
-        if TableIndividualRequisite.FindFirst then begin
-            StatutoryReportDataValue.AddValue(
-            DataHeaderNo,
-            Code,
-            StatutoryReportTable.Code,
-            StatReportExcelSheet."Sheet Name",
-            TableIndividualRequisite."Line No.",
-            0,
-            InsuranceFeeCategoryCode);
-        end;
-
-        StatutoryReportTable.UpdatePageIndicReqValue(DataHeaderNo, StatReportExcelSheet."Sheet Name", StatReportExcelSheet);
-    end;
-
-    [Scope('OnPrem')]
     procedure CreateCellFromIntSource(DataHeaderNo: Code[20]; ReportCode: Code[20]; TableCode: Code[20]; RowNo: Integer; ColumnNo: Integer; StartDate: Date; EndDate: Date; SheetName: Text[30])
     var
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
-        PayrollAnalysisReportName: Record "Payroll Analysis Report Name";
-        PayrollAnalysisLine: Record "Payroll Analysis Line";
-        PayrollAnalysisColumn: Record "Payroll Analysis Column";
         TaxRegisterAccumulation: Record "Tax Register Accumulation";
         TaxCalcAccumulation: Record "Tax Calc. Accumulation";
         StatutoryReportDataValue: Record "Statutory Report Data Value";
         StatReportTableMapping: Record "Stat. Report Table Mapping";
         AccSchedManagement: Codeunit AccSchedManagement;
-        PayrollAnalysisReportMgt: Codeunit "Payroll Analysis Report Mgt.";
         CellValue: Decimal;
     begin
         if StatReportTableMapping.Get(
@@ -560,24 +456,6 @@ table 26550 "Statutory Report"
                             TaxCalcAccumulation.SetRange("Template Line No.", StatReportTableMapping."Internal Source Row No.");
                             if TaxCalcAccumulation.FindLast then
                                 CellValue := TaxCalcAccumulation.Amount;
-                        end;
-                    StatReportTableMapping."Int. Source Type"::"Payroll Analysis Report":
-                        begin
-                            PayrollAnalysisReportName.Get(StatReportTableMapping."Int. Source No.");
-                            PayrollAnalysisReportName.TestField("Analysis Line Template Name");
-                            PayrollAnalysisReportName.TestField("Analysis Column Template Name");
-                            PayrollAnalysisLine.Get(
-                              PayrollAnalysisReportName."Analysis Line Template Name",
-                              StatReportTableMapping."Internal Source Row No.");
-                            PayrollAnalysisLine.SetFilter("Date Filter", '%1..%2', StartDate, EndDate);
-                            PayrollAnalysisColumn.Get(
-                              PayrollAnalysisReportName."Analysis Column Template Name",
-                              StatReportTableMapping."Internal Source Column No.");
-
-                            if Exception = Exception::"RSV1 Section 2" then
-                                PayrollAnalysisLine.SetRange("Insurance Fee Category Filter", CurrInsCategoryCode);
-
-                            CellValue := PayrollAnalysisReportMgt.CalcCell(PayrollAnalysisLine, PayrollAnalysisColumn, false);
                         end;
                 end;
 

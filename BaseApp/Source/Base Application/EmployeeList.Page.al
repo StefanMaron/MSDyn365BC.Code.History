@@ -206,7 +206,7 @@ page 5201 "Employee List"
                     Caption = '&Alternate Addresses';
                     Image = Addresses;
                     RunObject = Page "Alternative Address List";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of addresses that are registered for the employee.';
                 }
                 action("&Relatives")
@@ -215,7 +215,7 @@ page 5201 "Employee List"
                     Caption = '&Relatives';
                     Image = Relatives;
                     RunObject = Page "Employee Relatives";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of relatives that are registered for the employee.';
                 }
                 action("Mi&sc. Article Information")
@@ -236,36 +236,12 @@ page 5201 "Employee List"
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of any confidential information that is registered for the employee.';
                 }
-                separator(Action1210022)
-                {
-                }
-                action("A&bsence Orders")
-                {
-                    Caption = 'A&bsence Orders';
-                    Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page "Absence Order List";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                }
-                action(Timesheets)
-                {
-                    Caption = 'Timesheets';
-                    Image = PeriodStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page "Timesheet Status";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                }
-                separator(Action1210025)
-                {
-                }
                 action("Personal Documents")
                 {
                     Caption = 'Personal Documents';
                     Image = Documents;
                     RunObject = Page "Person Documents";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                 }
                 action("Q&ualifications")
                 {
@@ -273,32 +249,30 @@ page 5201 "Employee List"
                     Caption = 'Q&ualifications';
                     Image = Certificate;
                     RunObject = Page "Employee Qualifications";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of qualifications that are registered for the employee.';
                 }
-                action(Attestations)
+                action("A&bsences")
                 {
-                    Caption = 'Attestations';
-                    Image = Certificate;
-                    RunObject = Page "Employee Attestation";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                action(Languages)
-                {
-                    Caption = 'Languages';
-                    Image = Language;
-                    RunObject = Page "Employee Language";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                action("Medical Information")
-                {
-                    Caption = 'Medical Information';
-                    Image = AddWatch;
-                    RunObject = Page "Person Medical Information";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'A&bsences';
+                    Image = Absence;
+                    RunObject = Page "Employee Absences";
+                    RunPageLink = "Employee No." = FIELD("No.");
+                    ToolTip = 'View absence information for the employee.';
                 }
                 separator(Action51)
                 {
+                }
+                action("Absences by Ca&tegories")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Absences by Ca&tegories';
+                    Image = AbsenceCategory;
+                    RunObject = Page "Empl. Absences by Categories";
+                    RunPageLink = "No." = FIELD("No."),
+                                  "Employee No. Filter" = FIELD("No.");
+                    ToolTip = 'View categorized absence information for the employee.';
                 }
                 action("Misc. Articles &Overview")
                 {
@@ -337,211 +311,54 @@ page 5201 "Employee List"
                         end;
                     end;
                 }
-                separator(Action1210035)
+            }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
                 {
-                }
-                action("Online Map")
-                {
-                    Caption = 'Online Map';
-                    Image = Map;
-                    ToolTip = 'View the address on an online map.';
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this employee.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
+                    var
+                        Email: Codeunit Email;
                     begin
-                        DisplayMap;
+                        Email.OpenSentEmails(Database::Employee, Rec.SystemId);
                     end;
                 }
             }
-            group("H&istory")
-            {
-                Caption = 'H&istory';
-                Image = History;
-                action("Labor Contract")
-                {
-                    Caption = 'Labor Contract';
-                    Image = Agreement;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page "Labor Contracts";
-                    RunPageLink = "No." = FIELD("Contract No.");
-                }
-                action("Record of Service")
-                {
-                    Caption = 'Record of Service';
-                    Image = ServiceLines;
-                    RunObject = Page "Employee Record of Service";
-                    RunPageLink = "No." = FIELD("No.");
-                }
-                action("Vacation Balance")
-                {
-                    Caption = 'Vacation Balance';
-                    Image = Holiday;
-                    RunObject = Page "Employee Accrual Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                }
-                separator(Action1210046)
-                {
-                }
-                action("Employee Job Entries")
-                {
-                    Caption = 'Employee Job Entries';
-                    Image = JobLedger;
-                    RunObject = Page "Employee Job Entry";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Starting Date", "Ending Date");
-                }
-                action("Employee Absence Entries")
-                {
-                    Caption = 'Employee Absence Entries';
-                    Image = LedgerEntries;
-                    RunObject = Page "Employee Absence Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Time Activity Code", "Entry Type", "Start Date");
-                }
-                action("Employee Ledger Entries")
-                {
-                    Caption = 'Employee Ledger Entries';
-                    Image = VendorLedger;
-                    RunObject = Page "Employee Ledger Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Element Code", "Action Starting Date");
-                    ShortCutKey = 'Ctrl+F7';
-                }
-                action("Payroll Ledger Entries")
-                {
-                    Caption = 'Payroll Ledger Entries';
-                    Image = LedgerEntries;
-                    RunObject = Page "Payroll Ledger Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Period Code", "Element Code");
-                }
-                separator(Action1210051)
-                {
-                }
-                action("Vacation Orders")
-                {
-                    Caption = 'Vacation Orders';
-                    Image = Holiday;
-                    RunObject = Page "Posted Vacation Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST(Vacation));
-                }
-                action("Sick Leave Orders")
-                {
-                    Caption = 'Sick Leave Orders';
-                    Image = Absence;
-                    RunObject = Page "Posted Sick Leave Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST("Sick Leave"));
-                }
-                action("Travel Orders")
-                {
-                    Caption = 'Travel Orders';
-                    Image = Travel;
-                    RunObject = Page "Posted Travel Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST(Travel));
-                }
-                action("Other Absences")
-                {
-                    Caption = 'Other Absences';
-                    Image = Absence;
-                    RunObject = Page "Posted Other Absence Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST("Other Absence"));
-                }
-            }
-            action("Employee Journal")
-            {
-                Caption = 'Employee Journal';
-                Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                RunObject = Page "Employee Journal";
-                RunPageLink = "Employee No." = FIELD("No.");
-            }
-        }
-        area(reporting)
-        {
         }
         area(processing)
         {
-            group("&Functions")
+            action("Absence Registration")
             {
-                Caption = '&Functions';
-                Image = "Action";
-                action("Create Resp. Employee")
-                {
-                    Caption = 'Create Resp. Employee';
-                    Image = PersonInCharge;
-
-                    trigger OnAction()
-                    var
-                        EmpVendUpdate: Codeunit "EmployeeVendor-Update";
-                    begin
-                        EmpVendUpdate.OnInsert(Rec);
-                    end;
-                }
+                ApplicationArea = Basic, Suite;
+                Caption = 'Absence Registration';
+                Image = Absence;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                RunObject = Page "Absence Registration";
+                ToolTip = 'Register absence for the employee.';
             }
-            group("&Print")
+            action("Create Resp. Employee")
             {
-                Caption = '&Print';
-                Image = Print;
-                action("Personal Account T-54&a")
-                {
-                    Caption = 'Personal Account T-54&a';
-                    Ellipsis = true;
-                    Image = "Report";
-                    RunPageOnRec = true;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Create Resp. Employee';
+                Image = PersonInCharge;
+                ToolTip = 'Create the responsible employee that will be used for posting the advance statements.';
 
-                    trigger OnAction()
-                    var
-                        Employee: Record Employee;
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Personal Account T-54a", true, true, Employee);
-                    end;
-                }
-                action("&Employee Card T-2")
-                {
-                    Caption = '&Employee Card T-2';
-                    Ellipsis = true;
-                    Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    ToolTip = 'Print the employee card T-2.';
-
-                    trigger OnAction()
-                    var
-                        Employee: Record Employee;
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Employee Card T-2", true, true, Employee);
-                    end;
-                }
-                action("HR Generic Report")
-                {
-                    Caption = 'HR Generic Report';
-                    Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
-
-                    trigger OnAction()
-                    var
-                        Employee: Record Employee;
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"HR Generic Report", true, true, Employee);
-                    end;
-                }
+                trigger OnAction()
+                var
+                    EmpVendUpdate: Codeunit "EmployeeVendor-Update";
+                begin
+                    EmpVendUpdate.OnInsert(Rec);
+                end;
             }
             action(ApplyTemplate)
             {
@@ -558,6 +375,29 @@ page 5201 "Employee List"
                 begin
                     CurrPage.SetSelectionFilter(Employee);
                     EmployeeTemplMgt.UpdateEmployeesFromTemplate(Employee);
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this employee.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::Employee, Rec.SystemId);
+                    if Rec."Company E-Mail" <> '' then
+                        TempEmailitem."Send to" := Rec."Company E-Mail"
+                    else
+                        TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
         }
@@ -578,4 +418,25 @@ page 5201 "Employee List"
     begin
         CurrPage.SetSelectionFilter(Employee);
     end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Employee: Record Employee;
+    begin
+        CurrPage.SetSelectionFilter(Employee);
+        CanSendEmail := Employee.Count() = 1;
+    end;
+
+    trigger OnOpenPage()
+    var
+        EmailFeature: Codeunit "Email Feature";
+    begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
+    end;
+
+    var
+        [InDataSet]
+        CanSendEmail: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
+
 }

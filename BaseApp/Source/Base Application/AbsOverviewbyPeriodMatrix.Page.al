@@ -433,10 +433,10 @@ page 9247 "Abs. Overview by Period Matrix"
 
     var
         MatrixRecords: array[32] of Record Date;
-        AbsenceAmountType: Option "Net Change","Balance at Date";
+        AbsenceAmountType: Enum "Analysis Amount Type";
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_ColumnCaption: array[32] of Text[1024];
-        TimeActivityFilter: Code[10];
+        CauseOfAbsenceFilter: Code[10];
 
     local procedure SetDateFilter(ColumnID: Integer)
     begin
@@ -449,37 +449,42 @@ page 9247 "Abs. Overview by Period Matrix"
             SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
     end;
 
-    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; TimeActivityFilter1: Code[10]; AbsenceAmountType1: Option "Balance at Date","Net Change")
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
+    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; CauseOfAbsenceFilter1: Code[10]; AbsenceAmountType1: Option "Balance at Date","Net Change")
+    begin
+        LoadMatrix(MatrixColumns1, MatrixRecords1, CauseOfAbsenceFilter1, "Analysis Amount Type".FromInteger(AbsenceAmountType1));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewCauseOfAbsenceFilter: Code[10]; NewAmountType: Enum "Analysis Amount Type")
     var
         i: Integer;
     begin
-        CopyArray(MATRIX_ColumnCaption, MatrixColumns1, 1);
+        CopyArray(MATRIX_ColumnCaption, NewMatrixColumns, 1);
         for i := 1 to ArrayLen(MatrixRecords) do
-            MatrixRecords[i].Copy(MatrixRecords1[i]);
-        TimeActivityFilter := TimeActivityFilter1;
-        AbsenceAmountType := AbsenceAmountType1;
+            MatrixRecords[i].Copy(NewMatrixRecords[i]);
+        CauseOfAbsenceFilter := NewCauseOfAbsenceFilter;
+        AbsenceAmountType := NewAmountType;
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
     var
-        EmplAbsenceEntry: Record "Employee Absence Entry";
+        EmployeeAbsence: Record "Employee Absence";
     begin
         SetDateFilter(ColumnID);
-        EmplAbsenceEntry.Reset();
-        EmplAbsenceEntry.SetCurrentKey("Employee No.");
-        EmplAbsenceEntry.SetRange("Employee No.", Rec."No.");
-        EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Usage);
-        EmplAbsenceEntry.SetFilter("Time Activity Code", TimeActivityFilter);
-        EmplAbsenceEntry.SetFilter("Start Date", Format(Rec."Date Filter"));
-        PAGE.Run(0, EmplAbsenceEntry);
+        EmployeeAbsence.SetRange("Employee No.", "No.");
+        EmployeeAbsence.SetFilter("Cause of Absence Code", CauseOfAbsenceFilter);
+        EmployeeAbsence.SetFilter("From Date", Format("Date Filter"));
+        PAGE.Run(0, EmployeeAbsence);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
     begin
         SetDateFilter(ColumnID);
-        SetFilter("Time Activity Filter", TimeActivityFilter);
-        CalcFields("Used Absence");
-        MATRIX_CellData[ColumnID] := "Used Absence";
+        SetFilter("Cause of Absence Filter", CauseOfAbsenceFilter);
+        CalcFields("Total Absence (Base)");
+        MATRIX_CellData[ColumnID] := "Total Absence (Base)";
     end;
 }
 

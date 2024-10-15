@@ -217,7 +217,7 @@
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         i: Integer;
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         GlobalDimVal1 := '';
         GlobalDimVal2 := '';
         DimSetEntry.Reset();
@@ -292,7 +292,7 @@
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
-    local procedure GetGLSetup()
+    procedure GetGLSetup(var GLSetupShortcutDimCode: array[8] of Code[20])
     var
         GLSetup: Record "General Ledger Setup";
     begin
@@ -670,7 +670,7 @@
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[1]) then
             GlobalDim1Code := DefaultDim."Dimension Value Code"
         else
@@ -698,7 +698,7 @@
     begin
         OnBeforeGetDefaultDimID(TableID, No, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo);
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if InheritFromDimSetID > 0 then
             GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
         if TempDimSetEntry0.FindSet then
@@ -944,7 +944,7 @@
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -969,7 +969,7 @@
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -1026,7 +1026,7 @@
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1409,7 +1409,7 @@
         FindLastErrorMessage(ErrorMessage);
     end;
 
-    local procedure LogError(SourceRecVariant: Variant; SourceFieldNo: Integer; Message: Text; HelpArticleCode: Code[30]) IsLogged: Boolean
+    procedure LogError(SourceRecVariant: Variant; SourceFieldNo: Integer; Message: Text; HelpArticleCode: Code[30]) IsLogged: Boolean
     var
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
@@ -1433,7 +1433,7 @@
     begin
         OnBeforeLookupDimValueCodeNoUpdate(FieldNumber);
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -1730,7 +1730,7 @@
     var
         JobTaskDim: Record "Job Task Dimension";
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if JobTaskDim.Get(JobNo, JobTaskNo, GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1751,7 +1751,7 @@
 
     procedure SaveJobTaskTempDim(FieldNumber: Integer; ShortcutDimCode: Code[20])
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if TempJobTaskDimBuffer.Get('', '', GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1772,8 +1772,14 @@
     var
         DefaultDim: Record "Default Dimension";
         JobTaskDim: Record "Job Task Dimension";
+        IsHandled: Boolean;
     begin
-        GetGLSetup;
+        IsHandled := false;
+        OnBeforeInsertJobTaskDim(JobNo, JobTaskNo, GlobalDim1Code, GlobalDim2Code, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetGLSetup(GLSetupShortcutDimCode);
         DefaultDim.SetRange("Table ID", DATABASE::Job);
         DefaultDim.SetRange("No.", JobNo);
         if DefaultDim.FindSet(false, false) then
@@ -2643,12 +2649,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimComb(DimensionCombination: Record "Dimension Combination")
+    local procedure OnBeforeCheckDimComb(var DimensionCombination: Record "Dimension Combination")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValueComb(DimensionValueCombination: Record "Dimension Value Combination")
+    local procedure OnBeforeCheckDimValueComb(var DimensionValueCombination: Record "Dimension Value Combination")
     begin
     end;
 
@@ -2724,6 +2730,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

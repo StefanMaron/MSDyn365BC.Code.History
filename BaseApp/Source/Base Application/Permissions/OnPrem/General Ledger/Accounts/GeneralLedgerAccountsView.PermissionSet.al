@@ -9,6 +9,7 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
                   tabledata "Comment Line" = R,
+                  tabledata "Consolidation Account" = R,
                   tabledata Currency = R,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Default Dimension" = R,

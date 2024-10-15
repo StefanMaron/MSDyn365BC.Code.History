@@ -45,7 +45,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         end;
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status,
+          DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(),
           JobPlanningLine."Job No.", '', 0, JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -56,20 +56,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."Package No." := ForCDNo;
-        CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
-    local procedure CreateBindingReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    procedure CreateBindingReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
         DummyReservEntry: Record "Reservation Entry";
     begin
@@ -100,14 +87,6 @@ codeunit 1032 "Job Planning Line-Reserve"
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by JobPlanningLine.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line")
-    begin
-        JobPlanningLine.SetReservationFilters(FilterReservEntry);
-    end;
-#endif
 
     procedure ReservQuantity(JobPlanningLine: Record "Job Planning Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
     begin
@@ -231,7 +210,7 @@ codeunit 1032 "Job Planning Line-Reserve"
                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                   NewJobPlanningLine."No.", NewJobPlanningLine."Bin Code",
                   NewJobPlanningLine."Location Code", NewJobPlanningLine."Variant Code",
-                  DATABASE::"Job Planning Line", NewJobPlanningLine.Status,
+                  DATABASE::"Job Planning Line", NewJobPlanningLine.Status.AsInteger(),
                   NewJobPlanningLine."Job No.", '', 0,
                   NewJobPlanningLine."Job Contract Entry No."))
             then

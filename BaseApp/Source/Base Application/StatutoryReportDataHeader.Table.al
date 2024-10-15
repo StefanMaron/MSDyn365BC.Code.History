@@ -103,18 +103,11 @@ table 26563 "Statutory Report Data Header"
         }
         field(32; "Requisites Quantity"; Integer)
         {
-            CalcFormula = Count ("Stat. Report Requisite Value" WHERE("Report Data No." = FIELD("No."),
-                                                                      Separator = CONST(false),
-                                                                      "Excel Only" = CONST(false)));
             Caption = 'Requisites Quantity';
             FieldClass = FlowField;
         }
         field(33; "Set Requisites Quantity"; Integer)
         {
-            CalcFormula = Count ("Stat. Report Requisite Value" WHERE("Report Data No." = FIELD("No."),
-                                                                      Separator = CONST(false),
-                                                                      "Export Type" = CONST(Set),
-                                                                      "Excel Only" = CONST(false)));
             Caption = 'Set Requisites Quantity';
             FieldClass = FlowField;
         }

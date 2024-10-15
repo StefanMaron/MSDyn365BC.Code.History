@@ -1,14 +1,15 @@
 permissionset 242 "D365 JOURNALS, EDIT"
 {
     Assignable = true;
-    Caption = 'Dynamics 365 Edit journals';
 
+    Caption = 'Dynamics 365 Edit journals';
     Permissions = tabledata "Bank Account" = R,
                   tabledata Bin = R,
                   tabledata "Check Ledger Entry" = Rimd,
                   tabledata "Cust. Ledger Entry" = Rm,
                   tabledata "Detailed Cust. Ledg. Entry" = Rm,
                   tabledata "Detailed Vendor Ledg. Entry" = Rm,
+                  tabledata "G/L Account" = R,
                   tabledata "G/L Register" = Rimd,
                   tabledata "Gen. Journal Line" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,

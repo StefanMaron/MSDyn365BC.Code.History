@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 493 "Resource Price Changes"
 {
     ApplicationArea = Jobs;
@@ -121,4 +122,4 @@ page 493 "Resource Price Changes"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

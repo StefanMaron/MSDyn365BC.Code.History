@@ -39,8 +39,6 @@ codeunit 14945 "Advance Statement Helper"
 
     [Scope('OnPrem')]
     procedure FillHeader(ReportAmount: Decimal; DocumentNo: Code[20]; DocumentDate: Date; ContactNo: Code[20]; ContactName: Text; Purpose: Text)
-    var
-        OrganizationalUnit: Record "Organizational Unit";
     begin
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
 
@@ -57,13 +55,9 @@ codeunit 14945 "Advance Statement Helper"
         ExcelReportBuilderManager.AddDataToSection('ChiefName', CompInfo."Director Name");
 
         if Employee.ReadPermission then
-            if Employee.Get(ContactNo) then
-                if OrganizationalUnit.ReadPermission then
-                    if OrganizationalUnit.Get(Employee."Org. Unit Code") then;
+            if Employee.Get(ContactNo) then;
 
         RespEmployee := ContactName;
-        ExcelReportBuilderManager.AddDataToSection('Department', OrganizationalUnit.Name);
-        ExcelReportBuilderManager.AddDataToSection('OrgUnitCode', OrganizationalUnit.Code);
         ExcelReportBuilderManager.AddDataToSection('EmplName', RespEmployee);
         ExcelReportBuilderManager.AddDataToSection('EmplId', Employee."No.");
         ExcelReportBuilderManager.AddDataToSection('EmplPosition', Employee.GetJobTitleName);

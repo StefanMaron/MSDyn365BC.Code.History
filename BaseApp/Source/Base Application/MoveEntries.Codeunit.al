@@ -1,4 +1,4 @@
-﻿codeunit 361 MoveEntries
+codeunit 361 MoveEntries
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "Cust. Ledger Entry" = rm,
@@ -57,7 +57,6 @@
         Text015: Label 'You cannot delete %1 %2 because there are outstanding purchase return order lines.';
         CorrespondenceEntry: Record "G/L Correspondence Entry";
         TimeSheetLinesErr: Label 'You cannot delete job %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete job JOB001 because it has open or submitted time sheet lines.';
-        CannotDeleteBecauseInInvErr: Label 'You cannot delete %1 because it is used in some invoices.', Comment = '%1 = the object to be deleted (example: Item, Customer).';
         GLAccDeleteClosedPeriodsQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr: Label 'You cannot delete G/L account %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 - G/L Account No. You cannot delete G/L Account 1000 because it has ledger entries in a fiscal year that has not been closed yet.';
         CannotDeleteGLAccountWithEntriesAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.', Comment = '%1 - G/L Account No., %2 - Date. You cannot delete G/L Account 1000 because it has ledger entries posted after 01-01-2010.';
@@ -88,7 +87,6 @@
 
     procedure MoveCustEntries(Cust: Record Customer)
     var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         NewCustNo: Code[20];
     begin
         OnBeforeMoveCustEntries(Cust, NewCustNo);
@@ -98,11 +96,6 @@
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         SetCustLedgEntryFilterByAccPeriod();
         if not CustLedgEntry.IsEmpty() then begin
-            if EnvInfoProxy.IsInvoicing then
-                Error(
-                  CannotDeleteBecauseInInvErr,
-                  Cust.TableCaption);
-
             OnMoveCustEntriesOnBeforeError(Cust);
             Error(
               Text000,

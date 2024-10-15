@@ -511,5 +511,10 @@ page 104 "Account Schedule"
             end;
         end;
     end;
+
+    procedure GetAccSchedName(): Code[10]
+    begin
+        exit(CurrentSchedName);
+    end;
 }
 

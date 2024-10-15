@@ -323,11 +323,6 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
-                field("Payroll Ledger Entry No."; "Payroll Ledger Entry No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payroll ledger entry number associated with the vendor ledger entry.';
-                }
                 field("Entry No."; "Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -549,26 +544,6 @@ page 29 "Vendor Ledger Entries"
                         VendLedgEntry.Get(VendLedgEntry."Entry No.");
                         Rec := VendLedgEntry;
                         CurrPage.Update();
-                    end;
-                }
-                action("Apply Income Tax Payment")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Apply Income Tax Payment';
-                    Image = Apply;
-
-                    trigger OnAction()
-                    var
-                        Vend: Record Vendor;
-                        ApplyBudgetTaxPayments: Report "Apply Budget Tax Payments";
-                    begin
-                        Vend.Get("Vendor No.");
-                        Vend.TestField("Vendor Type", Vend."Vendor Type"::"Tax Authority");
-                        TestField("Document Type", "Document Type"::Payment);
-
-                        ApplyBudgetTaxPayments.Set("Entry No.");
-                        ApplyBudgetTaxPayments.Run;
-                        Clear(ApplyBudgetTaxPayments);
                     end;
                 }
                 separator(Action66)

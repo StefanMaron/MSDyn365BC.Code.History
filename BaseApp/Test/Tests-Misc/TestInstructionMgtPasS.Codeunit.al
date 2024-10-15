@@ -33,13 +33,14 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSendingSMTPSetup() // To be removed together with deprecated SMTP objects
     var
         ReportSelections: Record "Report Selections";
         LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
+        PopulateCompanyInformation();
         LibraryEmailFeature.SetEmailFeatureEnabled(false);
         PostingInstructionNotShownAfterPostingAndSendingInternal();
         // Cleanup, as the next test will create the same entries
@@ -54,6 +55,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     var
         LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
+        PopulateCompanyInformation();
         LibraryEmailFeature.SetEmailFeatureEnabled(true);
         PostingInstructionNotShownAfterPostingAndSendingInternal();
     end;
@@ -112,6 +114,17 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         Commit();
     end;
 
+    local procedure PopulateCompanyInformation()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation."Bank Name" := 'BankName';
+        CompanyInformation."Bank Branch No." := 'BranchNo';
+        CompanyInformation."Bank Account No." := 'BankAccountNo';
+        CompanyInformation.IBAN := 'IBAN';
+        CompanyInformation.Modify();
+    end;
+
     local procedure UpdateSalesInvoiceReportSelections()
     var
         ExistingReportSelections: Record "Report Selections";
@@ -129,18 +142,18 @@ codeunit 139003 "Test Instruction Mgt. PasS"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure EmailDialogModalPageHandler(var EmailDialog: TestPage "Email Dialog")
-    begin
-        EmailDialog.OutlookEdit.SetValue(false);
-        EmailDialog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
         EmailEditor.ToField.Value('recipient@recipient.com');
         EmailEditor.Send.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailDialogModalPageHandler(var EmailDialog: TestPage "Email Dialog")
+    begin
+        EmailDialog.SendTo.Value('recipient@recipient.com');
+        EmailDialog.OK.Invoke();
     end;
 
     [ConfirmHandler]

@@ -492,66 +492,6 @@ codeunit 17201 "Tax Register Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure ValidateAbsencePREntriesDate(StartDate: Date; EndDate: Date; SectionCode: Code[10])
-    var
-        TaxReg: Record "Tax Register";
-        TaxRegPREntry: Record "Tax Register PR Entry";
-        TaxRegAccumulation: Record "Tax Register Accumulation";
-    begin
-        ValidateStartDateEndDate(StartDate, EndDate, SectionCode);
-
-        TaxRegPREntry.Reset();
-        TaxRegPREntry.SetCurrentKey("Section Code", "Starting Date");
-        TaxRegPREntry.SetRange("Section Code", SectionCode);
-        TaxRegPREntry.SetFilter("Starting Date", '%1..', StartDate);
-        if TaxRegPREntry.FindFirst then begin
-            if not Confirm(Text1007, false, StartDate, TaxRegPREntry.TableCaption) then
-                Error('');
-            TaxRegPREntry.DeleteAll();
-        end;
-
-        TaxReg.SetRange("Section Code", SectionCode);
-        TaxReg.SetRange("Table ID", DATABASE::"Tax Register PR Entry");
-        if TaxReg.Find('-') then begin
-            SetAccumulationFilter(TaxRegAccumulation, SectionCode, StartDate);
-            repeat
-                TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                TaxRegAccumulation.DeleteAll();
-            until TaxReg.Next() = 0;
-        end;
-
-        TaxRegPREntry.Reset();
-        TaxRegPREntry.SetCurrentKey("Section Code", "Ending Date");
-        TaxRegPREntry.SetRange("Section Code", SectionCode);
-        TaxRegPREntry.SetFilter("Ending Date", '%1..', StartDate);
-        if not TaxRegPREntry.IsEmpty() then
-            Error(Text1008);
-
-        if StartDate = TaxRegSection."Starting Date" then
-            TaxRegSection."Absence PR Entries Date" := 0D
-        else begin
-            TaxRegPREntry.Reset();
-            TaxRegPREntry.SetCurrentKey("Section Code", "Ending Date");
-            TaxRegPREntry.SetRange("Section Code", SectionCode);
-            TaxRegPREntry.SetFilter("Ending Date", '%1', StartDate - 1);
-            if TaxRegPREntry.FindFirst then begin
-                if EndDate <= TaxRegSection."Absence PR Entries Date" then
-                    TaxRegSection."Absence PR Entries Date" := 0D;
-            end else begin
-                if not Confirm(Text1009, false, StartDate - 1, TaxRegPREntry.TableCaption) then
-                    Error('');
-                if (TaxRegSection."Absence PR Entries Date" = 0D) or
-                   ((StartDate - 1) < TaxRegSection."Absence PR Entries Date")
-                then
-                    TaxRegSection."Absence PR Entries Date" := StartDate - 1;
-            end;
-        end;
-
-        TaxRegSection.Validate("Last PR Entries Date", EndDate);
-        TaxRegSection.Modify();
-    end;
-
-    [Scope('OnPrem')]
     procedure ValidateStartDateEndDate(StartDate: Date; EndDate: Date; SectionCode: Code[10])
     begin
         if SectionCode = '' then
@@ -659,19 +599,6 @@ codeunit 17201 "Tax Register Mgt."
                            (TaxRegSection."Last FE Entries Date" < TaxRegSection."Ending Date")
                         then
                             StartDate := TaxRegSection."Last FE Entries Date" + 1;
-            DATABASE::"Tax Register PR Entry":
-                if (TaxRegSection."Last PR Entries Date" = 0D) or
-                   (Minimum and (TaxRegSection."Absence PR Entries Date" <> 0D))
-                then
-                    StartDate := TaxRegSection."Starting Date"
-                else
-                    if Minimum and (DateMax <> 0D) then
-                        StartDate := DateMax + 1
-                    else
-                        if (TaxRegSection."Ending Date" = 0D) or
-                           (TaxRegSection."Last PR Entries Date" < TaxRegSection."Ending Date")
-                        then
-                            StartDate := TaxRegSection."Last PR Entries Date" + 1;
         end;
     end;
 
@@ -836,7 +763,6 @@ codeunit 17201 "Tax Register Mgt."
         EntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary;
         CreateTaxRegItemEntry: Codeunit "Create Tax Register Item Entry";
         CreateTaxRegFEEntry: Codeunit "Create Tax Register FE Entry";
-        CreateTaxRegPREntry: Codeunit "Create Tax Register PR Entry";
         CreateTaxRegCVEntry: Codeunit "Create Tax Register CV Entry";
         CreateTaxRegGLEntry: Codeunit "Create Tax Register GL Entry";
         CreateTaxRegFAEntry: Codeunit "Create Tax Register FA Entry";
@@ -881,8 +807,6 @@ codeunit 17201 "Tax Register Mgt."
                             CreateTaxRegFAEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
                         UseFEEntry:
                             CreateTaxRegFEEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UsePREntry:
-                            CreateTaxRegPREntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
                         UseTemplate:
                             begin
                                 TaxReg.Reset();

@@ -57,7 +57,9 @@ permissionset 207 "D365 BASIC"
                   tabledata "Profile Metadata" = imd,
                   tabledata "Profile Page Metadata" = imd,
                   tabledata "Query Navigation" = RIMD,
+#if not CLEAN19
                   tabledata "Query Navigation Validation" = IMD,
+#endif
                   tabledata "Report Layout" = Rimd,
                   tabledata "Report Metadata" = imd,
                   tabledata "Scheduled Task" = imd,
@@ -122,6 +124,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Bar Chart Buffer" = RIMD,
                   tabledata "Base Calendar" = R,
                   tabledata "Base Calendar Change" = Rimd,
+                  tabledata "Bin Content" = Rimd,
                   tabledata "BOM Buffer" = RIMD,
                   tabledata "BOM Component" = R,
                   tabledata "BOM Warning Log" = RIMD,
@@ -138,6 +141,8 @@ permissionset 207 "D365 BASIC"
                   tabledata "Business Chart User Setup" = RIMD,
                   tabledata "Business Relation" = R,
                   tabledata "Business Unit" = R,
+                  tabledata "Business Unit Information" = R,
+                  tabledata "Business Unit Setup" = R,
                   tabledata "Calendar Event" = Rimd,
                   tabledata "Calendar Event User Config." = Rimd,
                   tabledata Campaign = R,
@@ -159,7 +164,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Column Layout Name" = RIMD,
                   tabledata "Comment Line" = RIMD,
                   tabledata "Company Information" = R,
-                  tabledata "Config. Field Mapping" = R,
+                  tabledata "Config. Field Map" = R,
                   tabledata "Config. Line" = R,
                   tabledata "Config. Media Buffer" = RIMD,
                   tabledata "Config. Package" = R,
@@ -181,6 +186,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Config. Template Header" = R,
                   tabledata "Config. Template Line" = R,
                   tabledata "Config. Tmpl. Selection Rules" = R,
+                  tabledata "Consolidation Account" = R,
                   tabledata Contact = Rim,
                   tabledata "Contact Alt. Addr. Date Range" = RIMD,
                   tabledata "Contact Alt. Address" = RIMD,
@@ -196,8 +202,8 @@ permissionset 207 "D365 BASIC"
                   tabledata "CRM Connection Setup" = R,
                   tabledata "CSV Buffer" = RIMD,
                   tabledata "Curr. Exch. Rate Update Setup" = R,
-                  tabledata Currency = R,
-                  tabledata "Currency Amount" = RIMD,
+                  tabledata Currency = Rim,
+                  tabledata "Currency Amount" = Rimd,
                   tabledata "Currency Exchange Rate" = R,
                   tabledata "Currency Total Buffer" = Rimd,
                   tabledata "Custom Address Format" = RIMD,
@@ -235,7 +241,6 @@ permissionset 207 "D365 BASIC"
                   tabledata "Deferral Template" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
-                  tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
                   tabledata "Dim Correction Change" = R,
@@ -308,11 +313,11 @@ permissionset 207 "D365 BASIC"
                   tabledata "G/L Acc. Balance Buffer" = RIMD,
                   tabledata "G/L Acc. Balance/Budget Buffer" = RIMD,
                   tabledata "G/L Acc. Budget Buffer" = RIMD,
-                  tabledata "G/L Account" = R,
-                  tabledata "G/L Account Category" = R,
+                  tabledata "G/L Account" = r,
+                  tabledata "G/L Account Category" = r,
                   tabledata "G/L Account Net Change" = RIMD,
                   tabledata "G/L Account Where-Used" = RIMD,
-                  tabledata "G/L Entry" = R,
+                  tabledata "G/L Entry" = r,
                   tabledata "Gen. Business Posting Group" = RIMD,
                   tabledata "Gen. Jnl. Allocation" = RIMD,
                   tabledata "Gen. Journal Batch" = RIMD,
@@ -393,8 +398,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Item Picture Buffer" = RIMD,
                   tabledata "Item Statistics Buffer" = RIMD,
                   tabledata "Item Substitution" = RIMD,
-                  tabledata "Item Templ." = R,
+                  tabledata "Item Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Item Template" = RIMD,
+#endif
                   tabledata "Item Tracking Comment" = RIMD,
                   tabledata "Item Translation" = Rim,
                   tabledata "Item Turnover Buffer" = RIMD,
@@ -405,6 +412,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Job Queue Entry" = RIMD,
                   tabledata "Job Queue Entry Buffer" = RIMD,
                   tabledata "Job Queue Log Entry" = Rimd,
+                  tabledata "Jobs Setup" = R,
                   tabledata "Journal User Preferences" = RIMD,
                   tabledata "JSON Buffer" = RIMD,
                   tabledata "Last Used Chart" = RIMD,
@@ -417,8 +425,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = RIMD,
                   tabledata "Memoized Result" = R,
+#if not CLEAN18
                   tabledata "Mini Customer Template" = RIMD,
                   tabledata "Mini Vendor Template" = RIMD,
+#endif
                   tabledata "MS-QBD Setup" = R,
                   tabledata "My Account" = RIMD,
                   tabledata "My Customer" = RIMD,
@@ -550,15 +560,21 @@ permissionset 207 "D365 BASIC"
                   tabledata "Purch. Comment Line Archive" = RIMD,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
+#if not CLEAN19
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
+#endif
                   tabledata "Purchase Cue" = RIMD,
                   tabledata "Purchase Discount Access" = Rim,
                   tabledata "Purchase Header" = Rim,
                   tabledata "Purchase Line" = Rim,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = Rim,
+#endif
                   tabledata "Purchase Order Entity Buffer" = RIMD,
                   tabledata "Purchase Prepayment %" = Rim,
+#if not CLEAN19
                   tabledata "Purchase Price" = Rim,
+#endif
                   tabledata "Purchase Price Access" = Rim,
                   tabledata "Purchases & Payables Setup" = Rm,
                   tabledata "RapidStart Services Cue" = RIMD,
@@ -617,12 +633,18 @@ permissionset 207 "D365 BASIC"
                   tabledata "Sales Invoice Header" = rm,
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Line" = Rim,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = Rim,
+#endif
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Sales Prepayment %" = Rim,
+#if not CLEAN19
                   tabledata "Sales Price" = Rim,
+#endif
                   tabledata "Sales Price Access" = Rim,
+#if not CLEAN19
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
+#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RIMD,
                   tabledata "Salesperson/Purchaser" = R,
@@ -639,9 +661,11 @@ permissionset 207 "D365 BASIC"
                   tabledata "Shipment Method" = R,
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Shipping Agent" = R,
+#if not CLEAN19
                   tabledata "SmartList Designer Setup" = RIMD,
                   tabledata "SmartList Export Results" = RIMD,
                   tabledata "SmartList Import Results" = RIMD,
+#endif
                   tabledata "SMTP Mail Setup" = RIMD,
                   tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Social Listening Setup" = R,
@@ -700,10 +724,13 @@ permissionset 207 "D365 BASIC"
                   tabledata "Trial Balance Cache Info" = RIMD,
                   tabledata "Trial Balance Entity Buffer" = RIMD,
                   tabledata "Trial Balance Setup" = RIMD,
+                  tabledata "Unit Group" = RIMD,
                   tabledata "Unit of Measure" = RIMD,
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
+#if not CLEAN19
                   tabledata "User Callouts" = RIMD,
+#endif
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = R,
@@ -737,11 +764,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Vendor Amount" = RIMD,
                   tabledata "Vendor Posting Group" = R,
                   tabledata "Vendor Purchase Buffer" = RIMD,
-                  tabledata "Vendor Templ." = R,
-                  tabledata "Warehouse Class" = RIMD,
+                  tabledata "Vendor Templ." = RIMD,
+                  tabledata "Warehouse Class" = R,
                   tabledata "Warehouse Setup" = R,
                   tabledata "WF Event/Response Combination" = RIMD,
-                  tabledata "What's New Notified" = rimd,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = R,
                   tabledata Workflow = R,

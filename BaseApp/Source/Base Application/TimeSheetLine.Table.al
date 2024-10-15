@@ -83,13 +83,13 @@ table 951 "Time Sheet Line"
         field(9; "Cause of Absence Code"; Code[10])
         {
             Caption = 'Cause of Absence Code';
-            TableRelation = "Time Activity";
+            TableRelation = "Cause of Absence";
 
             trigger OnValidate()
             var
                 Resource: Record Resource;
                 Employee: Record Employee;
-                CauseOfAbsence: Record "Time Activity";
+                CauseOfAbsence: Record "Cause of Absence";
             begin
                 if "Cause of Absence Code" <> '' then begin
                     TestField(Type, Type::Absence);
@@ -244,6 +244,12 @@ table 951 "Time Sheet Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; Type, Description, "Total Quantity", Status)
+        {
+        }
+        fieldgroup(Brick; Type, Description, "Total Quantity", Status)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -306,7 +312,7 @@ table 951 "Time Sheet Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestStatus(IsHandled);
+        OnBeforeTestStatus(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -326,7 +332,7 @@ table 951 "Time Sheet Line"
         if TimeSheetDetail.FindSet(true) then
             repeat
                 TimeSheetDetail.CopyFromTimeSheetLine(Rec);
-                TimeSheetDetail.Modify();
+                TimeSheetDetail.Modify(true);
             until TimeSheetDetail.Next() = 0;
     end;
 
@@ -479,7 +485,7 @@ table 951 "Time Sheet Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTestStatus(var IsHandled: Boolean)
+    local procedure OnBeforeTestStatus(var IsHandled: Boolean; var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 

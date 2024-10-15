@@ -168,7 +168,7 @@ table 6520 "Item Tracing Buffer"
         field(24; "Record Identifier"; RecordID)
         {
             Caption = 'Record Identifier';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(25; "Item Description"; Text[100])

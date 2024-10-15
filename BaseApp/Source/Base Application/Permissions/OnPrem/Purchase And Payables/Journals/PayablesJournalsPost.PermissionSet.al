@@ -2,8 +2,8 @@ permissionset 3602 "Payables Journals - Post"
 {
     Access = Public;
     Assignable = false;
-
     Caption = 'Post journals (P&P)';
+
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,

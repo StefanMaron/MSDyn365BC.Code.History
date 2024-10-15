@@ -31,8 +31,6 @@ report 17204 "Create Tax Registers"
                             CreateTaxRegFAEntry.CreateRegister("Tax Register Section".Code, StartDate, EndDate);
                         UseFEEntries:
                             CreateTaxRegFEEntry.CreateRegister("Tax Register Section".Code, StartDate, EndDate);
-                        UsePREntries:
-                            CreateTaxRegPREntry.CreateRegister("Tax Register Section".Code, StartDate, EndDate);
                         UseTemplates:
                             begin
                                 LinkAccumulateRecordRef.Open(DATABASE::"Tax Register Accumulation");
@@ -240,7 +238,6 @@ report 17204 "Create Tax Registers"
         CreateTaxRegCVEntry: Codeunit "Create Tax Register CV Entry";
         CreateTaxRegGLEntry: Codeunit "Create Tax Register GL Entry";
         CreateTaxRegFAEntry: Codeunit "Create Tax Register FA Entry";
-        CreateTaxRegPREntry: Codeunit "Create Tax Register PR Entry";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
         PeriodReportManagement: Codeunit PeriodReportManagement;
         TemplateRecordRef: RecordRef;

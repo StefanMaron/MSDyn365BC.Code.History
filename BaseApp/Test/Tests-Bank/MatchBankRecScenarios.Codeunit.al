@@ -534,6 +534,50 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         VerifyEntryApplied(BankAccReconciliationLine, CheckLedgerEntryNos);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToGenJnlReqPageHandler,GenJnlPageHandlerUpdateAccountNo')]
+    [Scope('OnPrem')]
+    procedure TransferToGenJnlLineKeepDescription()
+    var
+        Vendor: Record Vendor;
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        StatementDescription: Text[100];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 306156] Gen. Journal Line Description is not changed when line created from bank reconciliation
+        Initialize;
+
+        // [GIVEN] Create bank reconciliation with bank satetement line Description = 'XYZ'
+        StatementDescription := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(StatementDescription), 0);
+        CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage, StatementDescription);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BankAccReconciliation."Bank Account No.";
+        GenJournalBatch.Modify();
+
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        // [GIVEN] Create vendor "V"
+        LibraryVariableStorage.Enqueue(GenJnlLine."Account Type"::Vendor.AsInteger());
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [GIVEN] Run action Transfer to Gen Jnl.
+        Commit();
+        LibraryLowerPermissions.SetBanking;
+        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+
+        // [WHEN] Change account type to Vendor and Account No. to "V" (GenJnlPageHandlerUpdateAccountNo)
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        Assert.AreEqual(StatementDescription, LibraryVariableStorage.DequeueText(), 'Invalid Description');
+    end;
+
     local procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(AmountToApply: Decimal)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -771,6 +815,44 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage.ApplyBankLedgerEntries.First;
     end;
 
+    local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation"; StatementDescription: Text[100])
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: Record Customer;
+        "count": Integer;
+        PaymentAmount: Decimal;
+    begin
+        PaymentAmount := LibraryRandom.RandDec(100, 2);
+
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", -PaymentAmount);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
+        BankAccReconciliationLine.Validate("Statement Amount", 2 * PaymentAmount);
+        BankAccReconciliationLine.Description := StatementDescription;
+        BankAccReconciliationLine.Modify(true);
+
+        BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
+        BankAccReconciliationPage.StmtLine.First;
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
+    end;
+
     local procedure VerifyOneToManyMatch(BankAccReconciliation: Record "Bank Acc. Reconciliation"; ExpRecLineNo: Integer; ExpBankEntryMatches: Integer; ExpAmount: Decimal)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -968,6 +1050,21 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlPageHandlerUpdateAccountNo(var GeneralJournal: TestPage "General Journal")
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        AccountType: Integer;
+        AccountNo: Code[20];
+    begin
+        AccountType := LibraryVariableStorage.DequeueInteger();
+        AccountNo := LibraryVariableStorage.DequeueText();
+        GeneralJournal."Account Type".SetValue(AccountType);
+        GeneralJournal."Account No.".SetValue(AccountNo);
+        LibraryVariableStorage.Enqueue(GeneralJournal.Description.Value());
     end;
 
     [MessageHandler]

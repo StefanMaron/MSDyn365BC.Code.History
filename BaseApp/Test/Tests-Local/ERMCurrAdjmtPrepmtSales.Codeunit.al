@@ -567,6 +567,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
 
         IsInitialized := true;
         Commit();
+
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
     end;
@@ -596,8 +597,10 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             Validate("Create Prepayment Invoice", false);
+            if "Invoice Posting Setup" <> "Invoice Posting Setup"::"Invoice Posting (Default)" then
+                Validate("Invoice Posting Setup", "Invoice Posting Setup"::"Invoice Posting (Default)");
             Modify(true);
         end;
     end;

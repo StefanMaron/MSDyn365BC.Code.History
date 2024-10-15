@@ -23,19 +23,6 @@ page 5215 "Grounds for Termination"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description for the grounds for termination.';
                 }
-                field("Dismissal Type"; "Dismissal Type")
-                {
-                }
-                field("Dismissal Article"; "Dismissal Article")
-                {
-                }
-                field("Reporting Type"; "Reporting Type")
-                {
-                }
-                field("Element Code"; "Element Code")
-                {
-                    ToolTip = 'Specifies the code of the related payroll element for tax registration purposes.';
-                }
             }
         }
         area(factboxes)

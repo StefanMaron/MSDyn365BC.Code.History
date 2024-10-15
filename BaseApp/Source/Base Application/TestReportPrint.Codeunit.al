@@ -1,4 +1,4 @@
-﻿codeunit 228 "Test Report-Print"
+codeunit 228 "Test Report-Print"
 {
 
     trigger OnRun()
@@ -25,8 +25,6 @@
         InsuranceJnlTempl: Record "Insurance Journal Template";
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlLine: Record "Warehouse Journal Line";
-        EmplJnlLine: Record "Employee Journal Line";
-        EmplJnlTemplate: Record "Employee Journal Template";
 
     procedure PrintGenJnlBatch(GenJnlBatch: Record "Gen. Journal Batch")
     begin
@@ -258,26 +256,6 @@
         JobJnlTemplate.Get(JobJnlLine."Journal Template Name");
         JobJnlTemplate.TestField("Test Report ID");
         REPORT.Run(JobJnlTemplate."Test Report ID", true, false, JobJnlLine);
-    end;
-
-    [Scope('OnPrem')]
-    procedure PrintEmplJnlBatch(EmplJnlBatch: Record "Employee Journal Batch")
-    begin
-        EmplJnlBatch.SetRecFilter;
-        EmplJnlTemplate.Get(EmplJnlBatch."Journal Template Name");
-        EmplJnlTemplate.TestField("Test Report ID");
-        REPORT.Run(EmplJnlTemplate."Test Report ID", true, false, EmplJnlBatch);
-    end;
-
-    [Scope('OnPrem')]
-    procedure PrintEmplJnlLine(var NewEmplJnlLine: Record "Employee Journal Line")
-    begin
-        EmplJnlLine.Copy(NewEmplJnlLine);
-        EmplJnlLine.SetRange("Journal Template Name", EmplJnlLine."Journal Template Name");
-        EmplJnlLine.SetRange("Journal Batch Name", EmplJnlLine."Journal Batch Name");
-        EmplJnlTemplate.Get(EmplJnlLine."Journal Template Name");
-        EmplJnlTemplate.TestField("Test Report ID");
-        REPORT.Run(EmplJnlTemplate."Test Report ID", true, false, EmplJnlLine);
     end;
 
     local procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")

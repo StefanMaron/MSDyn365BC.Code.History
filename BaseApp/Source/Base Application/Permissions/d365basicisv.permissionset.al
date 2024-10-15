@@ -68,6 +68,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Balance Sheet Buffer" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RIMD,
                   tabledata "Bank Acc. Reconciliation Line" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account" = RIMD,
                   tabledata "Bank Account Balance Buffer" = RIMD,
                   tabledata "Bank Account Ledger Entry" = Rimd,
@@ -116,6 +117,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Cash Flow Report Selection" = RIMD,
                   tabledata "Cash Flow Setup" = RIMD,
                   tabledata "Cash Flow Worksheet Line" = RIMD,
+                  tabledata "Cause of Absence" = RIMD,
                   tabledata "CDS Connection Setup" = R,
                   tabledata "Change Global Dim. Log Entry" = RIMD,
                   tabledata "Change Log Entry" = Rimd,
@@ -130,7 +132,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Communication Method" = RIMD,
                   tabledata "Company Information" = RIMD,
                   tabledata "Confidential Information" = RIMD,
-                  tabledata "Config. Field Mapping" = RIMD,
+                  tabledata "Config. Field Map" = RIMD,
                   tabledata "Config. Line" = RIMD,
                   tabledata "Config. Media Buffer" = RIMD,
                   tabledata "Config. Package" = RIMD,
@@ -204,7 +206,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
+                  tabledata "Customer Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "CV Ledger Entry Buffer" = RIMD,
                   tabledata "Data Exch." = RIMD,
                   tabledata "Data Exch. Column Def" = RIMD,
@@ -275,7 +280,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Email Parameter" = RIMD,
                   tabledata Employee = RIMD,
                   tabledata "Employee Absence" = RIMD,
-                  tabledata "Employee Payroll Entry" = Rimd,
                   tabledata "Employee Qualification" = RIMD,
                   tabledata "Employee Relative" = RIMD,
                   tabledata "Employee Time Reg Buffer" = RIMD,
@@ -453,7 +457,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Item Availability by Date" = RIMD,
                   tabledata "Item Availability Line" = RIMD,
                   tabledata "Item Category" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Journal Batch" = RIMD,
@@ -464,7 +470,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Item Register" = Rimd,
                   tabledata "Item Statistics Buffer" = RIMD,
                   tabledata "Item Substitution" = RIMD,
+                  tabledata "Item Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Item Template" = RIMD,
+#endif
                   tabledata "Item Translation" = RIMD,
                   tabledata "Item Turnover Buffer" = RIMD,
                   tabledata "Item Unit of Measure" = RIMD,
@@ -472,8 +481,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata Job = RIMD,
                   tabledata "Job Cue" = RIMD,
                   tabledata "Job Entry No." = RIMD,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
+#endif
                   tabledata "Job Journal Batch" = RIMD,
                   tabledata "Job Journal Line" = RIMD,
                   tabledata "Job Journal Quantity" = RIMD,
@@ -489,7 +500,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Job Queue Entry Buffer" = RIMD,
                   tabledata "Job Queue Log Entry" = RIMD,
                   tabledata "Job Register" = Rimd,
+#if not CLEAN19
                   tabledata "Job Resource Price" = RIMD,
+#endif
                   tabledata "Job Responsibility" = RIMD,
                   tabledata "Job Task" = RIMD,
                   tabledata "Job Task Dimension" = RIMD,
@@ -520,8 +533,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Marketing Setup" = RIMD,
                   tabledata "Media Repository" = RIMD,
                   tabledata "Memoized Result" = RIMD,
+#if not CLEAN18
                   tabledata "Mini Customer Template" = RIMD,
                   tabledata "Mini Vendor Template" = RIMD,
+#endif
                   tabledata "Misc. Article Information" = RIMD,
                   tabledata "MS-QBD Setup" = R,
                   tabledata "My Account" = RIMD,
@@ -656,13 +671,20 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Purch. Inv. Header" = RimD,
                   tabledata "Purch. Inv. Line" = Rimd,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
+#if not CLEAN19
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
+#endif
                   tabledata "Purchase Cue" = RIMD,
                   tabledata "Purchase Discount Access" = RIMD,
                   tabledata "Purchase Header" = RIMD,
                   tabledata "Purchase Line" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RIMD,
+#endif
+                  tabledata "Purchase Order Entity Buffer" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Price" = RIMD,
+#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Purchases & Payables Setup" = RIMD,
                   tabledata Purchasing = RIMD,
@@ -710,10 +732,14 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Reservation Entry Buffer" = RIMD,
                   tabledata "Resolution Code" = RIMD,
                   tabledata Resource = RIMD,
+#if not CLEAN19
                   tabledata "Resource Cost" = RIMD,
+#endif
                   tabledata "Resource Group" = RIMD,
                   tabledata "Resource Location" = RIMD,
+#if not CLEAN19
                   tabledata "Resource Price" = RIMD,
+#endif
                   tabledata "Resource Register" = RIMD,
                   tabledata "Resource Service Zone" = RIMD,
                   tabledata "Resource Skill" = RIMD,
@@ -745,13 +771,19 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = RIMD,
+#endif
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Sales Planning Line" = Rimd,
+#if not CLEAN19
                   tabledata "Sales Price" = RIMD,
+#endif
                   tabledata "Sales Price Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
                   tabledata "Sales Price Worksheet" = RIMD,
+#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RIMD,
                   tabledata "Salesperson/Purchaser" = RIMD,
@@ -814,7 +846,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Terms And Conditions State" = RIM,
                   tabledata Territory = RIMD,
                   tabledata "Text-to-Account Mapping" = RIMD,
-                  tabledata "Time Activity" = RIMD,
                   tabledata "Time Series Buffer" = R,
                   tabledata "Time Series Forecast" = R,
                   tabledata "Time Sheet Chart Setup" = RIMD,
@@ -846,12 +877,15 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Troubleshooting Header" = RIMD,
                   tabledata "Troubleshooting Line" = RIMD,
                   tabledata "Troubleshooting Setup" = RIMD,
+                  tabledata "Unit Group" = RIMD,
                   tabledata "Unit of Measure" = RIMD,
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Unplanned Demand" = RIMD,
                   tabledata "Untracked Planning Element" = RIMD,
+#if not CLEAN19
                   tabledata "User Callouts" = RIMD,
+#endif
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = Rimd,
@@ -903,6 +937,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Vendor Ledger Entry" = RiMd,
                   tabledata "Vendor Posting Group" = RIMD,
                   tabledata "Vendor Purchase Buffer" = RIMD,
+                  tabledata "Vendor Templ." = RIMD,
                   tabledata "Warehouse Setup" = Ri,
                   tabledata "Warranty Ledger Entry" = RIMD,
                   tabledata "Web Source" = RIMD,

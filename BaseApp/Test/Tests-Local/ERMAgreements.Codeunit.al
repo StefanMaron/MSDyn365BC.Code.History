@@ -462,26 +462,6 @@ codeunit 144508 "ERM Agreements"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VendorAgreementDeleteLaborContractExist()
-    var
-        VendorAgreement: Record "Vendor Agreement";
-        LaborContract: Record "Labor Contract";
-    begin
-        // Check Vendor Agreement cannot be deleted while connected Labor Contract exists
-        InitVendorAgreement(VendorAgreement, false);
-        with LaborContract do begin
-            Get(CreateLaborContract);
-            "Vendor No." := VendorAgreement."Vendor No.";
-            "Vendor Agreement No." := VendorAgreement."No.";
-            Modify;
-        end;
-        asserterror VendorAgreement.Delete(true);
-        Assert.ExpectedError(DeleteAgmtWithLCErr);
-        ClearPurchSalesSetup;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CustomerAgreementDelete()
     var
         CustomerAgreement: Record "Customer Agreement";
@@ -1654,18 +1634,6 @@ codeunit 144508 "ERM Agreements"
         VendorAgreement.Get(VendorNo, VendorAgreementNo);
         VendorAgreement.Validate("Expire Date", Date);
         VendorAgreement.Modify(true);
-    end;
-
-    local procedure CreateLaborContract(): Code[20]
-    var
-        LaborContract: Record "Labor Contract";
-    begin
-        with LaborContract do begin
-            Init;
-            "No." := LibraryUtility.GenerateGUID;
-            Insert;
-            exit("No.");
-        end;
     end;
 
     local procedure CreateSimpleVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; VendorNo: Code[20])

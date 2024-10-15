@@ -15,12 +15,14 @@ table 17319 "Tax Calc. G/L Corr. Entry"
             Caption = 'Credit Account No.';
             TableRelation = "G/L Account";
         }
+#pragma warning disable AS0044
         field(3; "Register Type"; Option)
         {
             Caption = 'Register Type';
-            OptionCaption = ' ,Item,Payroll';
-            OptionMembers = " ",Item,Payroll;
+            OptionCaption = ' ,Item';
+            OptionMembers = " ",Item;
         }
+#pragma warning restore AS0044
         field(4; "Section Code"; Code[10])
         {
             Caption = 'Section Code';
@@ -50,14 +52,14 @@ table 17319 "Tax Calc. G/L Corr. Entry"
         }
         field(21; "Debit Account Name"; Text[50])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("Debit Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("Debit Account No.")));
             Caption = 'Debit Account Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; "Credit Account Name"; Text[50])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("Credit Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("Credit Account No.")));
             Caption = 'Credit Account Name';
             Editable = false;
             FieldClass = FlowField;

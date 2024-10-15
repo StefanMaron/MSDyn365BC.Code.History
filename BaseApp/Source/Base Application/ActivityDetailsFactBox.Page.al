@@ -72,11 +72,11 @@ page 971 "Activity Details FactBox"
     local procedure LookupActivity()
     var
         Job: Record Job;
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         ServiceHeader: Record "Service Header";
         AssemblyHeader: Record "Assembly Header";
         JobList: Page "Job List";
-        CausesOfAbsence: Page "Time Activity Codes";
+        CausesOfAbsence: Page "Causes of Absence";
         ServiceOrders: Page "Service Orders";
         AssemblyOrders: Page "Assembly Orders";
     begin

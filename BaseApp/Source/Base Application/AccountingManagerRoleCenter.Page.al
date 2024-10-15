@@ -1,6 +1,6 @@
 page 9001 "Accounting Manager Role Center"
 {
-    Caption = 'Accounting Manager', Comment = '{Dependency=Match,"ProfileDescription_ACCOUNTINGMANAGER"}';
+    Caption = 'Accounting Manager';
     PageType = RoleCenter;
 
     layout
@@ -1002,164 +1002,6 @@ page 9001 "Accounting Manager Role Center"
                     ToolTip = 'View or edit tax calculation sections that are used to calculate taxable profits and losses.';
                 }
             }
-            group(HRP)
-            {
-                Caption = 'HRP';
-                action("Person List")
-                {
-                    Caption = 'Person List';
-                    RunObject = Page "Person List";
-                }
-                action("Employee List")
-                {
-                    Caption = 'Employee List';
-                    RunObject = Page "Employee List";
-                }
-                action("Labor Contracts")
-                {
-                    Caption = 'Labor Contracts';
-                    RunObject = Page "Labor Contracts";
-                }
-                action("Open Labor Contracts")
-                {
-                    Caption = 'Open Labor Contracts';
-                    RunObject = Page "Labor Contracts";
-                    RunPageView = WHERE(Status = CONST(Open));
-                }
-                action("Employee Journal")
-                {
-                    Caption = 'Employee Journal';
-                    RunObject = Page "Employee Journal Batches";
-                }
-                action("Vacation Requests")
-                {
-                    Caption = 'Vacation Requests';
-                    RunObject = Page "Vacation Requests";
-                }
-                action("Open Vacation Requests")
-                {
-                    Caption = 'Open Vacation Requests';
-                    RunObject = Page "Vacation Requests";
-                    RunPageView = WHERE(Status = CONST(Open));
-                }
-                action("Approved Vacation Requests")
-                {
-                    Caption = 'Approved Vacation Requests';
-                    RunObject = Page "Vacation Requests";
-                    RunPageView = WHERE(Status = CONST(Approved));
-                }
-                action("Vacation Orders")
-                {
-                    Caption = 'Vacation Orders';
-                    RunObject = Page "Vacation Orders";
-                }
-                action("Open Vacation Orders")
-                {
-                    Caption = 'Open Vacation Orders';
-                    RunObject = Page "Vacation Orders";
-                    RunPageView = WHERE(Status = CONST(Open));
-                }
-                action("Released Vacation Orders")
-                {
-                    Caption = 'Released Vacation Orders';
-                    RunObject = Page "Vacation Orders";
-                    RunPageView = WHERE(Status = CONST(Released));
-                }
-                action("Absence Orders")
-                {
-                    Caption = 'Absence Orders';
-                    RunObject = Page "Absence Order List";
-                }
-                action("Open Absence Orders")
-                {
-                    Caption = 'Open Absence Orders';
-                    RunObject = Page "Absence Order List";
-                    RunPageView = WHERE(Status = CONST(Open));
-                }
-                action("Released Absence Orders")
-                {
-                    Caption = 'Released Absence Orders';
-                    RunObject = Page "Absence Order List";
-                    RunPageView = WHERE(Status = CONST(Released));
-                }
-                action("Other Absence Orders")
-                {
-                    Caption = 'Other Absence Orders';
-                    RunObject = Page "Other Absence Orders";
-                }
-                action("Open Other Absence Orders")
-                {
-                    Caption = 'Open Other Absence Orders';
-                    RunObject = Page "Other Absence Orders";
-                    RunPageView = WHERE(Status = CONST(Open));
-                }
-                action("Released Other Absence Orders")
-                {
-                    Caption = 'Released Other Absence Orders';
-                    RunObject = Page "Other Absence Orders";
-                    RunPageView = WHERE(Status = CONST(Released));
-                }
-                action("Position List")
-                {
-                    Caption = 'Position List';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE("Budgeted Position" = CONST(false));
-                }
-                action("Planned Position List")
-                {
-                    Caption = 'Planned Position List';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE(Status = CONST(Planned),
-                                        "Budgeted Position" = CONST(false));
-                }
-                action("Approved Position List")
-                {
-                    Caption = 'Approved Position List';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE(Status = CONST(Approved),
-                                        "Filled Rate" = FILTER(0),
-                                        "Budgeted Position" = CONST(false));
-                }
-                action("Budgeted Position")
-                {
-                    Caption = 'Budgeted Position';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE("Budgeted Position" = CONST(true));
-                }
-                action("Planned Budgeted Position")
-                {
-                    Caption = 'Planned Budgeted Position';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE("Budgeted Position" = CONST(true),
-                                        Status = CONST(Planned));
-                }
-                action("Approved Budgeted Position")
-                {
-                    Caption = 'Approved Budgeted Position';
-                    RunObject = Page "Position List";
-                    RunPageView = WHERE("Budgeted Position" = CONST(true),
-                                        Status = CONST(Approved));
-                }
-            }
-            group(Payroll)
-            {
-                Caption = 'Payroll';
-                action("Vendor Employees")
-                {
-                    Caption = 'Vendor Employees';
-                    RunObject = Page "Person Vendors";
-                }
-                action("Payroll Elements")
-                {
-                    Caption = 'Payroll Elements';
-                    RunObject = Page "Payroll Element List";
-                }
-                action("Calculation Journal")
-                {
-                    Caption = 'Calculation Journal';
-                    RunObject = Page "Payroll Documents";
-                }
-            }
         }
         area(creation)
         {
@@ -1238,7 +1080,7 @@ page 9001 "Accounting Manager Role Center"
                     Caption = 'Adjust E&xchange Rates';
                     Ellipsis = true;
                     Image = AdjustExchangeRates;
-                    RunObject = Report "Adjust Exchange Rates";
+                    RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                     ToolTip = 'Adjust exchange rates and create adjustment transactions for customers, vendors, and bank accounts. You can also set up separate dimension values for profit and loss adjustment transactions. You can then use the test mode to preview the adjustments without posting transactions.';
                 }
                 action("C&reate Reminders")
@@ -1399,34 +1241,6 @@ page 9001 "Accounting Manager Role Center"
                     Image = List;
                     RunObject = Page "Tax Calc. Section List";
                     ToolTip = 'View or edit tax calculation sections that are used to calculate taxable profits and losses.';
-                }
-            }
-            group(Organization)
-            {
-                Caption = 'Organization';
-                action("Vacation Schedule")
-                {
-                    Caption = 'Vacation Schedule';
-                    Image = CheckList;
-                    RunObject = Page "Vacation Schedule Worksheet";
-                }
-                action("Staff List")
-                {
-                    Caption = 'Staff List';
-                    Image = CustomerList;
-                    RunObject = Page "Staff List";
-                }
-                action("Organisation Structure")
-                {
-                    Caption = 'Organisation Structure';
-                    Image = Hierarchy;
-                    RunObject = Page "Organization Structure";
-                }
-                action(Timesheet)
-                {
-                    Caption = 'Timesheet';
-                    Image = Timesheet;
-                    RunObject = Page "Timesheet Status";
                 }
             }
             group(Action80)

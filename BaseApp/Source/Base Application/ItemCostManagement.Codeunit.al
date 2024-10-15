@@ -1,4 +1,4 @@
-﻿codeunit 5804 ItemCostManagement
+codeunit 5804 ItemCostManagement
 {
     Permissions = TableData Item = rm,
                   TableData "Stockkeeping Unit" = rm,
@@ -18,6 +18,12 @@
         CalledFromAdjustment: Boolean;
         InvtSetupRead: Boolean;
         GLSetupRead: Boolean;
+        ItemUnitCostUpdated: Boolean;
+
+    procedure IsItemUnitCostUpdated(): Boolean;
+    begin
+        exit(ItemUnitCostUpdated);
+    end;
 
     procedure UpdateUnitCost(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; LastDirectCost: Decimal; NewStdCost: Decimal; UpdateSKU: Boolean; FilterSKU: Boolean; RecalcStdCost: Boolean; CalledByFieldNo: Integer)
     var
@@ -25,7 +31,9 @@
         UnitCostUpdated: Boolean;
         RunOnModifyTrigger: Boolean;
         IsHandled: Boolean;
+        xUnitCost: Decimal;
     begin
+        ItemUnitCostUpdated := false;
         OnBeforeUpdateUnitCost(
           Item, LocationCode, VariantCode, LastDirectCost, NewStdCost, UpdateSKU, FilterSKU, RecalcStdCost, CalledByFieldNo, UnitCostUpdated, CalledFromAdjustment);
         if UnitCostUpdated then
@@ -35,6 +43,7 @@
             if NewStdCost <> 0 then
                 "Standard Cost" := NewStdCost;
 
+            xUnitCost := Item."Unit Cost";
             if "Costing Method" = "Costing Method"::Standard then
                 "Unit Cost" := "Standard Cost"
             else
@@ -42,6 +51,7 @@
                     CalcUnitCostFromAverageCost(Item)
                 else
                     UpdateUnitCostFromLastDirectCost(Item, LastDirectCost);
+            ItemUnitCostUpdated := xUnitCost <> Item."Unit Cost";
 
             if RecalcStdCost then
                 RecalcStdCostItem(Item);
@@ -59,7 +69,7 @@
                 if RunOnModifyTrigger then
                     Modify(true)
                 else
-                    Modify;
+                    Modify();
 
             OnUpdateUnitCostOnBeforeUpdateSKU(Item, UpdateSKU);
             if UpdateSKU then
@@ -170,7 +180,7 @@
             if NewStdCost <> 0 then
                 "Standard Cost" := NewStdCost;
             if Item."Costing Method" <> Item."Costing Method"::Standard then begin
-                GetInvtSetup;
+                GetInvtSetup();
                 if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then begin
                     IsHandled := false;
                     OnUpdateUnitCostSKUOnBeforeCalcNonItemAvgCostCalcType(Item, SKU, CalledFromAdjustment, IsHandled);
@@ -216,7 +226,7 @@
             if CalledByFieldNo <> 0 then
                 Modify(true)
             else
-                Modify;
+                Modify();
         end;
     end;
 
@@ -316,7 +326,7 @@
             if (CostAmt > 0) and (CostAmt = GLSetup."Amount Rounding Precision") then
                 NeedCalcPreciseAmt := true;
 
-            GetGLSetup;
+            GetGLSetup();
             if GLSetup."Additional Reporting Currency" <> '' then begin
                 Currency.Get(GLSetup."Additional Reporting Currency");
                 CostAmtACY := AverageCostACY + CalculateCostAmtACY(Item, true) + CalculateCostAmtACY(Item, false);
@@ -347,7 +357,7 @@
     procedure SetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
         with ValueEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", Item."No.");
             SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
@@ -450,7 +460,7 @@
 
         with TempItemLedgerEntry do begin
             Reset();
-            if FindSet then
+            if FindSet() then
                 repeat
                     if NeedCalcPreciseAmt then begin
                         CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
@@ -498,13 +508,13 @@
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", Open);
             SetRange("Item No.", Item."No.");
             SetRange(Open, true);
             SetFilter("Location Code", Item.GetFilter("Location Filter"));
             SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            exit(not FindFirst)
+            exit(not FindFirst())
         end;
     end;
 
@@ -532,7 +542,7 @@
     var
         SKU: Record "Stockkeeping Unit";
     begin
-        GetInvtSetup;
+        GetInvtSetup();
         with SKU do begin
             SetRange("Item No.", Item."No.");
             if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then

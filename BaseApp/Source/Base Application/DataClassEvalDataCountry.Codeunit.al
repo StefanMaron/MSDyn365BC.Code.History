@@ -11,13 +11,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
     procedure ClassifyCountrySpecificTables()
     begin
         ClassifyEmployee;
-        ClassifyEmployeePayrollEntry;
         ClassifyEmployeeRelative;
         ClassifyEmployeeQualification;
         ClassifyVATReportHeader;
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Dim. Value Comb.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Time Activity");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Payroll Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Correspondence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Correspondence Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Gen. Journal Line Archive");
@@ -33,8 +30,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ledger Line Tariff No.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Signature");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Document Signature");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Organizational Unit");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Job Title");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Company Address");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::KBK);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::OKATO);
@@ -86,19 +81,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Corr. Analysis View Filter");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"G/L Corr. Analysis View Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Entry Type");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"KLADR Address");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"KLADR Category");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"KLADR Region");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Allocation Posting Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Report Name");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Line Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Column Tmpl.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Column");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis View");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis View Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis View Filter");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Analysis Cell Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Line Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Template");
@@ -112,8 +94,8 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register FA Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Item Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register FE Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register PR Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Register Dim. Comb.");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         ClassifyCountrySpecificTablesPart2;
         ClassifyCountrySpecificTablesPart3;
@@ -159,114 +141,13 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Calc. Dim. Corr. Filter");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Diff. Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Tax Diff. Corr. Dim. Filter");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Person);
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Name History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Document");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Medical Info");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Job History");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Category");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"HR Field Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"HR Field Group Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Classificator OKIN");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"General Directory");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Labor Contract");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Labor Contract Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Labor Contract Terms");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Job Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Default Labor Contract Terms");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Labor Contract Terms Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Group Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Group Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"HR Order Comment Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Position);
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Staff List");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Staff List Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Staff List Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Staff List Archive");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Staff List Line Archive");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Staff List Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Staff List Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Journal Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Journal Batch");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Journal Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Absence Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Absence Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Absence Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Absence Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Absence Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sick Leave Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"HRP Cue");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Income Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Income Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Worktime Norm");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Tax Deduction");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Income FSI");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Limit");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Income Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Person Excluded Days");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Element");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Posting Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc Group Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc Type");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc Type Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calculation");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calculation Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calculation Function");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Base Amount");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Range Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Range Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Element Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Ledger Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Document");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Document Line");
     end;
 
     local procedure ClassifyCountrySpecificTablesPart3()
     begin
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Ledger Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Payroll Ledger Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calculation Error");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Element Variable");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Element Expression");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calculation Stop");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Register");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Directory");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Period");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calendar");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calendar Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calendar Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document Line AE");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Doc. Line AE");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Period AE");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vacation Request");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vacation Schedule Name");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vacation Schedule Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document Line Var.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document Line Expr.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Ledger Base Amount");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Timesheet Status");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Timesheet Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Timesheet Detail");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Timesheet Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Time Activity Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Time Activity Filter");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Time Activity Filter Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Element Inclusion");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Including In Report");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Including In Report");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc List Column");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc List Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Calc List Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Spreadsheet");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Period AE");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Status");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"AE Calculation Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payroll Document Line Calc.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Doc. Line Calc.");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Payroll Doc. Line Expr.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Table");
@@ -274,16 +155,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Table Column");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Scalable Table Row");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Table Individual Requisite");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Requisites Group");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Requisite Option Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Requisite");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Requisite Expression Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Requisite Condition Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Excel Sheet");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Data Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Data Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Data Change Log");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Requisite Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Log Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statutory Report Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"XML Element Line");
@@ -292,17 +168,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Format Version");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Report Table Mapping");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"My Employee");
-    end;
-
-    local procedure ClassifyEmployeePayrollEntry()
-    var
-        DummyEmployeePayrollEntry: Record "Employee Payroll Entry";
-        DataClassificationMgt: Codeunit "Data Classification Mgt.";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"Employee Payroll Entry";
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeePayrollEntry.FieldNo("Entry No."));
     end;
 
     local procedure ClassifyEmployeeRelative()
@@ -313,6 +178,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
     begin
         TableNo := DATABASE::"Employee Relative";
         DataClassificationMgt.SetTableFieldsToNormal(TableNo);
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeRelative.FieldNo("Relative's Employee No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployeeRelative.FieldNo("Phone No."));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployeeRelative.FieldNo("Birth Date"));
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployeeRelative.FieldNo("Last Name"));
@@ -320,6 +186,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyEmployeeRelative.FieldNo("First Name"));
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeRelative.FieldNo("Relative Code"));
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeRelative.FieldNo("Line No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeRelative.FieldNo("Employee No."));
     end;
 
     local procedure ClassifyEmployeeQualification()
@@ -341,14 +208,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("From Date"));
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Qualification Code"));
         DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Line No."));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Kind of Education"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Form of Education"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Type of Education"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Organization Address"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Faculty Name"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Qualification Type"));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo(Speciality));
-        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Science Degree"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyEmployeeQualification.FieldNo("Employee No."));
     end;
 
     local procedure ClassifyEmployee()

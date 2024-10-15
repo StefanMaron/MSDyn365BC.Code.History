@@ -25,7 +25,7 @@ table 5813 "Inventory Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
 
                 Validate("Inventory Account");
@@ -36,8 +36,8 @@ table 5813 "Inventory Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                    CheckGLAccount(
+                      FieldNo("Inventory Account"), "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
             end;
         }
         field(20; Description; Text[100])
@@ -58,7 +58,7 @@ table 5813 "Inventory Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account (Interim)")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
 
                 Validate("Inventory Account (Interim)");
@@ -69,8 +69,8 @@ table 5813 "Inventory Posting Setup"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account (Interim)", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                    CheckGLAccount(
+                      FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
             end;
         }
         field(12405; "Purch. PD Gains Acc."; Code[20])
@@ -153,64 +153,64 @@ table 5813 "Inventory Posting Setup"
     procedure GetCapacityVarianceAccount(): Code[20]
     begin
         if "Capacity Variance Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Capacity Variance Account"));
-        TestField("Capacity Variance Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Capacity Variance Account"));
+
         exit("Capacity Variance Account");
     end;
 
     procedure GetCapOverheadVarianceAccount(): Code[20]
     begin
         if "Cap. Overhead Variance Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Cap. Overhead Variance Account"));
-        TestField("Cap. Overhead Variance Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Cap. Overhead Variance Account"));
+
         exit("Cap. Overhead Variance Account");
     end;
 
     procedure GetInventoryAccount(): Code[20]
     begin
         if "Inventory Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Inventory Account"));
-        TestField("Inventory Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Inventory Account"));
+
         exit("Inventory Account");
     end;
 
     procedure GetInventoryAccountInterim(): Code[20]
     begin
         if "Inventory Account (Interim)" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Inventory Account (Interim)"));
-        TestField("Inventory Account (Interim)");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Inventory Account (Interim)"));
+
         exit("Inventory Account (Interim)");
     end;
 
     procedure GetMaterialVarianceAccount(): Code[20]
     begin
         if "Material Variance Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Material Variance Account"));
-        TestField("Material Variance Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Material Variance Account"));
+
         exit("Material Variance Account");
     end;
 
     procedure GetMfgOverheadVarianceAccount(): Code[20]
     begin
         if "Mfg. Overhead Variance Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Mfg. Overhead Variance Account"));
-        TestField("Mfg. Overhead Variance Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Mfg. Overhead Variance Account"));
+
         exit("Mfg. Overhead Variance Account");
     end;
 
     procedure GetSubcontractedVarianceAccount(): Code[20]
     begin
         if "Subcontracted Variance Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("Subcontracted Variance Account"));
-        TestField("Subcontracted Variance Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Subcontracted Variance Account"));
+
         exit("Subcontracted Variance Account");
     end;
 
     procedure GetWIPAccount(): Code[20]
     begin
         if "WIP Account" = '' then
-            PostingSetupMgt.SendInvtPostingSetupNotification(Rec, FieldCaption("WIP Account"));
-        TestField("WIP Account");
+            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("WIP Account"));
+
         exit("WIP Account");
     end;
 
@@ -250,9 +250,9 @@ table 5813 "Inventory Posting Setup"
 
         InvtPostingSetupRecRef.Reset();
         InvtPostingSetupFieldRef := InvtPostingSetupRecRef.Field(FieldNo("Invt. Posting Group Code"));
-        InvtPostingSetupFieldRef.SetFilter('<>%1', "Invt. Posting Group Code");
+        InvtPostingSetupFieldRef.SetRange("Invt. Posting Group Code", "Invt. Posting Group Code");
         InvtPostingSetupFieldRef := InvtPostingSetupRecRef.Field(FieldNo("Location Code"));
-        InvtPostingSetupFieldRef.SetRange("Location Code");
+        InvtPostingSetupFieldRef.SetFilter('<>%1', "Location Code");
         TempAccountUseBuffer.UpdateBuffer(InvtPostingSetupRecRef, AccountFieldNo);
 
         InvtPostingSetupRecRef.Close;
@@ -263,6 +263,16 @@ table 5813 "Inventory Posting Setup"
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
+    end;
+
+    local procedure CheckGLAccount(ChangedFieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
+    begin
+        GLAccountCategoryMgt.CheckGLAccount(Database::"Inventory Posting Group", ChangedFieldNo, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory);
+    end;
+
+    local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        GLAccountCategoryMgt.LookupGLAccount(Database::"Inventory Posting Setup", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 
     [IntegrationEvent(false, false)]

@@ -178,7 +178,6 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // Test Employee No. is incremented by AssistEdit automatically as per the setup.
-        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Find Next Employee No.
         HumanResourcesSetup.Get();
@@ -545,14 +544,18 @@ codeunit 136400 "Resource Employee"
 
     [Normal]
     local procedure Initialize()
+    var
+        EmployeeTempl: Record "Employee Templ.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
+        EmployeeTempl.DeleteAll(true);
+
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;

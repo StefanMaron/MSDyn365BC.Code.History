@@ -1,4 +1,4 @@
-﻿codeunit 17 "Gen. Jnl.-Post Reverse"
+codeunit 17 "Gen. Jnl.-Post Reverse"
 {
     Permissions = TableData "G/L Entry" = m,
                   TableData "Cust. Ledger Entry" = imd,
@@ -9,8 +9,7 @@
                   TableData "Bank Account Ledger Entry" = imd,
                   TableData "Check Ledger Entry" = imd,
                   TableData "Detailed Cust. Ledg. Entry" = imd,
-                  TableData "Detailed Vendor Ledg. Entry" = imd,
-                  TableData "Employee Payroll Entry" = rimd;
+                  TableData "Detailed Vendor Ledg. Entry" = imd;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()

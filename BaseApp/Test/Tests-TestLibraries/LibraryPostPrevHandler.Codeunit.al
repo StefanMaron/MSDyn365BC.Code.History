@@ -10,7 +10,6 @@ codeunit 131011 "Library - Post. Prev. Handler"
                   TableData "Bank Account Ledger Entry" = i,
                   TableData "Detailed Cust. Ledg. Entry" = i,
                   TableData "Detailed Vendor Ledg. Entry" = i,
-                  TableData "Employee Payroll Entry" = i,
                   TableData "Value Entry" = i;
 
     trigger OnRun()

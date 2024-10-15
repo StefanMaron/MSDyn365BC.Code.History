@@ -7,7 +7,7 @@ page 5 Currencies
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Exchange Rate Service';
     SourceTable = Currency;
-    UsageCategory = Lists;
+    UsageCategory = Administration;
 
     layout
     {
@@ -230,6 +230,12 @@ page 5 Currencies
                 {
                     ApplicationArea = Suite;
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the currency is coupled to a currency in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -307,7 +313,7 @@ page 5 Currencies
                 Image = AdjustExchangeRates;
                 Promoted = true;
                 PromotedCategory = Process;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("Exchange Rate Adjust. Register")
@@ -422,6 +428,25 @@ page 5 Currencies
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
                             CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledCurrency;
+                        ToolTip = 'Couple currencies to currencies in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Currency: Record Currency;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Currency);
+                            RecRef.GetTable(Currency);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
                         end;
                     }
                     action(DeleteCRMCoupling)

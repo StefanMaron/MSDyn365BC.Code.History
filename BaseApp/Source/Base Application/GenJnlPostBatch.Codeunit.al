@@ -42,7 +42,9 @@
         Text021: Label 'cannot be specified when using recurring journals.';
         Text022: Label 'The Balance and Reversing Balance recurring methods can be used only for G/L accounts.';
         Text023: Label 'Allocations can only be used with recurring journals.';
+#if not CLEAN19
         Text024: Label '<Month Text>', Locked = true;
+#endif
         Text025: Label 'A maximum of %1 posting number series can be used in each journal.';
         Text026: Label '%5 %2 is out of balance by %1 %7. ';
         Text027: Label 'The lines in %1 are out of balance by %2 %5. ';
@@ -83,10 +85,12 @@
         LastPostedDocNo: Code[20];
         CurrentBalance: Decimal;
         CurrentBalanceReverse: Decimal;
+#if not CLEAN19
         Day: Integer;
         Week: Integer;
         Month: Integer;
         MonthText: Text[30];
+#endif
         NoOfRecords: Integer;
         NoOfReversingRecords: Integer;
         LineCount: Integer;
@@ -179,6 +183,8 @@
         UpdateAnalysisView: Codeunit "Update Analysis View";
         ICOutboxExport: Codeunit "IC Outbox Export";
         TypeHelper: Codeunit "Type Helper";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
@@ -257,11 +263,13 @@
             FindSet(true, false);
             FirstLine := true;
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, PostingLinesMsg);
                 ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine);
                 ProcessICTransaction(LastICTransactionNo, ICTransactionNo);
                 GenJnlLine3 := GenJnlLine;
                 if not PostGenJournalLine(GenJnlLine3, GenJnlLine, CurrentICPartner, ICTransactionNo, LineNo, TransNo) then
                     SkippedLine := true;
+                ErrorMessageMgt.PopContext(ErrorContextElement);
             until Next() = 0;
 
             if LastICTransactionNo > 0 then
@@ -679,6 +687,7 @@
 
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
+#if not CLEAN19
         with GenJnlLine2 do
             if ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then begin
                 Day := Date2DMY("Posting Date", 1);
@@ -702,6 +711,11 @@
                     '>');
                 OnAfterMakeRecurringTexts(GenJnlLine2, AccountingPeriod, Day, Week, Month, MonthText);
             end;
+#else
+        with GenJnlLine2 do
+            if ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
+#endif
     end;
 
     local procedure PostAllocations(var AllocateGenJnlLine: Record "Gen. Journal Line"; Reversing: Boolean)
@@ -735,6 +749,7 @@
                     GenJnlLine2."Recurring Method" := "Recurring Method";
                     if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor] then
                         CopyGenJnlLineBalancingData(GenJnlLine2, AllocateGenJnlLine);
+                    GenJnlLine2."External Document No." := "External Document No.";
                     OnPostAllocationsOnBeforeCopyFromGenJnlAlloc(GenJnlLine2, AllocateGenJnlLine, Reversing);
                     repeat
                         GenJnlLine2.CopyFromGenJnlAllocation(GenJnlAlloc);
@@ -1748,6 +1763,8 @@
     local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
     var
         GenJournalLineToUpdate: Record "Gen. Journal Line";
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
         IsModified: Boolean;
     begin
         GenJournalLineToUpdate.Copy(GenJnlLine);
@@ -1760,8 +1777,10 @@
               PostingSetupMgt.ConfirmPostingAfterCurrentCalendarDate(
                 ConfirmPostingAfterCurrentPeriodQst, GenJnlLine5."Posting Date");
         PrepareGenJnlLineAddCurr(GenJnlLine5);
+        ErrorMessageManagement.PushContext(ErrorContextElement, GenJnlLine5.RecordId, 0, '');
         OnCheckLineOnBeforeRunCheck(GenJnlLine5);
         GenJnlCheckLine.RunCheck(GenJnlLine5);
+        ErrorMessageManagement.PopContext(ErrorContextElement);
         CheckRestrictions(GenJnlLine5);
         GenJnlLine.Copy(GenJournalLineToUpdate);
         if IsModified then
@@ -2205,10 +2224,12 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnAfterMakeRecurringTexts(var GenJournalLine: Record "Gen. Journal Line"; var AccountingPeriod: Record "Accounting Period"; var Day: Integer; var Week: Integer; var Month: Integer; var MonthText: Text[30])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostAllocationsOnBeforeCopyFromGenJnlAlloc(var GenJournalLine: Record "Gen. Journal Line"; var AllocateGenJournalLine: Record "Gen. Journal Line"; var Reversing: Boolean)

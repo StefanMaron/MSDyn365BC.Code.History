@@ -75,32 +75,6 @@ codeunit 17202 "Tax Dimension Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure SetDimFilters2TaxPRLine(TaxRegTemplate: Record "Tax Register Template"; var TaxRegPREntry: Record "Tax Register PR Entry")
-    var
-        TaxRegDimFilter: Record "Tax Register Dim. Filter";
-    begin
-        TaxRegDimFilter.SetRange("Section Code", TaxRegTemplate."Section Code");
-        TaxRegDimFilter.SetRange("Tax Register No.", TaxRegTemplate.Code);
-        TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::Template);
-        TaxRegDimFilter.SetRange("Line No.", TaxRegTemplate."Line No.");
-        TaxRegDimFilter.SetFilter("Dimension Value Filter", '<>%1', '');
-        if TaxRegDimFilter.FindSet then begin
-            if TaxRegSection.Code <> TaxRegTemplate."Section Code" then
-                TaxRegSection.Get(TaxRegTemplate."Section Code");
-            repeat
-                if TaxRegSection."Dimension 1 Code" = TaxRegDimFilter."Dimension Code" then
-                    TaxRegPREntry.SetFilter("Dimension 1 Value Code", TaxRegDimFilter."Dimension Value Filter");
-                if TaxRegSection."Dimension 2 Code" = TaxRegDimFilter."Dimension Code" then
-                    TaxRegPREntry.SetFilter("Dimension 2 Value Code", TaxRegDimFilter."Dimension Value Filter");
-                if TaxRegSection."Dimension 3 Code" = TaxRegDimFilter."Dimension Code" then
-                    TaxRegPREntry.SetFilter("Dimension 3 Value Code", TaxRegDimFilter."Dimension Value Filter");
-                if TaxRegSection."Dimension 4 Code" = TaxRegDimFilter."Dimension Code" then
-                    TaxRegPREntry.SetFilter("Dimension 4 Value Code", TaxRegDimFilter."Dimension Value Filter");
-            until TaxRegDimFilter.Next(1) = 0;
-        end;
-    end;
-
-    [Scope('OnPrem')]
     procedure ValidateTemplateDimFilters(TaxRegTemplate: Record "Tax Register Template"): Boolean
     var
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
@@ -500,42 +474,6 @@ codeunit 17202 "Tax Dimension Mgt."
                 end;
                 if TaxRegSection."Dimension 4 Code" = TaxRegDimFilter."Dimension Code" then begin
                     TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegItemEntry.FieldNo("Dimension 4 Value Code"));
-                    TaxRegFieldRef.SetFilter(TaxRegDimFilter."Dimension Value Filter");
-                end;
-            until TaxRegDimFilter.Next(1) = 0;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetDimFilters2TaxPRRecordRef(TaxRegTemplate: Record "Tax Register Template"; var TaxRegRecordRef: RecordRef)
-    var
-        TaxRegPREntry: Record "Tax Register PR Entry";
-        TaxRegDimFilter: Record "Tax Register Dim. Filter";
-        TaxRegFieldRef: FieldRef;
-    begin
-        TaxRegDimFilter.SetRange("Section Code", TaxRegTemplate."Section Code");
-        TaxRegDimFilter.SetRange("Tax Register No.", TaxRegTemplate.Code);
-        TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::Template);
-        TaxRegDimFilter.SetRange("Line No.", TaxRegTemplate."Line No.");
-        TaxRegDimFilter.SetFilter("Dimension Value Filter", '<>%1', '');
-        if TaxRegDimFilter.FindSet then begin
-            if TaxRegSection.Code <> TaxRegTemplate."Section Code" then
-                TaxRegSection.Get(TaxRegTemplate."Section Code");
-            repeat
-                if TaxRegSection."Dimension 1 Code" = TaxRegDimFilter."Dimension Code" then begin
-                    TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegPREntry.FieldNo("Dimension 1 Value Code"));
-                    TaxRegFieldRef.SetFilter(TaxRegDimFilter."Dimension Value Filter");
-                end;
-                if TaxRegSection."Dimension 2 Code" = TaxRegDimFilter."Dimension Code" then begin
-                    TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegPREntry.FieldNo("Dimension 2 Value Code"));
-                    TaxRegFieldRef.SetFilter(TaxRegDimFilter."Dimension Value Filter");
-                end;
-                if TaxRegSection."Dimension 3 Code" = TaxRegDimFilter."Dimension Code" then begin
-                    TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegPREntry.FieldNo("Dimension 3 Value Code"));
-                    TaxRegFieldRef.SetFilter(TaxRegDimFilter."Dimension Value Filter");
-                end;
-                if TaxRegSection."Dimension 4 Code" = TaxRegDimFilter."Dimension Code" then begin
-                    TaxRegFieldRef := TaxRegRecordRef.Field(TaxRegPREntry.FieldNo("Dimension 4 Value Code"));
                     TaxRegFieldRef.SetFilter(TaxRegDimFilter."Dimension Value Filter");
                 end;
             until TaxRegDimFilter.Next(1) = 0;

@@ -19,17 +19,13 @@ codeunit 5356 "CRM Item Availability Job"
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMProductName: Codeunit "CRM Product Name";
-        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        CRMIdFilter: Text;
-        BCNoFilter: Text;
-        i: Integer;
         ItemNumber: Code[20];
         NewItemAvailabilitySynchTime: DateTime;
         ItemNumbers: List of [Code[20]];
-        CRMIdFilterList: List of [Text];
-        BCIdFilterList: List of [Text];
-        IdDictionary: Dictionary of [Guid, Code[20]];
+        CRMIdList: List of [Guid];
+        BCIdList: List of [Guid];
+        IdDictionary: Dictionary of [Guid, Guid];
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             Error(ConnectionNotEnabledErr, CRMProductName.FULL());
@@ -47,22 +43,15 @@ codeunit 5356 "CRM Item Availability Job"
                     CRMIntegrationRecord.SetRange("Integration ID", Item.SystemId);
                     if CRMIntegrationRecord.FindFirst() then
                         if not IdDictionary.ContainsKey(CRMIntegrationRecord."CRM ID") then
-                            IdDictionary.Add(CRMIntegrationRecord."CRM ID", Item."No.");
+                            IdDictionary.Add(CRMIntegrationRecord."CRM ID", Item.SystemId);
                 end;
 
-            GetIdFilterLists(IdDictionary, CRMIdFilterList, BCIdFilterList);
-            for i := 1 to CRMIdFilterList.Count() do begin
-                CRMIdFilter := CRMIdFilterList.Get(i);
-                BCNoFilter := BCIdFilterList.Get(i);
-                if (CRMIdFilter <> '') and (BCNoFilter <> '') then begin
-                    IntegrationTableMapping.Get('ITEM-PRODUCT');
-                    IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForFilter(IntegrationTableMapping."Integration Table ID", CRMIdFilter));
-                    IntegrationTableMapping.SetTableFilter(GetTableViewForFilter(IntegrationTableMapping."Table ID", BCNoFilter));
-                    CRMIntegrationManagement.AddIntegrationTableMapping(IntegrationTableMapping);
-                    Commit();
-                    CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping);
-                    Session.LogMessage('0000E45', ScheduledItemSyncJobForSelectedRecordsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-                end;
+            CRMIdList := IdDictionary.Keys();
+            if CRMIdList.Count() > 0 then begin
+                IntegrationTableMapping.Get('ITEM-PRODUCT');
+                BCIdList := IdDictionary.Values();
+                CRMIntegrationManagement.EnqueueSyncJob(IntegrationTableMapping, BCIdList, CRMIdList, IntegrationTableMapping.Direction, IntegrationTableMapping."Synch. Only Coupled Records");
+                Session.LogMessage('0000E45', ScheduledItemSyncJobForSelectedRecordsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             end;
 
             CRMSynchStatus."Item Availability Synch. Time" := NewItemAvailabilitySynchTime;
@@ -87,51 +76,5 @@ codeunit 5356 "CRM Item Availability Job"
                 if not ItemNumbers.Contains(ItemLedgerEntry."Item No.") then
                     ItemNumbers.Add(ItemLedgerEntry."Item No.");
             until ItemLedgerEntry.Next() = 0;
-    end;
-
-    local procedure GetTableViewForFilter(TableNo: Integer; FilterText: Text) View: Text
-    var
-        RecordRef: RecordRef;
-        FieldRef: FieldRef;
-        KeyRef: KeyRef;
-    begin
-        RecordRef.Open(TableNo);
-        KeyRef := RecordRef.KeyIndex(1); // Primary Key
-        FieldRef := KeyRef.FieldIndex(1);
-        FieldRef.SetFilter(FilterText);
-        View := RecordRef.GetView();
-        RecordRef.Close();
-    end;
-
-    local procedure GetIdFilterLists(var IdDictionary: Dictionary of [Guid, Code[20]]; var CRMIdFilterList: List of [Text]; var BCNoFilterList: List of [Text]): Boolean
-    var
-        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
-        BCIdFilter: Text;
-        CRMIdFilter: Text;
-        i: Integer;
-        MaxCount: Integer;
-        Id: Guid;
-    begin
-        MaxCount := CRMIntegrationTableSynch.GetMaxNumberOfConditions();
-        foreach Id in IdDictionary.Keys() do begin
-            CRMIdFilter += '|' + Id;
-            BCIdFilter += '|' + IdDictionary.Get(Id);
-            i += 1;
-            if i = MaxCount then begin
-                CRMIdFilter := CRMIdFilter.TrimStart('|');
-                BCIdFilter := BCIdFilter.TrimStart('|');
-                CRMIdFilterList.Add(CRMIdFilter);
-                BCNoFilterList.Add(BCIdFilter);
-                CRMIdFilter := '';
-                BCIdFilter := '';
-                i := 0;
-            end;
-        end;
-        if CRMIdFilter <> '' then begin
-            BCIdFilter := BCIdFilter.TrimStart('|');
-            CRMIdFilter := CRMIdFilter.TrimStart('|');
-            BCNoFilterList.Add(BCIdFilter);
-            CRMIdFilterList.Add(CRMIdFilter);
-        end;
     end;
 }

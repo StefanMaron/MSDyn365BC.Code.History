@@ -16,10 +16,6 @@ table 1384 "Employee Templ."
         field(10; City; Text[30])
         {
             Caption = 'City';
-            TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
-            else
-            if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
-            ValidateTableRelation = false;
 
             trigger OnLookup()
             var
@@ -42,10 +38,6 @@ table 1384 "Employee Templ."
         field(11; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
-            TableRelation = if ("Country/Region Code" = const('')) "Post Code"
-            else
-            if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
-            ValidateTableRelation = false;
 
             trigger OnLookup()
             var
@@ -147,10 +139,6 @@ table 1384 "Employee Templ."
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
-        }
-        field(80; "Application Method"; Enum "Application Method")
-        {
-            Caption = 'Application Method';
         }
         field(1100; "Cost Center Code"; Code[20])
         {

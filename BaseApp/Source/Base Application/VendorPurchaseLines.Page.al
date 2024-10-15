@@ -72,7 +72,7 @@ page 352 "Vendor Purchase Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -81,7 +81,7 @@ page 352 "Vendor Purchase Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -94,21 +94,33 @@ page 352 "Vendor Purchase Lines"
         VendLedgEntry: Record "Vendor Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         Vend: Record Vendor;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewVend: Record Vendor; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
+        SetLines(
+            NewVend,
+            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+
+        OnAfterSet(Vend, NewPeriodType, NewAmountType);
+    end;
+#endif
+
+    procedure SetLines(var NewVend: Record Vendor; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
+    begin
         Vend.Copy(NewVend);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
 
-        OnAfterSet(Vend, PeriodType, AmountType)
+        OnAfterSetLines(Vend, PeriodType, AmountType)
     end;
 
     local procedure ShowVendEntries()
@@ -164,8 +176,16 @@ page 352 "Vendor Purchase Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLines(var NewVendor: Record Vendor; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by OnAfterSetLines().', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSet(var NewVendor: Record Vendor; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
     end;
+#endif
 }
 

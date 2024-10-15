@@ -1,4 +1,4 @@
-﻿codeunit 370 "Bank Acc. Reconciliation Post"
+codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -78,6 +78,7 @@
     local procedure Post(BankAccRecon: Record "Bank Acc. Reconciliation")
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         AppliedAmount: Decimal;
         TotalTransAmtNotAppliedErr: Text;
     begin
@@ -100,23 +101,30 @@
                     Lines := Lines + 1;
                     Window.Update(2, Lines);
                     AppliedAmount := 0;
-                    // Adjust entries
-                    // Test amount and settled amount
-                    case "Statement Type" of
-                        "Statement Type"::"Bank Reconciliation":
-                            case BankAccReconLine.Type of
-                                BankAccReconLine.Type::"Bank Account Ledger Entry":
-                                    CloseBankAccLedgEntry(BankAccReconLine, AppliedAmount);
-                                BankAccReconLine.Type::"Check Ledger Entry":
-                                    CloseCheckLedgEntry(BankAccReconLine, AppliedAmount);
-                                BankAccReconLine.Type::Difference:
-                                    TotalDiff += BankAccReconLine."Statement Amount";
-                            end;
-                        "Statement Type"::"Payment Application":
-                            PostPaymentApplications(BankAccReconLine, AppliedAmount);
+
+                    BankAccReconLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
+                    if BankAccRecMatchBuffer.FindFirst() then begin
+                        if (not BankAccRecMatchBuffer."Is Processed") then
+                            CloseBankAccLEManyToOne(BankAccRecMatchBuffer, AppliedAmount);
+                    end else begin
+                        // Adjust entries
+                        // Test amount and settled amount
+                        case "Statement Type" of
+                            "Statement Type"::"Bank Reconciliation":
+                                case BankAccReconLine.Type of
+                                    BankAccReconLine.Type::"Bank Account Ledger Entry":
+                                        CloseBankAccLedgEntry(BankAccReconLine, AppliedAmount);
+                                    BankAccReconLine.Type::"Check Ledger Entry":
+                                        CloseCheckLedgEntry(BankAccReconLine, AppliedAmount);
+                                    BankAccReconLine.Type::Difference:
+                                        TotalDiff += BankAccReconLine."Statement Amount";
+                                end;
+                            "Statement Type"::"Payment Application":
+                                PostPaymentApplications(BankAccReconLine, AppliedAmount);
+                        end;
+                        OnBeforeAppliedAmountCheck(BankAccReconLine, AppliedAmount);
+                        BankAccReconLine.TestField("Applied Amount", AppliedAmount);
                     end;
-                    OnBeforeAppliedAmountCheck(BankAccReconLine, AppliedAmount);
-                    BankAccReconLine.TestField("Applied Amount", AppliedAmount);
                     TotalAmount += BankAccReconLine."Statement Amount";
                     TotalAppliedAmount += AppliedAmount;
                 until BankAccReconLine.Next() = 0;
@@ -167,7 +175,6 @@
     begin
         OnBeforeFinalizePost(BankAccRecon);
         with BankAccRecon do begin
-            // Delete statement
             if BankAccReconLine.LinesExist(BankAccRecon) then
                 repeat
                     AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
@@ -175,6 +182,7 @@
 
                     BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries;
+
                 until BankAccReconLine.Next() = 0;
 
             Find;
@@ -197,6 +205,57 @@
                 Error(Text001, BankAccRecon.FieldCaption("Statement Ending Balance"));
         end;
         Difference := BankAccReconLine.Difference;
+    end;
+
+    local procedure CloseBankAccLEManyToOne(BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer"; var AppliedAmount: Decimal);
+    var
+        BankAccRecMatchBufferCopy: Record "Bank Acc. Rec. Match Buffer";
+        BankAccRecLine: Record "Bank Acc. Reconciliation Line";
+        LedgerEntryNo: Integer;
+        TotalRecLinesAmount: Decimal;
+    begin
+        BankAccRecMatchBufferCopy.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
+        BankAccRecMatchBufferCopy.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
+        BankAccRecMatchBufferCopy.SetRange("Match ID", BankAccRecMatchBuffer."Match ID");
+        if (not BankAccRecMatchBufferCopy.IsEmpty()) then
+            if BankAccRecMatchBufferCopy.FindSet() then
+                repeat
+                    LedgerEntryNo := BankAccRecMatchBufferCopy."Ledger Entry No.";
+                    BankAccRecMatchBufferCopy."Is Processed" := true;
+                    BankAccRecMatchBufferCopy.Modify();
+                    BankAccRecLine.SetRange("Bank Account No.", BankAccRecMatchBufferCopy."Bank Account No.");
+                    BankAccRecLine.SetRange("Statement No.", BankAccRecMatchBufferCopy."Statement No.");
+                    BankAccRecLine.SetRange("Statement Line No.", BankAccRecMatchBufferCopy."Statement Line No.");
+                    if BankAccRecLine.FindFirst() then
+                        TotalRecLinesAmount += BankAccRecLine."Statement Amount";
+                until BankAccRecMatchBufferCopy.Next() = 0;
+
+        BankAccLedgEntry.Get(LedgerEntryNo);
+        BankAccLedgEntry.TestField("Remaining Amount", TotalRecLinesAmount);
+        AppliedAmount += BankAccLedgEntry."Remaining Amount";
+        BankAccLedgEntry."Remaining Amount" := 0;
+        BankAccLedgEntry.Open := false;
+        BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
+        OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(BankAccLedgEntry, BankAccRecLine);
+        BankAccLedgEntry.Modify();
+
+        CheckLedgEntry.Reset();
+        CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
+        CheckLedgEntry.SetRange(
+            "Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
+        CheckLedgEntry.SetRange(Open, true);
+        if CheckLedgEntry.Find('-') then
+            repeat
+                CheckLedgEntry.TestField(Open, true);
+                CheckLedgEntry.TestField(
+                    "Statement Status",
+                    CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+                CheckLedgEntry.TestField("Statement No.", '');
+                CheckLedgEntry.TestField("Statement Line No.", 0);
+                CheckLedgEntry.Open := false;
+                CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
+                CheckLedgEntry.Modify();
+            until CheckLedgEntry.Next() = 0;
     end;
 
     local procedure CloseBankAccLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -429,8 +488,12 @@
                 BankAccountLedgerEntry.SetRange("Document Type", GenJnlLine."Document Type");
                 BankAccountLedgerEntry.SetRange("Document No.", BankAccReconLine."Statement No.");
                 BankAccountLedgerEntry.SetRange("Posting Date", GenJnlLine."Posting Date");
-                if BankAccountLedgerEntry.FindLast then
+                if BankAccountLedgerEntry.FindLast then begin
+                    BankAccountLedgerEntry."Statement No." := BankAccReconLine."Statement No.";
+                    BankAccountLedgerEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
+                    BankAccountLedgerEntry.Modify();
                     CloseBankAccountLedgerEntry(BankAccountLedgerEntry."Entry No.", BankAccountLedgerEntry.Amount);
+                end;
             end;
         end;
     end;

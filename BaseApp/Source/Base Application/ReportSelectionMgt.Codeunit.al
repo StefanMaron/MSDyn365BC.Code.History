@@ -191,12 +191,12 @@ codeunit 1901 "Report Selection Mgt."
             "Report Selection Usage"::"S.Invoice Draft":
                 InsertRepSelection("Report Selection Usage"::"S.Invoice Draft", '1', REPORT::"Standard Sales - Draft Invoice", true, false, true);
             "Report Selection Usage"::"S.Quote":
-                InsertRepSelection("Report Selection Usage"::"S.Quote", '1', REPORT::"Sales - Quote", true, false, true);
+                InsertRepSelection("Report Selection Usage"::"S.Quote", '1', REPORT::"Standard Sales - Quote", true, false, true);
             "Report Selection Usage"::"S.Blanket":
                 InsertRepSelection("Report Selection Usage"::"S.Blanket", '1', REPORT::"Blanket Sales Order", true, false, true);
             "Report Selection Usage"::"S.Order":
                 begin
-                    InsertRepSelection("Report Selection Usage"::"S.Order", '1', REPORT::"Order Confirmation", false, false, true);
+                    InsertRepSelection("Report Selection Usage"::"S.Order", '1', REPORT::"Standard Sales - Order Conf.", false, false, true);
                     InsertRepSelection("Report Selection Usage"::"S.Order", '2', REPORT::"Order Proforma-Invoice (A)", true, false, false);
                     InsertRepSelection("Report Selection Usage"::"S.Order", '3', REPORT::"Order Factura-Invoice (A)", false, false, false);
                     InsertRepSelection("Report Selection Usage"::"S.Order", '4', REPORT::"Order Item Shipment TORG-12", true, false, false);
@@ -224,7 +224,7 @@ codeunit 1901 "Report Selection Mgt."
                 end;
             "Report Selection Usage"::"S.Cr.Memo":
                 begin
-                    InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo", false, false, true);
+                    InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '1', REPORT::"Standard Sales - Credit Memo", false, false, true);
                     InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '2', REPORT::"Posted Cr. M. Factura-Invoice", true, false, false);
                     InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '3', REPORT::"Posted Cr. M. Shipment TORG-12", false, false, false);
                 end;

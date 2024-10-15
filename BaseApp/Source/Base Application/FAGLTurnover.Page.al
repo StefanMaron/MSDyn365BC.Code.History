@@ -184,15 +184,15 @@ page 12499 "FA G/L Turnover"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
         if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
             SetRange("Date Filter", GetRangeMin("Date Filter"));
@@ -202,7 +202,7 @@ page 12499 "FA G/L Turnover"
     local procedure FindPeriodUser(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserPeriods.Get(UserId) then begin
             SetRange("Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
@@ -211,11 +211,11 @@ page 12499 "FA G/L Turnover"
         end else begin
             if GetFilter("Date Filter") <> '' then begin
                 Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-                if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                    PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+                if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                    PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
-            PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+            PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
             SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
                 SetRange("Date Filter", GetRangeMin("Date Filter"));

@@ -103,7 +103,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ShowReservationPages(AssemblyLine.Type::" ");
     end;
 
-    local procedure ShowReservationPages(LineType: Option)
+    local procedure ShowReservationPages(LineType: Enum "BOM Component Type")
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -153,8 +153,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
 
         // Exercise: Auto reserve.
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
@@ -328,7 +327,6 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Exercise: Reserve for current assembly line, using all available supply lines.
         if TempReservationEntry.FindSet then
             repeat
-#if CLEAN17
                 TrackingSpecification.InitTrackingSpecification(
                   TempReservationEntry."Source Type",
                   TempReservationEntry."Source Subtype",
@@ -337,39 +335,27 @@ codeunit 137095 "SCM Kitting - Reservations"
                   TempReservationEntry."Variant Code",
                   TempReservationEntry."Location Code",
                   TempReservationEntry."Qty. per Unit of Measure");
-#else
-                TrackingSpecification.InitTrackingSpecification(
-                  TempReservationEntry."Source Type",
-                  TempReservationEntry."Source Subtype",
-                  TempReservationEntry."Source ID",
-                  '', 0, TempReservationEntry."Source Ref. No.",
-                  TempReservationEntry."Variant Code",
-                  TempReservationEntry."Location Code", '', '', '',
-                  TempReservationEntry."Qty. per Unit of Measure");
-#endif
                 AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
 
                 // If we are expecting not to be able to create a reservation.
                 if TempReservationEntry."Quantity (Base)" = 0 then
                     asserterror
-                      AssemblyLineReserve.CreateReservation(
+                      AssemblyLineReserve.CreateBindingReservation(
                         AssemblyLine,
                         AssemblyLine.Description,
                         TempReservationEntry."Expected Receipt Date",
                         Round(TempReservationEntry."Qty. to Handle (Base)" / TempReservationEntry."Qty. per Unit of Measure", 0.00001),
-                        TempReservationEntry."Qty. to Handle (Base)",
-                    // For reservation entries where expected qty. to reserve is 0, use supply qty to attempt reservation.
-                    '', '', '')
+                        TempReservationEntry."Qty. to Handle (Base)")
+                // For reservation entries where expected qty. to reserve is 0, use supply qty to attempt reservation.
                 else
-                    AssemblyLineReserve.CreateReservation(
+                    AssemblyLineReserve.CreateBindingReservation(
                       AssemblyLine,
                       AssemblyLine.Description,
                       TempReservationEntry."Expected Receipt Date",
                       TempReservationEntry.Quantity,
-                      TempReservationEntry."Quantity (Base)",
-                      '', '', '');
+                      TempReservationEntry."Quantity (Base)");
                 Commit();
-            until TempReservationEntry.Next = 0;
+            until TempReservationEntry.Next() = 0;
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
         AssemblyLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -444,8 +430,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
 
         // Exercise: Auto reserve.
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Validate: Reservation functions in CU925.
@@ -523,8 +508,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
 
         // Exercise: Auto reserve.
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Validate: Reservation functions in CU926.
@@ -1037,8 +1021,7 @@ codeunit 137095 "SCM Kitting - Reservations"
           DueDateDelay, Multiplicity);
 
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Exercise: Update Assembly Line.
@@ -1178,8 +1161,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Setup Reservations.
         SetupReservations(TempReservationEntry, AssemblyLine, AvailToReserve, Reserve, ExcessSupply, false, false, 0, 2);
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Exercise: Update Assembly Line.
@@ -1253,8 +1235,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Setup Reservations.
         SetupReservations(TempReservationEntry, AssemblyLine, AvailToReserve, Reserve, 0, false, false, 0, 2);
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Exercise: Update Assembly Line.
@@ -1306,8 +1287,7 @@ codeunit 137095 "SCM Kitting - Reservations"
           false, AssemblyHeader.FieldNo("Location Code") = AssemblyHeaderFieldNo, DueDateDelay, Multiplicity);
 
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         // Exercise: Update Assembly Header.
@@ -1427,8 +1407,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             LibrarySales.AutoReserveSalesLine(SalesLine);
 
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', AssemblyLine."Due Date", AssemblyLine.Quantity, AssemblyLine."Quantity (Base)");
 
         if not ReserveSalesLineFirst then
@@ -1670,7 +1649,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyHeader.Validate("Quantity to Assemble", PostedQty / AssemblyHeader."Qty. per Unit of Measure");
         AssemblyHeader.Modify(true);
 
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AssemblyHeader."Item No.",
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, AssemblyHeader."Item No.",
           Item."Base Unit of Measure", LibraryRandom.RandInt(20), 0, '');
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
@@ -2588,7 +2567,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, Item."No.", '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", Quantity, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", Quantity, 1, '');
     end;
 
     local procedure CreateItemWithAlwaysReservePolicy(var Item: Record Item)

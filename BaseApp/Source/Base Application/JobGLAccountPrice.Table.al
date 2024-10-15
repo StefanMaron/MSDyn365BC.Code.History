@@ -1,11 +1,16 @@
 table 1014 "Job G/L Account Price"
 {
     Caption = 'Job G/L Account Price';
+#if not CLEAN19
     DrillDownPageID = "Job G/L Account Prices";
     LookupPageID = "Job G/L Account Prices";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {
@@ -15,17 +20,20 @@ table 1014 "Job G/L Account Price"
             NotBlank = true;
             TableRelation = Job;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 GetJob;
                 "Currency Code" := Job."Currency Code";
             end;
+#endif
         }
         field(2; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -33,6 +41,7 @@ table 1014 "Job G/L Account Price"
                     JT.TestField("Job Task Type", JT."Job Task Type"::Posting);
                 end;
             end;
+#endif
         }
         field(3; "G/L Account No."; Code[20])
         {
@@ -102,6 +111,7 @@ table 1014 "Job G/L Account Price"
     {
     }
 
+#if not CLEAN19
     trigger OnInsert()
     begin
         LockTable();
@@ -135,5 +145,6 @@ table 1014 "Job G/L Account Price"
     local procedure OnBeforeCheckGLAccountNotEmpty(var JobGLAccountPrice: Record "Job G/L Account Price"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

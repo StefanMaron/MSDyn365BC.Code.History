@@ -169,7 +169,7 @@
     begin
         TempGlobalEntrySummary.DeleteAll();
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
+        TempGlobalEntrySummary.SetTrackingKey();
     end;
 
 #if not CLEAN17

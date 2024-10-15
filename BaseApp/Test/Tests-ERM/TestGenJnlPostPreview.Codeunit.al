@@ -19,6 +19,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         NothingToPostErr: Label 'There is nothing to post.';
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         UnexpectedMessageErr: Label 'Unexpected message: %1.', Comment = '%1 = Error message';
         Assert: Codeunit Assert;
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
@@ -29,9 +30,11 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Gen. Jnl. Post Preview");
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Gen. Jnl. Post Preview");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Gen. Jnl. Post Preview");
@@ -557,6 +560,74 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         // [THEN] EventSubscriber OnDeletePmtJournalLine is not called.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendedPostingPreviewPage()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview";
+    begin
+        // [SCENARIO 354973] Posting preview opens "Extended G/L Posting Preview" page when GLSetup."Posting Preview Type" = Extended
+        Initialize();
+
+        // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
+        UpdateGLSetupPostingPreviewType("Posting Preview Type"::Extended);
+
+        // [GIVEN] Create gen. journal line
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(100));
+
+        // [WHEN] Run posting preview 
+        Commit();
+        ExtendedGLPostingPreview.Trap();
+        asserterror GenJnlPost.Preview(GenJournalLine);
+
+        // [THEN] "Extended G/L Posting Preview" page opened
+        VerifyGLEntriesExtendedFlat(GenJournalLine, ExtendedGLPostingPreview);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendedPostingPreviewPageHierarchicalView()
+    var
+        GLAccount: Record "G/L Account";
+        BalGLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview";
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 354973] Extended posting preview shows grouped G/L entries 
+        Initialize();
+
+        // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
+        UpdateGLSetupPostingPreviewType("Posting Preview Type"::Extended);
+        // [GIVEN] G/L Accounts "A" and "B"
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(BalGLAccount);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create gen. journal line Account No. = "A", Bal. Account No. = "B", Amount = 100
+        // [GIVEN] Create gen. journal line Account No. = "A", Bal. Account No. = "B", Amount = 200
+        // [GIVEN] Create gen. journal line Account No. = "A", Bal. Account No. = "B", Amount = 300
+        CreateGeneralJnlLinesWithBalAcc(GenJournalBatch, GenJournalLine, GLAccount."No.", BalGLAccount."No.", TotalAmount);
+
+        // [GIVEN] Run posting preview 
+        Commit();
+        ExtendedGLPostingPreview.Trap();
+        asserterror GenJnlPost.Preview(GenJournalLine);
+
+        // [WHEN] Set Show Hierarchical Veiw = true on "Extended G/L Posting Preview" page
+        ExtendedGLPostingPreview.ShowHierarchicalViewControl.SetValue(true);
+
+        // [THEN] Extended G/L Posting Preview page shows grouped G/L Entries: Account No. = "A", Amount = 600, Account No. = "B", Amount = -600
+        VerifyGLEntriesExtendedGrouped(GenJournalLine, ExtendedGLPostingPreview, GLAccount."No.", BalGLAccount."No.", TotalAmount);
+    end;
+
     local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -589,6 +660,18 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Commit();
     end;
 
+    local procedure CreateGeneralJnlLinesWithBalAcc(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20]; var TotalAmount: Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to 3 do begin
+            LibraryERM.CreateGeneralJnlLineWithBalAcc(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+                "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Account Type"::"G/L Account", BalGLAccountNo, LibraryRandom.RandInt(100));
+            TotalAmount := TotalAmount + GenJournalLine.Amount;
+        end;
+    end;
+
     local procedure DeletePaymentJournalTemplates()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -609,6 +692,15 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GenJournalTemplate.Modify();
     end;
 
+    local procedure UpdateGLSetupPostingPreviewType(PostingPreviewType: Enum "Posting Preview Type")
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup.Validate("Posting Preview Type", PostingPreviewType);
+        GLSetup.Modify(true);
+    end;
+
     [Scope('OnPrem')]
     procedure VerifyGLEntries(Amount: Decimal; GLPostingPreview: TestPage "G/L Posting Preview")
     var
@@ -624,6 +716,27 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLEntriesPreview.Next;
         GLEntriesPreview.Amount.AssertEquals(-Amount);
         GLEntriesPreview.OK.Invoke;
+    end;
+
+    local procedure VerifyGLEntriesExtendedFlat(GenJournalLine: Record "Gen. Journal Line"; var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview")
+    begin
+        ExtendedGLPostingPreview.ShowHierarchicalViewControl.SetValue(false);
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat.First();
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat."G/L Account No.".AssertEquals(GenJournalLine."Account No.");
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat.Amount.AssertEquals(GenJournalLine.Amount);
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat.Next();
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat."G/L Account No.".AssertEquals(GenJournalLine."Bal. Account No.");
+        ExtendedGLPostingPreview.GLEntriesPreviewFlat.Amount.AssertEquals(-GenJournalLine.Amount);
+    end;
+
+    local procedure VerifyGLEntriesExtendedGrouped(GenJournalLine: Record "Gen. Journal Line"; var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20]; var TotalAmount: Decimal)
+    begin
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.Filter.SetFilter("G/L Account No.", GLAccountNo);
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.First();
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.Amount.AssertEquals(TotalAmount);
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.Filter.SetFilter("G/L Account No.", BalGLAccountNo);
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.First();
+        ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.Amount.AssertEquals(-TotalAmount);
     end;
 
     [Scope('OnPrem')]

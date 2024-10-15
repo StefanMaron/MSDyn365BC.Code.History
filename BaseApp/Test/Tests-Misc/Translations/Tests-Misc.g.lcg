@@ -2804,24 +2804,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Excel Buffer Test - NamedType UnknownCellTypeError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2480997670 - NamedType 1674816062" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please enter a valid email address and password.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exchange Setup Wizard Tests - NamedType EmailPasswordMissingErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2480997670 - NamedType 2530625364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please enter a valid domain username and password.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exchange Setup Wizard Tests - NamedType UsernamePasswordMissingErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1240596346 - NamedType 2620270689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Extended Text]]></Val>

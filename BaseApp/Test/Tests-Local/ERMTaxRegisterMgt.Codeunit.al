@@ -157,30 +157,6 @@ codeunit 144517 "ERM Tax Register Mgt."
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateAbsencePREntriesDate()
-    var
-        TaxRegSection: Record "Tax Register Section";
-        SectionCode: Code[10];
-        StartDate: Date;
-        EndDate: Date;
-    begin
-        Initialize;
-        InitTaxRegisterAndDates(DATABASE::"Tax Register PR Entry", SectionCode, StartDate, EndDate);
-        TaxRegMgt.ValidateAbsencePREntriesDate(StartDate, EndDate, SectionCode);
-        TaxRegSection.Get(SectionCode);
-        Assert.AreEqual(
-          CalcDate('<-1D>', StartDate),
-          TaxRegSection."Absence PR Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Absence PR Entries Date"), TaxRegSection.TableCaption));
-        Assert.AreEqual(
-          EndDate,
-          TaxRegSection."Last PR Entries Date",
-          StrSubstNo(WrongFieldValueErr, TaxRegSection.FieldCaption("Last PR Entries Date"), TaxRegSection.TableCaption));
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure NextAvailableGLEntryBeginDate()
     var
@@ -279,27 +255,6 @@ codeunit 144517 "ERM Tax Register Mgt."
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
         TaxRegSecton."Last FE Entries Date" := StartDate;
-        TaxRegSecton.Modify();
-        Assert.AreEqual(
-          CalcDate('<1D>', StartDate),
-          TaxRegMgt.GetNextAvailableBeginDate(SectionCode, TableID, false), WrongNextAvailBeginDateErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NextAvailablePREntryBeginDate()
-    var
-        TaxRegSecton: Record "Tax Register Section";
-        SectionCode: Code[10];
-        StartDate: Date;
-        EndDate: Date;
-        TableID: Integer;
-    begin
-        Initialize;
-        TableID := DATABASE::"Tax Register PR Entry";
-        InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
-        TaxRegSecton.Get(SectionCode);
-        TaxRegSecton."Last PR Entries Date" := StartDate;
         TaxRegSecton.Modify();
         Assert.AreEqual(
           CalcDate('<1D>', StartDate),

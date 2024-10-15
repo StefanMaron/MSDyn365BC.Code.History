@@ -116,7 +116,7 @@ page 5826 "Inventory Posting Setup"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Set Default Accounts';
+                ToolTip = 'Set accounts based on most used accounts for same posting group in other locations.';
 
                 trigger OnAction()
                 begin

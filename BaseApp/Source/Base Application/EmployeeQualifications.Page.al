@@ -2,11 +2,9 @@ page 5206 "Employee Qualifications"
 {
     AutoSplitKey = true;
     Caption = 'Employee Qualifications';
-    DataCaptionFields = "Person No.";
-    DelayedInsert = true;
+    DataCaptionFields = "Employee No.";
     PageType = List;
     SourceTable = "Employee Qualification";
-    SourceTableView = WHERE("Qualification Type" = CONST(Education));
 
     layout
     {
@@ -63,52 +61,6 @@ page 5206 "Employee Qualifications"
                     ToolTip = 'Specifies the grade that the employee received for the course, specified by the qualification on this line.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
-                {
-                    ToolTip = 'Specifies the type of the related document.';
-                }
-                field("Document No."; "Document No.")
-                {
-                    ToolTip = 'Specifies the number of the related document.';
-                }
-                field("Document Series"; "Document Series")
-                {
-                }
-                field("Document Date"; "Document Date")
-                {
-                    ToolTip = 'Specifies the date when the related document was created.';
-                }
-                field("Kind of Education"; "Kind of Education")
-                {
-                }
-                field("Form of Education"; "Form of Education")
-                {
-                }
-                field("Type of Education"; "Type of Education")
-                {
-                }
-                field("Organization Address"; "Organization Address")
-                {
-                }
-                field("Faculty Name"; "Faculty Name")
-                {
-                }
-                field(Speciality; Speciality)
-                {
-                }
-                field("Science Degree"; "Science Degree")
-                {
-                }
-                field("Language Code"; "Language Code")
-                {
-                    ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
-                }
-                field("Language Proficiency"; "Language Proficiency")
-                {
-                }
-                field("Qualification Type"; "Qualification Type")
-                {
-                }
                 field(Comment; Comment)
                 {
                     ApplicationArea = Comments;
@@ -146,7 +98,7 @@ page 5206 "Employee Qualifications"
                     Image = ViewComments;
                     RunObject = Page "Human Resource Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Employee Qualification"),
-                                  "No." = FIELD("Person No."),
+                                  "No." = FIELD("Employee No."),
                                   "Table Line No." = FIELD("Line No.");
                     ToolTip = 'View or add comments for the record.';
                 }

@@ -27,7 +27,7 @@ codeunit 46 SelectionFilterManagement
             RecRef := TempRecRef.Duplicate;
             RecRef.Reset();
         end else
-            RecRef.Open(TempRecRef.Number);
+            RecRef.Open(TempRecRef.Number, false, TempRecRef.CurrentCompany);
 
         TempRecRefCount := TempRecRef.Count();
         if TempRecRefCount > 0 then begin
@@ -371,42 +371,6 @@ codeunit 46 SelectionFilterManagement
     begin
         RecRef.GetTable(ReminderHeader);
         exit(GetSelectionFilter(RecRef, ReminderHeader.FieldNo("No.")));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSelectionFilterForOrgUnit(var OrganizationalUnit: Record "Organizational Unit"): Text
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(OrganizationalUnit);
-        exit(GetSelectionFilter(RecRef, OrganizationalUnit.FieldNo(Code)));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSelectionFilterForLaborContract(var LaborContract: Record "Labor Contract"): Text
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(LaborContract);
-        exit(GetSelectionFilter(RecRef, LaborContract.FieldNo("No.")));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSelectionFilterForPayrollElement(var PayrollElement: Record "Payroll Element"): Text
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(PayrollElement);
-        exit(GetSelectionFilter(RecRef, PayrollElement.FieldNo(Code)));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSelectionFilterForPayrollElementGroup(var PayrollElementGroup: Record "Payroll Element Group"): Text
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(PayrollElementGroup);
-        exit(GetSelectionFilter(RecRef, PayrollElementGroup.FieldNo(Code)));
     end;
 
     procedure GetSelectionFilterForWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"): Text

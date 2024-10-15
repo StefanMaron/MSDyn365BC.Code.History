@@ -16,9 +16,9 @@ table 5208 "Human Resource Comment Line"
             Caption = 'No.';
             TableRelation = IF ("Table Name" = CONST(Employee)) Employee."No."
             ELSE
-            IF ("Table Name" = CONST("Alternative Address")) "Alternative Address"."Person No."
+            IF ("Table Name" = CONST("Alternative Address")) "Alternative Address"."Employee No."
             ELSE
-            IF ("Table Name" = CONST("Employee Qualification")) "Employee Qualification"."Person No."
+            IF ("Table Name" = CONST("Employee Qualification")) "Employee Qualification"."Employee No."
             ELSE
             IF ("Table Name" = CONST("Misc. Article Information")) "Misc. Article Information"."Employee No."
             ELSE
@@ -26,7 +26,7 @@ table 5208 "Human Resource Comment Line"
             ELSE
             IF ("Table Name" = CONST("Employee Absence")) "Employee Absence"."Employee No."
             ELSE
-            IF ("Table Name" = CONST("Employee Relative")) "Employee Relative"."Relative Person No.";
+            IF ("Table Name" = CONST("Employee Relative")) "Employee Relative"."Employee No.";
         }
         field(3; "Table Line No."; Integer)
         {
@@ -35,7 +35,7 @@ table 5208 "Human Resource Comment Line"
         field(4; "Alternative Address Code"; Code[10])
         {
             Caption = 'Alternative Address Code';
-            TableRelation = IF ("Table Name" = CONST("Alternative Address")) "Alternative Address".Code WHERE("Person No." = FIELD("No."));
+            TableRelation = IF ("Table Name" = CONST("Alternative Address")) "Alternative Address".Code WHERE("Employee No." = FIELD("No."));
         }
         field(6; "Line No."; Integer)
         {

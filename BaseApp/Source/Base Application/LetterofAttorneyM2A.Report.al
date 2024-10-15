@@ -58,9 +58,6 @@ report 14905 "Letter of Attorney M-2A"
                 TestField("Employee No.");
                 TestField("Buy-from Vendor Name");
                 Employee.Get("Employee No.");
-                Employee.TestField("Person No.");
-                Person.Get(Employee."Person No.");
-                Person.GetIdentityDoc("Validity Date", PersonalDoc);
 
                 if not Preview then begin
                     if "Letter of Attorney No." = '' then
@@ -89,12 +86,6 @@ report 14905 "Letter of Attorney M-2A"
                   CompanyInformation."Bank Name" + BICTxt + CompanyInformation."Bank BIC");
                 ExcelReportBuilderManager.AddDataToSection('JobTitle', Employee.GetJobTitleName);
                 ExcelReportBuilderManager.AddDataToSection('EmployeeName', "Employee Full Name");
-                ExcelReportBuilderManager.AddDataToSection('EmployeeDocSeries', PersonalDoc."Document Series");
-                ExcelReportBuilderManager.AddDataToSection('EmployeeDocNo', PersonalDoc."Document No.");
-                ExcelReportBuilderManager.AddDataToSection('IssueAuthority', PersonalDoc."Issue Authority");
-                ExcelReportBuilderManager.AddDataToSection('DocIssueDay', Format(Date2DMY(PersonalDoc."Issue Date", 1)));
-                ExcelReportBuilderManager.AddDataToSection('DocIssueMonth', LocManagement.Month2Text(PersonalDoc."Issue Date"));
-                ExcelReportBuilderManager.AddDataToSection('DocIssueYear', Format(Date2DMY(PersonalDoc."Issue Date", 3)));
                 ExcelReportBuilderManager.AddDataToSection('VendorName', "Buy-from Vendor Name");
                 ExcelReportBuilderManager.AddDataToSection('Desription', "Document Description");
 
@@ -167,8 +158,6 @@ report 14905 "Letter of Attorney M-2A"
         CompanyInformation: Record "Company Information";
         PurchSetup: Record "Purchases & Payables Setup";
         Employee: Record Employee;
-        Person: Record Person;
-        PersonalDoc: Record "Person Document";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         LocManagement: Codeunit "Localisation Management";
         ExcelReportBuilderManager: Codeunit "Excel Report Builder Manager";

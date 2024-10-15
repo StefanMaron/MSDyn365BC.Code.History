@@ -77,15 +77,6 @@ page 1388 "Employee Templ. Card"
                     ToolTip = 'Specifies a statistics group code to assign to the employee for statistical purposes.';
                 }
             }
-            group(Payments)
-            {
-                Caption = 'Payments';
-                field("Application Method"; "Application Method")
-                {
-                    ApplicationArea = BasicHR;
-                    ToolTip = 'Specifies how to apply payments to entries for this employee.';
-                }
-            }
         }
     }
 

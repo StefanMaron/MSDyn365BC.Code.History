@@ -2,7 +2,7 @@ page 5204 "Alternative Address List"
 {
     Caption = 'Alternate Address List';
     CardPageID = "Alternative Address Card";
-    DataCaptionFields = "Person No.";
+    DataCaptionFields = "Employee No.";
     Editable = false;
     PageType = List;
     SourceTable = "Alternative Address";
@@ -30,13 +30,6 @@ page 5204 "Alternative Address List"
                     ToolTip = 'Specifies the employee''s first name, or an alternate name.';
                     Visible = false;
                 }
-                field("Valid from Date"; "Valid from Date")
-                {
-                }
-                field("Address Type"; "Address Type")
-                {
-                    ToolTip = 'Specifies what the address applies to.';
-                }
                 field(Address; Address)
                 {
                     ApplicationArea = Basic, Suite;
@@ -53,13 +46,6 @@ page 5204 "Alternative Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the alternate address.';
                     Visible = false;
-                }
-                field("Country/Region Code"; "Country/Region Code")
-                {
-                    ToolTip = 'Specifies the country/region of the address.';
-                }
-                field("Region Code"; "Region Code")
-                {
                 }
                 field("Post Code"; "Post Code")
                 {
@@ -128,7 +114,7 @@ page 5204 "Alternative Address List"
                     Image = ViewComments;
                     RunObject = Page "Human Resource Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Alternative Address"),
-                                  "No." = FIELD("Person No."),
+                                  "No." = FIELD("Employee No."),
                                   "Alternative Address Code" = FIELD(Code);
                     ToolTip = 'View or add comments for the record.';
                 }

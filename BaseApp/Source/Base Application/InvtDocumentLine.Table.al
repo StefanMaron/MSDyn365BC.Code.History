@@ -135,7 +135,10 @@
                     error(CannotBeNegativeErr, FieldCaption(Quantity));
                 if Quantity > 0 then
                     TestField("Item No.");
-                "Quantity (Base)" := CalcBaseQty(Quantity);
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
                 GetUnitAmount(FieldNo(Quantity));
                 UpdateAmount();
@@ -436,6 +439,24 @@
             Editable = false;
             InitValue = 1;
         }
+        field(5405; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5406; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -445,6 +466,8 @@
             begin
                 GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 ReadGLSetup();
                 "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
@@ -690,10 +713,11 @@
           ("Item No." = ''));
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal): Decimal
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(Qty * "Qty. per Unit of Measure", 0.00001));
+        exit(UOMMgt.CalcBaseQty(
+            '', '', "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure UpdateAmount()

@@ -546,17 +546,17 @@ page 9271 "Qualification Overview Matrix"
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
     begin
-        EmployeeQualification.SetRange("Person No.", "Person No.");
+        EmployeeQualification.SetRange("Employee No.", "No.");
         EmployeeQualification.SetRange("Qualification Code", MatrixRecords[ColumnID].Code);
         PAGE.Run(PAGE::"Qualified Employees", EmployeeQualification);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
     begin
-        EmployeeQualification.SetRange("Person No.", "Person No.");
+        EmployeeQualification.SetRange("Employee No.", "No.");
         EmployeeQualification.SetRange("Qualification Code", MatrixRecords[ColumnID].Code);
         Qualified := EmployeeQualification.FindFirst;
-        EmployeeQualification.SetRange("Person No.");
+        EmployeeQualification.SetRange("Employee No.");
         EmployeeQualification.SetRange("Qualification Code");
         MATRIX_CellData[ColumnID] := Qualified;
         SetVisible;

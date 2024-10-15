@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135500 "Item Entity E2E Test"
 {
     Subtype = Test;
@@ -1100,4 +1101,4 @@ codeunit 135500 "Item Entity E2E Test"
         Item.Get(ItemIDValue);
     end;
 }
-
+#endif

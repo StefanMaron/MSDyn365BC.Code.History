@@ -24,16 +24,6 @@ table 5202 Qualification
             Editable = false;
             FieldClass = FlowField;
         }
-        field(14700; "OKIN Group"; Code[10])
-        {
-            Caption = 'OKIN Group';
-            TableRelation = "Classificator OKIN" WHERE(Code = CONST(''));
-        }
-        field(14701; "OKIN Code"; Code[10])
-        {
-            Caption = 'OKIN Code';
-            TableRelation = "Classificator OKIN".Code WHERE(Group = FIELD("OKIN Group"));
-        }
     }
 
     keys

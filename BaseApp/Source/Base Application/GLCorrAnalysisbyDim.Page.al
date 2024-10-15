@@ -707,15 +707,15 @@ page 14940 "G/L Corr. Analysis by Dim."
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if DateFilter <> '' then begin
             Calendar.SetFilter("Period Start", DateFilter);
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType) then
+        if PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType) then
             if ClosingEntryFilter = ClosingEntryFilter::Include then
                 Calendar."Period End" := ClosingDate(Calendar."Period End");
         if AmountType = AmountType::"Net Change" then begin

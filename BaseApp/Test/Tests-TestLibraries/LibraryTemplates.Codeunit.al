@@ -15,11 +15,20 @@ codeunit 132210 "Library - Templates"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        TemplatesFeatureEnabled: Boolean;
 
     procedure DisableTemplatesFeature()
     begin
         UnbindSubscription(LibraryTemplates);
         BindSubscription(LibraryTemplates);
+        LibraryTemplates.SetTemplatesFeatureEnabled(false);
+    end;
+
+    procedure EnableTemplatesFeature()
+    begin
+        UnbindSubscription(LibraryTemplates);
+        BindSubscription(LibraryTemplates);
+        LibraryTemplates.SetTemplatesFeatureEnabled(true);
     end;
 
     procedure CreateVendorTemplate(var VendorTempl: Record "Vendor Templ.")
@@ -32,19 +41,23 @@ codeunit 132210 "Library - Templates"
 
     procedure CreateVendorTemplateWithData(var VendorTempl: Record "Vendor Templ.")
     var
-        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
         VendorPostingGroup: Record "Vendor Posting Group";
+        PaymentMethod: Record "Payment Method";
     begin
         CreateVendorTemplate(VendorTempl);
 
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
 
         VendorTempl.Validate("Vendor Posting Group", VendorPostingGroup.Code);
-        VendorTempl.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
-        VendorTempl.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        VendorTempl.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        VendorTempl.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VendorTempl.Validate("Payment Method Code", PaymentMethod.Code);
+        VendorTempl.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode());
         VendorTempl.Modify(true);
     end;
 
@@ -65,19 +78,23 @@ codeunit 132210 "Library - Templates"
 
     procedure CreateCustomerTemplateWithData(var CustomerTempl: Record "Customer Templ.")
     var
-        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
         CustomerPostingGroup: Record "Customer Posting Group";
+        PaymentMethod: Record "Payment Method";
     begin
         CreateCustomerTemplate(CustomerTempl);
 
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
 
         CustomerTempl.Validate("Customer Posting Group", CustomerPostingGroup.Code);
-        CustomerTempl.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
-        CustomerTempl.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        CustomerTempl.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        CustomerTempl.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        CustomerTempl.Validate("Payment Method Code", PaymentMethod.Code);
+        CustomerTempl.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode());
         CustomerTempl.Modify(true);
     end;
 
@@ -98,21 +115,22 @@ codeunit 132210 "Library - Templates"
 
     procedure CreateItemTemplateWithData(var ItemTempl: Record "Item Templ.")
     var
-        GenProductPostingGroup: Record "Gen. Product Posting Group";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
         UnitofMeasure: Record "Unit of Measure";
     begin
         CreateItemTemplate(ItemTempl);
 
-        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
-        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        if not InventoryPostingGroup.FindFirst() then
+            LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
 
         ItemTempl.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
-        ItemTempl.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
-        ItemTempl.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        ItemTempl.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        ItemTempl.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         ItemTempl.Validate("Base Unit of Measure", UnitofMeasure.Code);
         ItemTempl.Modify(true);
     end;
@@ -177,9 +195,31 @@ codeunit 132210 "Library - Templates"
         end;
     end;
 
+    procedure SetTemplatesFeatureEnabled(NewTemplatesFeatureEnabled: Boolean)
+    begin
+        TemplatesFeatureEnabled := NewTemplatesFeatureEnabled;
+    end;
+
+    procedure UpdateTemplatesVATGroups()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CustomerTempl: Record "Customer Templ.";
+        VendorTempl: Record "Vendor Templ.";
+        ItemTempl: Record "Item Templ.";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        CustomerTempl.SetRange("VAT Bus. Posting Group", '');
+        CustomerTempl.ModifyAll("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VendorTempl.SetRange("VAT Bus. Posting Group", '');
+        VendorTempl.ModifyAll("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        ItemTempl.SetRange("VAT Prod. Posting Group", '');
+        ItemTempl.ModifyAll("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Template Feature Mgt.", 'OnAfterIsEnabled', '', false, false)]
     local procedure OnAfterIsEnabledHandler(var Result: Boolean)
     begin
-        Result := false;
+        Result := TemplatesFeatureEnabled;
     end;
 }

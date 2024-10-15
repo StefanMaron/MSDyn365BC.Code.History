@@ -163,7 +163,7 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
-        TempVendorLedgerEntry."Payroll Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        TempVendorLedgerEntry."CV Ledger Entry No." := VendorLedgerEntry."Entry No.";
         TempVendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type";
         TempVendorLedgerEntry."Vendor VAT Invoice Rcvd Date" := VendorLedgerEntry."Vendor VAT Invoice Rcvd Date";
         TempVendorLedgerEntry."Vendor VAT Invoice Date" := VendorLedgerEntry."Vendor VAT Invoice Date";
@@ -215,7 +215,7 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
-        TempVendorLedgerEntry."Payroll Ledger Entry No." := CustLedgerEntry."Entry No.";
+        TempVendorLedgerEntry."CV Ledger Entry No." := CustLedgerEntry."Entry No.";
         TempVendorLedgerEntry."Document Type" := CustLedgerEntry."Document Type";
 
         if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Payment then
@@ -417,7 +417,7 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
-        TempVendorLedgerEntry."Payroll Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        TempVendorLedgerEntry."CV Ledger Entry No." := VendorLedgerEntry."Entry No.";
         TempVendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         TempVendorLedgerEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
         TempVendorLedgerEntry."Currency Code" := VendorLedgerEntry."Currency Code";
@@ -703,7 +703,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         PrintRevision: Boolean;
     begin
         with VendLedgEntry do begin
-            VATAgent := IsVATAgent("Payroll Ledger Entry No.");
+            VATAgent := IsVATAgent("CV Ledger Entry No.");
             GetEntryType(
               EntryType, "Document Type" = "Document Type"::"Credit Memo", "Document No.", ReportType);
             if VATAgent then
@@ -729,7 +729,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                 DocumentDate := "Vendor VAT Invoice Date";
             end;
 
-            GetCorrVendVATInvNo(DocumentNo, CorrectionNo, "Payroll Ledger Entry No.", EntryType, PrintRevision);
+            GetCorrVendVATInvNo(DocumentNo, CorrectionNo, "CV Ledger Entry No.", EntryType, PrintRevision);
 
             VATLedgerLine.Init();
             VATLedgerLine."Line No." := LineNo;

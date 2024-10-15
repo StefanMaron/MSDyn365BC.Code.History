@@ -189,6 +189,8 @@ page 398 "Sales Credit Memo Statistics"
     }
 
     trigger OnAfterGetRecord()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         ClearAll;
 
@@ -255,14 +257,10 @@ page 398 "Sales Credit Memo Statistics"
         Text000: Label 'VAT Amount';
         Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
-        CustLedgEntry: Record "Cust. Ledger Entry";
         TotalAdjCostLCY: Decimal;
         CustAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
         ProfitLCY: Decimal;
@@ -279,6 +277,9 @@ page 398 "Sales Credit Memo Statistics"
         VATAmountText: Text[30];
 
     protected var
+        Currency: Record Currency;
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        AmountInclVAT: Decimal;
         AmountLCY: Decimal;
         CostLCY: Decimal;
 

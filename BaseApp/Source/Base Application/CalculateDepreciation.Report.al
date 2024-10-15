@@ -402,6 +402,10 @@ report 5692 "Calculate Depreciation"
         PageFAJnlLine: Record "FA Journal Line";
         IsHandled: Boolean;
     begin
+        if ErrorMessageHandler.HasErrors() then
+            if ErrorMessageHandler.ShowErrors() then
+                Error('');
+
         Window.Close;
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
@@ -427,6 +431,8 @@ report 5692 "Calculate Depreciation"
 
     trigger OnPreReport()
     begin
+        ActivateErrorMessageHandling("Fixed Asset");
+
         DeprBook.Get(DeprBookCode);
         if DeprUntilDate = 0D then
             Error(Text000, FAJnlLine.FieldCaption("FA Posting Date"));
@@ -471,6 +477,9 @@ report 5692 "Calculate Depreciation"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CalculateDepr: Codeunit "Calculate Depreciation";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
         Window: Dialog;
         DeprAmount: Decimal;
         Custom1Amount: Decimal;
@@ -542,6 +551,19 @@ report 5692 "Calculate Depreciation"
         BalAccount := BalAccountFrom;
     end;
 
+    local procedure ActivateErrorMessageHandling(var FixedAsset: Record "Fixed Asset")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeActivateErrorMessageHandling(FixedAsset, ErrorMessageMgt, ErrorMessageHandler, ErrorContextElement, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed then
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+    end;
+
     [Scope('OnPrem')]
     procedure InitializeRequest2(NewDeprBookCode: Code[10]; NewPostingDate: Date; NewDeprUntilDate: Date; NewDocumentNo: Code[20]; NewPostingDescription: Text[100]; NewUseForceNoOfDays: Boolean; NewDaysInPeriod: Integer; NewBalAccount: Boolean; ChangeDetails: Boolean; NewDeprBonus: Boolean)
     begin
@@ -590,6 +612,11 @@ report 5692 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivateErrorMessageHandling(varFixedAsset: Record "Fixed Asset"; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
     begin
     end;
 

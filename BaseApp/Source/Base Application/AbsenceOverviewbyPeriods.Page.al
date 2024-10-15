@@ -20,7 +20,7 @@ page 5225 "Absence Overview by Periods"
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Cause of Absence Filter';
-                    TableRelation = "Time Activity";
+                    TableRelation = "Cause of Absence";
                     ToolTip = 'Specifies the absence causes that will be included in the overview.';
                 }
             }
@@ -31,19 +31,17 @@ page 5225 "Absence Overview by Periods"
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        SetColumns(SetWanted::Initial);
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(QtyType; QtyType)
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
                 }
                 field(ColumnSet; ColumnSet)
@@ -75,8 +73,8 @@ page 5225 "Absence Overview by Periods"
                 var
                     AbsOverviewByPeriodMatrix: Page "Abs. Overview by Period Matrix";
                 begin
-                    AbsOverviewByPeriodMatrix.Load(MatrixColumnCaptions, MatrixRecords, CauseOfAbsenceFilter, QtyType);
-                    AbsOverviewByPeriodMatrix.RunModal;
+                    AbsOverviewByPeriodMatrix.LoadMatrix(MatrixColumnCaptions, MatrixRecords, CauseOfAbsenceFilter, QtyType);
+                    AbsOverviewByPeriodMatrix.RunModal();
                 end;
             }
             action("Previous Set")
@@ -92,7 +90,7 @@ page 5225 "Absence Overview by Periods"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -107,7 +105,7 @@ page 5225 "Absence Overview by Periods"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -115,28 +113,36 @@ page 5225 "Absence Overview by Periods"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
         if HasFilter then
-            CauseOfAbsenceFilter := GetFilter("Time Activity Filter");
+            CauseOfAbsenceFilter := GetFilter("Cause of Absence Filter");
     end;
 
     var
         MatrixRecords: array[32] of Record Date;
-        QtyType: Option "Balance at Date","Net Change";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        QtyType: Enum "Analysis Amount Type";
+        PeriodType: Enum "Analysis Period Type";
         CauseOfAbsenceFilter: Code[10];
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];
-        SetWanted: Option Initial,Previous,Same,Next;
         PKFirstRecInCurrSet: Text[100];
         CurrSetLength: Integer;
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next)
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option Initial,Previous,Same,Next)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, '',
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 32, false, PeriodType, '',
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
     end;
 }
 

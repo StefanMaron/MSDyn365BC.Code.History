@@ -747,15 +747,15 @@ page 12405 "G/L Account Turnover"
     procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if Calendar."Period Start" = Calendar."Period End" then
             SetRange("Date Filter", Calendar."Period Start")
         else

@@ -28,8 +28,8 @@ codeunit 134645 "Option Lookup Buffer Test"
         Initialize;
 
         // [GIVEN] Empty Option Lookup Buffer table
-        // [WHEN] FillBuffer is called for LookupType::Sales
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales.AsInteger());
+        // [WHEN] FillLookupBuffer is called for LookupType::Sales
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
 
         // [THEN] Buffer table is filled
         Assert.RecordCount(TempOptionLookupBuffer, 6);
@@ -55,8 +55,8 @@ codeunit 134645 "Option Lookup Buffer Test"
         Initialize;
 
         // [GIVEN] Empty Option Lookup Buffer table
-        // [WHEN] FillBuffer is called for LookupType::Purchase
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases.AsInteger());
+        // [WHEN] FillLookupBuffer is called for LookupType::Purchase
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
 
         // [THEN] Buffer table is filled
         Assert.RecordCount(TempOptionLookupBuffer, 6);
@@ -86,14 +86,14 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [SCENARIO] Autocompleting a partial Option Caption
 
         // [GIVEN] A reference list of options
-        TempReferenceOptionLookupBuffer.FillBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases.AsInteger());
+        TempReferenceOptionLookupBuffer.FillLookupBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases);
         TempReferenceOptionLookupBuffer.FindSet();
 
         repeat
             // [WHEN] Trying to autocomplete an incomplete option
             ExpectedText := TempReferenceOptionLookupBuffer."Option Caption";
             InputText := CopyStr(ExpectedText, 1, StrLen(ExpectedText) - 1);
-            TempOptionLookupBuffer.AutoCompleteOption(InputText, TempOptionLookupBuffer."Lookup Type"::Purchases.AsInteger());
+            TempOptionLookupBuffer.AutoCompleteLookup(InputText, TempOptionLookupBuffer."Lookup Type"::Purchases);
 
             // [THEN] The correct option is returned
             Assert.AreEqual(ExpectedText, InputText, 'AutoCompleteOption returned incorrect value');
@@ -110,8 +110,8 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [SCENARIO] Validating an Option Caption
 
         // [GIVEN] A reference list of options
-        TempReferenceOptionLookupBuffer.FillBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases.AsInteger());
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases.AsInteger());
+        TempReferenceOptionLookupBuffer.FillLookupBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases);
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         TempReferenceOptionLookupBuffer.FindSet();
 
         repeat
@@ -180,7 +180,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [GIVEN] A Sales Invoice
         SalesInvoice.OpenNew;
 
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales.AsInteger());
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         TempOptionLookupBuffer.FindSet();
         repeat
             // [WHEN] Opening the Subtype lookup and selecting service
@@ -353,7 +353,7 @@ codeunit 134645 "Option Lookup Buffer Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");

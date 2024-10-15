@@ -18,6 +18,11 @@ codeunit 9001 "Permission Pages Mgt."
         CannotEditPermissionSetMsg: Label 'Permission sets of type System and Extension cannot be changed. Only permission sets of type User-Defined can be changed.';
         CannotEditPermissionSetDescTxt: Label 'Show a notification to inform users that permission sets of type System and Extension cannot be changed.';
         CannotEditPermissionSetTxt: Label 'Permission sets of type System and Extension cannot be changed.';
+        ResolvePermissionNotificationIdTxt: Label '3301a843-3a72-4777-83a2-a1eeb2041efa', Locked = true;
+        ResolvePermissionNotificationTxt: Label 'The permission sets highlighted in red no longer exist. For example, because the app that installed them has been uninstalled. It''s safe to delete these records to clean up the page.';
+        ResolvePermissionsLbl: Label 'Resolve Permissions';
+        UnableToRetrievePSErr: Label 'Unable to retrieve permission sets.';
+
 
     procedure Init(NewNoOfRecords: Integer; NewNoOfColumns: Integer)
     begin
@@ -317,6 +322,38 @@ codeunit 9001 "Permission Pages Mgt."
         MyNotifications: Record "My Notifications";
     begin
         MyNotifications.Disable(GetCannotEditPermissionSetsNotificationId);
+    end;
+
+    internal procedure CreateAndSendResolvePermissionNotification()
+    var
+        ResolvePermission: Notification;
+        ResolvePermissionNotificationId: Guid;
+    begin
+        Evaluate(ResolvePermissionNotificationId, ResolvePermissionNotificationIdTxt);
+        ResolvePermission.Id(ResolvePermissionNotificationId);
+        ResolvePermission.Message := ResolvePermissionNotificationTxt;
+        ResolvePermission.Scope := NOTIFICATIONSCOPE::LocalScope;
+        ResolvePermission.AddAction(ResolvePermissionsLbl, Codeunit::"Permission Pages Mgt.", 'ResolvePermissionAction');
+        ResolvePermission.Send();
+    end;
+
+    internal procedure ResolvePermissionAction(ResolvePermissionNotification: Notification)
+    var
+        AccessControl: Record "Access Control";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+    begin
+        AccessControl.SetRange("User Security ID", UserSecurityId());
+        if not AccessControl.FindSet() then
+            Error(UnableToRetrievePSErr);
+
+        repeat
+            if not (AccessControl."Role ID" in ['SUPER', 'SECURITY']) then
+                if not AggregatePermissionSet.Get(AccessControl.Scope, AccessControl."App ID", AccessControl."Role ID") then
+                    AccessControl.Mark(true);
+        until AccessControl.Next() = 0;
+
+        AccessControl.MarkedOnly(true);
+        AccessControl.DeleteAll();
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 134421 "Report Selections Tests"
+﻿codeunit 134421 "Report Selections Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -701,56 +701,6 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestBatchPrintWithMixedLayout()
-    var
-        SalesInvoiceHeader: array[3] of Record "Sales Invoice Header";
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        // [FEATURE] [Sales] [Invoice] [Report] [Print]
-        // [SCENARIO 263088] System prints multiple documents with different layout setup.
-
-        Initialize();
-
-        // [GIVEN] Report selection where Usage = "S.Invoice" and "Report ID" = 1306 ("Standard Sales - Invoice")
-        SetupReportSelections(false, false);
-
-        // [GIVEN] Customers "A", "B" and "C"
-        // [GIVEN] Posted sales invoice "InvoiceA" for "A"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[1]);
-        // [GIVEN] Posted sales invoice "InvoiceB" for "B"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[2]);
-        // [GIVEN] Posted sales invoice "InvoiceC" for "C"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[3]);
-
-        // [GIVEN] Custom Report Selection where Usage = "Inv1" and "Report ID" = 124 ("Sales Invoice Nos."), "Source No." = "B"
-        InsertCustomReportSelectionCustomer(
-          CustomReportSelection, SalesInvoiceHeader[2]."Sell-to Customer No.",
-          GetSalesInvoiceNosReportID, false, false, '', '', CustomReportSelection.Usage::Inv1);
-        // [GIVEN] Custom Report Selection where Usage = "S.Invoice" and "Report ID" = 206 ("Sales - Invoice"), "Source No." = "A"
-        InsertCustomReportSelectionCustomer(
-          CustomReportSelection, SalesInvoiceHeader[1]."Sell-to Customer No.",
-          GetSalesInvoiceReportID, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
-        Commit();
-
-        // [WHEN] Send to print "InvoiceA", "InvoiceB" and "InvoiceC" within single selection
-        SalesInvoiceHeader[1].SetFilter(
-          "No.", '%1|%2|%3', SalesInvoiceHeader[1]."No.", SalesInvoiceHeader[2]."No.", SalesInvoiceHeader[3]."No.");
-        SalesInvoiceHeader[1].PrintRecords(true);
-
-        // [THEN] "Sales - Invoice" report prints "InvoiceA" only
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(NoSalesInvHdrTok, SalesInvoiceHeader[1]."No.");
-        LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[2]."No.");
-        LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[3]."No.");
-
-        // [THEN] System prints the only single document (SETSELECTIONFILTER in COD229)
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure UT_RestrictEmptyReportID_OnInsert()
     var
@@ -875,7 +825,7 @@ codeunit 134421 "Report Selections Tests"
     var
         CustomReportSelection: Record "Custom Report Selection";
         VendorCard: TestPage "Vendor Card";
-        Usage: Option "Purchase Order","Vendor Remittance","Posted Return Shipment";
+        Usage: Option "Purchase Order","Vendor Remittance","Vendor Remittance - Posted Entries","Posted Return Shipment";
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 300028] Select Posted Return Shipment value on the Vendor Report Selections page.
@@ -1161,7 +1111,7 @@ codeunit 134421 "Report Selections Tests"
         // [GIVEN] Customer "C"
         CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Custom report selection "CR" for "C"
-        InsertCustomReportSelectionCustomer(CustomReportSelection, CustomerNo, 204, false, false, '', '', CustomReportSelection.Usage::"S.Quote");
+        InsertCustomReportSelectionCustomer(CustomReportSelection, CustomerNo, 1306, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
         // [WHEN] Copy Report Selections to Custom Report Selection
         CustomReportSelection.CopyFromReportSelections(ReportSelections, Database::Customer, CustomerNo);
         // [THEN] Custom Report Selection contains 4 records with "R1", "R2", "R3", "CR" reports for "C"
@@ -2114,13 +2064,6 @@ codeunit 134421 "Report Selections Tests"
         CreateReportSelection(ReportSelections.Usage::"S.Quote", '3', REPORT::"Standard Sales - Quote");
     end;
 
-    local procedure CreateSecondaryReportSelection()
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        CreateReportSelection(ReportSelections.Usage::"S.Invoice", '2', REPORT::"Sales - Invoice");
-    end;
-
     local procedure CreateReportSelection(Usage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
@@ -2181,13 +2124,8 @@ codeunit 134421 "Report Selections Tests"
     begin
         exit(REPORT::"Standard Sales - Invoice");
     end;
-
-    local procedure GetSalesInvoiceReportID(): Integer
-    begin
-        exit(REPORT::"Sales - Invoice");
-    end;
-
-    local procedure GetSalesInvoiceNosReportID(): Integer
+    
+	local procedure GetSalesInvoiceNosReportID(): Integer
     begin
         exit(REPORT::"Sales Invoice Nos.");
     end;
@@ -2445,17 +2383,6 @@ codeunit 134421 "Report Selections Tests"
         FileName := LibraryReportDataset.GetFileName;
         LibraryVariableStorage.Enqueue(FileName);
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        FileName: Text;
-    begin
-        FileName := LibraryReportDataset.GetFileName;
-        LibraryVariableStorage.Enqueue(FileName);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 
     [RequestPageHandler]

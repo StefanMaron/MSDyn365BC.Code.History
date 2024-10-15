@@ -14,6 +14,8 @@ codeunit 6520 "Item Tracing Mgt."
         NextLineNo: Integer;
         CurrentHistoryEntryNo: Integer;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure FindRecords() with parameter PackageNoFilter.', '19.0')]
     procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
     var
         PackageNoFilter: Text;
@@ -28,6 +30,7 @@ codeunit 6520 "Item Tracing Mgt."
         UpdateHistory(
             SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
     end;
+#endif
 
     procedure FindRecords(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All)
     begin
@@ -468,6 +471,8 @@ codeunit 6520 "Item Tracing Mgt."
         OnAfterTransferData(ItemLedgEntry, TempTrackEntry);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure InitSearchCriteria() with parameter PackageNoFilter.', '19.0')]
     procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text)
     begin
         if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') then
@@ -485,6 +490,7 @@ codeunit 6520 "Item Tracing Mgt."
                     if ItemNoFilter <> '' then
                         SearchCriteria := SearchCriteria::Item;
     end;
+#endif
 
     procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text)
     begin
@@ -507,6 +513,8 @@ codeunit 6520 "Item Tracing Mgt."
                             SearchCriteria := SearchCriteria::Package;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by same procedure with PackageNoFilter parameter.', '19.0')]
     procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
     var
         ItemTrackingEntry: Record "Item Tracing Buffer";
@@ -524,6 +532,7 @@ codeunit 6520 "Item Tracing Mgt."
 
         OnAfterInitSearchParam(Rec, ItemTrackingEntry);
     end;
+#endif
 
     procedure InitSearchParm(var Rec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text)
     var
@@ -857,6 +866,8 @@ codeunit 6520 "Item Tracing Mgt."
             Clear(ItemTrackingCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure IsSpecificTracking().', '19.0')]
     procedure SpecificTracking(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[50]; LocationCode: Code[20]): Boolean
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -866,6 +877,7 @@ codeunit 6520 "Item Tracing Mgt."
         ItemTrackingSetup."Package No." := CDNo;
         exit(IsSpecificTracking(ItemNo, ItemTrackingSetup));
     end;
+#endif
 
     procedure IsSpecificTracking(ItemNo: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup") IsSpecific: Boolean
     var
@@ -936,6 +948,8 @@ codeunit 6520 "Item Tracing Mgt."
         OK := true;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure RecallHistory with parameter PackageNoFilter.', '19.0')]
     procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     var
         PackageNoFilter: Text;
@@ -954,6 +968,7 @@ codeunit 6520 "Item Tracing Mgt."
         CurrentHistoryEntryNo := CurrentHistoryEntryNo + Steps;
         exit(true);
     end;
+#endif
 
     procedure RecallHistory(Steps: Integer; var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin

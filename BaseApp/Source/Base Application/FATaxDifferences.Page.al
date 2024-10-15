@@ -185,15 +185,15 @@ page 17337 "FA Tax Differences"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
         if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
             SetRange("Date Filter", GetRangeMin("Date Filter"));

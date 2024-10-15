@@ -1,4 +1,4 @@
-﻿codeunit 6648 "Purch.-Get Return Shipments"
+codeunit 6648 "Purch.-Get Return Shipments"
 {
     TableNo = "Purchase Line";
 

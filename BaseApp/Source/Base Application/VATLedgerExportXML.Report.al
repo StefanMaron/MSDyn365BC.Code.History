@@ -7,12 +7,12 @@ report 12461 "VAT Ledger Export XML"
     {
         dataitem(VATLedger; "VAT Ledger")
         {
-            DataItemTableView = SORTING (Type, Code);
+            DataItemTableView = SORTING(Type, Code);
             dataitem(SalesVATLedgerLine; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
+                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Sales), "Additional Sheet" = CONST (false));
+                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Sales), "Additional Sheet" = CONST(false));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -31,9 +31,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(PurchVATLedgerLine; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
+                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Purchase), "Additional Sheet" = CONST (false));
+                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Purchase), "Additional Sheet" = CONST(false));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -52,9 +52,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(SalesVATLedgerLineAddSheet; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
+                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Sales), "Additional Sheet" = CONST (true));
+                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Sales), "Additional Sheet" = CONST(true));
 
                 trigger OnAfterGetRecord()
                 var
@@ -86,9 +86,9 @@ report 12461 "VAT Ledger Export XML"
             }
             dataitem(PurchVATLedgerLineAddSheet; "VAT Ledger Line")
             {
-                DataItemLink = Type = FIELD (Type), Code = FIELD (Code);
+                DataItemLink = Type = FIELD(Type), Code = FIELD(Code);
                 DataItemLinkReference = VATLedger;
-                DataItemTableView = SORTING (Type, Code, "Line No.") WHERE (Type = CONST (Purchase), "Additional Sheet" = CONST (true));
+                DataItemTableView = SORTING(Type, Code, "Line No.") WHERE(Type = CONST(Purchase), "Additional Sheet" = CONST(true));
 
                 trigger OnAfterGetRecord()
                 begin

@@ -465,7 +465,7 @@ page 9269 "Empl. Absences by Cat. Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        exit(PeriodPageMgt.FindDate(Which, Rec, PeriodType));
     end;
 
     trigger OnInit()
@@ -506,16 +506,16 @@ page 9269 "Empl. Absences by Cat. Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        exit(PeriodPageMgt.NextDate(Steps, Rec, PeriodType));
     end;
 
     var
-        CauseOfAbsence: Record "Time Activity";
-        MatrixRecords: array[32] of Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
+        MatrixRecords: array[32] of Record "Cause of Absence";
         EmployeeAbsence: Record "Employee Absence";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AbsenceAmountType: Option "Net Change","Balance at Date";
+        PeriodPageMgt: Codeunit PeriodPageManagement;
+        PeriodType: Enum "Analysis Period Type";
+        AbsenceAmountType: Enum "Analysis Amount Type";
         EmployeeNoFilter: Text[250];
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_ColumnCaption: array[32] of Text[1024];
@@ -584,7 +584,7 @@ page 9269 "Empl. Absences by Cat. Matrix"
         [InDataSet]
         Field32Visible: Boolean;
 
-    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Time Activity"; PeriodType1: Option Day,Week,Month,Quarter,Year,"Accounting Period"; AbsenceAmountType1: Option "Balance at Date","Net Change"; EmployeeNoFilter1: Text[250])
+    procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Cause of Absence"; PeriodType1: Enum "Analysis Period Type"; AbsenceAmountType1: Enum "Analysis Amount Type"; EmployeeNoFilter1: Text[250])
     var
         i: Integer;
     begin

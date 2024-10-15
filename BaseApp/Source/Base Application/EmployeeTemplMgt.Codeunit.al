@@ -31,7 +31,6 @@ codeunit 1387 "Employee Templ. Mgt."
         Employee.Gender := EmployeeTempl.Gender;
         Employee."Country/Region Code" := EmployeeTempl."Country/Region Code";
         Employee."Statistics Group Code" := EmployeeTempl."Statistics Group Code";
-        Employee."Application Method" := EmployeeTempl."Application Method";
         Employee."Cost Center Code" := EmployeeTempl."Cost Center Code";
         Employee."Cost Object Code" := EmployeeTempl."Cost Object Code";
         Employee.Modify(true);
@@ -161,7 +160,6 @@ codeunit 1387 "Employee Templ. Mgt."
         EmployeeTempl.Gender := Employee.Gender;
         EmployeeTempl."Country/Region Code" := Employee."Country/Region Code";
         EmployeeTempl."Statistics Group Code" := Employee."Statistics Group Code";
-        EmployeeTempl."Application Method" := Employee."Application Method";
         EmployeeTempl."Cost Center Code" := Employee."Cost Center Code";
         EmployeeTempl."Cost Object Code" := Employee."Cost Object Code";
 

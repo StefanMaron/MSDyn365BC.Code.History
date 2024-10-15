@@ -1,4 +1,4 @@
-﻿codeunit 104000 "Upgrade - BaseApp"
+codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
     Permissions = TableData "User Group Plan" = rimd;
@@ -15,6 +15,20 @@
         FailedToUpdatePowerBIImageTxt: Label 'Failed to update PowerBI optin image for client type %1.', Locked = true;
         AttemptingPowerBIUpdateTxt: Label 'Attempting to update PowerBI optin image for client type %1.', Locked = true;
 
+    trigger OnCheckPreconditionsPerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
+    begin
+        HybridDeployment.VerifyCanStartUpgrade('');
+    end;
+
+    trigger OnCheckPreconditionsPerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
+    begin
+        HybridDeployment.VerifyCanStartUpgrade(CompanyName());
+    end;
+
     trigger OnUpgradePerDatabase()
     begin
         CreateWorkflowWebhookWebServices();
@@ -22,7 +36,6 @@
         CopyRecordLinkURLsIntoOneField();
         CreateDefaultAADApplication();
         UpgradePowerBIOptin();
-        UpgradeNativeAPIWebService();
     end;
 
     trigger OnUpgradePerCompany()
@@ -45,7 +58,6 @@
         UpgradeSearchEmail();
         UpgradeEmailLogging();
         UpgradeIntegrationTableMapping();
-        UpgradeIntegrationTableMappingFilterForOpportunities();
         UpgradeIntegrationFieldMappingForOpportunities();
         UpgradeIntegrationFieldMappingForContacts();
         UpgradeWorkflowStepArgumentEventFilters();
@@ -53,6 +65,7 @@
 
         UpgradeAPIs();
         UpgradeTemplates();
+        AddPowerBIWorkspaces();
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeGenJnlLineArchive();
         UpgradeItemDocuments();
@@ -61,12 +74,18 @@
         UpgradeIntrastatJnlLine();
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
+#if not CLEAN19
+        UpgradeRemoveSmartListGuidedExperience();
+#endif
+        UpgradeCRMIntegrationRecord();
 
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpdatePriceSourceGroupInPriceListLines();
         UpdatePriceListLineStatus();
         UpdateJobPlanningLinePlanningDueDate();
+        UpgradeCreditTransferIBAN();
+        UpgradeDocumentDefaultLineType();
     end;
 
     local procedure ClearTemporaryTables()
@@ -471,6 +490,7 @@
         UpgradeSalesCrMemoShipmentMethod;
         UpgradeSalesShipmentLineDocumentId();
         UpdateItemVariants();
+
         UpgradeDefaultDimensions();
         UpgradeDimensionValues();
         UpgradeGLAccountAPIType();
@@ -478,6 +498,48 @@
         UpgradePurchRcptLineDocumentId();
         UpgradePurchaseOrderEntityBuffer();
         UpgradeSalesCreditMemoReasonCode();
+        UpgradeSalesOrderShortcutDimension();
+        UpgradeSalesQuoteShortcutDimension();
+        UpgradeSalesInvoiceShortcutDimension();
+        UpgradeSalesCrMemoShortcutDimension();
+        UpgradePurchaseOrderShortcutDimension();
+        UpgradePurchInvoiceShortcutDimension();
+        UpgradeItemPostingGroups();
+    end;
+
+    procedure UpgradeItemPostingGroups()
+    var
+        Item: Record "Item";
+        Item2: Record "Item";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        ItemModified: Boolean;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag()) then
+            exit;
+
+        Item.SetLoadFields("Gen. Prod. Posting Group", "Inventory Posting Group");
+        if Item.FindSet() then
+            repeat
+                Item2 := Item;
+                ItemModified := false;
+                if Item."Gen. Prod. Posting Group" <> '' then
+                    if GenProdPostingGroup.Get(Item."Gen. Prod. Posting Group") then begin
+                        Item2."Gen. Prod. Posting Group Id" := GenProdPostingGroup.SystemId;
+                        ItemModified := true;
+                    end;
+                if Item."Inventory Posting Group" <> '' then
+                    if InventoryPostingGroup.Get(Item."Inventory Posting Group") then begin
+                        Item2."Inventory Posting Group Id" := InventoryPostingGroup.SystemId;
+                        ItemModified := true;
+                    end;
+                if ItemModified then
+                    Item2.Modify();
+            until Item.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag());
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -698,6 +760,34 @@
             UNTIL SalesCrMemoEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesCrMemoEntityBufferUpgradeTag());
+    end;
+
+    local procedure UpgradeCRMIntegrationRecord()
+    begin
+        SetCoupledFlags();
+    end;
+
+    local procedure SetCoupledFlags()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag()) then
+            exit;
+
+        if EnvironmentInformation.IsSaaS() then
+            if CRMIntegrationRecord.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+
+        if CRMIntegrationRecord.FindSet() then
+            repeat
+                CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true)
+            until CRMIntegrationRecord.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
     end;
 
     local procedure UpdateSalesDocumentFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; SellTo: Boolean; BillTo: Boolean; ShipTo: Boolean)
@@ -1001,6 +1091,26 @@
             UNTIL StandardPurchaseCode.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetStandardPurchaseCodeUpgradeTag());
+    end;
+
+    local procedure AddPowerBIWorkspaces()
+    var
+        PowerBIReportConfiguration: Record "Power BI Report Configuration";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";
+        EmptyGuid: Guid;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPowerBIWorkspacesUpgradeTag()) then
+            exit;
+
+        PowerBIReportConfiguration.SetRange("Workspace Name", '');
+        PowerBIReportConfiguration.SetRange("Workspace ID", EmptyGuid);
+
+        if PowerBIReportConfiguration.FindSet() then
+            PowerBIReportConfiguration.ModifyAll("Workspace Name", PowerBIWorkspaceMgt.GetMyWorkspaceLabel());
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBIWorkspacesUpgradeTag());
     end;
 
     local procedure UpgradePowerBiEmbedUrl()
@@ -1397,6 +1507,13 @@
     end;
 
     local procedure UpgradeIntegrationTableMapping()
+    begin
+        UpgradeIntegrationTableMappingUncoupleCodeunitId();
+        UpgradeIntegrationTableMappingCouplingCodeunitId();
+        UpgradeIntegrationTableMappingFilterForOpportunities();
+    end;
+
+    local procedure UpgradeIntegrationTableMappingUncoupleCodeunitId()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -1422,6 +1539,29 @@
         IntegrationTableMapping.ModifyAll("Uncouple Codeunit ID", Codeunit::"CDS Int. Table Uncouple");
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingUpgradeTag());
+    end;
+
+    local procedure UpgradeIntegrationTableMappingCouplingCodeunitId()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingCouplingCodeunitIdUpgradeTag()) then
+            exit;
+
+        IntegrationTableMapping.SetRange("Coupling Codeunit ID", 0);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetFilter("Integration Table ID", '%1|%2|%3|%4|%5|%6',
+            Database::"CRM Account",
+            Database::"CRM Contact",
+            Database::"CRM Opportunity",
+            Database::"CRM Product",
+            Database::"CRM Uomschedule",
+            Database::"CRM Transactioncurrency");
+        IntegrationTableMapping.ModifyAll("Coupling Codeunit ID", Codeunit::"CDS Int. Table Couple");
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingCouplingCodeunitIdUpgradeTag());
     end;
 
     local procedure UpgradeIntegrationTableMappingFilterForOpportunities()
@@ -2279,6 +2419,238 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
     end;
 
+    local procedure UpgradeSalesInvoiceShortcutDimension()
+    var
+        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if SalesInvoiceEntityAggregate.FindSet(true, false) then
+            repeat
+                if SalesInvoiceEntityAggregate.Posted then begin
+                    SalesInvoiceHeader.SetRange(SystemId, SalesInvoiceEntityAggregate.Id);
+                    if SalesInvoiceHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(SalesInvoiceHeader);
+                        TargetRecordRef.GetTable(SalesInvoiceEntityAggregate);
+                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end else begin
+                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+                    SalesHeader.SetRange(SystemId, SalesInvoiceEntityAggregate.Id);
+                    if SalesHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(SalesHeader);
+                        TargetRecordRef.GetTable(SalesInvoiceEntityAggregate);
+                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end;
+            until SalesInvoiceEntityAggregate.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpgradePurchInvoiceShortcutDimension()
+    var
+        PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if PurchInvEntityAggregate.FindSet(true, false) then
+            repeat
+                if PurchInvEntityAggregate.Posted then begin
+                    PurchInvHeader.SetRange(SystemId, PurchInvEntityAggregate.Id);
+                    if PurchInvHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(PurchInvHeader);
+                        TargetRecordRef.GetTable(PurchInvEntityAggregate);
+                        UpdatePurchaseDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end else begin
+                    PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+                    PurchaseHeader.SetRange(SystemId, PurchInvEntityAggregate.Id);
+                    if PurchaseHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(PurchaseHeader);
+                        TargetRecordRef.GetTable(PurchInvEntityAggregate);
+                        UpdatePurchaseDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end;
+            until PurchInvEntityAggregate.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpgradePurchaseOrderShortcutDimension()
+    var
+        PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if PurchaseOrderEntityBuffer.FindSet(true, false) then
+            repeat
+                PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+                PurchaseHeader.SetRange(SystemId, PurchaseOrderEntityBuffer.Id);
+                if PurchaseHeader.FindFirst() then begin
+                    SourceRecordRef.GetTable(PurchaseHeader);
+                    TargetRecordRef.GetTable(PurchaseOrderEntityBuffer);
+                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                end;
+            until PurchaseOrderEntityBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpgradeSalesOrderShortcutDimension()
+    var
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        SalesHeader: Record "Sales Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if SalesOrderEntityBuffer.FindSet(true, false) then
+            repeat
+                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+                SalesHeader.SetRange(SystemId, SalesOrderEntityBuffer.Id);
+                if SalesHeader.FindFirst() then begin
+                    SourceRecordRef.GetTable(SalesHeader);
+                    TargetRecordRef.GetTable(SalesOrderEntityBuffer);
+                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                end;
+            until SalesOrderEntityBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpgradeSalesQuoteShortcutDimension()
+    var
+        SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
+        SalesHeader: Record "Sales Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if SalesQuoteEntityBuffer.FindSet(true, false) then
+            repeat
+                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
+                SalesHeader.SetRange(SystemId, SalesQuoteEntityBuffer.Id);
+                if SalesHeader.FindFirst() then begin
+                    SourceRecordRef.GetTable(SalesHeader);
+                    TargetRecordRef.GetTable(SalesQuoteEntityBuffer);
+                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                end;
+            until SalesQuoteEntityBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpgradeSalesCrMemoShortcutDimension()
+    var
+        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        SourceRecordRef: RecordRef;
+        TargetRecordRef: RecordRef;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag()) then
+            exit;
+
+        if SalesCrMemoEntityBuffer.FindSet(true, false) then
+            repeat
+                if SalesCrMemoEntityBuffer.Posted then begin
+                    SalesCrMemoHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
+                    if SalesCrMemoHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(SalesCrMemoHeader);
+                        TargetRecordRef.GetTable(SalesCrMemoEntityBuffer);
+                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end else begin
+                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+                    SalesHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
+                    if SalesHeader.FindFirst() then begin
+                        SourceRecordRef.GetTable(SalesHeader);
+                        TargetRecordRef.GetTable(SalesCrMemoEntityBuffer);
+                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
+                    end;
+                end;
+            until SalesCrMemoEntityBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag());
+    end;
+
+    local procedure UpdateSalesDocumentShortcutDimensionFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        ShortcutDim1SourceFieldRef: FieldRef;
+        ShortcutDim2SourceFieldRef: FieldRef;
+        ShortcutDimension1: Code[20];
+        ShortcutDimension2: Code[20];
+        Modified: Boolean;
+    begin
+        ShortcutDim1SourceFieldRef := SourceRecordRef.Field(SalesHeader.FieldNo("Shortcut Dimension 1 Code"));
+        ShortcutDim2SourceFieldRef := SourceRecordRef.Field(SalesHeader.FieldNo("Shortcut Dimension 2 Code"));
+        ShortcutDimension1 := ShortcutDim1SourceFieldRef.Value();
+        ShortcutDimension2 := ShortcutDim2SourceFieldRef.Value();
+        if ShortcutDimension1 <> '' then
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FieldNo("Shortcut Dimension 1 Code")) then
+                Modified := true;
+        if ShortcutDimension2 <> '' then
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FieldNo("Shortcut Dimension 2 Code")) then
+                Modified := true;
+        if Modified then
+            TargetRecordRef.Modify();
+    end;
+
+    local procedure UpdatePurchaseDocumentShortcutDimensionFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ShortcutDim1SourceFieldRef: FieldRef;
+        ShortcutDim2SourceFieldRef: FieldRef;
+        ShortcutDimension1: Code[20];
+        ShortcutDimension2: Code[20];
+        Modified: Boolean;
+    begin
+        ShortcutDim1SourceFieldRef := SourceRecordRef.Field(PurchaseHeader.FieldNo("Shortcut Dimension 1 Code"));
+        ShortcutDim2SourceFieldRef := SourceRecordRef.Field(PurchaseHeader.FieldNo("Shortcut Dimension 2 Code"));
+        ShortcutDimension1 := ShortcutDim1SourceFieldRef.Value();
+        ShortcutDimension2 := ShortcutDim2SourceFieldRef.Value();
+        if ShortcutDimension1 <> '' then
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FieldNo("Shortcut Dimension 1 Code")) then
+                Modified := true;
+        if ShortcutDimension2 <> '' then
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FieldNo("Shortcut Dimension 2 Code")) then
+                Modified := true;
+        if Modified then
+            TargetRecordRef.Modify();
+    end;
+
     local procedure UpgradePowerBIOptin()
     var
         MediaRepository: Record "Media Repository";
@@ -2343,6 +2715,23 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradeNativeAPIWebServiceUpgradeTag());
     end;
 
+#if not CLEAN19
+    local procedure UpgradeRemoveSmartListGuidedExperience()
+    var
+        GuidedExperience: Codeunit "Guided Experience";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRemoveSmartListManualSetupEntryUpgradeTag()) THEN
+            exit;
+
+        if GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup") then
+            GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup");
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRemoveSmartListManualSetupEntryUpgradeTag());
+    end;
+#endif
+
     local procedure UpgradeUserTaskDescriptionToUTF8()
     var
         UserTask: Record "User Task";
@@ -2389,6 +2778,53 @@
 
         if Changed then
             exit(SalesCrMemoEntityBuffer.Modify());
+    end;
+
+    local procedure UpgradeCreditTransferIBAN()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreditTransferIBANUpgradeTag()) THEN
+            exit;
+
+        CreditTransferEntry.SetFilter("Account No.", '<>%1', '');
+        if EnvironmentInformation.IsSaaS() then
+            if CreditTransferEntry.Count > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+
+        if CreditTransferEntry.FindSet(true) then
+            repeat
+                CreditTransferEntry.FillRecipientData();
+                CreditTransferEntry.Modify();
+            until CreditTransferEntry.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreditTransferIBANUpgradeTag());
+    end;
+
+    local procedure UpgradeDocumentDefaultLineType()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDocumentDefaultLineTypeUpgradeTag()) then
+            exit;
+
+        if SalesReceivablesSetup.Get() then begin
+            SalesReceivablesSetup."Document Default Line Type" := SalesReceivablesSetup."Document Default Line Type"::Item;
+            SalesReceivablesSetup.Modify();
+        end;
+
+        if PurchasesPayablesSetup.Get() then begin
+            PurchasesPayablesSetup."Document Default Line Type" := PurchasesPayablesSetup."Document Default Line Type"::Item;
+            PurchasesPayablesSetup.Modify();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDocumentDefaultLineTypeUpgradeTag());
     end;
 }
 

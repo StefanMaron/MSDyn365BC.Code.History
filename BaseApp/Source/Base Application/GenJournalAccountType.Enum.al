@@ -9,4 +9,5 @@ enum 81 "Gen. Journal Account Type"
     value(3; "Bank Account") { Caption = 'Bank Account'; }
     value(4; "Fixed Asset") { Caption = 'Fixed Asset'; }
     value(5; "IC Partner") { Caption = 'IC Partner'; }
+    value(6; "Employee") { Caption = ''; }
 }

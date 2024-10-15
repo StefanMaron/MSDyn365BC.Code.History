@@ -88,8 +88,10 @@
                     TestStatusOpen;
                 if Quantity <> 0 then
                     TestField("Item No.");
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 if ((Quantity * "Quantity Shipped") < 0) or
                    (Abs(Quantity) < Abs("Quantity Shipped"))
                 then
@@ -148,8 +150,8 @@
                           "Outstanding Quantity")
                     else
                         Error(Text006);
-                "Qty. to Ship (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
+                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
 
                 if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                     Validate("Qty. to Receive", "Qty. to Ship");
@@ -182,8 +184,9 @@
                               "Qty. in Transit")
                         else
                             Error(Text009);
-                "Qty. to Receive (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
+                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
+
             end;
         }
         field(8; "Quantity Shipped"; Decimal)
@@ -194,8 +197,7 @@
 
             trigger OnValidate()
             begin
-                "Qty. Shipped (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Quantity Shipped", "Qty. per Unit of Measure");
+                "Qty. Shipped (Base)" := CalcBaseQty("Quantity Shipped", FieldCaption("Quantity Shipped"), FieldCaption("Qty. Shipped (Base)"));
                 InitQtyInTransit;
                 InitOutstandingQty;
                 InitQtyToShip;
@@ -210,8 +212,7 @@
 
             trigger OnValidate()
             begin
-                "Qty. Received (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Quantity Received", "Qty. per Unit of Measure");
+                "Qty. Received (Base)" := CalcBaseQty("Quantity Received", FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
                 InitQtyInTransit;
                 InitOutstandingQty;
                 InitQtyToReceive;
@@ -392,7 +393,6 @@
             trigger OnValidate()
             var
                 UnitOfMeasure: Record "Unit of Measure";
-                UOMMgt: Codeunit "Unit of Measure Management";
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
@@ -415,6 +415,9 @@
                 "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                 "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
                 "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
                 Validate(Quantity);
             end;
         }
@@ -438,6 +441,24 @@
         {
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
+        }
+        field(28; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(29; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(30; "Variant Code"; Code[10])
         {
@@ -554,7 +575,7 @@
                     TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled);
+                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcReceiptDate();
 
@@ -575,7 +596,7 @@
                     TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled);
+                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcShipmentDate();
 
@@ -1002,8 +1023,8 @@
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         WMSManagement: Codeunit "WMS Management";
-        UOMMgt: Codeunit "Unit of Measure Management";
         ConfirmManagement: Codeunit "Confirm Management";
+        UOMMgt: Codeunit "Unit of Measure Management";
         Reservation: Page Reservation;
         TrackingBlocked: Boolean;
         CannotAutoReserveErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.', Comment = '%1 - quantity, %2 - line number';
@@ -1416,6 +1437,12 @@
         end;
 
         OnAfterGetDefaultBin(Rec, FromLocationCode, ToLocationCode);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal; Direction: Integer)
@@ -1840,12 +1867,12 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
+    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean; var TransferLine: Record "Transfer Line")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
+    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean; var TransferLine: Record "Transfer Line")
     begin
     end;
 

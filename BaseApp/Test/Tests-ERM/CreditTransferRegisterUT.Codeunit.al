@@ -26,6 +26,34 @@ codeunit 132570 "Credit Transfer Register UT"
         UnexpectedAmountErr: Label 'Unexpected transfer amount shown.';
 
     [Test]
+    procedure CreateNewCreditTransferEntryFillsdRecepientData()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        Initialize;
+        PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
+
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CreditTransferRegister.FindLast;
+        // [WHEN] CreateNew for CreditTransferEntry
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", 1,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
+          GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
+          GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+
+        // [THEN] "Recipient Name", "Recipient IBAN", "Recipient Bank Account No." filled.
+        CreditTransferEntry.TestField("Recipient Name", Vendor.Name);
+        CreditTransferEntry.TestField("Recipient Bank Acc. No.", VendorBankAccount.Code);
+        CreditTransferEntry.TestField("Recipient IBAN", VendorBankAccount.IBAN);
+        CreditTransferEntry.TestField("Recipient Bank Account No.", VendorBankAccount."Bank Account No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestCancellingCreditTransferRegister()
     var

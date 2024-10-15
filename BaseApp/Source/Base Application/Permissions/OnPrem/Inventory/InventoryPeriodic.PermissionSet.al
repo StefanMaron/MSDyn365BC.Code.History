@@ -42,9 +42,13 @@ permissionset 4936 "Inventory - Periodic"
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Responsibility Center" = R,
                   tabledata "Rounding Method" = R,
+#if not CLEAN19
                   tabledata "Sales Price" = RIMD,
+#endif
                   tabledata "Sales Price Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price Worksheet" = RIMD,
+#endif
                   tabledata "Source Code Setup" = R,
                   tabledata "Stockkeeping Unit" = RM,
                   tabledata "Tracking Specification" = Rimd,

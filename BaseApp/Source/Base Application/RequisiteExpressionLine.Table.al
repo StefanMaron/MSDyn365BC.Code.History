@@ -2,8 +2,8 @@ table 26560 "Requisite Expression Line"
 {
     Caption = 'Requisite Expression Line';
     ObsoleteReason = 'Obsolete functionality';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,13 +15,10 @@ table 26560 "Requisite Expression Line"
         field(2; "Requisites Group Name"; Text[30])
         {
             Caption = 'Requisites Group Name';
-            TableRelation = "Stat. Report Requisites Group".Name WHERE("Report Code" = FIELD("Report Code"));
         }
         field(3; "Base Requisite Name"; Text[30])
         {
             Caption = 'Base Requisite Name';
-            TableRelation = "Stat. Report Requisite".Name WHERE("Report Code" = FIELD("Report Code"),
-                                                                 "Requisites Group Name" = FIELD("Requisites Group Name"));
         }
         field(4; "Line No."; Integer)
         {
@@ -31,15 +28,9 @@ table 26560 "Requisite Expression Line"
         {
             Caption = 'Requisite Name';
             NotBlank = true;
-            TableRelation = "Stat. Report Requisite".Name WHERE("Report Code" = FIELD("Report Code"),
-                                                                 "Requisites Group Name" = FIELD("Requisites Group Name"),
-                                                                 "Source Type" = FILTER(<> "Compound Requisite"));
         }
         field(6; "Requisite Description"; Text[250])
         {
-            CalcFormula = Lookup ("Stat. Report Requisite".Description WHERE("Report Code" = FIELD("Report Code"),
-                                                                             "Requisites Group Name" = FIELD("Requisites Group Name"),
-                                                                             Name = FIELD("Requisite Name")));
             Caption = 'Requisite Description';
             FieldClass = FlowField;
         }
@@ -66,7 +57,7 @@ table 26560 "Requisite Expression Line"
         }
         field(28; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
                                                         "No." = FIELD("Field ID")));
             Caption = 'Field Name';
             Editable = false;

@@ -285,15 +285,15 @@ page 12497 "FA Sheet"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if GetFilter("FA Posting Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("FA Posting Date Filter"));
-            if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then begin
             SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then
@@ -305,7 +305,7 @@ page 12497 "FA Sheet"
     local procedure FindPeriodUser(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if UserPeriods.Get(UserId) then begin
             SetRange("FA Posting Date Filter", UserPeriods."Allow Posting From", UserPeriods."Allow Posting To");
@@ -314,11 +314,11 @@ page 12497 "FA Sheet"
         end else begin
             if GetFilter("FA Posting Date Filter") <> '' then begin
                 Calendar.SetFilter("Period Start", GetFilter("FA Posting Date Filter"));
-                if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                    PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+                if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                    PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
-            PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+            PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
             if AmountType = AmountType::"Net Change" then begin
                 SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
                 if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then

@@ -13,6 +13,9 @@ page 27 "Vendor List"
                       WHERE("Vendor Type" = CONST(Vendor));
     UsageCategory = Lists;
 
+    AboutTitle = 'About vendors';
+    AboutText = 'Here you overview all registered vendors that you purchase goods and services from. With vendor templates you can quickly register new vendors having common details defined by the template.';
+
     layout
     {
         area(content)
@@ -206,6 +209,12 @@ page 27 "Vendor List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments paid to the vendor.';
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the vendor is coupled to an account in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -315,8 +324,6 @@ page 27 "Vendor List"
                                     PAGE.Run(PAGE::"Resp. Employee Card", Vend);
                                 "Vendor Type"::"Tax Authority":
                                     PAGE.Run(PAGE::"Tax Authority/Fund Card", Vend);
-                                "Vendor Type"::Person:
-                                    PAGE.Run(PAGE::"Person Vendor Card", Vend);
                             end;
                         end;
                     end;
@@ -421,7 +428,7 @@ page 27 "Vendor List"
 #if not CLEAN18
                 action("Cross Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
                     ObsoleteState = Pending;
@@ -434,11 +441,12 @@ page 27 "Vendor List"
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
 #endif
                 action("Item Refe&rences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Refe&rences';
                     Image = Change;
                     Visible = ItemReferenceVisible;
@@ -461,12 +469,16 @@ page 27 "Vendor List"
                         CopyFromCustomer(Rec);
                     end;
                 }
+#if not CLEAN19
                 action("Combine Vendors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Combine Vendors';
                     Image = "Action";
                     ToolTip = 'Combine information about two vendors.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by W1 action MergeDuplicate in Vendor Card.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -476,6 +488,7 @@ page 27 "Vendor List"
                         CombineCustomerVendor.Run();
                     end;
                 }
+#endif
                 action(ApprovalEntries)
                 {
                     AccessByPermission = TableData "Approval Entry" = R;
@@ -491,13 +504,19 @@ page 27 "Vendor List"
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category5;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -506,6 +525,7 @@ page 27 "Vendor List"
                         Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group("&Purchases")
             {
@@ -808,6 +828,21 @@ page 27 "Vendor List"
                         ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
                     end;
                 }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this vendor.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
+                    end;
+                }
             }
             action("Vendor G/L Turnover")
             {
@@ -884,6 +919,25 @@ page 27 "Vendor List"
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
                             CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledCustomer;
+                        ToolTip = 'Couple vendors to accounts in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Vendor: Record Vendor;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Vendor);
+                            RecRef.GetTable(Vendor);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
                         end;
                     }
                     action(DeleteCDSCoupling)
@@ -1016,6 +1070,8 @@ page 27 "Vendor List"
                 RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase credit memo to revert a posted purchase invoice.';
+                AboutTitle = 'Create a new document';
+                AboutText = 'Get started on a new credit memo, order, or other document for the vendor selected in the list';
             }
             action(NewPurchaseReturnOrder)
             {
@@ -1091,15 +1147,8 @@ page 27 "Vendor List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Apply Template';
-                Ellipsis = true;
                 Image = ApplyTemplate;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality will be replaced by other templates.';
-                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -1128,7 +1177,7 @@ page 27 "Vendor List"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
 
@@ -1148,13 +1197,18 @@ page 27 "Vendor List"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this vendor.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Vendor, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Vendor, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             group(Display)
@@ -1362,6 +1416,7 @@ page 27 "Vendor List"
 
     trigger OnAfterGetCurrRecord()
     var
+        Vendor: Record Vendor;
         SocialListeningMgt: Codeunit "Social Listening Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
@@ -1380,6 +1435,9 @@ page 27 "Vendor List"
 
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
+
+        CurrPage.SetSelectionFilter(Vendor);
+        CanSendEmail := Vendor.Count() = 1;
     end;
 
     trigger OnInit()
@@ -1415,6 +1473,8 @@ page 27 "Vendor List"
         ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         [InDataSet]
+        CanSendEmail: Boolean;
+        [InDataSet]
         SocialListeningSetupVisible: Boolean;
         [InDataSet]
         SocialListeningVisible: Boolean;
@@ -1429,9 +1489,9 @@ page 27 "Vendor List"
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

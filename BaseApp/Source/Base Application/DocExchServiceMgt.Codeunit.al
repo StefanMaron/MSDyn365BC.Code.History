@@ -8,27 +8,31 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     end;
 
     var
-        MissingCredentialsQst: Label 'The %1 is missing the secret keys or tokens. Do you want to open the %1 window?', Comment = '%1=Doc. Exch. Service Setup';
-        MissingCredentialsErr: Label 'The tokens and secret keys must be filled in the %1 window.', Comment = '%1 = Doc. Exch. Service Setup';
         TempBlobResponse: Codeunit "Temp Blob";
         TempBlobTrace: Codeunit "Temp Blob";
         Trace: Codeunit Trace;
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        DocExchLinks: Codeunit "Doc. Exch. Links";
+        XMLDOMMgt: Codeunit "XML DOM Management";
+        EnvironmentInfo: Codeunit "Environment Information";
+        GLBResponseInStream: InStream;
+        GLBHttpStatusCode: DotNet HttpStatusCode;
+        GLBResponseHeaders: DotNet NameValueCollection;
+        GLBLastUsedGUID: Text;
+        GLBTraceLogEnabled: Boolean;
+        NotConfiguredQst: Label 'The connection to the document exchange service is not configured. Do you want to open the %1 page to set it up?', Comment = '%1 - page caption';
+        NotConfiguredErr: Label 'You must configure the connection to the document exchange service on the %1 page.', Comment = '%1 - page caption';
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
         DocSendSuccessMsg: Label 'The document was successfully sent to the document exchange service for processing.', Comment = '%1 is the actual document no.';
         DocUploadSuccessMsg: Label 'The document was successfully uploaded to the document exchange service for processing.', Comment = '%1 is the actual document no.';
         DocDispatchSuccessMsg: Label 'The document was successfully sent for dispatching.', Comment = '%1 is the actual document no.';
         DocDispatchFailedMsg: Label 'The document was not successfully dispatched. ', Comment = '%1 is the actual document no.';
         DocStatusOKMsg: Label 'The current status of the electronic document is %1.', Comment = '%1 is the returned value.';
-        NotEnabledErr: Label 'The document exchange service is not enabled.';
-        DocExchLinks: Codeunit "Doc. Exch. Links";
-        XMLDOMMgt: Codeunit "XML DOM Management";
-        GLBResponseInStream: InStream;
+        NotSetUpTxt: Label 'The document exchange service is not set up.';
+        NotEnabledTxt: Label 'The document exchange service is not enabled.';
+        RenewTokenTxt: Label 'Renew token';
         CheckConnectionTxt: Label 'Check connection.';
         SendDocTxt: Label 'Send document.';
-        GLBHttpStatusCode: DotNet HttpStatusCode;
-        GLBResponseHeaders: DotNet NameValueCollection;
-        GLBLastUsedGUID: Text;
         DispatchDocTxt: Label 'Dispatch document.';
         GetDocStatusTxt: Label 'Check document status.';
         GetDocsTxt: Label 'Get received documents.';
@@ -37,7 +41,6 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         MarkBusinessProcessedTxt: Label 'Mark as Business Processed.';
         DocIdImportedTxt: Label 'The document ID %1 is imported into incoming documents.', Comment = '%1 is the actual doc id.';
         FileInvalidTxt: Label 'The document ID %1 is not a valid XML format. ', Comment = '%1 is the actual doc id';
-        GLBTraceLogEnabled: Boolean;
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         InvalidHeaderResponseMsg: Label 'The document exchange service did not return a document identifier.';
         CannotResendErr: Label 'You cannot send this electronic document because it is already delivered or in progress.';
@@ -45,17 +48,500 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceDocumentSuccessfullySentTxt: Label 'The user successfully sent a document via the exchange service.', Locked = true;
         DocExchServiceDocumentSuccessfullyReceivedTxt: Label 'The user successfully received a document via the exchange service.', Locked = true;
         TelemetryCategoryTok: Label 'AL Document Exchange Service', Locked = true;
-        TelemetrySecurityTok: Label 'AL Security', Locked = true;
-        WeakHashFunctionTxt: Label 'Use of weak hash function', Locked = true;
+        MethodGetTxt: Label 'GET', Locked = true;
+        MethodPostTxt: Label 'POST', Locked = true;
+        MethodPutTxt: Label 'PUT', Locked = true;
+        TextXmlTxt: Label 'text/xml', Locked = true;
+        ApplicationJsonTxt: Label 'application/json', Locked = true;
+        ApplicationFormTxt: Label 'application/x-www-form-urlencoded', Locked = true;
+        EncodingUtf8Txt: Label 'utf-8', Locked = true;
+        AcceptEncodingHeaderNameTxt: Label 'Accept-Encoding', Locked = true;
+        AuthorizationHeaderNameTxt: Label 'Authorization', Locked = true;
+        AuthorizationHeaderValueTxt: Label 'Bearer %1', Locked = true;
+        AuthorizationCodeRequestUrlTxt: Label '%1?client_id=%2&redirect_uri=%3&response_type=code&scope=%4&state=%5', Locked = true;
+        AuthorizationCodeRequestBodyTxt: label 'grant_type=authorization_code&client_id=%1&client_secret=%2&code=%3&redirect_uri=%4', Locked = true;
+        RefreshTokenRequestBodyTxt: Label 'grant_type=refresh_token&client_id=%1&client_secret=%2&refresh_token=%3&scope=%4', Locked = true;
+        ClientIdAKVSecretNameProdTxt: Label 'DocExchClientIdProd', Locked = true;
+        ClientSecretAKVSecretNameProdTxt: Label 'DocExchClientSecretProd', Locked = true;
+        ClientIdAKVSecretNameSandboxTxt: Label 'DocExchClientIdTest', Locked = true;
+        ClientSecretAKVSecretNameSandboxTxt: Label 'DocExchClientSecretTest', Locked = true;
+        AuthCodeScopeTxt: Label 'openid offline', Locked = true;
+        AccessTokenParamNameTxt: Label 'access_token', Locked = true;
+        RefreshTokenParamNameTxt: Label 'refresh_token', Locked = true;
+        IdTokenParamNameTxt: Label 'id_token', Locked = true;
+        TokenTypeParamNameTxt: Label 'token_type', Locked = true;
+        ExpiresInParamNameTxt: Label 'expires_in', Locked = true;
+        ClientIdParamNameTxt: Label 'client_id', Locked = true;
+        AudienceParamNameTxt: Label 'aud', Locked = true;
+        IssuerParamNameTxt: Label 'iss', Locked = true;
+        TokenTypeBearerTxt: Label 'Bearer', Locked = true;
+        AppStorePathTxt: Label '#/apps/Tradeshift.AppStore/apps/', Locked = true;
+        DefaultSignUpUrlProdTxt: Label 'https://go.tradeshift.com/register', Locked = true;
+        DefaultSignInUrlProdTxt: Label 'https://go.tradeshift.com/login', Locked = true;
+        DefaultServiceUrlProdTxt: Label 'https://api.tradeshift.com/tradeshift/rest/external', Locked = true;
+        DefaultAuthUrlProdTxt: Label 'https://api.tradeshift.com/tradeshift/auth/login', Locked = true;
+        DefaultTokenUrlProdTxt: Label 'https://api.tradeshift.com/tradeshift/auth/token', Locked = true;
+        DefaultSignUpUrlSandboxTxt: Label 'https://sandbox.tradeshift.com/register', Locked = true;
+        DefaultSignInUrlSandboxTxt: Label 'https://sandbox.tradeshift.com/login', Locked = true;
+        DefaultServiceUrlSandboxTxt: Label 'https://api-sandbox.tradeshift.com/tradeshift/rest/external', Locked = true;
+        DefaultAuthUrlSandboxTxt: Label 'https://api-sandbox.tradeshift.com/tradeshift/auth/login', Locked = true;
+        DefaultTokenUrlSandboxTxt: Label 'https://api-sandbox.tradeshift.com/tradeshift/auth/token', Locked = true;
+        SandboxTxt: Label 'sandbox', Locked = true;
+        DefaultVersionTxt: Label '/v1.0', Locked = true;
+        TokenExpiredTxt: Label 'The token has expired.';
+        RenewTokenActionTxt: Label 'Renew Token';
+        RenewTokenNotificationTxt: Label 'The token for connecting to the document exchange service has expired.';
+        RenewTokenNotificationIdTxt: Label '3788e60d-366b-4b69-8827-591237ffe8b1', Locked = true;
+        ActivateAppActionTxt: Label 'Activate App';
+        ActivateAppNotificationTxt: Label 'To connect to the document exchange service, your administrator must activate the integration app.';
+        ActivateAppNotificationIdTxt: Label '7031414b-bc7a-4660-b175-fccf773ddd26', Locked = true;
+        MissingClientIdTxt: Label 'The client ID has not been initialized. Sandbox: %1.', Locked = true;
+        MissingClientSecretTxt: Label 'The client secret has not been initialized. Sandbox: %1.', Locked = true;
+        MissingClientIdOrSecretInSaasTxt: Label 'The client ID or client secret have not been initialized.';
+        MissingClientIdOrSecretOnPremTxt: Label 'You must register an app that will be used to connect to the document exchange service and specify the client ID, client secret and redirect URL in the Document Exchange Service Setup page.';
+        GuiNotAllowedTxt: Label 'The GUI is not allowed, so acquiring the authorization code through the interactive experience is not possible.';
+        AcquireAuthorizationCodeTxt: Label 'Attempting to acquire an authorization code.', Locked = true;
+        AcquireAccessTokenByAuthorizationCodeTxt: Label 'Attempting to acquire an access token by authorization code.', Locked = true;
+        AcquireAccessTokenByRefreshTokenTxt: Label 'Attempting to acquire an access token by refresh token.', Locked = true;
+        CannotGetResponseTxt: Label 'Cannot get a response. Status: %1. Message: %2', Comment = '%1 - response status code, %2 - error message';
+        CannotGetResponseWithDetailsTxt: Label 'Cannot get a response. Status: %1. Message: %2. Details: %3', Comment = '%1 - response status code, %2 - error message, %3 - error details';
+        CannotParseResponseTxt: Label 'Cannot parse a response.';
+        CannotParseIdTokenTxt: Label 'Cannot parse the ID token. %1', Comment = '%1 - error details';
+        IdTokenParsedTxt: Label 'Succeed to parse the ID token.', Locked = true;
+        CannotGetParamValueTxt: Label 'Cannot get the parameter value from the response. Parameter name: %1.', Comment = '%1 - parameter name';
+        NotMatchingParamValueTxt: Label 'The parameter value does not match. Parameter name: %1.', Comment = '%1 - parameter name';
+        SucceedRenewTokenTxt: Label 'The token was successfully renewed.';
+        SucceedRetrieveAccessTokenTxt: Label 'The access token was successfully retrieved. The token lifetime is %1.', Locked = true;
+        FailedAcquireAuthorizationCodeTxt: Label 'Failed to acquire an authorization code. %1', Comment = '%1 - error details';
+        SucceedAcquireAuthorizationCodeTxt: Label 'The authorization code was successfully acquired.', Locked = true;
+        FailedAcquireAccessTokenByAuthorizationCodeTxt: Label 'Failed to acquire an access token by authorization code. %1', Comment = '%1 - error details';
+        SucceedAcquireAccessTokenByAuthorizationCodeTxt: Label 'Acquiring an access token by the authorization code was successful.', Locked = true;
+        FailedAcquireAccessTokenByRefreshTokenTxt: Label 'Failed to acquire an access token by refresh token. %1', Comment = '%1 - error details';
+        SucceedAcquireAccessTokenByRefreshTokenTxt: Label 'Acquiring an access token by the refresh token was successful.', Locked = true;
+        FieldNotSpecifiedTxt: Label 'The field value is not specified. Field: %1', Comment = '%1 - field caption';
+        EmptyAccessTokenTxt: Label 'The access token is empty.';
+        EmptyRefreshTokenTxt: Label 'The refresh token is empty.';
+        EmptyIdTokenTxt: Label 'The ID token is empty.';
+
+
+    [Scope('OnPrem')]
+    procedure IsSandbox(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"): Boolean
+    begin
+        exit(DocExchServiceSetup."Service URL".Contains(SandboxTxt));
+    end;
 
     procedure SetURLsToDefault(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
     begin
-        with DocExchServiceSetup do begin
-            "Sign-up URL" := 'https://go.tradeshift.com/register';
-            "Service URL" := 'https://api.tradeshift.com/tradeshift/rest/external';
-            "Sign-in URL" := 'https://go.tradeshift.com/login';
-            "User Agent" := CopyStr(CompanyName + '/v1.0', 1, MaxStrLen("User Agent"));
+        SetURLsToDefault(DocExchServiceSetup, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetURLsToDefault(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"; Sandbox: Boolean)
+    begin
+        if not Sandbox then begin
+            DocExchServiceSetup."Sign-up URL" := DefaultSignUpUrlProdTxt;
+            DocExchServiceSetup."Sign-in URL" := DefaultSignInUrlProdTxt;
+            DocExchServiceSetup."Service URL" := DefaultServiceUrlProdTxt;
+            DocExchServiceSetup."Auth URL" := DefaultAuthUrlProdTxt;
+            DocExchServiceSetup."Token URL" := DefaultTokenUrlProdTxt;
+        end else begin
+            DocExchServiceSetup."Sign-up URL" := DefaultSignUpUrlSandboxTxt;
+            DocExchServiceSetup."Sign-in URL" := DefaultSignInUrlSandboxTxt;
+            DocExchServiceSetup."Service URL" := DefaultServiceUrlSandboxTxt;
+            DocExchServiceSetup."Auth URL" := DefaultAuthUrlSandboxTxt;
+            DocExchServiceSetup."Token URL" := DefaultTokenUrlSandboxTxt;
         end;
+        DocExchServiceSetup.SetDefaultRedirectUrl();
+        DocExchServiceSetup."User Agent" := CopyStr(CompanyName() + DefaultVersionTxt, 1, MaxStrLen(DocExchServiceSetup."User Agent"));
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetAppUrl(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"): Text
+    var
+        ClientId: Text;
+        SignInUrl: Text;
+        AppUrl: Text;
+        Sandbox: Boolean;
+    begin
+        SignInUrl := DocExchServiceSetup."Sign-in URL".TrimEnd('/');
+        if SignInUrl = '' then
+            exit('');
+        Sandbox := IsSandbox(DocExchServiceSetup);
+        ClientId := GetClientId(Sandbox);
+        if ClientId = '' then
+            exit('');
+        AppUrl := SignInUrl.Substring(1, SignInUrl.LastIndexOf('/')) + AppStorePathTxt + ClientId;
+        exit(AppUrl);
+    end;
+
+
+    [Scope('OnPrem')]
+    procedure GetDefaultRedirectUrl(): Text
+    var
+        OAuth2: Codeunit "OAuth2";
+        RedirectUrl: Text;
+    begin
+        OAuth2.GetDefaultRedirectUrl(RedirectUrl);
+        exit(RedirectUrl);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetDefaultRedirectUrl(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
+    var
+        RedirectUrl: Text;
+    begin
+        RedirectUrl := GetDefaultRedirectUrl();
+        DocExchServiceSetup."Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen(DocExchServiceSetup."Redirect URL"));
+    end;
+
+    [NonDebuggable]
+    local procedure SetPropertiesBasedOnAuthRequestUrlAndRunOAuth2ControlAddIn(AuthRequestUrl: Text; State: Text; var AuthCode: Text; var ErrorMessage: Text)
+    var
+        DocExchServiceAuth: Page "Doc. Exch. Service Auth.";
+    begin
+        if AuthRequestUrl = '' then begin
+            AuthCode := '';
+            exit;
+        end;
+
+        DocExchServiceAuth.SetOAuth2Properties(AuthRequestUrl, State);
+        Commit();
+        DocExchServiceAuth.RunModal();
+
+        AuthCode := DocExchServiceAuth.GetAuthCode();
+        ErrorMessage := DocExchServiceAuth.GetAuthError();
+    end;
+
+    [NonDebuggable]
+    local procedure AcquireAccessTokenByAuthorizationCode(ClientId: Text; ClientSecret: Text; RedirectUrl: Text; AuthUrl: Text; TokenUrl: Text; var AccessToken: Text; var RefreshToken: Text; var IdToken: Text)
+    var
+        AuthRequestUrl: Text;
+        AuthorizationCode: Text;
+        State: Text;
+        RequestBody: Text;
+        ErrorMessage: Text;
+    begin
+        Session.LogMessage('0000EXU', AcquireAuthorizationCodeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        State := GetGUID();
+        AuthRequestUrl := StrSubstNo(AuthorizationCodeRequestUrlTxt, AuthUrl, UrlEncode(ClientId), UrlEncode(RedirectUrl), UrlEncode(AuthCodeScopeTxt), UrlEncode(State));
+        SetPropertiesBasedOnAuthRequestUrlAndRunOAuth2ControlAddIn(AuthRequestUrl, State, AuthorizationCode, ErrorMessage);
+        if AuthorizationCode = '' then begin
+            Session.LogMessage('0000EXW', StrSubstNo(FailedAcquireAuthorizationCodeTxt, ErrorMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAuthorizationCodeTxt, ErrorMessage);
+        end;
+        Session.LogMessage('0000EXX', SucceedAcquireAuthorizationCodeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+
+        Session.LogMessage('0000EXY', AcquireAccessTokenByAuthorizationCodeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        if RedirectUrl = '' then
+            RedirectUrl := GetDefaultRedirectUrl();
+        RequestBody := StrSubstNo(AuthorizationCodeRequestBodyTxt, UrlEncode(ClientId), UrlEncode(ClientSecret), UrlEncode(AuthorizationCode), UrlEncode(RedirectUrl));
+        if not TryAcquireAccessToken(TokenUrl, ClientId, ClientSecret, RequestBody, AccessToken, RefreshToken, IdToken, ErrorMessage, true) then begin
+            if ErrorMessage = '' then
+                ErrorMessage := GetLastErrorText();
+            Session.LogMessage('0000EXZ', StrSubstNo(FailedAcquireAccessTokenByAuthorizationCodeTxt, ErrorMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAccessTokenByAuthorizationCodeTxt, ErrorMessage);
+        end;
+        if AccessToken = '' then begin
+            Session.LogMessage('0000EY0', StrSubstNo(FailedAcquireAccessTokenByAuthorizationCodeTxt, ''), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAccessTokenByAuthorizationCodeTxt, '');
+        end;
+        if RefreshToken = '' then
+            Session.LogMessage('0000EYQ', EmptyRefreshTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        if IdToken = '' then
+            Session.LogMessage('0000EZ6', EmptyIdTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('0000EY1', SucceedAcquireAccessTokenByAuthorizationCodeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok)
+    end;
+
+    [NonDebuggable]
+    local procedure AcquireAccessTokenByRefreshToken(ClientId: Text; ClientSecret: Text; TokenUrl: Text; var AccessToken: Text; var RefreshToken: Text)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        OldRefreshToken: Text;
+        RequestBody: Text;
+        ErrorMessage: Text;
+        IdToken: Text;
+    begin
+        Session.LogMessage('0000EY2', AcquireAccessTokenByRefreshTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        GetServiceSetUp(DocExchServiceSetup);
+        OldRefreshToken := DocExchServiceSetup.GetRefreshToken();
+        if OldRefreshToken = '' then begin
+            ErrorMessage := EmptyRefreshTokenTxt;
+            Session.LogMessage('0000EY3', StrSubstNo(FailedAcquireAccessTokenByRefreshTokenTxt, EmptyRefreshTokenTxt), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAccessTokenByRefreshTokenTxt, ErrorMessage);
+        end;
+        RequestBody := StrSubstNo(RefreshTokenRequestBodyTxt, UrlEncode(ClientId), UrlEncode(ClientSecret), UrlEncode(OldRefreshToken), UrlEncode(ClientId));
+        if not TryAcquireAccessToken(TokenUrl, ClientId, ClientSecret, RequestBody, AccessToken, RefreshToken, IdToken, ErrorMessage, false) then begin
+            if ErrorMessage = '' then
+                ErrorMessage := GetLastErrorText();
+            Session.LogMessage('0000EY4', StrSubstNo(FailedAcquireAccessTokenByRefreshTokenTxt, ErrorMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAccessTokenByRefreshTokenTxt, ErrorMessage);
+        end;
+        if AccessToken = '' then begin
+            Session.LogMessage('0000EY5', StrSubstNo(FailedAcquireAccessTokenByRefreshTokenTxt, ''), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FailedAcquireAccessTokenByRefreshTokenTxt, '');
+        end;
+        if RefreshToken = '' then begin
+            Session.LogMessage('0000EZ7', EmptyRefreshTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(EmptyRefreshTokenTxt);
+        end;
+        Session.LogMessage('0000EY6', SucceedAcquireAccessTokenByRefreshTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [NonDebuggable]
+    [TryFunction]
+    local procedure TryAcquireAccessToken(TokenUrl: Text; ClientId: Text; ClientSecret: Text; RequestBody: Text; var AccessToken: Text; var RefreshToken: Text; var IdToken: Text; var ErrorMessage: Text; ParseIdToken: Boolean)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+        ResponseBody: Text;
+        ErrorDetails: Text;
+        TokenType: Text;
+        ResponseClientId: Text;
+        ExpiresIn: Integer;
+        HttpStatusCodeNumber: Integer;
+    begin
+        TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
+        OutStream.WriteText(RequestBody);
+
+        HttpWebRequestMgt.Initialize(TokenUrl);
+        HttpWebRequestMgt.DisableUI();
+        HttpWebRequestMgt.SetMethod(MethodPostTxt);
+        HttpWebRequestMgt.SetContentType(ApplicationFormTxt);
+        HttpWebRequestMgt.SetContentLength(TempBlob.Length());
+        HttpWebRequestMgt.SetUserAgent(GetUserAgent());
+        HttpWebRequestMgt.SetReturnType(ApplicationJsonTxt);
+        HttpWebRequestMgt.AddHeader(AcceptEncodingHeaderNameTxt, EncodingUtf8Txt);
+        HttpWebRequestMgt.AddBasicAuthentication(ClientId, ClientSecret);
+        HttpWebRequestMgt.AddBodyBlob(TempBlob);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            if not IsNull(HttpStatusCode) then
+                HttpStatusCodeNumber := HttpStatusCode;
+            Session.LogMessage('0000EY7', StrSubstNo(CannotGetResponseWithDetailsTxt, HttpStatusCodeNumber, ErrorMessage, ErrorDetails), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotGetResponseWithDetailsTxt, HttpStatusCodeNumber, ErrorMessage, ErrorDetails);
+        end;
+
+        ParseTokenResponse(ResponseBody, AccessToken, RefreshToken, IdToken, TokenType, ResponseClientId, ExpiresIn, ParseIdToken);
+
+        if TokenType <> TokenTypeBearerTxt then begin
+            Session.LogMessage('0000EY8', StrSubstNo(NotMatchingParamValueTxt, TokenTypeParamNameTxt), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotMatchingParamValueTxt, TokenTypeParamNameTxt);
+        end;
+
+        if ResponseClientId <> ClientId then begin
+            Session.LogMessage('0000EY9', StrSubstNo(NotMatchingParamValueTxt, ClientIdParamNameTxt), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotMatchingParamValueTxt, ClientIdParamNameTxt);
+        end;
+
+        Session.LogMessage('0000EYA', StrSubstNo(SucceedRetrieveAccessTokenTxt, ExpiresIn), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryGetSecurityToken(Token: Text; var JwtSecurityToken: DotNet JwtSecurityToken)
+    var
+        JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
+    begin
+        JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
+        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(Token);
+        Session.LogMessage('0000EYB', IdTokenParsedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [NonDebuggable]
+    local procedure ParseTokenResponse(ResponseBody: Text; var AccessToken: Text; var RefreshToken: Text; var IdToken: Text; var TokenType: Text; var ClientId: Text; var ExpiresIn: Integer; ParseIdToken: Boolean)
+    var
+        JsonObject: JsonObject;
+    begin
+        if not JsonObject.ReadFrom(ResponseBody) then begin
+            Session.LogMessage('0000EYC', CannotParseResponseTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotParseResponseTxt);
+        end;
+        if not GetJsonKeyValue(JsonObject, AccessTokenParamNameTxt, AccessToken) then begin
+            Session.LogMessage('0000EYD', StrSubstNo(CannotGetParamValueTxt, AccessTokenParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotGetParamValueTxt, AccessTokenParamNameTxt);
+        end;
+        if not GetJsonKeyValue(JsonObject, RefreshTokenParamNameTxt, RefreshToken) then begin
+            Session.LogMessage('0000EYE', StrSubstNo(CannotGetParamValueTxt, RefreshTokenParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotGetParamValueTxt, RefreshTokenParamNameTxt);
+        end;
+        if not GetJsonKeyValue(JsonObject, TokenTypeParamNameTxt, TokenType) then begin
+            Session.LogMessage('0000EYF', StrSubstNo(CannotGetParamValueTxt, TokenTypeParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotGetParamValueTxt, TokenTypeParamNameTxt);
+        end;
+        if ParseIdToken then
+            if not GetJsonKeyValue(JsonObject, IdTokenParamNameTxt, IdToken) then begin
+                Session.LogMessage('0000EYG', StrSubstNo(CannotGetParamValueTxt, IdTokenParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                Error(CannotGetParamValueTxt, IdTokenParamNameTxt);
+            end;
+        if not GetJsonKeyValue(JsonObject, ExpiresInParamNameTxt, ExpiresIn) then
+            Session.LogMessage('0000EYH', StrSubstNo(CannotGetParamValueTxt, ExpiresInParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        if not GetJsonKeyValue(JsonObject, ClientIdParamNameTxt, ClientId) then begin
+            Session.LogMessage('0000EYI', StrSubstNo(CannotGetParamValueTxt, ClientIdParamNameTxt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotGetParamValueTxt, ClientIdParamNameTxt);
+        end;
+    end;
+
+    [NonDebuggable]
+    local procedure GetJsonKeyValue(var JsonObject: JsonObject; KeyName: Text; var KeyValue: Text): Boolean
+    var
+        JsonToken: JsonToken;
+    begin
+        if not JsonObject.Get(KeyName, JsonToken) then
+            exit(false);
+
+        KeyValue := JsonToken.AsValue().AsText();
+        exit(true);
+    end;
+
+    [NonDebuggable]
+    local procedure GetJsonKeyValue(var JsonObject: JsonObject; KeyName: Text; var KeyValue: Integer): Boolean
+    var
+        JsonToken: JsonToken;
+    begin
+        if not JsonObject.Get(KeyName, JsonToken) then
+            exit(false);
+
+        KeyValue := JsonToken.AsValue().AsInteger();
+        exit(true);
+    end;
+
+    local procedure MarkTokenAsExpired()
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+    begin
+        GetServiceSetUp(DocExchServiceSetup);
+        DocExchServiceSetup."Token Expired" := true;
+        DocExchServiceSetup.Modify();
+    end;
+
+    [Scope('OnPrem')]
+    procedure SendRenewTokenNotification()
+    var
+        RenewTokenNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+        RenewTokenNotification.Id := GetRenewTokenNotificationId();
+        RenewTokenNotification.Message := RenewTokenNotificationTxt;
+        RenewTokenNotification.Scope := NotificationScope::LocalScope;
+        RenewTokenNotification.AddAction(RenewTokenActionTxt, Codeunit::"Doc. Exch. Service Mgt.", 'RenewToken');
+        RenewTokenNotification.Send();
+    end;
+
+    [Scope('OnPrem')]
+    procedure RecallActivateAppNotification()
+    var
+        ActivateAppNotification: Notification;
+    begin
+        ActivateAppNotification.Id := GetActivateAppNotificationId();
+        if not ActivateAppNotification.Recall() then;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SendActivateAppNotification()
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        ActivateAppNotification: Notification;
+        ClientId: Text;
+        Sandbox: Boolean;
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        if not DocExchServiceSetup.Get() then
+            exit;
+
+        Sandbox := IsSandbox(DocExchServiceSetup);
+        ClientId := GetClientId(Sandbox);
+        if ClientId = '' then
+            exit;
+
+        ActivateAppNotification.Id := GetActivateAppNotificationId();
+        ActivateAppNotification.Recall();
+        ActivateAppNotification.Message := ActivateAppNotificationTxt;
+        ActivateAppNotification.Scope := NotificationScope::LocalScope;
+        if GetAppUrl(DocExchServiceSetup) <> '' then
+            ActivateAppNotification.AddAction(ActivateAppActionTxt, Codeunit::"Doc. Exch. Service Mgt.", 'ActivateApp');
+        ActivateAppNotification.Send();
+    end;
+
+    [Scope('OnPrem')]
+    procedure ActivateApp(var ActivateAppNotification: Notification)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+    begin
+        SendActivateAppNotification();
+        GetServiceSetUp(DocExchServiceSetup);
+        Hyperlink(GetAppUrl(DocExchServiceSetup));
+    end;
+
+    [Scope('OnPrem')]
+    procedure RenewToken(var RenewTokenNotification: Notification)
+    begin
+        RenewToken(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RenewToken(TryRefreshToken: Boolean)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        [NonDebuggable]
+        AccessToken: Text;
+        [NonDebuggable]
+        RefreshToken: Text;
+        Renewed: Boolean;
+    begin
+        if TryRefreshToken then
+            if TryAcquireAccessTokenByRefreshToken(AccessToken, RefreshToken) then begin
+                SaveTokens(AccessToken, RefreshToken);
+                Renewed := TryCheckConnection();
+            end;
+
+        if not Renewed then begin
+            AcquireAccessTokenByAuthorizationCode(true);
+            Renewed := TryCheckConnection();
+        end;
+
+        GetServiceSetUp(DocExchServiceSetup);
+        if Renewed then begin
+            LogActivitySucceeded(DocExchServiceSetup.RecordId(), RenewTokenTxt, SucceedRenewTokenTxt);
+            if GuiAllowed() then
+                Message(SucceedRenewTokenTxt);
+            exit;
+        end;
+        LogActivityFailedAndError(DocExchServiceSetup.RecordId(), RenewTokenTxt, GetLastErrorText());
+    end;
+
+    local procedure GetRenewTokenNotificationId(): Guid
+    begin
+        exit(TextToGuid(RenewTokenNotificationIdTxt));
+    end;
+
+    local procedure GetActivateAppNotificationId(): Guid
+    begin
+        exit(TextToGuid(ActivateAppNotificationIdTxt));
+    end;
+
+    local procedure TextToGuid(TextVar: Text): Guid
+    var
+        GuidVar: Guid;
+    begin
+        if not Evaluate(GuidVar, TextVar) then;
+        exit(GuidVar);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryCheckConnection()
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+    begin
+        VerifyPrerequisites(true);
+
+        GetServiceSetUp(DocExchServiceSetup);
+        ExecuteWebServiceGetRequest(GetCheckConnectionURL());
     end;
 
     [Scope('OnPrem')]
@@ -64,15 +550,15 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         VerifyPrerequisites(true);
-        Initialize(GetCheckConnectionURL, 'GET', '');
 
-        DocExchServiceSetup.Get();
-        if not ExecuteWebServiceRequest then
-            LogActivityFailedAndError(DocExchServiceSetup.RecordId, CheckConnectionTxt, '');
+        GetServiceSetUp(DocExchServiceSetup);
+        if not ExecuteWebServiceGetRequest(GetCheckConnectionURL()) then
+            LogActivityFailedAndError(DocExchServiceSetup.RecordId(), CheckConnectionTxt, GetLastErrorText());
 
-        LogActivitySucceeded(DocExchServiceSetup.RecordId, CheckConnectionTxt, ConnectionSuccessMsg);
+        LogActivitySucceeded(DocExchServiceSetup.RecordId(), CheckConnectionTxt, ConnectionSuccessMsg);
 
-        Message(ConnectionSuccessMsg);
+        if GuiAllowed() then
+            Message(ConnectionSuccessMsg);
 
         if GLBTraceLogEnabled then
             Trace.LogStreamToTempFile(GLBResponseInStream, 'checkstatus', TempBlobTrace);
@@ -83,22 +569,20 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocRecRef: RecordRef;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
         DocRecRef.GetTable(DocVariant);
 
         CheckDocumentStatus(DocRecRef);
 
-        Initialize(GetPostSalesURL(DocRecRef), 'POST', FileName);
-
-        if not ExecuteWebServiceRequest then
+        if not ExecuteWebServicePostRequest(GetPostSalesURL(DocRecRef), FileName) then
             LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
 
         LogActivitySucceeded(DocRecRef.RecordId, SendDocTxt, DocSendSuccessMsg);
 
         DocExchLinks.UpdateDocumentRecord(DocRecRef, GLBLastUsedGUID, '');
 
-        LogTelemetryDocumentSent;
+        LogTelemetryDocumentSent();
 
         if GuiAllowed then
             Message(DocSendSuccessMsg);
@@ -112,9 +596,9 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocRecRef: RecordRef;
         DocIdentifier: Text;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
-        DocIdentifier := GetGUID;
+        DocIdentifier := GetGUID();
         DocRecRef.GetTable(DocVariant);
 
         CheckDocumentStatus(DocRecRef);
@@ -122,22 +606,329 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         PutDocument(FileName, DocIdentifier, DocRecRef);
         DispatchDocument(DocIdentifier, DocRecRef);
 
-        LogTelemetryDocumentSent;
+        LogTelemetryDocumentSent();
 
-        if GuiAllowed then
+        if GuiAllowed() then
             Message(DocSendSuccessMsg);
 
         exit(DocIdentifier);
     end;
 
-    local procedure PutDocument(FileName: Text; DocIdentifier: Text; DocRecRef: RecordRef)
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure HasPredefinedOAuth2Params(): Boolean
     begin
-        Initialize(GetPUTDocURL(DocIdentifier), 'PUT', FileName);
+        if GetPredefinedClientId(false) = '' then
+            exit(false);
+        if GetPredefinedClientSecret(false) = '' then
+            exit(false);
+        if GetPredefinedClientId(true) = '' then
+            exit(false);
+        if GetPredefinedClientSecret(true) = '' then
+            exit(false);
+        exit(true);
+    end;
 
-        if not ExecuteWebServiceRequest then
+    [Scope('OnPrem')]
+    procedure GetClientId(Sandbox: Boolean): Text
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        ClientId: Text;
+    begin
+        ClientId := GetPredefinedClientId(Sandbox);
+        if ClientId = '' then
+            if DocExchServiceSetup.Get() then
+                ClientId := DocExchServiceSetup."Client Id";
+        exit(ClientId);
+    end;
+
+    local procedure GetPredefinedClientId(Sandbox: Boolean): Text
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        SecretName: Text;
+        ClientId: Text;
+    begin
+        if not Sandbox then
+            SecretName := ClientIdAKVSecretNameProdTxt
+        else
+            SecretName := ClientIdAKVSecretNameSandboxTxt;
+        if EnvironmentInfo.IsSaaSInfrastructure() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(SecretName, ClientId) then
+                Session.LogMessage('0000EYJ', StrSubstNo(MissingClientIdTxt, Sandbox), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok)
+            else
+                exit(ClientId);
+
+        if ClientId = '' then
+            OnGetClientId(ClientId);
+
+        exit(ClientId);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientSecret(Sandbox: Boolean): Text
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        ClientSecret: Text;
+    begin
+        ClientSecret := GetPredefinedClientSecret(Sandbox);
+        if ClientSecret = '' then
+            if DocExchServiceSetup.Get() then
+                ClientSecret := DocExchServiceSetup.GetClientSecret();
+        exit(ClientSecret);
+    end;
+
+    [NonDebuggable]
+    local procedure GetPredefinedClientSecret(Sandbox: Boolean): Text
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        ClientSecret: Text;
+        SecretName: Text;
+    begin
+        if not Sandbox then
+            SecretName := ClientSecretAKVSecretNameProdTxt
+        else
+            SecretName := ClientSecretAKVSecretNameSandboxTxt;
+
+        if EnvironmentInfo.IsSaaSInfrastructure() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(SecretName, ClientSecret) then
+                Session.LogMessage('0000EYK', StrSubstNo(MissingClientSecretTxt, Sandbox), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok)
+            else
+                exit(ClientSecret);
+
+        if ClientSecret = '' then
+            OnGetClientSecret(ClientSecret);
+
+        exit(ClientSecret);
+    end;
+
+    local procedure VerifyIdToken(IdToken: Text)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        JwtSecurityToken: DotNet JwtSecurityToken;
+        ErrorMessage: Text;
+        ClientId: Text;
+        AuthUrl: Text;
+        ExpectedIss: Text;
+        Aud: Text;
+        Iss: Text;
+        Sandbox: Boolean;
+    begin
+        if not TryGetSecurityToken(IdToken, JwtSecurityToken) then begin
+            ErrorMessage := GetLastErrorText();
+            Session.LogMessage('0000EYL', StrSubstNo(CannotParseIdTokenTxt, ErrorMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(CannotParseIdTokenTxt, ErrorMessage);
+        end;
+
+        GetServiceSetUp(DocExchServiceSetup);
+        AuthUrl := DocExchServiceSetup."Auth URL".ToLower();
+        Sandbox := IsSandbox(DocExchServiceSetup);
+        ClientId := GetClientId(Sandbox);
+
+        Aud := JwtSecurityToken.Payload().Aud().Item(0);
+        if Aud <> ClientId then begin
+            Session.LogMessage('0000EYM', StrSubstNo(NotMatchingParamValueTxt, AudienceParamNameTxt), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotMatchingParamValueTxt, AudienceParamNameTxt);
+        end;
+
+        Iss := JwtSecurityToken.Payload().Iss().ToLower();
+        ExpectedIss := AuthUrl.Substring(1, StrLen(Iss)).ToLower();
+        if Iss <> ExpectedIss then begin
+            Session.LogMessage('0000EYN', StrSubstNo(NotMatchingParamValueTxt, IssuerParamNameTxt), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotMatchingParamValueTxt, IssuerParamNameTxt);
+        end;
+    end;
+
+    local procedure ParseIdToken(IdToken: Text; var Json: Text; var Subject: Text; var IssuedAt: DateTime)
+    begin
+        If IdToken = '' then begin
+            Session.LogMessage('0000EZ8', EmptyIdTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
+        end;
+        if not TryParseIdToken(IdToken, Json, Subject, IssuedAt) then begin
+            Session.LogMessage('0000EZ9', StrSubstNo(CannotParseIdTokenTxt, GetLastErrorText()), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryParseIdToken(IdToken: Text; var Json: Text; var Subject: Text; var IssuedAt: DateTime)
+    var
+        JwtSecurityToken: DotNet JwtSecurityToken;
+        DotNetDateTime: DotNet DateTime;
+        DotNetTimeSpan: DotNet TimeSpan;
+        DotNetDateTimeKind: DotNet DateTimeKind;
+        Iat: Integer;
+    begin
+        if not TryGetSecurityToken(IdToken, JwtSecurityToken) then begin
+            Session.LogMessage('0000EYO', StrSubstNo(CannotParseIdTokenTxt, GetLastErrorText()), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
+        end;
+
+        Json := JwtSecurityToken.Payload().SerializeToJson();
+        Subject := JwtSecurityToken.Payload().Sub();
+        Iat := JwtSecurityToken.Payload().Iat;
+
+        if Iat > 0 then begin
+            DotNetDateTime := DotNetDateTime.DateTime(1970, 1, 1, 0, 0, 0, DotNetDateTimeKind.Utc);
+            DotNetTimeSpan := DotNetTimeSpan.FromSeconds(Iat);
+            IssuedAt := DotNetDateTime.Add(DotNetTimeSpan).ToLocalTime();
+        end;
+    end;
+
+    [NonDebuggable]
+    local procedure SaveTokens(AccessToken: Text; RefreshToken: Text)
+    begin
+        SaveTokens(AccessToken, RefreshToken, '');
+    end;
+
+    [NonDebuggable]
+    local procedure SaveTokens(AccessToken: Text; RefreshToken: Text; IdToken: Text)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        Json: Text;
+        Subject: Text;
+        IssuedAt: DateTime;
+    begin
+        GetServiceSetUp(DocExchServiceSetup);
+        DocExchServiceSetup.SetAccessToken(AccessToken);
+        DocExchServiceSetup.SetRefreshToken(RefreshToken);
+        if IdToken <> '' then begin
+            ParseIdToken(IdToken, Json, Subject, IssuedAt);
+            if Json <> '' then begin
+                DocExchServiceSetup."Id Token" := CopyStr(Json, 1, MaxStrLen(DocExchServiceSetup."Id Token"));
+                DocExchServiceSetup."Token Subject" := CopyStr(Subject, 1, MaxStrLen(DocExchServiceSetup."Token Subject"));
+            end;
+        end else
+            if AccessToken <> '' then
+                IssuedAt := CurrentDateTime();
+        DocExchServiceSetup."Token Issued At" := IssuedAt;
+        DocExchServiceSetup."Token Expired" := false;
+        DocExchServiceSetup.Modify();
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AcquireAccessTokenByAuthorizationCode(EnabledOnly: Boolean)
+    var
+        AccessToken: Text;
+        RefreshToken: Text;
+        IdToken: Text;
+    begin
+        AcquireAccessTokenByAuthorizationCode(EnabledOnly, AccessToken, RefreshToken, IdToken);
+        VerifyIdToken(IdToken);
+        SaveTokens(AccessToken, RefreshToken, IdToken);
+    end;
+
+    [NonDebuggable]
+    local procedure AcquireAccessTokenByAuthorizationCode(EnabledOnly: Boolean; var AccessToken: Text; var RefreshToken: Text; var IdToken: Text)
+    var
+        ClientId: Text;
+        ClientSecret: Text;
+        RedirectUrl: Text;
+        AuthUrl: text;
+        TokenUrl: Text;
+    begin
+        if not GuiAllowed() then begin
+            Session.LogMessage('0000EYP', GuiNotAllowedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(GuiNotAllowedTxt);
+        end;
+
+        GetOAuth2Params(EnabledOnly, ClientId, ClientSecret, RedirectUrl, AuthUrl, TokenUrl);
+        AcquireAccessTokenByAuthorizationCode(ClientId, ClientSecret, RedirectUrl, AuthUrl, TokenUrl, AccessToken, RefreshToken, IdToken);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AcquireAccessTokenByRefreshToken()
+    var
+        AccessToken: Text;
+        RefreshToken: Text;
+    begin
+        AcquireAccessTokenByRefreshToken(AccessToken, RefreshToken);
+        SaveTokens(AccessToken, RefreshToken);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryAcquireAccessTokenByRefreshToken(var AccessToken: Text; var RefreshToken: Text)
+    begin
+        AcquireAccessTokenByRefreshToken(AccessToken, RefreshToken);
+    end;
+
+    [NonDebuggable]
+    local procedure AcquireAccessTokenByRefreshToken(var AccessToken: Text; var RefreshToken: Text)
+    var
+        ClientId: Text;
+        ClientSecret: Text;
+        RedirectUrl: Text;
+        AuthUrl: Text;
+        TokenUrl: Text;
+    begin
+        GetOAuth2Params(true, ClientId, ClientSecret, RedirectUrl, AuthUrl, TokenUrl);
+        AcquireAccessTokenByRefreshToken(ClientId, ClientSecret, TokenUrl, AccessToken, RefreshToken);
+    end;
+
+    [NonDebuggable]
+    local procedure GetOAuth2Params(EnabledOnly: Boolean; var ClientId: Text; var ClientSecret: Text; var RedirectUrl: Text; var AuthUrl: Text; var TokenUrl: Text)
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        Sandbox: Boolean;
+    begin
+        GetServiceSetUp(DocExchServiceSetup);
+        if EnabledOnly then
+            CheckServiceEnabled(DocExchServiceSetup);
+        RedirectUrl := DocExchServiceSetup."Redirect URL";
+        if RedirectUrl = '' then begin
+            Session.LogMessage('0000EYS', StrSubstNo(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Redirect URL")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Redirect URL"));
+        end;
+
+        AuthUrl := DocExchServiceSetup."Auth URL";
+        if AuthUrl = '' then begin
+            Session.LogMessage('0000EYT', StrSubstNo(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Auth URL")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Auth URL"));
+        end;
+
+        TokenUrl := DocExchServiceSetup."Token URL";
+        if TokenUrl = '' then begin
+            Session.LogMessage('0000EYU', StrSubstNo(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Token URL")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Token URL"));
+        end;
+
+        Sandbox := IsSandbox(DocExchServiceSetup);
+
+        ClientId := GetClientId(Sandbox);
+        if ClientId = '' then begin
+            Session.LogMessage('0000EYV', StrSubstNo(MissingClientIdTxt, Sandbox), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(GetMissingClientIdOrSecretErr());
+        end;
+
+        ClientSecret := GetClientSecret(Sandbox);
+        if ClientSecret = '' then begin
+            Session.LogMessage('0000EYW', StrSubstNo(MissingClientSecretTxt, Sandbox), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(GetMissingClientIdOrSecretErr());
+        end;
+    end;
+
+    local procedure GetMissingClientIdOrSecretErr(): Text
+    begin
+        if EnvironmentInfo.IsSaaSInfrastructure() then
+            exit(MissingClientIdOrSecretInSaasTxt);
+
+        exit(MissingClientIdOrSecretOnPremTxt);
+    end;
+
+    local procedure PutDocument(FileName: Text; DocIdentifier: Text; DocRecRef: RecordRef)
+    var
+        Succeed: Boolean;
+    begin
+        if not ExecuteWebServicePutRequest(GetPUTDocURL(DocIdentifier), FileName) then
             LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
 
-        if not GLBHttpStatusCode.Equals(GLBHttpStatusCode.NoContent) then
+        if not IsNull(GLBHttpStatusCode) then
+            Succeed := GLBHttpStatusCode.Equals(GLBHttpStatusCode.NoContent);
+        if not Succeed then
             LogActivityFailedAndError(DocRecRef.RecordId, SendDocTxt, '');
 
         LogActivitySucceeded(DocRecRef.RecordId, SendDocTxt, DocUploadSuccessMsg);
@@ -150,13 +941,14 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocIdentifier: Text;
         PlaceholderGuid: Guid;
+        Succeed: Boolean;
     begin
-        Initialize(GetDispatchDocURL(DocOrigIdentifier), 'POST', '');
-
-        if not ExecuteWebServiceRequest then
+        if not ExecuteWebServicePostRequest(GetDispatchDocURL(DocOrigIdentifier), '') then
             LogActivityFailedAndError(DocRecRef.RecordId, DispatchDocTxt, '');
 
-        if not GLBHttpStatusCode.Equals(GLBHttpStatusCode.Created) then begin
+        if not IsNull(GLBHttpStatusCode) then
+            Succeed := GLBHttpStatusCode.Equals(GLBHttpStatusCode.Created);
+        if not Succeed then begin
             DocExchLinks.UpdateDocumentRecord(DocRecRef, '', DocOrigIdentifier);
             LogActivityFailedAndError(DocRecRef.RecordId, DispatchDocTxt, DocDispatchFailedMsg);
         end;
@@ -164,7 +956,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         if GLBTraceLogEnabled then
             Trace.LogStreamToTempFile(GLBResponseInStream, 'dispatch', TempBlobTrace);
 
-        DocIdentifier := GLBResponseHeaders.Get(GetDocumentIDKey);
+        DocIdentifier := GLBResponseHeaders.Get(GetDocumentIDKey());
         if not Evaluate(PlaceholderGuid, DocIdentifier) then
             LogActivityFailedAndError(DocRecRef.RecordId, DispatchDocTxt, InvalidHeaderResponseMsg);
         DocExchLinks.UpdateDocumentRecord(DocRecRef, DocIdentifier, DocOrigIdentifier);
@@ -177,7 +969,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         Errors: Text;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
         // Check for dispatch errors first
         if DocOrigIdentifier <> '' then
@@ -197,11 +989,9 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         XmlDoc: DotNet XmlDocument;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
-        Initialize(GetDispatchErrorsURL(DocIdentifier), 'GET', '');
-
-        if not ExecuteWebServiceRequest then begin
+        if not ExecuteWebServiceGetRequest(GetDispatchErrorsURL(DocIdentifier)) then begin
             LogActivityFailed(DocRecordID, GetDocErrorTxt, '');
             exit(false);
         end;
@@ -211,8 +1001,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
             exit(false);
         end;
 
-        Errors := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement, GetErrorXPath,
-            GetPrefix, GetApiNamespace);
+        Errors := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement, GetErrorXPath(),
+            GetPrefix(), GetApiNamespace());
 
         LogActivitySucceeded(DocRecordID, GetDocErrorTxt, Errors);
 
@@ -227,12 +1017,10 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         XmlDoc: DotNet XmlDocument;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
         NewStatus := '';
 
-        Initialize(GetDocStatusURL(DocIdentifier), 'GET', '');
-
-        if not ExecuteWebServiceRequest then begin
+        if not ExecuteWebServiceGetRequest(GetDocStatusURL(DocIdentifier)) then begin
             LogActivityFailed(DocRecordID, GetDocStatusTxt, '');
             exit(false);
         end;
@@ -245,7 +1033,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         if GLBTraceLogEnabled then
             Trace.LogStreamToTempFile(GLBResponseInStream, 'checkstatus', TempBlobTrace);
 
-        NewStatus := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement, GetStatusXPath, GetPrefix, GetPublicNamespace);
+        NewStatus := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement(), GetStatusXPath(), GetPrefix(), GetPublicNamespace());
         LogActivitySucceeded(DocRecordID, GetDocStatusTxt, StrSubstNo(DocStatusOKMsg, NewStatus));
         exit(true);
     end;
@@ -255,11 +1043,9 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         XmlDoc: DotNet XmlDocument;
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
-        Initialize(GetRetrieveDocsURL, 'GET', '');
-
-        if not ExecuteWebServiceRequest then
+        if not ExecuteWebServiceGetRequest(GetRetrieveDocsURL()) then
             LogActivityFailedAndError(ContextRecordID, GetDocsTxt, '');
 
         if not HttpWebRequestMgt.TryLoadXMLResponse(GLBResponseInStream, XmlDoc) then
@@ -280,8 +1066,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         XMLRootNode := XmlDocs.DocumentElement;
 
         foreach Node in XMLRootNode.ChildNodes do begin
-            DocIdentifier := XMLDOMMgt.FindNodeTextWithNamespace(Node, GetDocumentIDXPath,
-                GetPrefix, GetPublicNamespace);
+            DocIdentifier := XMLDOMMgt.FindNodeTextWithNamespace(Node, GetDocumentIDXPath(),
+                GetPrefix(), GetPublicNamespace());
 
             if not Evaluate(DummyGuid, DocIdentifier) then
                 LogActivityFailedAndError(ContextRecordID, GetDocsTxt, MalformedGuidErr);
@@ -298,41 +1084,34 @@ codeunit 1410 "Doc. Exch. Service Mgt."
                 LogActivitySucceeded(ContextRecordID, MarkBusinessProcessedTxt, StrSubstNo(DocIdImportedTxt, DocIdentifier));
             Commit();
 
-            IncomingDocument.Find;
-            LogTelemetryDocumentReceived;
+            IncomingDocument.Find();
+            LogTelemetryDocumentReceived();
             OnAfterIncomingDocReceivedFromDocExch(IncomingDocument);
         end;
     end;
 
     local procedure GetOriginalDocument(ContextRecordID: RecordID; DocIdentifier: Text)
     begin
-        CheckServiceEnabled;
-
-        Initialize(GetRetrieveOriginalDocIDURL(DocIdentifier), 'GET', '');
+        CheckServiceEnabled();
 
         // If can't get the original, it means it was not a 2-step. Get the actual TS-UBL
-        if not ExecuteWebServiceRequest then
+        if not ExecuteWebServiceGetRequest(GetRetrieveOriginalDocIDURL(DocIdentifier)) then
             GetDocument(ContextRecordID, DocIdentifier);
     end;
 
     local procedure GetDocument(ContextRecordID: RecordID; DocIdentifier: Text)
     begin
-        CheckServiceEnabled;
+        CheckServiceEnabled();
 
-        Initialize(GetRetrieveDocIDURL(DocIdentifier), 'GET', '');
-
-        if not ExecuteWebServiceRequest then
+        if not ExecuteWebServiceGetRequest(GetRetrieveDocIDURL(DocIdentifier)) then
             LogActivityFailedAndError(ContextRecordID, GetDocsTxt, '');
     end;
 
     [TryFunction]
     local procedure MarkDocBusinessProcessed(DocIdentifier: Text)
     begin
-        CheckServiceEnabled;
-
-        Initialize(GetSetTagURL(DocIdentifier), 'PUT', '');
-
-        ExecuteWebServiceRequest;
+        CheckServiceEnabled();
+        ExecuteWebServicePutRequest(GetSetTagURL(DocIdentifier), '');
     end;
 
     local procedure CreateIncomingDocEntry(var IncomingDocument: Record "Incoming Document"; ContextRecordID: RecordID; DocIdentifier: Text; Description: Text)
@@ -357,7 +1136,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         NodeList: DotNet XmlNodeList;
         Node: DotNet XmlNode;
     begin
-        XMLDOMMgt.FindNodesWithNamespace(XmlDoc.DocumentElement, GetEmbeddedDocXPath, GetPrefix, GetCBCNamespace,
+        XMLDOMMgt.FindNodesWithNamespace(XmlDoc.DocumentElement, GetEmbeddedDocXPath(), GetPrefix(), GetCBCNamespace(),
           NodeList);
         foreach Node in NodeList do
             ExtractAdditionalAttachment(IncomingDocument, Node);
@@ -381,24 +1160,21 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     local procedure Initialize(URL: Text; Method: Text[6]; BodyFilePath: Text)
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
-        OAuthAuthorization: DotNet OAuthAuthorization;
-        OAuthConsumer: DotNet Consumer;
-        OAuthToken: DotNet Token;
+        [NonDebuggable]
+        AccessToken: Text;
     begin
-        CheckCredentials;
-
-        with DocExchServiceSetup do begin
-            Get;
-            OAuthConsumer := OAuthConsumer.Consumer(GetPassword("Consumer Key"), GetPassword("Consumer Secret"));
-            OAuthToken := OAuthToken.Token(GetPassword(Token), GetPassword("Token Secret"));
-            OAuthAuthorization := OAuthAuthorization.OAuthAuthorization(OAuthConsumer, OAuthToken);
+        CheckCredentials();
+        GetServiceSetUp(DocExchServiceSetup);
+        AccessToken := DocExchServiceSetup.GetAccessToken();
+        if AccessToken = '' then begin
+            Session.LogMessage('0000EYR', EmptyAccessTokenTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(EmptyAccessTokenTxt);
         end;
 
         Clear(HttpWebRequestMgt);
         HttpWebRequestMgt.Initialize(URL);
         HttpWebRequestMgt.SetMethod(Method);
-        HttpWebRequestMgt.AddHeader('Authorization', OAuthAuthorization.GetAuthorizationHeader(URL, Method));
-        Session.LogMessage('0000ED1', WeakHashFunctionTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetrySecurityTok);
+        HttpWebRequestMgt.AddHeader(AuthorizationHeaderNameTxt, StrSubstNo(AuthorizationHeaderValueTxt, AccessToken));
 
         SetDefaults(BodyFilePath);
     end;
@@ -407,53 +1183,122 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        HttpWebRequestMgt.SetContentType('text/xml');
-        HttpWebRequestMgt.SetReturnType('text/xml');
-        HttpWebRequestMgt.SetUserAgent(GetUserAgent);
-        HttpWebRequestMgt.AddHeader('X-Tradeshift-TenantId', GetTenantID);
-        HttpWebRequestMgt.AddHeader('Accept-Encoding', 'utf-8');
+        HttpWebRequestMgt.SetContentType(TextXmlTxt);
+        HttpWebRequestMgt.SetReturnType(TextXmlTxt);
+        HttpWebRequestMgt.SetUserAgent(GetUserAgent());
+        HttpWebRequestMgt.AddHeader(AcceptEncodingHeaderNameTxt, EncodingUtf8Txt);
         HttpWebRequestMgt.AddBody(BodyFilePath);
 
         // Set tracing
-        DocExchServiceSetup.Get();
+        GetServiceSetUp(DocExchServiceSetup);
         GLBTraceLogEnabled := DocExchServiceSetup."Log Web Requests";
         HttpWebRequestMgt.SetTraceLogEnabled(DocExchServiceSetup."Log Web Requests");
     end;
 
     procedure CheckCredentials()
     var
-        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        DocExchServiceSetup: Page "Doc. Exch. Service Setup";
     begin
         if not VerifyPrerequisites(false) then
-            if Confirm(StrSubstNo(MissingCredentialsQst, DocExchServiceSetup.TableCaption), true) then begin
+            if GuiAllowed() and Confirm(StrSubstNo(NotConfiguredQst, DocExchServiceSetup.Caption()), true) then begin
                 Commit();
-                PAGE.RunModal(PAGE::"Doc. Exch. Service Setup", DocExchServiceSetup);
+                DocExchServiceSetup.RunModal();
                 if not VerifyPrerequisites(false) then
-                    Error(MissingCredentialsErr, DocExchServiceSetup.TableCaption);
+                    Error(NotConfiguredErr, DocExchServiceSetup.Caption());
             end else
-                Error(MissingCredentialsErr, DocExchServiceSetup.TableCaption);
+                Error(NotConfiguredErr, DocExchServiceSetup.Caption());
+    end;
+
+    local procedure ExecuteWebServiceGetRequest(URL: Text): Boolean
+    begin
+        exit(ExecuteWebServiceRequest(URL, MethodGetTxt, ''));
+    end;
+
+    local procedure ExecuteWebServicePostRequest(URL: Text; BodyFilePath: Text): Boolean
+    begin
+        exit(ExecuteWebServiceRequest(URL, MethodPostTxt, BodyFilePath));
+    end;
+
+    local procedure ExecuteWebServicePutRequest(URL: Text; BodyFilePath: Text): Boolean
+    begin
+        exit(ExecuteWebServiceRequest(URL, MethodPutTxt, BodyFilePath));
+    end;
+
+    local procedure ExecuteWebServiceRequest(URL: Text; Method: Text[6]; BodyFilePath: Text): Boolean
+    var
+        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        ErrorMessage: Text;
+    begin
+        Initialize(URL, Method, BodyFilePath);
+        if ExecuteWebServiceRequest() then
+            exit(true);
+        if IsNull(GLBHttpStatusCode) then
+            exit(false);
+        if not GLBHttpStatusCode.Equals(GLBHttpStatusCode.Unauthorized) then
+            exit(false);
+        AcquireAccessTokenByRefreshToken();
+        Initialize(URL, Method, BodyFilePath);
+        if ExecuteWebServiceRequest() then
+            exit(true);
+        if IsNull(GLBHttpStatusCode) then
+            exit(false);
+        if not GLBHttpStatusCode.Equals(GLBHttpStatusCode.Unauthorized) then
+            exit(false);
+        ErrorMessage := GetLastErrorText();
+        GetServiceSetUp(DocExchServiceSetup);
+        LogActivityFailed(DocExchServiceSetup.RecordId(), TokenExpiredTxt, ErrorMessage);
+        MarkTokenAsExpired();
+        SendRenewTokenNotification();
+        exit(false);
     end;
 
     [TryFunction]
     local procedure ExecuteWebServiceRequest()
+    var
+        ErrorMessage: Text;
+        HttpStatusCodeNumber: Integer;
     begin
+        Clear(GLBHttpStatusCode);
+        Clear(GLBResponseHeaders);
         Clear(TempBlobResponse);
         TempBlobResponse.CreateInStream(GLBResponseInStream);
 
-        if not GuiAllowed then
-            HttpWebRequestMgt.DisableUI;
+        if not GuiAllowed() then
+            HttpWebRequestMgt.DisableUI();
 
-        if not HttpWebRequestMgt.GetResponse(GLBResponseInStream, GLBHttpStatusCode, GLBResponseHeaders) then
-            HttpWebRequestMgt.ProcessFaultXMLResponse('', GetErrorXPath, GetPrefix, GetApiNamespace);
+        if not HttpWebRequestMgt.GetResponse(GLBResponseInStream, GLBHttpStatusCode, GLBResponseHeaders) then begin
+            if not HttpWebRequestMgt.ProcessFaultXMLResponse('', GetErrorXPath(), GetPrefix(), GetApiNamespace(), GLBHttpStatusCode, GLBResponseHeaders) then
+                ; // catch
+            ErrorMessage := GetLastErrorText();
+            if not IsNull(GLBHttpStatusCode) then
+                HttpStatusCodeNumber := GLBHttpStatusCode;
+            Session.LogMessage('0000EYX', StrSubstNo(CannotGetResponseTxt, HttpStatusCodeNumber, ErrorMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(ErrorMessage); // rethrow
+        end;
     end;
 
     procedure CheckServiceEnabled()
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get();
-        if not DocExchServiceSetup.Enabled then
-            Error(NotEnabledErr);
+        GetServiceSetUp(DocExchServiceSetup);
+        CheckServiceEnabled(DocExchServiceSetup);
+    end;
+
+    local procedure GetServiceSetUp(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
+    begin
+        if not DocExchServiceSetup.Get() then begin
+            Session.LogMessage('0000EYY', NotSetUpTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotSetUpTxt);
+        end;
+    end;
+
+    local procedure CheckServiceEnabled(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
+    begin
+        if not DocExchServiceSetup.Enabled then begin
+            Session.LogMessage('0000EYZ', NotEnabledTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(NotEnabledTxt);
+        end;
     end;
 
     local procedure CheckDocumentStatus(DocRecRef: RecordRef)
@@ -509,36 +1354,28 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         end;
     end;
 
-    local procedure GetTenantID(): Text
-    var
-        DocExchServiceSetup: Record "Doc. Exch. Service Setup";
-    begin
-        with DocExchServiceSetup do begin
-            Get;
-            exit(GetPassword("Doc. Exch. Tenant ID"));
-        end;
-    end;
-
     local procedure GetUserAgent(): Text
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        with DocExchServiceSetup do begin
-            Get;
-            TestField("User Agent");
-            exit("User Agent");
+        GetServiceSetUp(DocExchServiceSetup);
+        if DocExchServiceSetup."User Agent" = '' then begin
+            Session.LogMessage('0000EZ0', StrSubstNo(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("User Agent")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("User Agent"));
         end;
+        exit(DocExchServiceSetup."User Agent");
     end;
 
     local procedure GetFullURL(PartialURL: Text): Text
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        with DocExchServiceSetup do begin
-            Get;
-            TestField("Service URL");
-            exit("Service URL" + PartialURL);
+        GetServiceSetUp(DocExchServiceSetup);
+        if DocExchServiceSetup."Service URL" = '' then begin
+            Session.LogMessage('0000EZ1', StrSubstNo(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Service URL")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Error(FieldNotSpecifiedTxt, DocExchServiceSetup.FieldCaption("Service URL"));
         end;
+        exit(DocExchServiceSetup."Service URL" + PartialURL);
     end;
 
     local procedure GetCheckConnectionURL(): Text
@@ -550,9 +1387,9 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     begin
         case DocRecRef.Number of
             DATABASE::"Sales Invoice Header", DATABASE::"Service Invoice Header":
-                exit(GetPostSalesInvURL);
+                exit(GetPostSalesInvURL());
             DATABASE::"Sales Cr.Memo Header", DATABASE::"Service Cr.Memo Header":
-                exit(GetPostSalesCrMemoURL);
+                exit(GetPostSalesCrMemoURL());
             else
                 Error(UnSupportedTableTypeErr, DocRecRef.Number);
         end;
@@ -592,7 +1429,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     local procedure GetRetrieveDocsURL(): Text
     begin
-        exit(GetFullURL(StrSubstNo('/documents?stag=inbox&withouttag=BusinessDelivered&limit=%1', GetChunckSize)));
+        exit(GetFullURL(StrSubstNo('/documents?stag=inbox&withouttag=BusinessDelivered&limit=%1', GetChunckSize())));
     end;
 
     local procedure GetRetrieveDocIDURL(DocIdentifier: Text): Text
@@ -612,9 +1449,16 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     local procedure GetGUID(): Text
     begin
-        GLBLastUsedGUID := DelChr(DelChr(Format(CreateGuid), '=', '{'), '=', '}');
+        GLBLastUsedGUID := DelChr(DelChr(Format(CreateGuid()), '=', '{'), '=', '}');
 
         exit(GLBLastUsedGUID);
+    end;
+
+    local procedure UrlEncode(UrlComponent: Text): Text
+    var
+        HttpUtility: DotNet HttpUtility;
+    begin
+        exit(HttpUtility.UrlEncode(UrlComponent));
     end;
 
     local procedure GetChunckSize(): Integer
@@ -678,16 +1522,19 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     end;
 
     [TryFunction]
-    local procedure TryGetDocumentDescription(Node: DotNet XmlNode; var Description: Text)
+    local procedure TryGetDocumentDescription(Node: DotNet XmlNode;
+
+    var
+        Description: Text)
     var
         SrchNode: DotNet XmlNode;
     begin
         Description := '';
-        XMLDOMMgt.FindNodeWithNamespace(Node, GetDocumentTypeXPath, GetPrefix,
-          GetPublicNamespace, SrchNode);
+        XMLDOMMgt.FindNodeWithNamespace(Node, GetDocumentTypeXPath(), GetPrefix(),
+          GetPublicNamespace(), SrchNode);
         Description := MapDocumentType(XMLDOMMgt.GetAttributeValue(SrchNode, 'type'));
-        Description += ' ' + XMLDOMMgt.FindNodeTextWithNamespace(Node, GetDocumentIDForDescriptionXPath,
-            GetPrefix, GetPublicNamespace);
+        Description += ' ' + XMLDOMMgt.FindNodeTextWithNamespace(Node, GetDocumentIDForDescriptionXPath(),
+            GetPrefix(), GetPublicNamespace());
     end;
 
     local procedure MapDocumentType(DocType: Text): Text
@@ -733,7 +1580,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         ActivityLog: Record "Activity Log";
     begin
         ActivityMessage := GetLastErrorText + ' ' + ActivityMessage;
-        ClearLastError;
+        ClearLastError();
 
         ActivityLog.LogActivity(RelatedRecordID, ActivityLog.Status::Failed, LoggingConstTxt,
           ActivityDescription, ActivityMessage);
@@ -755,7 +1602,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         RecRef: RecordRef;
     begin
-        if not DocExchServiceSetup.Get then begin
+        if not DocExchServiceSetup.Get() then begin
             DocExchServiceSetup.Init();
             DocExchServiceSetup.Insert();
         end;
@@ -767,9 +1614,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         else
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
 
-        with DocExchServiceSetup do
-            ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, TableCaption, "Service URL", PAGE::"Doc. Exch. Service Setup");
+        ServiceConnection.InsertServiceConnection(
+            ServiceConnection, RecRef.RecordId(), DocExchServiceSetup.TableCaption(), DocExchServiceSetup."Service URL", PAGE::"Doc. Exch. Service Setup");
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -778,13 +1624,23 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGetClientId(var ClientId: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetClientSecret(var ClientSecret: Text)
+    begin
+    end;
+
     procedure GetExternalDocURL(DocID: Text): Text
     var
         URLPart: Text;
     begin
         URLPart := 'www';
-        if StrPos(GetFullURL(''), 'sandbox') > 0 then
-            URLPart := 'sandbox';
+        if StrPos(GetFullURL(''), SandboxTxt) > 0 then
+            URLPart := SandboxTxt;
 
         exit(StrSubstNo('https://%1.tradeshift.com/app/Tradeshift.Migration#::conversation/view/%2::', URLPart, DocID));
     end;
@@ -792,32 +1648,36 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     procedure VerifyPrerequisites(ShowFailure: Boolean): Boolean
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
+        PageDocExchServiceSetup: Page "Doc. Exch. Service Setup";
+        Success: Boolean;
     begin
-        with DocExchServiceSetup do
-            if not (Get and HasPassword("Consumer Key") and HasPassword("Consumer Secret") and
-                    HasPassword(Token) and HasPassword("Token Secret") and HasPassword("Doc. Exch. Tenant ID"))
-            then
-                if ShowFailure then
-                    Error(MissingCredentialsErr, TableCaption);
-        exit(true)
+        if DocExchServiceSetup.Get() then
+            if DocExchServiceSetup."Service URL" <> '' then
+                if DocExchServiceSetup."Auth URL" <> '' then
+                    if DocExchServiceSetup."Token URL" <> '' then
+                        Success := true;
+        if not Success then
+            if ShowFailure then
+                Error(NotConfiguredErr, PageDocExchServiceSetup.Caption());
+        exit(Success);
     end;
 
     local procedure LogTelemetryDocumentSent()
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get();
+        GetServiceSetUp(DocExchServiceSetup);
         Session.LogMessage('000089R', DocExchServiceDocumentSuccessfullySentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-        Session.LogMessage('000089S', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('000089S', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryDocumentReceived()
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get();
+        GetServiceSetUp(DocExchServiceSetup);
         Session.LogMessage('000089T', DocExchServiceDocumentSuccessfullyReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-        Session.LogMessage('000089U', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('000089U', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

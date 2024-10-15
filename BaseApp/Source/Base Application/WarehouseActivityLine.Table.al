@@ -7,12 +7,10 @@ table 5767 "Warehouse Activity Line"
 
     fields
     {
-        field(1; "Activity Type"; Option)
+        field(1; "Activity Type"; Enum "Warehouse Activity Type")
         {
             Caption = 'Activity Type';
             Editable = false;
-            OptionCaption = ' ,Put-away,Pick,Movement,Invt. Put-away,Invt. Pick,Invt. Movement';
-            OptionMembers = " ","Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement";
         }
         field(2; "No."; Code[20])
         {
@@ -139,6 +137,8 @@ table 5767 "Warehouse Activity Line"
                 if "Item No." <> '' then begin
                     GetItemUnitOfMeasure;
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
+                    "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                    "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                 end else
                     "Qty. per Unit of Measure" := 1;
 
@@ -172,9 +172,9 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             begin
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
                 Validate("Qty. Outstanding", (Quantity - "Qty. Handled"));
-                "Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -203,9 +203,9 @@ table 5767 "Warehouse Activity Line"
                 OnBeforeValidateQtyOutstanding(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
-
+                "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
                 "Qty. Outstanding (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
+                    CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)"));
                 Validate("Qty. to Handle", "Qty. Outstanding");
             end;
         }
@@ -255,8 +255,11 @@ table 5767 "Warehouse Activity Line"
                 OnValidateQtyToHandleOnBeforeCalcQtyToHandleBase(Rec, xRec, Location, CurrFieldNo);
 
                 if not UseBaseQty then begin
+                    "Qty. to Handle" :=
+                        UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
                     "Qty. to Handle (Base)" :=
-                        UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Handle", "Qty. per Unit of Measure");
+                        CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Handle", "Qty. to Handle (Base)", "Qty. Handled", "Qty. Handled (Base)");
                     if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // rounding error- qty same, not base qty
                         QtyToHandleBase := "Qty. Outstanding (Base)";
                         OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(Rec, "Qty. To Handle (Base)", QtyToHandleBase);
@@ -296,8 +299,9 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             begin
+                "Qty. Handled" := UOMMgt.RoundAndValidateQty("Qty. Handled", "Qty. Rounding Precision", FieldCaption("Qty. Handled"));
                 "Qty. Handled (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Handled", "Qty. per Unit of Measure");
+                    CalcBaseQty("Qty. Handled", FieldCaption("Qty. Handled"), FieldCaption("Qty. Handled (Base)"));
             end;
         }
         field(29; "Qty. Handled (Base)"; Decimal)
@@ -356,6 +360,24 @@ table 5767 "Warehouse Activity Line"
         {
             Caption = 'Starting Date';
         }
+        field(50; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(51; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(900; "Assemble to Order"; Boolean)
         {
             AccessByPermission = TableData "BOM Component" = R;
@@ -372,11 +394,8 @@ table 5767 "Warehouse Activity Line"
             Caption = 'Serial No.';
 
             trigger OnLookup()
-            var
-                LookUpBinContent: Boolean;
             begin
-                LookUpBinContent := ("Activity Type" <= "Activity Type"::Movement) or ("Action Type" <> "Action Type"::Place);
-                LookUpTrackingSummary(Rec, LookUpBinContent, -1, ItemTrackingType::"Serial No.");
+                LookUpTrackingSummary(Rec, ShouldLookUpBinContent, -1, ItemTrackingType::"Serial No.");
             end;
 
             trigger OnValidate()
@@ -390,7 +409,7 @@ table 5767 "Warehouse Activity Line"
                     exit;
                 if "Serial No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
-                    TestField("Qty. per Unit of Measure", 1);
+                    TestField("Qty. (Base)", 1);
 
                     if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"] then
                         CheckReservedItemTrkg(ItemTrackingType::"Serial No.", "Serial No.");
@@ -411,11 +430,8 @@ table 5767 "Warehouse Activity Line"
             Caption = 'Lot No.';
 
             trigger OnLookup()
-            var
-                LookUpBinContent: Boolean;
             begin
-                LookUpBinContent := ("Activity Type" <= "Activity Type"::Movement) or ("Action Type" <> "Action Type"::Place);
-                LookUpTrackingSummary(Rec, LookUpBinContent, -1, ItemTrackingType::"Lot No.");
+                LookUpTrackingSummary(Rec, ShouldLookUpBinContent(), -1, ItemTrackingType::"Lot No.");
             end;
 
             trigger OnValidate()
@@ -486,11 +502,8 @@ table 5767 "Warehouse Activity Line"
             CaptionClass = '6,1';
 
             trigger OnLookup()
-            var
-                LookUpBinContent: Boolean;
             begin
-                LookUpBinContent := ("Activity Type" <= "Activity Type"::Movement) or ("Action Type" <> "Action Type"::Place);
-                LookUpTrackingSummary(Rec, LookUpBinContent, -1, "Item Tracking Type"::"Package No.");
+                LookUpTrackingSummary(Rec, ShouldLookUpBinContent(), -1, "Item Tracking Type"::"Package No.");
             end;
 
             trigger OnValidate()
@@ -593,7 +606,7 @@ table 5767 "Warehouse Activity Line"
                             end else begin
                                 if "Qty. to Handle" > 0 then
                                     CheckIncreaseCapacity(false);
-                                xRec.DeleteBinContent(xRec."Action Type"::Place);
+                                xRec.DeleteBinContent("Warehouse Action Type"::Place.AsInteger());
                             end;
                         end;
                         Dedicated := Bin.Dedicated;
@@ -604,7 +617,7 @@ table 5767 "Warehouse Activity Line"
                         end;
                         OnValidateBinCodeOnAfterGetBin(Rec, Bin);
                     end else begin
-                        xRec.DeleteBinContent(xRec."Action Type"::Place);
+                        xRec.DeleteBinContent(xRec."Action Type"::Place.AsInteger());
                         Dedicated := false;
                         "Bin Ranking" := 0;
                         "Bin Type Code" := '';
@@ -622,26 +635,22 @@ table 5767 "Warehouse Activity Line"
                 if xRec."Zone Code" <> "Zone Code" then begin
                     GetLocation("Location Code");
                     Location.TestField("Directed Put-away and Pick");
-                    xRec.DeleteBinContent(xRec."Action Type"::Place);
+                    xRec.DeleteBinContent(xRec."Action Type"::Place.AsInteger());
                     "Bin Code" := '';
                     "Bin Ranking" := 0;
                     "Bin Type Code" := '';
                 end;
             end;
         }
-        field(7305; "Action Type"; Option)
+        field(7305; "Action Type"; Enum "Warehouse Action Type")
         {
             Caption = 'Action Type';
             Editable = false;
-            OptionCaption = ' ,Take,Place';
-            OptionMembers = " ",Take,Place;
         }
-        field(7306; "Whse. Document Type"; Option)
+        field(7306; "Whse. Document Type"; Enum "Warehouse Activity Document Type")
         {
             Caption = 'Whse. Document Type';
             Editable = false;
-            OptionCaption = ' ,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Movement Worksheet,,Assembly';
-            OptionMembers = " ",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Movement Worksheet",,Assembly;
         }
         field(7307; "Whse. Document No."; Code[20])
         {
@@ -874,6 +883,7 @@ table 5767 "Warehouse Activity Line"
         Text018: Label '%1 already exists with %2 %3.', Comment = 'Warehouse Activity Line already exists with Serial No. XXX';
         Text019: Label 'The %1 bin code must be different from the %2 bin code on location %3.';
         Text020: Label 'The %1 bin code must not be the Receipt Bin Code or the Shipment Bin Code that are set up on location %2.';
+        ValidValuesIfSNDefinedErr: Label 'Field %1 can only have values -1, 0 or 1 when serial no. is defined. Current value is %2.', Comment = '%1 = field name, %2 = field value';
 
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
@@ -985,7 +995,7 @@ table 5767 "Warehouse Activity Line"
                 repeat
                     OnDeleteRelatedWhseActivLinesOnBeforeDeleteWhseActivLine2(WhseActivLine, WhseActivLine2, CalledFromHeader);
                     DeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
-                    WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
+                    WhseActivLine2.DeleteBinContent("Warehouse Action Type"::Place.AsInteger());
                     UpdateRelatedItemTrkg(WhseActivLine2);
                 until WhseActivLine2.Next() = 0;
 
@@ -1014,7 +1024,7 @@ table 5767 "Warehouse Activity Line"
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
         ProdOrderCompLine: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1559,7 +1569,7 @@ table 5767 "Warehouse Activity Line"
             end;
     end;
 
-    local procedure CreateNewUOMLine(ActType: Option ,Take,Place; WhseActivLine: Record "Warehouse Activity Line"; WhseActivLine2: Record "Warehouse Activity Line")
+    local procedure CreateNewUOMLine(ActType: Enum "Warehouse Action Type"; WhseActivLine: Record "Warehouse Activity Line"; WhseActivLine2: Record "Warehouse Activity Line")
     var
         NewWhseActivLine: Record "Warehouse Activity Line";
         LineSpacing: Integer;
@@ -1604,10 +1614,10 @@ table 5767 "Warehouse Activity Line"
     procedure UpdateRelatedItemTrkg(WhseActivLine: Record "Warehouse Activity Line")
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
     begin
         if WhseActivLine.TrackingExists() then begin
-            WhseItemTrkgLine.SetCurrentKey("Serial No.", "Lot No.");
+            WhseItemTrkgLine.SetTrackingKey();
             WhseItemTrkgLine.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
             if (WhseActivLine."Whse. Document Type" = WhseActivLine."Whse. Document Type"::Shipment) and
                WhseActivLine."Assemble to Order"
@@ -1850,7 +1860,7 @@ table 5767 "Warehouse Activity Line"
     var
         BinContent: Record "Bin Content";
     begin
-        if "Action Type" <> ActionType then
+        if "Action Type".AsInteger() <> ActionType then
             exit;
 
         if BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
@@ -2143,7 +2153,7 @@ table 5767 "Warehouse Activity Line"
             exit;
 
         Location.Get("Location Code");
-        if ("Action Type" = 0) or (not Location."Bin Mandatory") then
+        if ("Action Type" = "Action Type"::" ") or (not Location."Bin Mandatory") then
             exit;
         WhseActivLine := Rec;
         WhseActivLine.SetRange("Activity Type", "Activity Type");
@@ -2667,6 +2677,18 @@ table 5767 "Warehouse Activity Line"
         OnAfterTrackingFilterExists(Rec, IsTrackingFilterExist);
     end;
 
+    procedure ValidateQtyWhenSNDefined()
+    begin
+        if Rec."Serial No." = '' then
+            exit;
+
+        if not (Rec."Qty. (Base)" in [-1, 0, 1]) then
+            Error(ValidValuesIfSNDefinedErr, Rec.FieldCaption("Qty. (Base)"), Rec."Qty. (Base)");
+
+        if not (Rec."Qty. to Handle (Base)" in [-1, 0, 1]) then
+            Error(ValidValuesIfSNDefinedErr, Rec.FieldCaption("Qty. to Handle (Base)"), Rec."Qty. to Handle (Base)");
+    end;
+
     local procedure RunWhsePickCard(var WhseActivHeader: Record "Warehouse Activity Header")
     var
         WhsePickCard: Page "Warehouse Pick";
@@ -2679,6 +2701,19 @@ table 5767 "Warehouse Activity Line"
 
         WhsePickCard.SetTableView(WhseActivHeader);
         WhsePickCard.RunModal;
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
+    local procedure ShouldLookupBinContent(): Boolean
+    begin
+        exit(
+            ("Activity Type".AsInteger() <= "Activity Type"::Movement.AsInteger()) or
+            ("Action Type" <> "Action Type"::Place));
     end;
 
     procedure Lock()

@@ -1602,16 +1602,20 @@ codeunit 136104 "Service Posting - Credit Memo"
 
     local procedure CreateServCrdtMmLneItemWithQty(ServiceHeader: Record "Service Header")
     var
-        Item: Record Item;
+        Items: Array[10] of Record Item;
         ServiceLine: Record "Service Line";
         Counter: Integer;
+        N: Integer;
     begin
+        N := LibraryRandom.RandIntInRange(2, 10);
+
+        for Counter := 1 to N do
+            CreateItemWithPrice(Items[N]);
+
         // Create 2 to 10 Service Lines - Boundary 2 is important.
-        CreateItemWithPrice(Item);
-        for Counter := 1 to LibraryRandom.RandIntInRange(2, 10) do begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        for Counter := 1 to N do begin
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Items[N]."No.");
             LineWithQuantityAndUnitPrice(ServiceLine);
-            Item.Next;
         end;
     end;
 

@@ -2,8 +2,8 @@ permissionset 8824 "Payables Journals - Edit"
 {
     Access = Public;
     Assignable = false;
-
     Caption = 'Create entries in jnls. (P&P)';
+
     Permissions = tabledata "Bank Account" = R,
                   tabledata "Bank Export/Import Setup" = R,
                   tabledata "Bank Pmt. Appl. Rule" = RIMD,

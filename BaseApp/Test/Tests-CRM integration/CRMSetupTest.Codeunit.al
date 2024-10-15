@@ -1119,7 +1119,11 @@ codeunit 139160 "CRM Setup Test"
         SimulateIntegrationSyncJobsExecution();
 
         // [THEN] Jobs are created for each mapping and direction
+#if not CLEAN19
         Assert.AreEqual(39, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+#else
+        Assert.AreEqual(33, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+#endif
         CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
     end;
@@ -2135,7 +2139,9 @@ codeunit 139160 "CRM Setup Test"
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::Ready);
         InsertJobQueueEntry(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry.Status::"In Process");
         InsertJobQueueEntry(CODEUNIT::"CRM Statistics Job", JobQueueEntry.Status::Ready);
+#if not CLEAN19
         InsertJobQueueEntry(CODEUNIT::"Exchange PowerShell Runner", JobQueueEntry.Status::"In Process");
+#endif
     end;
 
     local procedure InsertJobQueueEntriesWithError()
@@ -2143,7 +2149,9 @@ codeunit 139160 "CRM Setup Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         InsertJobQueueEntry(CODEUNIT::"CRM Statistics Job", JobQueueEntry.Status::Error);
+#if not CLEAN19
         InsertJobQueueEntry(CODEUNIT::"Exchange PowerShell Runner", JobQueueEntry.Status::Error);
+#endif
     end;
 
     local procedure InsertJobQueueEntry(ID: Integer; Status: Option)

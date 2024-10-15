@@ -437,19 +437,12 @@ table 14901 "Vendor Agreement"
     }
 
     trigger OnDelete()
-    var
-        LaborContract: Record "Labor Contract";
     begin
         VendLedgEntry.Reset();
         VendLedgEntry.SetRange("Vendor No.", "Vendor No.");
         VendLedgEntry.SetRange("Agreement No.", "No.");
         if not VendLedgEntry.IsEmpty() then
             Error(Text001);
-
-        LaborContract.SetRange("Vendor No.", "Vendor No.");
-        LaborContract.SetRange("Vendor Agreement No.", "No.");
-        if not LaborContract.IsEmpty() then
-            Error(Text17360);
 
         PurchSetup.Get();
         if DimValue.Get(PurchSetup."Vendor Agreement Dim. Code", "No.") then
@@ -536,7 +529,6 @@ table 14901 "Vendor Agreement"
         Text12401: Label 'You cannot change %1 until you check %2 in %3.';
         Text12402: Label '%1 should be later than %2.';
         Text12403: Label 'This %1 already used for vendor %2.';
-        Text17360: Label 'You cannot delete agreement if you already have labor contracts.';
         PrivacyBlockedActionErr: Label 'You cannot %1 this type of document when Vendor %2 is blocked for privacy.', Comment = '%1 = action (create or post), %2 = vendor code.';
 
     [Scope('OnPrem')]

@@ -13,7 +13,7 @@ page 5207 "Qualified Employees"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Person No."; "Person No.")
+                field("Employee No."; "Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a number for the employee.';
@@ -92,7 +92,7 @@ page 5207 "Qualified Employees"
                     Image = ViewComments;
                     RunObject = Page "Human Resource Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Employee Qualification"),
-                                  "No." = FIELD("Person No."),
+                                  "No." = FIELD("Employee No."),
                                   "Table Line No." = FIELD("Line No.");
                     ToolTip = 'View or add comments for the record.';
                 }

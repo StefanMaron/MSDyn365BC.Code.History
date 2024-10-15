@@ -1,4 +1,4 @@
-page 459 "Sales & Receivables Setup"
+﻿page 459 "Sales & Receivables Setup"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales & Receivables Setup';
@@ -168,6 +168,7 @@ page 459 "Sales & Receivables Setup"
                 field("Allow Alter Posting Groups"; "Allow Alter Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies if an alternate posting group can be assigned.';
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
@@ -191,6 +192,18 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
+                }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of sales invoices.';
+                    Visible = false;
+                }
+                field("Document Default Line Type"; "Document Default Line Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the default value for the Type field on the first line in new sales documents. If needed, you can change the value on the line.';
                 }
             }
             group(Prices)
@@ -539,7 +552,7 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when posted sales documents can be deleted. If you enter a date, posted sales documents with a posting date on or after this date cannot be deleted.';
+                    ToolTip = 'Specifies if and when posted sales invoices and credit memos can be deleted. If you enter a date, posted sales documents with a posting date on or after this date cannot be deleted.';
                 }
             }
             group(Archiving)
@@ -716,7 +729,6 @@ page 459 "Sales & Receivables Setup"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Rec.Reset;
         if not Rec.Get then begin
@@ -724,7 +736,6 @@ page 459 "Sales & Receivables Setup"
             Rec.Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        PriceUXManagement.InitSmartListDesigner();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 

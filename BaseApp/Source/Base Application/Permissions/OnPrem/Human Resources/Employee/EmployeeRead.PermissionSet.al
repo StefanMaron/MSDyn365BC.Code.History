@@ -5,6 +5,7 @@ permissionset 2084 "Employee - Read"
     Caption = 'Read employees';
 
     Permissions = tabledata "Alternative Address" = R,
+                  tabledata "Cause of Absence" = R,
                   tabledata "Default Dimension" = R,
                   tabledata Employee = R,
                   tabledata "Employee Absence" = R,
@@ -14,6 +15,5 @@ permissionset 2084 "Employee - Read"
                   tabledata "Misc. Article" = R,
                   tabledata "Misc. Article Information" = R,
                   tabledata Qualification = R,
-                  tabledata Relative = R,
-                  tabledata "Time Activity" = R;
+                  tabledata Relative = R;
 }

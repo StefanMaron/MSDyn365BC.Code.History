@@ -1,8 +1,8 @@
 permissionset 7576 "D365 FINANCIAL REP."
 {
     Assignable = true;
-    Caption = 'Dynamics 365 Financial reports';
 
+    Caption = 'Dynamics 365 Financial reports';
     Permissions = tabledata "Acc. Sched. KPI Web Srv. Line" = RIMD,
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = RIMD,
                   tabledata "Acc. Schedule Line" = RIMD,
@@ -21,6 +21,7 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "Analysis View Entry" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RIMD,
                   tabledata "Bank Acc. Reconciliation Line" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account" = RM,
                   tabledata "Bank Account Ledger Entry" = Rimd,
                   tabledata "Bank Account Posting Group" = RIMD,

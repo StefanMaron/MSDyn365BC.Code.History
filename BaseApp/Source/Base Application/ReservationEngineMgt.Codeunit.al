@@ -562,33 +562,6 @@
         end;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code")', '16.0')]
-    procedure AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; SNSpecific: Boolean; LotSpecific: Boolean; CDSpecific: Boolean): Decimal
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
-        ReservStatus: Enum "Reservation Status";
-    begin
-        with TempReservEntry do begin
-            LostReservationQty := 0; // Late Binding
-            ReservationsModified := false;
-            SetCurrentKey(
-              "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-              "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
-
-            // Process entry in descending order against field Reservation Status
-            ItemTrackingCode."SN Specific Tracking" := SNSpecific;
-            ItemTrackingCode."Lot Specific Tracking" := LotSpecific;
-            ItemTrackingCode."Package Specific Tracking" := CDSpecific;
-            for ReservStatus := "Reservation Status"::Prospect downto "Reservation Status"::Reservation do
-                ModifyItemTrkgByReservStatus(
-                  TempReservEntry, TrackingSpecification, ReservStatus, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
-
-            exit(QtyToAdd);
-        end;
-    end;
-#endif
-
     local procedure ModifyItemTrkgByReservStatus(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; ReservStatus: Enum "Reservation Status"; var QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code")
     begin
         if QtyToAdd = 0 then

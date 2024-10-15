@@ -106,6 +106,7 @@
                             if ItemUnitOfMeasure."Qty. per Unit of Measure" <> 1 then
                                 Error(BaseUnitOfMeasureQtyMustBeOneErr, "Base Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
                         end;
+                        UpdateQtyRoundingPrecisionForBaseUoM();
                     end;
                     "Sales Unit of Measure" := "Base Unit of Measure";
                     "Purch. Unit of Measure" := "Base Unit of Measure";
@@ -136,9 +137,18 @@
             TableRelation = "Inventory Posting Group";
 
             trigger OnValidate()
+            var
+                InventoryPostGroupExists: Boolean;
             begin
-                if "Inventory Posting Group" <> '' then
+                InventoryPostGroupExists := false;
+                if "Inventory Posting Group" <> '' then begin
                     TestField(Type, Type::Inventory);
+                    InventoryPostGroupExists := InventoryPostingGroup.Get("Inventory Posting Group");
+                end;
+                if InventoryPostGroupExists then
+                    "Inventory Posting Group Id" := InventoryPostingGroup.SystemId
+                else
+                    Clear("Inventory Posting Group Id");
             end;
         }
         field(12; "Shelf No."; Code[10])
@@ -174,11 +184,9 @@
                 Validate("Price/Profit Calculation");
             end;
         }
-        field(19; "Price/Profit Calculation"; Option)
+        field(19; "Price/Profit Calculation"; Enum "Item Price Profit Calculation")
         {
             Caption = 'Price/Profit Calculation';
-            OptionCaption = 'Profit=Price-Cost,Price=Cost+Profit,No Relationship';
-            OptionMembers = "Profit=Price-Cost","Price=Cost+Profit","No Relationship";
 
             trigger OnValidate()
             begin
@@ -827,22 +835,33 @@
             TableRelation = "Gen. Product Posting Group";
 
             trigger OnValidate()
+            var
+                ConfirmMgt: Codeunit "Confirm Management";
+                Question: Text;
+                GenProdPostGroupExists: Boolean;
             begin
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then begin
                     if CurrFieldNo <> 0 then
-                        if ProdOrderExist then
-                            if not Confirm(
-                                 Text024 +
-                                 Text022, false,
-                                 FieldCaption("Gen. Prod. Posting Group"))
+                        if ProdOrderExist then begin
+                            Question := StrSubstNo(Text024 + Text022, FieldCaption("Gen. Prod. Posting Group"));
+                            if not ConfirmMgt.GetResponseOrDefault(Question, true)
                             then begin
                                 "Gen. Prod. Posting Group" := xRec."Gen. Prod. Posting Group";
                                 exit;
                             end;
+                        end;
 
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
                 end;
+
+                GenProdPostGroupExists := false;
+                if "Gen. Prod. Posting Group" <> '' then
+                    GenProdPostGroupExists := GenProdPostingGrp.Get("Gen. Prod. Posting Group");
+                if GenProdPostGroupExists then
+                    "Gen. Prod. Posting Group Id" := GenProdPostingGrp.SystemId
+                else
+                    Clear("Gen. Prod. Posting Group Id");
 
                 Validate("Price/Profit Calculation");
             end;
@@ -1085,6 +1104,11 @@
         {
             Caption = 'Application Wksh. User ID';
             DataClassification = EndUserIdentifiableInformation;
+        }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
         }
         field(910; "Assembly Policy"; Enum "Assembly Policy")
         {
@@ -2016,6 +2040,43 @@
                 UpdateItemCategoryCode;
             end;
         }
+        field(8006; "Inventory Posting Group Id"; Guid)
+        {
+            Caption = 'Inventory Posting Group Id';
+            TableRelation = "Inventory Posting Group".SystemId;
+
+            trigger OnValidate()
+            var
+                InventoryPostGroupExists: Boolean;
+            begin
+                InventoryPostGroupExists := false;
+                if not IsNullGuid("Inventory Posting Group Id") then
+                    InventoryPostGroupExists := InventoryPostingGroup.GetBySystemId("Inventory Posting Group Id");
+                if InventoryPostGroupExists then
+                    Validate("Inventory Posting Group", InventoryPostingGroup."Code")
+                else
+                    Validate("Inventory Posting Group", '')
+            end;
+        }
+        field(8007; "Gen. Prod. Posting Group Id"; Guid)
+        {
+            Caption = 'Gen. Prod. Posting Group Id';
+            TableRelation = "Gen. Product Posting Group".SystemId;
+            trigger OnValidate()
+            var
+                GenProdPostGroup: Record "Gen. Product Posting Group";
+                GenProdPostGroupExists: Boolean;
+            begin
+                GenProdPostGroupExists := false;
+                if not IsNullGuid("Gen. Prod. Posting Group Id") then
+                    GenProdPostGroupExists := GenProdPostGroup.GetBySystemId("Gen. Prod. Posting Group Id");
+
+                if GenProdPostGroupExists then
+                    Validate("Gen. Prod. Posting Group", GenProdPostGroup."Code")
+                else
+                    Validate("Gen. Prod. Posting Group", '')
+            end;
+        }
         field(8510; "Over-Receipt Code"; Code[20])
         {
             Caption = 'Over-Receipt Code';
@@ -2259,6 +2320,7 @@
                                                                           "No." = FIELD("No."),
                                                                           "Variant Code" = FIELD("Variant Filter"),
                                                                           "Location Code" = FIELD("Location Filter"),
+                                                                          "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                           "Due Date" = FIELD("Date Filter"),
@@ -2275,6 +2337,7 @@
                                                                           "No." = FIELD("No."),
                                                                           "Location Code" = FIELD("Location Filter"),
                                                                           "Variant Code" = FIELD("Variant Filter"),
+                                                                          "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                           "Order Date" = FIELD("Date Filter"),
@@ -2334,7 +2397,8 @@
                                                                                             "Production Forecast Name" = FIELD("Production Forecast Name"),
                                                                                             "Forecast Date" = FIELD("Date Filter"),
                                                                                             "Location Code" = FIELD("Location Filter"),
-                                                                                            "Component Forecast" = FIELD("Component Forecast")));
+                                                                                            "Component Forecast" = FIELD("Component Forecast"),
+                                                                                            "Variant Code" = FIELD("Variant Filter")));
             Caption = 'Prod. Forecast Quantity (Base)';
             DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
@@ -2447,6 +2511,9 @@
         key(Key18; GTIN)
         {
         }
+        key(Key19; "Coupled to CRM")
+        {
+        }
     }
 
     fieldgroups
@@ -2476,6 +2543,8 @@
         MoveEntries.MoveItemEntries(Rec);
 
         DeleteRelatedData;
+
+        DeleteItemUnitGroup();
     end;
 
     trigger OnInsert()
@@ -2500,6 +2569,8 @@
 
         UpdateReferencedIds;
         SetLastDateTimeModified;
+
+        UpdateItemUnitGroup();
     end;
 
     trigger OnModify()
@@ -2507,6 +2578,8 @@
         UpdateReferencedIds;
         SetLastDateTimeModified;
         PlanningAssignment.ItemChange(Rec, xRec);
+
+        UpdateItemUnitGroup();
     end;
 
     trigger OnRename()
@@ -2525,12 +2598,13 @@
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         ItemAttributeValueMapping.RenameItemAttributeValueMapping(xRec."No.", "No.");
         SetLastDateTimeModified;
+
+        UpdateItemUnitGroup();
     end;
 
     var
         Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 that includes this item.';
         CannotDeleteItemIfSalesDocExistErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 that includes this item.', Comment = '1: Type, 2 Item No. and 3 : Type of document Order,Invoice';
-        CannotDeleteItemIfSalesDocExistInvoicingErr: Label 'You cannot delete %1 %2 because at least one sales document (%3 %4) includes the item.', Comment = '1: Type, 2: Item No., 3: Description of document, 4: Document number';
         Text002: Label 'You cannot delete %1 %2 because there are one or more outstanding production orders that include this item.';
         Text003: Label 'Do you want to change %1?';
         Text004: Label 'You cannot delete %1 %2 because there are one or more certified Production BOM that include this item.';
@@ -2592,6 +2666,7 @@
         ServiceItem: Record "Service Item";
         ServiceContractLine: Record "Service Contract Line";
         ServiceItemComponent: Record "Service Item Component";
+        InventoryPostingGroup: Record "Inventory Posting Group";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         MoveEntries: Codeunit MoveEntries;
         DimMgt: Codeunit DimensionManagement;
@@ -2617,6 +2692,7 @@
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
         ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
         WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
+        ItemUnitGroupPrefixLbl: Label 'ITEM', Locked = true;
 
     local procedure DeleteRelatedData()
     var
@@ -2867,10 +2943,16 @@
     var
         SKU: Record "Stockkeeping Unit";
     begin
-        if Item.Get("No.") then begin
+        if Item.Get("No.") then
             if SKU.Get(LocationCode, Item."No.", VariantCode) then
                 Item."Shelf No." := SKU."Shelf No.";
-        end;
+    end;
+
+    procedure GetSKU(LocationCode: Code[10]; VariantCode: Code[10]) SKU: Record "Stockkeeping Unit" temporary
+    var
+        PlanningGetParameters: Codeunit "Planning-Get Parameters";
+    begin
+        PlanningGetParameters.AtSKU(SKU, "No.", VariantCode, LocationCode);
     end;
 
     local procedure GetInvtSetup()
@@ -3085,18 +3167,13 @@
     local procedure CheckSalesLine(CurrFieldNo: Integer)
     var
         SalesLine: Record "Sales Line";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         SalesLine.SetCurrentKey(Type, "No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", "No.");
-        if SalesLine.FindFirst then begin
-            if CurrFieldNo = 0 then begin
-                if EnvInfoProxy.IsInvoicing then
-                    Error(CannotDeleteItemIfSalesDocExistInvoicingErr, TableCaption, Description,
-                      SalesLine.GetDocumentTypeDescription, SalesLine."Document No.");
+        if SalesLine.FindFirst() then begin
+            if CurrFieldNo = 0 then
                 Error(CannotDeleteItemIfSalesDocExistErr, TableCaption, "No.", SalesLine."Document Type");
-            end;
             if CurrFieldNo = FieldNo(Type) then
                 Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", SalesLine.TableCaption);
         end;
@@ -3549,6 +3626,17 @@
         "Unit of Measure Id" := UnitOfMeasure.SystemId;
     end;
 
+    local procedure UpdateQtyRoundingPrecisionForBaseUoM()
+    var
+        BaseItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // Reset Rounding Percision in old Base UOM
+        if BaseItemUnitOfMeasure.Get("No.", xRec."Base Unit of Measure") then begin
+            BaseItemUnitOfMeasure.Validate("Qty. Rounding Precision", 0);
+            BaseItemUnitOfMeasure.Modify(true);
+        end;
+    end;
+
     procedure UpdateItemCategoryId()
     var
         ItemCategory: Record "Item Category";
@@ -3623,12 +3711,12 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
-        UpdateUnitOfMeasureId;
-        UpdateTaxGroupId;
-        UpdateItemCategoryId;
+        UpdateUnitOfMeasureId();
+        UpdateTaxGroupId();
+        UpdateItemCategoryId();
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -3653,6 +3741,42 @@
     procedure IsInventoriableType(): Boolean
     begin
         exit(not IsNonInventoriableType);
+    end;
+
+    local procedure UpdateItemUnitGroup()
+    var
+        UnitGroup: Record "Unit Group";
+        Modified: Boolean;
+    begin
+        if UnitGroup.Get(UnitGroup."Source Type"::Item, Rec.SystemId) then begin
+            if UnitGroup."Code" <> ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR' then begin
+                UnitGroup."Code" := ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
+                Modified := true;
+            end;
+            if UnitGroup."Source Name" <> Rec.Description then begin
+                UnitGroup."Source Name" := Rec.Description;
+                Modified := true;
+            end;
+            if Modified then
+                UnitGroup.Modify();
+            exit;
+        end else begin
+            UnitGroup.Init();
+            UnitGroup."Source Id" := Rec.SystemId;
+            UnitGroup."Source No." := Rec."No.";
+            UnitGroup."Code" := ItemUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
+            UnitGroup."Source Name" := Rec.Description;
+            UnitGroup."Source Type" := UnitGroup."Source Type"::Item;
+            UnitGroup.Insert();
+        end;
+    end;
+
+    local procedure DeleteItemUnitGroup()
+    var
+        UnitGroup: Record "Unit Group";
+    begin
+        if UnitGroup.Get(UnitGroup."Source Type"::Item, Rec.SystemId) then
+            UnitGroup.Delete();
     end;
 
     [IntegrationEvent(false, false)]

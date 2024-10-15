@@ -2,8 +2,8 @@ permissionset 9111 "General Ledger Accounts - Edit"
 {
     Access = Public;
     Assignable = false;
-
     Caption = 'Edit G/L accounts';
+
     Permissions = tabledata "Accounting Period" = R,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Budget Entry" = Rd,

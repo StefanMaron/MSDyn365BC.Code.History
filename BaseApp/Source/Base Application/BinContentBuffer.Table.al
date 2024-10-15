@@ -95,6 +95,7 @@ table 7330 "Bin Content Buffer"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
+            CaptionClass = '6,1';
             DataClassification = SystemMetadata;
         }
         field(14900; "CD No."; Code[50])
@@ -106,9 +107,7 @@ table 7330 "Bin Content Buffer"
 
     keys
     {
-#pragma warning disable AS0009
         key(Key1; "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
         {
             Clustered = true;
         }

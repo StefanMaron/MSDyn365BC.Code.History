@@ -1,4 +1,4 @@
-table 312 "Purchases & Payables Setup"
+﻿table 312 "Purchases & Payables Setup"
 {
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
@@ -250,6 +250,10 @@ table 312 "Purchases & Payables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Purchase Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -338,6 +342,22 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
+        }
+        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Purchase Header");
+                end;
+            end;
         }
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {

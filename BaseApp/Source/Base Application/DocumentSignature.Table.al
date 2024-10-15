@@ -40,13 +40,10 @@ table 12420 "Document Signature"
                    ("Employee Name" <> Employee."Short Name")
                 then
                     "Employee Name" := Employee."Short Name";
-                if OrganizationalUnit.Get(Employee."Org. Unit Code") then
-                    "Employee Org. Unit" := OrganizationalUnit.Name;
+                if Employee."Org. Unit Name" <> '' then
+                    "Employee Org. Unit" := Employee."Org. Unit Name";
                 if Employee."Job Title" <> '' then
-                    "Employee Job Title" := Employee."Job Title"
-                else
-                    if JobTitle.Get(Employee."Job Title Code") then
-                        "Employee Job Title" := JobTitle.Name;
+                    "Employee Job Title" := Employee."Job Title";
             end;
         }
         field(6; "Employee Name"; Text[100])
@@ -95,7 +92,5 @@ table 12420 "Document Signature"
     var
         Text000: Label 'You can not rename a %1.';
         Employee: Record Employee;
-        OrganizationalUnit: Record "Organizational Unit";
-        JobTitle: Record "Job Title";
 }
 

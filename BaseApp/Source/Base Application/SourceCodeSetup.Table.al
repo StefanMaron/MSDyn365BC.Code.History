@@ -194,6 +194,11 @@ table 242 "Source Code Setup"
             Caption = 'IC General Journal';
             TableRelation = "Source Code";
         }
+        field(44; "Unapplied Empl. Entry Appln."; Code[10])
+        {
+            Caption = 'Unapplied Empl. Entry Appln.';
+            TableRelation = "Source Code";
+        }
         field(45; "Unapplied Sales Entry Appln."; Code[10])
         {
             Caption = 'Unapplied Sales Entry Appln.';
@@ -207,6 +212,11 @@ table 242 "Source Code Setup"
         field(47; Reversal; Code[10])
         {
             Caption = 'Reversal';
+            TableRelation = "Source Code";
+        }
+        field(48; "Employee Entry Application"; Code[10])
+        {
+            Caption = 'Employee Entry Application';
             TableRelation = "Source Code";
         }
         field(49; "Payment Reconciliation Journal"; Code[10])
@@ -488,46 +498,6 @@ table 242 "Source Code Setup"
         field(17301; "Tax Difference Journal"; Code[10])
         {
             Caption = 'Tax Difference Journal';
-            TableRelation = "Source Code";
-        }
-        field(17350; "Vacation Order"; Code[10])
-        {
-            Caption = 'Vacation Order';
-            TableRelation = "Source Code";
-        }
-        field(17351; "Sick Leave Order"; Code[10])
-        {
-            Caption = 'Sick Leave Order';
-            TableRelation = "Source Code";
-        }
-        field(17352; "Travel Order"; Code[10])
-        {
-            Caption = 'Travel Order';
-            TableRelation = "Source Code";
-        }
-        field(17353; "Other Absence Order"; Code[10])
-        {
-            Caption = 'Other Absence Order';
-            TableRelation = "Source Code";
-        }
-        field(17400; "Payroll Calculation"; Code[10])
-        {
-            Caption = 'Payroll Calculation';
-            TableRelation = "Source Code";
-        }
-        field(17401; "Compress Payroll Journal"; Code[10])
-        {
-            Caption = 'Compress Payroll Journal';
-            TableRelation = "Source Code";
-        }
-        field(17402; "Employee Journal"; Code[10])
-        {
-            Caption = 'Employee Journal';
-            TableRelation = "Source Code";
-        }
-        field(17403; "Employee Vacation Journal"; Code[10])
-        {
-            Caption = 'Employee Vacation Journal';
             TableRelation = "Source Code";
         }
     }

@@ -1,4 +1,4 @@
-﻿codeunit 99000836 "Transfer Line-Reserve"
+codeunit 99000836 "Transfer Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -72,28 +72,9 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(TransferLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, Direction)', '16.0')]
-    procedure CreateReservation(var TransLine: Record "Transfer Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30]; Direction: Enum "Transfer Direction")
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."Package No." := ForCDNo;
-        CreateReservation(TransLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, Direction);
-    end;
-#endif
-
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
-    end;
-
-    [Obsolete('Replaced by TransLine.SetReservationFilters(FilterReservEntry, Direction)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; TransLine: Record "Transfer Line"; Direction: Enum "Transfer Direction")
-    begin
-        TransLine.SetReservationFilters(FilterReservEntry, Direction);
     end;
 
     procedure Caption(TransLine: Record "Transfer Line") CaptionText: Text
@@ -546,14 +527,13 @@
     var
         SourceTrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
-        FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer;
     begin
         if not TempTrackingSpecification.FindSet then
             exit;
         SourceTrackingSpecification.InitFromTransLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
 
         Clear(ItemTrackingLines);
-        ItemTrackingLines.SetFormRunMode(FormRunMode::Transfer);
+        ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Transfer);
         ItemTrackingLines.SetSourceSpec(SourceTrackingSpecification, TransferLine."Shipment Date");
         ItemTrackingLines.RegisterItemTrackingLines(
           SourceTrackingSpecification, TransferLine."Shipment Date", TempTrackingSpecification);

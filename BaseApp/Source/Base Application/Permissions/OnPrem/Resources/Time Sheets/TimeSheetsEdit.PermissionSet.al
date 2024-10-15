@@ -4,7 +4,8 @@ permissionset 4450 "Time Sheets - Edit"
     Assignable = false;
     Caption = 'Fill in time sheets';
 
-    Permissions = tabledata Employee = r,
+    Permissions = tabledata "Cause of Absence" = R,
+                  tabledata Employee = r,
                   tabledata "Employee Absence" = r,
                   tabledata Job = R,
                   tabledata "Job Ledger Entry" = r,
@@ -13,7 +14,6 @@ permissionset 4450 "Time Sheets - Edit"
                   tabledata "Job Task" = R,
                   tabledata "Res. Capacity Entry" = r,
                   tabledata Resource = R,
-                  tabledata "Time Activity" = R,
                   tabledata "Time Sheet Chart Setup" = R,
                   tabledata "Time Sheet Cmt. Line Archive" = R,
                   tabledata "Time Sheet Comment Line" = RIMD,

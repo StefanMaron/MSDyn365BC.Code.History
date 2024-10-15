@@ -42,11 +42,10 @@ table 17200 "Tax Register"
                 end;
                 case "Table ID" of
                     DATABASE::"Tax Register G/L Entry",
-                  DATABASE::"Tax Register PR Entry",
-                  DATABASE::"Tax Register CV Entry",
-                  DATABASE::"Tax Register FA Entry",
-                  DATABASE::"Tax Register Item Entry",
-                  DATABASE::"Tax Register FE Entry":
+                    DATABASE::"Tax Register CV Entry",
+                    DATABASE::"Tax Register FA Entry",
+                    DATABASE::"Tax Register Item Entry",
+                    DATABASE::"Tax Register FE Entry":
                         Validate("Storing Method", "Storing Method"::"Build Entry");
                 end;
                 CalcFields("Table Name");
@@ -54,7 +53,7 @@ table 17200 "Tax Register"
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -72,7 +71,7 @@ table 17200 "Tax Register"
         }
         field(6; "Page Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Name';
             FieldClass = FlowField;
@@ -135,7 +134,7 @@ table 17200 "Tax Register"
         }
         field(20; "Used in Statutory Report"; Boolean)
         {
-            CalcFormula = Exist ("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Tax Register"),
+            CalcFormula = Exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Tax Register"),
                                                                     "Int. Source Section Code" = FIELD("Section Code"),
                                                                     "Int. Source No." = FIELD("No.")));
             Caption = 'Used in Statutory Report';

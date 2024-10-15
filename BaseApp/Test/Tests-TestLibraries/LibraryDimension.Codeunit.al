@@ -469,7 +469,9 @@ codeunit 131001 "Library - Dimension"
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Revenue");
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Expense");
         AddTable(TableBuffer, DATABASE::Campaign);
+#if not CLEAN18
         AddTable(TableBuffer, DATABASE::"Customer Template");
+#endif
         AddTable(TableBuffer, DATABASE::Employee);
         AddTable(TableBuffer, DATABASE::"Fixed Asset");
         AddTable(TableBuffer, DATABASE::Insurance);

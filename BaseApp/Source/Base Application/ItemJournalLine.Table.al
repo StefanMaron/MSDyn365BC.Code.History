@@ -29,18 +29,25 @@
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
-                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Item No."));
-                    if ("Location Code" <> '') and ("Item No." <> '') then begin
+                    if CurrFieldNo <> 0 then begin
+                        GetItem();
+                        if Item.IsInventoriableType() then
+                            WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Item No."));
+                    end;
+                    if ("Location Code" <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     SetNewBinCodeForSameLocationTransfer();
                 end;
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                    if "Item No." <> '' then
+                        GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
                 if "Item No." = '' then begin
                     CreateDim(
@@ -133,10 +140,18 @@
                                    (CurrFieldNo <> 0)
                                 then
                                     Error(Text031, "Item No.", "Order No.");
+
                             if ProdOrderLine.Count = 1 then
                                 CopyFromProdOrderLine(ProdOrderLine)
                             else
-                                "Unit of Measure Code" := Item."Base Unit of Measure";
+                                if "Order Line No." <> 0 then begin
+                                    ProdOrderLine.SetRange("Line No.", "Order Line No.");
+                                    if ProdOrderLine.FindFirst() then
+                                        CopyFromProdOrderLine(ProdOrderLine)
+                                    else
+                                        "Unit of Measure Code" := Item."Base Unit of Measure";
+                                end else
+                                    "Unit of Measure Code" := Item."Base Unit of Measure";
                         end;
                     "Entry Type"::Consumption:
                         if FindProdOrderComponent(ProdOrderComp) then
@@ -194,8 +209,11 @@
                 if not ("Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) then
                     TestField("Phys. Inventory", false);
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Entry Type"));
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Entry Type"));
+                end;
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
@@ -272,22 +290,25 @@
                 if "Entry Type".AsInteger() <= "Entry Type"::Transfer.AsInteger() then
                     TestField("Item No.");
 
-                // Location code in allowed only for inventoriable items
-                if "Location Code" <> '' then
-                    Item.TestField(Type, Item.Type::Inventory);
-
                 ValidateItemDirectCostUnitAmount();
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
                 if "Location Code" <> xRec."Location Code" then begin
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
-                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Location Code"));
+                    if CurrFieldNo <> 0 then begin
+                        GetItem();
+                        if Item.IsInventoriableType() then
+                            WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Location Code"));
+                    end;
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code");
                     end;
                     if "Entry Type" = "Entry Type"::Transfer then begin
@@ -337,24 +358,26 @@
                   ("Entry Type" = "Entry Type"::Consumption) or
                   ("Entry Type" = "Entry Type"::Output) and
                   LastOutputOperation(Rec);
-                if CallWhseCheck then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if CallWhseCheck then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption(Quantity));
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption(Quantity));
+                end;
 
-                "Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 if ("Entry Type" = "Entry Type"::Output) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
-                "Invoiced Qty. (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Invoiced Quantity", "Qty. per Unit of Measure");
+                "Invoiced Qty. (Base)" := CalcBaseQty("Invoiced Quantity", FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
                 OnValidateQuantityOnBeforeGetUnitAmount(Rec, xRec, CurrFieldNo);
 
@@ -730,7 +753,8 @@
                     "New Bin Code" := '';
                     if ("New Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("New Location Code");
-                        if IsDefaultBin() then
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "New Location Code", "New Bin Code")
                     end;
                 end;
@@ -784,8 +808,13 @@
             begin
                 TestField("Phys. Inventory", true);
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Qty. (Phys. Inventory)"));
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Qty. (Phys. Inventory)"));
+                end;
+
+                "Qty. (Phys. Inventory)" := UOMMgt.RoundAndValidateQty("Qty. (Phys. Inventory)", "Qty. Rounding Precision (Base)", FieldCaption("Qty. (Phys. Inventory)"));
 
                 PhysInvtEntered := true;
                 Quantity := 0;
@@ -1081,16 +1110,17 @@
 
             trigger OnValidate()
             begin
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
+                GetItem();
+                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
+                    if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     SetNewBinCodeForSameLocationTransfer();
@@ -1145,6 +1175,8 @@
                 if "Bin Code" <> xRec."Bin Code" then begin
                     TestField("Location Code");
                     if "Bin Code" <> '' then begin
+                        GetItem();
+                        Item.TestField(Type, Item.Type::Inventory);
                         GetBin("Location Code", "Bin Code");
                         GetLocation("Location Code");
                         Location.TestField("Bin Mandatory");
@@ -1196,6 +1228,8 @@
                 if "New Bin Code" <> xRec."New Bin Code" then begin
                     TestField("New Location Code");
                     if "New Bin Code" <> '' then begin
+                        GetItem();
+                        Item.TestField(Type, Item.Type::Inventory);
                         GetBin("New Location Code", "New Bin Code");
                         GetLocation("New Location Code");
                         Location.TestField("Bin Mandatory");
@@ -1228,12 +1262,14 @@
 
                 GetItem;
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(Rec, xRec);
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
+                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
-                if CurrFieldNo <> 0 then
+                if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                     WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Unit of Measure Code"));
 
                 GetUnitAmount(FieldNo("Unit of Measure Code"));
@@ -1270,6 +1306,24 @@
         field(5408; "Derived from Blanket Order"; Boolean)
         {
             Caption = 'Derived from Blanket Order';
+            Editable = false;
+        }
+        field(5410; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5411; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
             Editable = false;
         }
         field(5413; "Quantity (Base)"; Decimal)
@@ -1323,7 +1377,11 @@
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
             ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
@@ -1714,14 +1772,16 @@
 
                 CheckConfirmOutputOnFinishedOperation;
 
-                if LastOutputOperation(Rec) then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if LastOutputOperation(Rec) then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
-                "Output Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Output Quantity", "Qty. per Unit of Measure");
+                "Output Quantity (Base)" := CalcBaseQty("Output Quantity", FieldCaption("Output Quantity"), FieldCaption("Output Quantity (Base)"));
 
                 Validate(Quantity, "Output Quantity");
+                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
             end;
         }
         field(5847; "Scrap Quantity"; Decimal)
@@ -1733,9 +1793,7 @@
             trigger OnValidate()
             begin
                 TestField("Entry Type", "Entry Type"::Output);
-                "Scrap Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Scrap Quantity", "Qty. per Unit of Measure");
+                "Scrap Quantity (Base)" := CalcBaseQty("Scrap Quantity", FieldCaption("Scrap Quantity"), FieldCaption("Scrap Quantity (Base)"));
             end;
         }
         field(5849; "Concurrent Capacity"; Decimal)
@@ -2246,7 +2304,6 @@
         Text006: Label 'You must not enter %1 in a revaluation sum line.';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
-        ItemJnlLine: Record "Item Journal Line";
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         GLSetup: Record "General Ledger Setup";
@@ -2265,7 +2322,6 @@
         CostCalcMgt: Codeunit "Cost Calculation Management";
         WMSManagement: Codeunit "WMS Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
-        PhysInvtEntered: Boolean;
         GLSetupRead: Boolean;
         MfgSetupRead: Boolean;
         UnitCost: Decimal;
@@ -2285,6 +2341,10 @@
         BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
+
+    protected var
+        ItemJnlLine: Record "Item Journal Line";
+        PhysInvtEntered: Boolean;
 
     procedure EmptyLine(): Boolean
     begin
@@ -2522,7 +2582,9 @@
         end;
     end;
 
-    procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; PostingNos: Code[20])
+    procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
+                                     ExtDocNo: Text[35];
+                                     PostingNos: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -2895,7 +2957,10 @@
         OnAfterInitRevalJnlLine(Rec, ItemLedgEntry2);
     end;
 
-    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
+                                              ExtDocNo: Text[35];
+                                              SourceCode: Code[10];
+                                              NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -2942,10 +3007,9 @@
         "Entry Type" := "Entry Type"::Sale;
         "Unit of Measure Code" := SalesLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := SalesLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := SalesLine."Qty. Rounding Precision (Base)";
         "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
-#if not CLEAN16        
-        "Cross-Reference No." := SalesLine."Cross-Reference No.";
-#endif        
         "Item Reference No." := SalesLine."Item Reference No.";
         "Originally Ordered No." := SalesLine."Originally Ordered No.";
         "Originally Ordered Var. Code" := SalesLine."Originally Ordered Var. Code";
@@ -3015,9 +3079,8 @@
         end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
-#if not CLEAN16        
-        "Cross-Reference No." := PurchLine."Cross-Reference No.";
-#endif        
+        "Qty. Rounding Precision" := PurchLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := PurchLine."Qty. Rounding Precision (Base)";
         "Item Reference No." := PurchLine."Item Reference No.";
         "Document Line No." := PurchLine."Line No.";
         "Unit Cost" := PurchLine."Unit Cost (LCY)";
@@ -3081,6 +3144,8 @@
         "Entry Type" := "Entry Type"::Sale;
         "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := ServiceLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := ServiceLine."Qty. Rounding Precision (Base)";
         "Derived from Blanket Order" := false;
         "Item Category Code" := ServiceLine."Item Category Code";
         Nonstock := ServiceLine.Nonstock;
@@ -3207,6 +3272,8 @@
         Quantity := JobJnlLine.Quantity;
         "Quantity (Base)" := JobJnlLine."Quantity (Base)";
         "Qty. per Unit of Measure" := JobJnlLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := JobJnlLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := JobJnlLine."Qty. Rounding Precision (Base)";
         "Unit Cost" := JobJnlLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := JobJnlLine."Unit Cost";
         Amount := JobJnlLine."Total Cost (LCY)";
@@ -3923,7 +3990,9 @@
         "Transaction Specification" := PurchInvLine."Transaction Specification";
         "Unit of Measure Code" := PurchInvLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchInvLine."Qty. per Unit of Measure";
+#if not CLEAN19
         "Cross-Reference No." := PurchInvLine."Cross-Reference No.";
+#endif
         "Document Line No." := PurchInvLine."Line No.";
         "Unit Cost" := PurchInvLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := PurchInvLine."Unit Cost";
@@ -3954,7 +4023,9 @@
         "Transaction Specification" := PurchCrMemoLine."Transaction Specification";
         "Unit of Measure Code" := PurchCrMemoLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchCrMemoLine."Qty. per Unit of Measure";
+#if not CLEAN19
         "Cross-Reference No." := PurchCrMemoLine."Cross-Reference No.";
+#endif
         "Document Line No." := PurchCrMemoLine."Line No.";
         "Unit Cost" := PurchCrMemoLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := PurchCrMemoLine."Unit Cost";
@@ -3984,7 +4055,9 @@
         "Transaction Specification" := SalesInvLine."Transaction Specification";
         "Unit of Measure Code" := SalesInvLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesInvLine."Qty. per Unit of Measure";
+#if not CLEAN19
         "Cross-Reference No." := SalesInvLine."Cross-Reference No.";
+#endif
         "Document Line No." := SalesInvLine."Line No.";
         "Unit Cost" := SalesInvLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := SalesInvLine."Unit Cost";
@@ -4014,7 +4087,9 @@
         "Transaction Specification" := SalesCrMemoLine."Transaction Specification";
         "Unit of Measure Code" := SalesCrMemoLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesCrMemoLine."Qty. per Unit of Measure";
+#if not CLEAN19
         "Cross-Reference No." := SalesCrMemoLine."Cross-Reference No.";
+#endif
         "Document Line No." := SalesCrMemoLine."Line No.";
         "Unit Cost" := SalesCrMemoLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := SalesCrMemoLine."Unit Cost";
@@ -4178,6 +4253,12 @@
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
 
         OnAfterIsDefaultBin(Location, Result);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
@@ -4743,4 +4824,3 @@
     begin
     end;
 }
-

@@ -230,7 +230,7 @@ table 17202 "Tax Register Template"
         }
         field(14; "Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
+            CalcFormula = Exist("Tax Register Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
                                                                   "Tax Register No." = FIELD(Code),
                                                                   Define = CONST(Template),
                                                                   "Line No." = FIELD("Line No.")));
@@ -245,7 +245,7 @@ table 17202 "Tax Register Template"
         }
         field(16; "G/L Corr. Dimensions Filters"; Boolean)
         {
-            CalcFormula = Exist ("Tax Reg. G/L Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
+            CalcFormula = Exist("Tax Reg. G/L Corr. Dim. Filter" WHERE("Section Code" = FIELD("Section Code"),
                                                                         "Tax Register No." = FIELD(Code),
                                                                         "Line No." = FIELD("Line No."),
                                                                         Define = CONST(Template)));
@@ -300,18 +300,12 @@ table 17202 "Tax Register Template"
                     TaxRegLineSetup.TestField("Tax Register No.", "Link Tax Register No.");
                     TaxRegLineSetup.TestField("Line Code");
                     "Term Line Code" := TaxRegLineSetup."Line Code";
-                    if "Term Line Code" <> xRec."Term Line Code" then begin
-                        "Element Type Totaling" := '';
-                        "Payroll Source Totaling" := '';
-                    end;
                 end;
             end;
 
             trigger OnValidate()
             begin
                 if "Term Line Code" <> xRec."Term Line Code" then begin
-                    CheckElementType;
-                    CheckSourcePay;
                     TaxRegSection.Get("Section Code");
                     TaxRegSection.ValidateChangeDeclaration;
                     TaxRegLineSetup.Reset();
@@ -362,57 +356,6 @@ table 17202 "Tax Register Template"
                     TaxRegSection.Get("Section Code");
                     TaxRegSection.ValidateChangeDeclaration;
                 end;
-            end;
-        }
-        field(51; "Org. Unit Code"; Code[10])
-        {
-            Caption = 'Org. Unit Code';
-            TableRelation = "Organizational Unit";
-        }
-        field(52; "Element Type Filter"; Option)
-        {
-            Caption = 'Element Type Filter';
-            Editable = false;
-            FieldClass = FlowFilter;
-            OptionCaption = 'Wage,Bonus,Income Tax,Netto Salary,Tax Deduction,Deduction,Other,Funds,Reporting';
-            OptionMembers = Wage,Bonus,"Income Tax","Netto Salary","Tax Deduction",Deduction,Other,Funds,Reporting;
-        }
-        field(53; "Payroll Source Filter"; Option)
-        {
-            Caption = 'Payroll Source Filter';
-            Editable = false;
-            FieldClass = FlowFilter;
-            OptionCaption = ' ,Cost,Profit,FSI,FOSI';
-            OptionMembers = " ",Cost,Profit,FSI,FOSI;
-        }
-        field(54; "Element Type Totaling"; Code[80])
-        {
-            Caption = 'Element Type Totaling';
-
-            trigger OnValidate()
-            begin
-                if "Element Type Totaling" <> '' then begin
-                    TaxReg.Get("Section Code", Code);
-                    if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-                        FieldError("Element Type Totaling",
-                          StrSubstNo(Text21000902, PayrollLedgEntry.TableCaption));
-                end;
-                TextErr := FormatElementTypeTotaling;
-            end;
-        }
-        field(55; "Payroll Source Totaling"; Code[80])
-        {
-            Caption = 'Payroll Source Totaling';
-
-            trigger OnValidate()
-            begin
-                if "Payroll Source Totaling" <> '' then begin
-                    TaxReg.Get("Section Code", Code);
-                    if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-                        FieldError("Payroll Source Totaling",
-                          StrSubstNo(Text21000902, PayrollLedgEntry.TableCaption));
-                end;
-                TextErr := FormatSourcePayTotaling;
             end;
         }
         field(56; "Depr. Bonus % Filter"; Code[20])
@@ -546,14 +489,9 @@ table 17202 "Tax Register Template"
         TaxRegFAEntry: Record "Tax Register FA Entry";
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         TaxRegNormGroup: Record "Tax Register Norm Group";
-        PayrollLedgEntry: Record "Payroll Ledger Entry";
-        LookupMgt: Codeunit "Lookup Management";
         Text2001: Label 'Period must be empty if Expression Type is %1.';
-        Text21000902: Label 'cannot be set if register is not linked to %1.';
-        TextErr: Text[1024];
         Text2003: Label '%1 must be %2.';
         Text2004: Label '%1 must be %2 or %3.';
-        Text2005: Label 'There is no data found within filter %2 for %1.';
 
     [Scope('OnPrem')]
     procedure MakeFieldFilter(TaxRegTableNo: Integer) FilterText: Text[1024]
@@ -568,144 +506,6 @@ table 17202 "Tax Register Template"
             until Field.Next() = 0;
             FilterText := DelChr(FilterText, '<>', '|');
         end;
-    end;
-
-    local procedure CheckElementType()
-    begin
-        if ("Term Line Code" <> '') and ("Element Type Totaling" <> '') then begin
-            TaxRegLineSetup.Reset();
-            TaxRegLineSetup.SetRange("Section Code", "Section Code");
-            TaxRegLineSetup.SetRange("Tax Register No.", Code);
-            TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
-            TaxRegLineSetup.FindFirst;
-            if not LookupMgt.MergeOptionLists(
-                 DATABASE::"Tax Register Template", FieldNo("Element Type Filter"),
-                 TaxRegLineSetup."Element Type Totaling", "Element Type Totaling", TextErr)
-            then
-                Message(Text2005,
-                  FieldCaption("Element Type Totaling"), TaxRegLineSetup.TableCaption);
-        end;
-    end;
-
-    local procedure CheckSourcePay()
-    begin
-        if ("Term Line Code" <> '') and ("Payroll Source Totaling" <> '') then begin
-            TaxRegLineSetup.Reset();
-            TaxRegLineSetup.SetFilter("Section Code", "Section Code");
-            TaxRegLineSetup.SetRange("Tax Register No.", Code);
-            TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
-            TaxRegLineSetup.FindFirst;
-            if not LookupMgt.MergeOptionLists(
-                 DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"),
-                 TaxRegLineSetup."Payroll Source Totaling", "Payroll Source Totaling", TextErr)
-            then
-                Message(Text2005,
-                  FieldCaption("Payroll Source Totaling"), TaxRegLineSetup.TableCaption);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure FormatElementTypeTotaling(): Text[80]
-    begin
-        exit(LookupMgt.FormatOptionTotaling(
-            DATABASE::"Tax Register Template", FieldNo("Element Type Filter"), "Element Type Totaling"));
-    end;
-
-    [Scope('OnPrem')]
-    procedure FormatSourcePayTotaling(): Text[80]
-    begin
-        exit(LookupMgt.FormatOptionTotaling(
-            DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"), "Payroll Source Totaling"));
-    end;
-
-    [Scope('OnPrem')]
-    procedure LookupElementTypeTotaling(var Text: Text[1024]): Boolean
-    begin
-        TaxReg.Get("Section Code", Code);
-        if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-            FieldError("Element Type Totaling",
-              StrSubstNo(Text21000902, PayrollLedgEntry.TableCaption));
-        exit(LookupMgt.LookupOptionList(
-            DATABASE::"Tax Register Template", FieldNo("Element Type Filter"), Text));
-    end;
-
-    [Scope('OnPrem')]
-    procedure LookupSourcePayTotaling(var Text: Text[1024]): Boolean
-    begin
-        TaxReg.Get("Section Code", Code);
-        if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-            FieldError("Payroll Source Totaling",
-              StrSubstNo(Text21000902, PayrollLedgEntry.TableCaption));
-        exit(LookupMgt.LookupOptionList(
-            DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"), Text));
-    end;
-
-    [Scope('OnPrem')]
-    procedure DrillDownElementTypeTotaling()
-    begin
-        TaxReg.Get("Section Code", Code);
-        if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-            exit;
-        LookupMgt.DrillDownOptionList(
-          DATABASE::"Tax Register Template", FieldNo("Element Type Filter"), "Element Type Totaling");
-    end;
-
-    [Scope('OnPrem')]
-    procedure DrillDownSourcePayTotaling()
-    begin
-        TaxReg.Get("Section Code", Code);
-        if TaxReg."Table ID" <> DATABASE::"Tax Register PR Entry" then
-            exit;
-        LookupMgt.DrillDownOptionList(
-          DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"), "Payroll Source Totaling");
-    end;
-
-    [Scope('OnPrem')]
-    procedure AssistEditSourcePayTotaling()
-    begin
-        if "Term Line Code" = '' then
-            TaxRegLineSetup.Init
-        else begin
-            TaxRegLineSetup.Reset();
-            TaxRegLineSetup.SetFilter("Section Code", "Section Code");
-            TaxRegLineSetup.SetRange("Tax Register No.", Code);
-            TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
-            TaxRegLineSetup.FindFirst;
-        end;
-        if not LookupMgt.MergeOptionLists(
-             DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"),
-             TaxRegLineSetup."Payroll Source Totaling", "Payroll Source Totaling", TextErr)
-        then begin
-            Message(Text2005,
-              FieldCaption("Payroll Source Totaling"), TaxRegLineSetup.TableCaption);
-            TextErr := '1..0';
-        end;
-        LookupMgt.DrillDownOptionList(
-          DATABASE::"Tax Register Template", FieldNo("Payroll Source Filter"), TextErr);
-    end;
-
-    [Scope('OnPrem')]
-    procedure AssistEditElementTypeTotaling()
-    begin
-        if "Term Line Code" = '' then
-            TaxRegLineSetup.Init
-        else begin
-            TaxRegLineSetup.Reset();
-            TaxRegLineSetup.SetFilter("Section Code", "Section Code");
-            TaxRegLineSetup.SetRange("Tax Register No.", Code);
-            TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
-            TaxRegLineSetup.FindFirst;
-        end;
-        if not LookupMgt.MergeOptionLists(
-             DATABASE::"Tax Register Template", FieldNo("Element Type Filter"),
-             TaxRegLineSetup."Element Type Totaling", "Element Type Totaling", TextErr)
-        then begin
-            Message(Text2005,
-              FieldCaption("Element Type Totaling"), TaxRegLineSetup.TableCaption);
-            TextErr := '1..0';
-        end;
-        LookupMgt.DrillDownOptionList(
-          DATABASE::"Tax Register Template", FieldNo("Element Type Filter"), TextErr);
     end;
 
     [Scope('OnPrem')]

@@ -1,14 +1,15 @@
 permissionset 5759 "D365 BANKING"
 {
     Assignable = true;
-    Caption = 'Dynamics 365 Banking';
 
+    Caption = 'Dynamics 365 Banking';
     Permissions = tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
                   tabledata "Applied Payment Entry" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RIMD,
                   tabledata "Bank Acc. Reconciliation Line" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account" = RIMD,
                   tabledata "Bank Account Ledger Entry" = Rimd,
                   tabledata "Bank Account Posting Group" = R,
@@ -40,6 +41,7 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Direct Debit Collection Entry" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "G/L Account" = R,
                   tabledata "G/L Entry - VAT Entry Link" = Rimd,
                   tabledata "G/L Entry" = Rim,
                   tabledata "G/L Register" = Rim,

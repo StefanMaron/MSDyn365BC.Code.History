@@ -1344,7 +1344,7 @@ codeunit 137929 "SCM Orders UI"
         WarehouseReceiptLine.Insert();
     end;
 
-    local procedure MockWhseActivLineWithQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Integer; QtyOutst: Decimal; QtyToHandle: Decimal)
+    local procedure MockWhseActivLineWithQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; QtyOutst: Decimal; QtyToHandle: Decimal)
     begin
         WarehouseActivityLine.Init();
         WarehouseActivityLine."Activity Type" := ActivityType;

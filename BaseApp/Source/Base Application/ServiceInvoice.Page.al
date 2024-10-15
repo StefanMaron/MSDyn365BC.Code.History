@@ -710,15 +710,11 @@ page 5933 "Service Invoice"
 
                     trigger OnAction()
                     var
-                        ServiceHeader: Record "Service Header";
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                         InstructionMgt: Codeunit "Instruction Mgt.";
                         PreAssignedNo: Code[20];
                     begin
                         PreAssignedNo := "No.";
-                        ServPostYesNo.PostDocument(Rec);
-
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage(PreAssignedNo);
@@ -731,6 +727,7 @@ page 5933 "Service Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -752,11 +749,8 @@ page 5933 "Service Invoice"
                     ToolTip = 'Finalize and prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Service-Post and Send", Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -771,12 +765,8 @@ page 5933 "Service Invoice"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServPostPrint.PostDocument(Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -832,8 +822,8 @@ page 5933 "Service Invoice"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

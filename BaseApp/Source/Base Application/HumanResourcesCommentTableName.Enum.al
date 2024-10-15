@@ -1,3 +1,4 @@
+#pragma warning disable AS0083
 enum 5208 "Human Resources Comment Table Name"
 {
     Extensible = true;
@@ -10,8 +11,5 @@ enum 5208 "Human Resources Comment Table Name"
     value(4; "Employee Absence") { Caption = 'Employee Absence'; }
     value(5; "Misc. Article Information") { Caption = 'Misc. Article Information'; }
     value(6; "Confidential Information") { Caption = 'Confidential Information'; }
-    value(7; "Person") { Caption = 'Person'; }
-    value(8; "Position") { Caption = 'Position'; }
-    value(9; "Labor Contract") { Caption = 'Labor Contract'; }
-    value(10; "Element") { Caption = 'Element'; }
 }
+#pragma warning restore AS0083

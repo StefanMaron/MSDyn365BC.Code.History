@@ -109,7 +109,7 @@ table 17207 "Tax Register Section"
         }
         field(16; "Page Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Name';
             Editable = false;
@@ -418,7 +418,6 @@ table 17207 "Tax Register Section"
         TaxRegFAEntry: Record "Tax Register FA Entry";
         TaxRegItemEntry: Record "Tax Register Item Entry";
         TaxRegFEEntry: Record "Tax Register FE Entry";
-        TaxRegPREntry: Record "Tax Register PR Entry";
     begin
         TaxRegAccumulation.SetCurrentKey("Section Code");
         TaxRegAccumulation.SetRange("Section Code", Code);
@@ -443,10 +442,6 @@ table 17207 "Tax Register Section"
         TaxRegFEEntry.SetCurrentKey("Section Code");
         TaxRegFEEntry.SetRange("Section Code", Code);
         TaxRegFEEntry.DeleteAll(true);
-
-        TaxRegPREntry.SetCurrentKey("Section Code");
-        TaxRegPREntry.SetRange("Section Code", Code);
-        TaxRegPREntry.DeleteAll(true);
 
         TaxRegGLCorrEntry.SetCurrentKey("Section Code");
         TaxRegGLCorrEntry.SetRange("Section Code", Code);

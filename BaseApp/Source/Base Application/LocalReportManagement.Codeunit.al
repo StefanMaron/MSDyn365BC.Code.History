@@ -126,24 +126,11 @@ codeunit 12401 "Local Report Management"
                         if VendorBank.Get("Account No.", "Beneficiary Bank Code") then begin
                             if Amount < 0 then
                                 FieldError(Amount, Text004);
-                            if (Vendor."Vendor Type" = Vendor."Vendor Type"::Person) and
-                               (VendorBank."Bank Branch No." <> '')
-                            then
-                                BenefeciaryCode[CodeIndex::INN] := DelChr(VendorBank."VAT Registration No.", '<>', ' ')
-                            else
-                                BenefeciaryCode[CodeIndex::INN] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
+                            BenefeciaryCode[CodeIndex::INN] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
                             BenefeciaryCode[CodeIndex::KPP] := DelChr(Vendor."KPP Code", '<>', ' ');
-                            if (Vendor."Vendor Type" = Vendor."Vendor Type"::Person) and
-                               (VendorBank."Bank Branch No." <> '')
-                            then begin
-                                BenefeciaryText[TextIndex::Name] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
-                                BenefeciaryText[TextIndex::Name2] := '';
-                                BenefeciaryText[TextIndex::Branch] := '';
-                            end else begin
-                                BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
-                                BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
-                                BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
-                            end;
+                            BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
+                            BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
+                            BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
                             BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(VendorBank."Bank Account No.", '<>', ' ');
                             BenefeciaryCode[CodeIndex::BIC] := DelChr(VendorBank.BIC, '<>', ' ');
                             BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(VendorBank."Bank Corresp. Account No.", '<>', ' ');

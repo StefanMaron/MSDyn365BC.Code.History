@@ -838,16 +838,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TemplatesFeatureKeyUT()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        // [SCENARIO] Get feature key for new templates
-        FeatureKey.Get('NewTemplates');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     [HandlerFunctions('SelectEmployeeTemplListHandler')]
     procedure EmployeeTemplCreateEmployeeFromContactTwoTemplatesUT()
     var
@@ -1141,8 +1131,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [GIVEN] Item "I"
-        Item.Init();
-        Item.Insert(true);
+        LibraryInventory.CreateItem(Item);
 
         // [WHEN] Apply "T2" to "I"
         ItemTemplMgt.UpdateItemFromTemplate(Item);
@@ -1284,10 +1273,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [GIVEN] Two items "I1" and "I2"
-        Item[1].Init();
-        Item[1].Insert(true);
-        Item[2].Init();
-        Item[2].Insert(true);
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
         Item[3].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
 
         // [WHEN] Apply "T2" for "I1" and "I2" at one time
@@ -1991,7 +1978,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);//r01
         // [GIVEN] Nonstock item
         CreateNonstockItem(NonstockItem, ItemTempl.Code);
 
@@ -2244,77 +2231,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Vendor.TestField(County);
         Vendor.TestField("Language Code");
         Vendor.TestField("Currency Code");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplCardControls()
-    var
-        CustomerCardPageControlField: Record "Page Control Field";
-        CustomerTemplCardPageControlField: Record "Page Control Field";
-        CustomerTemplField: Record Field;
-    begin
-        CustomerTemplCardPageControlField.SetRange(PageNo, Page::"Customer Templ. Card");
-
-        CustomerCardPageControlField.SetRange(PageNo, Page::"Customer Card");
-        CustomerCardPageControlField.SetFilter(FieldNo, '<>0');
-        if CustomerCardPageControlField.FindSet() then
-            repeat
-                if CustomerTemplField.Get(Database::"Customer Templ.", CustomerCardPageControlField.FieldNo) then begin
-                    CustomerTemplCardPageControlField.SetRange(FieldNo, CustomerCardPageControlField.FieldNo);
-                    if CustomerTemplCardPageControlField.IsEmpty then
-                        Error('%1 should exist on the customer template card.', CustomerCardPageControlField.ControlName);
-                end;
-            until CustomerCardPageControlField.Next() = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTemplCardControls()
-    var
-        VendorCardPageControlField: Record "Page Control Field";
-        VendorTemplCardPageControlField: Record "Page Control Field";
-        VendorTemplField: Record Field;
-    begin
-        VendorTemplCardPageControlField.SetRange(PageNo, Page::"Vendor Templ. Card");
-
-        VendorCardPageControlField.SetRange(PageNo, Page::"Vendor Card");
-        VendorCardPageControlField.SetFilter(FieldNo, '<>0');
-        if VendorCardPageControlField.FindSet() then
-            repeat
-                if VendorTemplField.Get(Database::"Vendor Templ.", VendorCardPageControlField.FieldNo) then begin
-                    VendorTemplCardPageControlField.SetRange(FieldNo, VendorCardPageControlField.FieldNo);
-                    if VendorTemplCardPageControlField.IsEmpty then
-                        Error('%1 should exist on the Vendor template card.', VendorCardPageControlField.ControlName);
-                end;
-            until VendorCardPageControlField.Next() = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemTemplCardControls()
-    var
-        Item: Record Item;
-        ItemCardPageControlField: Record "Page Control Field";
-        ItemTemplCardPageControlField: Record "Page Control Field";
-        ItemTemplField: Record Field;
-        FieldExclusionList: List of [Integer];
-    begin
-        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
-        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
-
-        ItemTemplCardPageControlField.SetRange(PageNo, Page::"Item Templ. Card");
-
-        ItemCardPageControlField.SetRange(PageNo, Page::"Item Card");
-        ItemCardPageControlField.SetFilter(FieldNo, '<>0');
-        if ItemCardPageControlField.FindSet() then
-            repeat
-                if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) and not (FieldExclusionList.Contains(ItemCardPageControlField.FieldNo)) then begin
-                    ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
-                    if ItemTemplCardPageControlField.IsEmpty then
-                        Error('%1 should exist on the Item template card.', ItemCardPageControlField.ControlName);
-                end;
-            until ItemCardPageControlField.Next() = 0;
     end;
 
     local procedure Initialize()

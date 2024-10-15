@@ -23,9 +23,6 @@ page 5208 Relatives
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description for the employee''s relative or other close contact.';
                 }
-                field("OKIN Code"; "OKIN Code")
-                {
-                }
             }
         }
         area(factboxes)

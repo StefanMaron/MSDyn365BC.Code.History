@@ -501,8 +501,10 @@
 
     trigger OnOpenPage()
     begin
-        if (GetFilters() <> '') and not Find() then
-            if FindFirst() then;
+        OnBeforeOpenPage();
+
+        if (Rec.GetFilters() <> '') and not Rec.Find() then
+            if Rec.FindFirst() then;
 
         SetPackageTrackingVisibility();
         SetDimVisibility();
@@ -625,6 +627,11 @@
         PackageMgt: Codeunit "Package Management";
     begin
         PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenPage()
+    begin
     end;
 }
 

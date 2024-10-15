@@ -137,10 +137,6 @@ xmlport 26550 "Statutory Reports"
                     {
                         MinOccurs = Zero;
                     }
-                    fieldelement(Exception; "Statutory Report Table".Exception)
-                    {
-                        MinOccurs = Zero;
-                    }
                     tableelement("stat. report table row"; "Stat. Report Table Row")
                     {
                         LinkFields = "Report Code" = FIELD("Report Code"), "Table Code" = FIELD(Code);

@@ -62,7 +62,6 @@ codeunit 12462 "Item Report Management"
 
         FillGeneralInfo(OperationType, OrderNo, OrderDate);
         FillHeader(DocPrintBuffer, PurchaseHeaderTemp);
-        FillLastPage(DocPrintBuffer);
 
         if FileName <> '' then
             ExcelReportBuilderMgr.ExportDataToClientFile(FileName)
@@ -290,118 +289,6 @@ codeunit 12462 "Item Report Management"
                 until Next() = 0;
             FillTotalsToExcel(TotalAccomQty, TotalAccomQtyToReceive, TotalGrossWeight, TotalNetWeight);
         end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure FillLastPage(DocPrintBuffer: Record "Document Print Buffer")
-    var
-        DocumentSignature: Record "Document Signature";
-        PostedDocumentSignature: Record "Posted Document Signature";
-        CompanyInfo: Record "Company Information";
-    begin
-        CompanyInfo.Get();
-
-        ExcelReportBuilderMgr.SetSheet('Sheet3');
-        ExcelReportBuilderMgr.AddSection('PAGE3');
-        if DocPrintBuffer."Table ID" = DATABASE::"Invt. Receipt Header" then begin
-            if PostedDocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Chairman)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionHeadTitle', CompanyInfo.Name + ' ' + PostedDocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionHeadName', PostedDocumentSignature."Employee Name");
-            end;
-
-            if PostedDocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member1)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember1Title', CompanyInfo.Name + ' ' + PostedDocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember1Name', PostedDocumentSignature."Employee Name");
-            end;
-
-            if PostedDocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member2)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember2Title', CompanyInfo.Name + ' ' + PostedDocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember2Name', PostedDocumentSignature."Employee Name");
-            end;
-
-            if PostedDocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member3)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember3Title', CompanyInfo.Name + ' ' + PostedDocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember3Name', PostedDocumentSignature."Employee Name");
-            end;
-        end else begin
-            if DocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Chairman)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionHeadTitle', CompanyInfo.Name + ' ' + DocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionHeadName', DocumentSignature."Employee Name");
-            end;
-
-            if DocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member1)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember1Title', CompanyInfo.Name + ' ' + DocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember1Name', DocumentSignature."Employee Name");
-            end;
-
-            if DocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member2)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember2Title', CompanyInfo.Name + ' ' + DocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember2Name', DocumentSignature."Employee Name");
-            end;
-
-            if DocumentSignature.Get(
-                 DocPrintBuffer."Table ID",
-                 DocPrintBuffer."Document Type",
-                 DocPrintBuffer."Document No.",
-                 DocumentSignature."Employee Type"::Member3)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember3Title', CompanyInfo.Name + ' ' + DocumentSignature."Employee Job Title");
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'CommissionMember3Name', DocumentSignature."Employee Name");
-            end;
-        end;
-
-        ExcelReportBuilderMgr.AddDataToSection('AccountantName', CompanyInfo."Accountant Name");
     end;
 
     local procedure FillLineToExcel(DecimalLineValue: array[17] of Decimal; TextLineValue: array[5] of Text[250])

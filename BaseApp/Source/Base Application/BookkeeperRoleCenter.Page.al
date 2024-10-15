@@ -1,6 +1,6 @@
 page 9004 "Bookkeeper Role Center"
 {
-    Caption = 'Bookkeeper', Comment = '{Dependency=Match,"ProfileDescription_BOOKKEEPER"}';
+    Caption = 'Bookkeeper';
     PageType = RoleCenter;
 
     layout
@@ -967,7 +967,7 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Adjust E&xchange Rates';
                     Ellipsis = true;
                     Image = AdjustExchangeRates;
-                    RunObject = Report "Adjust Exchange Rates";
+                    RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                     ToolTip = 'Adjust exchange rates and create adjustment transactions for customers, vendors, and bank accounts. You can also set up separate dimension values for profit and loss adjustment transactions. You can then use the test mode to preview the adjustments without posting transactions.';
                 }
                 action("Import Currency Exch. Rate")

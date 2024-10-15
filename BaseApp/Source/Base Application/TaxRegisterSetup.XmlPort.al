@@ -138,12 +138,6 @@ xmlport 17200 "Tax Register Setup"
                         fieldelement(LineCode; "Tax Register Line Setup"."Line Code")
                         {
                         }
-                        fieldelement(ElementTypeTotaling; "Tax Register Line Setup"."Element Type Totaling")
-                        {
-                        }
-                        fieldelement(PayrollSourceTotaling; "Tax Register Line Setup"."Payroll Source Totaling")
-                        {
-                        }
                         fieldelement(EmployeeStatisticsGroupCode; "Tax Register Line Setup"."Employee Statistics Group Code")
                         {
                         }
@@ -222,15 +216,6 @@ xmlport 17200 "Tax Register Setup"
                         {
                         }
                         fieldelement(FAType; "Tax Register Template"."FA Type")
-                        {
-                        }
-                        fieldelement(OrgUnitCode; "Tax Register Template"."Org. Unit Code")
-                        {
-                        }
-                        fieldelement(ElementTypeTotaling; "Tax Register Template"."Element Type Totaling")
-                        {
-                        }
-                        fieldelement(PayrollSourceTotaling; "Tax Register Template"."Payroll Source Totaling")
                         {
                         }
                         fieldelement(DeprBonusPercentFilter; "Tax Register Template"."Depr. Bonus % Filter")

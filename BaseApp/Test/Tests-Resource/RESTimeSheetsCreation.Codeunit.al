@@ -2,6 +2,7 @@ codeunit 136503 "RES Time Sheets Creation"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -16,6 +17,7 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        RESTimeSheetsCreation: Codeunit "RES Time Sheets Creation";
         Text001Err: Label 'Rolling back changes...';
         NonExistentUserErr: Label 'NON EXISTENT USER ID';
         ErrorGeneratedIncorrectErr: Label 'Incorrect Error Message';
@@ -60,7 +62,7 @@ codeunit 136503 "RES Time Sheets Creation"
         IncorrectAllocationQuantityErr: Label 'Incorrect Allocation Quantity';
         IsInitialized: Boolean;
         LineCountErr: Label 'Number of %1 entries is wrong';
-        IncorrectHRUnitOfMeasureTableRelationErr: Label 'The field Unit of Measure Code of table Time Activity contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)', Locked = true;
+        IncorrectHRUnitOfMeasureTableRelationErr: Label 'The field Unit of Measure Code of table Cause of Absence contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)', Locked = true;
 
     local procedure Initialize()
     var
@@ -1399,7 +1401,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine: Record "Time Sheet Line";
         Date: Record Date;
         ResourcesSetup: Record "Resources Setup";
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
     begin
         // Verify that Time Sheet line with Type Absence cannot be created when no Employee is linked with Resource
         Initialize;
@@ -1438,7 +1440,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Date: Record Date;
         ResourcesSetup: Record "Resources Setup";
         Employee: Record Employee;
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         EmployeeAbsence: Record "Employee Absence";
         TimeSheet: TestPage "Time Sheet";
         DayTimeAllocation: array[7] of Decimal;
@@ -1954,6 +1956,8 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that user can switch between Time Sheets directly from Time Sheet page
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 6. Open Time Sheet List page
@@ -1966,6 +1970,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 9. Validate Correct Time Sheet was opened
         Assert.AreEqual(TimeSheetHeader."No.", TimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -1984,6 +1989,8 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 2. Generate Line for both Time Sheets
@@ -2002,6 +2009,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 4. Validate opened Manager Time Sheet list No. is correct
         Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -2083,6 +2091,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that Manager can overview archived Time Sheets
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
         // 1. Create Resource and 2 Time Sheets, Submit, Approve, Suggest and post Resource Lines
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         GlobalTimeSheetNo := TimeSheetHeader."No.";
@@ -2117,6 +2126,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.AreEqual(ManagerTimeSheetArchive.CurrTimeSheetNo.Value, GlobalTimeSheetNo, IncorrectTSArchiveNoOpenedErr);
         // 5. Open Posting Entries and validate
         ManagerTimeSheetArchive."Posting E&ntries".Invoke;
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -2216,7 +2226,7 @@ codeunit 136503 "RES Time Sheets Creation"
     [Scope('OnPrem')]
     procedure UT_AssignHumanResourceUOMForCauseOfAbsence()
     var
-        TimeActivity: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         // [FEATURE] [UT] [Employee] [Unit of Measure]
@@ -2224,17 +2234,17 @@ codeunit 136503 "RES Time Sheets Creation"
 
         Initialize;
         LibraryTimeSheet.CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
-        TimeActivity.Init();
-        TimeActivity.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+        CauseOfAbsence.Init();
+        CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
 
-        TimeActivity.TestField("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+        CauseOfAbsence.TestField("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure UT_ErrorWhenAssignNormalUOMForCauseOfAbsence()
     var
-        TimeActivity: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // [FEATURE] [UT] [Employee] [Unit of Measure]
@@ -2242,8 +2252,8 @@ codeunit 136503 "RES Time Sheets Creation"
 
         Initialize;
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        TimeActivity.Init();
-        asserterror TimeActivity.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        CauseOfAbsence.Init();
+        asserterror CauseOfAbsence.Validate("Unit of Measure Code", UnitOfMeasure.Code);
 
         Assert.ExpectedError(StrSubstNo(IncorrectHRUnitOfMeasureTableRelationErr, UnitOfMeasure.Code));
     end;
@@ -2441,7 +2451,7 @@ codeunit 136503 "RES Time Sheets Creation"
         OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
     end;
 
-    local procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Time Activity")
+    local procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
@@ -2957,6 +2967,12 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         MyTimeSheets.SetRange("User ID", UserId);
         exit(MyTimeSheets.Count);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
+    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
+    begin
+        Result := false;
     end;
 }
 

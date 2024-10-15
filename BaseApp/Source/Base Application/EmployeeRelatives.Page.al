@@ -2,7 +2,7 @@ page 5209 "Employee Relatives"
 {
     AutoSplitKey = true;
     Caption = 'Employee Relatives';
-    DataCaptionFields = "Person No.";
+    DataCaptionFields = "Employee No.";
     PageType = List;
     SourceTable = "Employee Relative";
 
@@ -18,11 +18,6 @@ page 5209 "Employee Relatives"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a relative code for the employee.';
                 }
-                field("Relative Person No."; "Relative Person No.")
-                {
-                    ApplicationArea = BasicHR;
-                    ToolTip = 'Specifies the relative''s employee number, if the relative also works at the company.';
-                }
                 field("First Name"; "First Name")
                 {
                     ApplicationArea = BasicHR;
@@ -34,9 +29,6 @@ page 5209 "Employee Relatives"
                     ToolTip = 'Specifies the middle name of the employee''s relative.';
                     Visible = false;
                 }
-                field("Last Name"; "Last Name")
-                {
-                }
                 field("Birth Date"; "Birth Date")
                 {
                     ApplicationArea = BasicHR;
@@ -47,11 +39,11 @@ page 5209 "Employee Relatives"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the relative''s telephone number.';
                 }
-                field("Relation Start Date"; "Relation Start Date")
+                field("Relative's Employee No."; "Relative's Employee No.")
                 {
-                }
-                field("Relation End Date"; "Relation End Date")
-                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the relative''s employee number, if the relative also works at the company.';
+                    Visible = false;
                 }
                 field(Comment; Comment)
                 {
@@ -90,7 +82,7 @@ page 5209 "Employee Relatives"
                     Image = ViewComments;
                     RunObject = Page "Human Resource Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Employee Relative"),
-                                  "No." = FIELD("Person No."),
+                                  "No." = FIELD("Employee No."),
                                   "Table Line No." = FIELD("Line No.");
                     ToolTip = 'View or add comments for the record.';
                 }

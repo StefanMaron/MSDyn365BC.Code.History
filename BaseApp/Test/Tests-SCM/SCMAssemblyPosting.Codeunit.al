@@ -112,10 +112,10 @@ codeunit 137915 "SCM Assembly Posting"
         // Post assembly order with only text lines
         LibraryInventory.CreateItem(AssembledItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::" ", '', 1, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::" ", '', 1, '');
         AssemblyLine.Validate(Description, 'Text 1');
         AssemblyLine.Modify(true);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::" ", '', 2, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::" ", '', 2, '');
         AssemblyLine.Validate(Description, 'Text 2');
         AssemblyLine.Modify(true);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
@@ -135,7 +135,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", 20, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 20, '');
         AssemblyLine.Validate("Quantity to Consume", 0);
         AssemblyLine.Modify(true);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNothingToPost);
@@ -157,7 +157,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", 20, CompItem."Base Unit of Measure");
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 20, CompItem."Base Unit of Measure");
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ErrNotOnInventory);
 
         // insert items and post again
@@ -320,7 +320,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryInventory.CreateItem(AssembledItem);
         LibraryInventory.CreateItem(CompItem);
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 10);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", 20, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 20, '');
         AssemblyLine.Validate("Quantity to Consume", 10);
         AssemblyLine.Validate(Type, AssemblyLine.Type::" ");
         AssemblyLine.Modify(true);
@@ -344,7 +344,7 @@ codeunit 137915 "SCM Assembly Posting"
         CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", 2);
         AssemblyHeader.Validate("Quantity to Assemble", 1);
         AssemblyHeader.Modify(true);
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", 2, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 2, '');
         AssemblyLine.Validate(Type, AssemblyLine.Type::Resource);
         AssemblyLine.Modify(true);
         Assert.AreEqual('', AssemblyLine."Gen. Prod. Posting Group", 'Gen. Prod. Posting Group to be blank');
@@ -443,7 +443,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader.Validate(Quantity, 1);
         AssemblyHeader.Modify(true);
         CreateAssemblyOrderLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
     end;
 
     [Test]
@@ -488,9 +488,9 @@ codeunit 137915 "SCM Assembly Posting"
         // create asm order
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
         CreateAssemblyOrderLine(
-          AssemblyHeader, AssemblyLineItem, AssemblyLineItem.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+          AssemblyHeader, AssemblyLineItem, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
         CreateAssemblyOrderLine(
-          AssemblyHeader, AssemblyLineResource, AssemblyLineResource.Type::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
+          AssemblyHeader, AssemblyLineResource, "BOM Component Type"::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
         // create dimensions
         // - on header
         LibraryDimension.CreateDimension(Dimension);
@@ -615,7 +615,7 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader.Insert(true);
     end;
 
-    local procedure CreateAssemblyOrderLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Option; No: Code[20]; Quantity: Decimal; UoM: Code[10])
+    local procedure CreateAssemblyOrderLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -728,7 +728,7 @@ codeunit 137915 "SCM Assembly Posting"
           AssemblyCommentLineHeader2, AssemblyHeader."Document Type".AsInteger(),
           AssemblyHeader."No.", 0, CalcDate('<-1M>', WorkDate), 'Comment in the header 2.');
 
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine1, AssemblyLine1.Type::" ", '', 0, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine1, "BOM Component Type"::" ", '', 0, '');
         AssemblyLine1.Validate(Description, 'Text description');
         AssemblyLine1.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
@@ -738,7 +738,7 @@ codeunit 137915 "SCM Assembly Posting"
           AssemblyCommentLineTextLine2, AssemblyLine1."Document Type".AsInteger(),
           AssemblyLine1."Document No.", AssemblyLine1."Line No.", CalcDate('<+5D>', WorkDate), 'Text comment 2.');
 
-        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine2, AssemblyLine2.Type::Item, CompItem."No.", 20, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine2, "BOM Component Type"::Item, CompItem."No.", 20, '');
         AssemblyLine2.Validate("Variant Code", ItemVariant.Code);
         AssemblyLine2.Validate("Location Code", ComponentLocation.Code);
         AssemblyLine2.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
@@ -751,13 +751,13 @@ codeunit 137915 "SCM Assembly Posting"
           AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate, 'Comment for item line 2.');
 
         CreateAssemblyOrderLine(
-          AssemblyHeader, AssemblyLine3, AssemblyLine3.Type::Resource, Resource."No.", 30, Resource."Base Unit of Measure");
+          AssemblyHeader, AssemblyLine3, "BOM Component Type"::Resource, Resource."No.", 30, Resource."Base Unit of Measure");
         AssemblyLine3.Validate("Resource Usage Type", AssemblyLine3."Resource Usage Type"::Direct);
         AssemblyLine3.Validate("Unit of Measure Code", ResourceUnitOfMeasure.Code);
         AssemblyLine3.Modify(true);
 
         CreateAssemblyOrderLine(
-          AssemblyHeader, AssemblyLine4, AssemblyLine4.Type::Resource, Resource."No.", 40, Resource."Base Unit of Measure");
+          AssemblyHeader, AssemblyLine4, "BOM Component Type"::Resource, Resource."No.", 40, Resource."Base Unit of Measure");
         AssemblyLine4.Validate("Resource Usage Type", AssemblyLine4."Resource Usage Type"::Fixed);
         AssemblyLine4.Validate(Description, 'Fixed resource usage entity');
         AssemblyLine4.Modify(true);
@@ -1061,7 +1061,6 @@ codeunit 137915 "SCM Assembly Posting"
             // "Job No."
             // "Job Task No."
             // "Job Purchase"
-            // "Cross-Reference No."
             // "Applied Entry to Adjust"
             // Correction
             // "Serial No."

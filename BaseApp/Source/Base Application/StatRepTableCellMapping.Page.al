@@ -129,33 +129,6 @@ page 26594 "Stat. Rep. Table Cell Mapping"
                                         "Int. Source Row Description" := TaxCalcLine.Description;
                                     end;
                                 end;
-                            "Int. Source Type"::"Payroll Analysis Report":
-                                begin
-                                    PayrollAnalysisReportName.Get("Int. Source No.");
-                                    PayrollAnalysisReportName.TestField("Analysis Line Template Name");
-                                    PayrollAnalysisLine.FilterGroup(2);
-                                    PayrollAnalysisLine.SetRange(
-                                      "Analysis Line Template Name",
-                                      PayrollAnalysisReportName."Analysis Line Template Name");
-                                    PayrollAnalysisLine.FilterGroup(0);
-                                    Clear(PayrollAnalysisLines);
-                                    PayrollAnalysisLines.SetTableView(PayrollAnalysisLine);
-                                    if "Internal Source Row No." <> 0 then
-                                        if PayrollAnalysisLine.Get(
-                                             PayrollAnalysisReportName."Analysis Line Template Name",
-                                             "Internal Source Row No.")
-                                        then
-                                            PayrollAnalysisLines.SetRecord(PayrollAnalysisLine);
-                                    PayrollAnalysisLines.LookupMode := true;
-                                    PayrollAnalysisLines.Editable := false;
-                                    PayrollAnalysisLines.SetCurrentAnalysisLineTempl(
-                                      PayrollAnalysisReportName."Analysis Line Template Name");
-                                    if PayrollAnalysisLines.RunModal = ACTION::LookupOK then begin
-                                        PayrollAnalysisLines.GetRecord(PayrollAnalysisLine);
-                                        "Internal Source Row No." := PayrollAnalysisLine."Line No.";
-                                        "Int. Source Row Description" := PayrollAnalysisLine.Description;
-                                    end;
-                                end;
                         end;
                     end;
                 }
@@ -188,33 +161,6 @@ page 26594 "Stat. Rep. Table Cell Mapping"
                                         "Int. Source Column Header" := ColumnLayout."Column Header";
                                     end;
                                 end;
-                            "Int. Source Type"::"Payroll Analysis Report":
-                                begin
-                                    PayrollAnalysisReportName.Get("Int. Source No.");
-                                    PayrollAnalysisReportName.TestField("Analysis Column Template Name");
-                                    PayrollAnalysisColumn.FilterGroup(2);
-                                    PayrollAnalysisColumn.SetRange(
-                                      "Analysis Column Template",
-                                      PayrollAnalysisReportName."Analysis Column Template Name");
-                                    PayrollAnalysisColumn.FilterGroup(0);
-                                    Clear(PayrollAnalysisColumns);
-                                    PayrollAnalysisColumns.SetTableView(PayrollAnalysisColumn);
-                                    if "Internal Source Column No." <> 0 then
-                                        if PayrollAnalysisColumn.Get(
-                                             PayrollAnalysisReportName."Analysis Column Template Name",
-                                             "Internal Source Column No.")
-                                        then
-                                            PayrollAnalysisColumns.SetRecord(PayrollAnalysisColumn);
-                                    PayrollAnalysisColumns.LookupMode := true;
-                                    PayrollAnalysisColumns.Editable := false;
-                                    PayrollAnalysisColumns.SetCurrentColumnName(
-                                      PayrollAnalysisReportName."Analysis Column Template Name");
-                                    if PayrollAnalysisColumns.RunModal = ACTION::LookupOK then begin
-                                        PayrollAnalysisColumns.GetRecord(PayrollAnalysisColumn);
-                                        "Internal Source Column No." := PayrollAnalysisColumn."Line No.";
-                                        "Int. Source Column Header" := PayrollAnalysisColumn."Column Header";
-                                    end;
-                                end;
                         end;
                     end;
                 }
@@ -243,13 +189,8 @@ page 26594 "Stat. Rep. Table Cell Mapping"
         ColumnLayout: Record "Column Layout";
         TaxRegisterTemplate: Record "Tax Register Template";
         TaxCalcLine: Record "Tax Calc. Line";
-        PayrollAnalysisReportName: Record "Payroll Analysis Report Name";
-        PayrollAnalysisLine: Record "Payroll Analysis Line";
-        PayrollAnalysisColumn: Record "Payroll Analysis Column";
         AccScheduleLines: Page "Acc. Schedule Lines";
         ColumnLayouts: Page "Column Layouts";
-        PayrollAnalysisLines: Page "Payroll Analysis Lines";
-        PayrollAnalysisColumns: Page "Payroll Analysis Columns";
         TaxRegisterTemplateLines: Page "Tax Register Templates";
         TaxCalcLines: Page "Tax Calc. Lines";
         [InDataSet]

@@ -31,13 +31,15 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Customer Price Group" = R,
+                  tabledata "Customer Templ." = r,
+#if not CLEAN18
                   tabledata "Customer Template" = r,
+#endif
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rim,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
-                  tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Ledger Entry" = rm,
                   tabledata "Filed Contract Line" = rm,
                   tabledata "Filed Service Contract Header" = rm,
@@ -54,7 +56,9 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,
@@ -103,8 +107,10 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Sales Invoice Header" = rm,
                   tabledata "Sales Invoice Line" = rm,
                   tabledata "Sales Line" = Rm,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = Rd,
                   tabledata "Sales Price" = Rid,
+#endif
                   tabledata "Sales Price Access" = Rid,
                   tabledata "Sales Shipment Header" = rm,
                   tabledata "Sales Shipment Line" = rm,

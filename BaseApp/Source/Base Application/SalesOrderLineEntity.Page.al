@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5496 "Sales Order Line Entity"
 {
     Caption = 'Sales Order Line Entity';
@@ -549,4 +550,4 @@ page 5496 "Sales Order Line Entity"
             Description := Item.Description;
     end;
 }
-
+#endif

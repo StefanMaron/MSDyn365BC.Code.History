@@ -2,8 +2,8 @@ table 26557 "Stat. Report Requisites Group"
 {
     Caption = 'Stat. Report Requisites Group';
     ObsoleteReason = 'Obsolete functionality';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -27,8 +27,6 @@ table 26557 "Stat. Report Requisites Group"
         }
         field(9; "Requisites Quantity"; Integer)
         {
-            CalcFormula = Count ("Stat. Report Requisite" WHERE("Report Code" = FIELD("Report Code"),
-                                                                "Requisites Group Name" = FIELD(Name)));
             Caption = 'Requisites Quantity';
             Editable = false;
             FieldClass = FlowField;

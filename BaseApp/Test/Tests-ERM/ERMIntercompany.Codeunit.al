@@ -2,6 +2,7 @@ codeunit 134151 "ERM Intercompany"
 {
     Subtype = Test;
     TestPermissions = Restrictive;
+    Permissions = tabledata "G/L Entry" = r;
 
     trigger OnRun()
     begin

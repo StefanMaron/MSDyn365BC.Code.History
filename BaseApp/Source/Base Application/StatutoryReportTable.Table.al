@@ -65,7 +65,7 @@ table 26552 "Statutory Report Table"
         }
         field(16; "Rows Quantity"; Integer)
         {
-            CalcFormula = Count ("Stat. Report Table Row" WHERE("Report Code" = FIELD("Report Code"),
+            CalcFormula = Count("Stat. Report Table Row" WHERE("Report Code" = FIELD("Report Code"),
                                                                 "Table Code" = FIELD(Code)));
             Caption = 'Rows Quantity';
             Editable = false;
@@ -73,7 +73,7 @@ table 26552 "Statutory Report Table"
         }
         field(17; "Columns Quantity"; Integer)
         {
-            CalcFormula = Count ("Stat. Report Table Column" WHERE("Report Code" = FIELD("Report Code"),
+            CalcFormula = Count("Stat. Report Table Column" WHERE("Report Code" = FIELD("Report Code"),
                                                                    "Table Code" = FIELD(Code)));
             Caption = 'Columns Quantity';
             Editable = false;
@@ -203,11 +203,12 @@ table 26552 "Statutory Report Table"
                     DeletePageIndicationElements;
             end;
         }
+#pragma warning disable AS0044
         field(50; "Int. Source Type"; Option)
         {
             Caption = 'Int. Source Type';
-            OptionCaption = ' ,Acc. Schedule,Tax Register,Tax Difference,Payroll Analysis Report';
-            OptionMembers = " ","Acc. Schedule","Tax Register","Tax Difference","Payroll Analysis Report";
+            OptionCaption = ' ,Acc. Schedule,Tax Register,Tax Difference';
+            OptionMembers = " ","Acc. Schedule","Tax Register","Tax Difference";
 
             trigger OnValidate()
             begin
@@ -217,6 +218,7 @@ table 26552 "Statutory Report Table"
                 end;
             end;
         }
+#pragma warning restore AS0044
         field(51; "Int. Source Section Code"; Code[10])
         {
             Caption = 'Int. Source Section Code';
@@ -240,9 +242,7 @@ table 26552 "Statutory Report Table"
             ELSE
             IF ("Int. Source Type" = CONST("Tax Register")) "Tax Register"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"))
             ELSE
-            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"))
-            ELSE
-            IF ("Int. Source Type" = CONST("Payroll Analysis Report")) "Payroll Analysis Report Name";
+            IF ("Int. Source Type" = CONST("Tax Difference")) "Tax Calc. Header"."No." WHERE("Section Code" = FIELD("Int. Source Section Code"));
 
             trigger OnValidate()
             begin
@@ -253,12 +253,6 @@ table 26552 "Statutory Report Table"
                     end else
                         CheckIntSourceMappingExistence;
             end;
-        }
-        field(53; Exception; Option)
-        {
-            Caption = 'Exception';
-            OptionCaption = ' ,RSV1 Section 2';
-            OptionMembers = " ","RSV1 Section 2";
         }
     }
 
@@ -667,9 +661,6 @@ table 26552 "Statutory Report Table"
         TaxRegisterTemplate: Record "Tax Register Template";
         TaxRegisterAccumulation: Record "Tax Register Accumulation";
         TaxCalcLine: Record "Tax Calc. Line";
-        PayrollAnalysisReportName: Record "Payroll Analysis Report Name";
-        PayrollAnalysisLine: Record "Payroll Analysis Line";
-        PayrollAnalysisColumn: Record "Payroll Analysis Column";
         StatReportTableRow: Record "Stat. Report Table Row";
         StatReportTableColumn: Record "Stat. Report Table Column";
         StatReportTableMapping: Record "Stat. Report Table Mapping";
@@ -772,40 +763,6 @@ table 26552 "Statutory Report Table"
                             StatReportTableMapping."Int. Source Column Header" := TaxRegisterAccumulation.FieldCaption(Amount);
                             StatReportTableMapping.Insert();
                         until (TaxCalcLine.Next() = 0) or (StatReportTableRow.Next() = 0);
-                    end;
-                end;
-            "Int. Source Type"::"Payroll Analysis Report":
-                begin
-                    PayrollAnalysisReportName.Get("Int. Source No.");
-                    PayrollAnalysisReportName.TestField("Analysis Line Template Name");
-                    PayrollAnalysisReportName.TestField("Analysis Column Template Name");
-                    PayrollAnalysisLine.SetRange("Analysis Line Template Name", PayrollAnalysisReportName."Analysis Line Template Name");
-                    PayrollAnalysisColumn.SetRange("Analysis Column Template", PayrollAnalysisReportName."Analysis Column Template Name");
-                    StatReportTableRow.SetRange("Report Code", "Report Code");
-                    StatReportTableRow.SetRange("Table Code", Code);
-
-                    if PayrollAnalysisLine.FindSet and StatReportTableRow.FindSet then begin
-                        repeat
-                            if PayrollAnalysisColumn.FindSet and StatReportTableColumn.FindSet then begin
-                                repeat
-                                    StatReportTableMapping.Init();
-                                    StatReportTableMapping."Report Code" := "Report Code";
-                                    StatReportTableMapping."Table Code" := Code;
-                                    StatReportTableMapping."Table Row No." := StatReportTableRow."Line No.";
-                                    StatReportTableMapping."Table Column No." := StatReportTableColumn."Line No.";
-                                    StatReportTableMapping."Table Row Description" := StatReportTableRow.Description;
-                                    StatReportTableMapping."Table Column Header" := StatReportTableColumn."Column Header";
-                                    StatReportTableMapping."Int. Source Type" := "Int. Source Type";
-                                    StatReportTableMapping."Int. Source Section Code" := "Int. Source Section Code";
-                                    StatReportTableMapping."Int. Source No." := "Int. Source No.";
-                                    StatReportTableMapping."Internal Source Row No." := PayrollAnalysisLine."Line No.";
-                                    StatReportTableMapping."Internal Source Column No." := PayrollAnalysisColumn."Line No.";
-                                    StatReportTableMapping."Int. Source Row Description" := PayrollAnalysisLine.Description;
-                                    StatReportTableMapping."Int. Source Column Header" := PayrollAnalysisColumn."Column Header";
-                                    StatReportTableMapping.Insert();
-                                until (PayrollAnalysisColumn.Next() = 0) or (StatReportTableColumn.Next() = 0);
-                            end;
-                        until (PayrollAnalysisLine.Next() = 0) or (StatReportTableRow.Next() = 0);
                     end;
                 end;
         end;

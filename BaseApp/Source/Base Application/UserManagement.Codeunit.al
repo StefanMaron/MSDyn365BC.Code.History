@@ -87,7 +87,6 @@ codeunit 418 "User Management"
                   Tabledata "Saved Segment Criteria" = m,
                   Tabledata "Sales Header Archive" = m,
                   Tabledata "Purchase Header Archive" = m,
-                  Tabledata "Employee Ledger Entry" = m,
                   Tabledata "Manufacturing User Template" = m,
                   Tabledata "Field Monitoring Setup" = m;
 
@@ -100,7 +99,7 @@ codeunit 418 "User Management"
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
-        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated in Business Central online. Please use OAuth.';
+        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated on Business Central online. Please use OAuth.';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
@@ -190,7 +189,9 @@ codeunit 418 "User Management"
         UserTimeRegister: Record "User Time Register";
         PrinterSelection: Record "Printer Selection";
         SelectedDimension: Record "Selected Dimension";
+#if not CLEAN19
         OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
+#endif
         FAJournalSetup: Record "FA Journal Setup";
         AnalysisSelectedDimension: Record "Analysis Selected Dimension";
         WarehouseEmployee: Record "Warehouse Employee";
@@ -199,7 +200,6 @@ codeunit 418 "User Management"
         MyItem: Record "My Item";
         MyAccount: Record "My Account";
         JnlPostingPreviewSetup: Record "Journal Posting Preview Setup";
-        MyEmployee: Record "My Employee";
         ApplicationAreaSetup: Record "Application Area Setup";
         MyJob: Record "My Job";
         MyTimeSheets: Record "My Time Sheets";
@@ -228,12 +228,14 @@ codeunit 418 "User Management"
                         SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
                           SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
                     end;
+#if not CLEAN19
                 DATABASE::"Outlook Synch. User Setup":
                     begin
                         OutlookSynchUserSetup.ChangeCompany(Company);
                         RecRef.SetTable(OutlookSynchUserSetup);
                         OutlookSynchUserSetup.Rename(UserName, OutlookSynchUserSetup."Synch. Entity Code");
                     end;
+#endif
                 DATABASE::"FA Journal Setup":
                     begin
                         FAJournalSetup.ChangeCompany(Company);
@@ -294,12 +296,6 @@ codeunit 418 "User Management"
                         RecRef.SetTable(JnlPostingPreviewSetup);
                         JnlPostingPreviewSetup.Rename(
                           UserName, JnlPostingPreviewSetup."Journal Type", JnlPostingPreviewSetup."Journal Template Name", JnlPostingPreviewSetup."Journal Batch Name");
-                    end;
-                DATABASE::"My Employee":
-                    begin
-                        MyEmployee.ChangeCompany(Company);
-                        RecRef.SetTable(MyEmployee);
-                        MyEmployee.Rename(UserName, MyEmployee."Employee No.");
                     end;
                 DATABASE::"My Job":
                     begin

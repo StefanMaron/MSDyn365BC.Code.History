@@ -385,12 +385,10 @@ table 14 Location
                 end;
             end;
         }
-        field(5734; "Default Bin Selection"; Option)
+        field(5734; "Default Bin Selection"; Enum "Location Default Bin Selection")
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Default Bin Selection';
-            OptionCaption = ' ,Fixed Bin,Last-Used Bin';
-            OptionMembers = " ","Fixed Bin","Last-Used Bin";
 
             trigger OnValidate()
             begin
@@ -490,10 +488,10 @@ table 14 Location
                 if "Adjustment Bin Code" <> xRec."Adjustment Bin Code" then begin
                     if "Adjustment Bin Code" = '' then
                         CheckEmptyBin(
-                          xRec."Adjustment Bin Code", FieldCaption("Adjustment Bin Code"))
+                          Rec.Code, xRec."Adjustment Bin Code", FieldCaption("Adjustment Bin Code"))
                     else
                         CheckEmptyBin(
-                          "Adjustment Bin Code", FieldCaption("Adjustment Bin Code"));
+                          Rec.Code, Rec."Adjustment Bin Code", FieldCaption("Adjustment Bin Code"));
 
                     CheckWhseAdjmtJnl;
                 end;
@@ -618,6 +616,9 @@ table 14 Location
 
     fieldgroups
     {
+        fieldgroup(Dropdown; "Code", Name)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -793,7 +794,7 @@ table 14 Location
         BinContent.DeleteAll();
     end;
 
-    local procedure CheckEmptyBin(BinCode: Code[20]; CaptionOfField: Text[30])
+    procedure CheckEmptyBin(LocationCode: Code[10]; BinCode: Code[20]; CaptionOfField: Text[30])
     var
         WarehouseEntry: Record "Warehouse Entry";
         WhseEntry2: Record "Warehouse Entry";

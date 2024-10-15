@@ -22,17 +22,22 @@
             trigger OnValidate()
             begin
                 if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset",
-                                       "Account Type"::"IC Partner"]) and
+                                       "Account Type"::"IC Partner", "Account Type"::Employee]) and
                    ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Fixed Asset",
-                                            "Bal. Account Type"::"IC Partner"])
+                                            "Bal. Account Type"::"IC Partner", "Bal. Account Type"::Employee])
                 then
                     Error(
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
+
+                if ("Account Type" = "Account Type"::Employee) and ("Currency Code" <> '') then
+                    Error(OnlyLocalCurrencyForEmployeeErr);
+
                 Validate("Account No.", '');
-                Validate(Description, '');
+                if not "Keep Description" then
+                    Validate(Description, '');
                 Validate("IC Partner G/L Acc. No.", '');
-                if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then begin
+                if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account", "Account Type"::Employee] then begin
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
                     Validate("Gen. Bus. Posting Group", '');
                     Validate("Gen. Prod. Posting Group", '');
@@ -82,7 +87,9 @@
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF ("Account Type" = CONST("IC Partner")) "IC Partner";
+            IF ("Account Type" = CONST("IC Partner")) "IC Partner"
+            ELSE
+            IF ("Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
             var
@@ -150,6 +157,8 @@
                     "Account Type"::Vendor:
                         UpdateVendorID;
                 end;
+                if "Account No." <> xRec."Account No." then
+                    AddPersonalDocInfo("Cash Order Including");
             end;
         }
         field(5; "Posting Date"; Date)
@@ -187,9 +196,6 @@
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
                 end;
-
-                if xRec."Posting Date" <> "Posting Date" then
-                    AddPersonalDocInfo("Cash Order Including");
 
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
@@ -319,7 +325,9 @@
             ELSE
             IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF ("Bal. Account Type" = CONST("IC Partner")) "IC Partner";
+            IF ("Bal. Account Type" = CONST("IC Partner")) "IC Partner"
+            ELSE
+            IF ("Bal. Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
             begin
@@ -384,6 +392,8 @@
                 UpdateBalanceAccountId();
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
                 ValidateApplyRequirements(Rec);
+                if "Bal. Account Type" <> xRec."Bal. Account Type" then
+                    AddPersonalDocInfo("Cash Order Including");
             end;
         }
         field(12; "Currency Code"; Code[10])
@@ -412,7 +422,9 @@
                       FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method");
 
                 if "Currency Code" <> '' then begin
-                    GetCurrency;
+                    if ("Bal. Account Type" = "Bal. Account Type"::Employee) or ("Account Type" = "Account Type"::Employee) then
+                        Error(OnlyLocalCurrencyForEmployeeErr);
+                    GetCurrency();
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
                        (CurrFieldNo = FieldNo("Currency Code")) or
@@ -725,7 +737,8 @@
 
                     TempGenJnlLine := Rec;
                     if (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer) or
-                       (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor)
+                       (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor) or
+                       (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Employee)
                     then
                         CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
 
@@ -1113,20 +1126,23 @@
             trigger OnValidate()
             begin
                 if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset",
-                                       "Account Type"::"IC Partner"]) and
+                                       "Account Type"::"IC Partner", "Account Type"::Employee]) and
                    ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Fixed Asset",
-                                            "Bal. Account Type"::"IC Partner"])
+                                            "Bal. Account Type"::"IC Partner", "Bal. Account Type"::Employee])
                 then
                     Error(
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
+
+                if ("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> '') then
+                    Error(OnlyLocalCurrencyForEmployeeErr);
 
                 OnValidateBalAccountTypeOnBeforeSetBalAccountNo(Rec, xRec);
 
                 Validate("Bal. Account No.", '');
                 Validate("IC Partner G/L Acc. No.", '');
                 if "Bal. Account Type" in
-                   ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Bank Account"]
+                   ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Bank Account", "Bal. Account Type"::Employee]
                 then begin
                     Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
                     Validate("Bal. Gen. Bus. Posting Group", '');
@@ -2016,6 +2032,11 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(180; "Keep Description"; Boolean)
+        {
+            Caption = 'Keep Description';
+            Editable = false;
+        }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -2023,9 +2044,13 @@
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Account No."))
             ELSE
+            IF ("Account Type" = CONST(Employee)) Employee."No." WHERE("Employee No. Filter" = FIELD("Account No."))
+            ELSE
             IF ("Bal. Account Type" = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bal. Account No."))
             ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bal. Account No."));
+            IF ("Bal. Account Type" = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bal. Account No."))
+            ELSE
+            IF ("Bal. Account Type" = CONST(Employee)) Employee."No." WHERE("Employee No. Filter" = FIELD("Bal. Account No."));
         }
         field(289; "Message to Recipient"; Text[140])
         {
@@ -2394,6 +2419,16 @@
         field(1224; "Applied Automatically"; Boolean)
         {
             Caption = 'Applied Automatically';
+        }
+        field(1300; "Linked Table ID"; Integer)
+        {
+            Caption = 'Linked Table ID';
+            Editable = false;
+        }
+        field(1301; "Linked System ID"; Guid)
+        {
+            Caption = 'Linked System ID';
+            Editable = false;
         }
         field(1700; "Deferral Code"; Code[10])
         {
@@ -3608,11 +3643,6 @@
         {
             Caption = 'Depr. Group Elimination';
         }
-        field(17400; "Payroll Ledger Entry No."; Integer)
-        {
-            Caption = 'Payroll Ledger Entry No.';
-            TableRelation = "Payroll Ledger Entry";
-        }
     }
 
     keys
@@ -3830,9 +3860,11 @@
         ManualAmount: Boolean;
         Text14700: Label 'You cannot cancel payment order export because the payment order relates to import bank statement %1.';
         Text17300: Label 'You must not specify %1 for ';
+        OnlyLocalCurrencyForEmployeeErr: Label 'The value of the Currency Code field must be empty. General journal lines in foreign currency are not supported for employee account type.';
         AccTypeNotSupportedErr: Label 'You cannot specify a deferral code for this type of account.';
         SalespersonPurchPrivacyBlockErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
+        BlockedEmplErr: Label 'You cannot export file because employee %1 is blocked due to privacy.', Comment = '%1 = Employee no. ';
         InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
         RecurringMethodsDimFilterErr: Label 'Recurring method %1 cannot be used for the line with dimension filter setup.', Comment = '%1 - Recurring Method value';
         RecurringMethodsLineDimdErr: Label 'Recurring method %1 cannot be used for the line with dimension setup.', Comment = '%1 - Recurring Method value';
@@ -4002,7 +4034,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckAccountTypeOnJobValidation(IsHandled);
+        OnBeforeCheckAccountTypeOnJobValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -4192,6 +4224,7 @@
                 begin
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
+                    OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(GenJnlLine2, AccNo, VendLedgEntry);
                     if VendLedgEntry.FindSet then
                         repeat
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
@@ -5509,6 +5542,30 @@
         exit(PaymentJnlExportErrorText.JnlBatchHasErrors(Rec));
     end;
 
+    local procedure UpdateDescriptionFromBalAccount(Name: Text[100])
+    begin
+        if not IsAdHocBalAccDescription() then
+            Description := Name;
+    end;
+
+    local procedure IsAdHocBalAccDescription() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsAdHocBalAccDescription(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if "Keep Description" then
+            exit(true);
+
+        if "Account No." <> '' then
+            exit(true);
+
+        exit(false);
+    end;
+
     local procedure UpdateDescription(Name: Text[100])
     begin
         if not IsAdHocDescription then
@@ -5536,6 +5593,9 @@
         if xRec."Account No." = '' then
             exit(true);
 
+        if "Keep Description" then
+            exit(true);
+
         case xRec."Account Type" of
             xRec."Account Type"::"G/L Account":
                 exit(GLAccount.Get(xRec."Account No.") and (GLAccount.Name <> Description));
@@ -5549,6 +5609,8 @@
                 exit(FixedAsset.Get(xRec."Account No.") and (FixedAsset.Description <> Description));
             xRec."Account Type"::"IC Partner":
                 exit(ICPartner.Get(xRec."Account No.") and (ICPartner.Name <> Description));
+            xRec."Account Type"::Employee:
+                exit(Employee.Get(xRec."Account No.") and (Employee.FullName() <> Description));
         end;
         exit(false);
     end;
@@ -5629,7 +5691,6 @@
             end;
     end;
 
-
     [Scope('OnPrem')]
     procedure SetJournalLineFieldsFromApplication()
     var
@@ -5675,7 +5736,7 @@
     procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
     begin
         if GenJnlLine2."Bal. Account Type" in
-           [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor]
+           [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor, GenJnlLine2."Bal. Account Type"::Employee]
         then begin
             AccType := GenJnlLine2."Bal. Account Type";
             AccNo := GenJnlLine2."Bal. Account No.";
@@ -6007,11 +6068,9 @@
             1, MaxStrLen(FieldValue));
     end;
 
-    [Scope('OnPrem')]
-    procedure AddPersonalDocInfo(var PersonalDoc: Text[250])
+    local procedure AddPersonalDocInfo(var PersonalDoc: Text[250])
     var
         TaxpayerDocType: Record "Taxpayer Document Type";
-        Person: Record Person;
         PersonalDocument: Record "Person Document";
         Employee: Record Employee;
         BankAcc: Record "Bank Account";
@@ -6028,19 +6087,10 @@
 
         if ("Account Type" = "Account Type"::Vendor) and ("Account No." <> '') and ("Debit Amount" <> 0) then begin
             Vend.Get("Account No.");
-            if Vend."Vendor Type" in [Vend."Vendor Type"::"Resp. Employee", Vend."Vendor Type"::Person] then begin
-                case Vend."Vendor Type" of
-                    Vend."Vendor Type"::"Resp. Employee":
-                        begin
-                            if Employee.Get(Vend."Employee No.") then
-                                Person.SetRange("No.", Employee."Person No.");
-                        end;
-                    Vend."Vendor Type"::Person:
-                        Person.SetRange("Vendor No.", Vend."No.");
-                end;
-                if Person.FindFirst then
-                    if TaxpayerDocType.Get(Person."Identity Document Type") then begin
-                        Person.GetIdentityDoc("Posting Date", PersonalDocument);
+            if Vend."Vendor Type" = Vend."Vendor Type"::"Resp. Employee" then begin
+                if Employee.Get(Vend."Employee No.") then
+                    if TaxpayerDocType.Get(Employee."Identity Document Type") then begin
+                        Employee.GetIdentityDoc("Posting Date", PersonalDocument);
                         PersonalDoc :=
                           CopyStr(
                             StrSubstNo(
@@ -6158,7 +6208,7 @@
     var
         CreditTransferEntry: Record "Credit Transfer Entry";
     begin
-        if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
+        if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) then
             exit(0);
         GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(Rec, CreditTransferEntry);
         CreditTransferEntry.CalcSums("Transfer Amount");
@@ -6169,7 +6219,7 @@
     var
         CreditTransferEntry: Record "Credit Transfer Entry";
     begin
-        if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
+        if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) then
             exit;
         GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(Rec, CreditTransferEntry);
         PAGE.Run(PAGE::"Credit Transfer Reg. Entries", CreditTransferEntry);
@@ -6242,53 +6292,25 @@
         OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAlloc, Rec);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLine(Rec)', '19.0')]
     procedure CopyFromInvoicePostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account No." := InvoicePostBuffer."G/L Account";
-        "System-Created Entry" := InvoicePostBuffer."System-Created Entry";
-        "Gen. Bus. Posting Group" := InvoicePostBuffer."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := InvoicePostBuffer."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := InvoicePostBuffer."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := InvoicePostBuffer."VAT Prod. Posting Group";
-        "Tax Area Code" := InvoicePostBuffer."Tax Area Code";
-        "Tax Liable" := InvoicePostBuffer."Tax Liable";
-        "Tax Group Code" := InvoicePostBuffer."Tax Group Code";
-        "Use Tax" := InvoicePostBuffer."Use Tax";
-        Quantity := InvoicePostBuffer.Quantity;
-        "VAT %" := InvoicePostBuffer."VAT %";
-        "VAT Calculation Type" := InvoicePostBuffer."VAT Calculation Type";
-        "VAT Posting" := "VAT Posting"::"Manual VAT Entry";
-        "Job No." := InvoicePostBuffer."Job No.";
-        "Deferral Code" := InvoicePostBuffer."Deferral Code";
-        "Deferral Line No." := InvoicePostBuffer."Deferral Line No.";
-        Amount := InvoicePostBuffer.Amount;
-        "Source Currency Amount" := InvoicePostBuffer."Amount (ACY)";
-        "VAT Base Amount" := InvoicePostBuffer."VAT Base Amount";
-        "Source Curr. VAT Base Amount" := InvoicePostBuffer."VAT Base Amount (ACY)";
-        "VAT Amount" := InvoicePostBuffer."VAT Amount";
-        "Source Curr. VAT Amount" := InvoicePostBuffer."VAT Amount (ACY)";
-        "VAT Difference" := InvoicePostBuffer."VAT Difference";
-        "VAT Base Before Pmt. Disc." := InvoicePostBuffer."VAT Base Before Pmt. Disc.";
+        InvoicePostBuffer.CopyToGenJnlLine(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer, Rec);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLineFA(Rec)', '19.0')]
     procedure CopyFromInvoicePostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account Type" := "Account Type"::"Fixed Asset";
-        "FA Posting Date" := InvoicePostBuffer."FA Posting Date";
-        "Depreciation Book Code" := InvoicePostBuffer."Depreciation Book Code";
-        "Salvage Value" := InvoicePostBuffer."Salvage Value";
-        "Depr. until FA Posting Date" := InvoicePostBuffer."Depr. until FA Posting Date";
-        "Depr. Acquisition Cost" := InvoicePostBuffer."Depr. Acquisition Cost";
-        "Maintenance Code" := InvoicePostBuffer."Maintenance Code";
-        "Insurance No." := InvoicePostBuffer."Insurance No.";
-        "Budgeted FA No." := InvoicePostBuffer."Budgeted FA No.";
-        "Duplicate in Depreciation Book" := InvoicePostBuffer."Duplicate in Depreciation Book";
-        "Use Duplication List" := InvoicePostBuffer."Use Duplication List";
+        InvoicePostBuffer.CopyToGenJnlLineFA(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer, Rec);
     end;
+#endif
 
     procedure CopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
@@ -6930,10 +6952,9 @@
     begin
         GLAcc.Get("Bal. Account No.");
         CheckGLAcc(GLAcc);
-        if "Account No." = '' then begin
-            Description := GLAcc.Name;
+        UpdateDescriptionFromBalAccount(GLAcc.Name);
+        if "Account No." = '' then
             "Currency Code" := '';
-        end;
         OnGetGLBalAccountOnAfterSetDescription(Rec, GLAcc);
         if ("Account No." = '') or
            ("Account Type" in
@@ -7017,8 +7038,7 @@
         OnGetCustomerBalAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Cust.Name;
+        UpdateDescriptionFromBalAccount(Cust.Name);
         "Payment Method Code" := Cust."Payment Method Code";
         Validate("Recipient Bank Account", Cust."Preferred Bank Account Code");
         "Posting Group" := Cust."Customer Posting Group";
@@ -7101,8 +7121,7 @@
         Vend.Get("Bal. Account No.");
         Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
         CheckICPartner(Vend."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Vend.Name;
+        UpdateDescriptionFromBalAccount(Vend.Name);
         "Payment Method Code" := Vend."Payment Method Code";
         Validate("Recipient Bank Account", Vend."Preferred Bank Account Code");
         "Posting Group" := Vend."Vendor Posting Group";
@@ -7180,8 +7199,7 @@
         ReadGLSetup;
         if GLSetup."Enable Russian Accounting" then
             BankAcc.TestField("Bank Acc. Posting Group");
-        if "Account No." = '' then
-            Description := BankAcc.Name;
+        UpdateDescriptionFromBalAccount(BankAcc.Name);
 
         if ("Account No." = '') or
            ("Account Type" in
@@ -7238,8 +7256,7 @@
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         FA.TestField("Budgeted Asset", false);
-        if "Account No." = '' then
-            Description := FA.Description;
+        UpdateDescriptionFromBalAccount(FA.Description);
         GetFADeprBook("Bal. Account No.");
         GetFAVATSetup;
         GetFAAddCurrExchRate;
@@ -7269,8 +7286,7 @@
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get("Bal. Account No.");
-        if "Account No." = '' then
-            Description := ICPartner.Name;
+        UpdateDescriptionFromBalAccount(ICPartner.Name);
 
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := ICPartner."Currency Code";
@@ -7465,6 +7481,7 @@
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Employee: Record Employee;
     begin
         if FindSet then begin
             repeat
@@ -7484,6 +7501,12 @@
                                 Error(Vendor.GetPrivacyBlockedGenericErrorText(Vendor));
                             if Vendor.Blocked in [Vendor.Blocked::All, Vendor.Blocked::Payment] then
                                 Error(BlockedErr, Vendor.Blocked, Vendor.TableCaption, Vendor."No.");
+                        end;
+                    "Account Type"::Employee:
+                        begin
+                            Employee.Get("Account No.");
+                            if Employee."Privacy Blocked" then
+                                Error(BlockedEmplErr, Employee."No.");
                         end;
                 end;
             until Next <= 0;
@@ -7527,7 +7550,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled);
+        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -7631,15 +7654,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBufferFA().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -7858,7 +7887,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7899,6 +7928,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsAdHocDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsAdHocBalAccDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8083,6 +8117,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -8109,11 +8148,6 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Employee Ledger Entry");
     begin
     end;
 
@@ -8757,7 +8791,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

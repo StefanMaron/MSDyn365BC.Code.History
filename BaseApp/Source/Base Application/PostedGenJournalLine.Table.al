@@ -1387,11 +1387,6 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Depr. Group Elimination';
         }
-        field(17400; "Payroll Ledger Entry No."; Integer)
-        {
-            Caption = 'Payroll Ledger Entry No.';
-            TableRelation = "Payroll Ledger Entry";
-        }
     }
 
     keys

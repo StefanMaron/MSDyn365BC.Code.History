@@ -2,8 +2,8 @@ table 26566 "Stat. Report Requisite Value"
 {
     Caption = 'Stat. Report Requisite Value';
     ObsoleteReason = 'Obsolete functionality';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -29,7 +29,6 @@ table 26566 "Stat. Report Requisite Value"
         field(5; "Requisites Group Name"; Text[30])
         {
             Caption = 'Requisites Group Name';
-            TableRelation = "Stat. Report Requisites Group".Name WHERE("Report Code" = FIELD("Report Code"));
         }
         field(7; Name; Text[30])
         {

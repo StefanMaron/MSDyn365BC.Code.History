@@ -1,4 +1,4 @@
-﻿codeunit 6710 ODataUtility
+codeunit 6710 ODataUtility
 {
     Permissions = TableData "Tenant Web Service OData" = rimd,
                   TableData "Tenant Web Service Columns" = rimd,
@@ -15,9 +15,11 @@
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
+#if not CLEAN18
         ODataWizardTitleTxt: Label 'Set up reporting data for your own reports';
         ODataWizardShortTitleTxt: Label 'Set Up Reporting Data';
         ODataWizardDescriptionTxt: Label 'Create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
+#endif
         BalanceSheetHeadingTxt: Label 'Balance Sheet';
         BalanceSheetNameTxt: Label 'BalanceSheet', Locked = true;
         CompanyTxt: Label 'Company';
@@ -78,17 +80,12 @@
         Over60StaticTxt: Label 'Over 60 Days', Locked = true;
         WebServiceErr: Label 'The webservice %1 required for this excel report is missing.', Comment = '%1 - Web service name';
         ODataUtilityTelemetryCategoryTxt: Label 'AL OData Utility', Locked = true;
-        TenantWebserviceDoesNotExistTxt: Label 'Tenant web service does not exist.', Locked = true;
-        TenantWebserviceExistTxt: Label 'Tenant web service exist.', Locked = true;
-        NewSelectTextTxt: Label 'New select text, creating temporary tenant web service columns.', Locked = true;
-        CreateEndpointForObjectTxt: Label 'Creating endpoint for %1 %2.', Locked = true;
-        WebServiceHasBeenDisabledErr: Label 'You can''t edit this page in Excel because it''s not set up for it. To use the Edit in Excel feature, you must publish the web service called ''%1''. Contact your system administrator for help.', Comment = '%1 = Web service name';
-        WebServiceNameTooLongErr: Label 'The web service name ''%1'' is too long. Make sure the name is no longer than 240 characters.', Comment = '%1 = Web service name';
         NoTokenForMetadataTelemetryErr: Label 'Access token could not be retrieved.', Locked = true;
         FailedToSendRequestErr: Label 'The request could not be sent. Details: %1.', Comment = '%1 = a more detailed error message';
         ErrorStatusCodeReturnedErr: Label 'The request failed with status code: %1.', Comment = '%1 = a http status code, for example 401';
         BearerTokenTemplateTxt: Label 'Bearer %1', Locked = true;
         CallingEndpointTxt: Label 'Calling endpoint %1 with correlation id %2', Locked = true;
+        EditInExcelUsageWithCentralizedDeploymentsTxt: Label 'Edit in Excel invoked with "Use Centralized deployments" = %1', Locked = true;
         SaveFileDialogTitleMsg: Label 'Save XML file';
         MetadataFileNameTxt: Label 'metadata.xml', Locked = true;
         SaveFileDialogFilterMsg: Label 'XML Files (*.xml)|*.xml';
@@ -221,22 +218,11 @@
         foreach KeyValuePair in TableItemFilterTextDictionaryParam do begin
             FilterTextForSelectedColumns := WebServiceManagement.RemoveUnselectedColumnsFromFilter(TenantWebService, KeyValuePair.Key, KeyValuePair.Value);
             case TenantWebService."Object Type" of
-                TenantWebService."Object Type"::Page:
-                    case ODataClientType of
-                        CLIENTTYPE::OData:
-                            DataItemFilterText := ODataFilterGenerator.CreateODataV3Filter(KeyValuePair.Key, FilterTextForSelectedColumns, 0);
-                        CLIENTTYPE::ODataV4:
-                            DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns, 0);
-                    end;
+                TenantWebService."Object Type"::Page:  
+                    DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns, 0);
                 TenantWebService."Object Type"::Query:
-                    case ODataClientType of
-                        CLIENTTYPE::OData:
-                            DataItemFilterText := ODataFilterGenerator.CreateODataV3Filter(KeyValuePair.Key, FilterTextForSelectedColumns,
-                                TenantWebService."Object ID");
-                        CLIENTTYPE::ODataV4:
-                            DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns,
-                                TenantWebService."Object ID");
-                    end;
+                    DataItemFilterText := ODataFilterGenerator.CreateODataV4Filter(KeyValuePair.Key, FilterTextForSelectedColumns,
+                        TenantWebService."Object ID");
             end;
             Filter := StrSubstNo('%1%2%3', Filter, Conjunction, DataItemFilterText);
             Conjunction := ' and ';
@@ -317,10 +303,13 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Use ExternalizeName instead', '19.0')]
     procedure ConvertNavFieldNameToOdataName(NavFieldName: Text): Text
     begin
-        exit(ExternalizeODataObjectName(NavFieldName));
+        exit(ExternalizeName(NavFieldName));
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetColumnsFromFilter(var TenantWebService: Record "Tenant Web Service"; FilterText: Text; var ColumnList: DotNet GenericList1)
@@ -343,7 +332,7 @@
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
     begin
-        If (EnvironmentInfo.IsSaaS() or not CompanyInformationMgt.IsDemoCompany()) then
+        If (EnvironmentInfo.IsSaaS() or CompanyInformationMgt.IsDemoCompany()) then
             exit;
         NavApp.GetCurrentModuleInfo(Info);
         GuidedExperience.InsertAssistedSetup(ODataWizardTitleTxt, ODataWizardShortTitleTxt, ODataWizardDescriptionTxt, 10, ObjectType::Page,
@@ -351,117 +340,20 @@
     end;
 #endif
 
-    local procedure FindOrCreateWorksheetWebService(PageCaption: Text[240]; PageId: Text): Text[240]
-    var
-        TenantWebService: Record "Tenant Web Service";
-        ObjectId: Integer;
-        ServiceName: Text[240];
-    begin
-        // Aligned with how platform finds and creates web services
-        // The function returns the first web service name that matches:
-        // 1. Name is PageCaption_Excel (this allows admin to Publish/Unpublish the web service and be in complete control over whether Edit in Excel works)
-        // 2. Published flag = true (prefer enabled web services)
-        // 3. Any web service for the page
-        // 4. Create a new web service called PageCaption_Excel
-
-        Evaluate(ObjectId, CopyStr(PageId, 5));
-        if ServiceNameBeginsWithADigit(PageCaption) then
-            ServiceName := 'WS' + CopyStr(PageCaption, 1, 232) + '_Excel'
-        else
-            ServiceName := CopyStr(PageCaption, 1, 234) + '_Excel';
-
-        if TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) and (TenantWebService."Object ID" = ObjectId) then
-            exit(ServiceName);
-
-        TenantWebService.SetRange("Object Type", TenantWebService."Object Type"::Page);
-        TenantWebService.SetRange("Object ID", ObjectId);
-        TenantWebService.SetRange(Published, true);
-        if TenantWebService.FindFirst() then begin
-            if StrLen(TenantWebService."Service Name") > 240 then
-                Error(WebServiceNameTooLongErr, TenantWebService."Service Name");
-            exit(CopyStr(TenantWebService."Service Name", 1, 240));
-        end;
-
-        TenantWebService.SetRange(Published);
-        if TenantWebService.FindFirst() then begin
-            if StrLen(TenantWebService."Service Name") > 240 then
-                Error(WebServiceNameTooLongErr, TenantWebService."Service Name");
-            exit(CopyStr(TenantWebService."Service Name", 1, 240));
-        end;
-
-        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
-        TenantWebService."Object ID" := ObjectId;
-        TenantWebService."Service Name" := ServiceName;
-        TenantWebService.ExcludeFieldsOutsideRepeater := true;
-        TenantWebService.ExcludeNonEditableFlowFields := true;
-        TenantWebService.Published := true;
-        TenantWebService.Insert(true);
-        exit(ServiceName);
-    end;
-
-    local procedure ServiceNameBeginsWithADigit(ServiceName: text[240]): Boolean
-    begin
-        if ServiceName[1] in ['0' .. '9'] then
-            exit(true);
-        exit(false);
-    end;
-
     procedure EditJournalWorksheetInExcel(PageCaption: Text[240]; PageId: Text; JournalBatchName: Text; JournalTemplateName: Text)
     var
+        EditinExcelHandler: Codeunit "Edit in Excel";
         Filter: Text;
-        ServiceName: Text[240];
     begin
-        ServiceName := FindOrCreateWorksheetWebService(PageCaption, PageId);
-
         Filter := StrSubstNo('Journal_Batch_Name eq ''%1'' and Journal_Template_Name eq ''%2''', JournalBatchName, JournalTemplateName);
-        OnEditInExcel(ServiceName, Filter);
+        EditinExcelHandler.EditPageInExcel(PageCaption, PageId, Filter);
     end;
 
     procedure EditWorksheetInExcel(PageCaption: Text[240]; PageId: Text; "Filter": Text)
     var
-        ServiceName: Text[240];
+        EditinExcelHandler: Codeunit "Edit in Excel";
     begin
-        ServiceName := FindOrCreateWorksheetWebService(PageCaption, PageId);
-        OnEditInExcel(ServiceName, Filter);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GenerateExcelWorkBook(ObjectTypeParm: Option ,,,,,"Codeunit",,,"Page","Query"; ServiceNameParm: Text; ShowDialogParm: Boolean; SearchFilter: Text)
-    var
-        TenantWebService: Record "Tenant Web Service";
-        TenantWebServiceColumns: Record "Tenant Web Service Columns";
-    begin
-        if not TenantWebService.Get(ObjectTypeParm, ServiceNameParm) then
-            exit;
-
-        TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebServiceColumns.FindFirst;
-
-        GenerateExcelWorkBookWithColumns(ObjectTypeParm, ServiceNameParm, ShowDialogParm, TenantWebServiceColumns, SearchFilter)
-    end;
-
-    [Scope('OnPrem')]
-    procedure GenerateExcelWorkBookWithColumns(ObjectTypeParm: Option ,,,,,"Codeunit",,,"Page","Query"; ServiceNameParm: Text; ShowDialogParm: Boolean; var TenantWebServiceColumns: Record "Tenant Web Service Columns"; SearchFilter: Text)
-    var
-        TenantWebService: Record "Tenant Web Service";
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
-        DataEntityExportInfo: DotNet DataEntityExportInfo;
-        DataEntityExportGenerator: DotNet DataEntityExportGenerator;
-        NvOutStream: OutStream;
-        FileName: Text;
-    begin
-        if not TenantWebService.Get(ObjectTypeParm, ServiceNameParm) then
-            exit;
-
-        DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;
-        CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, SearchFilter);
-
-        DataEntityExportGenerator := DataEntityExportGenerator.DataEntityExportGenerator;
-        TempBlob.CreateOutStream(NvOutStream);
-        DataEntityExportGenerator.GenerateWorkbook(DataEntityExportInfo, NvOutStream);
-        FileName := System.TemporaryPath + TenantWebService."Service Name".Replace('_Excel', '') + '.xlsx';
-        FileManagement.BLOBExport(TempBlob, FileName, ShowDialogParm);
+        EditinExcelHandler.EditPageInExcel(PageCaption, PageId, Filter);
     end;
 
     [Scope('OnPrem')]
@@ -485,11 +377,7 @@
         if not TenantWebService.Get(ObjectTypeParm, ServiceNameParm) then
             Error(WebServiceErr, ServiceNameParm);
 
-        OfficeAppInfo := OfficeAppInfo.OfficeAppInfo;
-        OfficeAppInfo.Id := 'WA104379629';
-        OfficeAppInfo.Store := 'en-US';
-        OfficeAppInfo.StoreType := 'OMEX';
-        OfficeAppInfo.Version := '1.3.0.0';
+        CreateOfficeAppInfo(OfficeAppInfo);
 
         HostName := GetHostName;
         if StrPos(HostName, '?') <> 0 then
@@ -546,500 +434,26 @@
         FileManagement.BLOBExport(TempBlob, FileName, ShowDialogParm);
     end;
 
-    local procedure GetConjunctionString(var localFilterSegments: DotNet Array; var ConjunctionStringParam: Text; var IndexParam: Integer)
-    begin
-        if IndexParam < localFilterSegments.Length then begin
-            ConjunctionStringParam := localFilterSegments.GetValue(IndexParam);
-            IndexParam += 1;
-        end else
-            ConjunctionStringParam := '';
-    end;
-
-    local procedure GetNextFieldString(var localFilterSegments: DotNet Array; var NextFieldStringParam: Text; var IndexParam: Integer)
-    begin
-        if IndexParam < localFilterSegments.Length then begin
-            NextFieldStringParam := localFilterSegments.GetValue(IndexParam);
-            IndexParam += 1;
-        end else
-            NextFieldStringParam := '';
-    end;
-
-    local procedure TrimFilterClause(var FilterClauseParam: Text)
-    begin
-        if StrPos(FilterClauseParam, 'filter=') <> 0 then
-            FilterClauseParam := DelStr(FilterClauseParam, 1, StrPos(FilterClauseParam, 'filter=') + 6);
-
-        // becomes  ((No ge '01121212' and No le '01445544') or No eq '10000') and ((Name eq 'bob') and Name eq 'frank')
-        FilterClauseParam := DelChr(FilterClauseParam, '<', '(');
-        FilterClauseParam := DelChr(FilterClauseParam, '>', ')');
-        // becomes  (No ge '01121212' and No le '01445544') or No eq '10000') and ((Name eq 'bob') and Name eq 'frank'
-    end;
-
-    local procedure GetEndPointAndCreateWorkbook(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
+    local procedure CreateOfficeAppInfo(var OfficeAppInfo: DotNet OfficeAppInfo) // Note: Keep this in sync with System Module - Edit in Excel - Edit in Excel Impl.
     var
-        TenantWebService: Record "Tenant Web Service";
-        TenantWebServiceOData: Record "Tenant Web Service OData";
-        TenantWebServiceColumns: Record "Tenant Web Service Columns";
-        TempTenantWebServiceColumns: Record "Tenant Web Service Columns" temporary;
-        WebServiceManagement: Codeunit "Web Service Management";
-        ColumnDictionary: DotNet GenericDictionary2;
-        SourceTableText: Text;
-        SavedSelectText: Text;
-        DefaultSelectText: Text;
-        OldFilter: Text;
-        TableNo: Integer;
-        UseTempColumns: Boolean;
+        EditinExcelSettings: record "Edit in Excel Settings";
     begin
-        ColumnDictionary := ColumnDictionary.Dictionary;
-
-        if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then
-            exit;
-
-        if not TenantWebService.Published then
-            Error(WebServiceHasBeenDisabledErr, TenantWebService."Service Name");
-
-        Session.LogMessage('0000DB6', StrSubstNo(CreateEndpointForObjectTxt, TenantWebService."Object Type", TenantWebService."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
-
-        TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-
-        // Get the default $select text
-        InitSelectedColumns(TenantWebService, ColumnDictionary, SourceTableText);
-        Evaluate(TableNo, SourceTableText);
-        DefaultSelectText := GetDefaultSelectText(ColumnDictionary);
-        SavedSelectText := WebServiceManagement.GetODataSelectClause(TenantWebServiceOData);
-
-        // If we don't have an endpoint - we need a new endpoint
-        if not TenantWebServiceOData.FindFirst then begin
-            Session.LogMessage('0000DB3', TenantWebserviceDoesNotExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
-            CreateEndPoint(TenantWebService, ColumnDictionary, DefaultSelectText, TenantWebServiceColumns);
-            TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-            TenantWebServiceOData.FindFirst;
+        OfficeAppInfo := OfficeAppInfo.OfficeAppInfo();
+        if EditinExcelSettings.Get() and EditinExcelSettings."Use Centralized deployments" then begin
+            OfficeAppInfo.Id := '61bcc63f-b860-4280-8280-3e4fb5ea7726';
+            OfficeAppInfo.Store := 'EXCatalog';
+            OfficeAppInfo.StoreType := 'EXCatalog';
+            OfficeAppInfo.Version := '1.3.0.0';
         end else begin
-            Session.LogMessage('0000DB4', TenantWebserviceExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
-            // If we have a select text mismatch - set the select text for this operation and use a temp column record
-            if SavedSelectText <> DefaultSelectText then begin
-                Session.LogMessage('0000DB5', NewSelectTextTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
-                WebServiceManagement.InsertSelectedColumns(TenantWebService, ColumnDictionary, TempTenantWebServiceColumns, TableNo);
-                TempTenantWebServiceColumns.Modify(true);
-                TempTenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-                TempTenantWebServiceColumns.FindFirst;
-                WebServiceManagement.SetODataSelectClause(TenantWebServiceOData, DefaultSelectText);
-                UseTempColumns := true;
-            end;
-            // Save the filter to restore later
-            OldFilter := WebServiceManagement.GetODataFilterClause(TenantWebServiceOData);
+            OfficeAppInfo.Id := 'WA104379629';
+            OfficeAppInfo.Store := 'en-US';
+            OfficeAppInfo.StoreType := 'OMEX';
+            OfficeAppInfo.Version := '1.3.0.0';
         end;
-
-        // This record should now exist after creating the endpoint.
-        if not UseTempColumns then begin
-            TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-            TenantWebServiceColumns.FindFirst;
-        end;
-
-        WebServiceManagement.SetODataV4FilterClause(TenantWebServiceOData, ODataFilter);
-        TenantWebServiceOData.Modify(true);
-
-        if UseTempColumns then
-            GenerateExcelWorkBookWithColumns(TenantWebService."Object Type", ServiceName, true, TempTenantWebServiceColumns, SearchFilter)
-        else
-            GenerateExcelWorkBookWithColumns(TenantWebService."Object Type", ServiceName, true, TenantWebServiceColumns, SearchFilter);
-
-        // Restore the filters and columns.
-        TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebServiceOData.FindFirst;
-        WebServiceManagement.SetODataV4FilterClause(TenantWebServiceOData, OldFilter);
-        WebServiceManagement.SetODataSelectClause(TenantWebServiceOData, SavedSelectText);
-        TenantWebServiceOData.Modify(true);
+        Session.LogMessage('0000F7M', StrSubstNo(EditInExcelUsageWithCentralizedDeploymentsTxt, EditinExcelSettings."Use Centralized deployments"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
     end;
 
-    [Scope('OnPrem')]
-    procedure CreateDataEntityExportInfo(var TenantWebService: Record "Tenant Web Service"; var DataEntityExportInfoParam: DotNet DataEntityExportInfo; var TenantWebServiceColumns: Record "Tenant Web Service Columns"; SearchFilter: Text)
-    var
-        Company: Record Company;
-        TenantWebServiceOData: Record "Tenant Web Service OData";
-        WebServiceManagement: Codeunit "Web Service Management";
-        AzureADTenant: Codeunit "Azure AD Tenant";
-        ConnectionInfo: DotNet ConnectionInfo;
-        OfficeAppInfo: DotNet OfficeAppInfo;
-        DataEntityInfo: DotNet DataEntityInfo;
-        BindingInfo: DotNet BindingInfo;
-        FieldInfo: DotNet "Office.FieldInfo";
-        FieldFilterCollectionNode: DotNet FilterCollectionNode;
-        FieldFilterCollectionNode2: DotNet FilterCollectionNode;
-        EntityFilterCollectionNode: DotNet FilterCollectionNode;
-        AuthenticationOverrides: DotNet AuthenticationOverrides;
-        FilterClause: Text;
-        HostName: Text;
-        ServiceName: Text;
-        FieldFilterCounter: Integer;
-        Inserted: Boolean;
-    begin
-        OfficeAppInfo := OfficeAppInfo.OfficeAppInfo;
-        OfficeAppInfo.Id := 'WA104379629';
-        OfficeAppInfo.Store := 'en-US'; // todo US store only?
-        OfficeAppInfo.StoreType := 'OMEX';
-        OfficeAppInfo.Version := '1.3.0.0';
-
-        AuthenticationOverrides := AuthenticationOverrides.AuthenticationOverrides;
-        AuthenticationOverrides.Tenant := AzureADTenant.GetAadTenantId;
-
-        DataEntityExportInfoParam := DataEntityExportInfoParam.DataEntityExportInfo;
-        DataEntityExportInfoParam.AppReference := OfficeAppInfo;
-        DataEntityExportInfoParam.Authentication := AuthenticationOverrides;
-
-        ConnectionInfo := ConnectionInfo.ConnectionInfo;
-        HostName := GetHostName;
-
-        if StrPos(HostName, '?') <> 0 then
-            HostName := CopyStr(HostName, 1, StrPos(HostName, '?') - 1);
-        ConnectionInfo.HostName := HostName;
-
-        DataEntityExportInfoParam.Connection := ConnectionInfo;
-        DataEntityExportInfoParam.Language := TypeHelper.LanguageIDToCultureName(WindowsLanguage); // todo get language
-        DataEntityExportInfoParam.EnableDesign := true;
-        DataEntityExportInfoParam.RefreshOnOpen := true;
-        if EnvironmentInfo.IsSaaS() then
-            DataEntityExportInfoParam.Headers.Add('BCEnvironment', EnvironmentInfo.GetEnvironmentName());
-        if Company.Get(TenantWebService.CurrentCompany) then
-            DataEntityExportInfoParam.Headers.Add('Company', Format(Company.Id, 0, 4))
-        else
-            DataEntityExportInfoParam.Headers.Add('Company', TenantWebService.CurrentCompany);
-
-        if SearchFilter <> '' then
-            DataEntityExportInfoParam.Headers.Add('pageSearchString', DelChr(SearchFilter, '=', '@*'));
-        DataEntityInfo := DataEntityInfo.DataEntityInfo;
-        ServiceName := ExternalizeODataObjectName(TenantWebService."Service Name");
-        DataEntityInfo.Name := ServiceName;
-        DataEntityInfo.PublicName := ServiceName;
-        DataEntityExportInfoParam.Entities.Add(DataEntityInfo);
-
-        BindingInfo := BindingInfo.BindingInfo;
-        BindingInfo.EntityName := DataEntityInfo.Name;
-
-        DataEntityExportInfoParam.Bindings.Add(BindingInfo);
-
-        TenantWebServiceOData.Init();
-        TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        TenantWebServiceOData.FindFirst;
-
-        TenantWebServiceColumns.Init();
-        TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        FilterClause := WebServiceManagement.GetODataV4FilterClause(TenantWebServiceOData);
-
-        EntityFilterCollectionNode := EntityFilterCollectionNode.FilterCollectionNode;  // One filter collection node for entire entity
-        if TenantWebServiceColumns.FindSet then begin
-            repeat
-                FieldInfo := FieldInfo.FieldInfo;
-                FieldInfo.Name := TenantWebServiceColumns."Field Name";
-                FieldInfo.Label := TenantWebServiceColumns."Field Name";
-                BindingInfo.Fields.Add(FieldInfo);
-
-                Inserted := InsertDataIntoFilterCollectionNode(TenantWebServiceColumns."Field Name", GetFieldType(TenantWebServiceColumns),
-                    FilterClause, EntityFilterCollectionNode, FieldFilterCollectionNode, FieldFilterCollectionNode2);
-
-                if Inserted then
-                    FieldFilterCounter += 1;
-
-                if FieldFilterCounter > 1 then
-                    EntityFilterCollectionNode.Operator('and');  // All fields are anded together
-
-            until TenantWebServiceColumns.Next() = 0;
-            AddFieldNodeToEntityNode(FieldFilterCollectionNode, FieldFilterCollectionNode2, EntityFilterCollectionNode);
-        end;
-
-        DataEntityInfo.Filter(EntityFilterCollectionNode);
-    end;
-
-    local procedure InsertDataIntoFilterCollectionNode(FieldName: Text; FieldType: Text; FilterClause: Text; var EntityFilterCollectionNode: DotNet FilterCollectionNode; var FieldFilterCollectionNode: DotNet FilterCollectionNode; var FieldFilterCollectionNode2: DotNet FilterCollectionNode): Boolean
-    var
-        FilterBinaryNode: DotNet FilterBinaryNode;
-        FilterLeftOperand: DotNet FilterLeftOperand;
-        ValueString: DotNet String;
-        Regex: DotNet Regex;
-        FilterSegments: DotNet Array;
-        ConjunctionString: Text;
-        OldConjunctionString: Text;
-        NextFieldString: Text;
-        Index: Integer;
-        NumberOfCharsTrimmed: Integer;
-        TrimPos: Integer;
-        FilterCreated: Boolean;
-    begin
-        // New column, if the previous row had data, add it entity filter collection
-        AddFieldNodeToEntityNode(FieldFilterCollectionNode, FieldFilterCollectionNode2, EntityFilterCollectionNode);
-
-        TrimPos := 0;
-        Index := 1;
-        OldConjunctionString := '';
-        // $filter=((No ge '01121212' and No le '01445544') or No eq '10000') and ((Name eq 'bo b') and Name eq 'fra nk')
-        if FilterClause <> '' then begin
-            TrimFilterClause(FilterClause);
-
-            if Regex.IsMatch(FilterClause, StrSubstNo('\b%1 \b', FieldName)) then begin
-                FilterClause := CopyStr(FilterClause, StrPos(FilterClause, FieldName + ' '));
-
-                while FilterClause <> '' do begin
-                    FilterCreated := true;
-                    FilterBinaryNode := FilterBinaryNode.FilterBinaryNode;
-                    FilterLeftOperand := FilterLeftOperand.FilterLeftOperand;
-
-                    FilterLeftOperand.Field(FieldName);
-                    FilterLeftOperand.Type(FieldType);
-
-                    FilterBinaryNode.Left := FilterLeftOperand;
-                    FilterSegments := Regex.Split(FilterClause, ' ');
-
-                    FilterBinaryNode.Operator(FilterSegments.GetValue(1));
-                    ValueString := FilterSegments.GetValue(2);
-                    Index := 3;
-
-                    NumberOfCharsTrimmed := ConcatValueStringPortions(ValueString, FilterSegments, Index);
-
-                    FilterBinaryNode.Right(ValueString);
-
-                    TrimPos := StrPos(FilterClause, ValueString) + StrLen(ValueString) + NumberOfCharsTrimmed;
-
-                    GetConjunctionString(FilterSegments, ConjunctionString, Index);
-
-                    GetNextFieldString(FilterSegments, NextFieldString, Index);
-
-                    TrimPos := TrimPos + StrLen(ConjunctionString) + StrLen(NextFieldString);
-
-                    if (NextFieldString = '') or (NextFieldString = FieldName) then begin
-                        if (OldConjunctionString <> '') and (OldConjunctionString <> ConjunctionString) then begin
-                            if IsNull(FieldFilterCollectionNode2) then begin
-                                FieldFilterCollectionNode2 := FieldFilterCollectionNode2.FilterCollectionNode;
-                                FieldFilterCollectionNode2.Operator(ConjunctionString);
-                            end;
-
-                            FieldFilterCollectionNode.Collection.Add(FilterBinaryNode);
-                            if OldConjunctionString <> '' then
-                                FieldFilterCollectionNode.Operator(OldConjunctionString);
-
-                            FieldFilterCollectionNode2.Collection.Add(FieldFilterCollectionNode);
-
-                            Clear(FieldFilterCollectionNode);
-                        end else begin
-                            if IsNull(FieldFilterCollectionNode) then
-                                FieldFilterCollectionNode := FieldFilterCollectionNode.FilterCollectionNode;
-
-                            FieldFilterCollectionNode.Collection.Add(FilterBinaryNode);
-                            FieldFilterCollectionNode.Operator(OldConjunctionString)
-                        end
-                    end else begin
-                        if IsNull(FieldFilterCollectionNode2) then
-                            FieldFilterCollectionNode2 := FieldFilterCollectionNode2.FilterCollectionNode;
-
-                        if IsNull(FieldFilterCollectionNode) then
-                            FieldFilterCollectionNode := FieldFilterCollectionNode.FilterCollectionNode;
-
-                        FieldFilterCollectionNode.Collection.Add(FilterBinaryNode);
-                        FieldFilterCollectionNode.Operator(OldConjunctionString);
-
-                        FieldFilterCollectionNode2.Collection.Add(FieldFilterCollectionNode);
-
-                        Clear(FieldFilterCollectionNode);
-
-                        FilterClause := ''; // the FilterClause is exhausted for this field
-                    end;
-
-                    OldConjunctionString := ConjunctionString;
-
-                    FilterClause := CopyStr(FilterClause, TrimPos); // remove that portion that has been processed.
-                end;
-            end;
-        end;
-        exit(FilterCreated);
-    end;
-
-    local procedure ConcatValueStringPortions(var ValueStringParam: DotNet String; var FilterSegmentsParam: DotNet Array; var IndexParm: Integer): Integer
-    var
-        ValueStringPortion: DotNet String;
-        LastPosition: Integer;
-        FirstPosition: Integer;
-        SingleTick: Char;
-        StrLenAfterTrim: Integer;
-        StrLenBeforeTrim: Integer;
-    begin
-        SingleTick := 39;
-
-        FirstPosition := ValueStringParam.IndexOf(SingleTick);
-        LastPosition := ValueStringParam.LastIndexOf(SingleTick);
-
-        // The valueString might have been spit earlier if it had an embedded ' ', stick it back together
-        if (FirstPosition = 0) and (FirstPosition = LastPosition) then begin
-            repeat
-                ValueStringPortion := FilterSegmentsParam.GetValue(IndexParm);
-                ValueStringParam := ValueStringParam.Concat(ValueStringParam, ' ');
-                ValueStringParam := ValueStringParam.Concat(ValueStringParam, ValueStringPortion);
-                ValueStringPortion := FilterSegmentsParam.GetValue(IndexParm);
-                IndexParm += 1;
-            until ValueStringPortion.LastIndexOf(SingleTick) >= 0; // ValueStringPortion is a dotnet string which returns -1 if nothing is found
-        end;
-
-        // Now that the string has been put back together if needed, remove leading and trailing SingleTick
-        // as the excel addin will apply them.
-        FirstPosition := ValueStringParam.IndexOf(SingleTick);
-
-        StrLenBeforeTrim := StrLen(ValueStringParam);
-        if FirstPosition = 0 then begin
-            ValueStringParam := DelStr(ValueStringParam, 1, 1);
-            LastPosition := ValueStringParam.LastIndexOf(SingleTick);
-            if LastPosition > 0 then begin
-                ValueStringParam := DelChr(ValueStringParam, '>', ')'); // Remove any trailing ')'
-                ValueStringParam := DelStr(ValueStringParam, ValueStringParam.Length, 1);
-            end;
-        end;
-
-        StrLenAfterTrim := StrLen(ValueStringParam);
-        exit(StrLenBeforeTrim - StrLenAfterTrim);
-    end;
-
-    local procedure GetFieldType(var TenantWebServiceColumnsParam: Record "Tenant Web Service Columns"): Text
-    var
-        FieldTable: Record "Field";
-    begin
-        FieldTable.SetRange(TableNo, TenantWebServiceColumnsParam."Data Item");
-        FieldTable.SetRange("No.", TenantWebServiceColumnsParam."Field Number");
-        if FieldTable.FindFirst then
-            case FieldTable.Type of
-                FieldTable.Type::Text, FieldTable.Type::Code, FieldTable.Type::OemCode, FieldTable.Type::OemText, FieldTable.Type::Option:
-                    exit('Edm.String');
-                FieldTable.Type::BigInteger, FieldTable.Type::Integer:
-                    exit('Edm.Int32');
-                FieldTable.Type::Decimal:
-                    exit('Edm.Decimal');
-                FieldTable.Type::Date, FieldTable.Type::DateTime, FieldTable.Type::Time:
-                    exit('Edm.DateTimeOffset');
-                FieldTable.Type::Boolean:
-                    exit('Edm.Boolean');
-            end;
-    end;
-
-    local procedure AddFieldNodeToEntityNode(var FieldFilterCollectionNodeParam: DotNet FilterCollectionNode; var FieldFilterCollectionNode2Param: DotNet FilterCollectionNode; var EntityFilterCollectionNodeParam: DotNet FilterCollectionNode)
-    begin
-        if not IsNull(FieldFilterCollectionNode2Param) then begin
-            EntityFilterCollectionNodeParam.Collection.Add(FieldFilterCollectionNode2Param);
-            Clear(FieldFilterCollectionNode2Param);
-        end;
-
-        if not IsNull(FieldFilterCollectionNodeParam) then begin
-            EntityFilterCollectionNodeParam.Collection.Add(FieldFilterCollectionNodeParam);
-            Clear(FieldFilterCollectionNodeParam);
-        end;
-    end;
-
-    local procedure InitSelectedColumns(var TenantWebService: Record "Tenant Web Service"; ColumnDictionary: DotNet GenericDictionary2; var SourceTableText: Text)
-    begin
-        InitColumnsForPage(TenantWebService, ColumnDictionary, SourceTableText);
-    end;
-
-    local procedure InitColumnsForPage(var TenantWebService: Record "Tenant Web Service"; ColumnDictionary: DotNet GenericDictionary2; var SourceTableTextParam: Text)
-    var
-        FieldsTable: Record "Field";
-        PageControlField: Record "Page Control Field";
-        FieldNameText: Text;
-    begin
-        PageControlField.SetRange(PageNo, TenantWebService."Object ID");
-        PageControlField.SetCurrentKey(Sequence);
-        PageControlField.SetAscending(Sequence, true);
-        if PageControlField.FindSet then
-            repeat
-                SourceTableTextParam := Format(PageControlField.TableNo);
-
-                if FieldsTable.Get(PageControlField.TableNo, PageControlField.FieldNo) then
-                    if not ColumnDictionary.ContainsKey(FieldsTable."No.") then begin
-                        // Convert to OData compatible name.
-                        FieldNameText := ConvertNavFieldNameToOdataName(PageControlField.ControlName);
-                        ColumnDictionary.Add(FieldsTable."No.", FieldNameText);
-                    end;
-            until PageControlField.Next() = 0;
-
-        EnsureKeysInSelect(SourceTableTextParam, ColumnDictionary);
-    end;
-
-    local procedure EnsureKeysInSelect(SourceTableTextParam: Text; ColumnDictionary: DotNet GenericDictionary2)
-    var
-        RecRef: RecordRef;
-        VarKeyRef: KeyRef;
-        VarFieldRef: FieldRef;
-        KeysText: DotNet String;
-        SourceTableId: Integer;
-        i: Integer;
-    begin
-        Evaluate(SourceTableId, SourceTableTextParam);
-
-        RecRef.Open(SourceTableId);
-        VarKeyRef := RecRef.KeyIndex(1);
-        for i := 1 to VarKeyRef.FieldCount do begin
-            VarFieldRef := VarKeyRef.FieldIndex(i);
-            KeysText := ConvertNavFieldNameToOdataName(VarFieldRef.Name);
-
-            if not ColumnDictionary.ContainsKey(VarFieldRef.Number) then
-                ColumnDictionary.Add(VarFieldRef.Number, KeysText);
-        end;
-    end;
-
-    local procedure InsertODataRecord(var TenantWebService: Record "Tenant Web Service"; SelectText: Text)
-    var
-        TenantWebServiceOData: Record "Tenant Web Service OData";
-        WebServiceManagement: Codeunit "Web Service Management";
-    begin
-        TenantWebServiceOData.Init();
-        TenantWebServiceOData.Validate(TenantWebServiceID, TenantWebService.RecordId);
-        WebServiceManagement.SetODataSelectClause(TenantWebServiceOData, SelectText);
-        TenantWebServiceOData.Insert(true);
-    end;
-
-    local procedure GetDefaultSelectText(var ColumnDictionary: DotNet GenericDictionary2): Text
-    var
-        keyValuePair: DotNet GenericKeyValuePair2;
-        FirstColumn: Boolean;
-        SelectTextParam: Text;
-    begin
-        FirstColumn := true;
-        SelectTextParam := '$select=';
-        foreach keyValuePair in ColumnDictionary do begin
-            if not FirstColumn then
-                SelectTextParam += ','
-            else
-                FirstColumn := false;
-
-            SelectTextParam += CopyStr(keyValuePair.Value, 1);
-        end;
-
-        exit(SelectTextParam);
-    end;
-
-    local procedure CreateEndPoint(var TenantWebService: Record "Tenant Web Service"; var ColumnDictionary: DotNet GenericDictionary2; SelectQueryParam: Text; var TenantWebServiceColumns: Record "Tenant Web Service Columns")
-    var
-        WebServiceManagement: Codeunit "Web Service Management";
-        SourceTableText: Text;
-        TableNo: Integer;
-    begin
-        InitSelectedColumns(TenantWebService, ColumnDictionary, SourceTableText);
-        Evaluate(TableNo, SourceTableText);
-        WebServiceManagement.InsertSelectedColumns(TenantWebService, ColumnDictionary, TenantWebServiceColumns, TableNo);
-        InsertODataRecord(TenantWebService, SelectQueryParam);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ODataUtility", 'OnEditInExcel', '', false, false)]
-    local procedure EditInExcel(ServiceName: Text[240]; ODataFilter: Text)
-    begin
-        OnEditInExcelWithSearch(ServiceName, ODataFilter, '')
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ODataUtility", 'OnEditInExcelWithSearch', '', false, false)]
-    local procedure EditInExcelWithSearchFilter(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
-    begin
-        if StrPos(ODataFilter, '$filter=') = 0 then
-            ODataFilter := StrSubstNo('%1%2', '$filter=', ODataFilter);
-
-        GetEndPointAndCreateWorkbook(ServiceName, ODataFilter, SearchFilter);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ExternalizeODataObjectName(Name: Text) ConvertedName: Text
+    procedure ExternalizeName(Name: Text) ConvertedName: Text
     var
         CurrentPosition: Integer;
     begin
@@ -1319,26 +733,26 @@
         exit(GetUrl(CLIENTTYPE::Web));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OnEditInExcel', '', false, false)]
-    local procedure ReRaiseOnEditInExcel(ServiceName: Text[240]; ODataFilter: Text)
+#if not CLEAN19
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Edit in Excel", 'OnEditInExcel', '', false, false)]
+    local procedure ReRaiseOnEditInExcel(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
     begin
-        OnEditInExcel(ServiceName, ODataFilter)
+        if (SearchFilter = '') then
+            OnEditInExcel(ServiceName, ODataFilter);
+        OnEditInExcelWithSearch(ServiceName, ODataFilter, SearchFilter); // This event was always raised
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OnEditInExcelWithSearchString', '', false, false)]
-    local procedure ReRaiseOnEditInExcelWithSearchString(ServiceName: Text[240]; ODataFilter: Text; SearchString: Text)
-    begin
-        OnEditInExcelWithSearch(ServiceName, ODataFilter, SearchString)
-    end;
-
+    [Obsolete('Event has been moved to System App, codeunit "Edit in Excel" event "OnEditInExcel".', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnEditInExcel(ServiceName: Text[240]; ODataFilter: Text)
     begin
     end;
 
+    [Obsolete('Event has been moved to System App, codeunit "Edit in Excel" event "OnEditInExcel".', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnEditInExcelWithSearch(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
     begin
     end;
+#endif
 }
 

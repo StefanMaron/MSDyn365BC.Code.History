@@ -26,7 +26,6 @@ table 26556 "Table Individual Requisite"
         field(6; "Requisites Group Name"; Text[30])
         {
             Caption = 'Requisites Group Name';
-            TableRelation = "Stat. Report Requisites Group".Name WHERE("Report Code" = FIELD("Report Code"));
         }
         field(9; "Row Code"; Text[20])
         {

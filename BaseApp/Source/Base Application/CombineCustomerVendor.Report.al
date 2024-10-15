@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 12465 "Combine Customer/Vendor"
 {
     Caption = 'Combine Customer/Vendor';
     ProcessingOnly = true;
     TransactionType = Update;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by W1 action MergeDuplicate in Customer/Vendor Card.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -251,4 +255,4 @@ report 12465 "Combine Customer/Vendor"
         NewCustomer := '';
     end;
 }
-
+#endif

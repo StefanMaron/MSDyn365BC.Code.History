@@ -999,7 +999,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     begin
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, 'Unexpected number of approval entries found');
-
+        
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
         ApprovalEntry.Next;
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);

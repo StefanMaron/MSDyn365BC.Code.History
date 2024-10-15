@@ -30,7 +30,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         ICPartner: Record "IC Partner";
         PaymentMethod: Record "Payment Method";
         FACharge: Record "FA Charge";
-        PayrollPostingGroup: Record "Payroll Posting Group";
     begin
         with GLAccWhereUsed do
             case "Table ID" of
@@ -142,11 +141,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                     begin
                         FACharge."No." := CopyStr("Key 1", 1, MaxStrLen(FACharge."No."));
                         PAGE.Run(0, FACharge);
-                    end;
-                DATABASE::"Payroll Posting Group":
-                    begin
-                        PayrollPostingGroup.Code := CopyStr("Key 1", 1, MaxStrLen(PayrollPostingGroup.Code));
-                        PAGE.Run(0, PayrollPostingGroup);
                     end;
                 else
                     OnShowExtensionPage(GLAccWhereUsed);
@@ -321,7 +315,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     begin
         TableBuffer.Reset();
         AddTable(TableBuffer, DATABASE::"FA Charge");
-        AddTable(TableBuffer, DATABASE::"Payroll Posting Group");
     end;
 
     local procedure CheckTable(GLAccNo: Code[20]; TableID: Integer)

@@ -164,7 +164,7 @@ table 7326 "Whse. Worksheet Line"
 
                 Validate("Qty. Outstanding", (Quantity - "Qty. Handled"));
 
-                "Qty. (Base)" := CalcBaseQty(Quantity);
+                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
             end;
         }
         field(18; "Qty. (Base)"; Decimal)
@@ -181,7 +181,7 @@ table 7326 "Whse. Worksheet Line"
 
             trigger OnValidate()
             begin
-                "Qty. Outstanding (Base)" := CalcBaseQty("Qty. Outstanding");
+                "Qty. Outstanding (Base)" := CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)"));
                 Validate("Qty. to Handle", "Qty. Outstanding");
             end;
         }
@@ -208,7 +208,7 @@ table 7326 "Whse. Worksheet Line"
                       Text000,
                       "Qty. Outstanding");
 
-                "Qty. to Handle (Base)" := CalcBaseQty("Qty. to Handle");
+                "Qty. to Handle (Base)" := CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
                 if "Qty. to Handle (Base)" > 0 then begin
                     WhseWkshTemplate.Get("Worksheet Template Name");
                     if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Pick then begin
@@ -278,7 +278,7 @@ table 7326 "Whse. Worksheet Line"
                 if "Qty. to Handle (Base)" = "Qty. Outstanding (Base)" then
                     "Qty. to Handle" := "Qty. Outstanding"
                 else
-                    "Qty. to Handle" := Round("Qty. to Handle (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                    "Qty. to Handle" := Round("Qty. to Handle (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision); // what about this???
             end;
         }
         field(22; "Qty. to Handle (Base)"; Decimal)
@@ -300,7 +300,7 @@ table 7326 "Whse. Worksheet Line"
 
             trigger OnValidate()
             begin
-                "Qty. Handled (Base)" := CalcBaseQty("Qty. Handled");
+                "Qty. Handled (Base)" := CalcBaseQty("Qty. Handled", FieldCaption("Qty. Handled"), FieldCaption("Qty. Handled (Base)"));
                 Validate("Qty. Outstanding", Quantity - "Qty. Handled");
             end;
         }
@@ -353,6 +353,8 @@ table 7326 "Whse. Worksheet Line"
                 if "Item No." <> '' then begin
                     GetItemUnitOfMeasure;
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
+                    "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, ItemUnitOfMeasure.Code);
+                    "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                 end else
                     "Qty. per Unit of Measure" := 1;
 
@@ -441,12 +443,10 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'Shipment Date';
         }
-        field(46; "Whse. Document Type"; Option)
+        field(46; "Whse. Document Type"; Enum "Warehouse Worksheet Document Type")
         {
             Caption = 'Whse. Document Type';
             Editable = false;
-            OptionCaption = ' ,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Whse. Mov.-Worksheet,Internal Movement,Assembly';
-            OptionMembers = " ",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Whse. Mov.-Worksheet","Internal Movement",Assembly;
         }
         field(47; "Whse. Document No."; Code[20])
         {
@@ -489,6 +489,24 @@ table 7326 "Whse. Worksheet Line"
             IF ("Whse. Document Type" = CONST(Assembly)) "Assembly Line"."Line No." WHERE("Document Type" = CONST(Order),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "Document No." = FIELD("Whse. Document No."),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "Line No." = FIELD("Whse. Document Line No."));
+        }
+        field(50; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(51; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
     }
 
@@ -592,7 +610,14 @@ table 7326 "Whse. Worksheet Line"
     procedure CalcBaseQty(Qty: Decimal): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(Qty * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(UOMMgt.RoundQty(Qty * "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)"));
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        TestField("Qty. per Unit of Measure");
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure CalcQty(QtyBase: Decimal): Decimal
@@ -1053,7 +1078,7 @@ table 7326 "Whse. Worksheet Line"
             for WhseWkshTemplate.Type := WhseWkshTemplate.Type::"Put-away" to WhseWkshTemplate.Type::Movement do begin
                 WhseWkshTemplate.SetRange(Type, WhseWkshTemplate.Type);
                 if not WhseWkshTemplate.FindFirst then
-                    TemplateSelection(0, WhseWkshTemplate.Type, WhseWkshLine, JnlSelected);
+                    TemplateSelection(0, WhseWkshTemplate.Type.AsInteger(), WhseWkshLine, JnlSelected);
                 if WhseWkshTemplate.FindFirst then begin
                     if WhseWkshName."Location Code" = '' then
                         WhseWkshName."Location Code" := WmsMgt.GetDefaultLocation;
@@ -1259,7 +1284,6 @@ table 7326 "Whse. Worksheet Line"
 
     procedure AvailableQtyToPickExcludingQCBins(): Decimal
     var
-        UOMMgt: Codeunit "Unit of Measure Management";
         TypeHelper: Codeunit "Type Helper";
     begin
         if "Qty. per Unit of Measure" <> 0 then
@@ -1293,7 +1317,17 @@ table 7326 "Whse. Worksheet Line"
         exit(ReturnedQty);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InitNewLineWithItem().', '19.0')]
     procedure InitLineWithItem(DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; Qty: Decimal; QtyToHandle: Decimal; QtyPerUoM: Decimal)
+    begin
+        InitNewLineWithItem(
+            "Warehouse Worksheet Document Type".FromInteger(DocumentType),
+            DocumentNo, DocumentLineNo, LocationCode, ItemNo, VariantCode, Qty, QtyToHandle, QtyPerUoM);
+    end;
+#endif
+
+    procedure InitNewLineWithItem(DocumentType: Enum "Warehouse Worksheet Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; Qty: Decimal; QtyToHandle: Decimal; QtyPerUoM: Decimal)
     begin
         Init();
         "Whse. Document Type" := DocumentType;
@@ -1545,14 +1579,6 @@ table 7326 "Whse. Worksheet Line"
     local procedure OnAssignedQtyOnReservedLinesOnAfterWhseWkshLineSetFilters(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var FilteredWhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.', '16.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")

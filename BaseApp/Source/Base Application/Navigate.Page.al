@@ -534,8 +534,6 @@
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedFADocHeader: Record "Posted FA Doc. Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
-        PostedAbsenceHeader: Record "Posted Absence Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlPostedLine: Record "Gen. Journal Line Archive";
         [SecurityFiltering(SecurityFilter::Filtered)]
         VATLedgLineSales: Record "VAT Ledger Line";
@@ -545,22 +543,11 @@
         GLCorrEntry: Record "G/L Correspondence Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
         TaxDiffLedgerEntry: Record "Tax Diff. Ledger Entry";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        EmplLedgEntry: Record "Employee Ledger Entry";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        EmplAbsenceEntry: Record "Employee Absence Entry";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PayrollLedgEntry: Record "Payroll Ledger Entry";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        DtldPayrollLedgEntry: Record "Detailed Payroll Ledger Entry";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        TimesheetDetail: Record "Timesheet Detail";
         ItemTrackingFilters: Record Item;
         NewItemTrackingSetup: Record "Item Tracking Setup";
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
         Window: Dialog;
-        ContactNo: Code[250];
         DocType: Text[100];
         SourceType: Text[30];
         SourceNo: Code[20];
@@ -609,6 +596,7 @@
         SCMServHeader: Record "Service Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
+        ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         DocNoFilter: Text;
         PostingDateFilter: Text;
@@ -861,65 +849,6 @@
             TaxDiffLedgerEntry.SetFilter("Document No.", DocNoFilter);
             TaxDiffLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Tax Diff. Ledger Entry", TaxDiffLedgerEntry.TableCaption, TaxDiffLedgerEntry.Count);
-        end;
-
-        // HRP
-        if PostedAbsenceHeader.ReadPermission() then begin
-            PostedAbsenceHeader.Reset();
-            PostedAbsenceHeader.SetFilter("No.", DocNoFilter);
-            PostedAbsenceHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Absence Header", PostedAbsenceHeader.TableCaption, PostedAbsenceHeader.Count);
-        end;
-        if EmplLedgEntry.ReadPermission() then begin
-            EmplLedgEntry.Reset();
-            EmplLedgEntry.SetCurrentKey("Document No.", "Document Date");
-            EmplLedgEntry.SetFilter("Document No.", DocNoFilter);
-            EmplLedgEntry.SetFilter("Document Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Employee Ledger Entry", EmplLedgEntry.TableCaption, EmplLedgEntry.Count);
-        end;
-        if EmplAbsenceEntry.ReadPermission() then begin
-            EmplAbsenceEntry.Reset();
-            EmplAbsenceEntry.SetCurrentKey("Document No.", "Document Date");
-            EmplAbsenceEntry.SetFilter("Document No.", DocNoFilter);
-            EmplAbsenceEntry.SetFilter("Document Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Employee Absence Entry", EmplAbsenceEntry.TableCaption, EmplAbsenceEntry.Count);
-        end;
-        if TimesheetDetail.ReadPermission() then begin
-            TimesheetDetail.Reset();
-            TimesheetDetail.SetCurrentKey("Document No.", "Document Date");
-            TimesheetDetail.SetFilter("Document No.", DocNoFilter);
-            TimesheetDetail.SetFilter("Document Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Timesheet Detail", TimesheetDetail.TableCaption, TimesheetDetail.Count);
-        end;
-        if PayrollLedgEntry.ReadPermission() then begin
-            PayrollLedgEntry.Reset();
-            PayrollLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-            PayrollLedgEntry.SetFilter("Document No.", DocNoFilter);
-            PayrollLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Payroll Ledger Entry", PayrollLedgEntry.TableCaption, PayrollLedgEntry.Count);
-            if (NewHROrderNo <> '') and (NewHROrderDate <> 0D) then begin
-                PayrollLedgEntry.Reset();
-                PayrollLedgEntry.SetCurrentKey("HR Order No.", "HR Order Date");
-                PayrollLedgEntry.SetRange("HR Order No.", NewHROrderNo);
-                PayrollLedgEntry.SetRange("HR Order Date", NewHROrderDate);
-                InsertIntoDocEntry(Rec, DATABASE::"Payroll Ledger Entry", PayrollLedgEntry.TableCaption, PayrollLedgEntry.Count);
-            end;
-        end;
-        if DtldPayrollLedgEntry.ReadPermission() then begin
-            DtldPayrollLedgEntry.Reset();
-            DtldPayrollLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-            DtldPayrollLedgEntry.SetFilter("Document No.", DocNoFilter);
-            DtldPayrollLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(
-              Rec, DATABASE::"Detailed Payroll Ledger Entry", DtldPayrollLedgEntry.TableCaption, DtldPayrollLedgEntry.Count);
-            if (NewHROrderNo <> '') and (NewHROrderDate <> 0D) then begin
-                DtldPayrollLedgEntry.Reset();
-                DtldPayrollLedgEntry.SetCurrentKey("HR Order No.", "HR Order Date");
-                DtldPayrollLedgEntry.SetRange("HR Order No.", NewHROrderNo);
-                DtldPayrollLedgEntry.SetRange("HR Order Date", NewHROrderDate);
-                InsertIntoDocEntry(
-                  Rec, DATABASE::"Detailed Payroll Ledger Entry", DtldPayrollLedgEntry.TableCaption, DtldPayrollLedgEntry.Count);
-            end;
         end;
     end;
 
@@ -1828,18 +1757,6 @@
                     end;
                 DATABASE::"Tax Diff. Ledger Entry":
                     PAGE.Run(0, TaxDiffLedgerEntry);
-                DATABASE::"Posted Absence Header":
-                    PAGE.Run(0, PostedAbsenceHeader);
-                DATABASE::"Employee Ledger Entry":
-                    PAGE.Run(0, EmplLedgEntry);
-                DATABASE::"Employee Absence Entry":
-                    PAGE.Run(0, EmplAbsenceEntry);
-                DATABASE::"Timesheet Detail":
-                    PAGE.Run(0, TimesheetDetail);
-                DATABASE::"Payroll Ledger Entry":
-                    PAGE.Run(0, PayrollLedgEntry);
-                DATABASE::"Detailed Payroll Ledger Entry":
-                    PAGE.Run(0, DtldPayrollLedgEntry);
             end;
 
         OnAfterNavigateShowRecords(
@@ -1904,14 +1821,14 @@
         end;
     end;
 
-    local procedure SetPostingDate(PostingDate: Text)
+    protected procedure SetPostingDate(PostingDate: Text)
     begin
         FilterTokens.MakeDateFilter(PostingDate);
         Rec.SetFilter("Posting Date", PostingDate);
         PostingDateFilter := Rec.GetFilter("Posting Date");
     end;
 
-    local procedure SetDocNo(DocNo: Text)
+    protected procedure SetDocNo(DocNo: Text)
     begin
         Rec.SetFilter("Document No.", DocNo);
         DocNoFilter := Rec.GetFilter("Document No.");

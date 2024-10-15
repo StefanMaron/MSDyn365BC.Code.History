@@ -39,7 +39,7 @@ table 956 "Time Sheet Detail Archive"
         field(9; "Cause of Absence Code"; Code[10])
         {
             Caption = 'Cause of Absence Code';
-            TableRelation = "Time Activity";
+            TableRelation = "Cause of Absence";
         }
         field(13; "Service Order No."; Code[20])
         {

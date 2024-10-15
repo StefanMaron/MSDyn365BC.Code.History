@@ -1,4 +1,4 @@
-table 381 "VAT Registration No. Format"
+﻿table 381 "VAT Registration No. Format"
 {
     Caption = 'VAT Registration No. Format';
 
@@ -40,14 +40,11 @@ table 381 "VAT Registration No. Format"
         Text003: Label 'This VAT registration number has already been entered for the following vendors:\ %1';
         Text004: Label 'This VAT registration number has already been entered for the following contacts:\ %1';
         Text005: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        Text17350: Label 'This VAT registration number has already been entered for the following persons:\ %1';
         LocalVATRegNoCheckSumErr: Label 'The entered VAT registration number is incorrect (checksum error).';
-        InvalidVatNumberErr: Label 'Enter a valid VAT number, for example ''GB123456789''.';
 
     procedure Test(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option): Boolean
     var
         CompanyInfo: Record "Company Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -76,11 +73,8 @@ table 381 "VAT Registration No. Format"
                 Check := Compare(VATRegNo, Format);
             until Check or (Next() = 0);
 
-        if not Check then begin
-            if EnvInfoProxy.IsInvoicing then
-                Error(InvalidVatNumberErr);
+        if not Check then
             Error(StrSubstNo('%1%2', StrSubstNo(Text000, "Country/Region Code"), StrSubstNo(Text001, TextString)));
-        end;
 
         case TableID of
             DATABASE::Customer:
@@ -92,8 +86,6 @@ table 381 "VAT Registration No. Format"
             DATABASE::Contact:
                 if not CheckContact(VATRegNo, Number) then
                     exit(false);
-            DATABASE::Person:
-                CheckPerson(VATRegNo, Number);
             else
                 OnTestTable(VATRegNo, CountryCode, Number, TableID);
         end;
@@ -107,7 +99,6 @@ table 381 "VAT Registration No. Format"
     local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cust: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -129,11 +120,7 @@ table 381 "VAT Registration No. Format"
             Check := false;
             Finish := false;
             repeat
-                if EnvInfoProxy.IsInvoicing then
-                    CustomerIdentification := Cust.Name
-                else
-                    CustomerIdentification := Cust."No.";
-
+                CustomerIdentification := Cust."No.";
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next() = 0) or Finish;
         end;
@@ -234,30 +221,6 @@ table 381 "VAT Registration No. Format"
         end;
 
         exit(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure CheckPerson(VATRegNo: Text[20]; Number: Code[20])
-    var
-        Person: Record Person;
-        Check: Boolean;
-        Finish: Boolean;
-        t: Text;
-    begin
-        Check := true;
-        t := '';
-        Person.SetCurrentKey("VAT Registration No.");
-        Person.SetRange("VAT Registration No.", VATRegNo);
-        Person.SetFilter("No.", '<>%1', Number);
-        if Person.FindSet then begin
-            Check := false;
-            Finish := false;
-            repeat
-                AppendString(t, Finish, Person."No.");
-            until (Person.Next() = 0) or Finish;
-        end;
-        if Check = false then
-            Message(StrSubstNo(Text17350, t));
     end;
 
     procedure Compare(VATRegNo: Text[20]; Format: Text[20]): Boolean

@@ -2005,19 +2005,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Credit Transfer Registers";
                         Tooltip = 'Open the Credit Transfer Registers page.';
                     }
-                    action("Employee Ledger Entries")
-                    {
-                        ApplicationArea = BasicHR;
-                        Caption = 'Employee Ledger Entries';
-                        RunObject = page "Employee Ledger Entries";
-                        Tooltip = 'Open the Employee Ledger Entries page.';
-                    }
-                    // action("Detailed Employee Ledger Entries")
-                    // {
-                    //     ApplicationArea = BasicHR;
-                    //     Caption = 'Detailed Employee Ledger Entries';
-                    //     RunObject = page "Detailed Empl. Ledger Entries";
-                    // }
                 }
                 group("Group40")
                 {
@@ -3009,20 +2996,6 @@ page 8901 "Finance Manager Role Center"
                 group("Group75")
                 {
                     Caption = 'General';
-                    action("Departments")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Organizational Units';
-                        RunObject = page "Organizational Units";
-                        Tooltip = 'Open the Departments page.';
-                    }
-                    action("Positions")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Positions';
-                        RunObject = page "Position List";
-                        Tooltip = 'Open the Positions page.';
-                    }
                     action("Local Codes")
                     {
                         ApplicationArea = Basic, Suite;

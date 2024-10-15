@@ -29,6 +29,11 @@ table 204 "Unit of Measure"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -53,6 +58,9 @@ table 204 "Unit of Measure"
         {
         }
         key(Key3; SystemModifiedAt)
+        {
+        }
+        key(Key4; "Coupled to CRM")
         {
         }
     }

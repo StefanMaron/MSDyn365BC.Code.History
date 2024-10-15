@@ -11,11 +11,12 @@ codeunit 131901 "Library - Human Resource"
         LibraryUtility: Codeunit "Library - Utility";
         FirstNameTxt: Label 'First Name';
         NameTxt: Label 'Name';
+        LibraryERM: Codeunit "Library - ERM";
 
     procedure CreateAlternativeAddress(var AlternativeAddress: Record "Alternative Address"; EmployeeNo: Code[20])
     begin
         AlternativeAddress.Init();
-        AlternativeAddress.Validate("Person No.", EmployeeNo);
+        AlternativeAddress.Validate("Employee No.", EmployeeNo);
         AlternativeAddress.Validate(
           Code,
           CopyStr(
@@ -31,6 +32,14 @@ codeunit 131901 "Library - Human Resource"
         Employee.Insert(true);
         UpdateEmployeeName(Employee);
         Employee.Modify(true);
+    end;
+
+    procedure CreateEmployeeNo(): Code[20]
+    var
+        Employee: Record Employee;
+    begin
+        CreateEmployee(Employee);
+        exit(Employee."No.");
     end;
 
     procedure CreateMiscArticle(var MiscArticle: Record "Misc. Article")
@@ -63,7 +72,7 @@ codeunit 131901 "Library - Human Resource"
         RecRef: RecordRef;
     begin
         EmployeeQualification.Init();
-        EmployeeQualification.Validate("Person No.", EmployeeNo);
+        EmployeeQualification.Validate("Employee No.", EmployeeNo);
         RecRef.GetTable(EmployeeQualification);
         EmployeeQualification.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeQualification.FieldNo("Line No.")));
         EmployeeQualification.Insert(true);
@@ -80,7 +89,7 @@ codeunit 131901 "Library - Human Resource"
         RecRef: RecordRef;
     begin
         EmployeeRelative.Init();
-        EmployeeRelative.Validate("Person No.", EmployeeNo);
+        EmployeeRelative.Validate("Employee No.", EmployeeNo);
         RecRef.GetTable(EmployeeRelative);
         EmployeeRelative.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeRelative.FieldNo("Line No.")));
         EmployeeRelative.Insert(true);

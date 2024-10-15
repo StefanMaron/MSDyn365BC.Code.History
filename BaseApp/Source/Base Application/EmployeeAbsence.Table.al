@@ -35,7 +35,7 @@ table 5207 "Employee Absence"
         field(5; "Cause of Absence Code"; Code[10])
         {
             Caption = 'Cause of Absence Code';
-            TableRelation = "Time Activity";
+            TableRelation = "Cause of Absence";
 
             trigger OnValidate()
             begin
@@ -137,7 +137,7 @@ table 5207 "Employee Absence"
     end;
 
     var
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         Employee: Record Employee;
         EmployeeAbsence: Record "Employee Absence";
         HumanResUnitOfMeasure: Record "Human Resource Unit of Measure";

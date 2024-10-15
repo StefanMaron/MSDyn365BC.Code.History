@@ -8,7 +8,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     end;
 
     var
-        LibraryHRP: Codeunit "Library - HRP";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
@@ -119,23 +119,11 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     var
         LetterOfAttorneyHeader: Record "Letter of Attorney Header";
         Employee: Record Employee;
-        Person: Record Person;
-        PersonDocument: Record "Person Document";
         LetterOfAttorneyM2A: Report "Letter of Attorney M-2A";
     begin
         CreateAttHeader(LetterOfAttorneyHeader);
 
         Employee.Get(LetterOfAttorneyHeader."Employee No.");
-
-        Person.Get(Employee."Person No.");
-        Person."Identity Document Type" := '1'; // passport
-        Person.Modify();
-
-        PersonDocument.Init();
-        PersonDocument."Person No." := Person."No.";
-        PersonDocument."Document Type" := '1'; // Passport
-        PersonDocument."Issue Date" := WorkDate;
-        PersonDocument.Insert();
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         LetterOfAttorneyM2A.InitializeRequest(LibraryReportValidation.GetFileName, Preview);
@@ -153,7 +141,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
             "No." :=
               LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Letter of Attorney Header");
             Validate(
-              "Employee No.", LibraryHRP.CreateNewEmployee(WorkDate, LibraryRandom.RandInt(100)));
+              "Employee No.", LibraryHumanResource.CreateEmployeeNo());
 
             Insert(true);
             LibraryPurchase.CreateVendor(Vendor);

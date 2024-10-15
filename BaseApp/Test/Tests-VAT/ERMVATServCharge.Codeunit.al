@@ -1,4 +1,4 @@
-codeunit 134908 "ERM VAT Serv. Charge"
+﻿codeunit 134908 "ERM VAT Serv. Charge"
 {
     Subtype = Test;
     TestPermissions = Disabled;

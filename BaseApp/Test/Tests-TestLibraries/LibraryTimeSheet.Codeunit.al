@@ -256,13 +256,13 @@ codeunit 131904 "Library - Time Sheet"
         HumanResourceUnitOfMeasure.Insert(true);
     end;
 
-    procedure CreateTimeActivity(var TimeActivity: Record "Time Activity")
+    procedure CreateCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
 
-        with TimeActivity do begin
+        with CauseOfAbsence do begin
             Init();
             Validate(Code, LibraryUtility.GenerateGUID());
             Validate(Description, LibraryUtility.GenerateGUID());
@@ -271,7 +271,7 @@ codeunit 131904 "Library - Time Sheet"
         end;
     end;
 
-    procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Time Activity")
+    procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
@@ -424,7 +424,7 @@ codeunit 131904 "Library - Time Sheet"
         AssemblyHeader.Validate("Posting Date", CalcDate('<+3D>', Date));
         AssemblyHeader.Modify();
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
     end;
 
     procedure InitBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")

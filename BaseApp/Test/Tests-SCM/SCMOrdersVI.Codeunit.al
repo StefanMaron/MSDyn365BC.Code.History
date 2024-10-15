@@ -410,6 +410,7 @@ codeunit 137163 "SCM Orders VI"
         Assert.ExpectedError(ExpectedReceiptDateErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceNegativeQuantityError()
@@ -603,6 +604,7 @@ codeunit 137163 "SCM Orders VI"
         // Verify: Verify error message.
         Assert.ExpectedError(StartingDateErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1398,36 +1400,6 @@ codeunit 137163 "SCM Orders VI"
         Assert.ExpectedError(MissingMandatoryLocationTxt);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnValidateRequisitionLineVendorNo()
-    var
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        RequisitionLine: Record "Requisition Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Planning]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "Vendor No." in "Requisition Line"
-        Initialize(false);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] "Item Cross Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
-        CreateItemCrossReferenceForVendor(ItemCrossReference, Item."No.", Vendor."No.");
-        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
-
-        // [WHEN] validate fields "No." and "Vendor No." of "Requisition Line" "L" with "I" and "V"
-        RequisitionLine.Validate("No.", Item."No.");
-        RequisitionLine.Validate("Vendor No.", Vendor."No.");
-
-        // [THEN] "L"."Description 2" = "R"."Description 2"
-        RequisitionLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemReferenceOnValidateRequisitionLineVendorNo()
@@ -1455,42 +1427,6 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         RequisitionLine.TestField("Description 2", ItemReference."Description 2");
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnValidatePurchaseLineCrossReferenceFields()
-    var
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Purchase]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate cross reference fields in "Purchase Line"
-        Initialize(false);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Purchase document with Item "I" contains line "L"
-        LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          Vendor."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
-
-        // [GIVEN] "Item Cross Reference" "R" for "I" and Vendor "V" with populated "Description 2"
-        CreateItemCrossReferenceForVendor(ItemCrossReference, Item."No.", Vendor."No.");
-
-        // [WHEN] validate Cross-Reference fields of "L" with "R"
-        PurchaseLine.Validate("Cross-Reference Type", PurchaseLine."Cross-Reference Type"::Vendor);
-        PurchaseLine.Validate("Cross-Reference Type No.", Vendor."No.");
-        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-
-        // [THEN] "L"."Description 2" = "R"."Description 2"
-        PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1526,41 +1462,6 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnValidateSalesLineCrossReferenceFields()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Sales]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate cross reference fields in "Sales Line"
-        Initialize(false);
-
-        LibrarySales.CreateCustomer(Customer);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Sales document with Item "I" contains line "L"
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
-
-        // [GIVEN] "Item Cross Reference" "R" for "I" and Customer "C" with populated "Description 2"
-        CreateItemCrossReferenceForCustomer(ItemCrossReference, Item."No.", Customer."No.");
-
-        // [WHEN] validate Cross-Reference fields of "L" with "R"
-        SalesLine.Validate("Cross-Reference Type", SalesLine."Cross-Reference Type"::Customer);
-        SalesLine.Validate("Cross-Reference Type No.", Customer."No.");
-        SalesLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-
-        // [THEN] "L"."Description 2" = "R"."Description 2"
-        SalesLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemReferenceOnValidateSalesLineItemReferenceFields()
@@ -1593,43 +1494,6 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] "L"."Description 2" = "R"."Description 2"
         SalesLine.TestField("Description 2", ItemReference."Description 2");
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('SalesListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnGetDropShipment()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Drop Shipment]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when get drop shipment
-        Initialize(false);
-
-        LibrarySales.CreateCustomer(Customer);
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] "Item Cross Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
-        CreateItemCrossReferenceForVendor(ItemCrossReference, Item."No.", Vendor."No.");
-
-        // [GIVEN] Sales order with drop shipment and corresponding purchase order
-        CreatePurchOrderWithSelltoCustomerNo(PurchaseHeader, Vendor."No.", Customer."No.");
-        LibraryVariableStorage.Enqueue(CreateDropShipmentSalesOrder(Customer."No.", Item."No."));
-
-        // [WHEN] Run "Get Sales Orders" from the purchase order and select the sales order with drop shipment
-        LibraryPurchase.GetDropShipment(PurchaseHeader);
-        FindPurchaseLine(PurchaseLine, Item."No.");
-
-        // [THEN] Purchase line "L" is created and "L"."Description 2" = "R"."Description 2"
-        PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
@@ -1666,38 +1530,6 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnValidatePurchaseLineNo()
-    var
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Purchase]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "No." in "Purchase Line"
-        Initialize(false);
-
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] "Item Cross Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
-        CreateItemCrossReferenceForVendor(ItemCrossReference, Item."No.", Vendor."No.");
-
-        // [GIVEN] Blank line "L" of purchase order with "Buy-from Vendor No." = "V"
-        CreatePurchaseOrderWithBlankLine(PurchaseLine, Vendor."No.");
-
-        // [WHEN] validate "L" with "I"
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-        PurchaseLine.Validate("No.", Item."No.");
-
-        // [THEN] "L"."Description 2" = "R"."Description 2"
-        PurchaseLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemReferenceOnValidatePurchaseLineNo()
@@ -1728,38 +1560,6 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Description 2", ItemReference."Description 2");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure Description2FromItemCrossReferenceOnValidateSalesLineNo()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Item Cross Reference] [Sales]
-        // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "No." in "Sales Line"
-        Initialize(false);
-
-        LibrarySales.CreateCustomer(Customer);
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] "Item Cross Reference" "R" for "I" and Customer "C" with populated "Description 2"
-        CreateItemCrossReferenceForCustomer(ItemCrossReference, Item."No.", Customer."No.");
-
-        // [GIVEN] Blank line "L" of sales order with "Sell-to Customer No." = "C"
-        CreateSalesOrderWithBlankLine(SalesLine, Customer."No.");
-
-        // [WHEN] validate "L" with "I"
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-        SalesLine.Validate("No.", Item."No.");
-
-        // [THEN] "L"."Description 2" = "R"."Description 2"
-        SalesLine.TestField("Description 2", ItemCrossReference."Description 2");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemReferenceOnValidateSalesLineNo()
@@ -1788,43 +1588,6 @@ codeunit 137163 "SCM Orders VI"
 
         // [THEN] "L"."Description 2" = "R"."Description 2"
         SalesLine.TestField("Description 2", ItemReference."Description 2");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DescriptionFromItemCrossReferenceOnCreateItemVendor()
-    var
-        Language: Record Language;
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemVendor: Record "Item Vendor";
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemTranslation: Record "Item Translation";
-    begin
-        // [FEATURE] [Item Cross Reference] [Item Vendor]
-        // [SCENARIO 257873] Description and "Description 2" in "Item Cross Reference" must stay empty when "Item Vendor" is created
-        Initialize(false);
-
-        Language.Get(LibraryERM.GetAnyLanguageDifferentFromCurrent());
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Vendor "V" with language code
-        Vendor.Validate("Language Code", Language.Code);
-        Vendor.Modify(true);
-
-        // [GIVEN] Create Item "I"
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Item Translation "T" for "I" with "Description" and "Description 2"
-        CreateItemTranslation(ItemTranslation, Item."No.", Language.Code);
-
-        // [WHEN] create "Item Vendor" for "I" and "V"
-        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
-
-        // [THEN] "Item Cross Reference" is created; "Description" and "Description 2" are empty
-        FindItemCrossReferenceByVendorNo(ItemCrossReference, Item."No.", Vendor."No.");
-        ItemCrossReference.TestField(Description, '');
-        ItemCrossReference.TestField("Description 2", '');
     end;
 
     [Test]
@@ -2041,7 +1804,7 @@ codeunit 137163 "SCM Orders VI"
         // [GIVEN] Production Order Component for "Prod" has a reservation from "PO" for quantity = 4 for "Red" location
         ProdOrderComponent.SetRange("Item No.", CompItem."No.");
         ProdOrderComponent.FindFirst;
-        ReservationManagement.SetProdOrderComponent(ProdOrderComponent);
+        ReservationManagement.SetReservSource(ProdOrderComponent);
         ReservationManagement.AutoReserve(FullAutoReserve, '', ProdOrderComponent."Due Date", PurchQty, PurchQty);
 
         // [GIVEN] "Component" stock quantity = 8 added to "Red" location
@@ -3555,6 +3318,7 @@ codeunit 137163 "SCM Orders VI"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(var PurchaseLineDiscounts: TestPage "Purchase Line Discounts")
     var
         Vendor: Record Vendor;
@@ -3577,6 +3341,7 @@ codeunit 137163 "SCM Orders VI"
         OpenVendorCard(VendorCard, Vendor."No.");
         VendorCard.Prices.Invoke;  // Open Purchase Price Page from Vendor Card.
     end;
+#endif
 
     local procedure CreateVendorWithInvoiceDiscount(var Vendor: Record Vendor; InvoiceDiscPct: Decimal)
     var
@@ -3600,21 +3365,6 @@ codeunit 137163 "SCM Orders VI"
         ItemTranslation.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemTranslation."Description 2")));
         ItemTranslation.Insert(true);
     end;
-
-#if not CLEAN16
-    local procedure CreateItemCrossReferenceForVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; VendorNo: Code[20])
-    begin
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, ItemNo, ItemCrossReference."Cross-Reference Type"::Vendor, VendorNo);
-        UpdateItemCrossReferenceDescriptions(ItemCrossReference);
-    end;
-
-    local procedure CreateItemCrossReferenceForCustomer(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CustomerNo: Code[20])
-    begin
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, ItemNo, ItemCrossReference."Cross-Reference Type"::Customer, CustomerNo);
-        UpdateItemCrossReferenceDescriptions(ItemCrossReference);
-    end;
-#endif
 
     local procedure CreateItemReferenceForVendor(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
@@ -3719,7 +3469,7 @@ codeunit 137163 "SCM Orders VI"
         ReturnShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -3771,15 +3521,6 @@ codeunit 137163 "SCM Orders VI"
         PurchaseHeader.SetRange("No.", PurchaseLine."Document No.");
         PurchaseHeader.FindFirst;
         ExpdTotalDisAmt := PurchaseLine."Line Discount Amount" + PurchaseLine."Inv. Discount Amount";
-    end;
-
-    local procedure FindItemCrossReferenceByVendorNo(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; VendorNo: Code[20])
-    begin
-        ItemCrossReference.SetRange("Item No.", ItemNo);
-        ItemCrossReference.SetRange("Variant Code", '');
-        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-        ItemCrossReference.SetRange("Cross-Reference Type No.", VendorNo);
-        ItemCrossReference.FindFirst;
     end;
 
     local procedure FindItemReferenceByVendorNo(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
@@ -4117,13 +3858,13 @@ codeunit 137163 "SCM Orders VI"
         PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesOrderNo);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, Type);
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
@@ -4340,13 +4081,6 @@ codeunit 137163 "SCM Orders VI"
         PurchaseCreditMemo.PurchLines.FILTER.SetFilter("No.", ItemNo);
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(Qty); // Update Quantity for posting Purchase Credit Memo partially.
         PurchaseCreditMemo.OK.Invoke;
-    end;
-
-    local procedure UpdateItemCrossReferenceDescriptions(var ItemCrossReference: Record "Item Cross Reference")
-    begin
-        ItemCrossReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemCrossReference.Description)));
-        ItemCrossReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemCrossReference."Description 2")));
-        ItemCrossReference.Modify(true);
     end;
 
     local procedure UpdateItemReferenceDescriptions(var ItemReference: Record "Item Reference")

@@ -1,4 +1,4 @@
-﻿codeunit 99000835 "Item Jnl. Line-Reserve"
+codeunit 99000835 "Item Jnl. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -60,36 +60,15 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."Package No." := ForCDNo;
-        CreateReservation(ItemJnlLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
-    end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by ItemJnlLine.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
-    begin
-        ItemJnlLine.SetReservationFilters(FilterReservEntry);
     end;
 
     procedure Caption(ItemJnlLine: Record "Item Journal Line") CaptionText: Text
     begin
         CaptionText := ItemJnlLine.GetSourceCaption;
     end;
-#endif
 
     procedure FindReservEntry(ItemJnlLine: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
@@ -401,7 +380,7 @@
         end;
         TrackingSpecification.InitFromItemJnlLine(ItemJnlLine);
         if IsReclass then
-            ItemTrackingLines.SetFormRunMode(1);
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJnlLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJnlLine.IsInbound);
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ItemJnlLine, ItemTrackingLines);
@@ -412,14 +391,13 @@
     var
         SourceTrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
-        FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer;
     begin
         if not TempTrackingSpecification.FindSet then
             exit;
         SourceTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
 
         Clear(ItemTrackingLines);
-        ItemTrackingLines.SetFormRunMode(FormRunMode::Reclass);
+        ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.RegisterItemTrackingLines(
           SourceTrackingSpecification, ItemJournalLine."Posting Date", TempTrackingSpecification);
     end;

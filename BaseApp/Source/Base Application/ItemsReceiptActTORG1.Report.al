@@ -282,7 +282,6 @@ report 14918 "Items Receipt Act TORG-1"
                 CustAddr: array[8] of Text[100];
                 EmployeePosition: Text[50];
                 EmployeeName: Text[100];
-                EmployeeDocument: Text[250];
             begin
                 ExcelReportBuilderMgr.SetSheet('Sheet1');
                 ExcelReportBuilderMgr.AddSection('PAGE1');
@@ -353,28 +352,28 @@ report 14918 "Items Receipt Act TORG-1"
                 ExcelReportBuilderMgr.AddSection('PAGE3');
 
                 if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
-                     DocumentSignature."Employee Type"::Chairman, EmployeePosition, EmployeeName, EmployeeDocument)
+                     DocumentSignature."Employee Type"::Chairman, EmployeePosition, EmployeeName)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionHeadTitle', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionHeadName', EmployeeName);
                 end;
 
                 if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
-                     DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName, EmployeeDocument)
+                     DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Title', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Name', EmployeeName);
                 end;
 
                 if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
-                     DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName, EmployeeDocument)
+                     DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Title', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Name', EmployeeName);
                 end;
 
                 if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
-                     DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName, EmployeeDocument)
+                     DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName)
                 then begin
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Title', EmployeePosition);
                     ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Name', EmployeeName);
@@ -742,27 +741,11 @@ report 14918 "Items Receipt Act TORG-1"
     end;
 
     [Scope('OnPrem')]
-    procedure GetDocSignParameters(TableID: Integer; DocumentType: Integer; DocumentNo: Code[20]; EmployeeType: Integer; var EmployeeJobTitle: Text[50]; var EmployeeName: Text[100]; var EmployeeDocument: Text[250]): Boolean
+    procedure GetDocSignParameters(TableID: Integer; DocumentType: Integer; DocumentNo: Code[20]; EmployeeType: Integer; var EmployeeJobTitle: Text[50]; var EmployeeName: Text[100]): Boolean
     var
-        Employee: Record Employee;
-        Person: Record Person;
         DocumentSignature: Record "Document Signature";
-        PersonalDoc: Record "Person Document";
     begin
         if DocumentSignature.Get(TableID, DocumentType, DocumentNo, EmployeeType) then begin
-            if Employee.Get(DocumentSignature."Employee No.") then begin
-                Employee.TestField("Person No.");
-                Person.Get(Employee."Person No.");
-                Person.GetIdentityDoc(ReportDate, PersonalDoc);
-                EmployeeDocument := CopyStr(
-                    Format(PersonalDoc."Document Type") + ' ' +
-                    PersonalDoc."Document Series" + ' ' +
-                    PersonalDoc."Document No." + ' ' +
-                    PersonalDoc."Issue Authority" + ' ' +
-                    Format(PersonalDoc."Issue Date"),
-                    1, MaxStrLen(EmployeeDocument));
-            end;
-
             EmployeeJobTitle := DocumentSignature."Employee Job Title";
             EmployeeName := DocumentSignature."Employee Name";
             exit(true);

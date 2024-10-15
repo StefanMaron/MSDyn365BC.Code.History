@@ -1226,7 +1226,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RowNo := 19;
         GetPurchInvHeader(InvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 125, GetCurrDescription(PurchInvHeader."Currency Code"));
+            RowNo, 125, GetCurrDescription(PurchInvHeader."Currency Code"));
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvLine."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
@@ -1257,7 +1257,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RowNo := 20;
         GetPurchInvHeader(CorInvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 32, PurchInvHeader."No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
+            RowNo, 32, PurchInvHeader."No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
@@ -1273,7 +1273,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RowNo := 20;
         GetPurchInvHeader(RevInvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 23, PurchInvHeader."Revision No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
+            RowNo, 23, PurchInvHeader."Revision No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
@@ -1293,9 +1293,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GetPurchInvHeader(RevInvNo, RevPurchInvHeader, RevPurchInvLine);
 
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 32, CorPurchInvHeader."No." + '; ' + Format(CorPurchInvHeader."Document Date")); // Column 5
+            RowNo, 32, CorPurchInvHeader."No." + '; ' + Format(CorPurchInvHeader."Document Date")); // Column 5
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 41, RevPurchInvHeader."Revision No." + '; ' + Format(RevPurchInvHeader."Document Date")); // Column 5
+            RowNo, 41, RevPurchInvHeader."Revision No." + '; ' + Format(RevPurchInvHeader."Document Date")); // Column 5
 
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(RevPurchInvHeader."Amount Including VAT")); // Column 15
@@ -1313,7 +1313,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GetPurchInvHeader(InvNo, PurchInvHeader, PurchInvLine);
         VerifyRepCommonValues(PurchInvHeader, RowNo);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
+            RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
@@ -1329,9 +1329,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RowNo := 19;
         GetPurchInvHeader(InvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 14, VendVATInvNo + '; ' + Format(VendorVATInvDate)); // Column 3
+            RowNo, 14, VendVATInvNo + '; ' + Format(VendorVATInvDate)); // Column 3
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
+            RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
@@ -1365,7 +1365,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RowNo := 19;
         GetPurchInvHeader(InvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
+            RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
             RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(

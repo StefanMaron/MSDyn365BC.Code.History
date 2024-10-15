@@ -35,7 +35,7 @@ table 955 "Time Sheet Line Archive"
         field(9; "Cause of Absence Code"; Code[10])
         {
             Caption = 'Cause of Absence Code';
-            TableRelation = "Time Activity";
+            TableRelation = "Cause of Absence";
         }
         field(10; Description; Text[100])
         {

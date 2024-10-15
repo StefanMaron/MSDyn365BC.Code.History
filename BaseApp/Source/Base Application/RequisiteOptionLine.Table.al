@@ -2,8 +2,8 @@ table 26558 "Requisite Option Line"
 {
     Caption = 'Requisite Option Line';
     ObsoleteReason = 'Obsolete functionality';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,13 +15,10 @@ table 26558 "Requisite Option Line"
         field(2; "Requisites Group Name"; Text[30])
         {
             Caption = 'Requisites Group Name';
-            TableRelation = "Stat. Report Requisites Group".Name WHERE("Report Code" = FIELD("Report Code"));
         }
         field(3; "Requisite Name"; Text[30])
         {
             Caption = 'Requisite Name';
-            TableRelation = "Stat. Report Requisite".Name WHERE("Report Code" = FIELD("Report Code"),
-                                                                 "Requisites Group Name" = FIELD("Requisites Group Name"));
         }
         field(4; "Line No."; Integer)
         {

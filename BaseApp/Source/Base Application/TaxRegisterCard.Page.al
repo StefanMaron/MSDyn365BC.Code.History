@@ -70,13 +70,6 @@ page 17203 "Tax Register Card"
                               Code = FIELD("No.");
                 Visible = TaxRegFATemplateSubformVisible;
             }
-            part(TaxRegPayrollLineSubform; "Tax Reg. Payroll Line Subform")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              "Tax Register No." = FIELD("No.");
-                Visible = TaxRegPayrollLineSubformVisible;
-            }
             part(TaxRegLineSubform; "Tax Register Line Subform")
             {
                 ApplicationArea = All;
@@ -104,13 +97,6 @@ page 17203 "Tax Register Card"
                 SubPageLink = "Section Code" = FIELD("Section Code"),
                               Code = FIELD("No.");
                 Visible = TaxRegEntryTemplSubformVisible;
-            }
-            part(TaxRegPayrollTemplateSubform; "Tax Reg. Payroll Template Subf")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Section Code" = FIELD("Section Code"),
-                              Code = FIELD("No.");
-                Visible = TaxRegPayrollTemplateSubformVisible;
             }
             group(Objects)
             {
@@ -222,10 +208,7 @@ page 17203 "Tax Register Card"
             "Table ID" = DATABASE::"Tax Register FA Entry":
                 TaxRegFATemplateSubformVisible := true;
             "Storing Method" = "Storing Method"::"Build Entry":
-                if "Table ID" = DATABASE::"Tax Register PR Entry" then begin
-                    TaxRegPayrollLineSubformVisible := true;
-                    TaxRegPayrollTemplateSubformVisible := true;
-                end else begin
+                begin
                     TaxRegLineSubformVisible := true;
                     TaxRegEntryTemplSubformVisible := true;
                 end;

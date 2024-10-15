@@ -1,4 +1,4 @@
-﻿table 77 "Report Selections"
+table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -784,7 +784,7 @@
     end;
 #endif
 
-    local procedure GetEmailAddressIgnoringLayout(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Text[250]
+    procedure GetEmailAddressIgnoringLayout(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Text[250]
     var
         TempBodyReportSelections: Record "Report Selections" temporary;
         EmailAddress: Text[250];
@@ -1084,8 +1084,6 @@
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
         GraphMail: Codeunit "Graph Mail";
-        MailManagement: Codeunit "Mail Management";
-        OfficeMgt: Codeunit "Office Management";
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
         UpdateDocumentSentHistory: Boolean;
@@ -1111,11 +1109,7 @@
             exit;
         end;
 
-        if ShowDialog or
-           (not MailManagement.IsEnabled()) or
-           (GetEmailAddressIgnoringLayout(ReportUsageEnum, RecordVariant, CustNo) = '') or
-           OfficeMgt.IsAvailable()
-        then begin
+        if ShowDialog or ShouldSendToCustDirectly(ReportUsageEnum, RecordVariant, CustNo) then begin
             SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, CustNo);
             exit;
         end;
@@ -1129,12 +1123,32 @@
             until RecRef.Next() = 0;
     end;
 
+    procedure ShouldSendToCustDirectly(ReportUsageEnum: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Boolean
+    begin
+        exit(
+           (not MailManagementEnabled()) or
+           (GetEmailAddressIgnoringLayout(ReportUsageEnum, RecordVariant, CustNo) = '') or
+            OfficeMgtAvailable());
+    end;
+
+    local procedure OfficeMgtAvailable(): Boolean
+    var
+        OfficeMgt: Codeunit "Office Management";
+    begin
+        exit(OfficeMgt.IsAvailable());
+    end;
+
+    local procedure MailManagementEnabled(): Boolean
+    var
+        MailManagement: Codeunit "Mail Management";
+    begin
+        exit(MailManagement.IsEnabled());
+    end;
+
     procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20])
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
         GraphMail: Codeunit "Graph Mail";
-        MailManagement: Codeunit "Mail Management";
-        OfficeMgt: Codeunit "Office Management";
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
         VendorEmail: Text[250];
@@ -1162,7 +1176,7 @@
         end;
 
         VendorEmail := GetEmailAddressForVend(VendorNo, RecordVariant, ReportUsageEnum);
-        if ShowDialog or not MailManagement.IsEnabled or (VendorEmail = '') or OfficeMgt.IsAvailable then begin
+        if ShowDialog or not MailManagementEnabled() or (VendorEmail = '') or OfficeMgtAvailable() then begin
             SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
             exit;
         end;
@@ -1231,6 +1245,9 @@
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Reminder: Record "Issued Reminder Header";
+        ReminderLines: Record "Issued Reminder Line";
+        SalesInvoice: Record "Sales Invoice Header";
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
@@ -1251,6 +1268,21 @@
         SourceTableIDs.Add(DocumentRecord.Number());
         SourceIDs.Add(DocumentRecord.Field(DocumentRecord.SystemIdNo).Value());
         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        // Add any invoice in the reminder lines as a related source
+        if DocumentRecord.Number() = Database::"Issued Reminder Header" then
+            if Reminder.GetBySystemId(DocumentRecord.Field(DocumentRecord.SystemIdNo).Value()) then begin
+                ReminderLines.SetFilter("Reminder No.", Reminder."No.");
+                if ReminderLines.FindSet() then
+                repeat
+                    if ReminderLines."Document Type" = ReminderLines."Document Type"::Invoice then
+                        if SalesInvoice.Get(ReminderLines."Document No.") then begin
+                            SourceTableIDs.Add(Database::"Sales Invoice Header");
+                            SourceIDs.Add(SalesInvoice.SystemId);
+                            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                        end;
+                until ReminderLines.Next() = 0;
+            end;
 
         // Related Source - Customer or vendor receiving the document
         if GetAccountTableId(DocumentRecord.Number()) = Database::Customer then
@@ -1574,7 +1606,7 @@
         Commit();
     end;
 
-    local procedure SaveReportAsPDFInTempBlob(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
+    procedure SaveReportAsPDFInTempBlob(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
     var
         ReportLayoutSelectionLocal: Record "Report Layout Selection";
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";

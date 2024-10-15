@@ -17,7 +17,6 @@ page 9658 "Vendor Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usage';
-                    OptionCaption = 'Purchase Order,Vendor Remittance,Posted Return Shipment';
                     ToolTip = 'Specifies which type of document the report is used for.';
 
                     trigger OnValidate()
@@ -27,6 +26,8 @@ page 9658 "Vendor Report Selections"
                                 Usage := Usage::"P.Order";
                             Usage2::"Vendor Remittance":
                                 Usage := Usage::"V.Remittance";
+                            Usage2::"Vendor Remittance - Posted Entries":
+                                Usage := Usage::"P.V.Remit.";
                             Usage2::"Posted Return Shipment":
                                 Usage := Usage::"P.Ret.Shpt.";
                         end;
@@ -189,7 +190,7 @@ page 9658 "Vendor Report Selections"
     end;
 
     var
-        Usage2: Option "Purchase Order","Vendor Remittance","Posted Return Shipment";
+        Usage2: Enum "Report Selection Usage Vendor";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
 
     local procedure MapTableUsageValueToPageValue()
@@ -201,6 +202,8 @@ page 9658 "Vendor Report Selections"
                 Usage2 := Usage2::"Purchase Order";
             CustomReportSelection.Usage::"V.Remittance":
                 Usage2 := Usage2::"Vendor Remittance";
+            CustomReportSelection.Usage::"P.V.Remit.":
+                Usage2 := Usage2::"Vendor Remittance - Posted Entries";
             CustomReportSelection.Usage::"P.Ret.Shpt.":
                 Usage2 := Usage2::"Posted Return Shipment";
         end;
@@ -214,6 +217,7 @@ page 9658 "Vendor Report Selections"
             Usage, '%1|%2|%3|%4',
             CustomReportSelection.Usage::"P.Order",
             CustomReportSelection.Usage::"V.Remittance",
+            CustomReportSelection.Usage::"P.V.Remit.",
             CustomReportSelection.Usage::"P.Ret.Shpt.");
     end;
 }

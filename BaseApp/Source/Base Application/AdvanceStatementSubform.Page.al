@@ -32,12 +32,18 @@ page 12432 "Advance Statement Subform"
                         NoOnAfterValidate();
                     end;
                 }
+#if not CLEAN19
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemCrossReference: Record "Item Cross Reference";
                     begin
                         if Type = Type::Item then begin
                             PurchHeader.Get("Document Type", "Document No.");
@@ -52,6 +58,7 @@ page 12432 "Advance Statement Subform"
                         end;
                     end;
                 }
+#endif
                 field("Variant Code"; "Variant Code")
                 {
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -538,7 +545,6 @@ page 12432 "Advance Statement Subform"
 
     var
         PurchHeader: Record "Purchase Header";
-        ItemCrossReference: Record "Item Cross Reference";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ShortcutDimCode: array[8] of Code[20];

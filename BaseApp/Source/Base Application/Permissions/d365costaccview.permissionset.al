@@ -1,8 +1,8 @@
 permissionset 5269 "D365 COSTACC, VIEW"
 {
     Assignable = true;
-    Caption = 'Dyn. 365 View Cost Accounting';
 
+    Caption = 'Dyn. 365 View Cost Accounting';
     Permissions = tabledata "Cost Accounting Setup" = R,
                   tabledata "Cost Allocation Source" = R,
                   tabledata "Cost Allocation Target" = R,
@@ -17,5 +17,6 @@ permissionset 5269 "D365 COSTACC, VIEW"
                   tabledata "Cost Journal Template" = R,
                   tabledata "Cost Object" = R,
                   tabledata "Cost Register" = R,
-                  tabledata "Cost Type" = R;
+                  tabledata "Cost Type" = R,
+                  tabledata "G/L Account" = R;
 }

@@ -22,7 +22,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
-                  tabledata "Employee Ledger Entry" = Rm,
                   tabledata "FA Ledger Entry" = rm,
                   tabledata "Filed Contract Line" = rm,
                   tabledata "Filed Service Contract Header" = rm,
@@ -42,7 +41,9 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,
@@ -75,8 +76,10 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Purchase Header" = rm,
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Purchase Line" = Rm,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = Rid,
                   tabledata "Purchase Price" = Rid,
+#endif
                   tabledata "Purchase Price Access" = Rid,
                   tabledata "Registered Whse. Activity Line" = rm,
                   tabledata "Res. Capacity Entry" = RIMD,

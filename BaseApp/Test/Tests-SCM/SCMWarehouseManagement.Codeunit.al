@@ -144,7 +144,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseReceiptFromPurchaseOrder(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure WhseReceiptFromPurchaseOrder(DefaultBinSelection: Option)
+    local procedure WhseReceiptFromPurchaseOrder(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -196,7 +196,7 @@ codeunit 137064 "SCM Warehouse Management"
         PostWhseReceipt(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure PostWhseReceipt(DefaultBinSelection: Option)
+    local procedure PostWhseReceipt(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -263,7 +263,7 @@ codeunit 137064 "SCM Warehouse Management"
         SalesOrderWithBin(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure SalesOrderWithBin(DefaultBinSelection: Option)
+    local procedure SalesOrderWithBin(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -328,7 +328,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseShipmentFromSalesOrder(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure WhseShipmentFromSalesOrder(DefaultBinSelection: Option)
+    local procedure WhseShipmentFromSalesOrder(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -433,7 +433,7 @@ codeunit 137064 "SCM Warehouse Management"
         PickFromShipment(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure PickFromShipment(DefaultBinSelection: Option)
+    local procedure PickFromShipment(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -509,7 +509,7 @@ codeunit 137064 "SCM Warehouse Management"
         PostWhseShipment(Location."Default Bin Selection"::"Last-Used Bin");
     end;
 
-    local procedure PostWhseShipment(DefaultBinSelection: Option)
+    local procedure PostWhseShipment(DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -1378,9 +1378,7 @@ codeunit 137064 "SCM Warehouse Management"
         Item: Record Item;
         BinContentBlocked: Record "Bin Content";
         BinContentUnblocked: Record "Bin Content";
-#if CLEAN17
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-#endif
         CreatePick: Codeunit "Create Pick";
         LotBlocked: Code[10];
         LotUnblocked: Code[10];
@@ -1402,7 +1400,6 @@ codeunit 137064 "SCM Warehouse Management"
         VSTF323171_CreateBinContent(true, BinContentUnblocked, Location.Code, Item."No.", LotUnblocked, '', UnblockedQty, false);
 
         // EXERCISE & VERIFY: Get availability and verify that only the unblocked qty is available.
-#if CLEAN17
         case LotType of
             0: // No lots
                 begin
@@ -1435,28 +1432,6 @@ codeunit 137064 "SCM Warehouse Management"
                       '');
                 end;
         end;
-#else
-        case LotType of
-            0: // No lots
-                Assert.AreEqual(
-                  UnblockedQty,
-                  CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-                  '');
-            1: // Same lot
-                Assert.AreEqual(
-                  UnblockedQty,
-                  CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-                  '');
-            2: // Different lots
-                Assert.AreEqual(
-                  0,
-                  CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-                  '');
-        end;
-#endif
     end;
 
     local procedure CreateItemTrackingNos(var LotBlocked: Code[10]; var LotUnblocked: Code[10]; LotType: Option)
@@ -1726,9 +1701,7 @@ codeunit 137064 "SCM Warehouse Management"
     procedure BlockedLotAffectsAvailabilityForPick_WMS()
     var
         BinContent: Record "Bin Content";
-#if CLEAN17
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-#endif
         CreatePick: Codeunit "Create Pick";
         LotBlocked: Code[10];
         LotUnblocked: Code[10];
@@ -1744,7 +1717,6 @@ codeunit 137064 "SCM Warehouse Management"
           SNUnblocked, BlockedQty, UnblockedQty, false);
 
         // EXERCISE & VERIFY"
-#if CLEAN17
         WhseItemTrackingLine."Serial No." := '';
         WhseItemTrackingLine."Lot No." := LotBlocked;
         Assert.AreEqual(
@@ -1764,23 +1736,6 @@ codeunit 137064 "SCM Warehouse Management"
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
             BinContent."Variant Code", WhseItemTrackingLine, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get availability and verify that only the unblocked lot is available.');
-#else
-        Assert.AreEqual(
-          0,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that the blocked lot is not available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that only the unblocked lot is available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get availability and verify that only the unblocked lot is available.');
-#endif
         Assert.AreEqual(
           UnblockedQty,
           BinContent.CalcQtyAvailToPick(0),
@@ -1792,9 +1747,7 @@ codeunit 137064 "SCM Warehouse Management"
     procedure BlockedSerialLotAffectsAvailabilityForBinContent_WMS()
     var
         BinContent: Record "Bin Content";
-#if CLEAN17
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-#endif
         CreatePick: Codeunit "Create Pick";
         LotBlocked: Code[10];
         LotUnblocked: Code[10];
@@ -1810,7 +1763,6 @@ codeunit 137064 "SCM Warehouse Management"
           BinContent, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, true);
 
         // EXERCISE & VERIFY
-#if CLEAN17
         WhseItemTrackingLine."Serial No." := '';
         WhseItemTrackingLine."Lot No." := LotBlocked;
         Assert.AreEqual(
@@ -1860,43 +1812,6 @@ codeunit 137064 "SCM Warehouse Management"
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
             BinContent."Variant Code", WhseItemTrackingLine, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get availability and verify that only the unblocked lot is available.');
-#else
-        Assert.AreEqual(
-          0,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that the blocked lot is not available.');
-        Assert.AreEqual(
-          0,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', SNBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that the blocked serial is not available.');
-        Assert.AreEqual(
-          0,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, SNBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that the blocked lot & serial is not available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that only the unblocked lot is available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', SNUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that only the unblocked serial is available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, SNUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get lot-specific availability and verify that only the unblocked lot & serial is available.');
-        Assert.AreEqual(
-          UnblockedQty,
-          CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
-          'Get availability and verify that only the unblocked lot is available.');
-#endif
         Assert.AreEqual(
           UnblockedQty,
           BinContent.CalcQtyAvailToPick(0),
@@ -2346,9 +2261,6 @@ codeunit 137064 "SCM Warehouse Management"
         Item: Record Item;
         Bin: Record Bin;
         WhseWorksheetLine: Record "Whse. Worksheet Line";
-#if CLEAN17
-        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-#endif
         CreatePick: Codeunit "Create Pick";
         AvailQty: Decimal;
     begin
@@ -2368,13 +2280,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [WHEN] Calculate quantity available to pick from pick worksheet
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 0);
         CreatePick.SetCalledFromPickWksh(true);
-#if CLEAN17
-        WhseItemTrackingLine."Serial No." := '';
-        WhseItemTrackingLine."Lot No." := '';
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', WhseItemTrackingLine, 0, 0, '', 0, 0, 0, false);
-#else
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', '', 0, 0, '', 0, 0, 0, false);
-#endif
+        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', 0, 0, '', 0, 0, 0, false);
         // [THEN] Available quantity is 0
         Assert.AreEqual(0, AvailQty, QtyAvailMustBeZeroErr);
     end;
@@ -2386,9 +2292,6 @@ codeunit 137064 "SCM Warehouse Management"
         Item: Record Item;
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         Bin: Record Bin;
-#if CLEAN17
-        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-#endif
         CreatePick: Codeunit "Create Pick";
         AvailQty: Decimal;
     begin
@@ -2408,13 +2311,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [WHEN] Calculate quantity available to pick from move worksheet
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 0);
         CreatePick.SetCalledFromMoveWksh(true);
-#if CLEAN17
-        WhseItemTrackingLine."Serial No." := '';
-        WhseItemTrackingLine."Lot No." := '';
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', WhseItemTrackingLine, 0, 0, '', 0, 0, 0, false);
-#else
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', '', 0, 0, '', 0, 0, 0, false);
-#endif
+        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', 0, 0, '', 0, 0, 0, false);
         // [THEN] Available quantity is 0
         Assert.AreEqual(0, AvailQty, QtyAvailMustBeZeroErr);
     end;
@@ -2590,7 +2487,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseEntry: Record "Warehouse Entry";
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        LotNo: Code[20];
+        LotNo: Code[50];
         SalesDocNo: Code[20];
         ShipmentDocNo: Code[20];
         ReclassDocNo: Code[20];
@@ -2663,7 +2560,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
-        LotNo: Code[20];
+        LotNo: Code[50];
         SalesDocNo: Code[20];
         ShipmentDocNo: Code[20];
         PostedShipmentDocNo: Code[20];
@@ -2738,7 +2635,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseEntry: Record "Warehouse Entry";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
-        LotNo: Code[20];
+        LotNo: Code[50];
         SalesDocNo: Code[20];
         ReclassDocNo: Code[20];
         Qty: Decimal;
@@ -2900,7 +2797,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
     end;
 
-    local procedure UpdateLocation(var Location: Record Location; DefaultBinSelection: Option; RequireReceive: Boolean)
+    local procedure UpdateLocation(var Location: Record Location; DefaultBinSelection: Enum "Location Default Bin Selection"; RequireReceive: Boolean)
     begin
         Location.Validate("Default Bin Selection", DefaultBinSelection);
         Location.Validate("Require Put-away", true);
@@ -3189,7 +3086,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentLine.Modify(true);
     end;
 
-    local procedure ChangeBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20])
+    local procedure ChangeBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20])
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, ActionType, ItemNo);
         WarehouseActivityLine.Validate("Bin Code", BinCode);  // Change Bin Code.
@@ -3254,7 +3151,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure MockWhseEntry(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; QtyBase: Decimal; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Option; WhseDocNo: Code[20]; EntryType: Option; RefDoc: Option)
+    local procedure MockWhseEntry(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; QtyBase: Decimal; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; EntryType: Option; RefDoc: Option)
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
@@ -3313,14 +3210,14 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentHeader.FindLast;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; Type: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; Type: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
         WarehouseActivityHeader.FindLast;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20])
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
@@ -3541,7 +3438,7 @@ codeunit 137064 "SCM Warehouse Management"
         UpdateBinWarehouseReceiptLine(ItemNo, Bin.Code);
     end;
 
-    local procedure VerifyBinCodeOnSalesLine(SalesLine: Record "Sales Line"; BinCode: Code[20]; BinCode2: Code[20]; DefaultBinSelection: Option)
+    local procedure VerifyBinCodeOnSalesLine(SalesLine: Record "Sales Line"; BinCode: Code[20]; BinCode2: Code[20]; DefaultBinSelection: Enum "Location Default Bin Selection")
     var
         Location: Record Location;
     begin
@@ -3608,7 +3505,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseReceiptLine.TestField("Qty. Received", QtyReceived)
     end;
 
-    local procedure VerifyWarehouseActivityLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20])
+    local procedure VerifyWarehouseActivityLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3616,7 +3513,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseActivityLine.TestField("Bin Code", BinCode);
     end;
 
-    local procedure VerifyWhseActivityLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; BinCode: Code[20]; ActionType: Option ,Take,Place; ExpectedQuantity: Integer)
+    local procedure VerifyWhseActivityLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type"; ExpectedQuantity: Integer)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3631,7 +3528,7 @@ codeunit 137064 "SCM Warehouse Management"
         end;
     end;
 
-    local procedure VerifyWarehouseActivityLineDetails(SourceNo: Code[20]; ActivityType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal; BinCode: Code[20]; ActionType: Option)
+    local procedure VerifyWarehouseActivityLineDetails(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

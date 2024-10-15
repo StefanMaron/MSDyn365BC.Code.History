@@ -1764,7 +1764,7 @@ codeunit 136500 "UT Time Sheets"
 
     local procedure AddRowsWithDifferentTypes(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line")
     var
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
         Job: Record Job;
         JobTask: Record "Job Task";
         Employee: Record Employee;
@@ -1992,7 +1992,7 @@ codeunit 136500 "UT Time Sheets"
     local procedure CreateTSAbsenceLineWithDetail(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Qty: Decimal)
     var
         Employee: Record Employee;
-        CauseOfAbsence: Record "Time Activity";
+        CauseOfAbsence: Record "Cause of Absence";
     begin
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";

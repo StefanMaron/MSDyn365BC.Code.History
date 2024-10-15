@@ -1617,7 +1617,7 @@ codeunit 134902 "ERM Account Schedule"
         AccountScheduleReportRoundingOption(ColumnLayout."Rounding Factor"::"1000000", 1000000, 0.1);  // 1000000 for Rounding Factor Amount and 1 for Precision.
     end;
 
-    local procedure AccountScheduleReportRoundingOption(RoundingFactor: Option; RoundingFactorAmount: Integer; Precision: Decimal)
+    local procedure AccountScheduleReportRoundingOption(RoundingFactor: Enum "Analysis Rounding Factor"; RoundingFactorAmount: Integer; Precision: Decimal)
     var
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
@@ -4980,7 +4980,7 @@ codeunit 134902 "ERM Account Schedule"
         REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
 
         LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('PeriodText',PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
+        LibraryReportDataset.AssertElementWithValueExists('PeriodText', PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
     end;
 
     local procedure Initialize()
@@ -5172,7 +5172,7 @@ codeunit 134902 "ERM Account Schedule"
         exit(AccountNo);
     end;
 
-    local procedure CreateCostType(Type: Option; Blocked: Boolean): Code[10]
+    local procedure CreateCostType(Type: Enum "Cost Account Type"; Blocked: Boolean): Code[10]
     var
         CostType: Record "Cost Type";
     begin
@@ -5636,7 +5636,7 @@ codeunit 134902 "ERM Account Schedule"
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
     end;
 
-    local procedure SetupForAccountScheduleOverviewPage(var AccScheduleLine: Record "Acc. Schedule Line"; Show: Option; Amount: Decimal; RoundingFactor: Option; Totaling: Text[250])
+    local procedure SetupForAccountScheduleOverviewPage(var AccScheduleLine: Record "Acc. Schedule Line"; Show: Option; Amount: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"; Totaling: Text[250])
     var
         ColumnLayout: Record "Column Layout";
         GenJournalLine: Record "Gen. Journal Line";

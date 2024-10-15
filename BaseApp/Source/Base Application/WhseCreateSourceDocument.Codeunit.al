@@ -49,7 +49,8 @@ codeunit 5750 "Whse.-Create Source Document"
             SalesLine.TestField("Unit of Measure Code");
             SetItemData(
               SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
-              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure");
+              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+              SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
             OnAfterInitNewWhseShptLine(WhseShptLine, WhseShptHeader, SalesLine, AssembleToOrder);
             SetQtysOnShptLine(WhseShptLine, WhseShptLineQty, WhseShptLineQtyBase);
             "Assemble to Order" := AssembleToOrder;
@@ -86,7 +87,8 @@ codeunit 5750 "Whse.-Create Source Document"
             SalesLine.TestField("Unit of Measure Code");
             SetItemData(
               SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
-              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure");
+              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+              SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
             OnSalesLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
             case SalesLine."Document Type" of
                 SalesLine."Document Type"::Order:
@@ -128,7 +130,8 @@ codeunit 5750 "Whse.-Create Source Document"
             ServiceLine.TestField("Unit of Measure Code");
             SetItemData(
               ServiceLine."No.", ServiceLine.Description, ServiceLine."Description 2", ServiceLine."Location Code",
-              ServiceLine."Variant Code", ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure");
+              ServiceLine."Variant Code", ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure",
+              ServiceLine."Qty. Rounding Precision", ServiceLine."Qty. Rounding Precision (Base)");
             OnFromServiceLine2ShptLineOnAfterInitNewLine(WhseShptLine, WhseShptHeader, ServiceLine);
             SetQtysOnShptLine(WhseShptLine, Abs(ServiceLine."Outstanding Quantity"), Abs(ServiceLine."Outstanding Qty. (Base)"));
             if ServiceLine."Document Type" = ServiceLine."Document Type"::Order then
@@ -168,7 +171,8 @@ codeunit 5750 "Whse.-Create Source Document"
             PurchLine.TestField("Unit of Measure Code");
             SetItemData(
               PurchLine."No.", PurchLine.Description, PurchLine."Description 2", PurchLine."Location Code",
-              PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. per Unit of Measure");
+              PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. per Unit of Measure",
+              PurchLine."Qty. Rounding Precision", PurchLine."Qty. Rounding Precision (Base)");
             OnFromPurchLine2ShptLineOnAfterInitNewLine(WhseShptLine, WhseShptHeader, PurchLine);
             SetQtysOnShptLine(WhseShptLine, Abs(PurchLine."Outstanding Quantity"), Abs(PurchLine."Outstanding Qty. (Base)"));
             if PurchLine."Document Type" = PurchLine."Document Type"::Order then
@@ -210,7 +214,8 @@ codeunit 5750 "Whse.-Create Source Document"
             PurchLine.TestField("Unit of Measure Code");
             SetItemData(
               PurchLine."No.", PurchLine.Description, PurchLine."Description 2", PurchLine."Location Code",
-              PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. per Unit of Measure");
+              PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. per Unit of Measure",
+              PurchLine."Qty. Rounding Precision", PurchLine."Qty. Rounding Precision (Base)");
             OnPurchLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
             case PurchLine."Document Type" of
                 PurchLine."Document Type"::Order:
@@ -256,7 +261,8 @@ codeunit 5750 "Whse.-Create Source Document"
             TransLine.TestField("Unit of Measure Code");
             SetItemData(
               TransLine."Item No.", TransLine.Description, TransLine."Description 2", TransLine."Transfer-from Code",
-              TransLine."Variant Code", TransLine."Unit of Measure Code", TransLine."Qty. per Unit of Measure");
+              TransLine."Variant Code", TransLine."Unit of Measure Code", TransLine."Qty. per Unit of Measure",
+              TransLine."Qty. Rounding Precision", TransLine."Qty. Rounding Precision (Base)");
             OnFromTransLine2ShptLineOnAfterInitNewLine(WhseShptLine, WhseShptHeader, TransLine);
             SetQtysOnShptLine(WhseShptLine, TransLine."Outstanding Quantity", TransLine."Outstanding Qty. (Base)");
             "Due Date" := TransLine."Shipment Date";
@@ -298,7 +304,8 @@ codeunit 5750 "Whse.-Create Source Document"
             TransLine.TestField("Unit of Measure Code");
             SetItemData(
               TransLine."Item No.", TransLine.Description, TransLine."Description 2", TransLine."Transfer-to Code",
-              TransLine."Variant Code", TransLine."Unit of Measure Code", TransLine."Qty. per Unit of Measure");
+              TransLine."Variant Code", TransLine."Unit of Measure Code", TransLine."Qty. per Unit of Measure",
+              TransLine."Qty. Rounding Precision", TransLine."Qty. Rounding Precision (Base)");
             OnTransLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, TransLine);
             Validate("Qty. Received", TransLine."Quantity Received");
             TransLine.CalcFields("Whse. Inbnd. Otsdg. Qty (Base)");

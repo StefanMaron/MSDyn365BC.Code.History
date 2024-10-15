@@ -127,6 +127,9 @@ table 6515 "Package No. Information"
 
     fieldgroups
     {
+        fieldgroup(Dropdown; "Item No.", "Variant Code", "Package No.")
+        {
+        }
     }
 
     trigger OnDelete()

@@ -30,19 +30,17 @@ page 5231 "Absence Overview by Categories"
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(AbsenceAmountType; AbsenceAmountType)
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Amount Type';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies the amount type of the absence.';
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -90,7 +88,7 @@ page 5231 "Absence Overview by Categories"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -105,7 +103,7 @@ page 5231 "Absence Overview by Categories"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -113,24 +111,23 @@ page 5231 "Absence Overview by Categories"
 
     trigger OnOpenPage()
     begin
-        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         if HasFilter then
             EmployeeNoFilter := GetFilter("Employee No. Filter");
     end;
 
     var
-        MatrixRecord: Record "Time Activity";
-        MatrixRecords: array[32] of Record "Time Activity";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AbsenceAmountType: Option "Balance at Date","Net Change";
+        MatrixRecord: Record "Cause of Absence";
+        MatrixRecords: array[32] of Record "Cause of Absence";
+        PeriodType: Enum "Analysis Period Type";
+        AbsenceAmountType: Enum "Analysis Amount Type";
         MATRIX_CaptionSet: array[32] of Text[80];
         EmployeeNoFilter: Text;
         PKFirstRecInCurrSet: Text;
         MATRIX_CaptionRange: Text;
         MatrixCaptions: Integer;
-        SetWanted: Option Initial,Previous,Same,Next;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -142,8 +139,9 @@ page 5231 "Absence Overview by Categories"
         RecRef.GetTable(MatrixRecord);
         RecRef.SetTable(MatrixRecord);
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
-          MATRIX_CaptionSet, MATRIX_CaptionRange, MatrixCaptions);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
+            MATRIX_CaptionSet, MATRIX_CaptionRange, MatrixCaptions);
         if MatrixCaptions > 0 then begin
             MatrixRecord.SetPosition(PKFirstRecInCurrSet);
             MatrixRecord.Find;

@@ -1,13 +1,16 @@
 permissionset 5600 "Vendor - View"
 {
-    Assignable = true;
-
+    Access = Public;
+    Assignable = false;
     Caption = 'Read vendors and entries';
+
     Permissions = tabledata "Comment Line" = R,
                   tabledata Contact = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata Location = R,
                   tabledata "My Vendor" = Rimd,

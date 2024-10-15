@@ -89,7 +89,10 @@ codeunit 21 "Item Jnl.-Check Line"
                 CheckInTransitLocation("New Location Code");
             end;
 
-            CheckBins(ItemJnlLine);
+            if Item.IsInventoriableType() then
+                CheckBins(ItemJnlLine)
+            else
+                ItemJnlLine.TestField("Bin Code", '');
 
             if (InvtSetup."Unit of Measure Mandatory") and
               ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and

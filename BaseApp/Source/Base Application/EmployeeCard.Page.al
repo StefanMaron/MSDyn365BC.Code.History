@@ -107,14 +107,6 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Person No."; "Person No.")
-                {
-                    ApplicationArea = Advanced;
-                }
-                field("Position No."; "Position No.")
-                {
-                    ApplicationArea = Advanced;
-                }
                 field("Resource No."; "Resource No.")
                 {
                     ApplicationArea = BasicHR;
@@ -125,18 +117,9 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a salesperson or purchaser code for the employee, if the employee is a salesperson or purchaser in the company.';
                 }
-                field("Org. Unit Code"; "Org. Unit Code")
-                {
-                    ApplicationArea = Advanced;
-                }
                 field("Org. Unit Name"; "Org. Unit Name")
                 {
                     ApplicationArea = Advanced;
-                }
-                field("Job Title Code"; "Job Title Code")
-                {
-                    ApplicationArea = Advanced;
-                    Editable = false;
                 }
                 field("Job Title"; "Job Title")
                 {
@@ -217,11 +200,6 @@ page 5200 "Employee Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the employee began to work for the company.';
                 }
-                field("Contract No."; "Contract No.")
-                {
-                    ApplicationArea = Advanced;
-                    Importance = Promoted;
-                }
                 field(Status; Status)
                 {
                     ApplicationArea = BasicHR;
@@ -247,12 +225,6 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a termination code for the employee who has been terminated.';
-                }
-                field("Category Code"; "Category Code")
-                {
-                    ApplicationArea = Advanced;
-                    Editable = false;
-                    ToolTip = 'Specifies the category.';
                 }
                 field("Emplymt. Contract Code"; "Emplymt. Contract Code")
                 {
@@ -289,40 +261,10 @@ page 5200 "Employee Card"
             group(Payroll)
             {
                 Caption = 'Payroll';
-                field("Payroll Calc Group"; "Payroll Calc Group")
-                {
-                    ApplicationArea = Advanced;
-                }
-                field("Posting Group"; "Posting Group")
-                {
-                    ApplicationArea = Advanced;
-                }
-                field("Calendar Code"; "Calendar Code")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the related work calendar. ';
-                }
                 field("Employee Vendor No."; "Employee Vendor No.")
                 {
                     ApplicationArea = Advanced;
                     Editable = false;
-                }
-                field("Employee Bank Code"; "Employee Bank Code")
-                {
-                    ApplicationArea = Advanced;
-                    Visible = false;
-                }
-                field("Tax Payer Category"; "Tax Payer Category")
-                {
-                    ApplicationArea = Advanced;
-                }
-                field("Int. Fnds Sick Leave Post. Gr."; "Int. Fnds Sick Leave Post. Gr.")
-                {
-                    ApplicationArea = Advanced;
-                }
-                field("Future Period Vacat. Post. Gr."; "Future Period Vacat. Post. Gr.")
-                {
-                    ApplicationArea = Advanced;
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {
@@ -338,11 +280,6 @@ page 5200 "Employee Card"
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Application Method"; "Application Method")
-                {
-                    ApplicationArea = BasicHR;
-                    ToolTip = 'Specifies how to apply payments to entries for this employee.';
-                }
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = BasicHR;
@@ -428,7 +365,7 @@ page 5200 "Employee Card"
                     Caption = '&Alternate Addresses';
                     Image = Addresses;
                     RunObject = Page "Alternative Address List";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of addresses that are registered for the employee.';
                 }
                 action("&Relatives")
@@ -437,7 +374,7 @@ page 5200 "Employee Card"
                     Caption = '&Relatives';
                     Image = Relatives;
                     RunObject = Page "Employee Relatives";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of relatives that are registered for the employee.';
                 }
                 action("Mi&sc. Article Information")
@@ -454,28 +391,35 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Confidential Information';
                     Image = Lock;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
                     RunObject = Page "Confidential Information";
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of any confidential information that is registered for the employee.';
                 }
-                separator(Action1210188)
-                {
-                }
-                action("A&bsence Orders")
+                action("Q&ualifications")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'A&bsence Orders';
+                    Caption = 'Q&ualifications';
+                    Image = Certificate;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    RunObject = Page "Employee Qualifications";
+                    RunPageLink = "Employee No." = FIELD("No.");
+                    ToolTip = 'Open the list of qualifications that are registered for the employee.';
+                }
+                action("A&bsences")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'A&bsences';
                     Image = Absence;
-                    RunObject = Page "Absence Order List";
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    RunObject = Page "Employee Absences";
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'View absence information for the employee.';
-                }
-                action(Timesheets)
-                {
-                    Caption = 'Timesheets';
-                    Image = Timesheet;
-                    RunObject = Page "Timesheet Status";
-                    RunPageLink = "Employee No." = FIELD("No.");
                 }
                 separator(Action23)
                 {
@@ -485,38 +429,17 @@ page 5200 "Employee Card"
                     Caption = 'Personal Documents';
                     Image = Documents;
                     RunObject = Page "Person Documents";
-                    RunPageLink = "Person No." = FIELD("Person No.");
+                    RunPageLink = "Employee No." = FIELD("No.");
                 }
-                action("Q&ualifications")
+                action("Absences by Ca&tegories")
                 {
-                    Caption = 'Q&ualifications';
-                    Image = Certificate;
-                    RunObject = Page "Employee Qualifications";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                action(Attestations)
-                {
-                    Caption = 'Attestations';
-                    Image = Certificate;
-                    RunObject = Page "Employee Attestation";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                action(Languages)
-                {
-                    Caption = 'Languages';
-                    Image = Language;
-                    RunObject = Page "Employee Language";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                action("Medical Information")
-                {
-                    Caption = 'Medical Information';
-                    Image = AddWatch;
-                    RunObject = Page "Person Medical Information";
-                    RunPageLink = "Person No." = FIELD("Person No.");
-                }
-                separator(Action1210190)
-                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Absences by Ca&tegories';
+                    Image = AbsenceCategory;
+                    RunObject = Page "Empl. Absences by Categories";
+                    RunPageLink = "No." = FIELD("No."),
+                                  "Employee No. Filter" = FIELD("No.");
+                    ToolTip = 'View categorized absence information for the employee.';
                 }
                 action("Misc. Articles &Overview")
                 {
@@ -537,127 +460,73 @@ page 5200 "Employee Card"
                 separator(Action61)
                 {
                 }
-                action("Online Map")
+                action(Attachments)
                 {
-                    Caption = 'Online Map';
-                    Image = Map;
-                    ToolTip = 'View the address on an online map.';
+                    ApplicationArea = All;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
                     begin
-                        DisplayMap;
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal;
+                    end;
+                }
+                action(Contact)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Contact';
+                    Image = ContactPerson;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit detailed information about the contact person at the employee.';
+
+                    trigger OnAction()
+                    var
+                        ContBusRel: Record "Contact Business Relation";
+                        Contact: Record Contact;
+                    begin
+                        if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Employee, "No.") then begin
+                            Contact.Get(ContBusRel."Contact No.");
+                            Page.Run(Page::"Contact Card", Contact);
+                        end;
                     end;
                 }
             }
-            group("H&istory")
+            group(History)
             {
-                Caption = 'H&istory';
+                Caption = 'History';
                 Image = History;
-                action("Labor Contract")
+                action("Sent Emails")
                 {
-                    Caption = 'Labor Contract';
-                    Image = Agreement;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page "Labor Contracts";
-                    RunPageLink = "No." = FIELD("Contract No.");
-                }
-                action("Record of Service")
-                {
-                    Caption = 'Record of Service';
-                    Image = ServiceLines;
-                    RunObject = Page "Employee Record of Service";
-                    RunPageLink = "No." = FIELD("No.");
-                }
-                action("Vacation Balance")
-                {
-                    Caption = 'Vacation Balance';
-                    Image = Holiday;
-                    RunObject = Page "Employee Accrual Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                }
-                separator(Action1210021)
-                {
-                }
-                action("Employee Job Entries")
-                {
-                    Caption = 'Employee Job Entries';
-                    Image = JobLedger;
-                    RunObject = Page "Employee Job Entry";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Starting Date", "Ending Date");
-                }
-                action("Employee Absence Entries")
-                {
-                    Caption = 'Employee Absence Entries';
-                    Image = LedgerEntries;
-                    RunObject = Page "Employee Absence Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Time Activity Code", "Entry Type", "Start Date");
-                }
-                action("Employee Ledger Entries")
-                {
-                    Caption = 'Employee Ledger Entries';
-                    Image = VendorLedger;
-                    RunObject = Page "Employee Ledger Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Element Code", "Action Starting Date");
-                    ShortCutKey = 'Ctrl+F7';
-                }
-                action("Payroll Ledger Entries")
-                {
-                    Caption = 'Payroll Ledger Entries';
-                    Image = LedgerEntries;
-                    RunObject = Page "Payroll Ledger Entries";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Employee No.", "Period Code", "Element Code");
-                }
-                separator(Action1210016)
-                {
-                }
-                action("Vacation Orders")
-                {
-                    Caption = 'Vacation Orders';
-                    Image = Holiday;
-                    RunObject = Page "Posted Vacation Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST(Vacation));
-                }
-                action("Sick Leave Orders")
-                {
-                    Caption = 'Sick Leave Orders';
-                    Image = Absence;
-                    RunObject = Page "Posted Sick Leave Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST("Sick Leave"));
-                }
-                action("Travel Orders")
-                {
-                    Caption = 'Travel Orders';
-                    Image = Travel;
-                    RunObject = Page "Posted Travel Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST(Travel));
-                }
-                action("Other Absences")
-                {
-                    Caption = 'Other Absences';
-                    Image = Absence;
-                    RunObject = Page "Posted Other Absence Orders";
-                    RunPageLink = "Employee No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "No.")
-                                  WHERE("Document Type" = CONST("Other Absence"));
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this employee.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Employee, Rec.SystemId);
+                    end;
                 }
             }
         }
-        area(processing)
+        area(Processing)
         {
-            group("&Functions")
+            group("F&unctions")
             {
-                Caption = '&Functions';
+                Caption = 'F&unctions';
                 Image = "Action";
                 action(ApplyTemplate)
                 {
@@ -703,98 +572,38 @@ page 5200 "Employee Card"
                     end;
                 }
             }
-            group("&Print")
+            action(Email)
             {
-                Caption = '&Print';
-                Image = Print;
-                action("Personal Account T-54&a")
-                {
-                    Caption = 'Personal Account T-54&a';
-                    Ellipsis = true;
-                    Image = "Report";
-                    RunPageOnRec = true;
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this employee.';
+                Promoted = true;
+                PromotedCategory = Process;
 
-                    trigger OnAction()
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Personal Account T-54a", true, true, Employee);
-                    end;
-                }
-                action("&Employee Card T-2")
-                {
-                    Caption = '&Employee Card T-2';
-                    Ellipsis = true;
-                    Image = "Report";
-
-                    trigger OnAction()
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"Employee Card T-2", true, true, Employee);
-                    end;
-                }
-                action("HR Generic Report")
-                {
-                    Caption = 'HR Generic Report';
-                    Image = "Report";
-
-                    trigger OnAction()
-                    var
-                        Employee: Record Employee;
-                    begin
-                        Employee := Rec;
-                        Employee.SetRecFilter;
-                        REPORT.RunModal(REPORT::"HR Generic Report", true, true, Employee);
-                    end;
-                }
-                action(Attachments)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Attachments';
-                    Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
-
-                    trigger OnAction()
-                    var
-                        DocumentAttachmentDetails: Page "Document Attachment Details";
-                        RecRef: RecordRef;
-                    begin
-                        RecRef.GetTable(Rec);
-                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
-                    end;
-                }
-                action(Contact)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact';
-                    Image = ContactPerson;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    ToolTip = 'View or edit detailed information about the contact person at the employee.';
-
-                    trigger OnAction()
-                    var
-                        ContBusRel: Record "Contact Business Relation";
-                        Contact: Record Contact;
-                    begin
-                        if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Employee, "No.") then begin
-                            Contact.Get(ContBusRel."Contact No.");
-                            Page.Run(Page::"Contact Card", Contact);
-                        end;
-                    end;
-                }
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::Employee, Rec.SystemId);
+                    if Rec."Company E-Mail" <> '' then
+                        TempEmailitem."Send to" := Rec."Company E-Mail"
+                    else
+                        TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
             }
         }
     }
 
     trigger OnOpenPage()
+    var
+        EmailFeature: Codeunit "Email Feature";
     begin
+        SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -809,15 +618,15 @@ page 5200 "Employee Card"
 
     trigger OnAfterGetCurrRecord()
     var
-        NewEmployee: Record Employee;
+        Employee: Record Employee;
         EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
     begin
         if not NewMode then
             exit;
         NewMode := false;
 
-        if EmployeeTemplMgt.InsertEmployeeFromTemplate(NewEmployee) then begin
-            Copy(NewEmployee);
+        if EmployeeTemplMgt.InsertEmployeeFromTemplate(Employee) then begin
+            Copy(Employee);
             CurrPage.Update();
         end else
             if EmployeeTemplMgt.TemplatesAreNotEmpty() then
@@ -825,14 +634,19 @@ page 5200 "Employee Card"
     end;
 
     var
-        Employee: Record Employee;
-        StaffingList: Record "Staff List";
-        CustomizedCalendar: Record "Customized Calendar Change";
-        CustomizedCalEntry: Record "Customized Calendar Entry";
         Text000: Label 'Do you want to create Resp. Employee?';
-        CalendarMgmt: Codeunit "Calendar Management";
+        ShowMapLbl: Label 'Show on Map';
         FormatAddress: Codeunit "Format Address";
+        NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
+
+    local procedure SetNoFieldVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+    begin
+        NoFieldVisible := DocumentNoVisibility.EmployeeNoIsVisible();
+    end;
 }
 

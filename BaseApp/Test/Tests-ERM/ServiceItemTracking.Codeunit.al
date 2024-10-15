@@ -29,7 +29,7 @@ codeunit 136146 "Service Item Tracking"
         ErrorMustBeSame: Label 'Error must be same.';
         AvailabilitySerialNo: Boolean;
         ItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
         No: Code[20];
         ServiceItemNo: Code[20];
         SaleLCY: Decimal;
@@ -1778,7 +1778,7 @@ codeunit 136146 "Service Item Tracking"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"): Code[20]
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1822,7 +1822,7 @@ codeunit 136146 "Service Item Tracking"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin

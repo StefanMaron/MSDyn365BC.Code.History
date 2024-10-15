@@ -182,19 +182,6 @@
         OnAfterCreateReservEntryFor(InsertReservEntry, Sign, ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservEntryFor(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForQtyPerUOM: Decimal; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; ForCDNo: Code[30])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        ForReservEntry."Package No." := ForCDNo;
-        CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
     procedure CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")
     begin
         InsertReservEntry2.Init();
@@ -212,21 +199,6 @@
 
         OnAfterCreateReservEntryFrom(InsertReservEntry2);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")', '16.0')]
-    procedure CreateReservEntryFrom(FromType: Option; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromQtyPerUOM: Decimal; FromSerialNo: Code[50]; FromLotNo: Code[50]; FromCDNo: Code[30])
-    begin
-        InsertReservEntry2.Init();
-        InsertReservEntry2.SetSource(FromType, FromSubtype, FromID, FromRefNo, FromBatchName, FromProdOrderLine);
-        InsertReservEntry2."Qty. per Unit of Measure" := FromQtyPerUOM;
-        InsertReservEntry2."Serial No." := FromSerialNo;
-        InsertReservEntry2."Lot No." := FromLotNo;
-        InsertReservEntry2."Package No." := FromCDNo;
-
-        InsertReservEntry2.TestField("Qty. per Unit of Measure");
-    end;
-#endif
 
     procedure CreateReservEntryExtraFields(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification")
     begin
@@ -711,8 +683,8 @@
     begin
         TempTrkgSpec1.Reset();
         TempTrkgSpec2.Reset();
-        TempTrkgSpec1.SetCurrentKey("Lot No.", "Serial No.");
-        TempTrkgSpec2.SetCurrentKey("Lot No.", "Serial No.");
+        TempTrkgSpec1.SetTrackingKey();
+        TempTrkgSpec2.SetTrackingKey();
 
         if not TempTrkgSpec1.FindLast then
             exit;
@@ -907,8 +879,14 @@
             ReservEntryQtyBase := Abs(ReservationEntry."Quantity (Base)");
 
             if WhseItemTrkgQtyBase < ReservEntryQtyBase then begin
+#if not CLEAN19
                 ItemTrkgMgt.InitWhseWkshLine(WhseWkshLine,
                   2, "No.", "Line No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+#else
+                ItemTrkgMgt.InitWhseWorksheetLine(WhseWkshLine,
+                  "Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+#endif
+
                 ItemTrkgMgt.CreateWhseItemTrkgForResEntry(ReservEntry, WhseWkshLine);
             end;
         end;

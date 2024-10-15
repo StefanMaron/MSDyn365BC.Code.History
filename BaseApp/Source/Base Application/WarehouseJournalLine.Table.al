@@ -141,8 +141,8 @@ table 7311 "Warehouse Journal Line"
                     Location.TestField("Adjustment Bin Code");
                 end;
 
-                "Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
 
                 "Qty. (Absolute)" := Abs(Quantity);
                 "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
@@ -191,7 +191,7 @@ table 7311 "Warehouse Journal Line"
                     TestField("Phys. Inventory", false);
 
                 "Qty. (Absolute, Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. (Absolute)", "Qty. per Unit of Measure");
+                    CalcBaseQty("Qty. (Absolute)", FieldCaption("Qty. (Absolute)"), FieldCaption("Qty. (Absolute, Base)"));
 
                 if Quantity > 0 then
                     WMSMgt.CalcCubageAndWeight(
@@ -389,11 +389,9 @@ table 7311 "Warehouse Journal Line"
         {
             Caption = 'Whse. Document No.';
         }
-        field(51; "Whse. Document Type"; Option)
+        field(51; "Whse. Document Type"; Enum "Warehouse Journal Document Type")
         {
             Caption = 'Whse. Document Type';
-            OptionCaption = 'Whse. Journal,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Whse. Phys. Inventory, ,Assembly';
-            OptionMembers = "Whse. Journal",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Whse. Phys. Inventory"," ",Assembly;
         }
         field(52; "Whse. Document Line No."; Integer)
         {
@@ -526,6 +524,8 @@ table 7311 "Warehouse Journal Line"
                     TestField("Unit of Measure Code");
                     GetItemUnitOfMeasure;
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
+                    "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                    "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                     CheckBin("Location Code", "From Bin Code", false);
                     CheckBin("Location Code", "To Bin Code", true);
                 end else
@@ -536,6 +536,24 @@ table 7311 "Warehouse Journal Line"
                 if not IsHandled then
                     Validate(Quantity);
             end;
+        }
+        field(5408; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5409; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(6500; "Serial No."; Code[50])
         {
@@ -840,6 +858,12 @@ table 7311 "Warehouse Journal Line"
         exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
     end;
 
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
     procedure CalcReservEntryQuantity(): Decimal
     var
         ReservEntry: Record "Reservation Entry";
@@ -1035,7 +1059,15 @@ table 7311 "Warehouse Journal Line"
         exit(Bin."Bin Type Code");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by TemplateSelection() with return value JnlSelected.', '19.0')]
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option Adjustment,"Phys. Inventory",Reclassification; var WhseJnlLine: Record "Warehouse Journal Line"; var JnlSelected: Boolean)
+    begin
+        JnlSelected := TemplateSelection(PageID, "Warehouse Journal Template Type".FromInteger(PageTemplate), WhseJnlLine);
+    end;
+#endif
+
+    procedure TemplateSelection(PageID: Integer; PageTemplate: Enum "Warehouse Journal Template Type"; var WhseJnlLine: Record "Warehouse Journal Line") JnlSelected: Boolean
     var
         WhseJnlTemplate: Record "Warehouse Journal Template";
     begin
@@ -1085,7 +1117,7 @@ table 7311 "Warehouse Journal Line"
         WhseJnlBatch.CalcFields("Template Type");
         WhseJnlLine."Journal Batch Name" := WhseJnlBatch.Name;
         WhseJnlLine."Location Code" := WhseJnlBatch."Location Code";
-        TemplateSelection(0, WhseJnlBatch."Template Type", WhseJnlLine, JnlSelected);
+        JnlSelected := TemplateSelection(0, WhseJnlBatch."Template Type", WhseJnlLine);
     end;
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
@@ -1481,7 +1513,15 @@ table 7311 "Warehouse Journal Line"
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetWhseDocument().', '19.0')]
     procedure SetWhseDoc(DocType: Option; DocNo: Code[20]; DocLineNo: Integer)
+    begin
+        SetWhseDocument("Warehouse Journal Document Type".FromInteger(DocType), DocNo, DocLineNo);
+    end;
+#endif
+
+    procedure SetWhseDocument(DocType: Enum "Warehouse Journal Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     begin
         "Whse. Document Type" := DocType;
         "Whse. Document No." := DocNo;

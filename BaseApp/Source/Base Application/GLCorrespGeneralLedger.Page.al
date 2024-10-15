@@ -842,15 +842,15 @@ page 12403 "G/L Corresp. General Ledger"
     procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if DateFilter <> '' then begin
             Calendar.SetFilter("Period Start", DateFilter);
-            if not PeriodFormManagement.FindDate('+', Calendar, PeriodType) then
-                PeriodFormManagement.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
+                PeriodPageManagement.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormManagement.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
 
         if Calendar."Period Start" = Calendar."Period End" then
             DateFilter := Format(Calendar."Period Start")

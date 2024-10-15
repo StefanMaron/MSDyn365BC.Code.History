@@ -448,8 +448,6 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Human Resources Setup");
             DATABASE::Employee:
                 exit(PAGE::"Employee List");
-            DATABASE::"Time Activity":
-                exit(PAGE::"Time Activity Codes");
             DATABASE::"Cause of Inactivity":
                 exit(PAGE::"Causes of Inactivity");
             DATABASE::"Grounds for Termination":
@@ -604,10 +602,12 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Posted Purchase Invoices");
             DATABASE::"Purch. Cr. Memo Hdr.":
                 exit(PAGE::"Posted Purchase Credit Memos");
+#if not CLEAN19
             DATABASE::"Sales Price":
                 exit(PAGE::"Sales Prices");
             DATABASE::"Purchase Price":
                 exit(PAGE::"Purchase Prices");
+#endif
             DATABASE::"Price List Line":
                 exit(Page::"Price List Line Review");
             DATABASE::"VAT Entry":

@@ -28,12 +28,6 @@ page 5205 Qualifications
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies if the company has employees with this qualification.';
                 }
-                field("OKIN Group"; "OKIN Group")
-                {
-                }
-                field("OKIN Code"; "OKIN Code")
-                {
-                }
             }
         }
         area(factboxes)

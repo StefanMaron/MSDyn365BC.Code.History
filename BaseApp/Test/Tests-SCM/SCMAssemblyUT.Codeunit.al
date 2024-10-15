@@ -1,9 +1,7 @@
 codeunit 137928 "SCM Assembly UT"
 {
     Subtype = Test;
-    TestPermissions = NonRestrictive;
-    Permissions = tabledata "Whse. Item Tracking Line" = rimd,
-                  tabledata "Warehouse Entry" = rimd;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -280,7 +278,6 @@ codeunit 137928 "SCM Assembly UT"
     procedure QtyOnAssemblyBinZeroWhenAsmBinIsNotSetUp()
     var
         Location: Record Location;
-        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         ItemNo: array[2] of Code[20];
         LotNo: array[2] of Code[20];
         SerialNo: array[2] of Code[20];
@@ -297,7 +294,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314.
-        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '', '');
+        QtyInAsmBin := CalcQtyOnBin(Location, ItemNo[1], '', '', '');
 
         // [THEN] The function returns 0.
         Assert.AreEqual(0, QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -308,7 +305,6 @@ codeunit 137928 "SCM Assembly UT"
     procedure QtyOnAssemblyBinWithItemFilter()
     var
         Location: Record Location;
-        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         ItemNo: array[2] of Code[20];
         LotNo: array[2] of Code[20];
         SerialNo: array[2] of Code[20];
@@ -325,7 +321,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No. as a parameter.
-        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '', '');
+        QtyInAsmBin := CalcQtyOnBin(Location, ItemNo[1], '', '', '');
 
         // [THEN] The function returns 4 * Q (sum of 4 entries).
         Assert.AreEqual(QtyBase * ArrayLen(LotNo) * ArrayLen(SerialNo), QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -336,7 +332,6 @@ codeunit 137928 "SCM Assembly UT"
     procedure QtyOnAssemblyBinWithItemAndLotFilter()
     var
         Location: Record Location;
-        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         ItemNo: array[2] of Code[20];
         LotNo: array[2] of Code[20];
         SerialNo: array[2] of Code[20];
@@ -353,8 +348,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No. and Lot No. as parameters.
-        QtyInAsmBin :=
-          WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], '', '');
+        QtyInAsmBin := CalcQtyOnBin(Location, ItemNo[1], '', LotNo[1], '');
 
         // [THEN] The function returns 2 * Q (sum of 2 entries).
         Assert.AreEqual(QtyBase * ArrayLen(SerialNo), QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -365,7 +359,6 @@ codeunit 137928 "SCM Assembly UT"
     procedure QtyOnAssemblyBinWithItemAndLotAndSerialNoFilter()
     var
         Location: Record Location;
-        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         ItemNo: array[2] of Code[20];
         LotNo: array[2] of Code[20];
         SerialNo: array[2] of Code[20];
@@ -382,8 +375,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No., Lot No. and Serial No. as parameters.
-        QtyInAsmBin :=
-          WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], SerialNo[1], '');
+        QtyInAsmBin := CalcQtyOnBin(Location, ItemNo[1], '', LotNo[1], SerialNo[1]);
 
         // [THEN] The function returns Q (one entry).
         Assert.AreEqual(QtyBase, QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -862,7 +854,7 @@ codeunit 137928 "SCM Assembly UT"
         end;
     end;
 
-    local procedure MockWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Option; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    local procedure MockWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Enum "Warehouse Worksheet Document Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
         with WhseWorksheetLine do begin
             Init;
@@ -1143,6 +1135,18 @@ codeunit 137928 "SCM Assembly UT"
         // VERIFY
         Assert.AreEqual(OldDueDate + ChangeInDays, AssemblyHeader."Due Date", AssemblyHeader.FieldCaption("Due Date"));
         Assert.AreEqual(OldEndDate + ChangeInDays, AssemblyHeader."Ending Date", AssemblyHeader.FieldCaption("Ending Date"));
+    end;
+
+    local procedure CalcQtyOnBin(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        exit(
+            WarehouseAvailabilityMgt.CalcQtyOnBin(
+                Location.Code, Location."To-Assembly Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup));
     end;
 
     [ModalPageHandler]

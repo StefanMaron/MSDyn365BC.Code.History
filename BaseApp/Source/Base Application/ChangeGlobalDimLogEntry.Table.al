@@ -26,7 +26,6 @@ table 483 "Change Global Dim. Log Entry"
                   TableData "Detailed Cust. Ledg. Entry" = rm,
                   TableData "Detailed Vendor Ledg. Entry" = rm,
                   TableData "Job WIP G/L Entry" = rm,
-                  TableData "Employee Payroll Entry" = rm,
                   TableData "Production Order" = rm,
                   TableData "Prod. Order Line" = rm,
                   TableData "Prod. Order Component" = rm,

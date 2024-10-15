@@ -5,12 +5,14 @@ table 17352 "Person Document"
 
     fields
     {
-        field(1; "Person No."; Code[20])
+#pragma warning disable AS0005
+        field(1; "Employee No."; Code[20])
         {
-            Caption = 'Person No.';
+            Caption = 'Employee No.';
             NotBlank = true;
-            TableRelation = Person;
+            TableRelation = Employee;
         }
+#pragma warning restore AS0005
         field(2; "Document Type"; Code[2])
         {
             Caption = 'Document Type';
@@ -44,7 +46,7 @@ table 17352 "Person Document"
 
     keys
     {
-        key(Key1; "Person No.", "Document Type", "Valid from Date")
+        key(Key1; "Employee No.", "Document Type", "Valid from Date")
         {
             Clustered = true;
         }

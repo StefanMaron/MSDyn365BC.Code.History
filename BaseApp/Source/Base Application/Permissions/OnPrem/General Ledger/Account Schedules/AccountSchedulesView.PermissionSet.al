@@ -14,6 +14,7 @@ permissionset 5417 "Account Schedules - View"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Column Layout" = R,
                   tabledata "Column Layout Name" = R,
+                  tabledata "Consolidation Account" = R,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
                   tabledata "G/L Account" = R,
