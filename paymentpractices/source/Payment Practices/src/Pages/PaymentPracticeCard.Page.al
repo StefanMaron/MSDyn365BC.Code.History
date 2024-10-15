@@ -106,7 +106,7 @@ page 687 "Payment Practice Card"
                     PaymentPractices: Codeunit "Payment Practices";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
-                    if Rec."Generated On" > 0DT then
+                    if Rec."Lines Exist" then
                         if not ConfirmManagement.GetResponse(LinesWillBeDeletedQst, false) then
                             exit;
 
@@ -151,7 +151,7 @@ page 687 "Payment Practice Card"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         LinesWillBeDeletedQst: Label 'All previously generated lines will be deleted. Do you want to continue?';
-        NoEntriesFoundMsg: Label 'The payment practice generator found no entries were found corresponding to header type, starting and ending date.';
+        NoEntriesFoundMsg: Label 'The payment practice generator found no entries corresponding to the header type, starting and ending date.';
 
     local procedure PrepareLayout(PaymentPracticeLinesAggregator: Interface PaymentPracticeLinesAggregator)
     begin
