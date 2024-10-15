@@ -4201,6 +4201,56 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.RecordIsNotEmpty(SalesLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Sales Header of type "Quote"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Quote' is returned
+        Assert.AreEqual('Sales Quote', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Sales Header of type "Order"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Order' is returned
+        Assert.AreEqual('Sales Order', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Sales Header of type "Invoice"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Invoice' is returned
+        Assert.AreEqual('Sales Invoice', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Sales Header of type "Credit Memo"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Credit Memo' is returned
+        Assert.AreEqual('Sales Credit Memo', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Sales Header of type "Blanket Order"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Blanket Order' is returned
+        Assert.AreEqual('Sales Blanket Order', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Sales Header of type "Return Order"
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Sales Return Order' is returned
+        Assert.AreEqual('Sales Return Order', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

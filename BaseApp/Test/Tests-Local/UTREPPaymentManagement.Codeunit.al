@@ -52,8 +52,10 @@ codeunit 144045 "UT REP Payment Management"
         FileManagement: Codeunit "File Management";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         AmountTxt: Label 'Amount %1';
         DialogErr: Label 'Dialog';
         FileNotExistsMsg: Label 'File Does Not Exists.';
@@ -422,6 +424,106 @@ codeunit 144045 "UT REP Payment Management"
         VerifyValuesOnXML(PaymentLineAccountNoCap, PaymentLine."Account No.");
     end;
 
+    [Test]
+    [HandlerFunctions('DraftNoticeToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DraftNoticeSaveToExcel()
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        // [SCENARIO 332702] Run report "Draft notice" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Payment Line.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
+
+        // [WHEN] Run report "Draft notice", save report output to Excel file.
+        PaymentLine.SetRecFilter();
+        REPORT.Run(REPORT::"Draft notice", true, false, PaymentLine);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 6, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Draft notice'), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('DraftRecapitulationToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure DraftRecapitulationSaveToExcel()
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        // [SCENARIO 332702] Run report "Draft recapitulation" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Payment Line.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
+
+        // [WHEN] Run report "Draft recapitulation", save report output to Excel file.
+        PaymentLine.SetRecFilter();
+        REPORT.Run(REPORT::"Draft recapitulation", true, false, PaymentLine);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 7, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Draft Recapitulation'), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RemittanceToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure RemittanceSaveToExcel()
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        // [SCENARIO 332702] Run report "Remittance" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Payment Line.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), '', '');
+
+        // [WHEN] Run report "Remittance", save report output to Excel file.
+        PaymentLine.SetRecFilter();
+        REPORT.Run(REPORT::"Remittance", true, false, PaymentLine);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 8, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Remittance'), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('WithdrawRecapitulationToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure WithdrawRecapitulationSaveToExcel()
+    var
+        PaymentLine: Record "Payment Line";
+    begin
+        // [SCENARIO 332702] Run report "Withdraw recapitulation" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Payment Line.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
+
+        // [WHEN] Run report "Withdraw recapitulation", save report output to Excel file.
+        PaymentLine.SetRecFilter();
+        REPORT.Run(REPORT::"Withdraw recapitulation", true, false, PaymentLine);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 13, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Withdraw Recapitulation'), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -629,9 +731,22 @@ codeunit 144045 "UT REP Payment Management"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure DraftNoticeToExcelRequestPageHandler(var DraftNotice: TestRequestPage "Draft notice")
+    begin
+        DraftNotice.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure DraftRecapitulationRequestPageHandler(var DraftRecapitulation: TestRequestPage "Draft recapitulation")
     begin
         DraftRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure DraftRecapitulationToExcelRequestPageHandler(var DraftRecapitulation: TestRequestPage "Draft recapitulation")
+    begin
+        DraftRecapitulation.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -651,9 +766,23 @@ codeunit 144045 "UT REP Payment Management"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure WithdrawRecapitulationToExcelRequestPageHandler(var WithdrawRecapitulation: TestRequestPage "Withdraw recapitulation")
+    begin
+        WithdrawRecapitulation.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure RemittanceRequestPageHandler(var Remittance: TestRequestPage Remittance)
     begin
         Remittance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RemittanceToExcelRequestPageHandler(var Remittance: TestRequestPage Remittance)
+    begin
+        Remittance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

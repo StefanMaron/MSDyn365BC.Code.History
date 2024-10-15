@@ -11,9 +11,12 @@ codeunit 144006 "UT REP Apply GL Entries"
 
     var
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        Assert: Codeunit Assert;
         CapitalLetterTxt: Label 'AAA';
         SmallLetterTxt: Label 'aaa';
 
@@ -98,6 +101,31 @@ codeunit 144006 "UT REP Apply GL Entries"
         LibraryReportDataset.AssertElementWithValueExists('Letter_GLEntry', Letter2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GLAccountStatementToExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure GLAccountStatementSaveToExcel()
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        // [SCENARIO 332702] Run report "G/L Account Statement" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] G/L Entry.
+        CreateGLEntry(GLEntry, CreateGLAccount, SmallLetterTxt, WorkDate());
+
+        // [WHEN] Run report "Withdraw recapitulation", save report output to Excel file.
+        GLEntry.SetRecFilter();
+        REPORT.Run(REPORT::"G/L Account Statement", true, false, GLEntry);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 9, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('G/L balance justification'), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -141,6 +169,13 @@ codeunit 144006 "UT REP Apply GL Entries"
         GLAccountStatement.EvaluationDate.SetValue(EvaluationDate);
         GLAccountStatement.GLEntries.SetValue(GLEntries);
         GLAccountStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLAccountStatementToExcelRequestPageHandler(var GLAccountStatement: TestRequestPage "G/L Account Statement")
+    begin
+        GLAccountStatement.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

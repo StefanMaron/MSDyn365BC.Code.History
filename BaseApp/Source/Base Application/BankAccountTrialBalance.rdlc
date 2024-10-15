@@ -1043,10 +1043,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY_____BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY__.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(Fields!BankAccount2__Debit_Amount__LCY_Control1120081.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY_____BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY__Format.Value</Format>
+                                    <Format>=Fields!BankAccount2__Credit_Amount__LCY_Control1120084Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1267,10 +1267,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Sum(Fields!BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY_____BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY__.Value))</Value>
+                                  <Value>=Code.BlankNegAndZero(Sum(Fields!BankAccount2__Debit_Amount__LCY_Control1120081.Value))</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=First(Fields!BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY_____BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY___Control1120081Format.Value)</Format>
+                                    <Format>=First(Fields!BankAccount2__Debit_Amount__LCY_Control1120081Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1297,10 +1297,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Sum(Fields!BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY_____BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY__.Value))</Value>
+                                  <Value>=Code.BlankNegAndZero(Sum(Fields!BankAccount2__Credit_Amount__LCY_Control1120084.Value))</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=First(Fields!BankAccount2__Credit_Amount__LCY______Credit_Amount__LCY_____BankAccount2__Debit_Amount__LCY______Debit_Amount__LCY___Control1120084Format.Value)</Format>
+                                    <Format>=First(Fields!BankAccount2__Credit_Amount__LCY_Control1120084Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1757,17 +1757,17 @@ End Function
         <Field Name="Bank_Account__Credit_Amount__LCY___Control1120078Format">
           <DataField>Bank_Account__Credit_Amount__LCY___Control1120078Format</DataField>
         </Field>
-        <Field Name="DataItem1120081">
-          <DataField>DataItem1120081</DataField>
+        <Field Name="BankAccount2__Debit_Amount__LCY_Control1120081">
+          <DataField>BankAccount2__Debit_Amount__LCY_Control1120081</DataField>
         </Field>
-        <Field Name="DataItem1120081Format">
-          <DataField>DataItem1120081Format</DataField>
+        <Field Name="BankAccount2__Debit_Amount__LCY_Control1120081Format">
+          <DataField>BankAccount2__Debit_Amount__LCY_Control1120081Format</DataField>
         </Field>
-        <Field Name="DataItem1120084">
-          <DataField>DataItem1120084</DataField>
+        <Field Name="BankAccount2__Credit_Amount__LCY_Control1120084">
+          <DataField>BankAccount2__Credit_Amount__LCY_Control1120084</DataField>
         </Field>
-        <Field Name="DataItem1120084Format">
-          <DataField>DataItem1120084Format</DataField>
+        <Field Name="BankAccount2__Credit_Amount__LCY_Control1120084Format">
+          <DataField>BankAccount2__Credit_Amount__LCY_Control1120084Format</DataField>
         </Field>
         <Field Name="Bank_Account_Trial_BalanceCaption">
           <DataField>Bank_Account_Trial_BalanceCaption</DataField>

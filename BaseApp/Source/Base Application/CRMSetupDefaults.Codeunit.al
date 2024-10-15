@@ -2001,6 +2001,7 @@ codeunit 5334 "CRM Setup Defaults"
         ConfigTemplateLine."Field ID" := CRMAccount.FieldNo(CustomerTypeCode);
         ConfigTemplateLine."Field Name" := CRMAccount.FieldName(CustomerTypeCode);
         ConfigTemplateLine."Default Value" := Format(CRMAccount.CustomerTypeCode::Customer);
+        ConfigTemplateLine."Language ID" := GlobalLanguage();
         ConfigTemplateLine.Insert;
 
         exit(CRMAccountConfigTemplateCodeTok);

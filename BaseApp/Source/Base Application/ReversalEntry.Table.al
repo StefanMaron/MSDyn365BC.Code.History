@@ -896,6 +896,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry.CopyFromCustLedgEntry(CustLedgEntry);
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
+                OnInsertFromCustLedgEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, CustLedgEntry);
                 TempReversalEntry.Insert;
 
                 DtldCustLedgEntry.SetRange(Unapplied, true);
@@ -935,6 +936,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry.CopyFromVendLedgEntry(VendLedgEntry);
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
+                OnInsertFromVendLedgEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, VendLedgEntry);
                 TempReversalEntry.Insert;
 
                 DtldVendLedgEntry.SetRange(Unapplied, true);
@@ -1089,6 +1091,7 @@ table 179 "Reversal Entry"
                     TempReversalEntry.CopyFromGLEntry(GLEntry);
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
+                    OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, GLEntry);
                     TempReversalEntry.Insert;
                     if GLEntry.Letter <> '' then
                         Error(Text000, RevType, Number)
@@ -1506,6 +1509,21 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReverseEntries(Number: Integer; RevType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromCustLedgEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; GLEntry: Record "G/L Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromVendLedgEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

@@ -72,10 +72,10 @@ report 10809 "Bank Account Trial Balance"
             column(Bank_Account__Credit_Amount__LCY___Control1120078; "Credit Amount (LCY)")
             {
             }
-            column(DataItem1120081; BankAccount2."Debit Amount (LCY)" + "Debit Amount (LCY)" - BankAccount2."Credit Amount (LCY)" - "Credit Amount (LCY)")
+            column(BankAccount2__Debit_Amount__LCY_Control1120081; BankAccount2."Debit Amount (LCY)" + "Debit Amount (LCY)" - BankAccount2."Credit Amount (LCY)" - "Credit Amount (LCY)")
             {
             }
-            column(DataItem1120084; BankAccount2."Credit Amount (LCY)" + "Credit Amount (LCY)" - BankAccount2."Debit Amount (LCY)" - "Debit Amount (LCY)")
+            column(BankAccount2__Credit_Amount__LCY_Control1120084; BankAccount2."Credit Amount (LCY)" + "Credit Amount (LCY)" - BankAccount2."Debit Amount (LCY)" - "Debit Amount (LCY)")
             {
             }
             column(Bank_Account_Trial_BalanceCaption; Bank_Account_Trial_BalanceCaptionLbl)

@@ -1,5 +1,6 @@
 codeunit 134302 "Workflow E2E Tests"
 {
+    Permissions = TableData "Approval Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -585,6 +586,7 @@ codeunit 134302 "Workflow E2E Tests"
         JobQueueEntry: Record "Job Queue Entry";
         NotificationEntry: Record "Notification Entry";
         NotificationSetup: Record "Notification Setup";
+        ApprovalEntry: Record "Approval Entry";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
@@ -592,6 +594,7 @@ codeunit 134302 "Workflow E2E Tests"
         NotificationEntry.DeleteAll;
         NotificationSetup.DeleteAll;
         JobQueueEntry.DeleteAll;
+        ApprovalEntry.DeleteAll;
 
         ConfigureEmail;
         WorkflowEventHandling.CreateEventsLibrary;
@@ -760,8 +763,14 @@ codeunit 134302 "Workflow E2E Tests"
         PurchaseHeader: Record "Purchase Header";
     begin
         FindApprovalEntry(ApprovalEntry, DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Invoice, DocumentNo);
-        ApprovalEntry.ModifyAll("Sender ID", SenderID, true);
-        ApprovalEntry.ModifyAll("Approver ID", ApproverID, true);
+        repeat
+            if ApprovalEntry."Sender ID" = ApprovalEntry."Approver ID" then
+                ApprovalEntry."Approver ID" := SenderID
+            else
+                ApprovalEntry."Approver ID" := ApproverID;
+            ApprovalEntry."Sender ID" := SenderID;
+            ApprovalEntry.Modify;
+        until ApprovalEntry.Next = 0;
     end;
 
     local procedure SetCurrentUserApprovalAdiministrator(ApprovalAdministrator: Boolean)

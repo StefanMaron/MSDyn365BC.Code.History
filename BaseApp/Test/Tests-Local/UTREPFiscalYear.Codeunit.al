@@ -31,6 +31,8 @@ codeunit 144072 "UT REP Fiscal Year"
         DialogTxt: Label 'Dialog';
         PeriodStartFilterTxt: Label '%1..%2';
         TestValidationTxt: Label 'TestValidation';
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [HandlerFunctions('GLJournalRequestPageHandler')]
@@ -237,9 +239,53 @@ codeunit 144072 "UT REP Fiscal Year"
         LocalGLReportErrors(REPORT::"G/L Journal", Format(CalcDate('<-CY>', WorkDate)), DialogTxt);
     end;
 
+    [Test]
+    [HandlerFunctions('GLDetailTrialBalanceForGLAccountNoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLDetailTrialBalanceForMultipleGLAccounts()
+    var
+        GLAccount: array[2] of Record "G/L Account";
+        GLEntry: array[2] of Record "G/L Entry";
+    begin
+        // [SCENARIO 331475] Balance of one G/L Account doesn't affect another.
+        Initialize;
+
+        // [GIVEN] Two G/L Accounts with Entries for Amount 100 and 333 respectively.
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        CreateGLEntry(GLEntry[2], GLAccount[2]."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+
+        // [WHEN] Report "G/L Detail Trial Balance" is run for these accounts.
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', GLAccount[1]."No.", GLAccount[2]."No."));
+        LibraryVariableStorage.Enqueue(
+          StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', GLEntry[2]."Posting Date"), CalcDate('<+CM>', GLEntry[2]."Posting Date")));
+        Commit;
+        REPORT.Run(REPORT::"G/L Detail Trial Balance", true);
+
+        // [THEN] Resulting dataset have 'Balance' = 100 and 'Balance' = 333.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('Balance', GLEntry[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Balance', GLEntry[2].Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
+    end;
+
+    local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; DebitAmount: Decimal; PostingDate: Date)
+    begin
+        with GLEntry do begin
+            if FindLast then
+                Init;
+            "Entry No." += 1;
+            "G/L Account No." := GLAccountNo;
+            "Debit Amount" := DebitAmount;
+            Amount := DebitAmount;
+            "Posting Date" := PostingDate;
+            Insert;
+        end;
     end;
 
     local procedure LocalGLReportErrors(ReportID: Integer; PeriodStart: Variant; ErrorCode: Text)
@@ -278,6 +324,18 @@ codeunit 144072 "UT REP Fiscal Year"
     var
         DateFilter: Variant;
     begin
+        LibraryVariableStorage.Dequeue(DateFilter);
+        GLDetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
+        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLDetailTrialBalanceForGLAccountNoRequestPageHandler(var GLDetailTrialBalance: TestRequestPage "G/L Detail Trial Balance")
+    var
+        DateFilter: Variant;
+    begin
+        GLDetailTrialBalance."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText);
         LibraryVariableStorage.Dequeue(DateFilter);
         GLDetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
         GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

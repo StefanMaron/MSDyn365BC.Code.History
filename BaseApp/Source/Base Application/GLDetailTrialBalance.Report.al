@@ -175,6 +175,7 @@ report 10804 "G/L Detail Trial Balance"
                 begin
                     SetRange("Period Type", TotalBy);
                     SetRange("Period Start", StartDate, ClosingDate(EndDate));
+                    Balance := GLAccount2.Balance;
                 end;
             }
 

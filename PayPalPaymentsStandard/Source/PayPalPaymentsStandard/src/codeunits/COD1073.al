@@ -27,7 +27,6 @@ codeunit 1073 "MS - PayPal Webhook Management"
         ProcessingPaymentInBackgroundSessionTxt: Label 'Processing payment in a background session.', Locked = true;
         ProcessingPaymentInCurrentSessionTxt: Label 'Processing payment in the current session.', Locked = true;
         WebhookSubscriptionNotFoundTxt: Label 'Webhook subscription is not found.', Locked = true;
-        NonPayPalPaymentTxt: Label 'The payment is ignored because it is not recognized as a PayPal payment.', Locked = true;
         NoRemainingPaymentsTxt: Label 'The payment is ignored because no payment remains.', Locked = true;
         OverpaymentTxt: Label 'The payment is ignored because of overpayment.', Locked = true;
         ProcessingWebhookNotificationTxt: Label 'Processing webhook notification.', Locked = true;
@@ -39,22 +38,16 @@ codeunit 1073 "MS - PayPal Webhook Management"
     local procedure SyncToNavOnWebhookNotificationInsert(var Rec: Record 2000000194; RunTrigger: Boolean);
     var
         WebhookSubscription: Record 2000000199;
-        WebhookManagement: Codeunit 5377;
         AccountID: Text[250];
-        WebHooksAdapterUri: Text[250];
         BackgroundSessionAllowed: Boolean;
     begin
         SendTraceTag('00008IP', PayPalTelemetryCategoryTok, VERBOSITY::Normal, ProcessingWebhookNotificationTxt, DataClassification::SystemMetadata);
 
         AccountID := LOWERCASE(Rec."Subscription ID");
-        WebHooksAdapterUri := LOWERCASE(WebhookManagement.GetNotificationUrl());
-        IF NOT WebhookSubscription.GET(AccountID, WebHooksAdapterUri) THEN BEGIN
+        WebhookSubscription.SetRange("Subscription ID", AccountID);
+        WebhookSubscription.SetFilter("Created By", GetCreatedByFilterForWebhooks());
+        IF WebhookSubscription.IsEmpty() THEN BEGIN
             SendTraceTag('00008GK', PayPalTelemetryCategoryTok, VERBOSITY::Normal, WebhookSubscriptionNotFoundTxt, DataClassification::SystemMetadata);
-            EXIT;
-        END;
-
-        IF STRPOS(WebhookSubscription."Created By", PayPalCreatedByTok) = 0 THEN BEGIN
-            SendTraceTag('00008GL', PayPalTelemetryCategoryTok, VERBOSITY::Normal, NonPayPalPaymentTxt, DataClassification::SystemMetadata);
             EXIT;
         END;
 

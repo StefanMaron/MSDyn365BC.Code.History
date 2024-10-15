@@ -58,6 +58,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         HideDialog: Boolean;
         SuppressCommit: Boolean;
         IsHandled: Boolean;
+        IncrBatchName: Boolean;
     begin
         HideDialog := false;
         SuppressCommit := false;
@@ -198,12 +199,14 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 WhseJnlLine3.SetRange("Location Code", "Location Code");
                 if not WhseJnlLine3.FindLast then
-                    if IncStr("Journal Batch Name") <> '' then begin
-                        WhseJnlBatch.Delete;
-                        WhseJnlBatch.Name := IncStr("Journal Batch Name");
-                        if WhseJnlBatch.Insert then;
-                        "Journal Batch Name" := WhseJnlBatch.Name;
-                    end;
+                    IncrBatchName := IncStr("Journal Batch Name") <> '';
+                OnBeforeIncrBatchName(WhseJnlLine3, IncrBatchName);
+                if IncrBatchName then begin
+                    WhseJnlBatch.Delete;
+                    WhseJnlBatch.Name := IncStr("Journal Batch Name");
+                    if WhseJnlBatch.Insert then;
+                    "Journal Batch Name" := WhseJnlBatch.Name;
+                end;
 
                 WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin
@@ -619,6 +622,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservEntry(WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncrBatchName(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IncrBatchName: Boolean);
     begin
     end;
 

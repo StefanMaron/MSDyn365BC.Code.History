@@ -103,6 +103,7 @@ codeunit 144036 "UT REP Legal Report"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        FileManagement: Codeunit "File Management";
         BankAccountCreditAmountLCYCap: Label 'Bank_Account__Credit_Amount__LCY__';
         BankAccountDebitAmountLCYCap: Label 'Bank_Account__Debit_Amount__LCY__';
         BankAccountLedgerEntryCrAmtCap: Label 'Bank_Account_Ledger_Entry__Credit_Amount__LCY__';
@@ -1505,6 +1506,25 @@ codeunit 144036 "UT REP Legal Report"
         LibraryReportDataset.AssertElementWithValueExists('CreditPeriodAmount', DetailedVendorLedgEntry."Amount (LCY)");
     end;
 
+    [Test]
+    [HandlerFunctions('BankAccountTrialBalanceSaveAsPDFRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintBankAccountTrialBalance()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
+        Initialize;
+        CreateBankAccountWithDimension(BankAccount);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+
+        // [WHEN] Report "Purchase Advice" is being printed to PDF
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), false, '', REPORT::"Bank Account Trial Balance");
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure Initialize()
     var
         PageDataPersonalization: Record "Page Data Personalization";
@@ -1829,6 +1849,26 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
         BankAccountTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BankAccountTrialBalanceSaveAsPDFRequestPageHandler(var BankAccountTrialBalance: TestRequestPage "Bank Account Trial Balance")
+    var
+        No: Variant;
+        DateFilter: Variant;
+        GlobalDimensionCode: Variant;
+        PrintBanksWithoutBalance: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        LibraryVariableStorage.Dequeue(DateFilter);
+        LibraryVariableStorage.Dequeue(PrintBanksWithoutBalance);
+        LibraryVariableStorage.Dequeue(GlobalDimensionCode);
+        BankAccountTrialBalance."Bank Account".SetFilter("No.", No);
+        BankAccountTrialBalance."Bank Account".SetFilter("Date Filter", DateFilter);
+        BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
+        BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
+        BankAccountTrialBalance.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 
     [RequestPageHandler]
