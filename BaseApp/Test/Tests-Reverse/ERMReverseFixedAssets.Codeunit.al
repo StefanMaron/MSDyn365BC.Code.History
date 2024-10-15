@@ -807,17 +807,17 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     var
         NewDescription: Text;
     begin
         NewDescription := LibraryVariableStorage.DequeueText;
 
-        ReverseEntries.First;
-        ReverseEntries.Description.SetValue(NewDescription);
-        while ReverseEntries.Next() do
-            ReverseEntries.Description.SetValue(NewDescription);
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.First;
+        ReverseTransactionEntries.Description.SetValue(NewDescription);
+        while ReverseTransactionEntries.Next() do
+            ReverseTransactionEntries.Description.SetValue(NewDescription);
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 }
 

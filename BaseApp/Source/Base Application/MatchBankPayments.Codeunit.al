@@ -969,6 +969,19 @@ codeunit 1255 "Match Bank Payments"
         exit(FindTextMappings(BankAccReconciliationLine, TempTextToAccMapping, false));
     end;
 
+    local procedure SubstringMatchPercentage(ToMatchString: Text; OtherString: Text): Integer;
+    var
+        RecordMatchMgt: Codeunit "Record Match Mgt.";
+        CommonSubstring: Text;
+        MinLength: Integer;
+    begin
+        CommonSubstring := RecordMatchMgt.GetLongestCommonSubstring(ToMatchString, OtherString);
+        MinLength := (StrLen(ToMatchString) + StrLen(OtherString) - Abs(StrLen(ToMatchString) - StrLen(OtherString))) / 2;
+        if (MinLength = 0) or (StrLen(CommonSubstring) < StrLen(ToMatchString)) then
+            exit(0);
+        exit(GetNormalizingFactor() * StrLen(CommonSubstring) div MinLength);
+    end;
+
     local procedure FindTextMappings(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempTextToAccMapping: Record "Text-to-Account Mapping" temporary; TrackApplicableRules: Boolean): Boolean
     var
         TextToAccMapping: Record "Text-to-Account Mapping";
@@ -987,10 +1000,7 @@ codeunit 1255 "Match Bank Payments"
                 Nearness := 0;
                 OnFindTextMappingsOnBeforeCalculateStringNearness(BankAccReconciliationLine, TextToAccMapping, Nearness);
                 if Nearness = 0 then
-                    Nearness :=
-                        RecordMatchMgt.CalculateStringNearness(
-                            RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"),
-                            BankAccReconciliationLine."Transaction Text", StrLen(TextToAccMapping."Mapping Text"), GetNormalizingFactor());
+                    Nearness := SubstringMatchPercentage(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"), BankAccReconciliationLine."Transaction Text");
 
                 case TextToAccMapping."Bal. Source Type" of
                     TextToAccMapping."Bal. Source Type"::"G/L Account":

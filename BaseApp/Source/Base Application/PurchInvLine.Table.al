@@ -983,6 +983,23 @@ table 123 "Purch. Inv. Line"
         exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource]);
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var PurchInvLine: Record "Purch. Inv. Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1000,6 +1017,11 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
     begin
     end;
 }

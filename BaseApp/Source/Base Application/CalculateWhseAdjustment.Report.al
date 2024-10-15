@@ -88,6 +88,7 @@ report 7315 "Calculate Whse. Adjustment"
                                             Modify();
                                             OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
                                         end;
+                                        OnAfterGetRecordItemOnBeforeNextItemJournalLine(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
                                     until ItemJnlLine.Next() = 0;
                             until Next() = 0;
                     end;
@@ -570,6 +571,11 @@ report 7315 "Calculate Whse. Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWarehouseEntryQtyByReservationEntryBufferOnAfterTempReservationEntryBufferSetFilters(var TempReservationEntryBuffer: Record "Reservation Entry" temporary; var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnBeforeNextItemJournalLine(var TempAdjmtBinContentBuffer: Record "Bin Content Buffer" temporary; var ItemJnlLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

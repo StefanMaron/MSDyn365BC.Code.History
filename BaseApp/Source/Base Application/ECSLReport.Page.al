@@ -91,11 +91,18 @@ page 321 "ECSL Report"
                             ECSLVATReportLine.ClearLines(Rec);
                         end;
                     }
+#if not CLEAN22
                     field("Date Type"; Rec."Date Type")
                     {
                         ApplicationArea = VAT;
                         ToolTip = 'Type of date used to filter selected period.';
+                        Visible = false;
+                        Enabled = false;
+                        ObsoleteReason = 'ECSL report only support VAT Date';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                 }
                 field("Start Date"; Rec."Start Date")
                 {

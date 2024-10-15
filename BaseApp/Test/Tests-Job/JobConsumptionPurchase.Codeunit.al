@@ -3085,6 +3085,65 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReceiptWhenPurchaseLineWithJobPlanningLineItemWithoutJobPlanningLineNo()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 454686] Purchase lines are not being tracked properly for Job Usage link, to the proper Job Line Type on the Job
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        CreateJobAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Purchase Order with Item "X", wiht Job Planning line and without "Job Planning Line No." on Purchase Line
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Validate("Job Line Type", JobPlanningLine."Line Type"::Budget);
+        PurchLine.Modify(true);
+
+        // [WHEN] Post Purchase Receipt
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [THEN] Posting Purchase Receipt is interrupted with Expected Empty Error
+        Assert.ExpectedError('');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReceiptWhenPurchaseLineWithoutJobPlanningLineItemWithoutJobLineType()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 454686] Purchase lines are not being tracked properly for Job Usage link, to the proper Job Line Type on the Job
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        CreateJobAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Purchase Order with Item "X", Job ("Job Planning Line No." is not defined to make strict link to Job)
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Modify(true);
+
+        // [WHEN] Post Purchase Order
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [THEN] Posting Purchase Receipt is interrupted with Expected Empty Error
+        Assert.ExpectedError('');
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN21
@@ -3455,6 +3514,17 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Modify(true);
         ShortcutDimension1Code := PurchaseLine."Shortcut Dimension 1 Code";
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
+        // Create Purchase Line with Random Quantity and Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseHeader(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header")

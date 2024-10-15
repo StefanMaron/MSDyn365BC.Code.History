@@ -396,15 +396,18 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDecimal(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
-        Decimal: Decimal;
+        DecimalValue: Decimal;
     begin
-        if not Evaluate(Decimal, Value) and not Evaluate(Decimal, Value, XMLFormat()) then
+        if not Evaluate(DecimalValue, Value) and not Evaluate(DecimalValue, Value, XMLFormat()) then
             exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Decimal)));
 
+        RoundDecimalValue(FieldRef, DecimalValue);
+
         if Validate then
-            FieldRef.Validate(Decimal)
+            FieldRef.Validate(DecimalValue)
         else
-            FieldRef.Value := Decimal;
+            FieldRef.Value := DecimalValue;
+
     end;
 
     local procedure EvaluateValueToBoolean(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
@@ -915,6 +918,23 @@ codeunit 8617 "Config. Validate Management"
         if TableMetadata.Get(ConfigPackageTable."Table ID") then
             if TableMetadata.TableType <> TableMetadata.TableType::Normal then
                 Error(ExternalTablesAreNotAllowedErr);
+    end;
+
+    local procedure RoundDecimalValue(var DecimalFieldRef: FieldRef; var DecimalValue: Decimal)
+    var
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        ShouldRound: Boolean;
+    begin
+        // Special rounding for all Qty. per Unit of Measure fields to 5 decimals
+        ShouldRound := DecimalFieldRef.Name = ItemUnitofMeasure.FieldName("Qty. per Unit of Measure");
+        OnBeforeRoundDecimalValue(DecimalFieldRef, DecimalValue, ShouldRound);
+        if ShouldRound then
+            DecimalValue := Round(DecimalValue, 0.00001);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundDecimalValue(var DecimalFieldRef: FieldRef; var DecimalValue: Decimal; var ShouldRound: Boolean)
+    begin
     end;
 }
 

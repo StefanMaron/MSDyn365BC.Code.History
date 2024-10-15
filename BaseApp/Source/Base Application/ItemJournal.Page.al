@@ -626,6 +626,18 @@ page 40 "Item Journal"
                         Message(Text002, StdItemJnl.Code);
                     end;
                 }
+                action("Renumber Document Numbers")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Renumber Document Numbers';
+                    Image = EditLines;
+                    ToolTip = 'Resort the numbers in the Document No. column to avoid posting errors because the document numbers are not in sequence. Entry applications and line groupings are preserved.';
+
+                    trigger OnAction()
+                    begin
+                        RenumberDocumentNo();
+                    end;
+                }
             }
             group("P&osting")
             {

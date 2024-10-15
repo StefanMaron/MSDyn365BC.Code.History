@@ -26,6 +26,13 @@ codeunit 265 "Feature Key Management"
         exit(FeatureManagementFacade.IsEnabled(GetExtensibleInvoicePostingEngineFeatureKey()));
     end;
 
+#if not CLEAN21
+    internal procedure IsModernActionBarEnabled(): Boolean
+    begin
+        exit(FeatureManagementFacade.IsEnabled(GetModernActionBarFeatureKey()));
+    end;
+#endif
+
     local procedure GetAllowMultipleCustVendPostingGroupsFeatureKey(): Text[50]
     begin
         exit(AllowMultipleCustVendPostingGroupsTxt);
@@ -42,15 +49,20 @@ codeunit 265 "Feature Key Management"
     end;
 
 #if not CLEAN21
+    local procedure GetModernActionBarFeatureKey(): Text[50]
+    begin
+        exit(ModernActionBarLbl);
+    end;
+#endif
+
+#if not CLEAN21
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', false, false)]
     local procedure HandleOnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        if FeatureKey.ID = ModernActionBarLbl then begin
+        if FeatureKey.ID = ModernActionBarLbl then
             FeatureTelemetry.LogUptake('0000I8D', ModernActionBarLbl, Enum::"Feature Uptake Status"::Discovered);
-            FeatureTelemetry.LogUsage('0000I8F', ModernActionBarLbl, 'Feature Enabled');
-        end;
     end;
 #endif
 

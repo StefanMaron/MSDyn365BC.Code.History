@@ -19,6 +19,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         CheckLedgerEntryInvalidStateErr: Label 'Cannot apply the statement line to check ledger entry %1 because its statement status is %2. Choose another check ledger entry.', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
         BankAccountLedgerEntryInvalidStateQst: Label 'No statement lines have been applied to bank account ledger entry %1, but its statement status is %2. Do you want to apply the statement line to it?', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
         CheckLedgerEntryInvalidStateQst: Label 'No statement lines have been applied to check ledger entry %1, but its statement status is %2. Do you want to apply the statement line to it?', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
+        CLEMissmatchErr: Label 'Check Ledger Entry has %1 %2, but Bank Reconciliation Line has %3.', Comment = '%1 - Either "Statement No." or "Statement Line No.", %2 - A number, %3 - a number';
 
     procedure ApplyEntries(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry"; Relation: Option "One-to-One","One-to-Many","Many-to-One"): Boolean
     var
@@ -272,8 +273,13 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         if CheckLedgEntry.Find('-') then
             repeat
                 if Test then begin
-                    CheckLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
-                    CheckLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
+                    if CheckLedgEntry."Statement No." <> BankAccReconLine."Statement No." then
+                        if CheckLedgEntry."Statement No." <> '' then 
+                            Error(CLEMissmatchErr, CheckLedgEntry.FieldCaption("Statement No."), CheckLedgEntry."Statement No.", BankAccReconLine."Statement No.");
+
+                    if CheckLedgEntry."Statement Line No." <> BankAccReconLine."Statement Line No." then
+                        if CheckLedgEntry."Statement Line No." <> 0 then
+                            Error(CLEMissmatchErr, CheckLedgEntry.FieldCaption("Statement Line No."), CheckLedgEntry."Statement Line No.", BankAccReconLine."Statement Line No.");
                 end;
                 CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Open;
                 CheckLedgEntry."Statement No." := '';

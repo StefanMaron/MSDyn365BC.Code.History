@@ -75,11 +75,28 @@ page 360 "Document Sending Profile"
                             end;
                         }
                     }
+#if not CLEAN22
                     field("Combine Email Documents"; Rec."Combine Email Documents")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Combine PDF Documents';
                         ToolTip = 'Merge selected documents into a single PDF file when you send the documents by email or print them. For example, this reduces the number of documents the recipient must process.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved into group to control field visibility.';
+                        ObsoleteTag = '22.0';
+                    }
+#endif
+                    group(Control19)
+                    {
+                        ShowCaption = false;
+                        Visible = Rec."E-Mail" = Rec."E-Mail"::"Yes (Prompt for Settings)";
+                        field("Combine PDF Documents"; Rec."Combine Email Documents")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Combine PDF Documents';
+                            ToolTip = 'Merge selected documents into a single PDF file when you send the documents by email or print them. For example, this reduces the number of documents the recipient must process.';
+                        }
                     }
                 }
                 field(Disk; Disk)
