@@ -456,7 +456,7 @@ table 5093 "Opportunity Entry"
 
         Cont.Get("Contact No.");
 
-        if Cont.Type = Cont.Type::Person then
+        if (Cont.Type = Cont.Type::Person) and (Cont."Company No." <> '') then
             if not Cont.Get(Cont."Company No.") then
                 Error(Text000, Cont."No.");
 

@@ -411,7 +411,44 @@ xmlport 1501 "Import / Export Workflow"
                                     "Workflow Step Argument"."Approver User ID" := '';
                             end;
                         }
+                        fieldattribute(NotificationUserID; "Workflow Step Argument"."Notification User ID")
+                        {
+                            Occurrence = Optional;
 
+                            trigger OnBeforePassField()
+                            begin
+                                if "Workflow Step Argument"."Notification User ID" = '' then
+                                    currXMLport.Skip();
+                            end;
+
+                            trigger OnAfterAssignField()
+                            var
+                                UserSetup: Record "User Setup";
+                            begin
+                                if not UserSetup.Get("Workflow Step Argument"."Notification User ID") then
+                                    "Workflow Step Argument"."Notification User ID" := '';
+                            end;
+                        }
+                        fieldattribute(NotificationEntryType; "Workflow Step Argument"."Notification Entry Type")
+                        {
+                            Occurrence = Optional;
+
+                            trigger OnBeforePassField()
+                            begin
+                                if "Workflow Step Argument"."Notification Entry Type" = "Workflow Step Argument"."Notification Entry Type"::"New Record" then
+                                    currXMLport.Skip();
+                            end;
+                        }
+                        fieldattribute(NotifySender; "Workflow Step Argument"."Notify Sender")
+                        {
+                            Occurrence = Optional;
+
+                            trigger OnBeforePassField()
+                            begin
+                                if not "Workflow Step Argument"."Notify Sender" then
+                                    currXMLport.Skip();
+                            end;
+                        }
                         trigger OnAfterInsertRecord()
                         begin
                             "Workflow Step".Argument := "Workflow Step Argument".ID;
