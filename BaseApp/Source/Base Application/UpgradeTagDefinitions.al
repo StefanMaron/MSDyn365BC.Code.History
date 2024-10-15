@@ -44,6 +44,10 @@
         PerCompanyUpgradeTags.Add(GetItemVariantItemIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEmailLoggingUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
+        PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
+        PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -59,7 +63,6 @@
         PerDatabaseUpgradeTags.Add(GetRemoveExtensionManagementFromUsersUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetHideBlankProfileUpgradeTag());
     end;
-
     [Obsolete('Function will be removed in release 17.0', '16.0')]
     procedure GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
     begin
@@ -373,6 +376,27 @@
     procedure GetMoveAzureADAppSetupSecretToIsolatedStorageTag(): Code[250];
     begin
         exit('MS-361172-MoveAzureADAppSetupSecretToIsolatedStorageTag-20200716');
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetIntrastatJnlLinePartnerIDUpgradeTag(): Code[250]
+    begin
+        exit('MS-373278-IntrastatJnlLinePartnerID-20201001');
+    end;
+
+    procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPISalesInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetFixAPIPurchaseInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPIPurchaseInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetDeleteSalesOrdersOrphanedRecords(): Code[250];
+    begin
+        exit('MS-377433-DeleteSalesOrdersOrphanedRecords-20201102');
     end;
 }
 

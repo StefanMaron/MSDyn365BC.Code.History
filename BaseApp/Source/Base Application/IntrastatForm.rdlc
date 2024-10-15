@@ -675,7 +675,7 @@ First(Fields!VYear.Value)+Chr(177)+
 First(Fields!TELCaption_Control1010077.Value)+Chr(177)+
 First(Fields!FAXCaption_Control1010079.Value)+Chr(177)+
 First(Fields!Text2.Value)+Chr(177)+
-First(""+Chr(177)+
+""+Chr(177)+
 First(Fields!Pages.Value).ToString+Chr(177)+
 First(Fields!Vthird_1_.Value)+Chr(177)+
 First(Fields!Vthird_2_.Value)+Chr(177)+

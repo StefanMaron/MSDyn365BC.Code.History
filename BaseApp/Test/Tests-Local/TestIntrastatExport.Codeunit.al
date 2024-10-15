@@ -220,7 +220,7 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] 'EXCNTORI' and 'PARTNERID' exported with value from Intrastat Journal
         LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''EXCNTORI'']', IntrastatJnlLine."Country/Region of Origin Code");
-        LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''PARTNERID'']', IntrastatJnlLine."Partner ID");
+        LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''PARTNERID'']', IntrastatJnlLine."Partner VAT ID");
     end;
 
     [Test]
@@ -286,7 +286,7 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] 'EXCNTORI' and 'PARTNERID' exported with value from Intrastat Journal
         LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''EXCNTORI'']', IntrastatJnlLine."Country/Region of Origin Code");
-        LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''PARTNERID'']', IntrastatJnlLine."Partner ID");
+        LibraryXPathXMLReader.VerifyNodeValue('//Dim[@prop=''PARTNERID'']', IntrastatJnlLine."Partner VAT ID");
     end;
 
     [Test]
@@ -430,7 +430,7 @@ codeunit 144052 "Test Intrastat Export"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Partner ID is taken as Enterprise No from Bill-to Customer No. of Sales Invoice
+        // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Sales Invoice
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -445,7 +445,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
         SalesInvoiceHeader.TestField("Enterprise No.", Customer."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
@@ -462,7 +462,7 @@ codeunit 144052 "Test Intrastat Export"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Partner ID is taken as Enterprise No from Bill-to Customer No. of Sales Shipment
+        // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Sales Shipment
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = true
@@ -477,7 +477,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
         SalesShipmentHeader.TestField("Enterprise No.", Customer."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
@@ -494,7 +494,7 @@ codeunit 144052 "Test Intrastat Export"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Partner ID is taken as VAT Registration No from Bill-to Customer No. of Sales Invoice
+        // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Invoice
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -508,7 +508,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
         SalesInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
@@ -525,7 +525,7 @@ codeunit 144052 "Test Intrastat Export"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Partner ID is taken as VAT Registration No from Bill-to Customer No. of Sales Shipment
+        // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Shipment
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = true
@@ -539,7 +539,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
         SalesShipmentHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
@@ -555,7 +555,7 @@ codeunit 144052 "Test Intrastat Export"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Partner ID returns default value for non EU customer
+        // [SCENARIO 268704] Partner VAT ID returns default value for non EU customer
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -569,7 +569,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID);
     end;
 
@@ -584,7 +584,7 @@ codeunit 144052 "Test Intrastat Export"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 268704] Partner ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Credit Memo
+        // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Credit Memo
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = false
@@ -599,7 +599,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.");
         VerifyPartnerID(IntrastatJnlBatch, Vendor."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, PurchCrMemoHdr."Enterprise No.");
@@ -616,7 +616,7 @@ codeunit 144052 "Test Intrastat Export"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 268704] Partner ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Return Order
+        // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Return Order
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = true
@@ -631,7 +631,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.");
         VerifyPartnerID(IntrastatJnlBatch, Vendor."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, ReturnShipmentHeader."Enterprise No.");
@@ -648,7 +648,7 @@ codeunit 144052 "Test Intrastat Export"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 268704] Partner ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Credit Memo
+        // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Credit Memo
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = false
@@ -662,7 +662,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.");
         VerifyPartnerID(IntrastatJnlBatch, Vendor."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, PurchCrMemoHdr."VAT Registration No.");
@@ -679,7 +679,7 @@ codeunit 144052 "Test Intrastat Export"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 268704] Partner ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Return Order
+        // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Return Order
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = true
@@ -693,7 +693,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.");
         VerifyPartnerID(IntrastatJnlBatch, Vendor."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, ReturnShipmentHeader."VAT Registration No.");
@@ -709,7 +709,7 @@ codeunit 144052 "Test Intrastat Export"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 268704] Partner ID returns default value for non EU vendor
+        // [SCENARIO 268704] Partner VAT ID returns default value for non EU vendor
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = false
@@ -723,7 +723,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID);
     end;
 
@@ -786,7 +786,7 @@ codeunit 144052 "Test Intrastat Export"
         NoOfUnits2: Decimal;
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 268704] Export XML with same Tariff No. and Country of Origin and Partner ID combination
+        // [SCENARIO 268704] Export XML with same Tariff No. and Country of Origin and Partner VAT ID combination
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -843,7 +843,7 @@ codeunit 144052 "Test Intrastat Export"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 299263] Partner ID is taken as Enterprise No from Bill-to Customer No. of Service Invoice
+        // [SCENARIO 299263] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Service Invoice
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -859,7 +859,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
         ServiceInvoiceHeader.TestField("Enterprise No.", Customer."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
@@ -877,7 +877,7 @@ codeunit 144052 "Test Intrastat Export"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 299263] Partner ID is taken as Enterprise No from Bill-to Customer No. of Service Shipment
+        // [SCENARIO 299263] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Service Shipment
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = true
@@ -893,7 +893,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = '123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
         ServiceInvoiceHeader.TestField("Enterprise No.", Customer."Enterprise No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
@@ -911,7 +911,7 @@ codeunit 144052 "Test Intrastat Export"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 299263] Partner ID is taken as VAT Registration No from Bill-to Customer No. of Service Invoice
+        // [SCENARIO 299263] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Invoice
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
@@ -926,7 +926,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
         ServiceInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
@@ -944,7 +944,7 @@ codeunit 144052 "Test Intrastat Export"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 299263] Partner ID is taken as VAT Registration No from Bill-to Customer No. of Service Shipment
+        // [SCENARIO 299263] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Shipment
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = true
@@ -959,7 +959,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
-        // [THEN] Partner ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
         ServiceInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
@@ -1069,7 +1069,7 @@ codeunit 144052 "Test Intrastat Export"
             "Transport Method" := LibraryUtility.GenerateRandomCode(FieldNo("Transport Method"), DATABASE::"Intrastat Jnl. Line");
             "Transaction Specification" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Transaction Specification"), DATABASE::"Intrastat Jnl. Line");
-            "Partner ID" := LibraryUtility.GenerateGUID;
+            "Partner VAT ID" := LibraryUtility.GenerateGUID;
             "Country/Region of Origin Code" := "Country/Region Code";
             Modify(true);
         end;
@@ -1270,8 +1270,8 @@ codeunit 144052 "Test Intrastat Export"
     begin
         with IntrastatJnlLine do begin
             SetRange("Item No.", ItemNo);
-            SetRange("Partner ID", PartnerID);
-            FindSet;
+            SetRange("Partner VAT ID", PartnerID);
+            FindSet();
             repeat
                 "Transaction Type" := IntrastatTransType;
                 Area := IntrastatArea;
@@ -1318,7 +1318,7 @@ codeunit 144052 "Test Intrastat Export"
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.FindFirst;
-        IntrastatJnlLine.TestField("Partner ID", PartnerID);
+        IntrastatJnlLine.TestField("Partner VAT ID", PartnerID);
     end;
 
     local procedure VerifyXMLIntrastatJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"; StatisticsPeriod: Code[10]; SystemType: Text)

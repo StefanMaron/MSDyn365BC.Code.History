@@ -340,6 +340,13 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
+                field("Reason Code"; "Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
+                }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;

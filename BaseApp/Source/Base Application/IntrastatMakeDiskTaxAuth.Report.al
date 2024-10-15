@@ -200,7 +200,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             TempIntrastatJnlLine.SetRange(Area, Area);
             if Counterparty and (Type = Type::Shipment) then begin
                 TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
-                TempIntrastatJnlLine.SetRange("Partner ID", "Partner ID");
+                TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
             end;
             if TempIntrastatJnlLine.FindFirst then begin
                 TempIntrastatJnlLine."Statistical Value" := TempIntrastatJnlLine."Statistical Value" + "Statistical Value";
@@ -227,7 +227,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 TempIntrastatJnlLine."No. of Supplementary Units" := "No. of Supplementary Units";
                 TempIntrastatJnlLine."Document No." := "Document No.";
                 TempIntrastatJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
-                TempIntrastatJnlLine."Partner ID" := "Partner ID";
+                TempIntrastatJnlLine."Partner VAT ID" := "Partner VAT ID";
                 TempIntrastatJnlLine.Insert();
             end;
         end;
@@ -339,7 +339,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     if Counterparty and (Type = Type::Shipment) then begin
                         XMLDOMManagement.AddElement(ItemNode, 'Dim', "Country/Region of Origin Code", Namespace, DimNode);
                         XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNTORI');
-                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Partner ID", Namespace, DimNode);
+                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Partner VAT ID", Namespace, DimNode);
                         XMLDOMManagement.AddAttribute(DimNode, 'prop', 'PARTNERID');
                     end;
                     if not GLSetup."Simplified Intrastat Decl." then begin
