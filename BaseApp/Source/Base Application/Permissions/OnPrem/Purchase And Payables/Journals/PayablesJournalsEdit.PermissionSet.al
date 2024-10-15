@@ -68,6 +68,7 @@ permissionset 8824 "Payables Journals - Edit"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata Vendor = R,
                   tabledata "Vendor Bank Account" = R,
