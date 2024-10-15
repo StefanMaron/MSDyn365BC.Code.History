@@ -10,6 +10,7 @@ codeunit 18471 "Update Subcontract Details"
         Vendor: Record Vendor;
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
+        InventorySetup.Get();
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
         ProdOrderComponent.SetRange("Prod. Order No.", PurchLine."Prod. Order No.");
         ProdOrderComponent.SetRange("Prod. Order Line No.", PurchLine."Prod. Order Line No.");
@@ -22,6 +23,8 @@ codeunit 18471 "Update Subcontract Details"
                 SubOrderComponents."Production Order Line No." := PurchLine."Prod. Order Line No.";
                 SubOrderComponents."Line No." := ProdOrderComponent."Line No.";
                 SubOrderComponents."Parent Item No." := PurchLine."No.";
+                if PurchLine."Dimension Set ID" <> 0 then
+                    SubOrderComponents."Dimension Set ID" := PurchLine."Dimension Set ID";
                 SubOrderComponents.Insert();
 
                 SubOrderComponents."Item No." := ProdOrderComponent."Item No.";
@@ -41,7 +44,7 @@ codeunit 18471 "Update Subcontract Details"
                 SubOrderComponents."Variant Code" := ProdOrderComponent."Variant Code";
 
                 Item.Get(SubOrderComponents."Parent Item No.");
-                SubOrderComponents."Company Location" := Item."Sub. Comp. Location";
+                SubOrderComponents."Company Location" := UpdateSubCompLocation(Item);
                 SubOrderComponents."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
 
                 Vendor.Get(PurchLine."Buy-from Vendor No.");
@@ -49,7 +52,6 @@ codeunit 18471 "Update Subcontract Details"
 
                 SubOrderComponents."Vendor Location" := Vendor."Vendor Location";
 
-                InventorySetup.Get();
                 InventorySetup.TestField("Job Work Return Period");
 
                 SubOrderComponents."Job Work Return Period" := InventorySetup."Job Work Return Period";
@@ -83,7 +85,7 @@ codeunit 18471 "Update Subcontract Details"
                 SubOrderCompListVend.Validate("Scrap %", ProdOrderComponent."Scrap %");
                 SubOrderCompListVend."Variant Code" := ProdOrderComponent."Variant Code";
                 Item.Get(SubOrderCompListVend."Parent Item No.");
-                SubOrderCompListVend."Company Location" := Item."Sub. Comp. Location";
+                SubOrderCompListVend."Company Location" := UpdateSubCompLocation(Item);
                 SubOrderCompListVend."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
 
                 Vendor.Get(PurchLine."Buy-from Vendor No.");
@@ -121,5 +123,16 @@ codeunit 18471 "Update Subcontract Details"
                     ProdOrdComp.Modify();
                 until ProdOrdComp.Next() = 0;
         end;
+    end;
+
+    local procedure UpdateSubCompLocation(Item: Record Item): Code[10]
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        if Item."Sub. Comp. Location" <> '' then
+            exit(Item."Sub. Comp. Location")
+        else
+            exit(InventorySetup."Sub. Component Location");
     end;
 }

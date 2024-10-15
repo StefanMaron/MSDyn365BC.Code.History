@@ -1,4 +1,4 @@
-codeunit 7018 "Price UX Management"
+﻿codeunit 7018 "Price UX Management"
 {
     var
         MissingAlternateImplementationErr: Label 'You cannot setup exceptions because there is no alternate implementation.';
@@ -134,7 +134,7 @@ codeunit 7018 "Price UX Management"
         end;
     end;
 
-    local procedure LookupJobPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
+    local procedure SelectJobPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
     var
         PurchaseJobPriceLists: Page "Purchase Job Price Lists";
         SalesJobPriceLists: Page "Sales Job Price Lists";
@@ -160,7 +160,7 @@ codeunit 7018 "Price UX Management"
         IsPicked := PriceListCode <> '';
     end;
 
-    local procedure LookupPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
+    local procedure SelectPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20]) IsPicked: Boolean;
     var
         PurchasePriceLists: Page "Purchase Price Lists";
         SalesPriceLists: Page "Sales Price Lists";
@@ -186,6 +186,8 @@ codeunit 7018 "Price UX Management"
                     end;
                 end;
         end;
+
+        OnAfterSelectPriceLists(PriceListHeader, PriceListCode);
         IsPicked := PriceListCode <> '';
     end;
 
@@ -203,11 +205,13 @@ codeunit 7018 "Price UX Management"
         end;
         case SourceGroup of
             SourceGroup::Job:
-                exit(LookupJobPriceLists(PriceListHeader, PriceListCode));
+                exit(SelectJobPriceLists(PriceListHeader, PriceListCode));
             SourceGroup::Customer,
             SourceGroup::Vendor:
-                exit(LookupPriceLists(PriceListHeader, PriceListCode));
+                exit(SelectPriceLists(PriceListHeader, PriceListCode));
         end;
+
+        OnAfterLookupPriceLists(PriceListHeader, SourceGroup, PriceType, PriceListCode);
     end;
 
     procedure EditPriceList(PriceListCode: Code[20])
@@ -226,6 +230,8 @@ codeunit 7018 "Price UX Management"
             PriceListHeader."Price Type"::Purchase:
                 Page.RunModal(Page::"Purchase Price List", PriceListHeader);
         end;
+
+        OnAfterEditPriceList(PriceListHeader, PriceListCode);
     end;
 
     procedure ShowExceptions(CurrPriceCalculationSetup: Record "Price Calculation Setup")
@@ -244,6 +250,7 @@ codeunit 7018 "Price UX Management"
         OnBeforeShowPriceLists(Campaign, PriceType, AmountType, IsHandled);
         if IsHandled then
             exit;
+
         GetPriceSource(Campaign, PriceType, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -256,6 +263,7 @@ codeunit 7018 "Price UX Management"
         OnBeforeShowPriceLists(Contact, PriceType, AmountType, IsHandled);
         if IsHandled then
             exit;
+
         GetPriceSource(Contact, PriceType, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -338,7 +346,7 @@ codeunit 7018 "Price UX Management"
                     PurchaseJobPriceLists.SetSource(PriceSourceList, AmountType);
                     PurchaseJobPriceLists.Run();
                 end;
-        end
+        end;
     end;
 
     procedure ShowPriceListLines(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
@@ -409,6 +417,8 @@ codeunit 7018 "Price UX Management"
                     PurchasePriceLists.Run();
                 end;
         end;
+
+        OnAfterShowPriceLists(PriceSourceList, AmountType, PriceType);
     end;
 
     local procedure GetPriceSource(Campaign: Record Campaign; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
@@ -620,6 +630,26 @@ codeunit 7018 "Price UX Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectPriceLists(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPriceLists(var PriceListHeader: Record "Price List Header"; var SourceGroup: Enum "Price Source Group"; PriceType: Enum "Price Type"; var PriceListCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEditPriceList(var PriceListHeader: Record "Price List Header"; var PriceListCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowPriceLists(PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type"; PriceType: Enum "Price Type")
     begin
     end;
 }

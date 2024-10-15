@@ -6343,7 +6343,7 @@
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 2354784708" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the %1 on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

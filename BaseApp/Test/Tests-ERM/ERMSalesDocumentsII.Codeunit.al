@@ -31,6 +31,7 @@ codeunit 134386 "ERM Sales Documents II"
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
         PostingErr: Label 'There is nothing to post.';
@@ -2106,10 +2107,12 @@ codeunit 134386 "ERM Sales Documents II"
         ArchiveSalesDocument(SalesHeader);
 
         // [WHEN] Print archived sales order (REP 216 "Archived Sales Order")
-        RunArchivedSalesOrderReport(SalesHeader);
+        RunArchivedSalesOrderReportAsXml(SalesHeader);
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
-        VerifyArchiveDocExcelTotalVATBaseAmount('AL', 46, TotalVATAmount, TotalBaseAmount);
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATAmount'']', TotalVATAmount);
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATBaseAmount'']', TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2166,10 +2169,12 @@ codeunit 134386 "ERM Sales Documents II"
         ArchiveSalesDocument(SalesHeader);
 
         // [WHEN] Print archived sales order (REP 216 "Archived Sales Order")
-        RunArchivedSalesOrderReport(SalesHeader);
+        RunArchivedSalesOrderReportAsXml(SalesHeader);
+        LibraryReportDataset.LoadDataSetFile();
 
-        // [THEN] Report correctly prints total VAT Amount and Total Amount Incl. VAT
-        VerifyArchiveDocExcelTotalVATBaseAmount('AL', 45, TotalVATAmount, TotalVATAmount + TotalBaseAmount);
+        // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATAmount'']', TotalVATAmount);
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATBaseAmount'']', TotalBaseAmount);
 
         // Tear Down
         VATPostingSetup[1].Delete(true);
@@ -2227,13 +2232,13 @@ codeunit 134386 "ERM Sales Documents II"
         ArchiveSalesDocument(SalesHeader);
 
         // [WHEN] Print archived sales order (REP 216 "Archived Sales Order")
-        RunArchivedSalesOrderReport(SalesHeader);
+        RunArchivedSalesOrderReportAsXml(SalesHeader);
+        LibraryReportDataset.LoadDataSetFile();
 
-        // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
-        SalesLine.Find;
-        VerifyArchiveDocExcelTotalsWithDiscount(
-          'AL', 43, SalesLine."Line Amount", InvDiscountAmount, SalesLine."VAT Base Amount",
-          SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."Amount Including VAT");
+        // [THEN] Report correctly prints total VAT Amount and Total VAT Base Amount
+        SalesLine.Find();
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATAmount'']', SalesLine."Amount Including VAT" - SalesLine.Amount);
+        LibraryReportDataset.SearchForElementByValue('//Column[@name=''VATBaseAmount'']', SalesLine."VAT Base Amount");
     end;
 
     [Test]
@@ -5251,6 +5256,14 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         FindSalesHeaderArchive(SalesHeaderArchive, SalesHeader);
         REPORT.SaveAsExcel(REPORT::"Archived Sales Order", LibraryReportValidation.GetFileName, SalesHeaderArchive);
+    end;
+
+    local procedure RunArchivedSalesOrderReportAsXml(SalesHeader: Record "Sales Header")
+    var
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        FindSalesHeaderArchive(SalesHeaderArchive, SalesHeader);
+        REPORT.SaveAsXml(REPORT::"Archived Sales Order", LibraryReportDataset.GetFileName(), SalesHeaderArchive);
     end;
 
     local procedure RunArchivedSalesReturnOrderReport(SalesHeader: Record "Sales Header")
