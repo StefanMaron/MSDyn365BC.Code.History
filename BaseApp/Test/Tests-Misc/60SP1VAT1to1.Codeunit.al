@@ -13,6 +13,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     var
         GenPostingSetup1: Record "General Posting Setup";
         GenPostingSetup2: Record "General Posting Setup";
+        Currency: Record Currency;
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryDim: Codeunit "Library - Dimension";
@@ -1474,6 +1475,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
         GLRegister: Record "G/L Register";
+        IsEntryTypeSale: Boolean;
         PrepaymentAmount: Decimal;
         TotalLineAmtExclVAT1: Decimal;
         TotalLineAmtExclVAT2: Decimal;
@@ -1489,6 +1491,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscount2: Decimal;
         TotalInvDiscountVAT1: Decimal;
         TotalInvDiscountVAT2: Decimal;
+        GLEntryAmount: Decimal;
+        AmountExclPrepayment: Decimal;
     begin
         TotalLineAmtExclVAT1 := LineAmt1 / (1 + VATPercent1);
         TotalLineAmtExclVAT2 := LineAmt2 / (1 + VATPercent2);
@@ -1504,16 +1508,28 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscount2 := TotalLineAmtExclDisc2 * InvDiscount;
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
-        PrepaymentAmount := (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment;
+        IsEntryTypeSale := SalesDocumentExist();
+        if IsEntryTypeSale then begin
+            TotalLineAmtExclDisc1 := TotalLineAmtExclDisc1 - TotalInvDiscount1;
+            TotalLineAmtExclDisc2 := TotalLineAmtExclDisc2 - TotalInvDiscount2;
+
+            PrepaymentAmount := Round(
+                (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment,
+                Currency."Amount Rounding Precision");
+        end else
+            PrepaymentAmount := (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment;
 
         // Validate prepayment invoice ledger entry and VAT entry
         GLRegister.Next(GLRegister.Count - 1);
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
+        GLEntryAmount := (TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment;
+
         // Validate account and amount on GL entries
         ValidateGLEntry(GLRegister, Account7, -(TotalLineAmtExclDisc1 + TotalLineAmtExclDisc2) * PrePayment);
-        ValidateGLEntry(GLRegister, Account3, -(TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment);
+        ValidateGLEntry(GLRegister, Account3, -Round(GLEntryAmount, Currency."Amount Rounding Precision"));
+
         ValidateGLEntry(GLRegister, Account6, PrepaymentAmount);
 
         // Validate No of VAT entries
@@ -1521,7 +1537,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(VATEntry.Count = 1, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 1, VATEntry.Count));
         // Validate base and VAT Amount on VAT entry and VAT link
         ValidateVATEntry(GLRegister, -(TotalLineAmtExclDisc1 + TotalLineAmtExclDisc2) * PrePayment,
-          -(TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment, 0);
+          -Round(GLEntryAmount, Currency."Amount Rounding Precision"), 0);
 
         // Validate invoicing ledger entry and vat entry
         GLRegister.Next;
@@ -1539,10 +1555,15 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ValidateGLEntry(GLRegister, Account5, -TotalLineAmtExclVAT1);
         ValidateGLEntry(GLRegister, Account3, -TotalLineVAT1);
         ValidateGLEntry(GLRegister, Account7, (TotalLineAmtExclDisc1 + TotalLineAmtExclDisc2) * PrePayment);
-        ValidateGLEntry(GLRegister, Account3, (TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment);
-        ValidateGLEntry(GLRegister, Account6,
-          Round(TotalLineAmtExclDisc1 * (1 - InvDiscount) * (1 + VATPercent1) +
-            TotalLineAmtExclDisc2 * (1 - InvDiscount) * (1 + VATPercent2), 1 / 100, '<') - PrepaymentAmount);
+        ValidateGLEntry(GLRegister, Account3, Round(GLEntryAmount, Currency."Amount Rounding Precision"));
+        AmountExclPrepayment := Round(TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2), 1 / 100, '<') - PrepaymentAmount;
+
+        if IsEntryTypeSale then
+            ValidateGLEntry(GLRegister, Account6, AmountExclPrepayment)
+        else
+            ValidateGLEntry(GLRegister, Account6,
+              Round(TotalLineAmtExclDisc1 * (1 - InvDiscount) * (1 + VATPercent1) +
+                TotalLineAmtExclDisc2 * (1 - InvDiscount) * (1 + VATPercent2), 1 / 100, '<') - PrepaymentAmount);
 
         // Validate No of VAT entries
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
@@ -1553,7 +1574,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ValidateVATEntry(GLRegister, -TotalLineAmtExclVAT2, -TotalLineVAT2, 0);
         ValidateVATEntry(GLRegister, -TotalLineAmtExclVAT1, -TotalLineVAT1, 0);
         ValidateVATEntry(GLRegister, (TotalLineAmtExclDisc1 + TotalLineAmtExclDisc2) * PrePayment,
-          (TotalLineAmtExclDisc1 * VATPercent1 + TotalLineAmtExclDisc2 * VATPercent2) * PrePayment, 0);
+            Round(GLEntryAmount, Currency."Amount Rounding Precision"), 0);
     end;
 
     [Test]
@@ -3790,6 +3811,20 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
             NewFilter := Code
         else
             NewFilter := CopyStr(OldFilter + '|' + Code, 1, MaxStrLen(NewFilter));
+    end;
+
+    local procedure SalesDocumentExist(): Boolean
+    var
+        GLRegister: Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        GLRegister.Next(GLRegister.Count - 1);
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.FindSet();
+
+        if SalesInvoiceHeader.Get(GLEntry."Document No.") then
+            exit(true);
     end;
 
     [ConfirmHandler]
