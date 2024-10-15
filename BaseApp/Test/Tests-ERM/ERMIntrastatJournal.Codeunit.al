@@ -2299,6 +2299,80 @@
         Assert.AreEqual(GetDefaultPartnerID, IntrastatJnlLine.GetPartnerID, '');
     end;
 
+    [Test]
+    procedure BatchReportedIsCheckedOnModify()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "Reported" should be False on Modify the journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Modify(true);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate(Reported, true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Modify(true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName(Reported));
+    end;
+
+    [Test]
+    procedure BatchReportedIsCheckedOnRename()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "Reported" should be False on Rename the journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Rename(
+          IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Line No." + 10000);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate(Reported, true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Rename(
+            IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Line No." + 10000);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName(Reported));
+    end;
+
+    [Test]
+    procedure BatchReportedIsCheckedOnDelete()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 402692] Intrastat journal batch "Reported" should be False on Delete the journal line
+
+        // Positive
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.Delete(true);
+
+        // Negative
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        IntrastatJnlBatch.Validate(Reported, true);
+        IntrastatJnlBatch.Modify(true);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        asserterror IntrastatJnlLine.Delete(true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(IntrastatJnlBatch.FieldName(Reported));
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";

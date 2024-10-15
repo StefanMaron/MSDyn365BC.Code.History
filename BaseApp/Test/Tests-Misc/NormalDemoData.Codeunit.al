@@ -364,5 +364,15 @@ codeunit 138200 "Normal DemoData"
         VATStatementLine.FindFirst();
         Assert.AreEqual('Goods ex. VAT acquired in Northern Ireland from EU', VATStatementLine.Description, 'Box 9');
     end;
+
+    [Test]
+    procedure GBIsExcludedFromEUCountry()
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        // [SCENARIO 402208] "GB" is excluded from country\region "EU Country/Region Code" field value for all countries
+        CountryRegion.SetRange("EU Country/Region Code", 'GB');
+        Assert.RecordIsEmpty(CountryRegion);
+    end;
 }
 

@@ -26,6 +26,7 @@ codeunit 8800 "Custom Layout Reporting"
         TempEmailNameValueBuffer: Record "Name/Value Buffer" temporary;
         TempEraseFileNameValueBuffer: Record "Name/Value Buffer" temporary;
         TempBlobIndicesNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempNameValueBufferUniqueFiles: Record "Name/Value Buffer" temporary;
         TempBlobList: Codeunit "Temp Blob List";
         RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
         FileManagement: Codeunit "File Management";
@@ -628,6 +629,7 @@ codeunit 8800 "Custom Layout Reporting"
         EndDate: Text;
         ReportParameters: Text;
         FileBaseName: Text;
+        AppendIndex: Integer;
     begin
         ReportParameters := GetRequestParametersText(ReportID);
 
@@ -652,6 +654,15 @@ codeunit 8800 "Custom Layout Reporting"
             FileName := FileBaseName + GetFileNameForPart(ObjectName) + Extension;
 
         FileName := FileManagement.StripNotsupportChrInFileName(FileName);
+
+        FileBaseName := FileName;
+        TempNameValueBufferUniqueFiles.SetRange(Name, FileName);
+        while not TempNameValueBufferUniqueFiles.IsEmpty() and (StrLen(FileName) <= 250) do begin
+            AppendIndex += 1;
+            FileName := FileManagement.AppendFileNameWithIndex(FileBaseName, AppendIndex);
+            TempNameValueBufferUniqueFiles.SetRange(Name, FileName)
+        end;
+        TempNameValueBufferUniqueFiles.AddNewEntry(CopyStr(FileName, 1, 250), '');
 
         if FilePath <> '' then
             FileName := FileManagement.CombinePath(FilePath, FileName);
