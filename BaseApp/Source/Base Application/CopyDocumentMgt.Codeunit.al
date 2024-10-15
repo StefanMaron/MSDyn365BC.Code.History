@@ -958,7 +958,7 @@ codeunit 6620 "Copy Document Mgt."
                 PurchDocType::"Posted Return Shipment":
                     CopyPurchHeaderFromPostedReturnShipment(FromReturnShptHeader, ToPurchHeader, OldPurchHeader);
                 PurchDocType::"Posted Credit Memo":
-                    CopyPurchHeaderFromPostedCreditMemo(FromPurchCrMemoHeader, ToPurchHeader);
+                    CopyPurchHeaderFromPostedCreditMemo(FromPurchCrMemoHeader, ToPurchHeader, OldPurchHeader);
                 PurchDocType::"Arch. Order",
                 PurchDocType::"Arch. Quote",
                 PurchDocType::"Arch. Blanket Order",
@@ -1051,10 +1051,11 @@ codeunit 6620 "Copy Document Mgt."
         OnAfterCopyPostedReturnShipment(ToPurchHeader, OldPurchHeader, FromReturnShptHeader);
     end;
 
-    local procedure CopyPurchHeaderFromPostedCreditMemo(FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var ToPurchHeader: Record "Purchase Header")
+    local procedure CopyPurchHeaderFromPostedCreditMemo(FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
     begin
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchCrMemoHeader."Buy-from Vendor No.");
         ToPurchHeader.TransferFields(FromPurchCrMemoHeader, false);
+        OnAfterCopyPurchHeaderFromPostedCreditMemo(ToPurchHeader, OldPurchHeader, FromPurchCrMemoHeader);
     end;
 
     local procedure CopyPurchHeaderFromPurchHeaderArchive(FromPurchHeaderArchive: Record "Purchase Header Archive"; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
@@ -4041,6 +4042,7 @@ codeunit 6620 "Copy Document Mgt."
                           FromPurchLineBuf, OrgQtyBase,
                           FromPurchHeader."Prices Including VAT", ToPurchHeader."Prices Including VAT");
                     if FromPurchLineBuf.Quantity <> 0 then begin
+                        OnSplitPstdPurchLinesPerILEOnBeforeFromPurchLineBufInsert(FromPurchHeader, FromPurchLine, FromPurchLineBuf, ToPurchHeader);
                         FromPurchLineBuf.Insert();
                         AddPurchDocLine(TempDocPurchaseLine, FromPurchLineBuf."Line No.", "Document No.", FromPurchLineBuf."Line No.");
                     end else
@@ -4198,7 +4200,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]): Boolean
+    procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]) EntityIsBlocked: Boolean
     var
         GLAccount: Record "G/L Account";
         FixedAsset: Record "Fixed Asset";
@@ -4208,7 +4210,12 @@ codeunit 6620 "Copy Document Mgt."
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         MessageType: Option Error,Warning,Information;
         BlockedForSalesPurch: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeIsEntityBlocked(TableNo, CreditDocType, Type, EntityNo, EntityIsBlocked, IsHandled);
+        if IsHandled then
+            exit(EntityIsBlocked);
+
         if SkipWarningNotification then
             MessageType := MessageType::Error
         else
@@ -5251,6 +5258,7 @@ codeunit 6620 "Copy Document Mgt."
                         ToAssemblyLine.Validate("Quantity to Consume", ToAsmHeader."Quantity to Assemble" * FromAsmLine."Quantity per");
                 end;
                 CopyFromAsmOrderDimToLine(ToAssemblyLine, FromAsmLine, BasicAsmOrderCopy);
+                OnCreateToAsmLinesOnBeforeToAssemblyLineModify(ToAsmHeader, ToAssemblyLine, FromAsmLine, ToSalesLine, BasicAsmOrderCopy, AvailabilityCheck);
                 ToAssemblyLine.Modify(not AvailabilityCheck);
             until FromAsmLine.Next = 0;
     end;
@@ -5645,7 +5653,14 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure CheckCreditLimit(FromSalesHeader: Record "Sales Header"; ToSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCreditLimit(FromSalesHeader, ToSalesHeader, SkipTestCreditLimit, IsHandled);
+        if IsHandled then
+            exit;
+
         if SkipTestCreditLimit then
             exit;
 
@@ -5669,14 +5684,7 @@ codeunit 6620 "Copy Document Mgt."
     begin
         InitSalesLineFields(ToSalesLine);
 
-        if ToSalesLine."Document Type" in
-           [ToSalesLine."Document Type"::"Blanket Order",
-            ToSalesLine."Document Type"::"Credit Memo",
-            ToSalesLine."Document Type"::"Return Order"]
-        then begin
-            ToSalesLine."Blanket Order No." := '';
-            ToSalesLine."Blanket Order Line No." := 0;
-        end;
+        ClearSalesBlanketOrderFields(ToSalesLine, ToSalesHeader);
         ToSalesLine.InitOutstanding;
         if ToSalesLine."Document Type" in
            [ToSalesLine."Document Type"::"Return Order", ToSalesLine."Document Type"::"Credit Memo"]
@@ -5700,19 +5708,28 @@ codeunit 6620 "Copy Document Mgt."
         OnAfterSetDefaultValuesToSalesLine(ToSalesLine, ToSalesHeader);
     end;
 
+    local procedure ClearSalesBlanketOrderFields(var ToSalesLine: Record "Sales Line"; ToSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeClearSalesBlanketOrderFields(ToSalesLine, ToSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+        if ToSalesLine."Document Type" in
+           [ToSalesLine."Document Type"::"Blanket Order",
+            ToSalesLine."Document Type"::"Credit Memo",
+            ToSalesLine."Document Type"::"Return Order"]
+        then begin
+            ToSalesLine."Blanket Order No." := '';
+            ToSalesLine."Blanket Order Line No." := 0;
+        end;
+    end;
+
     local procedure SetDefaultValuesToPurchLine(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; VATDifference: Decimal)
     begin
         InitPurchLineFields(ToPurchLine);
 
-        if ToPurchLine."Document Type" in
-           [ToPurchLine."Document Type"::"Blanket Order",
-            ToPurchLine."Document Type"::"Credit Memo",
-            ToPurchLine."Document Type"::"Return Order"]
-        then begin
-            ToPurchLine."Blanket Order No." := '';
-            ToPurchLine."Blanket Order Line No." := 0;
-        end;
-
+        ClearPurchaseBlanketOrderFields(ToPurchLine, ToPurchHeader);
         ToPurchLine.InitOutstanding;
         if ToPurchLine."Document Type" in
            [ToPurchLine."Document Type"::"Return Order", ToPurchLine."Document Type"::"Credit Memo"]
@@ -5733,6 +5750,23 @@ codeunit 6620 "Copy Document Mgt."
         ToPurchLine."Special Order Sales Line No." := 0;
 
         OnAfterSetDefaultValuesToPurchLine(ToPurchLine);
+    end;
+
+    local procedure ClearPurchaseBlanketOrderFields(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeClearPurchaseBlanketOrderFields(ToPurchLine, ToPurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+        if ToPurchLine."Document Type" in
+           [ToPurchLine."Document Type"::"Blanket Order",
+            ToPurchLine."Document Type"::"Credit Memo",
+            ToPurchLine."Document Type"::"Return Order"]
+        then begin
+            ToPurchLine."Blanket Order No." := '';
+            ToPurchLine."Blanket Order Line No." := 0;
+        end;
     end;
 
     local procedure CopyItemTrackingEntries(SalesLine: Record "Sales Line"; var PurchLine: Record "Purchase Line"; SalesPricesIncludingVAT: Boolean; PurchPricesIncludingVAT: Boolean)
@@ -7182,6 +7216,7 @@ codeunit 6620 "Copy Document Mgt."
                     TempTrackingSpecification.CopyTrackingFromItemledgEntry(TempItemLedgerEntry);
                     TempTrackingSpecification."Warranty Date" := TempItemLedgerEntry."Warranty Date";
                     TempTrackingSpecification."Expiration Date" := TempItemLedgerEntry."Expiration Date";
+                    OnSetTrackingOnAssemblyReservationOnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempItemLedgerEntry);
                     TempTrackingSpecification.Insert();
                 end;
             until TempItemLedgerEntry.Next = 0;
@@ -7339,6 +7374,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateJobPlanningLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobContractEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]; var EntityIsBlocked: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -7508,6 +7548,11 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPurchHeaderFromPostedCreditMemo(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchaseDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header"; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean; MoveNegLines: Boolean)
     begin
     end;
@@ -7533,7 +7578,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyPurchInvLine(FromPurchInvLine: Record "Purch. Inv. Line"; ToPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyPurchInvLine(FromPurchInvLine: Record "Purch. Inv. Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -7548,17 +7593,17 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyPurchCrMemoLine(FromPurchCrMemoLine: Record "Purch. Cr. Memo Line"; ToPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyPurchCrMemoLine(FromPurchCrMemoLine: Record "Purch. Cr. Memo Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyPurchRcptLine(FromPurchRcptLine: Record "Purch. Rcpt. Line"; ToPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyPurchRcptLine(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyReturnShptLine(FromReturnShipmentLine: Record "Return Shipment Line"; ToPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyReturnShptLine(FromReturnShipmentLine: Record "Return Shipment Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -7829,6 +7874,21 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesToPurchDoc(FromSalesHeader: Record "Sales Header"; var ToPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearPurchaseBlanketOrderFields(var ToPurchaseLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearSalesBlanketOrderFields(var ToSalesLine: Record "Sales Line"; ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCreditLimit(FromSalesHeader: Record "Sales Header"; ToSalesHeader: record "Sales Header"; var SkipTestCreditLimit: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8244,6 +8304,21 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnAfterValidateQuantity(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitPstdPurchLinesPerILEOnBeforeFromPurchLineBufInsert(var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var FromPurchLineBuf: Record "Purchase Line"; var ToPurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetTrackingOnAssemblyReservationOnBeforeTempTrackingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateToAsmLinesOnBeforeToAssemblyLineModify(ToAsmHeader: Record "Assembly Header"; var ToAssemblyLine: Record "Assembly Line"; FromAsmLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
     begin
     end;
 }

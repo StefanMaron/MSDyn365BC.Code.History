@@ -291,7 +291,13 @@ table 5744 "Transfer Shipment Header"
     var
         ReportSelection: Record "Report Selections";
         TransShptHeader: Record "Transfer Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransShptHeader do begin
             Copy(Rec);
             ReportSelection.PrintWithGUIYesNo(ReportSelection.Usage::Inv2, TransShptHeader, ShowRequestForm, 0);
@@ -350,6 +356,11 @@ table 5744 "Transfer Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromTransferHeader(var TransferShipmentHeader: Record "Transfer Shipment Header"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var TransShptHeader: Record "Transfer Shipment Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

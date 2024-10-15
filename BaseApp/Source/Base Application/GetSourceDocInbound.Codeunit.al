@@ -284,12 +284,12 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetInboundDocs(WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterGetInboundDocs(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSingleInboundDoc(WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterGetSingleInboundDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

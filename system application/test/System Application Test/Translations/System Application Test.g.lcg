@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Field Media - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1984563068 - Field 2964288104 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MediaSetField]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Field MediaSetField - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3897784962 - Field 1663593181 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Primary Key]]></Val>
@@ -1067,6 +1076,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text5Txt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1483780530 - NamedType 122615366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Translations cannot be added or retrieved for temporary records.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType CannotTranslateTempRecErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3358963001 - NamedType 1200477291" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SUPER]]></Val>
@@ -1191,6 +1209,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestCreateTenantWebService - NamedType ObjectNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 3149388485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A call to System.Xml.XmlDocument.Validate failed with this message: The element 'bookstore' in namespace 'http://www.contoso.com/books' has invalid child element 'anotherNode'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType ValidationErrorTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 535583823" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The XML definition is invalid.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidXmlErrTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 1620146847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The schema definition is not valid XML.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidSchemaErrTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 2341160244 - EnumValue 542996891 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">

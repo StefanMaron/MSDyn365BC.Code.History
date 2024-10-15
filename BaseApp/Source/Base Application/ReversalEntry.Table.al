@@ -1182,6 +1182,7 @@ table 179 "Reversal Entry"
                 GLEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
             if GLEntry.FindSet then
                 repeat
+                    OnInsertFromGLEntryOnBeforeClearTempReversalEntry(GLEntry);
                     Clear(TempReversalEntry);
                     if RevType = RevType::Register then
                         TempReversalEntry."G/L Register No." := Number;
@@ -1658,6 +1659,11 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFromCustLedgEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromGLEntryOnBeforeClearTempReversalEntry(GLEntry: Record "G/L Entry");
     begin
     end;
 

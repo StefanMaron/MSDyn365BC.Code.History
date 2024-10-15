@@ -1017,6 +1017,9 @@ codeunit 139187 "CRM Full Synchronization"
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

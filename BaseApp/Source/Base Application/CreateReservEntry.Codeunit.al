@@ -424,12 +424,15 @@
                 CreateRemainingReservEntry(OldReservEntry,
                   0, (OldReservEntry."Quantity (Base)" - TransferQty) * CurrSignFactor);
                 NewReservEntry.Validate("Quantity (Base)", TransferQty);
+                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
                 NewReservEntry.Modify();
                 if NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive) then begin // Get partner-record
                     NewReservEntry.Validate("Quantity (Base)", -TransferQty);
+                    OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
                     NewReservEntry.Modify();
                 end;
             end else begin
+                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
                 NewReservEntry.Modify();
                 TransferQty := NewReservEntry."Quantity (Base)";
                 if NewReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then begin
@@ -438,6 +441,7 @@
                             NewReservEntry."Expected Receipt Date" := 0D
                         else
                             NewReservEntry."Shipment Date" := DMY2Date(31, 12, 9999);
+                        OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
                         NewReservEntry.Modify();
                     end;
 

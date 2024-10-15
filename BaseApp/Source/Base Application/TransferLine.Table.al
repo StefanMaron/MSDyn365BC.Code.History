@@ -926,6 +926,8 @@
         TestField("Reserved Qty. Inbnd. (Base)", 0);
         TestField("Reserved Qty. Outbnd. (Base)", 0);
 
+        OnDeleteOnBeforeDeleteRelatedData(Rec);
+
         ReserveTransferLine.DeleteLine(Rec);
         WhseValidateSourceLine.TransLineDelete(Rec);
 
@@ -1702,6 +1704,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeDeleteRelatedData(var TransferLine: Record "Transfer Line")
     begin
     end;
 

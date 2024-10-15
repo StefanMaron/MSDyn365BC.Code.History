@@ -29,6 +29,7 @@ codeunit 134022 "ERM Payment Tolerance"
         PostingAction: Option " ","Payment Tolerance Accounts","Remaining Amount";
         DetailedCustomerLedgerEntryMustExist: Label '%1 must exist in Detailed Customer Ledger Entries.';
         DetailedCustomerLedgerEntryMustNotExist: Label '%1 must not exist in Detailed Customer Ledger Entries.';
+        DetailedVendorLedgerEntryMustNotExistErr: Label '%1 must not exist in Detailed Vendor Ledger Entries.';
         AmountVerificationMsg: Label 'Amount must be equal.';
         WrongAmountErr: Label '%1 field %2 value is wrong';
         InvalidCustomerVendorNameErr: Label 'Invalid customer/vendor name.';
@@ -542,7 +543,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntry.TestField(Open, false);
         Assert.IsFalse(
           FindDetailedVendorLedgEntry(GenJournalLine."Account No.", DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance"),
-          StrSubstNo(DetailedCustomerLedgerEntryMustNotExist, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance")));
+          StrSubstNo(DetailedVendorLedgerEntryMustNotExistErr, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance")));
     end;
 
     [Test]
@@ -3171,6 +3172,225 @@ codeunit 134022 "ERM Payment Tolerance"
         CashReceiptJournal.Amount.AssertEquals(-GenJournalLine[1].Amount);
 
         CashReceiptJournal.OK.Invoke;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyInvoicePartialySalesNoPmtDiscountTolerance()
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceAmount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 342795] Invoice below pmt. disc. tolerance has remaining amount when applied to payment with greater amount
+        Initialize;
+
+        // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
+        // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
+        SetPmtTolerance(true, true, LibraryRandom.RandIntInRange(5, 10));
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Sales Invoice with Amount = 1000 on 01-01-2020, Payment Discount Possible = 50, Max. Payment Tolerance = 100.
+        // [GIVEN] Pmt. Discount Date = 05-01-20, Pmt. Disc. Tolerance Date = 08-01-2020
+        // [GIVEN] Payment of Amount = -2000 is posted on 06-01-2020
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 0);
+        CreateAndPostGenJournalLines(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+
+        // [GIVEN] Set "Amount To Apply" = 500 for the invoice, below pmt. discount tolerance
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, InvoiceAmount / 2);
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+
+        // [WHEN] Payment is applied to the invoice with no warnings
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+
+        // [THEN] Customer Ledger Entry for invoice has "Remaining Amount" = 500
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", InvoiceAmount / 2);
+        // [THEN] Customer Ledger Entry for payment has "Remaining Amount" = -1500
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", -InvoiceAmount - InvoiceAmount / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentDiscToleranceWarningHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyInvoicePartialySalesDoNotAcceptPmtDiscountTolerance()
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        InvoiceAmount: Decimal;
+        PmtToleranceAmount: Decimal;
+        PmtTolerancePct: Integer;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
+        Initialize;
+
+        // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
+        // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
+        PmtTolerancePct := LibraryRandom.RandIntInRange(5, 10);
+        SetPmtTolerance(true, true, PmtTolerancePct);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Sales Invoice with Amount = 1000 on 01-01-2020, Payment Discount Possible = 50, Max. Payment Tolerance = 100.
+        // [GIVEN] Pmt. Discount Date = 05-01-20, Pmt. Disc. Tolerance Date = 08-01-2020
+        // [GIVEN] Payment of Amount = -2000 is posted on 06-01-2020
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 0);
+        PmtToleranceAmount := Round(InvoiceAmount * PmtTolerancePct / 100);
+        CreateAndPostGenJournalLines(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+
+        // [GIVEN] Set "Amount To Apply" = 950 for the invoice
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, InvoiceAmount - PmtToleranceAmount / 2);
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+
+        // [WHEN] Payment is applied to the invoice with confirmed 'Do not accept the late payment discount'
+        LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+
+        // [THEN] Customer Ledger Entry for invoice has "Remaining Amount" = 50
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", PmtToleranceAmount / 2);
+        // [THEN] Customer Ledger Entry for payment has "Remaining Amount" = -1050
+        FindCustLedgEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", -InvoiceAmount - PmtToleranceAmount / 2);
+        // [THEN] No detailed entries created for types "Payment Discount Tolerance", "Payment Discount"
+        Assert.IsFalse(
+          FindDetailedCustLedgEntry(GenJournalLine."Account No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance"),
+          StrSubstNo(DetailedCustomerLedgerEntryMustNotExist, Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance")));
+        Assert.IsFalse(
+          FindDetailedCustLedgEntry(GenJournalLine."Account No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount"),
+          StrSubstNo(DetailedCustomerLedgerEntryMustNotExist, Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount")));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyInvoicePartialyPurchaseNoPmtDiscountTolerance()
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
+        Initialize;
+
+        // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
+        // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
+        SetPmtTolerance(true, true, LibraryRandom.RandIntInRange(5, 10));
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Purchase Invoice with Amount = -1000 on 01-01-2020, Payment Discount Possible = -50, Max. Payment Tolerance = -100.
+        // [GIVEN] Pmt. Discount Date = 05-01-20, Pmt. Disc. Tolerance Date = 08-01-2020
+        // [GIVEN] Payment of Amount = 2000 is posted on 06-01-2020
+        InvoiceAmount := -LibraryRandom.RandDecInRange(1000, 2000, 0);
+        CreateAndPostGenJournalLines(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code),
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+
+        // [GIVEN] Set "Amount To Apply" = -500 for the invoice
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, InvoiceAmount / 2);
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        // [WHEN] Payment is applied to the invoice with no warnings
+        LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+
+        // [THEN] Vendor Ledger Entry for invoice has "Remaining Amount" = -500
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", InvoiceAmount / 2);
+        // [THEN] Vendor Ledger Entry for payment has "Remaining Amount" = 1500
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", -InvoiceAmount - InvoiceAmount / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentDiscToleranceWarningHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyInvoicePartialyPurchaseDoNotAcceptPmtDiscountTolerance()
+    var
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        InvoiceAmount: Decimal;
+        PmtToleranceAmount: Decimal;
+        PmtTolerancePct: Integer;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 342795] Invoice has remaining amount when applied to payment with greater amount within grace period and do not accept warnings
+        Initialize;
+
+        // [GIVEN] Pmt. Disc. Tolerance Warning, Payment Discount Warning turned on in General Ledger Setup
+        // [GIVEN] Payment Discount Grace Period = 3D, Payment Terms with Discount % = 5, Payment Tolerance % = 10
+        PmtTolerancePct := LibraryRandom.RandIntInRange(5, 10);
+        SetPmtTolerance(true, true, PmtTolerancePct);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Purchase Invoice with Amount = -1000 on 01-01-2020, Payment Discount Possible = -50, Max. Payment Tolerance = -100.
+        // [GIVEN] Pmt. Discount Date = 05-01-20, Pmt. Disc. Tolerance Date = 08-01-2020
+        // [GIVEN] Payment of Amount = 2000 is posted on 06-01-2020
+        InvoiceAmount := -LibraryRandom.RandDecInRange(1000, 2000, 0);
+        PmtToleranceAmount := Round(InvoiceAmount * PmtTolerancePct / 100);
+        CreateAndPostGenJournalLines(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code),
+          InvoiceAmount, -InvoiceAmount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1);
+
+        // [GIVEN] Set "Amount To Apply" = -950 for the invoice
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, InvoiceAmount - PmtToleranceAmount / 2);
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        // [WHEN] Payment is applied to the invoice with confirmed 'Do not accept the late payment discount'
+        LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+
+        // [THEN] Vendor Ledger Entry for invoice has "Remaining Amount" = -50
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Account No.");
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", PmtToleranceAmount / 2);
+        // [THEN] Vendor Ledger Entry for payment has "Remaining Amount" = 1050
+        FindVendLedgEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Account No.");
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", -InvoiceAmount - PmtToleranceAmount / 2);
+        // [THEN] No detailed entries created for types "Payment Discount Tolerance", "Payment Discount"
+        Assert.IsFalse(
+          FindDetailedVendorLedgEntry(GenJournalLine."Account No.", DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance"),
+          StrSubstNo(DetailedVendorLedgerEntryMustNotExistErr, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance")));
+        Assert.IsFalse(
+          FindDetailedVendorLedgEntry(GenJournalLine."Account No.", DetailedVendorLedgEntry."Entry Type"::"Payment Discount"),
+          StrSubstNo(DetailedVendorLedgerEntryMustNotExistErr, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount")));
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()

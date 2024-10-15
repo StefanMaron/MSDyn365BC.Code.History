@@ -1366,7 +1366,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     end;
 
                     // Common balancing
-                    OnBeforeCommonBalancing(TempSKU, SupplyInvtProfile, DemandInvtProfile, PlanningStartDate, ToDate);
+                    OnBeforeCommonBalancing(TempSKU, DemandInvtProfile, SupplyInvtProfile, PlanningStartDate, ToDate);
                     DemandInvtProfile.SetRange("Due Date", PlanningStartDate, ToDate);
 
                     DemandExists := DemandInvtProfile.FindSet;

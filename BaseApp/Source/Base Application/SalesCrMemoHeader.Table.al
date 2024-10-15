@@ -587,6 +587,10 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Return Order No. Series';
             TableRelation = "No. Series";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';

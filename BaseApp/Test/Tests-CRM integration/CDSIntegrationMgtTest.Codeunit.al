@@ -138,6 +138,7 @@ codeunit 139195 "CDS Integration Mgt Test"
         // [GIVEN] CDS Integration is not configured
         InitializeSetup(false);
         CDSConnectionSetup.Get();
+        CDSConnectionSetup."Server Address" := '';
         CDSConnectionSetup.DeletePassword();
         Clear(CDSConnectionSetup."User Password Key");
         CDSConnectionSetup.Modify();
@@ -424,111 +425,6 @@ codeunit 139195 "CDS Integration Mgt Test"
     begin
         CDSIntegrationMgt.RegisterAssistedSetup();
         Assert.IsTrue(AssistedSetup.Exists(PAGE::"CDS Connection Setup Wizard"), 'Assisted Setup is not registered');
-    end;
-
-    [Test]
-    [HandlerFunctions('CredentialsModalHandler,MessageDequeue')]
-    [Scope('OnPrem')]
-    procedure PromptForAdminCredentialsUserNameEmpty()
-    var
-        TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
-        CrmHelper: DotNet CrmHelper;
-        UserName: Text;
-        Password: Text;
-    begin
-        // [FEATURE] [CDS Integration Management] [Admin Credentials]
-        LibraryVariableStorage.Clear();
-        // [GIVEN] User name is empty
-        LibraryVariableStorage.Enqueue('');
-        // [GIVEN] Password is not empty
-        LibraryVariableStorage.Enqueue('SomePassword');
-        // [GIVEN] OK button is pressed
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(EmptyUserNameErr);
-        asserterror CDSIntegrationImpl.SignInCDSAdminUser(TempCDSConnectionSetup, CrmHelper, UserName, Password);
-        // [THEN] Expected error is 'Enter valid administrator credentials.'
-        Assert.ExpectedError(AdminUserPasswordWrongErr);
-        // [THEN] All pages and messages handled
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('CredentialsModalHandler,MessageDequeue')]
-    [Scope('OnPrem')]
-    procedure PromptForAdminCredentialsPasswordEmpty()
-    var
-        TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
-        CrmHelper: DotNet CrmHelper;
-        UserName: Text;
-        Password: Text;
-    begin
-        // [FEATURE] [CDS Integration Management] [Admin Credentials]
-        LibraryVariableStorage.Clear();
-        // [GIVEN] User name is correct
-        LibraryVariableStorage.Enqueue('UserName@asEmail.net');
-        // [GIVEN] Password is empty
-        LibraryVariableStorage.Enqueue('');
-        // [GIVEN] OK button is pressed
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(EmptyPasswordErr);
-        asserterror CDSIntegrationImpl.SignInCDSAdminUser(TempCDSConnectionSetup, CrmHelper, UserName, Password);
-        // [THEN] Expected error is 'Enter valid administrator credentials.'
-        Assert.ExpectedError(AdminUserPasswordWrongErr);
-        // [THEN] All pages and messages handled
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('CredentialsModalHandler,MessageDequeue')]
-    [Scope('OnPrem')]
-    procedure PromptForAdminCredentialsNotEmptyUserNameAndPassword()
-    var
-        TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
-        CrmHelper: DotNet CrmHelper;
-        ExpectedUserName: Text;
-        ActualUserName: Text;
-        Password: Text;
-    begin
-        // [FEATURE] [CDS Integration Management] [Admin Credentials]
-        LibraryVariableStorage.Clear();
-        // [GIVEN] User name is correct
-        ExpectedUserName := 'UserName@asEmail.net';
-        LibraryVariableStorage.Enqueue(ExpectedUserName);
-        // [GIVEN] Password is not empty
-        LibraryVariableStorage.Enqueue('SomePassword');
-        // [WHEN] OK button is pressed
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(StrSubstNo(UserNotFoundErr, ExpectedUserName));
-        asserterror CDSIntegrationImpl.SignInCDSAdminUser(TempCDSConnectionSetup, CrmHelper, ActualUserName, Password);
-        // [THEN] Expected error is 'There is no user with ID %1 in CDS.'
-        Assert.ExpectedError(StrSubstNo(UserNotFoundErr, ExpectedUserName));
-        // [THEN] All pages and messages handled
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('CredentialsModalHandler')]
-    [Scope('OnPrem')]
-    procedure PromptForAdminCredentialsCancel()
-    var
-        TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
-        CrmHelper: DotNet CrmHelper;
-        UserName: Text;
-        Password: Text;
-    begin
-        // [FEATURE] [CDS Integration Management] [Admin Credentials]
-        LibraryVariableStorage.Clear();
-        // [GIVEN] User name is correct
-        LibraryVariableStorage.Enqueue('UserName@asEmail.net');
-        // [GIVEN] Password is not empty
-        LibraryVariableStorage.Enqueue('SomePassword');
-        // [WHEN] Cancel button is pressed
-        LibraryVariableStorage.Enqueue(true);
-        asserterror CDSIntegrationImpl.SignInCDSAdminUser(TempCDSConnectionSetup, CrmHelper, UserName, Password);
-        // [THEN] Expected error is 'Enter valid administrator credentials.'
-        Assert.ExpectedError(AdminUserPasswordWrongErr);
-        // [THEN] All pages and messages handled
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1366,27 +1262,6 @@ codeunit 139195 "CDS Integration Mgt Test"
         CRMTeam.DeleteAll();
         CRMBusinessUnit.DeleteAll();
         CDSCompany.DeleteAll();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure CredentialsModalHandler(var CDSAdminCredentials: TestPage "CDS Admin Credentials")
-    var
-        UserName: Text;
-        Password: Text;
-        Cancelled: Boolean;
-    begin
-        UserName := LibraryVariableStorage.DequeueText();
-        Password := LibraryVariableStorage.DequeueText();
-        Cancelled := LibraryVariableStorage.DequeueBoolean();
-        if UserName <> '' then
-            CDSAdminCredentials.UserName.SetValue(UserName);
-        if Password <> '' then
-            CDSAdminCredentials.Password.SetValue(Password);
-        if Cancelled then
-            CDSAdminCredentials.Cancel().Invoke()
-        else
-            CDSAdminCredentials.OK().Invoke();
     end;
 
     [MessageHandler]

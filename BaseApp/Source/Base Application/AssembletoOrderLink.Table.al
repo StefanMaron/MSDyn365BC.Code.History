@@ -896,6 +896,7 @@ table 904 "Assemble-to-Order Link"
         NewAsmHeader.Quantity := SalesLine."Qty. to Assemble to Order" - AsmHeader."Assembled Quantity";
         NewAsmHeader."Quantity (Base)" := SalesLine."Qty. to Asm. to Order (Base)" - AsmHeader."Assembled Quantity (Base)";
 
+        OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(NewAsmHeader, SalesLine);
         NewAsmHeader.InitRemainingQty;
     end;
 
@@ -995,6 +996,8 @@ table 904 "Assemble-to-Order Link"
         if not ItemUOM.Get(BOMComponent."No.", BOMComponent."Unit of Measure Code") then
             ItemUOM.Init();
         AsmLine."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
+
+        OnAfterTransAvailBOMCompToAsmLine(AsmLine, BOMComponent);
     end;
 
     local procedure UpdateAsmLineQty(var AsmLine: Record "Assembly Line"; QtyFactor: Decimal)
@@ -1320,6 +1323,16 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransAvailBOMCompToAsmLine(var AsmLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(var NewAsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
     begin
     end;
 }

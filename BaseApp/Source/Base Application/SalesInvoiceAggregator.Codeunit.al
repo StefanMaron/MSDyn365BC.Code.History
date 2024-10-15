@@ -571,7 +571,9 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CurrentStatus: Option;
     begin
-        SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.");
+        if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then
+            exit;
+
         CurrentStatus := SalesInvoiceEntityAggregate.Status;
 
         SetStatusOptionFromSalesInvoiceHeader(SalesInvoiceHeader, SalesInvoiceEntityAggregate);

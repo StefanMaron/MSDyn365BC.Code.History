@@ -156,7 +156,13 @@ codeunit 99000832 "Sales Line-Reserve"
         SalesLine: Record "Sales Line";
         ShowError: Boolean;
         HasError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (NewSalesLine.Type <> NewSalesLine.Type::Item) and (OldSalesLine.Type <> OldSalesLine.Type::Item) then
             exit;
         if Blocked then
@@ -999,6 +1005,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBindToProdOrder(SalesLine: Record "Sales Line"; ProdOrderLine: Record "Prod. Order Line"; ReservQty: Decimal; ReservQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -853,7 +853,14 @@
     end;
 
     procedure RespCenter(var AddrArray: array[8] of Text[100]; var RespCenter: Record "Responsibility Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRespCenter(AddrArray, RespCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         with RespCenter do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
@@ -1570,6 +1577,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReminder(var AddrArray: array[8] of Text[100]; var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRespCenter(var AddrArray: array[8] of Text[100]; var RespCenter: Record "Responsibility Center"; var IsHandled: Boolean)
     begin
     end;
 

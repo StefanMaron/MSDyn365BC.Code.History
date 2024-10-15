@@ -256,6 +256,21 @@ codeunit 131904 "Library - Time Sheet"
         HumanResourceUnitOfMeasure.Insert(true);
     end;
 
+    procedure CreateTimeActivity(var TimeActivity: Record "Time Activity")
+    var
+        HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
+    begin
+        CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
+
+        with TimeActivity do begin
+            Init();
+            Validate(Code, LibraryUtility.GenerateGUID());
+            Validate(Description, LibraryUtility.GenerateGUID());
+            Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            Insert(true);
+        end;
+    end;
+
     procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Time Activity")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";

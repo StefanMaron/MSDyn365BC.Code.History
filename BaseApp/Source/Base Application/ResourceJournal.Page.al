@@ -59,6 +59,7 @@ page 207 "Resource Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("External Document No."; "External Document No.")
                 {

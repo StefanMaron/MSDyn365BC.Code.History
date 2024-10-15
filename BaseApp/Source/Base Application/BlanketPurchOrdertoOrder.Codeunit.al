@@ -69,7 +69,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                     if (PurchOrderLine."No." <> '') and (PurchOrderLine.Type <> 0) then begin
                         PurchOrderLine.Amount := 0;
                         PurchOrderLine."Amount Including VAT" := 0;
-                        PurchOrderLine.Validate(Quantity, PurchBlanketOrderLine."Qty. to Receive");
+                        PurchOrderLineValidateQuantity(PurchOrderLine, PurchBlanketOrderLine);
                         if PurchBlanketOrderLine."Expected Receipt Date" <> 0D then
                             PurchOrderLine.Validate("Expected Receipt Date", PurchBlanketOrderLine."Expected Receipt Date")
                         else
@@ -199,6 +199,18 @@ codeunit 97 "Blanket Purch. Order to Order"
         end;
     end;
 
+    local procedure PurchOrderLineValidateQuantity(var PurchaseOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := FALSE;
+        OnBeforePurchOrderLineValidateQuantity(PurchaseOrderLine, BlanketOrderPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseOrderLine.Validate(Quantity, BlanketOrderPurchLine."Qty. to Receive");
+    end;
+
     local procedure ResetQuantityFields(var TempPurchLine: Record "Purchase Line")
     begin
         TempPurchLine.Quantity := 0;
@@ -276,6 +288,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchOrderHeaderModify(var PurchOrderHeader: Record "Purchase Header"; BlanketOrderPurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchOrderLineValidateQuantity(var PurchOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

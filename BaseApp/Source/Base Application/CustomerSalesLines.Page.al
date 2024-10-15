@@ -107,11 +107,11 @@ page 351 "Customer Sales Lines"
         CustLedgEntry: Record "Cust. Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
 
     protected var
         Cust: Record Customer;
+        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

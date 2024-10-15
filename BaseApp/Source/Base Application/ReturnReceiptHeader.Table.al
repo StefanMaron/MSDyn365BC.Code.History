@@ -209,7 +209,7 @@ table 6660 "Return Receipt Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST("Posted Return Receipt"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Posted Return Receipt"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -552,6 +552,10 @@ table 6660 "Return Receipt Header"
         {
             Caption = 'Return Order No. Series';
             TableRelation = "No. Series";
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

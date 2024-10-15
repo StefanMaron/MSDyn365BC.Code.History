@@ -24,21 +24,6 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         DimensionValueError: Label 'A dimension used in %1 %2, %3, %4 has caused an error. Select a %5 for the %6 %7 for %8 %9.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
         CheckDimValueInGenJournalErr: Label 'Wrong %1 in Dimension Set for Gen. Journal Line. Document No. = %2, Account No. = %3, Batch Name = %4.';
 
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
-        if isInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-
-        isInitialized := true;
-        Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -53,7 +38,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1.Setup: Create FA General Journal Line of Fixed Asset type, update the Insurance Number, modify the
         // Insurance Depreciation Book in FA Setup Dimension in General Journal Line.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         InsuranceInGenJournalLine(GenJournalLine, FindInsurance);
         OldInsuranceDeprBook := InsuranceDeprBookInFASetup(GenJournalLine."Depreciation Book Code");
@@ -86,7 +71,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Use Default Dimension False in Depreciation Book.
 
         // 1.Setup: Create General Journal Line of Fixed Asset type and update the Insurance Number, Dimension in General Journal Line.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         OldUseDefaultDimension := UseDefaultDimDepreciationBook(GenJournalLine."Depreciation Book Code", false);
         InsuranceInGenJournalLine(GenJournalLine, FindInsurance);
@@ -121,7 +106,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Use Default Dimension True in Depreciation Book.
 
         // 1.Setup: Create General Journal Line of Fixed Asset type and update the Insurance Number.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         OldUseDefaultDimension := UseDefaultDimDepreciationBook(GenJournalLine."Depreciation Book Code", true);
         InsuranceInGenJournalLine(GenJournalLine, CreateInsuranceWithDimension);
@@ -153,7 +138,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Calculate Depreciation with Balance Account.
 
         // 1.Setup,Exercise: Calculate Depreciation.
-        Initialize;
+        Initialize();
         FANo := DepreciationWithFixedAsset(FAAllocation, true);
 
         // 2.Verify: Verify Dimension on FA GL Journal.
@@ -172,7 +157,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Calculate Depreciation with out Balance Account.
 
         // 1.Setup,Exercise: Calculate Depreciation.
-        Initialize;
+        Initialize();
         FANo := DepreciationWithFixedAsset(FAAllocation, false);
 
         // 2.Verify: Verify FA General Journal.
@@ -189,7 +174,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the FA Ledger Entry with FA General Journal.
 
         // 1.Setup: Create FA Gen Journal Line of Fixed Asset type, Dimension in FA General Journal Line.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         AttachDimensionInJournalLine(GenJournalLine);
         DimensionSetID := GenJournalLine."Dimension Set ID";
@@ -213,7 +198,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book, create FA Journal Line, create the Dimensions for
         // FA General Journal, post the created FA Gl Journal.
-        Initialize;
+        Initialize();
         CreateFixedAssetDepreciation(FADepreciationBook);
         CreateFAGLJournalLines(GenJournalLine, FADepreciationBook);
         AttachDimensionInJournalLine(GenJournalLine);
@@ -253,7 +238,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book, create FA Journal Line, create the Dimensions for
         // FA General Journal, post the created FA Gl Journal.
-        Initialize;
+        Initialize();
         CreateFixedAssetDepreciation(FADepreciationBook);
         CreateFAGLJournalLines(GenJournalLine, FADepreciationBook);
         AttachDimensionInJournalLine(GenJournalLine);
@@ -282,7 +267,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1.Setup: Create FA General Journal Line, create Dimension for FA General Journal, post the FA GL Journal, Create a new
         // Depreciation Book.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         AttachDimensionInJournalLine(GenJournalLine);
         DimensionSetID := GenJournalLine."Dimension Set ID";
@@ -324,7 +309,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         // 1.Setup: Create FA General Journal Line, create Dimension for FA General Journal, post the FA GL Journal, Create a new
         // Depreciation Book.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         FixedAsset.Get(GenJournalLine."Account No.");
         OldUseDefaultDimension := UseDefaultDimDepreciationBook(GenJournalLine."Depreciation Book Code", UseDefaultDimension);
@@ -354,7 +339,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1.Setup: Create FA Gen Journal Line of Fixed Asset type, attach dimension on Fixed Asset, update the Account No in FA General
         // Journal Line.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         AttachDimensionOnFixedAsset(DimensionValue, GenJournalLine."Account No.");
         UpdateAccountNoInJournalLine(GenJournalLine, GenJournalLine."Account No.");
@@ -376,7 +361,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Dimension in Maintenance Ledger Entry.
 
         // 1.Setup: Create FA General Journal Line of Posting Type Maintenance, create Dimension for FA General Journal.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         ModifyFAPostingType(GenJournalLine, GenJournalLine."FA Posting Type"::Maintenance);
         AttachDimensionInJournalLine(GenJournalLine);
@@ -405,7 +390,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Dimension in FA Ledger Entry and Maintenance Ledger Entry.
 
         // 1.Setup: Create FA General Journal Lines and attach Dimension on FA General Journal Line.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateFAGLJournalLine(GenJournalLine);
         FixedAssetNo := GenJournalLine."Account No.";
@@ -441,7 +426,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Dimension in Insurance Ledger Entry.
 
         // 1.Setup: Create Insurance Journal Line, create Dimension for Insurance Journal.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateInsurance(Insurance);
         CreateInsuranceJournalLine(InsuranceJournalLine, Insurance."No.");
         DimensionOnInsuranceJournal(InsuranceJournalLine);
@@ -466,7 +451,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Index Fixed Assets with Balance Account.
 
         // 1.Setup, Exercise: Create and post FA General Journal for Posting Type Acquisition Cost, run the Index Fixed Assets.
-        Initialize;
+        Initialize();
         FANo := IndexFixedAsset(DimensionValue, FAAllocationCode, true);
 
         // 2.Verify: Verify the FA General Journal.
@@ -485,7 +470,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Index Fixed Assets with out Balance Account.
 
         // 1.Setup, Exercise: Create and post FA General Journal for Posting Type Acquisition Cost, run the Index Fixed Assets.
-        Initialize;
+        Initialize();
         FANo := IndexFixedAsset(DimensionValue, FAAllocationCode, false);
 
         // 2.Verify: Verify the FA General Journal.
@@ -504,7 +489,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Index Insurance.
 
         // 1.Setup: Create and post the created Insurance Journal Line.
-        Initialize;
+        Initialize();
         CreateInsuranceJournalLine(InsuranceJournalLine, CreateInsuranceWithDimension);
         FANo := InsuranceJournalLine."FA No.";
         InsuranceNo := InsuranceJournalLine."Insurance No.";
@@ -531,7 +516,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Insert Balance Account.
 
         // 1.Setup: Create Insurance Journal, create Dimension for Insurance Journal.
-        Initialize;
+        Initialize();
         CreateFixedAssetDepreciation(FADepreciationBook);
         AttachDimensionOnFixedAsset(DimensionValue, FADepreciationBook."FA No.");
         CreateGenJournalBatch(GenJournalBatch);
@@ -560,7 +545,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1.Setup: Create FA General Journal Line, attach dimesnion on Fixed Asset, post the created FA General Journal Line,
         // Create FA Reclass Journal Line.
-        Initialize;
+        Initialize();
         CreateFAGLJournalLine(GenJournalLine);
         AttachDimensionOnFixedAsset(DimensionValue, GenJournalLine."Account No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -592,7 +577,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test Create New Fixed Asset and Attach a Dimension with Fixed Asset.
 
         // 1. Setup: Create Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
         // 2. Exercise: Adding Dimension on Fixed Asset.
@@ -611,7 +596,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test error occurs on Running Cancel FA Ledger Entry Report without Depreciation Book Code.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Cancel FA Ledger Entry Report.
         asserterror RunCancelFALedgerEntry('', '', false);
@@ -631,7 +616,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1. Setup: Create Initial Setup for Fixed Asset. Update G/L Integration on Depreciation Book as FALSE.
         // Create and post FA Journal Lines.
-        Initialize;
+        Initialize();
         FANo := CreateInitialSetupAndPostFAJournalLines(DepreciationBook);
 
         // 2. Exercise: Run Cancel FA Ledger Entry Report.
@@ -656,7 +641,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1. Setup: Create Initial Setup for Fixed Asset. Update G/L Integration on Depreciation Book as FALSE.
         // Create and post FA Journal Lines.
-        Initialize;
+        Initialize();
         FANo := CreateInitialSetupAndPostFAJournalLines(DepreciationBook);
 
         // 2. Exercise: Update G/L Integration on Depreciation Book as TRUE and run Cancel FA Ledger Entry Report.
@@ -682,7 +667,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // 1. Setup: Create Initial Setup for Fixed Asset. Update G/L Integration on Depreciation Book as FALSE.
         // Create and post FA Journal Lines.
-        Initialize;
+        Initialize();
         FANo := CreateInitialSetupAndPostFAJournalLines(DepreciationBook);
 
         // 2. Exercise: Check Inactive on Fixed Asset and run Cancel FA Ledger Entry Report.
@@ -813,7 +798,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test Error Message while posting Disposal of zero Amount from FA GL Journal Line when Balance Account having Dimension Value Blank and Value Posting as Code Mandatory.
 
         // 1. Setup: Create Disposal entry for Fixed Asset using FA GL Journal with Zero Amount, Take Balance Account with Dimension Value Blank and Value Posting Code Mandatory.
-        Initialize;
+        Initialize();
         CreateFixedAssetDepreciation(FADepreciationBook);
         CreateGenJournalBatch(GenJournalBatch);
         CreateGLAccountWithDimension(DefaultDimension);
@@ -847,7 +832,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test Error Message while posting Disposal of zero Amount from FA GL Journal Line when Dimension Value on FA Allocation Dimension Account is Blank and Value Posting is Code Mandatory.
 
         // 1. Setup: Create FA Allocation with Account having Dimension Value Blank, Create Aquisition Cost and Disposal Entry for Fixed Asset using FA GL Journal, take Random Amount.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGLAccountWithDimension(DefaultDimension);
         CreateFixedAssetDepreciation(FADepreciationBook);
@@ -888,7 +873,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // Test the Calculate Depreciation with Bal Account and two Dimensions.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLAccountWithDimension(DefaultDimension));
         CreateFixedAssetDepreciation(FADepreciationBook);
         CreateAndAttachDimensionOnFAAllocation(FAAllocation,
@@ -925,7 +910,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // [FEATURE] [Depreciation]
         // [SCENARIO 361995] Combination of the different Default Dimensions when depreciation calculated with "Insert Bal. Account" option
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account "X" with Default Dimension "A"
         GLAccNo := CreateGLAccountWithDefaultDimension;
         // [GIVEN] Create Fixed Asset with "Depreciation Expense Acc." = "X" and Default Dimension "B"
@@ -960,7 +945,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // [FEATURE] [Depreciation]
         // [SCENARIO 361995] Combination of the same Default Dimensions with different values when depreciation calculated with "Insert Bal. Account" option
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account "X" with Default Dimension "Area" = "A"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
@@ -987,6 +972,128 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
         // Teardown
         ModifyAcquisitionIntegration(FADepreciationBook."Depreciation Book Code", GLIntegrationAcqCostOld);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure FADefaultDimPriorityHigherOnCalculateDepreciationWithInsertBalAcc()
+    var
+        GLAccount: Record "G/L Account";
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+        DimensionValue: Record "Dimension Value";
+        FADepreciationBook: Record "FA Depreciation Book";
+        SourceCode: Code[10];
+        GLIntegrationAcqCostOld: Boolean;
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 357636] Fixed Asset Default Dimension priority is higher than G/L Accout Default Dimension priority when depreciation calculated with "Insert Bal. Account" option.
+        Initialize();
+
+        // [GIVEN] Default Dimension Priorities with Source Code = "Fixed Asset G/L Journal" where "Fixed Asset" priority > "G/L Account" priority.
+        SourceCode := GetFAGLJournalSourceCode();
+        CreateDefaultDimensionPriorityWithPriorityValue(
+          DefaultDimensionPriority, SourceCode, DATABASE::"Fixed Asset", LibraryRandom.RandInt(10));
+        CreateDefaultDimensionPriorityWithPriorityValue(
+          DefaultDimensionPriority, SourceCode, DATABASE::"G/L Account", LibraryRandom.RandIntInRange(11, 20));
+
+        // [GIVEN] G/L Account "X" with Default Dimension "Area" = "A".
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"G/L Account", GLAccount."No.",
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Fixed Asset with "Depreciation Expense Acc." = "X" and Default Dimension "Area" = "B".
+        CreateFixedAssetDepreciationWithSetup(FADepreciationBook, GLIntegrationAcqCostOld, GLAccount."No.");
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionValue."Dimension Code");
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Fixed Asset", FADepreciationBook."FA No.",
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Posted Acquisition.
+        PostAcquisitionCost(FADepreciationBook);
+
+        // [WHEN] Run Calculate Depreciation Job with "Insert Bal. Account".
+        RunCalculateDepreciation(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", true);
+
+        // [THEN] "Dimension Set ID" in "Gen. Journal Line" with "Bal. Account" = "X" is equal default dimension "Area" = "B".
+        VerifyDimSetEntryOnGenJnlLine(
+          FADepreciationBook."FA No.", GLAccount."No.", GetDefaultDimID('', FADepreciationBook."FA No."));
+
+        // Teardown
+        ModifyAcquisitionIntegration(FADepreciationBook."Depreciation Book Code", GLIntegrationAcqCostOld);
+        DeleteDefaultDimensionPriorities(SourceCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BalAccDefaultDimPriorityHigherOnCalculateDepreciationWithInsertBalAcc()
+    var
+        GLAccount: Record "G/L Account";
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+        DimensionValue: Record "Dimension Value";
+        FADepreciationBook: Record "FA Depreciation Book";
+        SourceCode: Code[10];
+        GLIntegrationAcqCostOld: Boolean;
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 357636] Fixed Asset Default Dimension priority is lower than G/L Accout Default Dimension priority when depreciation calculated with "Insert Bal. Account" option.
+        Initialize();
+
+        // [GIVEN] Default Dimension Priorities with Source Code = "Fixed Asset G/L Journal" where "Fixed Asset" priority < "G/L Account" priority.
+        SourceCode := GetFAGLJournalSourceCode();
+        CreateDefaultDimensionPriorityWithPriorityValue(
+          DefaultDimensionPriority, SourceCode, DATABASE::"G/L Account", LibraryRandom.RandInt(10));
+        CreateDefaultDimensionPriorityWithPriorityValue(
+          DefaultDimensionPriority, SourceCode, DATABASE::"Fixed Asset", LibraryRandom.RandIntInRange(11, 20));
+
+        // [GIVEN] G/L Account "X" with Default Dimension "Area" = "A".
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"G/L Account", GLAccount."No.",
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Fixed Asset with "Depreciation Expense Acc." = "X" and Default Dimension "Area" = "B".
+        CreateFixedAssetDepreciationWithSetup(FADepreciationBook, GLIntegrationAcqCostOld, GLAccount."No.");
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionValue."Dimension Code");
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Fixed Asset", FADepreciationBook."FA No.",
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Posted Acquisition.
+        PostAcquisitionCost(FADepreciationBook);
+
+        // [WHEN] Run Calculate Depreciation Job with "Insert Bal. Account".
+        RunCalculateDepreciation(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", true);
+
+        // [THEN] "Dimension Set ID" in "Gen. Journal Line" with "Bal. Account" = "X" is equal default dimension "Area" = "A".
+        VerifyDimSetEntryOnGenJnlLine(
+          FADepreciationBook."FA No.", GLAccount."No.", GetDefaultDimID(GLAccount."No.", ''));
+
+        // Teardown
+        ModifyAcquisitionIntegration(FADepreciationBook."Depreciation Book Code", GLIntegrationAcqCostOld);
+        DeleteDefaultDimensionPriorities(SourceCode);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
+        LibraryFiscalYear.CreateFiscalYear;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+
+        isInitialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
     end;
 
     local procedure AllowIndexationInDepreciation("Code": Code[20]; AllowIndexation: Boolean) AllowIndexationOld: Boolean
@@ -1071,6 +1178,13 @@ codeunit 134478 "ERM Dimension Fixed Assets"
           FAJournalLine, FAJournalBatch, FADepreciationBook, FAJournalLine."FA Posting Type"::Depreciation, -FAJournalLine.Amount / 2);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         exit(FADepreciationBook."FA No.");
+    end;
+
+    local procedure CreateDefaultDimensionPriorityWithPriorityValue(DefaultDimensionPriority: Record "Default Dimension Priority"; SourceCode: Code[10]; TableID: Integer; PriorityValue: Integer)
+    begin
+        LibraryDimension.CreateDefaultDimensionPriority(DefaultDimensionPriority, SourceCode, TableID);
+        DefaultDimensionPriority.Validate(Priority, PriorityValue);
+        DefaultDimensionPriority.Modify(true);
     end;
 
     local procedure CreateDepreciationBookAndSetup(): Code[10]
@@ -1397,6 +1511,14 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         exit(CalcDate('<1Y>', WorkDate));
     end;
 
+    local procedure DeleteDefaultDimensionPriorities(SourceCode: Code[10])
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimensionPriority.SetRange("Source Code", SourceCode);
+        DefaultDimensionPriority.DeleteAll(true);
+    end;
+
     local procedure DepreciationWithFixedAsset(var FAAllocation: Record "FA Allocation"; BalAccount: Boolean) FANo: Code[20]
     var
         FADepreciationBook: Record "FA Depreciation Book";
@@ -1481,6 +1603,14 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             SetRange("Account No.", AccountNo);
             FindFirst;
         end;
+    end;
+
+    local procedure GetFAGLJournalSourceCode(): Code[10]
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        exit(SourceCodeSetup."Fixed Asset G/L Journal");
     end;
 
     local procedure IndexFixedAsset(var DimensionValue: Record "Dimension Value"; var FAAllocationCode: Code[20]; BalAccount: Boolean): Code[20]

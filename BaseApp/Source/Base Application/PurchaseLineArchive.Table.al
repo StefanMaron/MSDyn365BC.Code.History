@@ -921,6 +921,10 @@ table 5110 "Purchase Line Archive"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(12400; "FA Location Code"; Code[10])
         {
             Caption = 'FA Location Code';

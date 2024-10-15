@@ -51,19 +51,19 @@ codeunit 312 "Cust-Check Cr. Limit"
         if (SalesHeader."Prepmt. Diff. Appln. Entry No." <> 0) or SalesHeader."Prepmt. Diff." then
             exit;
 
-        if GuiAllowed then
+        if GuiAllowed then begin
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
-        if not CustCheckCreditLimit.SalesHeaderShowWarningAndGetCause(SalesHeader, AdditionalContextId) then
-            SalesHeader.CustomerCreditLimitNotExceeded()
-        else begin
-            CreditLimitExceeded := true;
+            if not CustCheckCreditLimit.SalesHeaderShowWarningAndGetCause(SalesHeader, AdditionalContextId) then
+                SalesHeader.CustomerCreditLimitNotExceeded()
+            else begin
+                CreditLimitExceeded := true;
 
-            if GuiAllowed then
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesHeader."Document Type"), SalesHeader."No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');
 
-            SalesHeader.CustomerCreditLimitExceeded();
+                SalesHeader.CustomerCreditLimitExceeded();
+            end;
         end;
     end;
 

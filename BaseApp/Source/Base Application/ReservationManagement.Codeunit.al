@@ -866,7 +866,7 @@
                           CalcItemLedgEntry."Remaining Quantity" - CalcItemLedgEntry."Reserved Quantity";
                         QtyThisLine := 0;
                     end;
-                    if IsSpecialOrder(CalcItemLedgEntry."Purchasing Code") or (Positive = (QtyThisLineBase < 0)) then begin
+                    if (FindUnfinishedSpecialOrderSalesNo(CalcItemLedgEntry) <> '') or (Positive = (QtyThisLineBase < 0)) then begin
                         QtyThisLineBase := 0;
                         QtyThisLine := 0;
                     end;
@@ -2082,17 +2082,6 @@
         ReservEntry.MarkedOnly(true);
     end;
 
-    local procedure IsSpecialOrder(PurchasingCode: Code[10]): Boolean
-    var
-        Purchasing: Record Purchasing;
-    begin
-        if PurchasingCode <> '' then
-            if Purchasing.Get(PurchasingCode) then
-                exit(Purchasing."Special Order");
-
-        exit(false);
-    end;
-
     procedure IssueActionMessage(var SurplusEntry: Record "Reservation Entry"; UseGlobalSettings: Boolean; AllDeletedEntry: Record "Reservation Entry")
     var
         ReservEntry: Record "Reservation Entry";
@@ -2483,9 +2472,9 @@
         PickQty: Decimal;
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
-        QtyOnAssemblyBin: Decimal;
-        QtyOnOpenShopFloorBin: Decimal;
-        QtyOnToProductionBin: Decimal;
+        QtyOnSpecialBins: Decimal;
+        SpecialBins: List of [Code[20]];
+        SpecialBin: Code[20];
         IsHandled: Boolean;
     begin
         with CalcReservEntry do begin
@@ -2530,23 +2519,24 @@
 
                 QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
-                QtyOnAssemblyBin :=
-                    WhseAvailMgt.CalcQtyOnBin("Location Code", Location."To-Assembly Bin Code", "Item No.", "Variant Code", WhseItemTrackingSetup);
+                SpecialBins.Add(Location."To-Assembly Bin Code");
+                if not SpecialBins.Contains(Location."Open Shop Floor Bin Code") then
+                    SpecialBins.Add(Location."Open Shop Floor Bin Code");
+                if not SpecialBins.Contains(Location."To-Production Bin Code") then
+                    SpecialBins.Add(Location."To-Production Bin Code");
 
-                QtyOnOpenShopFloorBin :=
-                    WhseAvailMgt.CalcQtyOnBin("Location Code", Location."Open Shop Floor Bin Code", "Item No.", "Variant Code", WhseItemTrackingSetup);
-
-                QtyOnToProductionBin :=
-                    WhseAvailMgt.CalcQtyOnBin("Location Code", Location."To-Production Bin Code", "Item No.", "Variant Code", WhseItemTrackingSetup);
+                foreach SpecialBin in SpecialBins do
+                    QtyOnSpecialBins +=
+                        WhseAvailMgt.CalcQtyOnBin("Location Code", SpecialBin, "Item No.", "Variant Code", WhseItemTrackingSetup);
             end;
 
             AllocQty :=
               WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement +
-              QtyOnOutboundBins + QtyOnAssemblyBin + QtyOnOpenShopFloorBin + QtyOnToProductionBin;
+              QtyOnOutboundBins + QtyOnSpecialBins;
             PickQty := WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement;
 
             AvailQty :=
-              Item.Inventory - PickQty - QtyOnOutboundBins - QtyOnAssemblyBin - QtyOnOpenShopFloorBin - QtyOnToProductionBin -
+              Item.Inventory - PickQty - QtyOnOutboundBins - QtyOnSpecialBins -
               Item."Reserved Qty. on Inventory" + QtyReservedOnPickShip;
         end;
     end;
@@ -2897,7 +2887,7 @@
                 FilterReservEntry."Item No.", FilterReservEntry."Variant Code", '',
                 MaxReservQtyBasePerLotOrSerial, TempTrackingSpec."Qty. per Unit of Measure");
         QtyThisLine := GetMinAbs(QtyThisLine, MaxReservQtyPerLotOrSerial) * GetSign(QtyThisLine);
-        QtyThisLineBase := GetMinAbs(QtyThisLineBase, MaxReservQtyPerLotOrSerial) * GetSign(QtyThisLineBase);
+        QtyThisLineBase := GetMinAbs(QtyThisLineBase, MaxReservQtyBasePerLotOrSerial) * GetSign(QtyThisLineBase);
     end;
 
     local procedure IsSpecialOrderOrDropShipment(ReservationEntry: Record "Reservation Entry"): Boolean
@@ -2914,6 +2904,22 @@
                 if PurchaseLine."Special Order" or PurchaseLine."Drop Shipment" then
                     exit(true);
         exit(false);
+    end;
+
+    procedure FindUnfinishedSpecialOrderSalesNo(ItemLedgerEntry: Record "Item Ledger Entry"): Code[20]
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        SalesLine: Record "Sales Line";
+    begin
+        if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then
+            if PurchRcptLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.") then
+                if SalesLine.Get(
+                     SalesLine."Document Type"::Order, PurchRcptLine."Special Order Sales No.", PurchRcptLine."Special Order Sales Line No.")
+                then
+                    if SalesLine.Quantity <> SalesLine."Quantity Shipped" then
+                        exit(SalesLine."Document No.");
+
+        exit('');
     end;
 
     procedure GetMinAbs(Value1: Decimal; Value2: Decimal): Decimal
@@ -3065,7 +3071,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveTransLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; Search: Text[1]; NextStep: Integer)
+    local procedure OnBeforeAutoReserveTransLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; var Search: Text[1]; var NextStep: Integer)
     begin
     end;
 

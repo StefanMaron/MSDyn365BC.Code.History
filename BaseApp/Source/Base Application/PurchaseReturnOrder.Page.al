@@ -209,6 +209,7 @@ page 6640 "Purchase Return Order"
                 {
                     ApplicationArea = PurchReturnOrder;
                     Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, released, pending approval, or pending prepayment.';
                 }
             }
@@ -1338,6 +1339,7 @@ page 6640 "Purchase Return Order"
         SetControlAppearance;
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1399,6 +1401,8 @@ page 6640 "Purchase Return Order"
         JobQueueVisible: Boolean;
         [InDataSet]
         JobQueueUsed: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         DocNoVisible: Boolean;
         OpenApprovalEntriesExist: Boolean;
         OpenApprovalEntriesExistForCurrUser: Boolean;

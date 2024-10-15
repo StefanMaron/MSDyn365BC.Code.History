@@ -183,7 +183,7 @@ page 14972 "Sales Corr. Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Charge &Assignment';
-                    ToolTip = 'Assign additional direct costs, for example for freight, to the item on the line.';
+                    ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
 
                     trigger OnAction()
                     begin
@@ -196,7 +196,7 @@ page 14972 "Sales Corr. Invoice Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Shift+Ctrl+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
