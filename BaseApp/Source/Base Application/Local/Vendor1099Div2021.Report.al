@@ -282,7 +282,7 @@ report 10118 "Vendor 1099 Div 2021"
         TestPrintSwitch: Boolean;
         Void: Code[1];
         FATCA: Code[1];
-        CompanyAddress: array[5] of Text;
+        CompanyAddress: array[5] of Text[50];
         FirstVendor: Boolean;
         PrintThis: Boolean;
         VendorAddress: Text[30];

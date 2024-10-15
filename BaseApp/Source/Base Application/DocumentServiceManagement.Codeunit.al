@@ -1,4 +1,4 @@
-codeunit 9510 "Document Service Management"
+﻿codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
     Permissions = TableData "Document Service Cache" = rimd;
@@ -1174,6 +1174,7 @@ codeunit 9510 "Document Service Management"
     var
         TempDocumentServiceRec: Record "Document Service" temporary;
         PrivacyNotice: Codeunit "Privacy Notice";
+        FileManagement: Codeunit "File Management";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         DocumentUri: Text;
         UploadedFileName: Text;
@@ -1196,13 +1197,14 @@ codeunit 9510 "Document Service Management"
         if not PrivacyNotice.ConfirmPrivacyNoticeApproval(PrivacyNoticeRegistrations.GetOneDrivePrivacyNoticeId()) then
             exit;
 
-        InitTempDocumentServiceRecord(TempDocumentServiceRec, DocumentSharing.Source);
-
+        DocumentSharing.Name := CopyStr(FileManagement.GetSafeFileName(DocumentSharing.Name), 1, MaxStrLen(DocumentSharing.Name));
         if DocumentSharing.Name = '' then
             Error(DocumentSharingNoNameErr);
 
         if DocumentSharing.Extension = '' then
             Error(DocumentSharingNoExtErr);
+
+        InitTempDocumentServiceRecord(TempDocumentServiceRec, DocumentSharing.Source);
 
         DocumentSharing.CalcFields(DocumentSharing.Data);
         DocumentSharing.Data.CreateInStream(InStr);
