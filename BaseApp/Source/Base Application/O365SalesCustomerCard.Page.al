@@ -177,7 +177,7 @@ page 2107 "O365 Sales Customer Card"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                         end;
                     end;
                 }
@@ -281,7 +281,7 @@ page 2107 "O365 Sales Customer Card"
         FullAddress := TempStandardAddress.ToString;
 
         if TaxArea.Get("Tax Area Code") then
-            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
         UpdateInvoicesLbl;
         UpdateEstimatesLbl;
@@ -358,7 +358,7 @@ page 2107 "O365 Sales Customer Card"
         IsUsingVAT: Boolean;
         OverdueAmount: Decimal;
         FullAddress: Text;
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
         InvoicesLabelText: Text;
         EstimatesLabelText: Text;
 
@@ -485,4 +485,3 @@ page 2107 "O365 Sales Customer Card"
         CurrPage.Update();
     end;
 }
-

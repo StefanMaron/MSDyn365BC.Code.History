@@ -175,6 +175,9 @@
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
     },
     {
+      "path": "./simplifiedbankstatementimport/test/Simplified Bank Statement Import Test"
+    },
+    {
       "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
     },
     {

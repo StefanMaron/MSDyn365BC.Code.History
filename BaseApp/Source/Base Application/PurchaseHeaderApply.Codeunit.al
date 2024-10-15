@@ -10,7 +10,7 @@ codeunit 402 "Purchase Header Apply"
             VendLedgEntry.SetCurrentKey("Vendor No.", Open);
             VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
             VendLedgEntry.SetRange(Open, true);
-            OnRunOnAfterFilterVendLedgEntry(VendLedgEntry);
+            OnRunOnAfterFilterVendLedgEntry(VendLedgEntry, PurchHeader);
             if "Applies-to ID" = '' then
                 "Applies-to ID" := "No.";
             if "Applies-to ID" = '' then
@@ -57,7 +57,7 @@ codeunit 402 "Purchase Header Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

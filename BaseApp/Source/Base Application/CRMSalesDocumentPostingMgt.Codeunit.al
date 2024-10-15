@@ -37,7 +37,14 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
     local procedure PostCRMSalesDocumentOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostCRMSalesDocumentOnAfterPostSalesDoc(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
             exit;
 
@@ -249,6 +256,11 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CRMPostBuffer.ChangeType := ChangeType;
         CRMPostBuffer.ChangeDateTime := CurrentDateTime;
         CRMPostBuffer.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCRMSalesDocumentOnAfterPostSalesDoc(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

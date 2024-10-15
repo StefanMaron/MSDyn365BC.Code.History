@@ -10,7 +10,7 @@ codeunit 401 "Sales Header Apply"
             CustLedgEntry.SetCurrentKey("Customer No.", Open);
             CustLedgEntry.SetRange("Customer No.", BilToCustNo);
             CustLedgEntry.SetRange(Open, true);
-            OnRunOnAfterFilterCustLedgEntry(CustLedgEntry);
+            OnRunOnAfterFilterCustLedgEntry(CustLedgEntry, SalesHeader);
             if "Applies-to ID" = '' then
                 "Applies-to ID" := "No.";
             if "Applies-to ID" = '' then
@@ -50,7 +50,7 @@ codeunit 401 "Sales Header Apply"
         OK: Boolean;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterFilterCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnRunOnAfterFilterCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header")
     begin
     end;
 

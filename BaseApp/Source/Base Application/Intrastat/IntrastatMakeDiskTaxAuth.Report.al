@@ -106,6 +106,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
+            ExportFormat := ExportFormat::"2022";
             FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
@@ -271,6 +272,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     local procedure WriteGroupTotalsToFile2021(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Quantity: Text[11])
     begin
+        OnBeforeWriteGroupTotalsToFile2021(IntrastatJnlLine);
         IntrastatFileWriter.WriteLine(
             DelChr(IntrastatJnlLine."Tariff No.") + ',' +
             Format(IntrastatJnlLine."Statistical Value", 0, 1) + ',' +
@@ -289,6 +291,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         SupplementaryUnits: Text[11];
         Line: Text;
     begin
+        OnBeforeWriteGroupTotalsToFile2022(IntrastatJnlLine);
         if IntrastatJnlLineTemp."Supplementary Units" then
             SupplementaryUnits := Format(IntrastatJnlLineTemp.Quantity, 0, 1)
         else
@@ -315,6 +318,16 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Line += ',' + IntrastatJnlLine."Document No.";
 
         IntrastatFileWriter.WriteLine(Line);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteGroupTotalsToFile2021(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteGroupTotalsToFile2022(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
     end;
 }
 

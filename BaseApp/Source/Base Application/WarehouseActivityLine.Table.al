@@ -1927,6 +1927,7 @@
                 TempTrackingSpecification."Warranty Date" := "Warranty Date";
                 TempTrackingSpecification."Expiration Date" := "Expiration Date";
                 TempTrackingSpecification.Correction := true;
+                OnUpdateReservationOnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempWhseActivLine2);
                 TempTrackingSpecification.Insert();
             end;
             ItemTrackingMgt.SetPick("Activity Type" = "Activity Type"::Pick);
@@ -3318,6 +3319,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateReservationOnBeforeTempTrackingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateQtyToHandleOnBeforeWhseActivLineModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;

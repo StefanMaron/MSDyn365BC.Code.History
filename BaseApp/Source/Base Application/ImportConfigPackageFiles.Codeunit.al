@@ -23,6 +23,8 @@ codeunit 1805 "Import Config. Package Files"
             if not TrySetGlobalLanguage("Language ID") then
                 Error(InvalidLanguageIDErr, "Language ID");
 
+
+        Session.LogMessage('0000HQ0', StrSubstNo(CompanyInitializeLogLbl, GlobalLanguage(), "Language ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize');        
         CompanyInitialize.InitializeCompany();
         ImportConfigurationPackageFiles(Rec);
 
@@ -41,6 +43,7 @@ codeunit 1805 "Import Config. Package Files"
         PackageLbl: Label 'Package';
         CompanyLbl: Label 'Company';
         InvalidLanguageIDErr: Label 'Cannot set the language to %1. The language pack ID number is invalid.', Comment = '%1 is the language code, tried to be set';
+        CompanyInitializeLogLbl: Label 'OnRun executed CompanyInitialize in Codeunit 1805 "Import Config. Package Files". Current language is %1. Configuration Package File language is %2.', Comment = '%1 = Global language lcid, %2 = Configuration package language lcid.';
 
     local procedure ImportConfigurationPackageFiles(var ConfigurationPackageFile: Record "Configuration Package File")
     var

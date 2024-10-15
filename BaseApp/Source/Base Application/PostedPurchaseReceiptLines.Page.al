@@ -1,9 +1,11 @@
 page 528 "Posted Purchase Receipt Lines"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Receipt Lines';
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Rcpt. Line";
+    UsageCategory = Lists;
 
     layout
     {
@@ -176,7 +178,7 @@ page 528 "Posted Purchase Receipt Lines"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Process;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

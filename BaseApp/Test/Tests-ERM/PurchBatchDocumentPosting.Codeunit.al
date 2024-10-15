@@ -394,6 +394,321 @@ codeunit 134892 "Purch. Batch Document Posting"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseOrderList: TestPage "Purchase Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Purchase Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Vendor "C" with Amount = 100 each
+        // [GIVEN] Cassie selects order "Y" on Purchase Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain unreleased
+        // [THEN] Order "Y" is released
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseOrderList.Trap;
+        PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseOrderList: TestPage "Purchase Order List";
+    begin
+        // [SCENARIO] Cassie can release selected order from Purchase Order List page
+        Initialize();
+
+        // [GIVEN] Orders "X", "Y" and "Z" for Vendor "C" with Amount = 100 each
+        // [GIVEN] Orders "X", "Y" and "Z" for Vendor "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Purchase Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
+        // [THEN] Orders "X" and "Z" remain released
+        // [THEN] Order "Y" is reopened
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseOrderList.Trap;
+        PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[1]);
+        InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
+        InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[3]);
+
+        InvokeReopenSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedInvoices()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseInvoices: TestPage "Purchase Invoices";
+    begin
+        // [SCENARIO] Cassie can release selected invoice from Purchase Invoice List page
+        Initialize();
+
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects invoice "Y" on Purchase Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 invoices
+        // [THEN] Invoices "X" and "Z" remain unreleased
+        // [THEN] Invoice "Y" is released
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseInvoices.Trap;
+        PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedInvoices()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseInvoices: TestPage "Purchase Invoices";
+    begin
+        // [SCENARIO] Cassie can release selected invoice from Purchase Invoice List page
+        Initialize();
+
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects invoice "Y" on Purchase Invoice List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 invoices
+        // [THEN] Invoices "X" and "Z" remain released
+        // [THEN] Invoice "Y" is reopened
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseInvoices.Trap;
+        PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[1]);
+        InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
+        InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[3]);
+
+        InvokeReopenSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedCreditMemos()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseCreditMemos: TestPage "Purchase Credit Memos";
+    begin
+        // [SCENARIO] Cassie can release selected credit memo from Purchase Credit Memos page
+        Initialize();
+
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects credit memo "Y" on Purchase Credit Memos page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 credit memos
+        // [THEN] Credit Memos "X" and "Z" remain unreleased
+        // [THEN] Credit Memo "Y" is released
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseCreditMemos.Trap;
+        PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedCreditMemos()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseCreditMemos: TestPage "Purchase Credit Memos";
+    begin
+        // [SCENARIO] Cassie can release selected credit memo from Purchase Credit Memos page
+        Initialize();
+
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Credit Memos page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 credit memos
+        // [THEN] Credit Memos "X" and "Z" remain released
+        // [THEN] Credit Memo "Y" is reopened
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseCreditMemos.Trap;
+        PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[1]);
+        InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
+        InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[3]);
+
+        InvokeReopenSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedReturnOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseReturnOrderList: TestPage "Purchase Return Order List";
+    begin
+        // [SCENARIO] Cassie can release selected return order from Purchase Return Order List page
+        Initialize();
+
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects return order "Y" on Purchase Return Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 return orders
+        // [THEN] Return Orders "X" and "Z" remain unreleased
+        // [THEN] Return Order "Y" is released
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseReturnOrderList.Trap;
+        PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedReturnOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        PurchaseReturnOrderList: TestPage "Purchase Return Order List";
+    begin
+        // [SCENARIO] Cassie can release selected return order from Purchase Return Order List page
+        Initialize();
+
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Purchase Return Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 return orders
+        // [THEN] Return Orders "X" and "Z" remain released
+        // [THEN] Return Order "Y" is reopened
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
+
+        PurchaseReturnOrderList.Trap;
+        PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[1]);
+        InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
+        InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[3]);
+
+        InvokeReopenSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Released);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseSelectedBlanketOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
+    begin
+        // [SCENARIO] Cassie can release selected blanket order from Blanket Purchase Orders page
+        Initialize();
+
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects blanket order "Y" on Blanket Purchase Orders page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 blanket orders
+        // [THEN] Blanket Orders "X" and "Z" remain unreleased
+        // [THEN] Blanket Order "Y" is released
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
+
+        BlanketPurchaseOrders.Trap;
+        PAGE.Run(PAGE::"Blanket Purchase Orders", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReopenSelectedBlanketOrders()
+    var
+        PurchaseHeader: array[3] of Record "Purchase Header";
+        PurchaseHeaderUI: Record "Purchase Header";
+        BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
+    begin
+        // [SCENARIO] Cassie can release selected blanket order from Blanket Purchase Orders page
+        Initialize();
+
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects blanket order "Y" on Blanket Purchase Orders page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 blanket  orders
+        // [THEN] Blanket Orders "X" and "Z" remain released
+        // [THEN] Blanket Order "Y" is reopened
+        CreateThreeDocuments(
+          PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
+
+        BlanketPurchaseOrders.Trap;
+        PAGE.Run(PAGE::"Blanket Purchase Orders", PurchaseHeaderUI);
+
+        InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[1]);
+        InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[2]);
+        InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[3]);
+
+        InvokeReopenSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[2]);
+
+        VerifyPurchaseDocumentStatus(PurchaseHeader[1], PurchaseHeader[1].Status::Released);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[2], PurchaseHeader[2].Status::Open);
+        VerifyPurchaseDocumentStatus(PurchaseHeader[3], PurchaseHeader[3].Status::Released);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Batch Document Posting");
@@ -442,10 +757,70 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchaseOrderList.Post.Invoke;
     end;
 
+    local procedure InvokeReleaseSelectedOrders(var PurchaseOrderList: TestPage "Purchase Order List"; PurchaseHeaderToRelease: Record "Purchase Header")
+    begin
+        PurchaseOrderList.GotoRecord(PurchaseHeaderToRelease);
+        PurchaseOrderList.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedOrders(var PurchaseOrderList: TestPage "Purchase Order List"; PurchaseHeaderToReopen: Record "Purchase Header")
+    begin
+        PurchaseOrderList.GotoRecord(PurchaseHeaderToReopen);
+        PurchaseOrderList.Reopen.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedInvoices(var PurchaseInvoices: TestPage "Purchase Invoices"; PurchaseHeaderToRelease: Record "Purchase Header")
+    begin
+        PurchaseInvoices.GotoRecord(PurchaseHeaderToRelease);
+        PurchaseInvoices.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedInvoices(var PurchaseInvoices: TestPage "Purchase Invoices"; PurchaseHeaderToReopen: Record "Purchase Header")
+    begin
+        PurchaseInvoices.GotoRecord(PurchaseHeaderToReopen);
+        PurchaseInvoices."Reopen".Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedCreditMemos(var PurchaseCreditMemos: TestPage "Purchase Credit Memos"; PurchaseHeaderToRelease: Record "Purchase Header")
+    begin
+        PurchaseCreditMemos.GotoRecord(PurchaseHeaderToRelease);
+        PurchaseCreditMemos."Release".Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedCreditMemos(var PurchaseCreditMemos: TestPage "Purchase Credit Memos"; PurchaseHeaderToReopen: Record "Purchase Header")
+    begin
+        PurchaseCreditMemos.GotoRecord(PurchaseHeaderToReopen);
+        PurchaseCreditMemos."Reopen".Invoke;
+    end;
+
     local procedure InvokePostSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToPost: Record "Purchase Header")
     begin
         PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToPost);
         PurchaseReturnOrderList.Post.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToRelease: Record "Purchase Header")
+    begin
+        PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToRelease);
+        PurchaseReturnOrderList.Release.Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToReopen: Record "Purchase Header")
+    begin
+        PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToReopen);
+        PurchaseReturnOrderList.Reopen.Invoke;
+    end;
+
+    local procedure InvokeReleaseSelectedBlanketOrders(var BlanketPurchaseOrders: TestPage "Blanket Purchase Orders"; PurchaseHeaderToRelease: Record "Purchase Header")
+    begin
+        BlanketPurchaseOrders.GotoRecord(PurchaseHeaderToRelease);
+        BlanketPurchaseOrders."Release".Invoke;
+    end;
+
+    local procedure InvokeReopenSelectedBlanketOrders(var BlanketPurchaseOrders: TestPage "Blanket Purchase Orders"; PurchaseHeaderToReopen: Record "Purchase Header")
+    begin
+        BlanketPurchaseOrders.GotoRecord(PurchaseHeaderToReopen);
+        BlanketPurchaseOrders."Reopen".Invoke;
     end;
 
     local procedure MarkDocumentsToPost(var PurchaseHeaderToPost: Record "Purchase Header"; var PurchaseHeader: array[3] of Record "Purchase Header"; var PurchaseHeaderCreated: Record "Purchase Header")
@@ -507,6 +882,16 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         Assert.RecordCount(PurchInvHeader, 0);
         Assert.IsTrue(PurchaseHeader.Find, '');
+    end;
+
+    local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; ExpectedStatus: Enum "Purchase Document Status")
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        Assert.RecordCount(PurchInvHeader, 0);
+        PurchaseHeader.Find();
+        PurchaseHeader.TestField(Status, ExpectedStatus);
     end;
 }
 
