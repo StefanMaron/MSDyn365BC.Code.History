@@ -430,6 +430,16 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the official invoice number for the electronic document.';
                 }
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
             }
         }
         area(factboxes)

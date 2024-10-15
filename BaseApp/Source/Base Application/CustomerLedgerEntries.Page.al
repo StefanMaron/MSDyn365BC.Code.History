@@ -341,6 +341,16 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the error message that the authorized service provider, PAC, has returned to Business Central.';
                 }
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Entry No."; "Substitution Entry No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the document that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
                 field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
