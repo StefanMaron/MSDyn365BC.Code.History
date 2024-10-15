@@ -117,6 +117,8 @@ table 36 "Sales Header"
                 Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
+                SetRcvdFromCountry(Cust."Country/Region Code");
+
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
                    (xRec."Currency Code" <> "Currency Code") or
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
@@ -2142,7 +2144,15 @@ table 36 "Sales Header"
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4908,6 +4918,13 @@ table 36 "Sales Header"
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
     end;
 
+    local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
+    begin
+        if not IsCreditDocType() then
+            exit;
+        Rec."Rcvd.-from Count./Region Code" := RcvdFromCountryRegionCode;
+    end;
+
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -7560,7 +7577,7 @@ table 36 "Sales Header"
         MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
     end;
-    
+
     internal procedure SetTrackInfoForCancellation()
     var
         CancelledDocument: Record "Cancelled Document";
