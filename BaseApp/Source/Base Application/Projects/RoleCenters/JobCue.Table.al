@@ -101,12 +101,28 @@ table 9057 "Job Cue"
             CalcFormula = count("CRM Integration Record" where(Skipped = const(true)));
             Caption = 'Coupled Data Synch Errors';
             FieldClass = FlowField;
+            ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(25; "FS Integration Errors"; Integer)
         {
             CalcFormula = count("Integration Synch. Job Errors");
             Caption = 'Field Service Integration Errors';
             FieldClass = FlowField;
+            ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
     }
 

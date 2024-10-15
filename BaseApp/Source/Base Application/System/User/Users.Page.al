@@ -117,6 +117,14 @@ page 9800 Users
                     ToolTip = 'Specifies the Microsoft account that this user signs into Microsoft 365 or SharePoint Online with.';
                     Visible = IsSaaS;
                 }
+                field("User Telemetry ID"; TelemetryUserId)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Telemetry ID';
+                    ToolTip = 'Specifies a telemetry ID which can be used for troubleshooting purposes.';
+                    Editable = false;
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -591,6 +599,7 @@ page 9800 Users
 #if not CLEAN22
         LegacyUserGroupsVisible: Boolean;
 #endif
+        TelemetryUserId: Guid;
 
     trigger OnAfterGetCurrRecord()
     var
@@ -602,9 +611,15 @@ page 9800 Users
     end;
 
     trigger OnAfterGetRecord()
+    var
+        UserProperty: Record "User Property";
     begin
         WindowsUserName := IdentityManagement.UserName(Rec."Windows Security ID");
         NoUserExists := false;
+        if UserProperty.Get(Rec."User Security ID") then
+            TelemetryUserId := UserProperty."Telemetry User ID"
+        else
+            Clear(TelemetryUserId);
     end;
 
     trigger OnDeleteRecord(): Boolean

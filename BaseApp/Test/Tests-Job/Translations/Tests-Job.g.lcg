@@ -716,6 +716,15 @@
       <Cmt Name="Dev"><![CDATA[%1= Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field value]D;]A;(LookupHint=Codeunit Job Journal - NamedType JobTaskTypeError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1703860994 - NamedType 867463979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Project Total Cost(LCY) must be updated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Journal - NamedType ProjectTotalCostErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1703860994 - NamedType 3081393994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[DB:RecordNotFound]]></Val>

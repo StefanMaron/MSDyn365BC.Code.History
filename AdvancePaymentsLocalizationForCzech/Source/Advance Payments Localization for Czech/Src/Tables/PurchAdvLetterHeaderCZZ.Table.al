@@ -872,6 +872,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         DocumentResetErr: Label 'You cannot reset %1 because the document still has one or more lines.', Comment = '%1 = a Field Caption like Bill-to Contact No.';
         DocumentDeleteErr: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.', Comment = '%1 = table caption of responsibility center, %2 = code of responsibility center';
+        PostedEntriesExistErr: Label 'You cannot delete this document because there are posted entries.';
 
     trigger OnInsert()
     begin
@@ -893,10 +894,16 @@ table 31008 "Purch. Adv. Letter Header CZZ"
               DocumentDeleteErr,
               ResponsibilityCenter.TableCaption(), UserSetupManagement.GetPurchasesFilter());
 
+        PurchAdvLetterEntryCZZ.SetRange("Purch. Adv. Letter No.", "No.");
+        PurchAdvLetterEntryCZZ.SetFilter("Entry Type", '<>%1', PurchAdvLetterEntryCZZ."Entry Type"::"Initial Entry");
+        if not PurchAdvLetterEntryCZZ.IsEmpty() then
+            Error(PostedEntriesExistErr);
+
         PurchAdvLetterLineCZZ.SetRange("Document No.", "No.");
         if not PurchAdvLetterLineCZZ.IsEmpty() then
             PurchAdvLetterLineCZZ.DeleteAll(true);
 
+        PurchAdvLetterEntryCZZ.Reset();
         PurchAdvLetterEntryCZZ.SetRange("Purch. Adv. Letter No.", "No.");
         if not PurchAdvLetterEntryCZZ.IsEmpty() then
             PurchAdvLetterEntryCZZ.DeleteAll();
@@ -1335,6 +1342,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                 PurchAdvLetterLineCZZ.Init();
                 PurchAdvLetterLineCZZ."Document No." := "No.";
                 PurchAdvLetterLineCZZ."Line No." += 10000;
+                PurchAdvLetterLineCZZ."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
                 PurchAdvLetterLineCZZ.Validate("VAT Prod. Posting Group", TempPurchAdvLetterLineCZZ."VAT Prod. Posting Group");
                 PurchAdvLetterLineCZZ.Description := TempPurchAdvLetterLineCZZ.Description;
                 PurchAdvLetterLineCZZ.Validate("Amount Including VAT", TempPurchAdvLetterLineCZZ."Amount Including VAT");

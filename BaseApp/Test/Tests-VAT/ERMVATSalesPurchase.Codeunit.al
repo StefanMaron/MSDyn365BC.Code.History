@@ -2386,7 +2386,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     procedure TestVATDateChangesOnPurchaseInvoice()
     var
         GLSetup: Record "General Ledger Setup";
@@ -2679,7 +2679,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     procedure TestVATDateChangesOnPurchaseOrder()
     var
         GLSetup: Record "General Ledger Setup";

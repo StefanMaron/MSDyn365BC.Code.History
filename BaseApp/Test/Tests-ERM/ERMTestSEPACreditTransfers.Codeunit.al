@@ -38,7 +38,7 @@
         EURCode: Code[10];
         PostingDocNoWithGapOnNoSeriesErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number to be posted.';
         ExtDocNoTxt: Label 'A123', Locked = true;
-        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
         MessageToRecipientNotFoundErr: Label 'The Message To Recipient was not found in the XML file.';
         MessageExceedsLimitErr: Label 'The length of the string is %1, but it must be less than or equal to', Comment = '.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
@@ -49,7 +49,6 @@
         PaymentInformationIDErr: Label 'Wrong Payment Information ID in Payment Export Data.';
         EndtoEndIDErr: Label 'Wrong End-to-End ID in Payment Export Data.';
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
-        CdtrAgtTagErr: Label 'There should not be CdtrAgt tag.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.', Comment = '%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.';
         ErrorTextsExistErr: Label 'Error texts entries has to be deleted, from %1 table.', Comment = '%1 = Payment Jnl. Export Error Text';
 
@@ -732,7 +731,7 @@
         InStr.ReadText(s);
         Assert.AreEqual('<?xml version="1.0" encoding="UTF-8" standalone="no"?>', s, 'Wrong XML header.');
         InStr.ReadText(s);
-        Assert.IsTrue(StrPos(s, 'xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"') > 0, 'Wrong XML Instruction.');
+        Assert.IsTrue(StrPos(s, 'xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09"') > 0, 'Wrong XML Instruction.');
         InStr.ReadText(s);
         Assert.AreEqual('  <CstmrCdtTrfInitn>', s, 'Wrong XML root.');
     end;
@@ -795,9 +794,6 @@
 
         Assert.AreEqual(ExpectedNoOfGroups, NoOfPmtInf, 'Wrong number of PmtInf nodes.');
 
-        // TFS378393 No empty 'CdtrAgt' tag is exported
-        XMLNodes := XMLDoc.GetElementsByTagName('CdtrAgt');
-        Assert.AreEqual(0, XMLNodes.Count, CdtrAgtTagErr);
     end;
 
     [Test]
@@ -808,7 +804,7 @@
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
     begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Applies-to Ext. Doc. No." and "Message to Recipient"
+        // [SCENARIO 318397] Exported SEPA CT 001.001.09 contains one Ustrd tag with "Applies-to Ext. Doc. No." and "Message to Recipient"
         Init();
         // [GIVEN] GenJnlLine with "Message to recipient" "Applies-to Ext. Doc. No." not empty
         CreateGenJnlLine(GenJnlLine);
@@ -838,7 +834,7 @@
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
     begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Description" and "Message to Recipient"
+        // [SCENARIO 318397] Exported SEPA CT 001.001.09 contains one Ustrd tag with "Description" and "Message to Recipient"
         Init();
 
         // [GIVEN] GenJnlLine with "Message to recipient" and Decsription not empty, "Applies-to Ext. Doc. No." empty
@@ -870,7 +866,7 @@
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
     begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Message to Recipient"
+        // [SCENARIO 318397] Exported SEPA CT 001.001.09 contains one Ustrd tag with "Message to Recipient"
         Init();
 
         // [GIVEN] GenJnlLine with "Message to recipient" not empty, Description and "Applies-to Ext. Doc. No." empty
@@ -1694,7 +1690,7 @@
         TempBlob: Codeunit "Temp Blob";
         BlobOutStream: OutStream;
     begin
-        // [SCENARIO 441036] Tag "InitgPty/Id/OrgId/Othr/Id" contains VAT Registration No. from Company Information when xml is exported using "SEPA CT pain.001.001.03" xmlport.
+        // [SCENARIO 441036] Tag "InitgPty/Id/OrgId/Othr/Id" contains VAT Registration No. from Company Information when xml is exported using "SEPA CT pain.001.001.09" xmlport.
         Init();
 
         // [GIVEN] Company Information with VAT Registartion No. "AB12345".
@@ -1703,7 +1699,7 @@
         // [GIVEN] General Journal Line.
         CreateGenJnlLine(GenJournalLine);
 
-        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.03".
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.09".
         TempBlob.CreateOutStream(BlobOutStream);
         Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
 
@@ -1800,6 +1796,7 @@
         VendorBankAccount.Name := 'Alban Bank No. 1';
         VendorBankAccount."Bank Account No." := '1234567890';
         VendorBankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
+        VendorBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify();
 
         LibrarySales.CreateCustomer(Customer);
@@ -1816,6 +1813,7 @@
         BankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
         BankAccount."Credit Transfer Msg. Nos." := NoSeries.Code;
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         BankAccount.Modify();
         Initialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1898,7 +1896,7 @@
                 Delete();
             Direction := Direction::Export;
             "Processing Codeunit ID" := CODEUNIT::"SEPA CT-Export File";
-            "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.03";
+            "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.09";
             "Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
             Insert();
         end;
@@ -2213,6 +2211,8 @@
     var
         XMLNodes: DotNet XmlNodeList;
         XMLNode: DotNet XmlNode;
+        ReqdExctnDtXMLNodes: DotNet XmlNodeList;
+        DtXMLNode: DotNet XMLNode;
         ActualDate: Date;
         NoOfCdtTrfTxInf: Integer;
         i: Integer;
@@ -2223,7 +2223,7 @@
         for i := 0 to XMLNodes.Count - 1 do begin
             XMLNode := XMLNodes.ItemOf(i);
             case XMLNode.Name of
-                'PmtInfId', 'BtchBookg', 'PmtTpInf', 'Dbtr', 'DbtrAcct', 'DbtrAgt':
+                'PmtInfId', 'BtchBookg', 'PmtTpInf', 'Dbtr', 'DbtrAcct', 'DbtrAgt', 'CdtrAgt', 'FinInstnId', 'BICFI', 'AnyBIC':
                     ;
                 'PmtMtd':
                     Assert.AreEqual('TRF', XMLNode.InnerXml, 'PmtMtd');
@@ -2241,8 +2241,10 @@
                     end;
                 'ReqdExctnDt':
                     begin
-                        Evaluate(ActualDate, XMLNode.InnerXml, 9);
-                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt');
+                        ReqdExctnDtXMLNodes := XmlNode.ChildNodes;
+                        DtXMLNode := ReqdExctnDtXMLNodes.ItemOf(0);
+                        Evaluate(ActualDate, DtXMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt/Dt');
                     end;
                 'CdtTrfTxInf':
                     NoOfCdtTrfTxInf += 1;
