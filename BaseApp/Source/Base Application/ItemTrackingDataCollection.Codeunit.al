@@ -446,6 +446,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
     local procedure CreateEntrySummary2(TrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"; TempReservEntry: Record "Reservation Entry" temporary)
     var
+        LateBindingManagement: Codeunit "Late Binding Management";
         DoInsert: Boolean;
     begin
         OnBeforeCreateEntrySummary2(TempGlobalEntrySummary, TempReservEntry, TrackingSpecification);
@@ -507,8 +508,11 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempReservEntry.Positive then begin
             TempGlobalEntrySummary."Warranty Date" := TempReservEntry."Warranty Date";
             TempGlobalEntrySummary."Expiration Date" := TempReservEntry."Expiration Date";
-            if TempReservEntry."Entry No." < 0 then // The record represents an Item ledger entry
+            if TempReservEntry."Entry No." < 0 then begin // The record represents an Item ledger entry
+                TempGlobalEntrySummary."Non-specific Reserved Qty." +=
+                  LateBindingManagement.NonSpecificReservedQtyExceptForSource(-TempReservEntry."Entry No.", TrackingSpecification);
                 TempGlobalEntrySummary."Total Quantity" += TempReservEntry."Quantity (Base)";
+            end;
             if TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Reservation then
                 TempGlobalEntrySummary."Total Reserved Quantity" += TempReservEntry."Quantity (Base)";
         end else begin

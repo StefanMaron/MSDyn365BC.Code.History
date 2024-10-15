@@ -270,6 +270,7 @@ page 1950 "LP Machine Learning Setup"
         ModelQualityVal := GetModelQuality();
     end;
 
+    [NonDebuggable]
     local procedure CheckCustomCredentialsAreSet()
     begin
         if "Use My Model Credentials" then begin
@@ -285,7 +286,9 @@ page 1950 "LP Machine Learning Setup"
         CryptographyManagement: Codeunit "Cryptography Management";
         CustomModelExists: Boolean;
         ModelQualityVal: Decimal;
+        [NonDebuggable]
         ApiURIText: Text[250];
+        [NonDebuggable]
         ApiKeyText: Text[200];
         RemainingTime: Decimal;
         ApiCredentialsnotSetFullyErr: Label 'You must specify the API URI and the API Key.';

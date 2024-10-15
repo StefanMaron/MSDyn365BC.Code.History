@@ -37,6 +37,8 @@ table 1003 "Job Planning Line"
                 else
                     UpdateReservation(FieldNo("Planning Date"));
                 "Planned Delivery Date" := "Planning Date";
+
+                UpdatePlannedDueDate();
             end;
         }
         field(4; "Document No."; Code[20])
@@ -394,6 +396,10 @@ table 1003 "Job Planning Line"
         field(83; "Document Date"; Date)
         {
             Caption = 'Document Date';
+        }
+        field(84; "Planning Due Date"; Date)
+        {
+            Caption = 'Planning Due Date';	
         }
         field(1000; "Job Task No."; Code[20])
         {
@@ -2167,6 +2173,25 @@ table 1003 "Job Planning Line"
             exit(false);
         Planned := not Planned;
         exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdatePlannedDueDate()
+    var
+        JobRec: Record Job;
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        DueDateCalculation: DateFormula;
+    begin
+        "Planning Due Date" := "Planning Date";
+        if "Planning Due Date" <> 0D then begin
+            JobRec.Get("Job No.");
+            Customer.Get(JobRec."Bill-to Customer No.");
+            if PaymentTerms.Get(Customer."Payment Terms Code") then begin
+                PaymentTerms.GetDueDateCalculation(DueDateCalculation);
+                "Planning Due Date" := CalcDate(DueDateCalculation, "Planning Date");
+            end;
+        end;
     end;
 
     procedure ClearValues()

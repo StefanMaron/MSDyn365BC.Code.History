@@ -286,6 +286,8 @@ page 6500 "Item Tracking Summary"
                 if "Bin Active" then
                     AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, "Total Available Quantity");
 
+                AvailableQty -= "Non-specific Reserved Qty.";
+
                 if AvailableQty > 0 then begin
                     "Selected Quantity" := MinValueAbs(AvailableQty, SelectedQty);
                     SelectedQty -= "Selected Quantity";

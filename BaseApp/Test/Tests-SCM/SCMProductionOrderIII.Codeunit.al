@@ -3802,6 +3802,47 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderCapacityNeed.TestField("Allocated Time", ProdOrderRoutingLine."Run Time");
     end;
 
+    [Test]
+    procedure ConsiderQtyPerUnitOfMeasureForUnitCostInSubcontracting()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Subcontracting] [Unit of Measure]
+        // [SCENARIO 403125] The system takes Unit of Measure into account to calculate unit cost when posting output for subcontracting.
+        Initialize();
+
+        // [GIVEN] Production item with base unit of measure "PCS", unit cost = 50 LCY.
+        // [GIVEN] Create alternate unit of measure "BOX" = 5 "PCS".
+        CreateProductionItem(Item, '');
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+
+        // [GIVEN] Create routing for subcontracting, assign it to the item.
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+
+        // [GIVEN] Create and refresh production order, quantity = 10.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Change unit of measure on prod. order line from "PCS" to "BOX". Cost amount = 10 * 5 * 50 = 2500 LCY.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProdOrderLine.Modify(true);
+        ProdOrderLine.TestField("Cost Amount", ProdOrderLine.Quantity * ProdOrderLine."Qty. per Unit of Measure" * Item."Unit Cost");
+
+        // [GIVEN] Calculate subcontracting, accept action message. This creates a purchase order.
+        // [WHEN] Post the purchase order for subcontracting.
+        CreateAndPostSubcontractingPurchaseOrder(WorkCenter, Item."No.");
+
+        // [THEN] An output item entry is posted. Cost Amount = 2500 LCY.
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Output, Item."No.");
+        ItemLedgerEntry.CalcFields("Cost Amount (Expected)");
+        ItemLedgerEntry.TestField("Cost Amount (Expected)", ProdOrderLine."Cost Amount");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
