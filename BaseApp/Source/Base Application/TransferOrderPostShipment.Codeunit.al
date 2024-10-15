@@ -100,7 +100,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                         Item.TestField(Blocked, false);
                     end;
 
-                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip);
+                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine);
 
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next() = 0;
@@ -275,7 +275,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     local procedure ReserveItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     begin
-        if WhseShip and (WhseShptHeader2."Document Status" = WhseShptHeader2."Document Status"::"Partially Picked") then
+        GetLocation(TransferLine."Transfer-from Code");
+        if WhseShip and (WhseShptHeader2."Document Status" = WhseShptHeader2."Document Status"::"Partially Picked") and
+           Location."Bin Mandatory"
+        then
             ReserveTransLine.TransferWhseShipmentToItemJnlLine(
               TransferLine, ItemJnlLine, WhseShptHeader2, ItemJnlLine."Quantity (Base)")
         else
@@ -535,7 +538,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WMSMgmt: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             Quantity := OriginalQuantity;
             "Quantity (Base)" := OriginalQuantityBase;
@@ -800,7 +809,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckTransLine(TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean)
+    local procedure OnCheckTransLine(TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean; TransShptLine: Record "Transfer Shipment Line")
     begin
     end;
 
@@ -841,6 +850,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInsertShipmentLines(var WhseShptHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

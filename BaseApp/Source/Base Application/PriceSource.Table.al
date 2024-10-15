@@ -48,8 +48,7 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                PriceSourceInterface := "Source Type";
-                PriceSourceInterface.VerifyParent(Rec);
+                IsParentSourceAllowed();
                 "Source No." := '';
                 Clear("Source ID");
                 "Filter Source No." := "Parent Source No.";
@@ -132,6 +131,7 @@ table 7005 "Price Source"
 
     var
         PriceSourceInterface: Interface "Price Source";
+        AmountTypeNotAllowedForSourceTypeErr: Label '%1 is not allowed for %2.', Comment = '%1 - Price or Discount, %2 - the source type';
         StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
@@ -145,6 +145,17 @@ table 7005 "Price Source"
         Init();
         Level := NewLevel;
         Validate("Source Type", SourceType);
+    end;
+
+    procedure GetDefaultAmountType() AmountType: Enum "Price Amount Type";
+    var
+        AmountTypeInt: Integer;
+    begin
+        foreach AmountTypeInt in AmountType.Ordinals() do begin
+            AmountType := AmountTypeInt;
+            if IsForAmountType(AmountTypeInt) then
+                exit;
+        end;
     end;
 
     local procedure GetLastEntryNo(): Integer;
@@ -178,12 +189,24 @@ table 7005 "Price Source"
         end;
     end;
 
+    local procedure GetSourceGroup()
+    begin
+        case "Price Type" of
+            "Price Type"::Purchase:
+                "Source Group" := "Source Group"::Vendor;
+            "Price Type"::Sale:
+                "Source Group" := "Source Group"::Customer;
+        end;
+    end;
+
     local procedure SetGroup()
     var
         SourceGroupInterface: Interface "Price Source Group";
     begin
         SourceGroupInterface := "Source Type";
         "Source Group" := SourceGroupInterface.GetGroup();
+        if "Source Group" = "Source Group"::All then
+            GetSourceGroup();
     end;
 
     procedure GetGroupNo(): Code[20]
@@ -192,10 +215,21 @@ table 7005 "Price Source"
         exit(PriceSourceInterface.GetGroupNo(Rec));
     end;
 
+    procedure GetParentSourceType() ParentSourceType: Enum "Price Source Type";
+    begin
+        OnGetParentSourceType(Rec, ParentSourceType);
+    end;
+
     procedure IsForAmountType(AmountType: Enum "Price Amount Type"): Boolean
     begin
         PriceSourceInterface := "Source Type";
         exit(PriceSourceInterface.IsForAmountType(AmountType))
+    end;
+
+    procedure IsParentSourceAllowed(): Boolean;
+    begin
+        PriceSourceInterface := "Source Type";
+        exit(PriceSourceInterface.VerifyParent(Rec));
     end;
 
     procedure IsSourceNoAllowed(): Boolean;
@@ -224,6 +258,16 @@ table 7005 "Price Source"
             PriceListLine.SetRange("Source No.");
     end;
 
+    procedure VerifyAmountTypeForSourceType(AmountType: Enum "Price Amount Type")
+    var
+        ErrorMsg: Text;
+    begin
+        if not IsForAmountType(AmountType) then begin
+            ErrorMsg := StrSubstNo(AmountTypeNotAllowedForSourceTypeErr, AmountType, "Source Type");
+            Error(ErrorMsg);
+        end;
+    end;
+
     local procedure VerifyDates()
     begin
         PriceSourceInterfaceVerifyDate();
@@ -244,5 +288,10 @@ table 7005 "Price Source"
             "Filter Source No." := "Parent Source No."
         else
             "Filter Source No." := "Source No."
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetParentSourceType(PriceSource: Record "Price Source"; var ParentSourceType: Enum "Price Source Type")
+    begin
     end;
 }

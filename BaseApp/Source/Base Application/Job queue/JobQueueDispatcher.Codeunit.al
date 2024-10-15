@@ -52,10 +52,13 @@ codeunit 448 "Job Queue Dispatcher"
             if Status in [Status::Ready, Status::"On Hold with Inactivity Timeout"] then begin
                 Status := Status::"In Process";
                 "User Session Started" := CurrentDateTime();
+                "User Session ID" := SessionId();
+                "User Service Instance ID" := ServiceInstanceId();
                 Modify();
             end;
             InsertLogEntry(JobQueueLogEntry);
-
+            ScheduleRecoveryJob();
+            Modify();
             // Codeunit.Run is limited during write transactions because one or more tables will be locked.
             // To avoid NavCSideException we have either to add the COMMIT before the call or do not use a returned value.
             Commit();
@@ -75,7 +78,10 @@ codeunit 448 "Job Queue Dispatcher"
                 SetResult(WasSuccess, PrevStatus, ErrorMessageRegisterId)
             else
                 SetResultDeletedEntry();
+            if TaskScheduler.TaskExists("Recovery Task ID") then
+                TaskScheduler.CancelTask("Recovery Task ID");
             Commit();
+
             FinalizeLogEntry(JobQueueLogEntry, ErrorMessageHandler.GetErrorCallStack());
 
             if DoesExistLocked() then
@@ -108,7 +114,11 @@ codeunit 448 "Job Queue Dispatcher"
                 if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
                     exit(true)
                 else // stale job queue entry with status in process but no system task behind it.
-                    JobQueueEntry.Delete();
+                    if JobQueueEntry."User ID" = UserId() then
+                        Reschedule(JobQueueEntry)
+                    else
+                        if not DoesSystemTaskExist(JobQueueEntry."Recovery Task Id") then
+                            JobQueueEntry.ScheduleRecoveryJob();
             until JobQueueEntry.Next() = 0;
     end;
 
@@ -118,7 +128,7 @@ codeunit 448 "Job Queue Dispatcher"
             exit(true);
         exit(TaskScheduler.TaskExists(TaskID))
     end;
-    
+
     [Scope('OnPrem')]
     procedure MockTaskScheduler()
     begin

@@ -21,12 +21,12 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         GLBShowLevelAs: Option "First BOM Level","BOM Leaves";
         GLBShowCostShareAs: Option "Single-level","Rolled-up";
 
-    [Normal]
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - BOM Cost Shares Report");
@@ -67,7 +67,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares.Close;
     end;
 
-    [Normal]
     local procedure CreateCostSharesTree(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; Width: Integer; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
     var
         Item: Record Item;
@@ -253,6 +252,38 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
           GLBItem."Replenishment System"::"Prod. Order", 2, 1, GLBShowLevelAs::"First BOM Level", false, GLBShowCostShareAs::"Rolled-up");
     end;
 
+    [Test]
+    [HandlerFunctions('BOMCostSharesPageHandlerRunDistribution,BOMCostSharesDistributionRequestPageHandler')]
+    procedure OpeningBOMCostSharesPageForItemWithSpecialCharacterInName()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391950] Open BOM Cost Shares page for item with special character in name.
+        Initialize();
+
+        // [GIVEN] Item no. "ITEM1>" (with filter character '>' in name)
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateGUID() + '>';
+        Item.Description := Item."No.";
+        Item.Insert(true);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", '', 1);
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create BOM for the item.
+        LibraryAssembly.CreateBOM(Item, 1);
+
+        // [WHEN] Run BOM Cost Shares page and invoke BOM Cost Shares distribution report from it.
+        // [THEN] The page and report are running okay with the item no. "ITEM1>".
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryVariableStorage.Enqueue(Item."No.");
+        RunBOMCostSharesPage(Item);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure SetupItemWithRoutingWithCosts(var Item: Record Item)
     begin
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::FIFO, Item."Replenishment System"::"Prod. Order", '', '');
@@ -297,7 +328,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Item.Modify(true);
     end;
 
-    [Normal]
     local procedure TestCostSharesTreePage(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
@@ -339,7 +369,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         TestCostSharesTreePage(GLBItem."Replenishment System"::"Prod. Order", 2, 1, 2);
     end;
 
-    [Normal]
     local procedure TestBOMStructurePage(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer)
     var
         Item: Record Item;
@@ -442,7 +471,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares."Qty. per Parent".AssertEquals(-QtyPer);
     end;
 
-    [Normal]
     local procedure RunBOMCostSharesReport(Item: Record Item; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
     var
         Item1: Record Item;
@@ -455,7 +483,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         REPORT.Run(REPORT::"BOM Cost Share Distribution", true, false, Item1);
     end;
 
-    [Normal]
     local procedure VerifyBOMCostSharesReport(ItemNo: Code[20]; ExpMaterialCost: Decimal; ExpCapacityCost: Decimal; ExpMfgOvhdCost: Decimal; ExpCapOvhdCost: Decimal; ExpSubcontractedCost: Decimal; ExpTotalCost: Decimal)
     var
         CostAmount: Decimal;
@@ -486,7 +513,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Assert.AreNearlyEqual(ExpTotalCost, CostAmount, RoundingFactor, 'Wrong Total Cost in item ' + ItemNo);
     end;
 
-    [Normal]
     local procedure RunBOMCostSharesPage(var Item: Record Item)
     var
         BOMCostShares: Page "BOM Cost Shares";
@@ -495,7 +521,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares.Run;
     end;
 
-    [Normal]
     local procedure VerifyBOMCostSharesPage(var BOMCostShares: TestPage "BOM Cost Shares"; ItemNo: Code[20]; ExpMaterialCost: Decimal; ExpCapacityCost: Decimal; ExpMfgOvhdCost: Decimal; ExpCapOvhdCost: Decimal; ExpSubcontractedCost: Decimal; ExpTotalCost: Decimal)
     var
         BOMBuffer: Record "BOM Buffer";
@@ -543,7 +568,6 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         exit(BOMCostShares."Rolled-up Capacity Cost".AsDEcimal);
     end;
 
-    [Normal]
     local procedure RunBOMStructurePage(var Item: Record Item)
     var
         BOMStructure: Page "BOM Structure";
@@ -615,6 +639,24 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShareDistribution.ShowLevelAs.SetValue(ShowLevelAs);
         BOMCostShareDistribution.ShowDetails.SetValue(ShowDetails);
         BOMCostShareDistribution.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [PageHandler]
+    procedure BOMCostSharesPageHandlerRunDistribution(var BOMCostShares: TestPage "BOM Cost Shares")
+    begin
+        BOMCostShares.ItemFilter.AssertEquals(StrSubstNo('''%1''',LibraryVariableStorage.DequeueText()));
+
+        Commit();
+        BOMCostShares."BOM Cost Share Distribution".Invoke();
+        BOMCostShares.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure BOMCostSharesDistributionRequestPageHandler(var BOMCostShareDistribution: TestRequestPage "BOM Cost Share Distribution")
+    begin
+        Assert.AreEqual(
+          StrSubstNo('''%1''', LibraryVariableStorage.DequeueText()),
+          BOMCostShareDistribution.Item.GetFilter(BOMCostShareDistribution.Item."No."), '');
     end;
 
     [PageHandler]

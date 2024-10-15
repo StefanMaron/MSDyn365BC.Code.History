@@ -17,9 +17,11 @@ codeunit 7006 "Price Helper - V16"
     var
         PriceListHeader: Record "Price List Header";
         NewPriceListHeader: Record "Price List Header";
+        FilterParentSource: Boolean;
     begin
+        FilterParentSource := IsParentSourceAllowed(SourceType);
         PriceListHeader.SetRange("Source Type", SourceType);
-        if SourceType = SourceType::"Job Task" then
+        if FilterParentSource then
             PriceListHeader.SetRange("Parent Source No.", OldSourceNo)
         else
             PriceListHeader.SetRange("Source No.", OldSourceNo);
@@ -27,7 +29,7 @@ codeunit 7006 "Price Helper - V16"
             repeat
                 NewPriceListHeader := PriceListHeader;
                 NewPriceListHeader.Code := '';
-                if SourceType = SourceType::"Job Task" then
+                if FilterParentSource then
                     NewPriceListHeader."Parent Source No." := NewSourceNo
                 else
                     NewPriceListHeader."Source No." := NewSourceNo;
@@ -41,10 +43,12 @@ codeunit 7006 "Price Helper - V16"
     var
         PriceListLine: Record "Price List Line";
         NewPriceListLine: Record "Price List Line";
+        FilterParentSource: Boolean;
     begin
+        FilterParentSource := IsParentSourceAllowed(SourceType);
         PriceListLine.SetRange("Price List Code", OldCode);
         PriceListLine.SetRange("Source Type", SourceType);
-        if SourceType = SourceType::"Job Task" then
+        if FilterParentSource then
             PriceListLine.SetRange("Parent Source No.", OldSourceNo)
         else
             PriceListLine.SetRange("Source No.", OldSourceNo);
@@ -53,7 +57,7 @@ codeunit 7006 "Price Helper - V16"
                 NewPriceListLine := PriceListLine;
                 NewPriceListLine."Price List Code" := NewCode;
                 NewPriceListLine."Line No." := 0;
-                if SourceType = SourceType::"Job Task" then
+                if FilterParentSource then
                     NewPriceListLine."Parent Source No." := NewSourceNo
                 else
                     NewPriceListLine."Source No." := NewSourceNo;
@@ -65,6 +69,7 @@ codeunit 7006 "Price Helper - V16"
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Parent Source No.", ParentSourceNo);
@@ -77,11 +82,18 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine.SetRange("Source No.", SourceNo);
         if not PriceListLine.IsEmpty() then
             PriceListLine.DeleteAll();
+
+        PriceWorksheetLine.SetRange("Source Type", SourceType);
+        PriceWorksheetLine.SetRange("Parent Source No.", ParentSourceNo);
+        PriceWorksheetLine.SetRange("Source No.", SourceNo);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.DeleteAll();
     end;
 
     local procedure DeletePriceLines(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; VariantCode: Code[10])
     var
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListLine.SetRange("Asset Type", AssetType);
         PriceListLine.SetRange("Asset No.", AssetNo);
@@ -89,21 +101,43 @@ codeunit 7006 "Price Helper - V16"
             PriceListLine.SetRange("Variant Code", VariantCode);
         if not PriceListLine.IsEmpty() then
             PriceListLine.DeleteAll();
+
+        PriceWorksheetLine.SetRange("Asset Type", AssetType);
+        PriceWorksheetLine.SetRange("Asset No.", AssetNo);
+        if VariantCode <> '' then
+            PriceWorksheetLine.SetRange("Variant Code", VariantCode);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.DeleteAll();
+    end;
+
+    local procedure IsParentSourceAllowed(SourceType: Enum "Price Source Type"): Boolean;
+    var
+        PriceSource: Record "Price Source";
+    begin
+        PriceSource."Source Type" := SourceType;
+        exit(PriceSource.IsParentSourceAllowed());
     end;
 
     local procedure RenameAssetInPrices(AssetType: Enum "Price Asset Type"; xAssetNo: Code[20]; AssetNo: Code[20])
     var
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListLine.SetRange("Asset Type", AssetType);
         PriceListLine.SetRange("Asset No.", xAssetNo);
         if not PriceListLine.IsEmpty() then
             PriceListLine.ModifyAll("Asset No.", AssetNo);
+
+        PriceWorksheetLine.SetRange("Asset Type", AssetType);
+        PriceWorksheetLine.SetRange("Asset No.", xAssetNo);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Asset No.", AssetNo);
     end;
 
     local procedure RenameAssetInPrices(ItemNo: Code[20]; xVariantCode: Code[10]; VariantCode: Code[10])
     var
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
         AssetType: Enum "Price Asset Type";
     begin
         PriceListLine.SetRange("Asset Type", AssetType::Item);
@@ -111,12 +145,19 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine.SetRange("Variant Code", xVariantCode);
         if not PriceListLine.IsEmpty() then
             PriceListLine.ModifyAll("Variant Code", VariantCode);
+
+        PriceWorksheetLine.SetRange("Asset Type", AssetType::Item);
+        PriceWorksheetLine.SetRange("Asset No.", ItemNo);
+        PriceWorksheetLine.SetRange("Variant Code", xVariantCode);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Variant Code", VariantCode);
     end;
 
     local procedure RenameSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20])
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Source No.", xSourceNo);
@@ -127,12 +168,18 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine.SetRange("Source No.", xSourceNo);
         if not PriceListLine.IsEmpty() then
             PriceListLine.ModifyAll("Source No.", SourceNo);
+
+        PriceWorksheetLine.SetRange("Source Type", SourceType);
+        PriceWorksheetLine.SetRange("Source No.", xSourceNo);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Source No.", SourceNo);
     end;
 
     local procedure RenameParentSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20])
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         PriceListHeader.SetRange("Source Type", SourceType);
         PriceListHeader.SetRange("Parent Source No.", xSourceNo);
@@ -143,14 +190,20 @@ codeunit 7006 "Price Helper - V16"
         PriceListLine.SetRange("Parent Source No.", xSourceNo);
         if not PriceListLine.IsEmpty() then
             PriceListLine.ModifyAll("Parent Source No.", SourceNo);
+
+        PriceWorksheetLine.SetRange("Source Type", SourceType);
+        PriceWorksheetLine.SetRange("Parent Source No.", xSourceNo);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Parent Source No.", SourceNo);
     end;
 
     local procedure UpdateDates(Campaign: Record Campaign)
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
     begin
-        PriceListHeader.SetRange("Source Type", PriceListHeader."Source Type"::Campaign);
+        PriceListHeader.SetRange("Source Type", "Price Source Type"::Campaign);
         PriceListHeader.SetRange("Source No.", Campaign."No.");
         PriceListHeader.LockTable();
         if PriceListHeader.FindSet() then
@@ -160,7 +213,7 @@ codeunit 7006 "Price Helper - V16"
                 PriceListHeader.Modify();
             until PriceListHeader.Next() = 0;
 
-        PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
+        PriceListLine.SetRange("Source Type", "Price Source Type"::Campaign);
         PriceListLine.SetRange("Source No.", Campaign."No.");
         PriceListLine.LockTable();
         if PriceListLine.FindSet() then
@@ -169,6 +222,16 @@ codeunit 7006 "Price Helper - V16"
                 PriceListLine.Validate("Ending Date", Campaign."Ending Date");
                 PriceListLine.Modify();
             until PriceListLine.Next() = 0;
+
+        PriceWorksheetLine.SetRange("Source Type", "Price Source Type"::Campaign);
+        PriceWorksheetLine.SetRange("Source No.", Campaign."No.");
+        PriceWorksheetLine.LockTable();
+        if PriceWorksheetLine.FindSet() then
+            repeat
+                PriceWorksheetLine."Starting Date" := Campaign."Starting Date";
+                PriceWorksheetLine.Validate("Ending Date", Campaign."Ending Date");
+                PriceWorksheetLine.Modify();
+            until PriceWorksheetLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterDeleteEvent', '', false, false)]

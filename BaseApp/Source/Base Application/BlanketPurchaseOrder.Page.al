@@ -544,12 +544,14 @@ page 509 "Blanket Purchase Order"
             part(Control1901138007; "Vendor Details FactBox")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "No." = FIELD("Buy-from Vendor No.");
+                SubPageLink = "No." = FIELD("Buy-from Vendor No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1904651607; "Vendor Statistics FactBox")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "No." = FIELD("Pay-to Vendor No.");
+                SubPageLink = "No." = FIELD("Pay-to Vendor No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control3; "Purchase Line FactBox")
             {

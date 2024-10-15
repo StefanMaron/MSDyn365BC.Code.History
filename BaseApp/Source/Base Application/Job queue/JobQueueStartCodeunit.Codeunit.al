@@ -1,6 +1,6 @@
 codeunit 449 "Job Queue Start Codeunit"
 {
-    Permissions = TableData "Job Queue Entry" = rm;
+    Permissions = TableData "Job Queue Entry" = rm, tabledata "Report Settings Override" = rim;
     TableNo = "Job Queue Entry";
 
     var
@@ -41,6 +41,8 @@ codeunit 449 "Job Queue Start Codeunit"
         OnBeforeRunReport(ReportID, JobQueueEntry, IsHandled);
         if IsHandled then
             exit;
+
+        SetReportTimeOut(JobQueueEntry);
 
         ReportInbox.Init();
         ReportInbox."User ID" := JobQueueEntry."User ID";
@@ -102,6 +104,36 @@ codeunit 449 "Job Queue Start Codeunit"
                     ReportInbox.Insert(true);
                 end;
         end;
+        Commit();
+    end;
+
+    local procedure SetReportTimeOut(JobQueueEntry: Record "Job Queue Entry")
+    var
+        ReportSettingsOverride: Record "Report Settings Override";
+        TimoutInSeconds: Integer;
+    begin
+        if not ReportSettingsOverride.WritePermission then
+            exit;
+        if JobQueueEntry."Job Timeout" = 0 then
+            exit;
+        ReportSettingsOverride.LockTable();
+        if JobQueueEntry."Job Timeout" = 0 then
+            TimoutInSeconds := JobQueueEntry.DefaultJobTimeout() div 1000
+        else
+            TimoutInSeconds := JobQueueEntry."Job Timeout" div 1000;
+
+        if ReportSettingsOverride.Get(JobQueueEntry."Object ID to Run", CompanyName) then begin
+            if ReportSettingsOverride.Timeout < TimoutInSeconds then begin
+                ReportSettingsOverride.Timeout := TimoutInSeconds;
+                ReportSettingsOverride.Modify();
+            end;
+        end else
+            if TimoutInSeconds > 6 * 60 * 60 then begin // Report default is 6hrs
+                ReportSettingsOverride."Object ID" := JobQueueEntry."Object ID to Run";
+                ReportSettingsOverride."Company Name" := CopyStr(CompanyName, 1, MaxStrLen(ReportSettingsOverride."Company Name"));
+                ReportSettingsOverride.Timeout := TimoutInSeconds;
+                ReportSettingsOverride.Insert();
+            end;
         Commit();
     end;
 

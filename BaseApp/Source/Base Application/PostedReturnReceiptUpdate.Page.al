@@ -97,7 +97,7 @@ page 1353 "Posted Return Receipt - Update"
             ("Shipping Agent Code" <> xReturnReceiptHeader."Shipping Agent Code") or
             ("Package Tracking No." <> xReturnReceiptHeader."Package Tracking No.");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xRec, IsChanged, xReturnReceiptHeader);
     end;
 
     [Scope('OnPrem')]
@@ -108,7 +108,7 @@ page 1353 "Posted Return Receipt - Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRecordChanged(var ReturnReceiptHeader: Record "Return Receipt Header"; xReturnReceiptHeader: Record "Return Receipt Header"; var IsChanged: Boolean);
+    local procedure OnAfterRecordChanged(var ReturnReceiptHeader: Record "Return Receipt Header"; xReturnReceiptHeader: Record "Return Receipt Header"; var IsChanged: Boolean; xReturnReceiptHeaderGlobal: Record "Return Receipt Header");
     begin
     end;
 }

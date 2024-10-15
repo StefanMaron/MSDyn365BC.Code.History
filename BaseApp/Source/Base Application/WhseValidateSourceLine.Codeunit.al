@@ -65,7 +65,13 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceLineVerifyChange(NewServiceLine, OldServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WhseLinesExist(
              DATABASE::"Service Line", NewServiceLine."Document Type".AsInteger(), NewServiceLine."Document No.", NewServiceLine."Line No.", 0,
              NewServiceLine.Quantity)
@@ -297,7 +303,13 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProdComponentVerifyChange(NewProdOrderComp, OldProdOrderComp, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WhseLinesExist(
              DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(), NewProdOrderComp."Prod. Order No.",
              NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.", NewProdOrderComp.Quantity)
@@ -670,6 +682,11 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineVerifyChange(var NewServiceLine: Record "Service Line"; var OldServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransLineVerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
@@ -696,6 +713,11 @@ codeunit 5777 "Whse. Validate Source Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnWhseLinesExistOnAfterWhseShptLineSetFilters(var WhseShptLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 }

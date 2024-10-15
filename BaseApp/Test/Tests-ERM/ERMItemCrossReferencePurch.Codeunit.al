@@ -1369,7 +1369,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         ItemVendor.Insert(true);
 
         // [GIVEN] "Vendor Item No." changed to "VI" on the Item Vendor Catalog Page
-        VendorItemNo := LibraryUtility.GenerateGUID();
+        VendorItemNo := LibraryUtility.GenerateGUID;
         ItemVendorCatalog.OpenEdit();
         ItemVendorCatalog.FILTER.SetFilter("Item No.", ItemNo);
         ItemVendorCatalog."Vendor Item No.".SetValue(VendorItemNo);

@@ -261,6 +261,7 @@ codeunit 5900 ServOrderManagement
                     ServMgtSetup.Get();
                     ServMgtSetup.TestField("Service Order Starting Fee");
                     ServCost.Get(ServMgtSetup."Service Order Starting Fee");
+                    OnInsertServCostOnCostTypeOneOnAfterServCostGet(ServHeader, ServCost);
                     ServInvLine2.Init();
                     if LinktoServItemLine then begin
                         ServInvLine2."Service Item Line No." := ServInvLine."Service Item Line No.";
@@ -756,6 +757,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReplacementCreateServItem(NewServItem: Record "Service Item"; FromServItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServCostOnCostTypeOneOnAfterServCostGet(var ServHeader: Record "Service Header"; var ServCost: Record "Service Cost")
     begin
     end;
 }
