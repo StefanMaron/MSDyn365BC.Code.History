@@ -1154,6 +1154,7 @@
                         if not Handled then begin
                             OpenSalesOrderStatistics;
                             SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
+                            CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         end
                     end;
                 }

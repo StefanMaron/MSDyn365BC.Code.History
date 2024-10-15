@@ -3030,7 +3030,7 @@ codeunit 134106 "ERM Prepayment V"
         SalesLine.Find;
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
-        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GLAccount.Modify(true);
 
         // [WHEN] Change prepayment amount in sales line
@@ -3103,7 +3103,7 @@ codeunit 134106 "ERM Prepayment V"
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
-        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GLAccount.Modify(true);
 
         // [WHEN] Change prepayment amount in purchase line
@@ -3472,7 +3472,7 @@ codeunit 134106 "ERM Prepayment V"
         // [GIVEN] Prepayment setup with VAT % = "VAT1"
         CreateGeneralPostingSetup(GeneralPostingSetup);
         CreateVATPostingSetup(PrepmtVATPostingSetup, 67.89);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup));
+        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup);
         GeneralPostingSetup.Modify(true);
 
         // [GIVEN] Order, line with VAT % = "VAT2"
@@ -4121,7 +4121,7 @@ codeunit 134106 "ERM Prepayment V"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -4130,7 +4130,7 @@ codeunit 134106 "ERM Prepayment V"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := SalesPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 

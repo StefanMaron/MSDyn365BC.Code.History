@@ -1006,6 +1006,7 @@ codeunit 1294 "OCR Service Mgt."
                     Validate("Vendor No.", Vendor."No.");
             end else
                 if "Vendor VAT Registration No." <> '' then begin
+                    Vendor.SetCurrentKey(Blocked);
                     Vendor.SetRange("VAT Registration No.", "Vendor VAT Registration No.");
                     if Vendor.FindFirst then
                         Validate("Vendor No.", Vendor."No.");

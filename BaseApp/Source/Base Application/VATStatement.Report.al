@@ -429,6 +429,7 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
+                    OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine2, VATEntry, Selection);
                     if not CalcLineNoTaxable(VATStmtLine2, true) then
                         CalcLineFromVATEntry1C(VATStmtLine2);
                     OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
@@ -750,9 +751,9 @@ report 12 "VAT Statement"
         if VATEntry.FindFirst() then;
         case VATStatementLine."Amount Type" of
             VATStatementLine."Amount Type"::Amount:
-                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, false);
-                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
+                begin
+                    VATEntry.CalcSums(Amount, Base, VATEntry."Additional-Currency Amount", VATEntry."Additional-Currency Base");
+                    Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
                 end;
             VATStatementLine."Amount Type"::Base:
                 begin
@@ -779,6 +780,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
     begin
     end;
 }

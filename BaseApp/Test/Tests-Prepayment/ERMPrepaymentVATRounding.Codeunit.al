@@ -1959,7 +1959,7 @@
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := SalesPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -1968,7 +1968,7 @@
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 

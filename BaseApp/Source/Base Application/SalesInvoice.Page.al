@@ -1076,6 +1076,7 @@ page 43 "Sales Invoice"
                             Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
+                            CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         end
                     end;
                 }
