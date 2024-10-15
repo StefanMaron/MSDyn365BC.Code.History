@@ -2,7 +2,7 @@
     "id":  "cd6afb88-73aa-406f-a087-50a6149d5779",
     "name":  "IS Core",
     "publisher":  "Microsoft",
-    "version":  "23.11.23421.0",
+    "version":  "23.12.24784.0",
     "brief":  "Provides standard local functionality in Business Central for Iceland.",
     "description":  "Provides standard local functionality in Business Central for Iceland.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -18,7 +18,7 @@
 
                     ],
     "platform":  "23.0.0.0",
-    "application":  "23.11.0.0",
+    "application":  "23.12.0.0",
     "idRanges":  [
                      {
                          "from":  14600,
