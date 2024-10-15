@@ -1,3 +1,9 @@
+namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Item;
+using Microsoft.Pricing.Calculation;
+
 page 517 "Requisition Lines"
 {
     Caption = 'Requisition Lines';
@@ -110,54 +116,54 @@ page 517 "Requisition Lines"
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
                 }
                 field("Order Date"; Rec."Order Date")
@@ -192,11 +198,11 @@ page 517 "Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        ReqWkshTmpl.Get("Worksheet Template Name");
+                        ReqWkshTmpl.Get(Rec."Worksheet Template Name");
                         ReqLine := Rec;
                         ReqLine.FilterGroup(2);
-                        ReqLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
-                        ReqLine.SetRange("Journal Batch Name", "Journal Batch Name");
+                        ReqLine.SetRange("Worksheet Template Name", Rec."Worksheet Template Name");
+                        ReqLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
                         ReqLine.FilterGroup(0);
                         PAGE.Run(ReqWkshTmpl."Page ID", ReqLine);
                     end;
@@ -211,7 +217,7 @@ page 517 "Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservationEntries(true);
+                        Rec.ShowReservationEntries(true);
                     end;
                 }
                 action(Dimensions)
@@ -225,7 +231,7 @@ page 517 "Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -234,12 +240,12 @@ page 517 "Requisition Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -268,7 +274,7 @@ page 517 "Requisition Lines"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

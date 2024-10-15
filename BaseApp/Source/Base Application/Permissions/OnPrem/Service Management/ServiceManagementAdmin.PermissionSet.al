@@ -1,3 +1,32 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Service.Contract;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.CRM.Outlook;
+using Microsoft.Service.Maintenance;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item;
+using Microsoft.CRM.Setup;
+using Microsoft.Service.Loaner;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Item;
+using Microsoft.Service.Document;
+using Microsoft.Service.Setup;
+using Microsoft.Sales.Pricing;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Foundation.UOM;
+using Microsoft.Utilities;
+
 permissionset 3600 "Service Management - Admin"
 {
     Access = Public;
@@ -9,9 +38,6 @@ permissionset 3600 "Service Management - Admin"
                   tabledata Customer = R,
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN20
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,

@@ -1,3 +1,11 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Posting;
+
 codeunit 149120 "BCPT Post Item Journal"
 {
     SingleInstance = true;
@@ -24,7 +32,7 @@ codeunit 149120 "BCPT Post Item Journal"
         Item: Record Item;
     begin
         if not Item.get('70000') then
-            Item.FindSet();
+            Item.FindFirst();
 
         CreateItemJournalLine(ItemJournalLine, Item."No.");
     end;

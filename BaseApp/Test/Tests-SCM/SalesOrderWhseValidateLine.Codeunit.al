@@ -246,6 +246,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Location.Validate("Require Receive", true);
         Location.Validate("Require Shipment", true);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Modify(true);
 

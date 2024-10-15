@@ -1506,6 +1506,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         LibraryWarehouse.CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
         LocationTo.Validate("Require Put-away", true);
+        LocationTo.Validate("Always Create Put-away Line", true);
         LocationTo.Modify(true);
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
@@ -3142,6 +3143,8 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         BinCodes: array[2] of Code[20];
     begin
         CreateLocation(Location, true, false);
+        Location."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
+        Location.Modify(true);
         SetupBinsForLocation(Location.Code, BinCodes);
         SetupToAssemblyBin(Location.Code, BinCodes[2]);
 

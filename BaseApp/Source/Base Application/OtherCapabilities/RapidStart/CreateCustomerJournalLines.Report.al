@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
+
+using Microsoft.Sales.Customer;
+
 report 8611 "Create Customer Journal Lines"
 {
     ApplicationArea = Basic, Suite;
@@ -9,7 +17,7 @@ report 8611 "Create Customer Journal Lines"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = SORTING("No.") WHERE("Bill-to Customer No." = FILTER(''));
+            DataItemTableView = sorting("No.") where("Bill-to Customer No." = filter(''));
             RequestFilterFields = "No.", "Currency Code", "Country/Region Code", "Salesperson Code", "Customer Posting Group", Blocked;
 
             trigger OnAfterGetRecord()

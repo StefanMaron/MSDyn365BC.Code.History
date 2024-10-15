@@ -1,3 +1,5 @@
+namespace System.Security.AccessControl;
+
 permissionset 4716 "D365 BUS PREMIUM"
 {
     Access = Public;

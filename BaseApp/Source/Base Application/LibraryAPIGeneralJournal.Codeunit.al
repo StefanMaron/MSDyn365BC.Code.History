@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.GeneralLedger.Journal;
+
+using Microsoft.Foundation.NoSeries;
+
 codeunit 5469 "Library API - General Journal"
 {
 

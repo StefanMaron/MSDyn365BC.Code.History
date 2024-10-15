@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 page 6074 "Filed Service Contract Subform"
 {
     AutoSplitKey = false;
@@ -81,7 +83,7 @@ page 6074 "Filed Service Contract Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(Profit; Profit)
+                field(Profit; Rec.Profit)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the profit on the contract line in the filed service contract or filed contract quote.';

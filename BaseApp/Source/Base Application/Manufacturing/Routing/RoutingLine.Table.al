@@ -1,3 +1,10 @@
+namespace Microsoft.Manufacturing.Routing;
+
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.WorkCenter;
+
 table 99000764 "Routing Line"
 {
     Caption = 'Routing Line';
@@ -13,7 +20,7 @@ table 99000764 "Routing Line"
         field(2; "Version Code"; Code[20])
         {
             Caption = 'Version Code';
-            TableRelation = "Routing Version"."Version Code" WHERE("Routing No." = FIELD("Routing No."));
+            TableRelation = "Routing Version"."Version Code" where("Routing No." = field("Routing No."));
         }
         field(4; "Operation No."; Code[10])
         {
@@ -61,9 +68,9 @@ table 99000764 "Routing Line"
         field(8; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST("Work Center")) "Work Center"
-            ELSE
-            IF (Type = CONST("Machine Center")) "Machine Center";
+            TableRelation = if (Type = const("Work Center")) "Work Center"
+            else
+            if (Type = const("Machine Center")) "Machine Center";
 
             trigger OnValidate()
             begin
@@ -298,9 +305,9 @@ table 99000764 "Routing Line"
         }
         field(45; Comment; Boolean)
         {
-            CalcFormula = Exist("Routing Comment Line" WHERE("Routing No." = FIELD("Routing No."),
-                                                              "Version Code" = FIELD("Version Code"),
-                                                              "Operation No." = FIELD("Operation No.")));
+            CalcFormula = exist("Routing Comment Line" where("Routing No." = field("Routing No."),
+                                                              "Version Code" = field("Version Code"),
+                                                              "Operation No." = field("Operation No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;

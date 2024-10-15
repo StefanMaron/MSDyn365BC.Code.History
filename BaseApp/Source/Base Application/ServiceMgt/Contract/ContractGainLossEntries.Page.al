@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using System.Security.User;
+
 page 6064 "Contract Gain/Loss Entries"
 {
     Caption = 'Contract Gain/Loss Entries';
@@ -48,7 +52,7 @@ page 6064 "Contract Gain/Loss Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Reason Code"; Rec."Reason Code")

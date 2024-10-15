@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Item;
+
 page 5982 "Service Item Statistics"
 {
     Caption = 'Service Item Statistics';
@@ -330,33 +332,33 @@ page 5982 "Service Item Statistics"
         ClearAll();
 
         for i := 1 to 4 do begin
-            if i = "Type Filter"::"Service Cost".AsInteger() then
-                SetFilter("Type Filter", '%1|%2', "Type Filter"::"Service Cost", "Type Filter"::"G/L Account")
+            if i = Rec."Type Filter"::"Service Cost".AsInteger() then
+                Rec.SetFilter("Type Filter", '%1|%2', Rec."Type Filter"::"Service Cost", Rec."Type Filter"::"G/L Account")
             else
-                SetRange("Type Filter", i);
-            CalcFields("Usage (Cost)", "Usage (Amount)", "Invoiced Amount", "Total Quantity", "Total Qty. Invoiced", "Total Qty. Consumed");
+                Rec.SetRange("Type Filter", i);
+            Rec.CalcFields("Usage (Cost)", "Usage (Amount)", "Invoiced Amount", "Total Quantity", "Total Qty. Invoiced", "Total Qty. Consumed");
 
             if i = 4 then begin
-                CalcFields("Contract Cost");
-                OrderUsageTotalCost[i] := "Contract Cost";
+                Rec.CalcFields("Contract Cost");
+                OrderUsageTotalCost[i] := Rec."Contract Cost";
             end else
-                OrderUsageTotalCost[i] := "Usage (Cost)";
-            OrderUsageTotalCost[5] := OrderUsageTotalCost[5] + "Usage (Cost)";
+                OrderUsageTotalCost[i] := Rec."Usage (Cost)";
+            OrderUsageTotalCost[5] := OrderUsageTotalCost[5] + Rec."Usage (Cost)";
 
-            OrderUsageTotalPrice[i] := "Usage (Amount)";
-            OrderUsageTotalPrice[5] := OrderUsageTotalPrice[5] + "Usage (Amount)";
+            OrderUsageTotalPrice[i] := Rec."Usage (Amount)";
+            OrderUsageTotalPrice[5] := OrderUsageTotalPrice[5] + Rec."Usage (Amount)";
 
-            OrderInvTotalPrice[i] := "Invoiced Amount";
-            OrderInvTotalPrice[5] := OrderInvTotalPrice[5] + "Invoiced Amount";
+            OrderInvTotalPrice[i] := Rec."Invoiced Amount";
+            OrderInvTotalPrice[5] := OrderInvTotalPrice[5] + Rec."Invoiced Amount";
 
-            OrderUsageTotalQty[i] := "Total Quantity";
-            OrderUsageTotalQty[5] := OrderUsageTotalQty[5] + "Total Quantity";
+            OrderUsageTotalQty[i] := Rec."Total Quantity";
+            OrderUsageTotalQty[5] := OrderUsageTotalQty[5] + Rec."Total Quantity";
 
-            OrderUsageTotalInvQty[i] := "Total Qty. Invoiced";
-            OrderUsageTotalInvQty[5] := OrderUsageTotalInvQty[5] + "Total Qty. Invoiced";
+            OrderUsageTotalInvQty[i] := Rec."Total Qty. Invoiced";
+            OrderUsageTotalInvQty[5] := OrderUsageTotalInvQty[5] + Rec."Total Qty. Invoiced";
 
-            OrderUsageTotalConsQty[i] := "Total Qty. Consumed";
-            OrderUsageTotalConsQty[5] := OrderUsageTotalConsQty[5] + "Total Qty. Consumed";
+            OrderUsageTotalConsQty[i] := Rec."Total Qty. Consumed";
+            OrderUsageTotalConsQty[5] := OrderUsageTotalConsQty[5] + Rec."Total Qty. Consumed";
         end;
 
         for i := 1 to 5 do begin
@@ -367,7 +369,7 @@ page 5982 "Service Item Statistics"
                 OrderInvProfitPct[i] := 0;
         end;
 
-        SetRange("Type Filter");
+        Rec.SetRange("Type Filter");
     end;
 
     var

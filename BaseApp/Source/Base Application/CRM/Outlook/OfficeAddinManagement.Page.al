@@ -1,3 +1,8 @@
+namespace Microsoft.CRM.Outlook;
+
+using System.Integration;
+using System.IO;
+
 page 1610 "Office Add-in Management"
 {
     ApplicationArea = Basic, Suite;
@@ -31,7 +36,7 @@ page 1610 "Office Add-in Management"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the record.';
                 }
-                field(Version; Version)
+                field(Version; Rec.Version)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -125,7 +130,7 @@ page 1610 "Office Add-in Management"
     var
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
-        if IsEmpty() then
+        if Rec.IsEmpty() then
             AddinManifestManagement.CreateDefaultAddins(Rec);
     end;
 

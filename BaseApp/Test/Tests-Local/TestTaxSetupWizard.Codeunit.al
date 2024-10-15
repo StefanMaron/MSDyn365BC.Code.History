@@ -1,7 +1,13 @@
+#if not CLEAN21
 codeunit 142095 "Test Tax Setup Wizard"
 {
     Subtype = Test;
     TestPermissions = Restrictive;
+    ObsoleteReason = 'Microsoft Invoicing is not supported.';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0072    
 
     trigger OnRun()
     begin
@@ -167,3 +173,4 @@ codeunit 142095 "Test Tax Setup Wizard"
     end;
 }
 
+#endif

@@ -1,4 +1,4 @@
-#if not CLEAN20
+#if not CLEAN23
 // Replaced by test codeunit 134881 ERM Exch. Rate Adjmt. Vendor"
 codeunit 134081 "ERM Adjust Exch. Rate Vendor"
 {

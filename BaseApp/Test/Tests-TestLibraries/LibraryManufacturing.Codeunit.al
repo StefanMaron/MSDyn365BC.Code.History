@@ -461,6 +461,13 @@ codeunit 132202 "Library - Manufacturing"
         ProductionBomVersion.Modify(true);
     end;
 
+    procedure CreateProductionBOMVersion(var ProductionBomVersion: Record "Production BOM Version"; BomNo: Code[20]; Version: Code[20]; UOMCode: Code[10]; StartingDate: Date)
+    begin
+        CreateProductionBOMVersion(ProductionBomVersion, BomNo, Version, UOMCode);
+        ProductionBomVersion.Validate("Starting Date", StartingDate);
+        ProductionBomVersion.Modify(true);
+    end;
+
     procedure CreateProductionForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastName: Code[10]; ItemNo: Code[20]; LocationCode: Code[10]; ForecastDate: Date; ComponentForecast: Boolean)
     begin
         Clear(ProductionForecastEntry);
@@ -930,10 +937,16 @@ codeunit 132202 "Library - Manufacturing"
         until ItemJournalLine.Next() = 0;
     end;
 
-    procedure UpdateProductionBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; NewStatus: Enum "Production Order Status")
+    procedure UpdateProductionBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; NewStatus: Enum "BOM Status")
     begin
         ProductionBOMHeader.Validate(Status, NewStatus);
         ProductionBOMHeader.Modify(true);
+    end;
+
+    procedure UpdateProductionBOMVersionStatus(var ProductionBOMVersion: Record "Production BOM Version"; NewStatus: Enum "BOM Status")
+    begin
+        ProductionBOMVersion.Validate(Status, NewStatus);
+        ProductionBOMVersion.Modify(true);
     end;
 
     procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Enum "Routing Status")

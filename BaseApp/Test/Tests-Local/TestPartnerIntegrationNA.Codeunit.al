@@ -129,7 +129,7 @@
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
                 until Next = 0;
             if ErrorEventsCounter > 0 then
-                Error(StrSubstNo(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError));
+                Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
         end;
     end;
 
@@ -1276,16 +1276,16 @@
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure TestServAmountsMgtOnFillInvPostingBuffer()
     var
         ServiceHeader: Record "Service Header";
-        InvoicePostBuffer: array[2] of Record "Invoice Post. Buffer";
         ServiceLine: Record "Service Line";
+        ServiceLineACY: Record "Service Line";
         TestPartnerIntegrationNA: Codeunit "Test Partner Integration NA";
-        ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
+        ServicePostInvoice: Codeunit "Service Post Invoice";
     begin
         // [SCENARIO] Calling Serv-Amounts Mgt.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
 
@@ -1299,8 +1299,8 @@
 
         BindSubscription(TestPartnerIntegrationNA);
 
-        // [WHEN] Serv-Amounts Mgt.FillInvPostingBuffer
-        ServAmountsMgt.FillInvoicePostBuffer(InvoicePostBuffer[2], ServiceLine, ServiceLine, ServiceHeader);
+        // [WHEN] InvoicePostingBuffer.OnAfterPrepareService
+        ServicePostInvoice.PrepareLine(ServiceHeader, ServiceLine, ServiceLineACY);
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
@@ -1591,8 +1591,9 @@
         InsertDataTypeBuffer(SalesStatsValidateTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Amounts Mgt.", 'OnFillInvPostingBuffer', '', false, false)]
-    local procedure OnFillInvPostingBufferServAmtsMgt(var SalesTaxCalculationOverridden: Boolean; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVAT: Decimal; var TotalVATACY: Decimal)
+    // replaces [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Amounts Mgt.", 'OnFillInvPostingBuffer', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Invoice Posting Buffer", 'OnAfterPrepareService', '', false, false)]
+    local procedure OnFillInvPostingBufferServAmtsMgt()
     begin
         InsertDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
     end;

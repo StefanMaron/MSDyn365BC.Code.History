@@ -5,112 +5,103 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Table 1486364496 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 466086381 - NamedType 2958770673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Edit In Excel Test Table]]></Val>
+      <Val><![CDATA[This app may transfer data to other geographies than the current geography of your Dynamics 365 Business Central environment. This is to ensure proper functionality of the app.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Edit In Excel Test Table - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. App Test - NamedType GeoNotificationNewAppsMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1486364496 - Field 1296262074 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 466086381 - NamedType 3423951388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MyField]]></Val>
+      <Val><![CDATA[6e090e55-9b7e-465c-85bc-6831a3037cd5]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Edit In Excel Test Table - Field MyField - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. App Test - NamedType RandAppTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1486364496 - Field 4200184881 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 2557222027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No.]]></Val>
+      <Val><![CDATA[The extension depending on the current extension was not uninstalled succesfully]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Edit In Excel Test Table - Field No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType DependingExtNotInstalledSuccErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 541240380 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 1056765028" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Record Reference Test Caption]]></Val>
+      <Val><![CDATA[Extension should not be installed]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType ExtensionInstalleddErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 541240380 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 1538903795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Description]]></Val>
+      <Val><![CDATA[Extension should be installed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType ExtensionNotInstalledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 541240380 - Field 47657272 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 2691559416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Description 2]]></Val>
+      <Val><![CDATA[The extension the current extension is depending on was not installed succesfully]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description 2 - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType MainExtNotInstalledSuccErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 541240380 - Field 3704927951 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 2538272938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Description 3]]></Val>
+      <Val><![CDATA[Extension was not installed succesfully]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description 3 - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NotInstalledSuccErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 541240380 - Field 883711285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 3272524287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Entry No.]]></Val>
+      <Val><![CDATA[Extension has not been uninstalled succesfully]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Entry No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NotUninstalledSuccErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1984563068 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 682651211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Table With Media]]></Val>
+      <Val><![CDATA[There should not be an extension corresponding to the returned package ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NullPackageIdErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1984563068 - Field 3252935640 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 4057024046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Media]]></Val>
+      <Val><![CDATA[The returned extension pakage does not exist]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Field Media - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType PackageIdExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 1984563068 - Field 2964288104 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3698292160 - NamedType 561006067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MediaSetField]]></Val>
+      <Val><![CDATA[The package Id does not poin to the correct extension version]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Field MediaSetField - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 1984563068 - Field 1663593181 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Primary Key]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Media - Field Primary Key - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType PackageIdExtensionVersionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2242240809 - NamedType 21847271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -482,6 +473,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD User Sync Test - NamedType CommonLastNameTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3059654104 - NamedType 344112833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[d365.admin@microsoft.com]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD User Sync Test - NamedType D365AdminEmailTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3059654104 - NamedType 1853105616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[device@microsoft.com]]></Val>
@@ -644,6 +644,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD User Sync Test - Method TestSyncEnvironmentDirectoryGroupWithMembersAndM365CollaborationOff - NamedType GroupNameTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3059654104 - Method 3608402526 - NamedType 2438737124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Group with members]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD User Sync Test - Method TestUpdateD365AdminNotMemberOfEnvironmentGroup - NamedType GroupNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3059654104 - Method 3406797651 - NamedType 2438737124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Group with members]]></Val>
@@ -660,6 +669,123 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD User Sync Test - Method TestUpdateUsersFromEnvironmentDirectoryGroupWithMembers - NamedType GroupNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1961259409 - NamedType 3718791375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[(first company sign-in)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration E2E Test - NamedType FirstCompanyTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - NamedType 288709426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Company]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - NamedType TestCompanyNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - NamedType 1421915545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TEST PS]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - NamedType TestRoleIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 2153350174" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[0d85ee13-bbc3-4f0c-a968-68cf581ad8e9]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanATxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 242103003" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[59bbdb52-062d-4eaa-ba56-569753015a10]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanBTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 164722932" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId1Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 3796471861" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId2Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 2028232886" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId3Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 2153350174" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[0d85ee13-bbc3-4f0c-a968-68cf581ad8e9]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanATxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 242103003" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[59bbdb52-062d-4eaa-ba56-569753015a10]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanBTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 164722932" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId1Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 3796471861" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId2Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 2028232886" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ROLE3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId3Txt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3306136526 - NamedType 1735172912" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -698,310 +824,94 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azurite Test Library - NamedType BlobStorageBaseUrlTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 3950778939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1174414513 - NamedType 2736976260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEu]]></Val>
+      <Val><![CDATA[The expiration date for this retention policy must be equal to or before %1.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Date]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType MinExpirationDateErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 4280986179" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1174414513 - NamedType 3580794913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[xgDYAMUA5gD4AOUA]]></Val>
+      <Val><![CDATA[You cannot rename retention policy setup line records. Table ID %1. Renamed to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleUTF16Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1, %2 = table number]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetenPolSetupLineRenameErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 3161041701" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1174414513 - NamedType 3775466107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect conversion from base-64 string.]]></Val>
+      <Val><![CDATA[You cannot rename retention policy setup records. Table ID %1. Renamed to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64Err)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1, %2 = table number]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetenPolSetupRenameErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 1758064613" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1174414513 - NamedType 60191862" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect conversion from base-64 string (UTF16).]]></Val>
+      <Val><![CDATA[The retention policy setup for table %1, %2 has mandatory filters that cannot be modified.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64UTF16Err)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table caption]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetentionPolicySetupLineLockedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 1216969362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1305198593 - Method 3880964761 - NamedType 4075602901" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect conversion to base-64 string.]]></Val>
+      <Val><![CDATA[Incorrect expiration datetime for Retention Period '%1']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64Err)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Retetion Period (e.g. 3 years)]D;]A;(LookupHint=Codeunit Retention Period Test - Method TestRetentionPeriod - NamedType IncorrectExpirationDatetimeTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 2339915226" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1305198593 - Method 3880964761 - NamedType 3509464826" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect conversion to base-64 string (UTF16).]]></Val>
+      <Val><![CDATA[Incorrect expiration date for Retention Period '%1']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64UTF16Err)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Retetion Period (e.g. 3 years)]D;]A;(LookupHint=Codeunit Retention Period Test - Method TestRetentionPeriod - NamedType IncorrectExpirationDateTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 3203398082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1381755466 - NamedType 382102027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.]]></Val>
+      <Val><![CDATA[An error occured while applying the retention policy for table %1 %2.\\%3]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table name, %3 = error message]D;]A;(LookupHint=Codeunit Retention Policy Log Test - NamedType ErrorOccuredDuringApplyErrLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4258932546 - NamedType 2893483970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1381755466 - NamedType 3086330205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ÆØÅæøå]]></Val>
+      <Val><![CDATA[The Retention Policy Setup does not exist. Identification fields and values: %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleUTF16Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a guid]D;]A;(LookupHint=Codeunit Retention Policy Log Test - NamedType RecordDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 972350072 - NamedType 3209809282" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1381755466 - NamedType 2375120454" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[col. %1]]></Val>
+      <Val><![CDATA[The retention policy setup record instance must be temporary. Contact your Microsoft Partner for assistance.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - the name of the column.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ColumnTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Retention Policy Log Test - NamedType RetentionPolicySetupRecordNotTempErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 972350072 - NamedType 2928065420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 227504182 - NamedType 1064438895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected value <%1> for index <%2>]]></Val>
+      <Val><![CDATA[The field Date Field No. must have a value in the retention policy for table %1, %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - value; %2 - index.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ExpectedValueForIndexTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 972350072 - NamedType 2330257887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected value: %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - the expected value in the assertion.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ExpectedValueTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 972350072 - NamedType 2785837428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Measure_%1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - the name of the measure.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType MeasureTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 972350072 - NamedType 2659460607" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Data Type must be Integer or Decimal for Measure %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - measure name.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType NotAllowedDataTypeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 385428110 - NamedType 2632386923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[-----BEGIN CERTIFICATE REQUEST-----]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType BeginCertReqTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 385428110 - NamedType 1540109134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[In compliance with the Microsoft Secure Hash Algorithm deprecation policy SHA1 and MD5 hash alghoritms have been deprecated.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType DepricatedHashAlgorithmsMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 385428110 - NamedType 400148755" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[-----END CERTIFICATE REQUEST-----]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType EndCertReqTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1384923837 - NamedType 3591486674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DotNetVariableNotCreated]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Compression Tests - NamedType DotNetVariableNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 466086381 - NamedType 2958770673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This app may transfer data to other geographies than the current geography of your Dynamics 365 Business Central environment. This is to ensure proper functionality of the app.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. App Test - NamedType GeoNotificationNewAppsMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 466086381 - NamedType 3423951388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[6e090e55-9b7e-465c-85bc-6831a3037cd5]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. App Test - NamedType RandAppTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 4229158118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to add the document you edited and saved?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType AddEditedDocQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 3373090241" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This is the resulting text]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType ExpectedResultTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 2657411711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document service is not configured]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocServiceConfiguredErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 2471521438" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No file to share.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocToShareErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 1348027738" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[We couldn't share or open this file.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocUploadedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 3695998325" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Would you like to open this file?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoPromptOpenOnlyQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 463678366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[We couldn't share this file. Would you like to open it?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoShareQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - NamedType 1741986590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The file has been copied to OneDrive. What would you like to do with it?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType PromptQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 3981757867" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[filename]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType FilenameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 2833396358" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 extension should be enabled for editing]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType EditShouldBeEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 4217725937" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 extension should not be enabled for editing]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType EditShouldNotBeEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1522669910 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(LookupHint=Codeunit Edit in Excel Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2336214198 - NamedType 2961131606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No columns were added to the workbook.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType NoColumnsExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2336214198 - NamedType 2793002077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot initialize Edit in Excel workbook since the web service '%1' does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = name of the web service]D;]A;(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType WebServiceDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2336214198 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table caption]D;]A;(LookupHint=Codeunit Retention Policy Test - NamedType DateFieldNoMustHaveAValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3672253045 - NamedType 41789350" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1211,87 +1121,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email View Policy Tests - NamedType EmailViewerErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 2557222027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The extension depending on the current extension was not uninstalled succesfully]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType DependingExtNotInstalledSuccErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 1056765028" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Extension should not be installed]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType ExtensionInstalleddErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 1538903795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Extension should be installed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType ExtensionNotInstalledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 2691559416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The extension the current extension is depending on was not installed succesfully]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType MainExtNotInstalledSuccErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 2538272938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Extension was not installed succesfully]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NotInstalledSuccErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 3272524287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Extension has not been uninstalled succesfully]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NotUninstalledSuccErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 682651211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There should not be an extension corresponding to the returned package ID]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType NullPackageIdErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 4057024046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The returned extension pakage does not exist]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType PackageIdExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3698292160 - NamedType 561006067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The package Id does not poin to the correct extension version]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Extension Management Test - NamedType PackageIdExtensionVersionErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2757384167 - NamedType 2247491078" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The feature %1 cannot be enabled because data update handling is not implemented.]]></Val>
@@ -1310,51 +1139,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Feature Key Test - NamedType OneWayAlreadyEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3810850210 - Method 3956422014 - NamedType 629178443" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SUMMER]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveDateFilterToken - NamedType SummerTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3810850210 - Method 990014431 - NamedType 79588148" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CHRISTMAS]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveDateTokenFromDateTimeFilter - NamedType ChristmasTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3810850210 - Method 2682051733 - NamedType 1798646752" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MyFilter]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTextFilterToken - NamedType MyFilterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3810850210 - Method 3553923973 - NamedType 2879458768" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[LUNCH]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTimeFilterToken - NamedType LunchTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3810850210 - Method 3531588440 - NamedType 2879458768" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[LUNCH]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTimeTokenFromDateTimeFilter - NamedType LunchTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3201562394 - NamedType 3442607917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Guided Experience record count error.]]></Val>
@@ -1364,130 +1148,337 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Guided Experience Test - NamedType GuidedExperienceRecordCountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3236220933 - NamedType 2078097563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3906106667 - NamedType 4033951942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Hi, %1!]]></Val>
+      <Val><![CDATA[Company display name]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Displayed between 12:00 and 13:59. %1 is the user name.]D;]A;(LookupHint=Codeunit Headlines Test - NamedType NoonGreetingTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType CompanyDisplayNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3236220933 - NamedType 110751793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1029205062 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Hi!]]></Val>
+      <Val><![CDATA[Assisted Setup Wizard]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Displayed between 12:00 and 13:59.]D;]A;(LookupHint=Codeunit Headlines Test - NamedType SimpleNoonGreetingTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3109261747 - NamedType 45121459" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1029205062 - Action 2667510389 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Code-128]]></Val>
+      <Val><![CDATA[Finish]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D Code128 Test - NamedType InvalidTextErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Action Finish - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3169684025 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1029205062 - Action 2667510389 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology EAN-13]]></Val>
+      <Val><![CDATA[Finish]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D EAN13 Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Action Finish - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3723444071 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1013629993 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology EAN-8]]></Val>
+      <Val><![CDATA[Checklist Banner Container]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D EAN8 Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Checklist Banner Container - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2664996948 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Report 3373952888 - Property 2879900210" ItemType=";Report - Report" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Interleaved 2 of 5]]></Val>
+      <Val><![CDATA[Checklist Test Report]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D I2of5 Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Report Checklist Test Report - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 741101020 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2212788945 - Method 2109004690 - NamedType 388449254" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology MSI]]></Val>
+      <Val><![CDATA[custom={"profileName":"%1"}]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D MSI Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - profile name]D;]A;(LookupHint=Codeunit Satisfaction Survey Tests - Method TestCustomDimensions - NamedType CustomDimensionsLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1221678804 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 122615366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Postnet]]></Val>
+      <Val><![CDATA[Translations cannot be added or retrieved for temporary records.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D Postnet Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType CannotTranslateTempRecErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2755155204 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 2783749522" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology UPC-A]]></Val>
+      <Val><![CDATA[The records cannot belong to different tables.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D UPCA Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType DifferentTableErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 403207936 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 1424434736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology UPC-E]]></Val>
+      <Val><![CDATA[The variant passed is not a record.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = input string]D;]A;(LookupHint=Codeunit IDA 1D UPCE Test - NamedType InvalidInputErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType NoRecordIdErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2938242291 - NamedType 94485731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 2178443384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Provider IDAutomation 1D Barcode Provider: Barcode symbol encoder Unsupported Barcode Symbology is not implemented by this provider!]]></Val>
+      <Val><![CDATA[Translation 1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 1D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text1Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 316361646 - NamedType 94485731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 1162736697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Provider IDAutomation 2D Barcode Provider: 2D Barcode symbol encoder Unsupported Barcode Symbology is not implemented by this provider!]]></Val>
+      <Val><![CDATA[Translation 2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 2D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text2Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1008664390 - NamedType 2781414266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 499518330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CjwvZz4KPC9zdmc+Cg==]]></Val>
+      <Val><![CDATA[Translation 3]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageInvalidTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text3Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1008664390 - NamedType 4063326973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1483780530 - NamedType 400848891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The image could not be loaded]]></Val>
+      <Val><![CDATA[Translation 4]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageNotInitializedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text4Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1483780530 - NamedType 3311440572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Translation 5]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text5Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1483780530 - Method 2623411558 - NamedType 3651045205" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The provided translation "%1" must not exceed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Translation Value]D;]A;(LookupHint=Codeunit Translation Tests - Method TestRetrivalAndStorageThroughUIWithFieldLengthCheck - NamedType ExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1522669910 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(LookupHint=Codeunit Edit in Excel Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2336214198 - NamedType 2961131606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No columns were added to the workbook.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType NoColumnsExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2336214198 - NamedType 2793002077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cannot initialize Edit in Excel workbook since the web service '%1' does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = name of the web service]D;]A;(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType WebServiceDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2336214198 - NamedType 153976994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can't edit this page in Excel because it's not set up for it. To use the Edit in Excel feature, you must publish the web service called '%1'. Contact your system administrator for help.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Web service name]D;]A;(LookupHint=Codeunit Edit in Excel Workbook Test - NamedType WebServiceHasBeenDisabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3578109112 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Edit In Excel Json]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit In Excel Json - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3578109112 - Control 4200184881 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the value of the No. field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit In Excel Json - Control No. - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3793281682 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Edit in Excel List]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3793281682 - Control 415504711 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the Record ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Control Id - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3793281682 - Control 599309684 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies if Edit in Excel should use centralized deployments]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Control Use Centralized deployments - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2118529092 - NamedType 2865018819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The custom field %1 already exists.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the name of a custom field.]D;]A;(LookupHint=Codeunit Word Templates Cust Field Test - NamedType CustomFieldAlreadyExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 4229158118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to add the document you edited and saved?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType AddEditedDocQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 3373090241" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This is the resulting text]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType ExpectedResultTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 2657411711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document service is not configured]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocServiceConfiguredErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 2471521438" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No file to share.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocToShareErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 1348027738" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[We couldn't share or open this file.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoDocUploadedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 3695998325" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Would you like to open this file?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoPromptOpenOnlyQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 463678366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[We couldn't share this file. Would you like to open it?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType NoShareQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - NamedType 1741986590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The file has been copied to OneDrive. What would you like to do with it?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - NamedType PromptQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 3981757867" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[filename]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType FilenameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 2833396358" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 extension should be enabled for editing]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = file extension]D;]A;(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType EditShouldBeEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1620771395 - Method 2275626113 - NamedType 4217725937" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 extension should not be enabled for editing]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = file extension]D;]A;(LookupHint=Codeunit Document Sharing Test - Method EditEnabledForFileTypes - NamedType EditShouldNotBeEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2606943756 - NamedType 3083749102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1524,6 +1515,204 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 is a whole number, ex. 10]D;]A;(LookupHint=Codeunit Page Summary Provider Test - NamedType PageNotFoundErrorMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 3292470970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CodeunitService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType CodeunitServiceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 2951321116" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://go.microsoft.com/fwlink/?linkid=2138827]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType ODataUnboundActionHelpUrlLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 84628318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PageA]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageATxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 3168332315" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PageB]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageBTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 3247444572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PageC]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageCTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 3209062873" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PageD]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageDTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 227791618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PageService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageServiceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 2595882137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[QueryService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType QueryServiceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - NamedType 3789629692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UnpublishedPage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType UnpublishedPageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - Method 1924941909 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestTenantWebService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestCreateTenantWebService - NamedType ObjectNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - Method 1878512065 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestWebService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestCreateWebService - NamedType ObjectNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - Method 250174482 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestTenantWebService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestDeleteTenantWebService - NamedType ObjectNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2509956260 - Method 1560096310 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestWebService]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestDeleteWebService - NamedType ObjectNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1384923837 - NamedType 3591486674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DotNetVariableNotCreated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Compression Tests - NamedType DotNetVariableNotCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1141830473 - NamedType 267657989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://www.youtube.com/watch?v=CH1XGdu-hzQ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Video Test - NamedType UrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3360738926 - NamedType 357349220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Your admin has disabled the integration with %1, please contact your administrator to approve this integration.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a service name such as Microsoft Teams]D;]A;(LookupHint=Codeunit Privacy Notice Test - NamedType AdminDisabledIntegrationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 541240380 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Record Reference Test Caption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 541240380 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 541240380 - Field 47657272 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description 2 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 541240380 - Field 3704927951 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description 3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Description 3 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 541240380 - Field 883711285 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entry No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Record Reference Test - Field Entry No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 981517682 - NamedType 398345591" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The interface was initialized by a different app. Initializer app id: %1, caller app id :%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are guid's]D;]A;(LookupHint=Codeunit Record Reference Test Impl. - NamedType IncorrectCallerAppIdErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3984922275 - NamedType 867790944" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1580,24 +1769,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Password Handler Test - NamedType PasswordIsStrongErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2220463856 - NamedType 416166736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect chart label has been set.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Perf. Profiler Chart Test - NamedType WrongChartLabelErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2220463856 - NamedType 3291479019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect chart value has been set.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Perf. Profiler Chart Test - NamedType WrongChartValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1805621892 - NamedType 626663853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 control is disabled on %2 page.]]></Val>
@@ -1614,258 +1785,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Object Type; %2 = Permissions page.]D;]A;(LookupHint=Codeunit Permission Relation Tests - NamedType EnabledActionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1961259409 - NamedType 3718791375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[(first company sign-in)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration E2E Test - NamedType FirstCompanyTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - NamedType 288709426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Company]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - NamedType TestCompanyNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - NamedType 1421915545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TEST PS]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - NamedType TestRoleIdTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 2153350174" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[0d85ee13-bbc3-4f0c-a968-68cf581ad8e9]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanATxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 242103003" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[59bbdb52-062d-4eaa-ba56-569753015a10]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanBTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 164722932" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 3796471861" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId2Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1949451937 - NamedType 2028232886" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveCustomPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId3Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 2153350174" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[0d85ee13-bbc3-4f0c-a968-68cf581ad8e9]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanATxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 242103003" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[59bbdb52-062d-4eaa-ba56-569753015a10]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType PlanBTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 164722932" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 3796471861" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId2Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 36976543 - Method 1087025753 - NamedType 2028232886" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ROLE3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Plan Configuration Test - Method TestRemoveDefaultPermissionsFromUserWithOverlappingPermissionSets - NamedType RoleId3Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3360738926 - NamedType 357349220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Your admin has disabled the integration with %1, please contact your administrator to approve this integration.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = a service name such as Microsoft Teams]D;]A;(LookupHint=Codeunit Privacy Notice Test - NamedType AdminDisabledIntegrationMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 611553341 - NamedType 4248401796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Mismatch in the text read.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Record Link Mgt. Test - NamedType WrongLinkTestErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 611553341 - Method 2233746782 - NamedType 668814160" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Internal server error. Please contact your system administrator.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Record Link Mgt. Test - Method RemoveRecordLinksErrorOnNotRecordArgument - NamedType NotARecordErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 981517682 - NamedType 398345591" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The interface was initialized by a different app. Initializer app id: %1, caller app id :%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 are guid's]D;]A;(LookupHint=Codeunit Record Reference Test Impl. - NamedType IncorrectCallerAppIdErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1174414513 - NamedType 2736976260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The expiration date for this retention policy must be equal to or before %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Date]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType MinExpirationDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1174414513 - NamedType 3580794913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot rename retention policy setup line records. Table ID %1. Renamed to %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1, %2 = table number]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetenPolSetupLineRenameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1174414513 - NamedType 3775466107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot rename retention policy setup records. Table ID %1. Renamed to %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1, %2 = table number]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetenPolSetupRenameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1174414513 - NamedType 60191862" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The retention policy setup for table %1, %2 has mandatory filters that cannot be modified.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table caption]D;]A;(LookupHint=Codeunit Reten. Policy Setup Test - NamedType RetentionPolicySetupLineLockedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1381755466 - NamedType 382102027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An error occured while applying the retention policy for table %1 %2.\\%3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table name, %3 = error message]D;]A;(LookupHint=Codeunit Retention Policy Log Test - NamedType ErrorOccuredDuringApplyErrLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1381755466 - NamedType 3086330205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Retention Policy Setup does not exist. Identification fields and values: %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is a guid]D;]A;(LookupHint=Codeunit Retention Policy Log Test - NamedType RecordDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1381755466 - NamedType 2375120454" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The retention policy setup record instance must be temporary. Contact your Microsoft Partner for assistance.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Retention Policy Log Test - NamedType RetentionPolicySetupRecordNotTempErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 227504182 - NamedType 1064438895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field Date Field No. must have a value in the retention policy for table %1, %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = table number, %2 = table caption]D;]A;(LookupHint=Codeunit Retention Policy Test - NamedType DateFieldNoMustHaveAValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 987050733 - NamedType 1062088075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no performance profiling data.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType NoRecordingErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 987050733 - NamedType 1844412916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The number of profiling nodes does not match the expected value.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType ProfilingNodeCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 987050733 - NamedType 1044953951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Profiling node does not match the expected value.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType ProfilingNodeNotMatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3285295376 - NamedType 878818501" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1888,11 +1807,11 @@
   </Item>
   <Item ItemId=";Codeunit 3285295376 - NamedType 1553374673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The group ID %1 does not correspond to a valid AAD group.]]></Val>
+      <Val><![CDATA[The group ID %1 does not correspond to a valid Microsoft Entra group.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = AAD security group ID]D;]A;(LookupHint=Codeunit Security Groups Test - NamedType InvalidAadGroupErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Microsoft Entra security group ID]D;]A;(LookupHint=Codeunit Security Groups Test - NamedType InvalidAadGroupErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3285295376 - NamedType 288709426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2372,6 +2291,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Security Groups Upgrade Test - NamedType UnexpectedGroupCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 385428110 - NamedType 2632386923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[-----BEGIN CERTIFICATE REQUEST-----]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType BeginCertReqTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 385428110 - NamedType 1540109134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[In compliance with the Microsoft Secure Hash Algorithm deprecation policy SHA1 and MD5 hash alghoritms have been deprecated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType DepricatedHashAlgorithmsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 385428110 - NamedType 400148755" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[-----END CERTIFICATE REQUEST-----]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CertificateRequestTest - NamedType EndCertReqTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3977473530 - NamedType 3148786132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[0000ABC]]></Val>
@@ -2388,96 +2334,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Telemetry Loggers Test - NamedType CurrentMessageTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 2720302725" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Element count must be positive.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementCountMustBePositiveErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 2975766532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An element with the given index does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 3521244105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An element with the given index is not supposed to exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementIsNotSupposedToExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 1429723890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The element was not added.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementNotAddedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 2151377504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The element was not removed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementNotRemovedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 330184697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The count of objects in the list is not correct.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType IncorrectCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 510615997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Object with index %1 does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: The index of the missing element.]D;]A;(LookupHint=Codeunit Temp Blob List Test - NamedType ObjectDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 2460768057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The range of TempBlob objects was not added to the list.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType RangeNotAddedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1462087357 - NamedType 2219230772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The data in the BLOB was unexpected.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType UnexpectedDataErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 263086547 - NamedType 3203398082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob Test - NamedType SampleTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1198197679 - NamedType 3148786132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2498,274 +2354,211 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Telemetry Logger - NamedType CurrentMessageTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 122615366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3950778939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translations cannot be added or retrieved for temporary records.]]></Val>
+      <Val><![CDATA[TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEu]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType CannotTranslateTempRecErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 2783749522" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 4280986179" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The records cannot belong to different tables.]]></Val>
+      <Val><![CDATA[xgDYAMUA5gD4AOUA]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType DifferentTableErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType Base64SampleUTF16Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 1424434736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3161041701" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The variant passed is not a record.]]></Val>
+      <Val><![CDATA[Incorrect conversion from base-64 string.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType NoRecordIdErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 2178443384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 1758064613" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translation 1]]></Val>
+      <Val><![CDATA[Incorrect conversion from base-64 string (UTF16).]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text1Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionFromBase64UTF16Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 1162736697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 1216969362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translation 2]]></Val>
+      <Val><![CDATA[Incorrect conversion to base-64 string.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text2Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 499518330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 2339915226" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translation 3]]></Val>
+      <Val><![CDATA[Incorrect conversion to base-64 string (UTF16).]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text3Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType ConvertionToBase64UTF16Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 400848891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 3203398082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translation 4]]></Val>
+      <Val><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text4Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1483780530 - NamedType 3311440572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4258932546 - NamedType 2893483970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Translation 5]]></Val>
+      <Val><![CDATA[ÆØÅæøå]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType Text5Txt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Base64 Convert Test - NamedType SampleUTF16Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3906106667 - NamedType 4033951942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3810850210 - Method 3956422014 - NamedType 629178443" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Company display name]]></Val>
+      <Val><![CDATA[SUMMER]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType CompanyDisplayNameTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveDateFilterToken - NamedType SummerTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1141830473 - NamedType 267657989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3810850210 - Method 990014431 - NamedType 79588148" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[https://www.youtube.com/watch?v=CH1XGdu-hzQ]]></Val>
+      <Val><![CDATA[CHRISTMAS]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Video Test - NamedType UrlTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveDateTokenFromDateTimeFilter - NamedType ChristmasTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 3292470970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3810850210 - Method 2682051733 - NamedType 1798646752" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CodeunitService]]></Val>
+      <Val><![CDATA[MyFilter]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType CodeunitServiceTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTextFilterToken - NamedType MyFilterTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 2951321116" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3810850210 - Method 3553923973 - NamedType 2879458768" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[https://go.microsoft.com/fwlink/?linkid=2138827]]></Val>
+      <Val><![CDATA[LUNCH]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType ODataUnboundActionHelpUrlLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTimeFilterToken - NamedType LunchTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 84628318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3810850210 - Method 3531588440 - NamedType 2879458768" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PageA]]></Val>
+      <Val><![CDATA[LUNCH]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageATxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTimeTokenFromDateTimeFilter - NamedType LunchTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 3168332315" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3109261747 - NamedType 45121459" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PageB]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Code-128]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageBTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D Code128 Test - NamedType InvalidTextErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 3247444572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3169684025 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PageC]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology EAN-13]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageCTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D EAN13 Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 3209062873" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3723444071 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PageD]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology EAN-8]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageDTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D EAN8 Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 227791618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2664996948 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PageService]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Interleaved 2 of 5]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType PageServiceTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D I2of5 Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 2595882137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 741101020 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[QueryService]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology MSI]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType QueryServiceTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D MSI Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - NamedType 3789629692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1221678804 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UnpublishedPage]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology Postnet]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - NamedType UnpublishedPageTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D Postnet Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - Method 1924941909 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2755155204 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestTenantWebService]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology UPC-A]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestCreateTenantWebService - NamedType ObjectNameLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input text]D;]A;(LookupHint=Codeunit IDA 1D UPCA Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - Method 1878512065 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 403207936 - NamedType 2924870870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestWebService]]></Val>
+      <Val><![CDATA[Input text %1 contains invalid characters for the chosen provider IDAutomation 1D Barcode Provider and encoding symbology UPC-E]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestCreateWebService - NamedType ObjectNameLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = input string]D;]A;(LookupHint=Codeunit IDA 1D UPCE Test - NamedType InvalidInputErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - Method 250174482 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2938242291 - NamedType 94485731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestTenantWebService]]></Val>
+      <Val><![CDATA[Provider IDAutomation 1D Barcode Provider: Barcode symbol encoder Unsupported Barcode Symbology is not implemented by this provider!]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestDeleteTenantWebService - NamedType ObjectNameLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 1D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2509956260 - Method 1560096310 - NamedType 1385558100" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 316361646 - NamedType 94485731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestWebService]]></Val>
+      <Val><![CDATA[Provider IDAutomation 2D Barcode Provider: 2D Barcode symbol encoder Unsupported Barcode Symbology is not implemented by this provider!]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Service Management Test - Method TestDeleteWebService - NamedType ObjectNameLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2118529092 - NamedType 2865018819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The custom field %1 already exists.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = the name of a custom field.]D;]A;(LookupHint=Codeunit Word Templates Cust Field Test - NamedType CustomFieldAlreadyExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1261749768 - NamedType 1620146847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The schema definition is not valid XML.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidSchemaErrTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1261749768 - NamedType 535583823" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The XML definition is invalid.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidXmlErrTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1261749768 - NamedType 3149388485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The element 'bookstore' in namespace 'http://www.contoso.com/books' has invalid child element 'anotherNode'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType ValidationErrorTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1029205062 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assisted Setup Wizard]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1029205062 - Action 2667510389 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Finish]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Action Finish - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1029205062 - Action 2667510389 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Finish]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Assisted Setup Wizard - Action Finish - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 2D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 320136451 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -2860,74 +2653,11 @@
   </Item>
   <Item ItemId=";Page 2222447143 - Control 3600008496 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test field]]></Val>
+      <Val><![CDATA[Specifies a Test field]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page Caption Class Test Page - Control Test field - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1013629993 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Checklist Banner Container]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Checklist Banner Container - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3578109112 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Edit In Excel Json]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit In Excel Json - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3578109112 - Control 4200184881 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies the value of the No. field.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit In Excel Json - Control No. - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3793281682 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Edit in Excel List]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3793281682 - Control 415504711 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Record ID]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Control Id - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3793281682 - Control 599309684 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies if Edit in Excel should use centralized deployments]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Edit in Excel List - Control Use Centralized deployments - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Report 3373952888 - Property 2879900210" ItemType=";Report - Report" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Checklist Test Report]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Report Checklist Test Report - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 2572237766 - EnumValue 434681166 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
@@ -2964,6 +2694,285 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1845188695)(LookupHint=EnumExtension Unsupported Symbology 2D - EnumValue Unsupported Barcode Symbology - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2220463856 - NamedType 416166736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect chart label has been set.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Perf. Profiler Chart Test - NamedType WrongChartLabelErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2220463856 - NamedType 3291479019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorrect chart value has been set.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Perf. Profiler Chart Test - NamedType WrongChartValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 987050733 - NamedType 1062088075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is no performance profiling data.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType NoRecordingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 987050733 - NamedType 1844412916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The number of profiling nodes does not match the expected value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType ProfilingNodeCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 987050733 - NamedType 1044953951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Profiling node does not match the expected value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sampling Perf. Profiler Test - NamedType ProfilingNodeNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1008664390 - NamedType 2781414266" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CjwvZz4KPC9zdmc+Cg==]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageInvalidTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1008664390 - NamedType 4063326973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The image could not be loaded]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Image Tests - NamedType ImageNotInitializedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 611553341 - NamedType 4248401796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mismatch in the text read.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Record Link Mgt. Test - NamedType WrongLinkTestErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 611553341 - Method 2233746782 - NamedType 668814160" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Internal server error. Please contact your system administrator.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Record Link Mgt. Test - Method RemoveRecordLinksErrorOnNotRecordArgument - NamedType NotARecordErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 2720302725" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Element count must be positive.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementCountMustBePositiveErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 2975766532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An element with the given index does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 3521244105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An element with the given index is not supposed to exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementIsNotSupposedToExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 1429723890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The element was not added.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementNotAddedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 2151377504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The element was not removed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType ElementNotRemovedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 330184697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The count of objects in the list is not correct.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType IncorrectCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 510615997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Object with index %1 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: The index of the missing element.]D;]A;(LookupHint=Codeunit Temp Blob List Test - NamedType ObjectDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 2460768057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The range of TempBlob objects was not added to the list.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType RangeNotAddedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1462087357 - NamedType 2219230772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The data in the BLOB was unexpected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob List Test - NamedType UnexpectedDataErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 263086547 - NamedType 3203398082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob Test - NamedType SampleTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3594741044 - Method 2841014897 - NamedType 3730543931" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Uri: "%1" should be base of uri "%2".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Base Uri, %2 = Uri to test]D;]A;(LookupHint=Codeunit Uri Test - Method IsBaseUriTest - NamedType NotBaseOfTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3594741044 - Method 4274792031 - NamedType 586306396" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The result of "IsWellFormedUriString" is invalid for URI "%1".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Uri String]D;]A;(LookupHint=Codeunit Uri Test - Method TestUriWellformed - NamedType InvalidResultTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972350072 - NamedType 3209809282" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[col. %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - the name of the column.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ColumnTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972350072 - NamedType 2928065420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected value <%1> for index <%2>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - value; %2 - index.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ExpectedValueForIndexTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972350072 - NamedType 2330257887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected value: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - the expected value in the assertion.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType ExpectedValueTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972350072 - NamedType 2785837428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Measure_%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - the name of the measure.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType MeasureTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972350072 - NamedType 2659460607" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Type must be Integer or Decimal for Measure %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - measure name.]D;]A;(LookupHint=Codeunit Business Chart Test - NamedType NotAllowedDataTypeTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3236220933 - NamedType 2078097563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Hi, %1!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Displayed between 12:00 and 13:59. %1 is the user name.]D;]A;(LookupHint=Codeunit Headlines Test - NamedType NoonGreetingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3236220933 - NamedType 110751793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Hi!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Displayed between 12:00 and 13:59.]D;]A;(LookupHint=Codeunit Headlines Test - NamedType SimpleNoonGreetingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 1620146847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The schema definition is not valid XML.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidSchemaErrTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 535583823" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The XML definition is invalid.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidXmlErrTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1261749768 - NamedType 3149388485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The element 'bookstore' in namespace 'http://www.contoso.com/books' has invalid child element 'anotherNode'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType ValidationErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

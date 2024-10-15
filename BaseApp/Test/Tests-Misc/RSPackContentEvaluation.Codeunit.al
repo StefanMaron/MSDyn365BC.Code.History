@@ -751,7 +751,7 @@
         InteractionTemplateSetup.TestField("Sales Cr. Memo");
         InteractionTemplateSetup.TestField("Sales Invoices");
         InteractionTemplateSetup.TestField("Sales Ord. Cnfrmn.");
-		InteractionTemplateSetup.TestField("Sales Draft Invoices");		
+        InteractionTemplateSetup.TestField("Sales Draft Invoices");
         InteractionTemplateSetup.TestField("Sales Shpt. Note");
         InteractionTemplateSetup.TestField("Sales Quotes");
     end;
@@ -868,8 +868,8 @@
         GLAccount.Get('40001');
         GLAccount.TestField("Account Type", GLAccount."Account Type"::"Begin-Total");
 
-        // [THEN] Account 40990 must have Account Type = End-Total
-        GLAccount.Get('40990');
+        // [THEN] Account 49990 must have Account Type = End-Total
+        GLAccount.Get('49990');
         GLAccount.TestField("Account Type", GLAccount."Account Type"::"End-Total");
     end;
 
@@ -946,17 +946,17 @@
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
         Initialize();
 
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
     end;
 
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])

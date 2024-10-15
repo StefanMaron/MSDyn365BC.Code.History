@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Journal;
+
 page 7323 "Whse. Journal Batches"
 {
     Caption = 'Whse. Journal Batches';
@@ -72,7 +74,7 @@ page 7323 "Whse. Journal Batches"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewBatch();
+        Rec.SetupNewBatch();
     end;
 
     local procedure DataCaption(): Text[250]
@@ -80,9 +82,9 @@ page 7323 "Whse. Journal Batches"
         WhseJnlTemplate: Record "Warehouse Journal Template";
     begin
         if not CurrPage.LookupMode then
-            if GetFilter("Journal Template Name") <> '' then
-                if GetRangeMin("Journal Template Name") = GetRangeMax("Journal Template Name") then
-                    if WhseJnlTemplate.Get(GetRangeMin("Journal Template Name")) then
+            if Rec.GetFilter("Journal Template Name") <> '' then
+                if Rec.GetRangeMin("Journal Template Name") = Rec.GetRangeMax("Journal Template Name") then
+                    if WhseJnlTemplate.Get(Rec.GetRangeMin("Journal Template Name")) then
                         exit(WhseJnlTemplate.Name + ' ' + WhseJnlTemplate.Description);
     end;
 }

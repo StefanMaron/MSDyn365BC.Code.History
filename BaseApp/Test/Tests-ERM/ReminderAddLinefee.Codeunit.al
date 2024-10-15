@@ -2605,6 +2605,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         CustomerPostingGroup: Record "Customer Posting Group";
         ReminderHeader: Record "Reminder Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reminder - Add. Line fee");
         BindActiveDirectoryMockEvents;
@@ -2620,7 +2621,9 @@ codeunit 134997 "Reminder - Add. Line fee"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
 
         LibraryERMCountryData.CreateVATData();
-
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         SetGLSetupInvoiceRounding();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         CustomerPostingGroup.FindFirst();

@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.Email;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+using Microsoft.Projects.Project.Ledger;
+
 permissionset 5540 "Service Documents - View"
 {
     Access = Public;

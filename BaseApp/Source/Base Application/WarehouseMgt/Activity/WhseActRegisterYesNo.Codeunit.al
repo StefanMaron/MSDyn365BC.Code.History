@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Activity;
+
+using Microsoft.Warehouse.Journal;
+
 codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 {
     TableNo = "Warehouse Activity Line";
@@ -6,7 +10,7 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
     begin
         WhseActivLine.Copy(Rec);
         Code();
-        Copy(WhseActivLine);
+        Rec.Copy(WhseActivLine);
     end;
 
     var

@@ -727,14 +727,6 @@ codeunit 130509 "Library - Sales"
         CombineShipments.RunModal();
     end;
 
-    procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header"; GenJournalBatch: Record "Gen. Journal Batch")
-    begin
-        DepositHeader.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
-        DepositHeader.SetFilter("Journal Batch Name", GenJournalBatch.Name);
-        DepositHeader.Init();
-        DepositHeader.Insert(true);
-    end;
-
     procedure DeleteInvoicedSalesOrders(var SalesHeader: Record "Sales Header")
     var
         TmpSalesHeader: Record "Sales Header";
@@ -815,17 +807,19 @@ codeunit 130509 "Library - Sales"
         exit(CustPostingGroup."Invoice Rounding Account");
     end;
 
+    procedure GetReturnReceiptLines(var SalesLine: Record "Sales Line")
+    var
+        SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+    begin
+        SalesGetReturnReceipts.Run(SalesLine);
+    end;
+
     procedure GetShipmentLines(var SalesLine: Record "Sales Line")
     var
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         Clear(SalesGetShipment);
         SalesGetShipment.Run(SalesLine);
-    end;
-
-    procedure PostDepositDocument(var DepositHeader: Record "Deposit Header")
-    begin
-        CODEUNIT.Run(CODEUNIT::"Deposit-Post (Yes/No)", DepositHeader);
     end;
 
     procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean): Code[20]

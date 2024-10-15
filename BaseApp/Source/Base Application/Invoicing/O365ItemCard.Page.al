@@ -2,7 +2,7 @@
 page 2106 "O365 Item Card"
 {
     Caption = 'Price';
-    DataCaptionExpression = Description;
+    DataCaptionExpression = Rec.Description;
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = Item;
@@ -17,7 +17,7 @@ page 2106 "O365 Item Card"
             group(Item)
             {
                 Caption = 'Price';
-                field(Description2; Description)
+                field(Description2; Rec.Description)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies what you are selling.';
@@ -54,7 +54,7 @@ page 2106 "O365 Item Card"
                     begin
                         TempUnitOfMeasure.CreateListInCurrentLanguage(TempUnitOfMeasure);
                         if PAGE.RunModal(PAGE::"O365 Units of Measure List", TempUnitOfMeasure) = ACTION::LookupOK then begin
-                            Validate("Base Unit of Measure", TempUnitOfMeasure.Code);
+                            Rec.Validate("Base Unit of Measure", TempUnitOfMeasure.Code);
                             UnitOfMeasureDescription := TempUnitOfMeasure.Description;
                         end;
                     end;
@@ -81,7 +81,7 @@ page 2106 "O365 Item Card"
                                 TaxGroup.SetFilter(Code, '%1', TaxSetup."Non-Taxable Tax Group Code")
                         end;
                         if TaxGroup.FindFirst() then
-                            Validate("Tax Group Code", TaxGroup.Code);
+                            Rec.Validate("Tax Group Code", TaxGroup.Code);
                     end;
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
@@ -99,7 +99,7 @@ page 2106 "O365 Item Card"
                         VATProductPostingGroup: Record "VAT Product Posting Group";
                     begin
                         if PAGE.RunModal(PAGE::"O365 VAT Product Posting Gr.", VATProductPostingGroup) = ACTION::LookupOK then begin
-                            Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+                            Rec.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
                         end;
                     end;
@@ -149,9 +149,9 @@ page 2106 "O365 Item Card"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         CreateItemFromTemplate();
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
-        if UnitOfMeasure.Get("Base Unit of Measure") then
+        if UnitOfMeasure.Get(Rec."Base Unit of Measure") then
             UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
         IsPageEditable := CurrPage.Editable;
     end;
@@ -166,7 +166,7 @@ page 2106 "O365 Item Card"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if Description = '' then
+        if Rec.Description = '' then
             ItemCardStatus := ItemCardStatus::Delete
         else
             ItemCardStatus := ItemCardStatus::Keep;
@@ -176,7 +176,7 @@ page 2106 "O365 Item Card"
 
     trigger OnModifyRecord(): Boolean
     begin
-        if Description = '' then
+        if Rec.Description = '' then
             ItemCardStatus := ItemCardStatus::Prompt
         else
             ItemCardStatus := ItemCardStatus::Keep;
@@ -191,7 +191,7 @@ page 2106 "O365 Item Card"
 
     trigger OnOpenPage()
     begin
-        if Description = '' then
+        if Rec.Description = '' then
             ItemCardStatus := ItemCardStatus::Delete
         else
             ItemCardStatus := ItemCardStatus::Keep;
@@ -227,19 +227,19 @@ page 2106 "O365 Item Card"
     var
         Response: Option ,KeepEditing,Discard;
     begin
-        if "No." = '' then
+        if Rec."No." = '' then
             exit(true);
 
         if ItemCardStatus = ItemCardStatus::Delete then begin
             // workaround for bug: delete for new empty record returns false
-            if Delete(true) then;
+            if Rec.Delete(true) then;
             exit(true);
         end;
 
         if GuiAllowed and (ItemCardStatus = ItemCardStatus::Prompt) then
             case StrMenu(ProcessNewItemOptionQst, Response::KeepEditing, ProcessNewItemInstructionTxt) of
                 Response::Discard:
-                    exit(Delete(true));
+                    exit(Rec.Delete(true));
                 else
                     exit(false);
             end;
@@ -256,7 +256,7 @@ page 2106 "O365 Item Card"
     begin
         if NewMode then begin
             if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
-                Copy(Item);
+                Rec.Copy(Item);
                 O365SalesManagement.SetItemDefaultValues(Item);
                 CurrPage.Update();
             end;
@@ -264,7 +264,7 @@ page 2106 "O365 Item Card"
             NewMode := false;
         end;
         if TaxSetup.Get() then
-            Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
+            Taxable := Rec."Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
     end;
 }
 #endif

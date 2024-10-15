@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 699 "Dimension Set Entries FactBox"
 {
     Caption = 'Dimensions';

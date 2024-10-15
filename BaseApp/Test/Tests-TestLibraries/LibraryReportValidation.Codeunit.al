@@ -182,7 +182,7 @@ codeunit 131002 "Library - Report Validation"
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
-        Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
+        Error(ColumnNotFoundError, ColumnCaption);
     end;
 
     procedure FindFirstColumnNoByValue(Value: Text[250]): Integer
@@ -198,7 +198,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange("Cell Value as Text", Value);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
-        Error(StrSubstNo(ColumnNotFoundError, Value));
+        Error(ColumnNotFoundError, Value);
     end;
 
     procedure FindRowNoFromColumnCaption(ColumnCaption: Text[250]): Integer
@@ -211,7 +211,7 @@ codeunit 131002 "Library - Report Validation"
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
-        Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
+        Error(ColumnNotFoundError, ColumnCaption);
     end;
 
     procedure FindRowNoFromColumnNoAndValue(ColumnNo: Integer; ColumnValue: Text[250]): Integer
@@ -225,7 +225,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
-        Error(StrSubstNo(RowNotFoundForColumnValueError, ColumnNo, ColumnValue));
+        Error(RowNotFoundForColumnValueError, ColumnNo, ColumnValue);
     end;
 
     procedure FindColumnNoFromColumnCaptionInsideArea(ColumnCaption: Text[250]; FilterRowNo: Text[250]; FilterColumnNo: Text[250]): Integer
@@ -243,7 +243,7 @@ codeunit 131002 "Library - Report Validation"
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Column No.");
-        Error(StrSubstNo(ColumnNotFoundError, ColumnCaption));
+        Error(ColumnNotFoundError, ColumnCaption);
     end;
 
     procedure FindRowNoFromColumnNoAndValueInsideArea(ColumnNo: Integer; ColumnValue: Text[250]; FilterRowNo: Text[250]): Integer
@@ -258,7 +258,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
         if ExcelBuffer.FindFirst() then
             exit(ExcelBuffer."Row No.");
-        Error(StrSubstNo(RowNotFoundForColumnValueError, ColumnNo, ColumnValue));
+        Error(RowNotFoundForColumnValueError, ColumnNo, ColumnValue);
     end;
 
     procedure FindFirstRow(var RowValueSet: array[50] of Text[250])

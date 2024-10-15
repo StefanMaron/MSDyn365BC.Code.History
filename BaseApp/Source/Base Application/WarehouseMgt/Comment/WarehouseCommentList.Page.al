@@ -1,7 +1,9 @@
+namespace Microsoft.Warehouse.Comment;
+
 page 5777 "Warehouse Comment List"
 {
     Caption = 'Comment List';
-    DataCaptionExpression = FormCaption();
+    DataCaptionExpression = Rec.FormCaption();
     Editable = false;
     LinksAllowed = false;
     PageType = List;
@@ -19,12 +21,12 @@ page 5777 "Warehouse Comment List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the comment was created.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the comment.';

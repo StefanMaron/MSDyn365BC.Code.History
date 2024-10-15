@@ -1939,14 +1939,16 @@ codeunit 134168 "Suggest Price Lines UT"
         // [GIVEN] Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y'
         LibraryInventory.CreateItem(Item[1]);
         Item[1]."Unit Price" := LibraryRandom.RandDec(1000, 2);
-        item[1].Modify();
+        Item[1].Modify();
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Unit Price" := LibraryRandom.RandDec(1000, 2);
-        item[2].Modify();
+        Item[2].Modify();
         // [GIVEN] Sales Price List, where "Currency Code" is <blank>, "Amount Type"::Any 
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         PriceListHeader."Allow Updating Defaults" := true;
         PriceListHeader."Amount Type" := "Price Amount Type"::Any;
+        // [GIVEN] "Allow Invoice Disc." is 'true'
+        PriceListHeader."Allow Invoice Disc." := true;
         PriceListHeader.Modify();
         // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.." 
         SalesPriceList.OpenEdit();
@@ -1963,8 +1965,10 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindSet(), 'The list is blank.');
         VerifyPriceLine(PriceListLine, Item[1], MinQty, "Price Amount Type"::Any);
+        PriceListLine.TestField("Allow Invoice Disc.", true);
         Assert.IsTrue(PriceListLine.Next() <> 0, 'The second line not found.');
         VerifyPriceLine(PriceListLine, Item[2], MinQty, "Price Amount Type"::Any);
+        PriceListLine.TestField("Allow Invoice Disc.", true);
         Assert.IsTrue(PriceListLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -1986,13 +1990,15 @@ codeunit 134168 "Suggest Price Lines UT"
         // [GIVEN] Items 'A' and 'B' , where "Last Direct Cost" is 'X' and 'Y'
         LibraryInventory.CreateItem(Item[1]);
         Item[1]."Last Direct Cost" := LibraryRandom.RandDec(1000, 2);
-        item[1].Modify();
+        Item[1].Modify();
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Last Direct Cost" := LibraryRandom.RandDec(1000, 2);
-        item[2].Modify();
+        Item[2].Modify();
         // [GIVEN] Purchase Price List, where "Currency Code" is <blank>, "Amount Type"::Price
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
         PriceListHeader."Amount Type" := "Price Amount Type"::Price;
+        // [GIVEN] "Allow Invoice Disc." is 'true'
+        PriceListHeader."Allow Invoice Disc." := true;
         PriceListHeader.Modify();
         // [GIVEN] Open purchase price list page on Price List 'X' and run "Suggest Lines.." 
         PurchasePriceList.OpenEdit();
@@ -2009,8 +2015,10 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindSet(), 'The list is blank.');
         VerifyPriceLine(PriceListLine, Item[1], MinQty, "Price Amount Type"::Price);
+        PriceListLine.TestField("Allow Invoice Disc.", true);
         Assert.IsTrue(PriceListLine.Next() <> 0, 'The second line not found.');
         VerifyPriceLine(PriceListLine, Item[2], MinQty, "Price Amount Type"::Price);
+        PriceListLine.TestField("Allow Invoice Disc.", true);
         Assert.IsTrue(PriceListLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2260,7 +2268,9 @@ codeunit 134168 "Suggest Price Lines UT"
         // [GIVEN] Items 'A', where "Unit Price" is 10.00
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
-        item.Modify();
+        // [GIVEN] "Allow Invoice Disc." of Item is 'true'
+        Item."Allow Invoice Disc." := true;
+        Item.Modify();
         // [GIVEN] Sales Price List, where "Currency Code" is 'C'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         PriceListHeader.Validate("Currency Code", CurrencyCode);
@@ -2279,6 +2289,8 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindFirst(), 'The list is blank.');
         PriceListLine.TestField("Unit Price", Item."Unit Price" * 3);
+        // [THEN] "Allow Invoice Disc." is 'true' on the line
+        PriceListLine.TestField("Allow Invoice Disc.", true);
         LibraryVariableStorage.AssertEmpty();
     end;
 

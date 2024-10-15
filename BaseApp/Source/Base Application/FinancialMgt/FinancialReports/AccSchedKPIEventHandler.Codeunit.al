@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.GeneralLedger.Budget;
+
 codeunit 198 "Acc. Sched. KPI Event Handler"
 {
     SingleInstance = true;

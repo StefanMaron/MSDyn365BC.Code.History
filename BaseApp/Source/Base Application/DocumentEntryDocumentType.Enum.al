@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Navigate;
+
 enum 265 "Document Entry Document Type"
 {
     Extensible = true;

@@ -1,3 +1,5 @@
+namespace System.Tooling;
+
 page 9847 "Designed Query Objects"
 {
     Caption = 'Designed Query Objects';

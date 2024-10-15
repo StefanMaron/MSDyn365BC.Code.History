@@ -480,6 +480,9 @@ codeunit 137016 "SCM Create Pick Data Driven"
         else begin
             Location.SetRange("Directed Put-away and Pick", IsDirected);
             Location.FindFirst();
+            Location."Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"Inventory Put-away";
+            Location."Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            Location.Modify(true);
             TempLocation := Location;
             TempLocation.Insert();
         end;
@@ -798,10 +801,14 @@ codeunit 137016 "SCM Create Pick Data Driven"
     var
         PurchaseLine: Record "Purchase Line";
         WhseActivityLine: Record "Warehouse Activity Line";
+        BinContent: Record "Bin Content";
         Location: Record Location;
+        CreatePick: Codeunit "Create Pick";
         DemandQty: Decimal;
         SupplyQty: Decimal;
         RequestQty: Decimal;
+        QtyInPickBins: Decimal;
+        AvailableQty: Decimal;
     begin
         // Calculate demand qty by collecting quantities on Sales Orders, Transfer Orders, Internal Picks and Released Prod. Orders.
         // Extract request qty from last document in the scenario.
@@ -885,7 +892,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             Location.Get(PurchaseLine."Location Code");
             SupplyQty += PurchaseLine."Quantity Received";
             // For WMS and Require Receipt and Put-away locations, exclude quantities received but not put-away.
-            if Location."Require Receive" and Location."Require Put-away" then begin
+            if not Location."Directed Put-away and Pick" and Location."Require Receive" and Location."Require Put-away" then begin
                 WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Put-away");
                 WhseActivityLine.SetRange("Item No.", ItemNo);
                 WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Purchase Order");
@@ -895,10 +902,25 @@ codeunit 137016 "SCM Create Pick Data Driven"
             end;
         until PurchaseLine.Next() = 0;
 
-        // Expected qty to pick is minimum betqeen requested qty for the last document, and available qty to pick.
+        if Location."Directed Put-away and Pick" then begin
+            BinContent.ReadIsolation := IsolationLevel::ReadUncommitted;
+            BinContent.SetRange("Location Code", Location.Code);
+            BinContent.SetRange("Item No.", ItemNo);
+            BinContent.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(3)); //Pick Bins
+            if BinContent.FindSet() then
+                repeat
+                    QtyInPickBins += BinContent.CalcQtyAvailToTake(0);
+                until BinContent.Next() = 0;
+        end;
+
+        // Expected qty to pick is minimum between requested qty for the last document, and available qty to pick.
         if SupplyQty - DemandQty >= 0 then
-            exit(GetMin(SupplyQty - DemandQty, RequestQty));
-        exit(0);
+            AvailableQty := GetMin(SupplyQty - DemandQty, RequestQty);
+
+        if Location."Directed Put-away and Pick" then
+            AvailableQty := GetMin(AvailableQty, QtyInPickBins); // We can pick maximum of what is available in QtyInPickBins
+
+        exit(AvailableQty);
     end;
 
     [Normal]

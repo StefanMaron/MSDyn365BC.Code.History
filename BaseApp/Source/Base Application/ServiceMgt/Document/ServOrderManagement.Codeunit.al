@@ -1,3 +1,22 @@
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Item;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Setup;
+using System.Utilities;
+
 codeunit 5900 ServOrderManagement
 {
 

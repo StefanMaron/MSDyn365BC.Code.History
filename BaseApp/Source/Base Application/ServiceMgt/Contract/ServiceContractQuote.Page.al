@@ -1,10 +1,22 @@
+﻿namespace Microsoft.Service.Contract;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.Reports;
+using System.Security.User;
+using System.Utilities;
+
 page 6053 "Service Contract Quote"
 {
     Caption = 'Service Contract Quote';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Contract Header";
-    SourceTableView = WHERE("Contract Type" = FILTER(Quote));
+    SourceTableView = where("Contract Type" = filter(Quote));
 
     layout
     {
@@ -21,7 +33,7 @@ page 6053 "Service Contract Quote"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -55,7 +67,7 @@ page 6053 "Service Contract Quote"
                         DrillDown = false;
                         ToolTip = 'Specifies the name of the customer in the service contract.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -69,7 +81,7 @@ page 6053 "Service Contract Quote"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -80,7 +92,7 @@ page 6053 "Service Contract Quote"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -101,7 +113,7 @@ page 6053 "Service Contract Quote"
 
                         trigger OnValidate()
                         begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                            IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field("Contact Name"; Rec."Contact Name")
@@ -185,7 +197,7 @@ page 6053 "Service Contract Quote"
             part(ServContractLines; "Service Contract Quote Subform")
             {
                 ApplicationArea = Service;
-                SubPageLink = "Contract No." = FIELD("Contract No.");
+                SubPageLink = "Contract No." = field("Contract No.");
             }
             group(Invoicing)
             {
@@ -262,7 +274,7 @@ page 6053 "Service Contract Quote"
 
                         trigger OnValidate()
                         begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
@@ -483,13 +495,13 @@ page 6053 "Service Contract Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the amount that will be invoiced for each invoice period for the service contract.';
                 }
-                field(NextInvoicePeriod; NextInvoicePeriod())
+                field(NextInvoicePeriod; Rec.NextInvoicePeriod())
                 {
                     ApplicationArea = Service;
                     Caption = 'Next Invoice Period';
                     ToolTip = 'Specifies the next invoice period for the filed service contract quote: the first date of the period and the ending date.';
                 }
-                field(Prepaid; Prepaid)
+                field(Prepaid; Rec.Prepaid)
                 {
                     ApplicationArea = Service;
                     Enabled = PrepaidEnable;
@@ -571,7 +583,7 @@ page 6053 "Service Contract Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date before which the customer must accept this contract quote.';
                 }
-                field(Probability; Probability)
+                field(Probability; Rec.Probability)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the probability of the customer approving the service contract quote.';
@@ -612,7 +624,7 @@ page 6053 "Service Contract Quote"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -622,10 +634,10 @@ page 6053 "Service Contract Quote"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Contract"),
-                                  "Table Subtype" = FIELD("Contract Type"),
-                                  "No." = FIELD("Contract No."),
-                                  "Table Line No." = CONST(0);
+                    RunPageLink = "Table Name" = const("Service Contract"),
+                                  "Table Subtype" = field("Contract Type"),
+                                  "No." = field("Contract No."),
+                                  "Table Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Service Dis&counts")
@@ -634,8 +646,8 @@ page 6053 "Service Contract Quote"
                     Caption = 'Service Dis&counts';
                     Image = Discount;
                     RunObject = Page "Contract/Service Discounts";
-                    RunPageLink = "Contract Type" = FIELD("Contract Type"),
-                                  "Contract No." = FIELD("Contract No.");
+                    RunPageLink = "Contract Type" = field("Contract Type"),
+                                  "Contract No." = field("Contract No.");
                     ToolTip = 'View or edit the discounts that you grant for the contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
                 }
                 action("Service &Hours")
@@ -644,8 +656,8 @@ page 6053 "Service Contract Quote"
                     Caption = 'Service &Hours';
                     Image = ServiceHours;
                     RunObject = Page "Service Hours";
-                    RunPageLink = "Service Contract No." = FIELD("Contract No."),
-                                  "Service Contract Type" = FILTER(Quote);
+                    RunPageLink = "Service Contract No." = field("Contract No."),
+                                  "Service Contract Type" = filter(Quote);
                     ToolTip = 'View the service hours that are valid for the service contract. This window displays the starting and ending service hours for the contract for each weekday.';
                 }
                 action("&Filed Contract Quotes")
@@ -654,10 +666,10 @@ page 6053 "Service Contract Quote"
                     Caption = '&Filed Contract Quotes';
                     Image = Quote;
                     RunObject = Page "Filed Service Contract List";
-                    RunPageLink = "Contract Type Relation" = FIELD("Contract Type"),
-                                  "Contract No. Relation" = FIELD("Contract No.");
-                    RunPageView = SORTING("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  ORDER(Descending);
+                    RunPageLink = "Contract Type Relation" = field("Contract Type"),
+                                  "Contract No. Relation" = field("Contract No.");
+                    RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
+                                  order(Descending);
                     ToolTip = 'View filed contract quotes.';
                 }
             }
@@ -721,8 +733,8 @@ page 6053 "Service Contract Quote"
                     trigger OnAction()
                     begin
                         ServContractLine.Reset();
-                        ServContractLine.SetRange("Contract Type", "Contract Type");
-                        ServContractLine.SetRange("Contract No.", "Contract No.");
+                        ServContractLine.SetRange("Contract Type", Rec."Contract Type");
+                        ServContractLine.SetRange("Contract No.", Rec."Contract No.");
                         REPORT.RunModal(REPORT::"Upd. Disc.% on Contract", true, true, ServContractLine);
                     end;
                 }
@@ -881,15 +893,15 @@ page 6053 "Service Contract Quote"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CalcFields("Calcd. Annual Amount");
+        Rec.CalcFields("Calcd. Annual Amount");
         ActivateFields();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdateShiptoCode();
-        SellToContact.GetOrClear("Contact No.");
-        BillToContact.GetOrClear("Bill-to Contact No.");
+        Rec.UpdateShiptoCode();
+        SellToContact.GetOrClear(Rec."Contact No.");
+        BillToContact.GetOrClear(Rec."Bill-to Contact No.");
     end;
 
     trigger OnInit()
@@ -900,7 +912,7 @@ page 6053 "Service Contract Quote"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserMgt.GetServiceFilter();
+        Rec."Responsibility Center" := UserMgt.GetServiceFilter();
     end;
 
     trigger OnOpenPage()
@@ -924,9 +936,7 @@ page 6053 "Service Contract Quote"
         Text003: Label '%1 must not be %2 in %3 %4', Comment = 'Status must not be blank in Signed SC00001';
         LockOpenServContract: Codeunit "Lock-OpenServContract";
         FormatAddress: Codeunit "Format Address";
-        [InDataSet]
         PrepaidEnable: Boolean;
-        [InDataSet]
         InvoiceAfterServiceEnable: Boolean;
         IsShipToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
@@ -934,27 +944,27 @@ page 6053 "Service Contract Quote"
 
     local procedure ActivateFields()
     begin
-        PrepaidEnable := (not "Invoice after Service" or Prepaid);
-        InvoiceAfterServiceEnable := (not Prepaid or "Invoice after Service");
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
-        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+        PrepaidEnable := (not Rec."Invoice after Service" or Rec.Prepaid);
+        InvoiceAfterServiceEnable := (not Rec.Prepaid or Rec."Invoice after Service");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
     end;
 
     local procedure CheckRequiredFields()
     begin
-        if "Contract No." = '' then
-            Error(Text000, FieldCaption("Contract No."), TableCaption(), "Contract No.");
-        if "Customer No." = '' then
-            Error(Text000, FieldCaption("Customer No."), TableCaption(), "Contract No.");
-        if Format("Service Period") = '' then
-            Error(Text000, FieldCaption("Service Period"), TableCaption(), "Contract No.");
-        if "First Service Date" = 0D then
-            Error(Text000, FieldCaption("First Service Date"), TableCaption(), "Contract No.");
-        if Status = Status::Cancelled then
-            Error(Text003, FieldCaption(Status), Format(Status), TableCaption(), "Contract No.");
-        if "Change Status" = "Change Status"::Locked then
-            Error(Text003, FieldCaption("Change Status"), Format("Change Status"), TableCaption(), "Contract No.");
+        if Rec."Contract No." = '' then
+            Error(Text000, Rec.FieldCaption("Contract No."), Rec.TableCaption(), Rec."Contract No.");
+        if Rec."Customer No." = '' then
+            Error(Text000, Rec.FieldCaption("Customer No."), Rec.TableCaption(), Rec."Contract No.");
+        if Format(Rec."Service Period") = '' then
+            Error(Text000, Rec.FieldCaption("Service Period"), Rec.TableCaption(), Rec."Contract No.");
+        if Rec."First Service Date" = 0D then
+            Error(Text000, Rec.FieldCaption("First Service Date"), Rec.TableCaption(), Rec."Contract No.");
+        if Rec.Status = Rec.Status::Cancelled then
+            Error(Text003, Rec.FieldCaption(Status), Format(Rec.Status), Rec.TableCaption(), Rec."Contract No.");
+        if Rec."Change Status" = Rec."Change Status"::Locked then
+            Error(Text003, Rec.FieldCaption("Change Status"), Format(Rec."Change Status"), Rec.TableCaption(), Rec."Contract No.");
     end;
 
     local procedure GetServItemLine()
@@ -962,7 +972,7 @@ page 6053 "Service Contract Quote"
         ContractLineSelection: Page "Contract Line Selection";
     begin
         Clear(ContractLineSelection);
-        ContractLineSelection.SetSelection("Customer No.", "Ship-to Code", "Contract Type".AsInteger(), "Contract No.");
+        ContractLineSelection.SetSelection(Rec."Customer No.", Rec."Ship-to Code", Rec."Contract Type".AsInteger(), Rec."Contract No.");
         ContractLineSelection.RunModal();
         CurrPage.Update(false);
     end;

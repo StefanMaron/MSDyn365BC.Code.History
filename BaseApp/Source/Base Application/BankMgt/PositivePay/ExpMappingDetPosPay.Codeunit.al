@@ -1,3 +1,8 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.Check;
+using System.IO;
+
 codeunit 1705 "Exp. Mapping Det Pos. Pay"
 {
     TableNo = "Data Exch.";
@@ -11,7 +16,7 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
         Window: Dialog;
         LineNo: Integer;
     begin
-        if NoDataExchLineDef("Data Exch. Def Code") then
+        if NoDataExchLineDef(Rec."Data Exch. Def Code") then
             exit;
 
         Window.Open(ProgressMsg);
@@ -19,12 +24,12 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
         // Range through the line types, Look at details...
         LineNo := 1;
 
-        PositivePayDetail.SetRange("Data Exch. Entry No.", "Entry No.");
+        PositivePayDetail.SetRange("Data Exch. Entry No.", Rec."Entry No.");
         if PositivePayDetail.FindSet() then
             repeat
                 Window.Update(1, LineNo);
                 if HandlePositivePayDetails(PositivePayDetail) then begin
-                    DataExch.SetRange("Entry No.", "Entry No.");
+                    DataExch.SetRange("Entry No.", Rec."Entry No.");
                     if DataExch.FindFirst() then begin
                         RecordRef.GetTable(PositivePayDetail);
                         PositivePayExportMgt.InsertDataExchLineForFlatFile(

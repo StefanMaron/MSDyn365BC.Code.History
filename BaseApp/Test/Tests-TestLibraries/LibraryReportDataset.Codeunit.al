@@ -321,7 +321,7 @@ codeunit 131007 "Library - Report Dataset"
         CurrentRowIndex := 0;
         while GetNextRow() and (CurrentRowIndex <> RowIndex) do;
         if not ((CurrentRowIndex = RowIndex) and (CurrentRowIndex > 0)) then
-            Error(StrSubstNo(RowIndexNotFoundErr, RowIndex));
+            Error(RowIndexNotFoundErr, RowIndex);
     end;
 
     procedure GetFileName(): Text[1024]

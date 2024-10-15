@@ -1,3 +1,16 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
+using Microsoft.Inventory.Location;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
+using System.Globalization;
+using System.Utilities;
+
 report 5900 "Service Order"
 {
     DefaultLayout = RDLC;
@@ -8,7 +21,7 @@ report 5900 "Service Order"
     {
         dataitem("Service Header"; "Service Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Order));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order));
             RequestFilterFields = "No.", "Customer No.";
             column(Service_Header_Document_Type; "Document Type")
             {
@@ -18,10 +31,10 @@ report 5900 "Service Order"
             }
             dataitem(CopyLoop; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 dataitem(PageLoop; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(CompanyInfo_Picture; CompanyInfo.Picture)
                     {
                     }
@@ -153,7 +166,7 @@ report 5900 "Service Order"
                     }
                     dataitem(DimensionLoop1; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                        DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                         column(DimText; DimText)
                         {
                         }
@@ -203,9 +216,9 @@ report 5900 "Service Order"
                     }
                     dataitem("Service Order Comment"; "Service Comment Line")
                     {
-                        DataItemLink = "Table Subtype" = FIELD("Document Type"), "No." = FIELD("No.");
+                        DataItemLink = "Table Subtype" = field("Document Type"), "No." = field("No.");
                         DataItemLinkReference = "Service Header";
-                        DataItemTableView = SORTING("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") WHERE("Table Name" = CONST("Service Header"), Type = CONST(General));
+                        DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") where("Table Name" = const("Service Header"), Type = const(General));
                         column(Service_Order_Comment_Comment; Comment)
                         {
                         }
@@ -230,9 +243,9 @@ report 5900 "Service Order"
                     }
                     dataitem("Service Item Line"; "Service Item Line")
                     {
-                        DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
+                        DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
                         DataItemLinkReference = "Service Header";
-                        DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                        DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                         column(Service_Item_Line___Line_No__; "Service Item Line"."Line No.")
                         {
                         }
@@ -307,8 +320,8 @@ report 5900 "Service Order"
                         }
                         dataitem("Fault Comment"; "Service Comment Line")
                         {
-                            DataItemLink = "Table Subtype" = FIELD("Document Type"), "No." = FIELD("Document No."), "Table Line No." = FIELD("Line No.");
-                            DataItemTableView = SORTING("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") WHERE("Table Name" = CONST("Service Header"), Type = CONST(Fault));
+                            DataItemLink = "Table Subtype" = field("Document Type"), "No." = field("Document No."), "Table Line No." = field("Line No.");
+                            DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") where("Table Name" = const("Service Header"), Type = const(Fault));
                             column(Comment_FaultComment; Comment)
                             {
                             }
@@ -336,8 +349,8 @@ report 5900 "Service Order"
                         }
                         dataitem("Resolution Comment"; "Service Comment Line")
                         {
-                            DataItemLink = "Table Subtype" = FIELD("Document Type"), "No." = FIELD("Document No."), "Table Line No." = FIELD("Line No.");
-                            DataItemTableView = SORTING("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") WHERE("Table Name" = CONST("Service Header"), Type = CONST(Resolution));
+                            DataItemLink = "Table Subtype" = field("Document Type"), "No." = field("Document No."), "Table Line No." = field("Line No.");
+                            DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") where("Table Name" = const("Service Header"), Type = const(Resolution));
                             column(Comment_ResolutionComment; Comment)
                             {
                             }
@@ -366,9 +379,9 @@ report 5900 "Service Order"
                     }
                     dataitem("Service Line"; "Service Line")
                     {
-                        DataItemLink = "Document Type" = FIELD("Document Type"), "Document No." = FIELD("No.");
+                        DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
                         DataItemLinkReference = "Service Header";
-                        DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
+                        DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
                         column(Service_Line___Line_No__; "Service Line"."Line No.")
                         {
                         }
@@ -470,7 +483,7 @@ report 5900 "Service Order"
                         }
                         dataitem(DimensionLoop2; "Integer")
                         {
-                            DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+                            DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                             column(DimText_Control13; DimText)
                             {
                             }
@@ -561,7 +574,7 @@ report 5900 "Service Order"
                     }
                     dataitem(Shipto; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
                         column(ShipToAddr_6_; ShipToAddr[6])
                         {
                         }
@@ -618,6 +631,7 @@ report 5900 "Service Order"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Header");
@@ -694,9 +708,6 @@ report 5900 "Service Order"
     end;
 
     var
-        CompanyInfo: Record "Company Information";
-        CompanyInfo1: Record "Company Information";
-        CompanyInfo2: Record "Company Information";
         ServiceSetup: Record "Service Mgt. Setup";
         RespCenter: Record "Responsibility Center";
         DimSetEntry1: Record "Dimension Set Entry";
@@ -745,6 +756,11 @@ report 5900 "Service Order"
         TotalCaptionLbl: Label 'Total';
         Line_DimensionsCaptionLbl: Label 'Line Dimensions';
         Ship_to_AddressCaptionLbl: Label 'Ship-to Address';
+
+    protected var
+        CompanyInfo: Record "Company Information";
+        CompanyInfo1: Record "Company Information";
+        CompanyInfo2: Record "Company Information";
 
     procedure InitializeRequest(ShowInternalInfoFrom: Boolean; ShowQtyFrom: Option)
     begin

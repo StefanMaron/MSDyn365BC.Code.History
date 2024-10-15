@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using System.Globalization;
+
 table 356 "Dim. Value per Account"
 {
     DataClassification = SystemMetadata;
@@ -18,8 +22,8 @@ table 356 "Dim. Value per Account"
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("Dimension Value Code")));
+            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;
@@ -31,16 +35,16 @@ table 356 "Dim. Value per Account"
             OptionMembers = Standard,Heading,Total,"Begin-Total","End-Total";
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = Lookup("Dimension Value"."Dimension Value Type" WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("Dimension Value Code")));
+            CalcFormula = Lookup("Dimension Value"."Dimension Value Type" where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("Dimension Value Code")));
         }
         field(8; Indentation; Integer)
         {
             Caption = 'Indentation';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = Lookup("Dimension Value".Indentation WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("Dimension Value Code")));
+            CalcFormula = Lookup("Dimension Value".Indentation where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("Dimension Value Code")));
         }
         field(10; Allowed; Boolean)
         {

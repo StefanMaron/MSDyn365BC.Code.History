@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+
 page 5348 "CRM Product List"
 {
     ApplicationArea = Suite;
@@ -5,7 +15,7 @@ page 5348 "CRM Product List"
     Editable = false;
     PageType = List;
     SourceTable = "CRM Product";
-    SourceTableView = SORTING(ProductNumber);
+    SourceTableView = sorting(ProductNumber);
     UsageCategory = Lists;
 
     layout
@@ -15,7 +25,7 @@ page 5348 "CRM Product List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(ProductNumber; ProductNumber)
+                field(ProductNumber; Rec.ProductNumber)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Product Number';
@@ -28,19 +38,19 @@ page 5348 "CRM Product List"
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(Price; Price)
+                field(Price; Rec.Price)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Price';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(StandardCost; StandardCost)
+                field(StandardCost; Rec.StandardCost)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Standard Cost';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(CurrentCost; CurrentCost)
+                field(CurrentCost; Rec.CurrentCost)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Cost';
@@ -69,7 +79,7 @@ page 5348 "CRM Product List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(true);
+                    Rec.MarkedOnly(true);
                 end;
             }
             action(ShowAll)
@@ -81,7 +91,7 @@ page 5348 "CRM Product List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(false);
+                    Rec.MarkedOnly(false);
                 end;
             }
         }
@@ -106,22 +116,22 @@ page 5348 "CRM Product List"
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecordID: RecordID;
     begin
-        if CRMIntegrationRecord.FindRecordIDFromID(ProductId, DATABASE::Item, RecordID) or
-           CRMIntegrationRecord.FindRecordIDFromID(ProductId, DATABASE::Resource, RecordID)
+        if CRMIntegrationRecord.FindRecordIDFromID(Rec.ProductId, DATABASE::Item, RecordID) or
+           CRMIntegrationRecord.FindRecordIDFromID(Rec.ProductId, DATABASE::Resource, RecordID)
         then
-            if CurrentlyCoupledCRMProduct.ProductId = ProductId then begin
+            if CurrentlyCoupledCRMProduct.ProductId = Rec.ProductId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
-                Mark(true);
+                Rec.Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
-                Mark(false);
+                Rec.Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
-            Mark(true);
+            Rec.Mark(true);
         end;
     end;
 
@@ -134,9 +144,9 @@ page 5348 "CRM Product List"
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        FilterGroup(4);
-        SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Product"));
-        FilterGroup(0);
+        Rec.FilterGroup(4);
+        Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(Database::"CRM Product"));
+        Rec.FilterGroup(0);
     end;
 
     var

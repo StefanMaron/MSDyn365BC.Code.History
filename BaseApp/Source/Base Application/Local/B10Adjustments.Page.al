@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
 page 10240 "B10 Adjustments"
 {
     Caption = 'B10 Adjustments';
@@ -11,7 +17,7 @@ page 10240 "B10 Adjustments"
             repeater(Control1480000)
             {
                 ShowCaption = false;
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the effective date of the B-10 adjustment rate.';

@@ -1,3 +1,11 @@
+namespace Microsoft.Integration.MDM;
+
+using System.Threading;
+using Microsoft.Integration.SyncEngine;
+using System.Utilities;
+using Microsoft.CRM.Contact;
+
+
 codeunit 7231 "Integration Master Data Synch."
 {
     TableNo = "Integration Table Mapping";
@@ -14,16 +22,16 @@ codeunit 7231 "Integration Master Data Synch."
         MappingName: Code[20];
     begin
         OnBeforeRun(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         Rec.SetOriginalJobQueueEntryOnHold(OriginalJobQueueEntry, PrevStatus);
-        if Direction in [Direction::ToIntegrationTable, Direction::Bidirectional] then
+        if Rec.Direction in [Rec.Direction::ToIntegrationTable, Rec.Direction::Bidirectional] then
             LatestModifiedOn[DateType::Local] := PerformScheduledSynchToIntegrationTable(Rec);
-        if Direction in [Direction::FromIntegrationTable, Direction::Bidirectional] then
+        if Rec.Direction in [Rec.Direction::FromIntegrationTable, Rec.Direction::Bidirectional] then
             LatestModifiedOn[DateType::Integration] := PerformScheduledSynchFromIntegrationTable(Rec);
-        MappingName := Name;
-        if not Find() then
+        MappingName := Rec.Name;
+        if not Rec.Find() then
             Session.LogMessage('0000J8M', StrSubstNo(UnableToFindMappingErr, MappingName), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MasterDataManagement.GetTelemetryCategory())
         else begin
             Rec.UpdateTableMappingModifiedOn(LatestModifiedOn);
@@ -583,4 +591,6 @@ codeunit 7231 "Integration Master Data Synch."
     begin
     end;
 }
+
+
 

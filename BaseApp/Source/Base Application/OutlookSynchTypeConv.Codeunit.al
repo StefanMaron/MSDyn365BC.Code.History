@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using System.Reflection;
+
 codeunit 5302 "Outlook Synch. Type Conv"
 {
 

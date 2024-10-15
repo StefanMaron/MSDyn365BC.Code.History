@@ -1,3 +1,8 @@
+namespace Microsoft.Utilities;
+
+using System.IO;
+using System.Utilities;
+
 report 1301 "Print ASCII File"
 {
     DefaultLayout = RDLC;
@@ -8,7 +13,7 @@ report 1301 "Print ASCII File"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }

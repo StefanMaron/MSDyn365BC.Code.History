@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Integration.Entity;
+using Microsoft.Purchases.History;
+
 codeunit 5527 "Graph Mgt - Purchase Invoice"
 {
     Permissions = TableData "Purch. Inv. Header" = rimd;

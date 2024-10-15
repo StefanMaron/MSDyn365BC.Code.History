@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Entity;
+
+using Microsoft.Sales.History;
+
 page 9970 "Posted Sales Invoice API"
 {
     APIVersion = 'v1.0';
@@ -24,11 +32,11 @@ page 9970 "Posted Sales Invoice API"
         {
             repeater(Group)
             {
-                field(id; SystemId)
+                field(id; Rec.SystemId)
                 {
                     Caption = 'Id';
                 }
-                field(number; "No.")
+                field(number; Rec."No.")
                 {
                     Caption = 'No.';
                 }
@@ -36,171 +44,171 @@ page 9970 "Posted Sales Invoice API"
                 {
                     Caption = 'API Id';
                 }
-                field(externalDocumentNumber; "External Document No.")
+                field(externalDocumentNumber; Rec."External Document No.")
                 {
                     Caption = 'External Document No.';
                 }
-                field(invoiceDate; "Document Date")
+                field(invoiceDate; Rec."Document Date")
                 {
                     Caption = 'Invoice Date';
                 }
-                field(postingDate; "Posting Date")
+                field(postingDate; Rec."Posting Date")
                 {
                     Caption = 'Posting Date';
                 }
-                field(dueDate; "Due Date")
+                field(dueDate; Rec."Due Date")
                 {
                     Caption = 'Due Date';
                 }
-                field(customerPurchaseOrderReference; "Your Reference")
+                field(customerPurchaseOrderReference; Rec."Your Reference")
                 {
                     Caption = 'Customer Purchase Order Reference';
                 }
-                field(customerNumber; "Sell-to Customer No.")
+                field(customerNumber; Rec."Sell-to Customer No.")
                 {
                     Caption = 'Customer No.';
                 }
-                field(customerName; "Sell-to Customer Name")
+                field(customerName; Rec."Sell-to Customer Name")
                 {
                     Caption = 'Customer Name';
                 }
-                field(billToName; "Bill-to Name")
+                field(billToName; Rec."Bill-to Name")
                 {
                     Caption = 'Bill-To Name';
                 }
-                field(billToCustomerNumber; "Bill-to Customer No.")
+                field(billToCustomerNumber; Rec."Bill-to Customer No.")
                 {
                     Caption = 'Bill-To Customer No.';
                 }
-                field(shipToName; "Ship-to Name")
+                field(shipToName; Rec."Ship-to Name")
                 {
                     Caption = 'Ship-to Name';
                 }
-                field(shipToContact; "Ship-to Contact")
+                field(shipToContact; Rec."Ship-to Contact")
                 {
                     Caption = 'Ship-to Contact';
                 }
-                field(sellToAddressLine1; "Sell-to Address")
+                field(sellToAddressLine1; Rec."Sell-to Address")
                 {
                     Caption = 'Sell-to Address Line 1';
                 }
-                field(sellToAddressLine2; "Sell-to Address 2")
+                field(sellToAddressLine2; Rec."Sell-to Address 2")
                 {
                     Caption = 'Sell-to Address Line 2';
                 }
-                field(sellToCity; "Sell-to City")
+                field(sellToCity; Rec."Sell-to City")
                 {
                     Caption = 'Sell-to City';
                 }
-                field(sellToCountry; "Sell-to Country/Region Code")
+                field(sellToCountry; Rec."Sell-to Country/Region Code")
                 {
                     Caption = 'Sell-to Country/Region Code';
                 }
-                field(sellToState; "Sell-to County")
+                field(sellToState; Rec."Sell-to County")
                 {
                     Caption = 'Sell-to State';
                 }
-                field(sellToPostCode; "Sell-to Post Code")
+                field(sellToPostCode; Rec."Sell-to Post Code")
                 {
                     Caption = 'Sell-to Post Code';
                 }
-                field(billToAddressLine1; "Bill-To Address")
+                field(billToAddressLine1; Rec."Bill-To Address")
                 {
                     Caption = 'Bill-to Address Line 1';
                 }
-                field(billToAddressLine2; "Bill-To Address 2")
+                field(billToAddressLine2; Rec."Bill-To Address 2")
                 {
                     Caption = 'Bill-to Address Line 2';
                 }
-                field(billToCity; "Bill-To City")
+                field(billToCity; Rec."Bill-To City")
                 {
                     Caption = 'Bill-to City';
                 }
-                field(billToCountry; "Bill-To Country/Region Code")
+                field(billToCountry; Rec."Bill-To Country/Region Code")
                 {
                     Caption = 'Bill-to Country/Region Code';
                 }
-                field(billToState; "Bill-To County")
+                field(billToState; Rec."Bill-To County")
                 {
                     Caption = 'Bill-to State';
                 }
-                field(billToPostCode; "Bill-To Post Code")
+                field(billToPostCode; Rec."Bill-To Post Code")
                 {
                     Caption = 'Bill-to Post Code';
                 }
-                field(shipToAddressLine1; "Ship-to Address")
+                field(shipToAddressLine1; Rec."Ship-to Address")
                 {
                     Caption = 'Ship-to Address Line 1';
                 }
-                field(shipToAddressLine2; "Ship-to Address 2")
+                field(shipToAddressLine2; Rec."Ship-to Address 2")
                 {
                     Caption = 'Ship-to Address Line 2';
                 }
-                field(shipToCity; "Ship-to City")
+                field(shipToCity; Rec."Ship-to City")
                 {
                     Caption = 'Ship-to City';
                 }
-                field(shipToCountry; "Ship-to Country/Region Code")
+                field(shipToCountry; Rec."Ship-to Country/Region Code")
                 {
                     Caption = 'Ship-to Country/Region Code';
                 }
-                field(shipToState; "Ship-to County")
+                field(shipToState; Rec."Ship-to County")
                 {
                     Caption = 'Ship-to State';
                 }
-                field(shipToPostCode; "Ship-to Post Code")
+                field(shipToPostCode; Rec."Ship-to Post Code")
                 {
                     Caption = 'Ship-to Post Code';
                 }
-                field(shortcutDimension1Code; "Shortcut Dimension 1 Code")
+                field(shortcutDimension1Code; Rec."Shortcut Dimension 1 Code")
                 {
                     Caption = 'Shortcut Dimension 1 Code';
                 }
-                field(shortcutDimension2Code; "Shortcut Dimension 2 Code")
+                field(shortcutDimension2Code; Rec."Shortcut Dimension 2 Code")
                 {
                     Caption = 'Shortcut Dimension 2 Code';
                 }
-                field(currencyCode; "Currency Code")
+                field(currencyCode; Rec."Currency Code")
                 {
                     Caption = 'Currency Code';
                 }
-                field(orderNumber; "Order No.")
+                field(orderNumber; Rec."Order No.")
                 {
                     Caption = 'Order No.';
                 }
-                field(paymentTermsCode; "Payment Terms Code")
+                field(paymentTermsCode; Rec."Payment Terms Code")
                 {
                     Caption = 'Payment Terms Code';
                 }
-                field(shipmentMethodCode; "Shipment Method Code")
+                field(shipmentMethodCode; Rec."Shipment Method Code")
                 {
                     Caption = 'Shipment Method Code';
                 }
-                field(salesperson; "Salesperson Code")
+                field(salesperson; Rec."Salesperson Code")
                 {
                     Caption = 'Salesperson';
                 }
-                field(pricesIncludeTax; "Prices Including VAT")
+                field(pricesIncludeTax; Rec."Prices Including VAT")
                 {
                     Caption = 'Prices Include Tax';
                 }
-                field(discountAmount; "Invoice Discount Amount")
+                field(discountAmount; Rec."Invoice Discount Amount")
                 {
                     Caption = 'Discount Amount';
                 }
-                field(totalAmountExcludingTax; Amount)
+                field(totalAmountExcludingTax; Rec.Amount)
                 {
                     Caption = 'Total Amount Excluding Tax';
                 }
-                field(totalAmountIncludingTax; "Amount Including VAT")
+                field(totalAmountIncludingTax; Rec."Amount Including VAT")
                 {
                     Caption = 'Total Amount Including Tax';
                 }
-                field(phoneNumber; "Sell-to Phone No.")
+                field(phoneNumber; Rec."Sell-to Phone No.")
                 {
                     Caption = 'Phone No.';
                 }
-                field(email; "Sell-to E-Mail")
+                field(email; Rec."Sell-to E-Mail")
                 {
                     Caption = 'Email';
                 }

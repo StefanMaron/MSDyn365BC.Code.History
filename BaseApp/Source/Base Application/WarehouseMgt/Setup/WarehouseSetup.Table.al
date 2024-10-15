@@ -1,3 +1,11 @@
+namespace Microsoft.Warehouse.Setup;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Warehouse.Request;
+using System.Utilities;
+
 table 5769 "Warehouse Setup"
 {
     Caption = 'Warehouse Setup';
@@ -110,12 +118,14 @@ table 5769 "Warehouse Setup"
             Caption = 'Receipt Posting Policy';
             OptionCaption = 'Posting errors are not processed,Stop and show the first posting error';
             OptionMembers = "Posting errors are not processed","Stop and show the first posting error";
+            InitValue = "Stop and show the first posting error";
         }
         field(19; "Shipment Posting Policy"; Option)
         {
             Caption = 'Shipment Posting Policy';
             OptionCaption = 'Posting errors are not processed,Stop and show the first posting error';
             OptionMembers = "Posting errors are not processed","Stop and show the first posting error";
+            InitValue = "Stop and show the first posting error";
         }
         field(20; "Last Whse. Posting Ref. Seq."; Code[40])
         {

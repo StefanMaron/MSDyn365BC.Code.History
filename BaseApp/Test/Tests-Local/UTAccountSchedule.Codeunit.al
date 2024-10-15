@@ -39,6 +39,10 @@ codeunit 142068 "UT Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists('SubTitle', 'for ' + AccScheduleLine.Description);
     end;
 
+#if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('This page is now opened from Financial Reports Page intead (Overview action).', '22.0')]
+#pragma warning restore AS0072
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -64,6 +68,7 @@ codeunit 142068 "UT Account Schedule"
         AccountScheduleNames.Close();
     end;
 
+#endif
     [Test]
     procedure DoubleUnderlineIsTrueWhenTotalingTypeIsDoubleUnderline()
     var
@@ -222,13 +227,13 @@ codeunit 142068 "UT Account Schedule"
     [MessageHandler]
     procedure DoubleUnderlineMessageHandler(Message: Text);
     begin
-      Assert.AreEqual(DoubleUnderlineMsg, Message, 'Wrong message.');
+        Assert.AreEqual(DoubleUnderlineMsg, Message, 'Wrong message.');
     end;
 
     [MessageHandler]
     procedure UnderlineMessageHandler(Message: Text);
     begin
-      Assert.AreEqual(UnderlineMsg, Message, 'Wrong message.');
+        Assert.AreEqual(UnderlineMsg, Message, 'Wrong message.');
     end;
 }
 

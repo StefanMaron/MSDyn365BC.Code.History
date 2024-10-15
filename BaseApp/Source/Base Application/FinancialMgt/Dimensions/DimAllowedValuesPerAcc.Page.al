@@ -1,8 +1,10 @@
+namespace Microsoft.Finance.Dimension;
+
 page 546 "Dim. Allowed Values per Acc."
 {
     Caption = 'Allowed Dimension Values';
     PageType = Worksheet;
-    DataCaptionExpression = GetCaption();
+    DataCaptionExpression = Rec.GetCaption();
     SourceTable = "Dim. Value per Account";
     SourceTableTemporary = true;
     DeleteAllowed = false;
@@ -18,7 +20,7 @@ page 546 "Dim. Allowed Values per Acc."
                 IndentationColumn = NameIndent;
                 IndentationControls = DimensionValueName;
                 ShowCaption = false;
-                field(DimensionValueCode; "Dimension Value Code")
+                field(DimensionValueCode; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -26,7 +28,7 @@ page 546 "Dim. Allowed Values per Acc."
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the code for the dimension value.';
                 }
-                field(DimensionValueName; "Dimension Value Name")
+                field(DimensionValueName; Rec."Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -34,7 +36,7 @@ page 546 "Dim. Allowed Values per Acc."
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies a descriptive name for the dimension value.';
                 }
-                field(Allowed; Allowed)
+                field(Allowed; Rec.Allowed)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies whether the related record can be posted in transactions.';
@@ -61,9 +63,9 @@ page 546 "Dim. Allowed Values per Acc."
                     CurrPage.SetSelectionFilter(DimValuePerAccount);
                     if DimValuePerAccount.FindSet() then
                         repeat
-                            Get(DimValuePerAccount."Table ID", DimValuePerAccount."No.", DimValuePerAccount."Dimension Code", DimValuePerAccount."Dimension Value Code");
-                            Validate(Allowed, true);
-                            Modify();
+                            Rec.Get(DimValuePerAccount."Table ID", DimValuePerAccount."No.", DimValuePerAccount."Dimension Code", DimValuePerAccount."Dimension Value Code");
+                            Rec.Validate(Allowed, true);
+                            Rec.Modify();
                         until DimValuePerAccount.Next() = 0;
                 end;
             }
@@ -81,9 +83,9 @@ page 546 "Dim. Allowed Values per Acc."
                     CurrPage.SetSelectionFilter(DimValuePerAccount);
                     if DimValuePerAccount.FindSet() then
                         repeat
-                            Get(DimValuePerAccount."Table ID", DimValuePerAccount."No.", DimValuePerAccount."Dimension Code", DimValuePerAccount."Dimension Value Code");
-                            Validate(Allowed, false);
-                            Modify();
+                            Rec.Get(DimValuePerAccount."Table ID", DimValuePerAccount."No.", DimValuePerAccount."Dimension Code", DimValuePerAccount."Dimension Value Code");
+                            Rec.Validate(Allowed, false);
+                            Rec.Modify();
                         until DimValuePerAccount.Next() = 0;
                 end;
             }
@@ -113,23 +115,21 @@ page 546 "Dim. Allowed Values per Acc."
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = Action::LookupOK then begin
-            Reset();
+            Rec.Reset();
             DimMgt.CheckIfNoAllowedValuesSelected(Rec);
         end;
     end;
 
     var
         DimMgt: Codeunit DimensionManagement;
-        [InDataSet]
         Emphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
 
     local procedure FormatLine()
     begin
-        CalcFields("Dimension Value Type", Indentation);
-        Emphasize := "Dimension Value Type" <> "Dimension Value Type"::Standard;
-        NameIndent := Indentation;
+        Rec.CalcFields("Dimension Value Type", Indentation);
+        Emphasize := Rec."Dimension Value Type" <> Rec."Dimension Value Type"::Standard;
+        NameIndent := Rec.Indentation;
     end;
 
     procedure SetBufferData(var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
@@ -137,18 +137,18 @@ page 546 "Dim. Allowed Values per Acc."
         if TempDimValuePerAccount.FindSet() then
             repeat
                 Rec := TempDimValuePerAccount;
-                Insert();
+                Rec.Insert();
             until TempDimValuePerAccount.Next() = 0;
     end;
 
     procedure GetBufferData(var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
     begin
-        Reset();
-        if FindSet() then
+        Rec.Reset();
+        if Rec.FindSet() then
             repeat
-                TempDimValuePerAccount.Get("Table ID", "No.", "Dimension Code", "Dimension Value Code");
-                TempDimValuePerAccount.Allowed := Allowed;
+                TempDimValuePerAccount.Get(Rec."Table ID", Rec."No.", Rec."Dimension Code", Rec."Dimension Value Code");
+                TempDimValuePerAccount.Allowed := Rec.Allowed;
                 TempDimValuePerAccount.Modify();
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 }

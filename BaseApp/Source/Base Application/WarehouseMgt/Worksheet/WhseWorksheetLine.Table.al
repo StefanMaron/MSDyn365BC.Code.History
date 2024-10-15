@@ -1,3 +1,30 @@
+﻿namespace Microsoft.Warehouse.Worksheet;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Availability;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.InternalDocument;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using System.Reflection;
+using System.Telemetry;
+
 table 7326 "Whse. Worksheet Line"
 {
     Caption = 'Whse. Worksheet Line';
@@ -68,7 +95,7 @@ table 7326 "Whse. Worksheet Line"
         field(12; "From Zone Code"; Code[10])
         {
             Caption = 'From Zone Code';
-            TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Zone.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
             begin
@@ -104,12 +131,12 @@ table 7326 "Whse. Worksheet Line"
         field(14; "To Bin Code"; Code[20])
         {
             Caption = 'To Bin Code';
-            TableRelation = IF ("To Zone Code" = FILTER('')) Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                                                           Code = FIELD("To Bin Code"))
-            ELSE
-            IF ("To Zone Code" = FILTER(<> '')) Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                                                                                                                 "Zone Code" = FIELD("To Zone Code"),
-                                                                                                                                 Code = FIELD("To Bin Code"));
+            TableRelation = if ("To Zone Code" = filter('')) Bin.Code where("Location Code" = field("Location Code"),
+                                                                           Code = field("To Bin Code"))
+            else
+            if ("To Zone Code" = filter(<> '')) Bin.Code where("Location Code" = field("Location Code"),
+                                                                                                                                 "Zone Code" = field("To Zone Code"),
+                                                                                                                                 Code = field("To Bin Code"));
 
             trigger OnValidate()
             begin
@@ -125,7 +152,7 @@ table 7326 "Whse. Worksheet Line"
         field(15; "To Zone Code"; Code[10])
         {
             Caption = 'To Zone Code';
-            TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Zone.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
             begin
@@ -136,7 +163,7 @@ table 7326 "Whse. Worksheet Line"
         field(16; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item WHERE(Type = CONST(Inventory));
+            TableRelation = Item where(Type = const(Inventory));
 
             trigger OnValidate()
             begin
@@ -292,7 +319,7 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'From Unit of Measure Code';
             NotBlank = true;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             var
@@ -318,7 +345,7 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'Unit of Measure Code';
             NotBlank = true;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -345,7 +372,7 @@ table 7326 "Whse. Worksheet Line"
         field(31; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             var
@@ -354,6 +381,7 @@ table 7326 "Whse. Worksheet Line"
                 if "Variant Code" <> '' then begin
                     ItemVariant.Get("Item No.", "Variant Code");
                     Description := ItemVariant.Description;
+                    "Description 2" := ItemVariant."Description 2";
                 end else
                     GetItem("Item No.", Description);
             end;
@@ -384,11 +412,11 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'Destination No.';
             Editable = false;
-            TableRelation = IF ("Destination Type" = CONST(Customer)) Customer."No."
-            ELSE
-            IF ("Destination Type" = CONST(Vendor)) Vendor."No."
-            ELSE
-            IF ("Destination Type" = CONST(Location)) Location.Code;
+            TableRelation = if ("Destination Type" = const(Customer)) Customer."No."
+            else
+            if ("Destination Type" = const(Vendor)) Vendor."No."
+            else
+            if ("Destination Type" = const(Location)) Location.Code;
         }
         field(41; "Shipping Agent Code"; Code[10])
         {
@@ -399,7 +427,7 @@ table 7326 "Whse. Worksheet Line"
         field(42; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
-            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+            TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
         }
         field(43; "Shipment Method Code"; Code[10])
         {
@@ -424,18 +452,18 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'Whse. Document No.';
             Editable = false;
-            TableRelation = IF ("Whse. Document Type" = CONST(Receipt)) "Posted Whse. Receipt Header"."No." WHERE("No." = FIELD("Whse. Document No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Shipment)) "Warehouse Shipment Header"."No." WHERE("No." = FIELD("Whse. Document No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST("Internal Put-away")) "Whse. Internal Put-away Header"."No." WHERE("No." = FIELD("Whse. Document No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST("Internal Pick")) "Whse. Internal Pick Header"."No." WHERE("No." = FIELD("Whse. Document No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Production)) "Production Order"."No." WHERE("No." = FIELD("Whse. Document No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Assembly)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order),
-                                                                                                           "No." = FIELD("Whse. Document No."))
+            TableRelation = if ("Whse. Document Type" = const(Receipt)) "Posted Whse. Receipt Header"."No." where("No." = field("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const(Shipment)) "Warehouse Shipment Header"."No." where("No." = field("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const("Internal Put-away")) "Whse. Internal Put-away Header"."No." where("No." = field("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No." where("No." = field("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const(Production)) "Production Order"."No." where("No." = field("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
+                                                                                                           "No." = field("Whse. Document No."))
             else
             if ("Whse. Document Type" = const(Job)) Job."No." where("No." = field("Whse. Document No."));
         }
@@ -444,25 +472,25 @@ table 7326 "Whse. Worksheet Line"
             BlankZero = true;
             Caption = 'Whse. Document Line No.';
             Editable = false;
-            TableRelation = IF ("Whse. Document Type" = CONST(Receipt)) "Posted Whse. Receipt Line"."Line No." WHERE("No." = FIELD("Whse. Document No."),
-                                                                                                                    "Line No." = FIELD("Whse. Document Line No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Shipment)) "Warehouse Shipment Line"."Line No." WHERE("No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                "Line No." = FIELD("Whse. Document Line No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST("Internal Put-away")) "Whse. Internal Put-away Line"."Line No." WHERE("No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                            "Line No." = FIELD("Whse. Document Line No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST("Internal Pick")) "Whse. Internal Pick Line"."Line No." WHERE("No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                "Line No." = FIELD("Whse. Document Line No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Production)) "Prod. Order Line"."Line No." WHERE(Status = CONST(Released),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Prod. Order No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Line No." = FIELD("Line No."))
-            ELSE
-            IF ("Whse. Document Type" = CONST(Assembly)) "Assembly Line"."Line No." WHERE("Document Type" = CONST(Order),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Document No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Line No." = FIELD("Whse. Document Line No."))
+            TableRelation = if ("Whse. Document Type" = const(Receipt)) "Posted Whse. Receipt Line"."Line No." where("No." = field("Whse. Document No."),
+                                                                                                                    "Line No." = field("Whse. Document Line No."))
+            else
+            if ("Whse. Document Type" = const(Shipment)) "Warehouse Shipment Line"."Line No." where("No." = field("Whse. Document No."),
+                                                                                                                                                                                                                "Line No." = field("Whse. Document Line No."))
+            else
+            if ("Whse. Document Type" = const("Internal Put-away")) "Whse. Internal Put-away Line"."Line No." where("No." = field("Whse. Document No."),
+                                                                                                                                                                                                                                                                                                                            "Line No." = field("Whse. Document Line No."))
+            else
+            if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
+                                                                                                                                                                                                                                                                                                                                                                                                                                "Line No." = field("Whse. Document Line No."))
+            else
+            if ("Whse. Document Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = const(Released),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Prod. Order No." = field("Whse. Document No."),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Line No." = field("Line No."))
+            else
+            if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Document No." = field("Whse. Document No."),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const(Job)) "Job Planning Line"."Job Contract Entry No." where("Job No." = field("Whse. Document No."),
                                                                                           "Job Contract Entry No." = field("Whse. Document Line No."));
@@ -549,7 +577,7 @@ table 7326 "Whse. Worksheet Line"
         if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Movement then begin
             UpdateMovActivLines();
             ItemTrackingMgt.DeleteWhseItemTrkgLines(
-              DATABASE::"Whse. Worksheet Line", 0, Name, "Worksheet Template Name", 0, "Line No.", "Location Code", true);
+              Database::"Whse. Worksheet Line", 0, Name, "Worksheet Template Name", 0, "Line No.", "Location Code", true);
         end;
     end;
 
@@ -574,7 +602,9 @@ table 7326 "Whse. Worksheet Line"
         Text004: Label 'You cannot handle more than the available %1 units.';
         Text005: Label 'DEFAULT';
         Text006: Label 'Default %1 Worksheet';
+#if not CLEAN23
         Text007: Label 'You must first set up user %1 as a warehouse employee.';
+#endif
         Text008: Label '%1 Worksheet';
         Text009: Label 'The location %1 of %2 %3 is not enabled for user %4.';
         Text010: Label 'must not be less than %1 units';
@@ -683,6 +713,7 @@ table 7326 "Whse. Worksheet Line"
 
     procedure CalcAvailableQtyBase() AvailableQty: Decimal
     var
+        DummyWhseItemTrackingLine: Record "Whse. Item Tracking Line";
         AvailQtyBase: Decimal;
         QtyAssgndOnWkshBase: Decimal;
         IsHandled: Boolean;
@@ -698,17 +729,16 @@ table 7326 "Whse. Worksheet Line"
         if Location."Directed Put-away and Pick" then begin
             QtyAssgndOnWkshBase := WhseAvailMgt.CalcQtyAssgndOnWksh(Rec, not Location."Allow Breakbulk", true);
 
-            AvailQtyBase :=
-              CreatePick.CalcTotalAvailQtyToPick(
-                "Location Code", "Item No.", "Variant Code", "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                "Source Subline No.", "Qty. to Handle (Base)", false);
+            // Adjust the available quantity to pick with the QtyAssgndOnWkshBase and AssignedQtyOnReservedLines from the other active worksheet lines.
+            AvailableQty := CreatePick.CalcTotalAvailQtyToPickForDirectedPutAwayPick("Location Code", "Item No.", "Variant Code", DummyWhseItemTrackingLine, "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Qty. to Handle (Base)", QtyAssgndOnWkshBase, AssignedQtyOnReservedLines());
+
         end else begin
             QtyAssgndOnWkshBase := WhseAvailMgt.CalcQtyAssgndOnWksh(Rec, true, true);
 
             AvailQtyBase := WhseAvailMgt.CalcQtyAvailToTakeOnWhseWorksheetLine(Rec);
-        end;
 
-        AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines();
+            AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines();
+        end;
     end;
 
     procedure CalcReservedNotFromILEQty(QtyBaseAvailToPick: Decimal; var QtyToPick: Decimal; var QtyToPickBase: Decimal)
@@ -1056,7 +1086,6 @@ table 7326 "Whse. Worksheet Line"
 
     procedure OpenWhseWksh(var WhseWkshLine: Record "Whse. Worksheet Line"; var CurrentWkshTemplateName: Code[10]; var CurrentWkshName: Code[10]; var CurrentLocationCode: Code[10])
     begin
-        CheckWhseEmployee();
         CurrentWkshTemplateName := WhseWkshLine.GetRangeMax("Worksheet Template Name");
         CheckTemplateName(CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
         WhseWkshLine.FilterGroup := 2;
@@ -1086,7 +1115,7 @@ table 7326 "Whse. Worksheet Line"
             for WhseWkshTemplate.Type := WhseWkshTemplate.Type::"Put-away" to WhseWkshTemplate.Type::Movement do begin
                 WhseWkshTemplate.SetRange(Type, WhseWkshTemplate.Type);
                 if not WhseWkshTemplate.FindFirst() then
-                    TemplateSelection(0, WhseWkshTemplate.Type.AsInteger(), WhseWkshLine, JnlSelected);
+                    TemplateSelection(0, WhseWkshTemplate.Type, WhseWkshLine, JnlSelected);
                 if WhseWkshTemplate.FindFirst() then begin
                     if WhseWkshName."Location Code" = '' then
                         WhseWkshName."Location Code" := WmsMgt.GetDefaultLocation();
@@ -1182,7 +1211,9 @@ table 7326 "Whse. Worksheet Line"
             Error(Text009, CurrentLocationCode, WhseWkshName.TableCaption(), CurrentWkshName, UserId);
     end;
 
-    local procedure CheckWhseEmployee()
+#if not CLEAN23
+    [Obsolete('Replaced by CheckUserIsWhseEmployee procedure in WMS Management codeunit', '23.0')]
+    procedure CheckWhseEmployee()
     var
         WhseEmployee: Record "Warehouse Employee";
         IsHandled: Boolean;
@@ -1198,6 +1229,7 @@ table 7326 "Whse. Worksheet Line"
                 Error(Text007, UserId);
         end;
     end;
+#endif
 
     procedure SetWhseWkshName(CurrentWkshName: Code[10]; CurrentLocationCode: Code[10]; var WhseWkshLine: Record "Whse. Worksheet Line")
     begin
@@ -1278,7 +1310,7 @@ table 7326 "Whse. Worksheet Line"
         WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Movement Worksheet");
         WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Movement);
         WhseActivLine.SetRange("Whse. Document Line No.", "Line No.");
-        WhseActivLine.SetRange("Source Type", DATABASE::"Whse. Worksheet Line");
+        WhseActivLine.SetRange("Source Type", Database::"Whse. Worksheet Line");
         WhseActivLine.SetRange("Source No.", "Worksheet Template Name");
         WhseActivLine.SetRange("Location Code", "Location Code");
         if WhseActivLine.Find('-') then
@@ -1306,19 +1338,19 @@ table 7326 "Whse. Worksheet Line"
         TestField("Qty. (Base)");
         case "Whse. Document Type" of
             "Whse. Document Type"::Receipt:
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Posted Whse. Receipt Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Posted Whse. Receipt Line");
             "Whse. Document Type"::Shipment:
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Warehouse Shipment Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Warehouse Shipment Line");
             "Whse. Document Type"::"Internal Put-away":
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Whse. Internal Put-away Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Internal Put-away Line");
             "Whse. Document Type"::"Internal Pick":
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Whse. Internal Pick Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Internal Pick Line");
             "Whse. Document Type"::Production:
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Prod. Order Component");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Prod. Order Component");
             "Whse. Document Type"::Assembly:
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Assembly Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Assembly Line");
             else
-                WhseItemTrackingForm.SetSource(Rec, DATABASE::"Whse. Worksheet Line");
+                WhseItemTrackingForm.SetSource(Rec, Database::"Whse. Worksheet Line");
         end;
 
         WhseItemTrackingForm.RunModal();
@@ -1331,6 +1363,15 @@ table 7326 "Whse. Worksheet Line"
         exit(0);
     end;
 
+    internal procedure AvailableQtyToPickForCurrentLine(): Decimal
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(TypeHelper.Minimum(Rec."Qty. (Base)", AvailableQtyToPick()));
+    end;
+
+#if not CLEAN23
+    [Obsolete('Replaced by procedure AvailableQtyToPick', '23.0')]
     procedure AvailableQtyToPickExcludingQCBins(): Decimal
     var
         TypeHelper: Codeunit "Type Helper";
@@ -1339,11 +1380,11 @@ table 7326 "Whse. Worksheet Line"
             exit(
                 UOMMgt.CalcQtyFromBase(
                     "Item No.", "Variant Code", "Unit of Measure Code",
-                    TypeHelper.Maximum(0, CalcAvailableQtyBase() - QtyOnQCBins(true)), "Qty. per Unit of Measure"));
+                    TypeHelper.Maximum(0, CalcAvailableQtyBase()), "Qty. per Unit of Measure"));
         exit(0);
     end;
 
-    local procedure QtyOnQCBins(ExcludeDedicated: Boolean): Decimal
+    internal procedure QtyOnQCBins(ExcludeDedicated: Boolean): Decimal
     var
         AvailQtyBaseInQCBins: Query "Avail Qty. (Base) In QC Bins";
         ReturnedQty: Decimal;
@@ -1367,7 +1408,7 @@ table 7326 "Whse. Worksheet Line"
         AvailQtyBaseInQCBins.Close();
         exit(ReturnedQty);
     end;
-
+#endif
     procedure InitNewLineWithItem(DocumentType: Enum "Warehouse Worksheet Document Type"; DocumentNo: Code[20];
                                                     DocumentLineNo: Integer;
                                                     LocationCode: Code[10];
@@ -1530,19 +1571,19 @@ table 7326 "Whse. Worksheet Line"
 
         case "Whse. Document Type" of
             "Whse. Document Type"::Receipt:
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Posted Whse. Receipt Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Posted Whse. Receipt Line");
             "Whse. Document Type"::Shipment:
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Warehouse Shipment Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Warehouse Shipment Line");
             "Whse. Document Type"::"Internal Put-away":
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Whse. Internal Put-away Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Put-away Line");
             "Whse. Document Type"::"Internal Pick":
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Whse. Internal Pick Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Internal Pick Line");
             "Whse. Document Type"::Production:
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Prod. Order Component");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Prod. Order Component");
             "Whse. Document Type"::Assembly:
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Assembly Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Assembly Line");
             else
-                WhseItemTrackingLines.SetSource(Rec, DATABASE::"Whse. Worksheet Line");
+                WhseItemTrackingLines.SetSource(Rec, Database::"Whse. Worksheet Line");
         end;
 
         WhseItemTrackingLines.InsertItemTrackingLine(Rec, WhseEntry, QtyToEmpty);
@@ -1647,10 +1688,13 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
+#if not CLEAN23
     [IntegrationEvent(false, false)]
+    [Obsolete('Use OnBeforeCheckUserIsWhseEmployee event in WMS Management codeunit.', '23.0')]
     local procedure OnBeforeCheckWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseWkshName(var WkshTemplateName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
@@ -1692,10 +1736,13 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
+#if not CLEAN23
     [IntegrationEvent(false, false)]
+    [Obsolete('AvailableQtyToPick() removes the QC bins by default', '23.0')]
     local procedure OnBeforeQtyOnQCBins(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var ReturnedQty: Decimal; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     procedure OnDeleteQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")

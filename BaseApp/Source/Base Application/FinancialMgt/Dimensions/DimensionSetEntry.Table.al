@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+
 table 480 "Dimension Set Entry"
 {
     Caption = 'Dimension Set Entry';
@@ -32,7 +36,7 @@ table 480 "Dimension Set Entry"
         {
             Caption = 'Dimension Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"), Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -49,15 +53,15 @@ table 480 "Dimension Set Entry"
         }
         field(5; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup(Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("Dimension Value Code")));
+            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;

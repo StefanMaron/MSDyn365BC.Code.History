@@ -1,4 +1,4 @@
-codeunit 142051 "ERM Sales/Purchase Tax II"
+﻿codeunit 142051 "ERM Sales/Purchase Tax II"
 {
     Subtype = Test;
     TestPermissions = Disabled;

@@ -1,3 +1,19 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.SalesTax;
+using Microsoft.Bank.ElectronicFundsTransfer;
+using Microsoft;
+using Microsoft.Bank.BankAccount;
+using Microsoft.EServices.EDocument;
+using Microsoft.Sales.RoleCenters;
+using Microsoft.Utilities;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Inventory.Reports;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Deposit;
+using Microsoft.Inventory.Location;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;
@@ -16,18 +32,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "ACH US Header" = R,
                   tabledata "B10 Adjustment" = R,
                   tabledata "Bank Comment Line" = R,
-#if not CLEAN21
-                  tabledata "Bank Rec. Header" = R,
-                  tabledata "Bank Rec. Line" = R,
-                  tabledata "Bank Rec. Sub-line" = R,
-#endif
                   tabledata "CFDI Documents" = R,
                   tabledata "CFDI Relation Document" = R,
                   tabledata "Credit Manager Cue" = R,
                   tabledata "Data Dictionary Info" = R,
-#if not CLEAN21
-                  tabledata "Deposit Header" = R,
-#endif
                   tabledata "Document Header" = R,
                   tabledata "Document Line" = R,
                   tabledata "EFT Export" = R,

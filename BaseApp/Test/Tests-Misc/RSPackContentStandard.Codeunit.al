@@ -330,28 +330,6 @@ codeunit 138300 "RS Pack Content - Standard"
 
     [Test]
     [Scope('OnPrem')]
-    procedure GLAccountsPostingExistAndHaveGenPosting()
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        // [WHEN] Find G/L Accounts in the ranges 40000-50000 and 60000-61999
-        with GLAccount do begin
-            Reset();
-            SetFilter("No.", '40000..50000 | 60000..61999');
-            // [THEN] The ranges are not empty
-            Assert.IsTrue(FindSet, 'There are no G/L Accounts in the specified ranges.');
-            repeat
-                if (Totaling = '') and not ("No." in ['40000', '40001', '40990', '60001']) then begin
-                    // [THEN] Account type is posting and Gen. Posting Type is not 0
-                    TestField("Account Type", "Account Type"::Posting);
-                    Assert.AreNotEqual(0, "Gen. Posting Type", 'Gen. Posting Type cannot be 0.');
-                end
-            until Next = 0;
-        end
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure MarketingSetupDefaultFields()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -448,17 +426,17 @@ codeunit 138300 "RS Pack Content - Standard"
     procedure ReportLayoutSelections()
     begin
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
     end;
 
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])

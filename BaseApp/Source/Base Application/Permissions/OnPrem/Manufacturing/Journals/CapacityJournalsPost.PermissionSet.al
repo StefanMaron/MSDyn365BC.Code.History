@@ -1,3 +1,24 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Location;
+using System.Security.User;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Costing;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 291 "Capacity Journals - Post"
 {
     Access = Public;

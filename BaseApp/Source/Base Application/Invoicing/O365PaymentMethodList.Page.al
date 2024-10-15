@@ -21,7 +21,7 @@ page 2154 "O365 Payment Method List"
         {
             repeater(Group)
             {
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
@@ -65,7 +65,7 @@ page 2154 "O365 Payment Method List"
                     PaymentMethod: Record "Payment Method";
                     BCO365PaymentMethodCard: Page "BC O365 Payment Method Card";
                 begin
-                    if PaymentMethod.Get(Code) then begin
+                    if PaymentMethod.Get(Rec.Code) then begin
                         BCO365PaymentMethodCard.SetPaymentMethod(PaymentMethod);
                         BCO365PaymentMethodCard.LookupMode(true);
                         if BCO365PaymentMethodCard.RunModal() = ACTION::LookupOK then;
@@ -95,14 +95,14 @@ page 2154 "O365 Payment Method List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        RefreshRecords();
+        Rec.RefreshRecords();
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        RefreshRecords();
+        Rec.RefreshRecords();
     end;
 }
 #endif

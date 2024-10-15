@@ -1,3 +1,9 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using Microsoft.Warehouse.Activity;
+using System;
+using System.Xml;
+
 codeunit 7711 "Miniform Whse. Activity Line"
 {
     TableNo = "Miniform Header";
@@ -11,7 +17,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
           RootNode, XMLDOMMgt, ADCSCommunication, ADCSUserId,
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
-        if Code <> CurrentCode then
+        if Rec.Code <> CurrentCode then
             PrepareData()
         else
             ProcessInput();
@@ -114,9 +120,9 @@ codeunit 7711 "Miniform Whse. Activity Line"
                         WhseActivityLine.FieldNo("Qty. to Handle"):
                             CheckQty(WhseActivityLine, TextValue);
                         else begin
-                                ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
-                                RecRef.SetTable(WhseActivityLine);
-                            end;
+                            ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
+                            RecRef.SetTable(WhseActivityLine);
+                        end;
                     end;
 
                     WhseActivityLine.Modify();

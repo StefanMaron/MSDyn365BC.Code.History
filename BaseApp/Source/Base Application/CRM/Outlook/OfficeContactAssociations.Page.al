@@ -1,6 +1,12 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+
 page 1625 "Office Contact Associations"
 {
-    CaptionML = ENU = 'Which contact is associated to the email sender?';
+    Caption = 'Which contact is associated to the email sender?';
     Editable = false;
     PageType = List;
     ShowFilter = false;
@@ -25,7 +31,7 @@ page 1625 "Office Contact Associations"
                     ToolTip = 'Specifies the name of the contact.';
                     Style = Strong;
                 }
-                field(Company; Company)
+                field(Company; Rec.Company)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company';
@@ -75,24 +81,24 @@ page 1625 "Office Contact Associations"
                     OfficeContactHandler: Codeunit "Office Contact Handler";
                     OfficeMgt: Codeunit "Office Management";
                 begin
-                    if Company <> CompanyName() then begin
-                        OfficeMgt.StoreValue('ContactNo', "Contact No.");
-                        OfficeMgt.ChangeCompany(Company);
+                    if Rec.Company <> CompanyName() then begin
+                        OfficeMgt.StoreValue('ContactNo', Rec."Contact No.");
+                        OfficeMgt.ChangeCompany(Rec.Company);
                         CurrPage.Close();
                         exit;
                     end;
 
                     OfficeMgt.GetContext(TempOfficeAddinContext);
-                    case "Associated Table" of
-                        "Associated Table"::" ":
-                            if Contact.Get("Contact No.") then
+                    case Rec."Associated Table" of
+                        Rec."Associated Table"::" ":
+                            if Contact.Get(Rec."Contact No.") then
                                 Page.Run(Page::"Contact Card", Contact);
-                        "Associated Table"::Company,
-                        "Associated Table"::"Bank Account":
-                            if Contact.Get("Contact No.") then
+                        Rec."Associated Table"::Company,
+                        Rec."Associated Table"::"Bank Account":
+                            if Contact.Get(Rec."Contact No.") then
                                 Page.Run(Page::"Contact Card", Contact);
                         else
-                            OfficeContactHandler.ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", "No.");
+                            OfficeContactHandler.ShowCustomerVendor(TempOfficeAddinContext, Contact, Rec."Associated Table", Rec."No.");
                     end;
                 end;
             }
@@ -128,15 +134,15 @@ page 1625 "Office Contact Associations"
         Customer: Record Customer;
         Vendor: Record Vendor;
     begin
-        case "Associated Table" of
-            "Associated Table"::Customer:
-                if Customer.Get("No.") then
+        case Rec."Associated Table" of
+            Rec."Associated Table"::Customer:
+                if Customer.Get(Rec."No.") then
                     Name := Customer.Name;
-            "Associated Table"::Vendor:
-                if Vendor.Get("No.") then
+            Rec."Associated Table"::Vendor:
+                if Vendor.Get(Rec."No.") then
                     Name := Vendor.Name;
-            "Associated Table"::Company:
-                if Contact.Get("No.") then
+            Rec."Associated Table"::Company:
+                if Contact.Get(Rec."No.") then
                     Name := Contact."Company Name";
             else
                 Clear(Name);

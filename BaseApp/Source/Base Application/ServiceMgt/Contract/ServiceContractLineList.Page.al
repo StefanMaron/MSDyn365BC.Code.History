@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Service.Item;
+
 page 6078 "Service Contract Line List"
 {
     Caption = 'Service Contract Line List';
@@ -143,7 +147,7 @@ page 6078 "Service Contract Line List"
                     Caption = 'Service &Item Card';
                     Image = ServiceItem;
                     RunObject = Page "Service Item Card";
-                    RunPageLink = "No." = FIELD("Service Item No.");
+                    RunPageLink = "No." = field("Service Item No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the service item.';
                 }
@@ -153,8 +157,8 @@ page 6078 "Service Contract Line List"
                     Caption = 'Ser&vice Contracts';
                     Image = ServiceAgreement;
                     RunObject = Page "Serv. Contr. List (Serv. Item)";
-                    RunPageLink = "Service Item No." = FIELD("Service Item No.");
-                    RunPageView = SORTING("Service Item No.", "Contract Status");
+                    RunPageLink = "Service Item No." = field("Service Item No.");
+                    RunPageView = sorting("Service Item No.", "Contract Status");
                     ToolTip = 'Open the list of ongoing service contracts.';
                 }
             }

@@ -1331,7 +1331,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATPct1 := PurchLine1."VAT %" / 100; // Get VAT% on the line
         CreatePurchLine(PurchHeader, PurchLine2, PurchLine2.Type::Item, Item3, Quantity2, LineCost2, LineDisc);
         VATPct2 := PurchLine2."VAT %" / 100; // Get VAT% on the line
-
+        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine1);
         // Post prepayment invoice
         PurchPostPrepmt.Invoice(PurchHeader);
 
@@ -1508,6 +1508,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscount2 := TotalLineAmtExclDisc2 * InvDiscount;
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
+
         IsEntryTypeSale := SalesDocumentExist();
         if IsEntryTypeSale then begin
             TotalLineAmtExclDisc1 := TotalLineAmtExclDisc1 - TotalInvDiscount1;
@@ -1516,9 +1517,14 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
             PrepaymentAmount := Round(
                 (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment,
                 Currency."Amount Rounding Precision");
-        end else
-            PrepaymentAmount := (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment;
+        end else begin
+            TotalLineAmtExclDisc1 := TotalLineAmtExclDisc1 - TotalInvDiscount1;
+            TotalLineAmtExclDisc2 := TotalLineAmtExclDisc2 - TotalInvDiscount2;
 
+            PrepaymentAmount := Round(
+                (TotalLineAmtExclDisc1 * (1 + VATPercent1) + TotalLineAmtExclDisc2 * (1 + VATPercent2)) * PrePayment,
+                Currency."Amount Rounding Precision");
+        end;
         // Validate prepayment invoice ledger entry and VAT entry
         GLRegister.Next(GLRegister.Count - 1);
         // Validate No of GL entries
@@ -1561,11 +1567,12 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if IsEntryTypeSale then
             ValidateGLEntry(GLRegister, Account6, AmountExclPrepayment)
         else
-            ValidateGLEntry(GLRegister, Account6,
-              Round(TotalLineAmtExclDisc1 * (1 - InvDiscount) * (1 + VATPercent1) +
-                TotalLineAmtExclDisc2 * (1 - InvDiscount) * (1 + VATPercent2), 1 / 100, '<') - PrepaymentAmount);
+            ValidateGLEntry(GLRegister, Account6, AmountExclPrepayment);
+        /*             ValidateGLEntry(GLRegister, Account6,
+                      Round(TotalLineAmtExclDisc1 * (1 - InvDiscount) * (1 + VATPercent1) +
+                        TotalLineAmtExclDisc2 * (1 - InvDiscount) * (1 + VATPercent2), 1 / 100, '<') - PrepaymentAmount);
 
-        // Validate No of VAT entries
+         */        // Validate No of VAT entries
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         Assert.IsTrue(VATEntry.Count = 5, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 5, VATEntry.Count));
         // Validate base and VAT Amount on VAT entry and VAT link
@@ -3115,6 +3122,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, Type, No, Quantity);
         PurchLine.Validate("Direct Unit Cost", UnitCost);
         PurchLine.Validate("Line Discount %", LineDisc);
+        PurchLine.Validate("Prepayment %", PurchLine."Prepayment %");
         PurchLine.Modify(true);
     end;
 
@@ -3558,7 +3566,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                     SetupFound := true
                 else
                     if GenPostingSetup.Next() = 0 then
-                        Error(StrSubstNo(RecordNotFoundError, GenPostingSetup.TableCaption()));
+                        Error(RecordNotFoundError, GenPostingSetup.TableCaption());
             until SetupFound;
     end;
 

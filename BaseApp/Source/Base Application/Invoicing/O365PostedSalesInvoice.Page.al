@@ -92,7 +92,7 @@ page 2113 "O365 Posted Sales Invoice"
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Control11)
             {
@@ -142,7 +142,7 @@ page 2113 "O365 Posted Sales Invoice"
             {
                 ShowCaption = false;
                 Visible = NOT DiscountVisible;
-                field(Amount2; Amount)
+                field(Amount2; Rec.Amount)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -152,7 +152,7 @@ page 2113 "O365 Posted Sales Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies the total amount on the sales invoice excluding tax.';
                 }
-                field(AmountIncludingVAT2; "Amount Including VAT")
+                field(AmountIncludingVAT2; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -206,11 +206,11 @@ page 2113 "O365 Posted Sales Invoice"
                 Caption = 'Register payment';
                 Image = "Invoicing-Payment";
                 ToolTip = 'Pay the invoice as specified in the default Payment Registration Setup.';
-                Visible = NOT IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0);
+                Visible = NOT IsFullyPaid AND NOT InvoiceCancelled AND (Rec.Amount <> 0);
 
                 trigger OnAction()
                 begin
-                    if O365SalesInvoicePayment.MarkAsPaid("No.") then
+                    if O365SalesInvoicePayment.MarkAsPaid(Rec."No.") then
                         CurrPage.Close();
                 end;
             }
@@ -220,11 +220,11 @@ page 2113 "O365 Posted Sales Invoice"
                 Caption = 'Cancel payment registration';
                 Image = "Invoicing-Payment";
                 ToolTip = 'Cancel payment registrations for this invoice.';
-                Visible = IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0);
+                Visible = IsFullyPaid AND NOT InvoiceCancelled AND (Rec.Amount <> 0);
 
                 trigger OnAction()
                 begin
-                    if O365SalesInvoicePayment.CancelSalesInvoicePayment("No.") then
+                    if O365SalesInvoicePayment.CancelSalesInvoicePayment(Rec."No.") then
                         CurrPage.Close();
                 end;
             }
@@ -234,11 +234,11 @@ page 2113 "O365 Posted Sales Invoice"
                 Caption = 'Show payments';
                 Image = "Invoicing-ViewPayment";
                 ToolTip = 'Show a list of payments made for this invoice.';
-                Visible = NOT InvoiceCancelled AND (Amount <> 0);
+                Visible = NOT InvoiceCancelled AND (Rec.Amount <> 0);
 
                 trigger OnAction()
                 begin
-                    O365SalesInvoicePayment.ShowHistory("No.");
+                    O365SalesInvoicePayment.ShowHistory(Rec."No.");
                 end;
             }
             action(CancelInvoice)
@@ -255,7 +255,7 @@ page 2113 "O365 Posted Sales Invoice"
                     O365SalesCancelInvoice: Codeunit "O365 Sales Cancel Invoice";
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
-                    if SalesInvoiceHeader.Get("No.") then begin
+                    if SalesInvoiceHeader.Get(Rec."No.") then begin
                         SalesInvoiceHeader.SetRecFilter();
                         O365SalesCancelInvoice.CancelInvoice(SalesInvoiceHeader);
                     end;
@@ -292,12 +292,12 @@ page 2113 "O365 Posted Sales Invoice"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter();
-                    LockTable();
-                    Find();
-                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
+                    Rec.SetRecFilter();
+                    Rec.LockTable();
+                    Rec.Find();
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, Rec."Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find();
+                    Rec.Find();
                 end;
             }
         }
@@ -342,24 +342,24 @@ page 2113 "O365 Posted Sales Invoice"
         O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
         CurrencySymbol: Text[10];
     begin
-        IsFullyPaid := O365SalesInvoicePayment.GetPaymentCustLedgerEntry(DummyCustLedgerEntry, "No.");
-        WorkDescription := GetWorkDescription();
+        IsFullyPaid := O365SalesInvoicePayment.GetPaymentCustLedgerEntry(DummyCustLedgerEntry, Rec."No.");
+        WorkDescription := Rec.GetWorkDescription();
         UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(Rec));
         InvoiceCancelled := O365SalesCancelInvoice.IsInvoiceCanceled(Rec);
 
-        if Customer.Get("Sell-to Customer No.") then
+        if Customer.Get(Rec."Sell-to Customer No.") then
             CustomerEmail := Customer."E-Mail";
 
-        if "Currency Code" = '' then begin
+        if Rec."Currency Code" = '' then begin
             GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
-            if Currency.Get("Currency Code") then;
+            if Currency.Get(Rec."Currency Code") then;
             CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
 
-        if TaxArea.Get("Tax Area Code") then
+        if TaxArea.Get(Rec."Tax Area Code") then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
@@ -404,7 +404,7 @@ page 2113 "O365 Posted Sales Invoice"
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceLine.SetRange("Document No.", "No.");
+        SalesInvoiceLine.SetRange("Document No.", Rec."No.");
         SalesInvoiceLine.CalcSums("Inv. Discount Amount", "Line Amount");
         InvoiceDiscountAmount := SalesInvoiceLine."Inv. Discount Amount";
         SubTotalAmount := SalesInvoiceLine."Line Amount";

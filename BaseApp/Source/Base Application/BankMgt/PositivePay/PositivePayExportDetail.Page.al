@@ -1,3 +1,9 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+using System.Security.User;
+
 page 1234 "Positive Pay Export Detail"
 {
     Caption = 'Positive Pay Export Detail';
@@ -97,7 +103,7 @@ page 1234 "Positive Pay Export Detail"
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                     Visible = false;
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the entry has been fully applied to.';
@@ -113,7 +119,7 @@ page 1234 "Positive Pay Export Detail"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("External Document No."; Rec."External Document No.")
@@ -138,12 +144,12 @@ page 1234 "Positive Pay Export Detail"
     var
         LastUploadDate: Date;
         UploadCutoffDate: Date;
-    
+
     procedure Set(NewLastUploadDate: Date; NewUploadCutoffDate: Date; NewBankAcctNo: Code[20])
     begin
         LastUploadDate := NewLastUploadDate;
         UploadCutoffDate := NewUploadCutoffDate;
-        SetRange("Bank Account No.", NewBankAcctNo);
+        Rec.SetRange("Bank Account No.", NewBankAcctNo);
         SetFilters();
         CurrPage.Update(false);
     end;
@@ -151,17 +157,17 @@ page 1234 "Positive Pay Export Detail"
     procedure SetBankPaymentType(BankPaymentType: Enum "Bank Payment Type")
     begin
         if BankPaymentType = Enum::"Bank Payment Type"::" " then
-            SetRange("Bank Payment Type")
-        else 
-            SetRange("Bank Payment Type", BankPaymentType);
+            Rec.SetRange("Bank Payment Type")
+        else
+            Rec.SetRange("Bank Payment Type", BankPaymentType);
         SetFilters();
         CurrPage.Update(false);
     end;
 
     local procedure SetFilters()
     begin
-        SetRange("Check Date", LastUploadDate, UploadCutoffDate);
-        SetRange("Positive Pay Exported", false);
+        Rec.SetRange("Check Date", LastUploadDate, UploadCutoffDate);
+        Rec.SetRange("Positive Pay Exported", false);
     end;
 }
 

@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.CrossDock;
+
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Journal;
+
 page 5783 "Cross-Dock Opportunities"
 {
     AutoSplitKey = true;
@@ -137,7 +142,7 @@ page 5783 "Cross-Dock Opportunities"
                     ToolTip = 'Specifies the number of units of the item on the line reserved for the related source document line.';
                     Visible = false;
                 }
-                field("""Qty. Needed (Base)"" - ""Qty. to Cross-Dock (Base)"""; Rec."Qty. Needed (Base)" - "Qty. to Cross-Dock (Base)")
+                field("""Qty. Needed (Base)"" - ""Qty. to Cross-Dock (Base)"""; Rec."Qty. Needed (Base)" - Rec."Qty. to Cross-Dock (Base)")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Rem. Qty. to Cross-Dock (Base)';
@@ -210,7 +215,7 @@ page 5783 "Cross-Dock Opportunities"
                     group("Total Rem. Qty. to Cross-Dock (Base)")
                     {
                         Caption = 'Total Rem. Qty. to Cross-Dock (Base)';
-                        field("""Total Qty. Needed (Base)"" - ""Qty. Cross-Docked (Base)"""; Rec."Total Qty. Needed (Base)" - "Qty. Cross-Docked (Base)")
+                        field("""Total Qty. Needed (Base)"" - ""Qty. Cross-Docked (Base)"""; Rec."Total Qty. Needed (Base)" - Rec."Qty. Cross-Docked (Base)")
                         {
                             ApplicationArea = Warehouse;
                             Caption = 'Total Rem. Qty. to Cross-Dock (Base)';
@@ -268,7 +273,7 @@ page 5783 "Cross-Dock Opportunities"
                         WMSMgt: Codeunit "WMS Management";
                     begin
                         WMSMgt.ShowSourceDocLine(
-                          "To Source Type", "To Source Subtype", "To Source No.", "To Source Line No.", "To Source Subline No.");
+                          Rec."To Source Type", Rec."To Source Subtype", Rec."To Source No.", Rec."To Source Line No.", Rec."To Source Subline No.");
                     end;
                 }
             }
@@ -309,7 +314,7 @@ page 5783 "Cross-Dock Opportunities"
 
                     trigger OnAction()
                     begin
-                        AutoFillQtyToCrossDock(Rec);
+                        Rec.AutoFillQtyToCrossDock(Rec);
                         CurrPage.Update();
                     end;
                 }
@@ -322,7 +327,7 @@ page 5783 "Cross-Dock Opportunities"
 
                     trigger OnAction()
                     begin
-                        ShowReservation();
+                        Rec.ShowReservation();
                     end;
                 }
             }
@@ -357,17 +362,17 @@ page 5783 "Cross-Dock Opportunities"
     trigger OnAfterGetRecord()
     begin
         CalcValues();
-        CalcFields("Qty. Cross-Docked (Base)");
+        Rec.CalcFields("Qty. Cross-Docked (Base)");
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "Item No." := ItemNo2;
-        "Source Template Name" := TemplateName2;
-        "Source Name/No." := NameNo2;
-        "Source Line No." := LineNo2;
-        "Variant Code" := VariantCode2;
-        "Location Code" := LocationCode2;
+        Rec."Item No." := ItemNo2;
+        Rec."Source Template Name" := TemplateName2;
+        Rec."Source Name/No." := NameNo2;
+        Rec."Source Line No." := LineNo2;
+        Rec."Variant Code" := VariantCode2;
+        Rec."Location Code" := LocationCode2;
     end;
 
     trigger OnOpenPage()
@@ -414,14 +419,14 @@ page 5783 "Cross-Dock Opportunities"
         end;
         OnCalcValuesOnAfterSetQtyToHandleBase(ItemNo2, VariantCode2, LocationCode2, TemplateName2, NameNo2, LineNo2, UOMCode2, QtyPerUOM2, QtyToHandleBase);
 
-        CalcFields("Qty. Cross-Docked (Base)", "Total Qty. Needed (Base)");
-        QtyToBeCrossDockedBase := "Qty. Cross-Docked (Base)";
+        Rec.CalcFields("Qty. Cross-Docked (Base)", "Total Qty. Needed (Base)");
+        QtyToBeCrossDockedBase := Rec."Qty. Cross-Docked (Base)";
 
-        "Item No." := ItemNo2;
-        "Variant Code" := VariantCode2;
-        "Location Code" := LocationCode2;
-        "Unit of Measure Code" := UOMCode2;
-        "Qty. per Unit of Measure" := QtyPerUOM2;
+        Rec."Item No." := ItemNo2;
+        Rec."Variant Code" := VariantCode2;
+        Rec."Location Code" := LocationCode2;
+        Rec."Unit of Measure Code" := UOMCode2;
+        Rec."Qty. per Unit of Measure" := QtyPerUOM2;
     end;
 
     procedure GetValues(var QtyToCrossDock: Decimal)

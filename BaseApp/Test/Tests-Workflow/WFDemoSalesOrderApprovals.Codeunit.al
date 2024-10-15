@@ -28,7 +28,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
-        DynamicRequestPageParametersTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4) WHERE(Field5=1(%1))</DataItem></DataItems></ReportParameters>', Locked = true;
+        DynamicRequestPageParametersTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4) where(Field5=1(%1))</DataItem></DataItems></ReportParameters>', Locked = true;
 
     local procedure Initialize()
     var
