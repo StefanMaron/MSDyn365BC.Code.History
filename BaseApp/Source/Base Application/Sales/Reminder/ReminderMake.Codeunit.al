@@ -481,7 +481,6 @@ codeunit 392 "Reminder-Make"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Customer No.", GlobalCustomer."No.");
-        CustLedgEntry.SetRange("Due Date");
         CustLedgEntry.SetRange("Currency Code", CurrencyCode);
         ReminderLevel.SetRange("Reminder Terms Code", GlobalReminderTerms.Code);
 
