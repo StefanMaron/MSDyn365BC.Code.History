@@ -179,7 +179,7 @@ page 61 "Applied Customer Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -203,11 +203,12 @@ page 61 "Applied Customer Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -266,7 +267,7 @@ page 61 "Applied Customer Entries"
 
         if "Entry No." <> 0 then begin
             CreateCustLedgEntry := Rec;
-            if CreateCustLedgEntry."Document Type" = 0 then
+            if CreateCustLedgEntry."Document Type" = CreateCustLedgEntry."Document Type"::" " then
                 Heading := Text000
             else
                 Heading := Format(CreateCustLedgEntry."Document Type");

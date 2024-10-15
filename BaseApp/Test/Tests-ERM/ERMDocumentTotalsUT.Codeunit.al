@@ -953,7 +953,7 @@ codeunit 134395 "ERM Document Totals UT"
         Item.Modify();
     end;
 
-    local procedure CreatePurchaseDocumentWithAmounts(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; LineQuantity: Decimal; LineDirectUnitCost: Decimal; LineDiscountAmount: Decimal)
+    local procedure CreatePurchaseDocumentWithAmounts(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LineQuantity: Decimal; LineDirectUnitCost: Decimal; LineDiscountAmount: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -965,7 +965,7 @@ codeunit 134395 "ERM Document Totals UT"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithAmounts(var SalesLine: Record "Sales Line"; DocumentType: Option; LineQuantity: Decimal; LineUnitPrice: Decimal; LineDiscountAmount: Decimal)
+    local procedure CreateSalesDocumentWithAmounts(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; LineQuantity: Decimal; LineUnitPrice: Decimal; LineDiscountAmount: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -977,7 +977,7 @@ codeunit 134395 "ERM Document Totals UT"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithTwoLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Integer; VATPostingSetup: Record "VAT Posting Setup"; LineDirectUnitCost1: Decimal; LineDirectUnitCost2: Decimal)
+    local procedure CreatePurchaseDocumentWithTwoLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATPostingSetup: Record "VAT Posting Setup"; LineDirectUnitCost1: Decimal; LineDirectUnitCost2: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -986,7 +986,7 @@ codeunit 134395 "ERM Document Totals UT"
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 1), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
         PurchaseLine.Validate("Direct Unit Cost", LineDirectUnitCost1);
         PurchaseLine.Modify(true);
         PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
@@ -994,7 +994,7 @@ codeunit 134395 "ERM Document Totals UT"
         PurchaseLine.Insert(true);
     end;
 
-    local procedure CreateSalesDocumentWithTwoLines(var SalesHeader: Record "Sales Header"; DocumentType: Integer; VATPostingSetup: Record "VAT Posting Setup"; LineUnitPrice1: Decimal; LineUnitPrice2: Decimal)
+    local procedure CreateSalesDocumentWithTwoLines(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; VATPostingSetup: Record "VAT Posting Setup"; LineUnitPrice1: Decimal; LineUnitPrice2: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1003,7 +1003,7 @@ codeunit 134395 "ERM Document Totals UT"
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 1), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
         SalesLine.Validate("Unit Price", LineUnitPrice1);
         SalesLine.Modify(true);
         SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));

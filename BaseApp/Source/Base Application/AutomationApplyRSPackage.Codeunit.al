@@ -8,6 +8,7 @@ codeunit 5433 "Automation - Apply RSPackage"
         ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         Validate("Apply Status", "Apply Status"::InProgress);
+        Clear("Apply Error");
         Modify(true);
 
         ConfigPackageTable.SetRange("Package Code", Code);

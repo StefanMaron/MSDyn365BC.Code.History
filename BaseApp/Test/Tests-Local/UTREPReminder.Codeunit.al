@@ -88,7 +88,7 @@ codeunit 142074 "UT REP Reminder"
         OnPreDataItemIssuedReminderLineTypeReminder(IssuedReminderLine."Line Type"::"Ending Text");
     end;
 
-    local procedure OnPreDataItemIssuedReminderLineTypeReminder(LineType: Option)
+    local procedure OnPreDataItemIssuedReminderLineTypeReminder(LineType: Enum "Reminder Line Type")
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
@@ -235,7 +235,7 @@ codeunit 142074 "UT REP Reminder"
         exit(IssuedReminderHeader."No.");
     end;
 
-    local procedure CreateIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; LineType: Option)
+    local procedure CreateIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; LineType: Enum "Reminder Line Type")
     begin
         IssuedReminderLine."Reminder No." := CreateIssuedReminderHeader;
         IssuedReminderLine."Line No." := 1;

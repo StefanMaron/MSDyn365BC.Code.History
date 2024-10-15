@@ -2,7 +2,7 @@ profile "ADMIN"
 {
     Enabled = true;
     Caption = 'Administration';
-    ProfileDescription = 'Full functionality for anyone in charge of managing users, permissions, UI customization, and configuring application features.';
+    ProfileDescription = 'Navigation menu only.';
     Promoted = true;
     RoleCenter = 8900;
 }

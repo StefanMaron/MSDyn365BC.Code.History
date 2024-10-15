@@ -16,6 +16,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         MissingPermissionsErr: Label 'You do not have the following permissions';
 
@@ -41,6 +42,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;

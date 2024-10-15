@@ -78,7 +78,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5054; "Next Task Date"; Date)
         {
-            CalcFormula = Min ("To-do".Date WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Min("To-do".Date WHERE("Salesperson Code" = FIELD(Code),
                                                   Closed = CONST(false),
                                                   "System To-do Type" = FILTER(Organizer | "Salesperson Attendee")));
             Caption = 'Next Task Date';
@@ -87,7 +87,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5055; "No. of Opportunities"; Integer)
         {
-            CalcFormula = Count ("Opportunity Entry" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Count("Opportunity Entry" WHERE("Salesperson Code" = FIELD(Code),
                                                            Active = CONST(true),
                                                            "Estimated Close Date" = FIELD("Date Filter"),
                                                            "Action Taken" = FIELD("Action Taken Filter"),
@@ -102,7 +102,7 @@ table 13 "Salesperson/Purchaser"
         field(5056; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
                                                                                  Active = CONST(true),
                                                                                  "Estimated Close Date" = FIELD("Date Filter"),
                                                                                  "Action Taken" = FIELD("Action Taken Filter"),
@@ -117,7 +117,7 @@ table 13 "Salesperson/Purchaser"
         field(5057; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
                                                                                       Active = CONST(true),
                                                                                       "Estimated Close Date" = FIELD("Date Filter"),
                                                                                       "Action Taken" = FIELD("Action Taken Filter"),
@@ -136,7 +136,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5059; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Salesperson Code" = FIELD(Code),
                                                                Canceled = CONST(false),
                                                                Date = FIELD("Date Filter"),
                                                                Postponed = CONST(false)));
@@ -147,7 +147,7 @@ table 13 "Salesperson/Purchaser"
         field(5060; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Sum("Interaction Log Entry"."Cost (LCY)" WHERE("Salesperson Code" = FIELD(Code),
                                                                           Canceled = CONST(false),
                                                                           Date = FIELD("Date Filter"),
                                                                           Postponed = CONST(false)));
@@ -157,7 +157,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5061; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Sum("Interaction Log Entry"."Duration (Min.)" WHERE("Salesperson Code" = FIELD(Code),
                                                                                Canceled = CONST(false),
                                                                                Date = FIELD("Date Filter"),
                                                                                Postponed = CONST(false)));
@@ -208,7 +208,7 @@ table 13 "Salesperson/Purchaser"
         field(5068; "Avg. Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average ("Opportunity Entry"."Estimated Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Average("Opportunity Entry"."Estimated Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
                                                                                      Active = CONST(true),
                                                                                      "Estimated Close Date" = FIELD("Date Filter"),
                                                                                      "Action Taken" = FIELD("Action Taken Filter"),
@@ -223,7 +223,7 @@ table 13 "Salesperson/Purchaser"
         field(5069; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Average("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Salesperson Code" = FIELD(Code),
                                                                                           Active = CONST(true),
                                                                                           "Estimated Close Date" = FIELD("Date Filter"),
                                                                                           "Action Taken" = FIELD("Action Taken Filter"),
@@ -300,7 +300,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5082; "Opportunity Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("Opportunity Entry" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Exist("Opportunity Entry" WHERE("Salesperson Code" = FIELD(Code),
                                                            Active = CONST(true),
                                                            "Contact No." = FIELD("Contact Filter"),
                                                            "Contact Company No." = FIELD("Contact Company Filter"),
@@ -321,7 +321,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5083; "Task Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("To-do" WHERE("Salesperson Code" = FIELD(Code),
+            CalcFormula = Exist("To-do" WHERE("Salesperson Code" = FIELD(Code),
                                                "Contact No." = FIELD("Contact Filter"),
                                                "Contact Company No." = FIELD("Contact Company Filter"),
                                                "Campaign No." = FIELD("Campaign Filter"),
@@ -365,6 +365,9 @@ table 13 "Salesperson/Purchaser"
             Clustered = true;
         }
         key(Key2; "Search E-Mail")
+        {
+        }
+        key(Key3; SystemModifiedAt)
         {
         }
     }

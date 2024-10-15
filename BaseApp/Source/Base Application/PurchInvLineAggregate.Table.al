@@ -1,6 +1,10 @@
 table 5478 "Purch. Inv. Line Aggregate"
 {
     Caption = 'Purch. Inv. Line Aggregate';
+    // TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -14,7 +18,7 @@ table 5478 "Purch. Inv. Line Aggregate"
 
             trigger OnValidate()
             begin
-                "API Type" := Type;
+                "API Type" := Type.AsInteger();
             end;
         }
         field(6; "No."; Code[20])
@@ -172,21 +176,19 @@ table 5478 "Purch. Inv. Line Aggregate"
         {
             Caption = 'Discount Applied Before Tax';
         }
-        field(9029; "API Type"; Option)
+        field(9029; "API Type"; Enum "Invoice Line Agg. Line Type")
         {
             Caption = 'API Type';
-            OptionCaption = 'Comment,Account,Item,Resource,Fixed Asset,Charge';
-            OptionMembers = Comment,Account,Item,Resource,"Fixed Asset",Charge;
 
             trigger OnValidate()
             begin
-                Type := "API Type";
+                Type := "Purchase Line Type".FromInteger("API Type");
             end;
         }
         field(9030; "Item Id"; Guid)
         {
             Caption = 'Item Id';
-            TableRelation = Item.Id;
+            TableRelation = Item.SystemId;
 
             trigger OnValidate()
             begin
@@ -197,12 +199,22 @@ table 5478 "Purch. Inv. Line Aggregate"
         field(9031; "Account Id"; Guid)
         {
             Caption = 'Account Id';
-            TableRelation = "G/L Account".Id;
+            TableRelation = "G/L Account".SystemId;
 
             trigger OnValidate()
             begin
                 Validate(Type, Type::"G/L Account");
                 UpdateNo;
+            end;
+        }
+        field(9032; "Unit of Measure Id"; Guid)
+        {
+            Caption = 'Unit of Measure Id';
+            TableRelation = "Unit of Measure".SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateUnitOfMeasureCode();
             end;
         }
         field(9039; "Line Tax Amount"; Decimal)
@@ -277,7 +289,7 @@ table 5478 "Purch. Inv. Line Aggregate"
         if not Item.Get("No.") then
             exit;
 
-        "Item Id" := Item.Id;
+        "Item Id" := Item.SystemId;
     end;
 
     procedure UpdateAccountId()
@@ -292,7 +304,7 @@ table 5478 "Purch. Inv. Line Aggregate"
         if not GLAccount.Get("No.") then
             exit;
 
-        "Account Id" := GLAccount.Id;
+        "Account Id" := GLAccount.SystemId;
     end;
 
     procedure UpdateNo()
@@ -303,16 +315,14 @@ table 5478 "Purch. Inv. Line Aggregate"
         case Type of
             Type::Item:
                 begin
-                    Item.SetRange(Id, "Item Id");
-                    if not Item.FindFirst then
+                    if not Item.GetBySystemId("Item Id") then
                         exit;
 
                     "No." := Item."No.";
                 end;
             Type::"G/L Account":
                 begin
-                    GLAccount.SetRange(Id, "Account Id");
-                    if not GLAccount.FindFirst then
+                    if not GLAccount.GetBySystemId("Account Id") then
                         exit;
 
                     "No." := GLAccount."No.";
@@ -323,7 +333,7 @@ table 5478 "Purch. Inv. Line Aggregate"
     local procedure UpdateCalculatedFields()
     begin
         UpdateReferencedRecordIds;
-        "API Type" := Type;
+        "API Type" := Type.AsInteger();
     end;
 
     local procedure UpdateVariantCode()
@@ -343,6 +353,34 @@ table 5478 "Purch. Inv. Line Aggregate"
     begin
         UpdateItemId;
         UpdateAccountId;
+        UpdateUnitOfMeasureId();
+    end;
+
+    local procedure UpdateUnitOfMeasureId()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        Clear("Unit of Measure Id");
+        if "Unit of Measure Code" = '' then
+            exit;
+
+        if not UnitOfMeasure.Get("Unit of Measure Code") then
+            exit;
+
+        "Unit of Measure Id" := UnitOfMeasure.SystemId;
+    end;
+
+    local procedure UpdateUnitOfMeasureCode()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        if IsNullGuid("Unit of Measure Id") then begin
+            Validate("Unit of Measure Code", '');
+            exit;
+        end;
+
+        UnitOfMeasure.GetBySystemId("Unit of Measure Id");
+        Validate("Unit of Measure Code", UnitOfMeasure.Code);
     end;
 }
 

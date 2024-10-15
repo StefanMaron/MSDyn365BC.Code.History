@@ -68,20 +68,21 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
         PriceListLine."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
         PriceListLine."Unit of Measure Code" := '';
         PriceListLine."Currency Code" := '';
-        case AmountType of
-            AmountType::Price:
-                begin
-                    PriceListLine."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
-                    PriceListLine."Price Includes VAT" := Item."Price Includes VAT";
-                    PriceListLine."Unit Price" := Item."Unit Price";
-                end;
-            AmountType::Cost:
-                begin
-                    PriceListLine."Price Includes VAT" := false;
-                    CopyCostFromSKU(PriceCalculationBuffer, Item."Last Direct Cost");
-                    PriceListLine."Unit Cost" := Item."Last Direct Cost";
-                end;
-        end;
+        if AmountType <> AmountType::Discount then
+            case PriceCalculationBuffer."Price Type" of
+                PriceCalculationBuffer."Price Type"::Sale:
+                    begin
+                        PriceListLine."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
+                        PriceListLine."Price Includes VAT" := Item."Price Includes VAT";
+                        PriceListLine."Unit Price" := Item."Unit Price";
+                    end;
+                PriceCalculationBuffer."Price Type"::Purchase:
+                    begin
+                        PriceListLine."Price Includes VAT" := false;
+                        CopyCostFromSKU(PriceCalculationBuffer, Item."Last Direct Cost");
+                        PriceListLine."Unit Cost" := Item."Last Direct Cost";
+                    end;
+            end;
         OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
     end;
 
@@ -122,6 +123,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     begin
         PriceAsset."Unit of Measure Code" := GetUnitOfMeasure(PriceAsset."Price Type");
         PriceAsset."Variant Code" := '';
+        PriceAsset.Description := Item.Description;
         if PriceAsset."Price Type" <> PriceAsset."Price Type"::Purchase then begin
             PriceAsset."Allow Invoice Disc." := Item."Allow Invoice Disc.";
             PriceAsset."Price Includes VAT" := Item."Price Includes VAT";

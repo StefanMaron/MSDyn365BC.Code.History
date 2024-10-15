@@ -24,7 +24,8 @@ codeunit 8510 "Over-Receipt Mgt."
     begin
         if not IsOverReceiptAllowed() then
             exit(false);
-        WhseManagement.SetSourceFilterForWhseRcptLine(WarehouseReceiptLine, Database::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", true);
+        WhseManagement.SetSourceFilterForWhseRcptLine(
+            WarehouseReceiptLine, Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", true);
         if not WarehouseReceiptLine.FindFirst() then
             exit(false);
         exit(PurchaseLine.Quantity = WarehouseReceiptLine.Quantity);

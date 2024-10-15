@@ -467,7 +467,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         DimVal.Insert();
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

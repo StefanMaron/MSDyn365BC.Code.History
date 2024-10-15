@@ -37,7 +37,7 @@ table 1523 "Workflow Step Argument"
         }
         field(6; "Notification User License Type"; Option)
         {
-            CalcFormula = Lookup (User."License Type" WHERE("User Name" = FIELD("Notification User ID")));
+            CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("Notification User ID")));
             Caption = 'Notification User License Type';
             FieldClass = FlowField;
             OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
@@ -131,7 +131,7 @@ table 1523 "Workflow Step Argument"
         }
         field(21; "Field Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             Editable = false;
@@ -171,15 +171,13 @@ table 1523 "Workflow Step Argument"
                     Validate("Response User ID", UserSetup."User ID");
             end;
         }
-        field(25; "Notification Entry Type"; Option)
+        field(25; "Notification Entry Type"; Enum "Notification Entry Type")
         {
             Caption = 'Notification Entry Type';
-            OptionCaption = 'New Record,Approval,Overdue';
-            OptionMembers = "New Record",Approval,Overdue;
         }
         field(100; "Response Option Group"; Code[20])
         {
-            CalcFormula = Lookup ("Workflow Response"."Response Option Group" WHERE("Function Name" = FIELD("Response Function Name")));
+            CalcFormula = Lookup("Workflow Response"."Response Option Group" WHERE("Function Name" = FIELD("Response Function Name")));
             Caption = 'Response Option Group';
             Editable = false;
             FieldClass = FlowField;
@@ -263,7 +261,7 @@ table 1523 "Workflow Step Argument"
     begin
         if "Event Conditions".HasValue then begin
             CalcFields("Event Conditions");
-            "Event Conditions".CreateInStream(FiltersInStream);
+            "Event Conditions".CreateInStream(FiltersInStream, TextEncoding::UTF8);
             FiltersInStream.Read(Filters);
         end;
     end;
@@ -288,7 +286,7 @@ table 1523 "Workflow Step Argument"
     var
         FiltersOutStream: OutStream;
     begin
-        "Event Conditions".CreateOutStream(FiltersOutStream);
+        "Event Conditions".CreateOutStream(FiltersOutStream, TextEncoding::UTF8);
         FiltersOutStream.Write(Filters);
         Modify(true);
     end;

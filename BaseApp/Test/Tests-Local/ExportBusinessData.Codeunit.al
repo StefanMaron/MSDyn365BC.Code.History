@@ -1770,8 +1770,8 @@ codeunit 142006 "Export Business Data"
 
         // [GIVEN] Data Export Record Definiton with Customer Table added twice with one primary field and two non-primary.
         CreateRecDefinition(DataExportRecordDefinition);
-        AddCustRecordSourceWithSameFields(DataExportRecordDefinition,DataExportRecordSource);
-        AddCustRecordSourceWithSameFields(DataExportRecordDefinition,DataExportRecordSource);
+        AddCustRecordSourceWithSameFields(DataExportRecordDefinition, DataExportRecordSource);
+        AddCustRecordSourceWithSameFields(DataExportRecordDefinition, DataExportRecordSource);
 
         // [WHEN] Data exported using report 11015 "Export Business Data".
         FolderName := ExportBusinessData(DataExportRecordDefinition);
@@ -2469,7 +2469,8 @@ codeunit 142006 "Export Business Data"
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
     begin
         DtldCVLedgEntryBuffer.FindFirst;
-        DtldCVLedgEntryBuffer."Document Type" += 1;
+        DtldCVLedgEntryBuffer."Document Type" :=
+            "Gen. Journal Document Type".FromInteger(DtldCVLedgEntryBuffer."Document Type".AsInteger() + 1);
         DtldCVLedgEntryBuffer.Modify();
     end;
 

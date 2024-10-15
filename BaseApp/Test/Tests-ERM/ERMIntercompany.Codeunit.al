@@ -381,7 +381,7 @@ codeunit 134151 "ERM Intercompany"
         CreateICJournalLineWithCustomerAndICPartner(Customer.Blocked::Invoice, UpdateICPartnerBlocked(CreateICPartner, true));
     end;
 
-    local procedure CreateICJournalLineWithCustomerAndICPartner(CustomerBlocked: Option " ",Ship,Invoice,All; ICPartnerCode: Code[20])
+    local procedure CreateICJournalLineWithCustomerAndICPartner(CustomerBlocked: Enum "Customer Blocked"; ICPartnerCode: Code[20])
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -495,7 +495,7 @@ codeunit 134151 "ERM Intercompany"
         ICJournalLineWithCustomerAndICPartner(Customer.Blocked::" ");
     end;
 
-    local procedure ICJournalLineWithCustomerAndICPartner(Blocked: Option)
+    local procedure ICJournalLineWithCustomerAndICPartner(Blocked: Enum "Customer Blocked")
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -745,7 +745,7 @@ codeunit 134151 "ERM Intercompany"
           Customer.Blocked::All, UpdateICPartnerBlocked(CreateICPartner, true));
     end;
 
-    local procedure CreateICJournalLineWithCustomerAndICPartnerPrivacyBlocked(CustomerBlocked: Option " ",Ship,Invoice,All; ICPartnerCode: Code[20])
+    local procedure CreateICJournalLineWithCustomerAndICPartnerPrivacyBlocked(CustomerBlocked: Enum "Customer Blocked"; ICPartnerCode: Code[20])
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -765,7 +765,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Customer.TableCaption, CustomerNo));
     end;
 
-    local procedure PostICPartnerLinkedWithCustomer(JournalLineAccountType: Option; AccountNumber: Code[20])
+    local procedure PostICPartnerLinkedWithCustomer(JournalLineAccountType: Enum "Gen. Journal Account Type"; AccountNumber: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -1196,7 +1196,7 @@ codeunit 134151 "ERM Intercompany"
         PostICJournalLineWithDifferentInboxType(ICPartner."Inbox Type"::Email);
     end;
 
-    local procedure PostICJournalLineWithDifferentInboxType(InboxType: Option)
+    local procedure PostICJournalLineWithDifferentInboxType(InboxType: Enum "IC Partner Inbox Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         ICPartner: Record "IC Partner";
@@ -1578,11 +1578,11 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
+          ICPartner.Code, GenJournalLine."Account Type"::Customer.AsInteger(), CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
           PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate),
           CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account", ICGLAccount."No.", CustomerNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
+          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", CustomerNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
     end;
 
     [Test]
@@ -1617,9 +1617,9 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::Vendor, VendorNo, VendorNo, 0, GenJournalLine.Amount, 0, WorkDate, WorkDate);
+          ICPartner.Code, GenJournalLine."Account Type"::Vendor.AsInteger(), VendorNo, VendorNo, 0, GenJournalLine.Amount, 0, WorkDate, WorkDate);
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account", ICGLAccount."No.", VendorNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
+          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", VendorNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
     end;
 
     [Test]
@@ -1660,11 +1660,11 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
+          ICPartner.Code, GenJournalLine."Account Type"::Customer.AsInteger(), CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
           PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate),
           CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account", ICGLAccount."No.", CustomerNo, -VATAmount, -GenJournalLine.Amount, 0,
+          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", CustomerNo, -VATAmount, -GenJournalLine.Amount, 0,
           0D, 0D);
     end;
 
@@ -1883,7 +1883,7 @@ codeunit 134151 "ERM Intercompany"
         Amount2 := 0;
     end;
 
-    local procedure CompleteLineActionFromICOutboxTransactionsPage(ICPartnerCode: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CompleteLineActionFromICOutboxTransactionsPage(ICPartnerCode: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         ICOutboxTransactions: TestPage "IC Outbox Transactions";
     begin
@@ -1923,7 +1923,7 @@ codeunit 134151 "ERM Intercompany"
         exit(Dimension.Code);
     end;
 
-    local procedure CreateAndUpdateICJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; SignFactor: Decimal)
+    local procedure CreateAndUpdateICJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SignFactor: Decimal)
     var
         ICGLAccount: Record "IC G/L Account";
     begin
@@ -1932,14 +1932,14 @@ codeunit 134151 "ERM Intercompany"
         UpdateICJournalLine(GenJournalLine, GenJournalLine."Document No.", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.");
     end;
 
-    local procedure CreateAndUpdateICJournalUsingSameBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BalAccountNo: Code[20]; ICPartnerGLAccNo: Code[20])
+    local procedure CreateAndUpdateICJournalUsingSameBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BalAccountNo: Code[20]; ICPartnerGLAccNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
         UpdateICJournalLine(GenJournalLine, AccountNo, BalAccountNo, ICPartnerGLAccNo);
     end;
 
-    local procedure CreateCustomer(Blocked: Option; ICPartnerCode: Code[20]): Code[20]
+    local procedure CreateCustomer(Blocked: Enum "Customer Blocked"; ICPartnerCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
     begin
@@ -1985,7 +1985,7 @@ codeunit 134151 "ERM Intercompany"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateICJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; SignFactor: Integer)
+    local procedure CreateICJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SignFactor: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2021,7 +2021,7 @@ codeunit 134151 "ERM Intercompany"
         exit(ICPartner.Code);
     end;
 
-    local procedure CreateVendor(Blocked: Option; ICPartnerCode: Code[20]): Code[20]
+    local procedure CreateVendor(Blocked: Enum "Vendor Blocked"; ICPartnerCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -2095,7 +2095,7 @@ codeunit 134151 "ERM Intercompany"
         ICInboxOutboxJnlLineDim.FindFirst;
     end;
 
-    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; DocumentType: Option; DocumentNo: Code[20]): Boolean
+    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Boolean
     begin
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
@@ -2103,7 +2103,7 @@ codeunit 134151 "ERM Intercompany"
         exit(ICOutboxTransaction.FindFirst);
     end;
 
-    local procedure FindICOutboxJounralLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20])
+    local procedure FindICOutboxJournalLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20])
     begin
         ICOutboxJnlLine.SetRange("Account Type", AccountType);
         ICOutboxJnlLine.SetRange("IC Partner Code", ICPartnerCode);
@@ -2245,7 +2245,7 @@ codeunit 134151 "ERM Intercompany"
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
     begin
-        FindICOutboxJounralLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
+        FindICOutboxJournalLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
         Assert.AreEqual(
           AccountNo, ICOutboxJnlLine."Account No.",
           StrSubstNo(
@@ -2259,7 +2259,7 @@ codeunit 134151 "ERM Intercompany"
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
     begin
-        FindICOutboxJounralLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
+        FindICOutboxJournalLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
         Assert.AreEqual(
           PaymentDiscountPct, ICOutboxJnlLine."Payment Discount %",
           StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("Payment Discount %"), PaymentDiscountPct, ICOutboxJnlLine.TableCaption));

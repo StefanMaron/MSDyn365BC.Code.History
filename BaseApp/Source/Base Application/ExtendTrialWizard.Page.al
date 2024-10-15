@@ -4,6 +4,9 @@ page 1828 "Extend Trial Wizard"
     PageType = NavigatePage;
     SourceTable = "SMTP Mail Setup";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The source table for this page will be removed.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -40,6 +43,7 @@ page 1828 "Extend Trial Wizard"
                 {
                     Caption = 'Ready to subscribe?';
                     InstructionalText = 'Subscribing is fast and easy, and you can quickly get back to what you were doing.';
+                    Visible = not IsPreview;
                     field(SubscribeNowLbl; SubscribeNowLbl)
                     {
                         ApplicationArea = Basic, Suite, Invoicing;
@@ -99,6 +103,7 @@ page 1828 "Extend Trial Wizard"
     trigger OnInit()
     begin
         LoadTopBanners;
+        OnIsRunningPreview(IsPreview);
     end;
 
     trigger OnOpenPage()
@@ -121,6 +126,7 @@ page 1828 "Extend Trial Wizard"
         ClientTypeManagement: Codeunit "Client Type Management";
         RoleCenterNotifMgt: Codeunit "Role Center Notification Mgt.";
         TopBannerVisible: Boolean;
+        IsPreview: Boolean;
         SubscribeNowLbl: Label 'Subscribe now';
         LearnMoreLbl: Label 'Learn more';
         ExtendVisible: Boolean;
@@ -159,6 +165,11 @@ page 1828 "Extend Trial Wizard"
     local procedure BuySubscription()
     begin
         PAGE.Run(PAGE::"Buy Subscription");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsRunningPreview(var isPreview: Boolean)
+    begin
     end;
 }
 

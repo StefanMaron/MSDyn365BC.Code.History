@@ -5,6 +5,10 @@ page 2865 "Native - Sales Tax Setup"
     PageType = List;
     SourceTable = "Native - API Tax Setup";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,7 +16,7 @@ page 2865 "Native - Sales Tax Setup"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

@@ -15,12 +15,10 @@ table 1019 "Job Difference Buffer"
             Caption = 'Job Task No.';
             DataClassification = SystemMetadata;
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Job Journal Line Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Resource,Item,G/L Account';
-            OptionMembers = Resource,Item,"G/L Account";
         }
         field(4; "Location Code"; Code[10])
         {

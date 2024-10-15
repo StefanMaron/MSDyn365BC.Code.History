@@ -537,5 +537,15 @@ table 6502 "Item Tracking Code"
         if "Strict Expiration Posting" then
             Error(IgnoreButStrictExpirationPostingErr);
     end;
+
+    procedure IsSpecific(): Boolean
+    begin
+        exit("SN Specific Tracking" or "Lot Specific Tracking");
+    end;
+
+    procedure IsWarehouseTracking(): Boolean
+    begin
+        exit("SN Warehouse Tracking" or "Lot Warehouse Tracking");
+    end;
 }
 

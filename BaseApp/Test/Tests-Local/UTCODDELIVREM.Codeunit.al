@@ -206,7 +206,7 @@ codeunit 142034 "UT COD DELIVREM"
         UpdateDeliveryReminderHeader(DeliveryReminderHeader, 'ENU');  // Language Code as ENU.
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);  // Line No as 1.
         UpdateDeliveryReminderLine(DeliveryReminderLine, Type, No);
-        CreateExtendedTextHeader(ExtendedTextHeader, DeliveryReminderLine.Type, DeliveryReminderLine."No.", 'ENU');  // Language Code as ENU.
+        CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name".FromInteger(DeliveryReminderLine.Type), DeliveryReminderLine."No.", 'ENU');  // Language Code as ENU.
         UpdateExtendedTextHeader(ExtendedTextHeader, true);
 
         CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader."Table Name", ExtendedTextHeader."No.", ExtendedTextHeader."Language Code", ExtendedTextHeader."Text No.");
@@ -247,7 +247,7 @@ codeunit 142034 "UT COD DELIVREM"
         UpdateDeliveryReminderHeader(DeliveryReminderHeader, ReminderLanguageCode);
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);  // Line No as 1.
         UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::" ", LibraryUTUtility.GetNewCode);
-        CreateExtendedTextHeader(ExtendedTextHeader, DeliveryReminderLine.Type, DeliveryReminderLine."No.", ExtendedTextLanguageCode);
+        CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text table Name".FromInteger(DeliveryReminderLine.Type), DeliveryReminderLine."No.", ExtendedTextLanguageCode);
         UpdateExtendedTextHeader(ExtendedTextHeader, false);
 
         // Exercise and Verify : Verify Function ReminderCheckIfAnyExtText return value as False.
@@ -271,7 +271,7 @@ codeunit 142034 "UT COD DELIVREM"
         UpdateDeliveryReminderHeader(DeliveryReminderHeader, 'ENU');  // Language Code as ENU.
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);  // Line No as 1.
         UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::Item, LibraryUTUtility.GetNewCode);
-        CreateExtendedTextHeader(ExtendedTextHeader, DeliveryReminderLine.Type, DeliveryReminderLine."No.", 'ENU');  // Language Code as ENU.
+        CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name".FromInteger(DeliveryReminderLine.Type), DeliveryReminderLine."No.", 'ENU');  // Language Code as ENU.
         UpdateExtendedTextHeader(ExtendedTextHeader, true);
         CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader."Table Name", ExtendedTextHeader."No.", ExtendedTextHeader."Language Code", ExtendedTextHeader."Text No.");
         ExtendedTextLine.Text := 'Extended Text Line Text';
@@ -438,7 +438,7 @@ codeunit 142034 "UT COD DELIVREM"
         DeliveryReminderLine.Insert();
     end;
 
-    local procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; TableName: Option; No: Code[20]; LanguageCode: Code[10])
+    local procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; TableName: Enum "Extended Text Table Name"; No: Code[20]; LanguageCode: Code[10])
     begin
         ExtendedTextHeader."Table Name" := TableName;
         ExtendedTextHeader."No." := No;
@@ -447,7 +447,7 @@ codeunit 142034 "UT COD DELIVREM"
         ExtendedTextHeader.Insert();
     end;
 
-    local procedure CreateExtendedTextLine(var ExtendedTextLine: Record "Extended Text Line"; TableName: Option; No: Code[20]; LanguageCode: Code[10]; TextNo: Integer)
+    local procedure CreateExtendedTextLine(var ExtendedTextLine: Record "Extended Text Line"; TableName: Enum "Extended Text Table Name"; No: Code[20]; LanguageCode: Code[10]; TextNo: Integer)
     begin
         ExtendedTextLine."Table Name" := TableName;
         ExtendedTextLine."No." := No;
@@ -488,7 +488,7 @@ codeunit 142034 "UT COD DELIVREM"
         DeliveryReminderLine.Modify();
     end;
 
-    local procedure UpdatePurchasesPayablesSetup(DefaultDelRemDateField: Option)
+    local procedure UpdatePurchasesPayablesSetup(DefaultDelRemDateField: Enum "Delivery Reminder Date Type")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin

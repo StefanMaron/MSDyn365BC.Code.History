@@ -602,7 +602,7 @@ codeunit 144051 "ERM Reports DE"
         UpdateInventoryPostingGroupOnItem(Item2, Item."Inventory Posting Group");
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -795,7 +795,7 @@ codeunit 144051 "ERM Reports DE"
         end;
     end;
 
-    local procedure VerifyValueEntry(ItemLedgerEntryType: Option; DocumentNo: Code[20]; ItemNo: Code[20]; Adjustment: Boolean; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20]; Adjustment: Boolean; CostAmountExpected: Decimal; CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin

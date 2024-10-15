@@ -184,7 +184,7 @@ page 921 "Posted Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -230,7 +230,7 @@ page 921 "Posted Assembly Order Subform"
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

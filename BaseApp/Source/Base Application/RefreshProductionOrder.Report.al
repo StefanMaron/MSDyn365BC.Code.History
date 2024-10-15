@@ -278,19 +278,19 @@ report 99001025 "Refresh Production Order"
             until ProdOrderLine2.Next = 0;
     end;
 
-    local procedure ShouldCheckReservedQty(ProdOrderNo: Code[20]; LineNo: Integer; SourceType: Integer; Status: Option; ProdOrderLineNo: Integer; SourceType2: Integer): Boolean
+    local procedure ShouldCheckReservedQty(ProdOrderNo: Code[20]; LineNo: Integer; SourceType: Integer; Status: Enum "Production Order Status"; ProdOrderLineNo: Integer; SourceType2: Integer): Boolean
     var
         ReservEntry: Record "Reservation Entry";
     begin
         with ReservEntry do begin
-            SetSourceFilter(SourceType, Status, ProdOrderNo, LineNo, true);
+            SetSourceFilter(SourceType, Status.AsInteger(), ProdOrderNo, LineNo, true);
             SetSourceFilter('', ProdOrderLineNo);
             SetRange("Reservation Status", "Reservation Status"::Reservation);
             if FindFirst then begin
                 Get("Entry No.", not Positive);
                 exit(
                   not (("Source Type" = SourceType2) and
-                       ("Source ID" = ProdOrderNo) and ("Source Subtype" = Status)));
+                       ("Source ID" = ProdOrderNo) and ("Source Subtype" = Status.AsInteger())));
             end;
         end;
 

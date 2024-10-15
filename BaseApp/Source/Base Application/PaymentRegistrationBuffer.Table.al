@@ -201,9 +201,9 @@ table 981 "Payment Registration Buffer"
                     "Pmt. Discount Date" := CustLedgerEntry."Pmt. Discount Date";
                     "Rem. Amt. after Discount" := "Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible";
                     "Payment Method Code" := GetO365DefalutPaymentMethodCode;
-                    "Bal. Account Type" := PaymentRegistrationSetup."Bal. Account Type";
+                    "Bal. Account Type" := "Payment Balance Account Type".FromInteger(PaymentRegistrationSetup."Bal. Account Type");
                     "Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
-                    Insert;
+                    Insert();
                 end;
             until CustLedgerEntry.Next = 0;
         end;

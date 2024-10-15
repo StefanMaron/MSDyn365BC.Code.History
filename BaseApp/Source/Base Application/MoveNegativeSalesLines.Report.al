@@ -108,9 +108,9 @@ report 6699 "Move Negative Sales Lines"
         CopyDocMgt.SetProperties(true, false, true, true, true, false, false);
         if (FromDocType = FromDocType::"Return Order") or (FromDocType = FromDocType::"Credit Memo") then
             ToDocType := ToDocType2;
-        ToSalesHeader."Document Type" := CopyDocMgt.SalesHeaderDocType(ToDocType);
+        ToSalesHeader."Document Type" := CopyDocMgt.GetSalesDocumentType("Sales Document Type From".FromInteger(ToDocType));
         OnBeforeCopySalesDoc(FromDocType, FromSalesHeader, ToSalesHeader);
-        CopyDocMgt.CopySalesDoc(FromDocType, FromSalesHeader."No.", ToSalesHeader);
+        CopyDocMgt.CopySalesDoc("Sales Document Type From".FromInteger(FromDocType), FromSalesHeader."No.", ToSalesHeader);
     end;
 
     var

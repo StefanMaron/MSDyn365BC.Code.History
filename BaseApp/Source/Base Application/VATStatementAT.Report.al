@@ -195,14 +195,12 @@ report 11110 "VAT Statement AT"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(PeriodSelection; PeriodSelection)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(ReportingType; PeriodType)
@@ -342,8 +340,8 @@ report 11110 "VAT Statement AT"
         FileManagement: Codeunit "File Management";
         XMLFile: File;
         FDFFile: File;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PeriodType: Option quarter,month,"defined period";
         PrintInWholeNumbers: Boolean;
         Amount: Decimal;

@@ -32,34 +32,48 @@ codeunit 139100 "Online Doc. Storage Conf Test"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TestConfigSuccessful()
+    procedure TestLegacyConfigSuccessful()
     var
         DocServPage: TestPage "Document Service Config";
     begin
-        InitializeConfig;
+        InitializeConfig();
 
-        DocServPage.OpenEdit;
+        DocServPage.OpenEdit();
 
-        DocServPage."Service ID".SetValue('Service ID');
-        Assert.AreEqual(DocServPage."Service ID".Value, 'SERVICE ID', 'Setting Service ID value failed');
-
-        DocServPage.Description.SetValue('Description');
-        Assert.AreEqual(DocServPage.Description.Value, 'Description', 'Setting Description value failed');
+        DocServPage."Authentication Type".SetValue('Legacy');
+        Assert.AreEqual(DocServPage."Authentication Type".Value(), 'Legacy', 'Setting Authentication Type value failed');
 
         DocServPage.Location.SetValue('Location');
-        Assert.AreEqual(DocServPage.Location.Value, 'Location', 'Setting Location value failed');
+        Assert.AreEqual(DocServPage.Location.Value(), 'Location', 'Setting Location value failed');
 
-        DocServPage."Document Repository".SetValue('Document Repository');
-        Assert.AreEqual(DocServPage."Document Repository".Value, 'Document Repository', 'Setting Doc. Repository value failed');
-
-        DocServPage.Folder.SetValue('Folder');
-        Assert.AreEqual(DocServPage.Folder.Value, 'Folder', 'Setting Folder value failed');
+        TestConfigSuccessful(DocServPage);
 
         DocServPage."User Name".SetValue('User Name');
-        Assert.AreEqual(DocServPage."User Name".Value, 'User Name', 'Setting User Name value failed');
+        Assert.AreEqual(DocServPage."User Name".Value(), 'User Name', 'Setting User Name value failed');
 
         Assert.IsTrue(DocServPage."Test Connection".Enabled, 'Validation of config data not enabled');
-        DocServPage."Test Connection".Invoke;
+        DocServPage."Test Connection".Invoke();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestOAuthConfigSuccessful()
+    var
+        DocServPage: TestPage "Document Service Config";
+    begin
+        InitializeConfig();
+
+        DocServPage.OpenEdit();
+        DocServPage."Authentication Type".SetValue('OAuth2');
+
+        Assert.AreEqual(DocServPage."Authentication Type".Value(), 'OAuth2', 'Setting Authentication Type value failed');
+
+        TestConfigSuccessful(DocServPage);
+
+        Assert.IsTrue(DocServPage."User Name".Enabled, 'Setting user name in OAuth2 Authentication Type is enabled');
+
+        Assert.IsTrue(DocServPage."Test Connection".Enabled, 'Validation of config data not enabled');
     end;
 
     [Test]
@@ -75,6 +89,8 @@ codeunit 139100 "Online Doc. Storage Conf Test"
 
         DocumentService.DeleteAll();
         DocServPage.OpenEdit;
+
+        DocServPage."Authentication Type".SetValue('Legacy');
 
         // Description is not mandatory but we want to trigger validation on the record.
         DocServPage.Description.SetValue('Description');
@@ -121,13 +137,14 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocumentService.DeleteAll();
         DocServPage.OpenEdit;
 
-        Assert.IsFalse(DocServPage."Service ID".Value = '', 'The Service ID field should have been automatically populated');
-        Assert.IsTrue(DocServPage.Description.Value = '', 'The Description should have defaulted to empty.');
-        Assert.IsTrue(DocServPage.Location.Value = '', 'The Location should have defaulted to empty.');
-        Assert.IsTrue(DocServPage."User Name".Value = '', 'The User Name should have defaulted to empty.');
-        Assert.IsTrue(DocServPage.Folder.Value = '', 'The Folder should have defaulted to empty.');
-        Assert.IsTrue(DocServPage."Document Repository".Value = '', 'The Document Repository should have defaulted to empty.');
-        Assert.IsTrue(DocumentService.FindFirst, 'The default record should have been initialized upon Open Page.');
+        Assert.IsFalse(DocServPage."Service ID".Value() = '', 'The Service ID field should have been automatically populated');
+        Assert.IsTrue(DocServPage."Authentication Type".Value() = 'OAuth2', 'The Authentication Type field should have been automatically populated to OAuth2');
+        Assert.IsTrue(DocServPage.Description.Value() = '', 'The Description should have defaulted to empty.');
+        Assert.IsTrue(DocServPage.Location.Value() = '', 'The Location should have defaulted to empty.');
+        Assert.IsTrue(DocServPage."User Name".Value() = '', 'The User Name should have defaulted to empty.');
+        Assert.IsTrue(DocServPage.Folder.Value() = '', 'The Folder should have defaulted to empty.');
+        Assert.IsTrue(DocServPage."Document Repository".Value() = '', 'The Document Repository should have defaulted to empty.');
+        Assert.IsTrue(DocumentService.FindFirst(), 'The default record should have been initialized upon Open Page.');
         Assert.IsTrue(DocumentService.Password = '', 'The Password should have defaulted to empty.');
     end;
 
@@ -254,6 +271,28 @@ codeunit 139100 "Online Doc. Storage Conf Test"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    local procedure TestConfigSuccessful(var DocServPage: TestPage "Document Service Config")
+    begin
+        DocServPage."Service ID".SetValue('Service ID');
+        Assert.AreEqual(DocServPage."Service ID".Value(), 'SERVICE ID', 'Setting Service ID value failed');
+
+        DocServPage.Description.SetValue('Description');
+        Assert.AreEqual(DocServPage.Description.Value(), 'Description', 'Setting Description value failed');
+
+        DocServPage."Document Repository".SetValue('Document Repository');
+        Assert.AreEqual(DocServPage."Document Repository".Value(), 'Document Repository', 'Setting Doc. Repository value failed');
+
+        DocServPage.Folder.SetValue('Folder');
+        Assert.AreEqual(DocServPage.Folder.Value(), 'Folder', 'Setting Folder value failed');
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Answer: Boolean)
+    begin
+        Answer := true;
     end;
 }
 

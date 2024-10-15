@@ -75,9 +75,9 @@ page 345 Reconciliation
         if Find('-') then;
     end;
 
-    local procedure SaveNetChange(AccType: Integer; AccNo: Code[20]; NetChange: Decimal)
+    local procedure SaveNetChange(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
     begin
-        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType, AccNo, NetChange);
+        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType.AsInteger(), AccNo, NetChange);
 
         if AccNo = '' then
             exit;

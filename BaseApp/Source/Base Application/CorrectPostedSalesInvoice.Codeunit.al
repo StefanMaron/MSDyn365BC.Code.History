@@ -113,20 +113,21 @@ codeunit 1303 "Correct Posted Sales Invoice"
         exit(true);
     end;
 
-    local procedure CreateCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; DocumentType: Option; SkipCopyFromDescription: Boolean)
+    local procedure CreateCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SkipCopyFromDescription: Boolean)
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
         Clear(SalesHeader);
         SalesHeader."No." := '';
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader.SetAllowSelectNoSeries;
+        SalesHeader.SetAllowSelectNoSeries();
         OnBeforeSelesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
+        OnBeforeSalesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
         SalesHeader.Insert(true);
 
         case DocumentType of
             SalesHeader."Document Type"::"Credit Memo":
-                CopyDocMgt.SetPropertiesForCreditMemoCorrection;
+                CopyDocMgt.SetPropertiesForCreditMemoCorrection();
             SalesHeader."Document Type"::Invoice:
                 CopyDocMgt.SetPropertiesForInvoiceCorrection(SkipCopyFromDescription);
             else
@@ -210,8 +211,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         exit(ToJobPlanningLine."Job Contract Entry No.");
     end;
 
-    [Scope('OnPrem')]
-    procedure CancelPostedInvoiceStartNewInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    procedure CancelPostedInvoiceCreateNewInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
     begin
         CancellingOnly := false;
 
@@ -220,6 +220,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
             OnAfterCreateCorrSalesInvoice(SalesHeader);
             Commit();
         end;
+    end;
+
+    [Obsolete('Replaced by CancelPostedInvoiceCreateNewInvoice()', '17.0')]
+    [Scope('OnPrem')]
+    procedure CancelPostedInvoiceStartNewInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    begin
+        CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
     end;
 
     procedure TestCorrectInvoiceIsAllowed(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean)
@@ -854,7 +861,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
-    [Obsolete('This event has been replaced by OnBeforeSalesHeaderInsert, to fix a typo in the name', '15.1')]
+    [Obsolete('The event has been replaced with OnBeforeSalesHeaderInsert to fix a typo', '15.1')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin

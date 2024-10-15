@@ -1,5 +1,8 @@
 codeunit 5454 "Graph Sync. Runner - OnDelete"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
     TableNo = "Integration Record Archive";
 
     trigger OnRun()

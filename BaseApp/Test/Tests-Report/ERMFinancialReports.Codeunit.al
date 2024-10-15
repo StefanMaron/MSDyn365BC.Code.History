@@ -1391,7 +1391,7 @@ codeunit 134982 "ERM Financial Reports"
         SellToCustomer.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1464,7 +1464,7 @@ codeunit 134982 "ERM Financial Reports"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateAndPostFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure CreateAndPostFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         DepreciationBookCode: Code[10];
     begin

@@ -25,7 +25,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         APIMockEvents: Codeunit "API Mock Events";
-        IntegrationRecordMockEvents: Codeunit "Integration Record Mock Events";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         IsInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
@@ -65,10 +64,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Commit();
 
         BindSubscription(APIMockEvents);
-        BindSubscription(IntegrationRecordMockEvents);
-
         APIMockEvents.SetIsAPIEnabled(true);
-        IntegrationRecordMockEvents.SetIsIntegrationEnabled(true);
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Cr. Memo Aggr. UT");
@@ -571,7 +567,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        IntegrationRecord: Record "Integration Record";
         ExpectedGUID: Guid;
     begin
         // Setup
@@ -585,8 +580,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         // Verify
         Assert.IsFalse(SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false), 'Draft Aggregated Credit Memo still exists');
 
-        IntegrationRecord.Get(SalesHeader.Id);
-        Assert.AreEqual(SalesHeader.Id, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
+        Assert.AreEqual(SalesHeader.SystemId, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
         Assert.IsFalse(SalesHeader.Find, 'Draft Credit Memo still exists');
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesCrMemoEntityBuffer.Id), 'Id cannot be null');
@@ -602,7 +596,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        IntegrationRecord: Record "Integration Record";
         ExpectedGUID: Guid;
         TempGUID: Guid;
     begin
@@ -613,7 +606,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempGUID := CreateGuid;
         SalesCrMemoHeader.TransferFields(SalesHeader, true);
         SalesCrMemoHeader."Pre-Assigned No." := SalesHeader."No.";
-        SalesCrMemoHeader.Id := TempGUID;
         SalesCrMemoHeader.Insert(true);
 
         // Execute
@@ -621,14 +613,12 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Verify
         Assert.IsFalse(SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false), 'Draft Aggregated Credit Memo still exists');
-        Assert.IsFalse(IntegrationRecord.Get(TempGUID), 'Integration record for the Draft Credit Memo still exist');
 
         SalesCrMemoHeader.Find;
-        Assert.AreEqual(SalesHeader.Id, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
+        Assert.AreEqual(SalesHeader.SystemId, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
         Assert.IsFalse(SalesHeader.Find, 'Draft Credit Memo still exists');
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesCrMemoEntityBuffer.Id), 'Id cannot be null');
-        IntegrationRecord.Get(SalesCrMemoHeader.Id);
     end;
 
     [Test]
@@ -1050,7 +1040,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Initialize;
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
-        GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.Id);
+        GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
         TempSalesInvoiceLineAggregate.FindFirst;
         UpdateSalesCrMemoLineAggregate(TempSalesInvoiceLineAggregate, TempFieldBuffer);
 
@@ -1079,7 +1069,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Initialize;
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
-        GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.Id);
+        GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
         TempSalesInvoiceLineAggregate.FindFirst;
 
         // Execute
@@ -1166,7 +1156,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo.SalesLines.Previous();
     end;
 
-    local procedure CreateSalesHeaderWithID(var SalesHeader: Record "Sales Header"; var ExpectedGUID: Guid; DocumentType: Option)
+    local procedure CreateSalesHeaderWithID(var SalesHeader: Record "Sales Header"; var ExpectedGUID: Guid; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         Customer: Record Customer;
@@ -1177,9 +1167,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
 
-        ExpectedGUID := CreateGuid;
-        SalesHeader.Id := ExpectedGUID;
-        SalesHeader.Modify(true);
+        ExpectedGUID := SalesHeader.SystemId;
     end;
 
     local procedure CreatePostedInvoiceDiscountTypePct(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1609,12 +1597,12 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         if GeneralLedgerSetup.UseVat then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Prod. Posting Group"));
             if VATProductPostingGroup.Get(SourceFieldRef.Value) then
-                TaxId := VATProductPostingGroup.Id;
+                TaxId := VATProductPostingGroup.SystemId;
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Identifier"))
         end else begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("Tax Group Code"));
             if TaxGroup.Get(SourceFieldRef.Value) then
-                TaxId := TaxGroup.Id
+                TaxId := TaxGroup.SystemId
         end;
 
         Assert.AreEqual(Format(SourceFieldRef.Value), Format(TempSalesInvoiceLineAggregate."Tax Code"), 'Tax code did not match');
@@ -1625,8 +1613,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("No."));
         Item.Get(SourceFieldRef.Value);
-        Assert.AreEqual(TempSalesInvoiceLineAggregate."Item Id", Item.Id, 'Item ID was not set');
-        Assert.IsFalse(IsNullGuid(Item.Id), 'Item ID was not set');
+        Assert.AreEqual(TempSalesInvoiceLineAggregate."Item Id", Item.SystemId, 'Item ID was not set');
+        Assert.IsFalse(IsNullGuid(Item.SystemId), 'Item ID was not set');
         Assert.AreNearlyEqual(
           TempSalesInvoiceLineAggregate."Tax Amount",
           TempSalesInvoiceLineAggregate."Amount Including VAT" - TempSalesInvoiceLineAggregate.Amount,

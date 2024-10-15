@@ -5,6 +5,7 @@ report 707 "Inventory - Availability Plan"
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory - Availability Plan';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

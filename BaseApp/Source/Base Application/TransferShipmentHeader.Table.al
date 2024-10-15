@@ -114,7 +114,7 @@ table 5744 "Transfer Shipment Header"
         }
         field(22; Comment; Boolean)
         {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Shipment"),
+            CalcFormula = Exist("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Shipment"),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -223,7 +223,7 @@ table 5744 "Transfer Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }
@@ -294,7 +294,7 @@ table 5744 "Transfer Shipment Header"
 
         with TransShptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNo(ReportSelection.Usage::Inv2, TransShptHeader, ShowRequestForm, 0);
+            ReportSelection.PrintWithDialogForCust(ReportSelection.Usage::Inv2, TransShptHeader, ShowRequestForm, 0);
         end;
     end;
 

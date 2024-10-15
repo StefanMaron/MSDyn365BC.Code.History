@@ -1774,7 +1774,6 @@ codeunit 136103 "Service Items"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         VATIdentifier: Code[20];
     begin
         // [SCENARIO 109048.1] Verify "VAT Identifier" is correctly copied when Copy Posted Sales Shipment
@@ -1789,7 +1788,7 @@ codeunit 136103 "Service Items"
 
         // [WHEN] Copy Posted Sales Shipment
         CopyDocumentMgt.CopySalesDoc(
-          SalesDocType::"Posted Shipment",
+          "Sales Document Type From"::"Posted Shipment",
           FindPostedShipment(SalesLine."Sell-to Customer No.", SalesLine."Document No."),
           SalesHeader);
 
@@ -1805,7 +1804,6 @@ codeunit 136103 "Service Items"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         VATIdentifier: Code[20];
     begin
         // [SCENARIO 109048.2] Verify "VAT Identifier" is correctly copied when Copy Posted Purchase Receipt
@@ -1821,7 +1819,7 @@ codeunit 136103 "Service Items"
 
         // [WHEN] Copy Posted Purchase Receipt
         CopyDocumentMgt.CopyPurchDoc(
-          PurchDocType::"Posted Receipt",
+          "Purchase Document Type From"::"Posted Receipt",
           FindPostedReceipt(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No."),
           PurchaseHeader);
 
@@ -2546,7 +2544,7 @@ codeunit 136103 "Service Items"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; PostingDate: Date; ItemUnitOfMeasureCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; PostingDate: Date; ItemUnitOfMeasureCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2870,7 +2868,7 @@ codeunit 136103 "Service Items"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingLinesAssignment::SelectEntries);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -2970,7 +2968,7 @@ codeunit 136103 "Service Items"
         end;
     end;
 
-    local procedure FilterServiceDocumentLog(var ServiceDocumentLog: Record "Service Document Log"; DocumentType: Option; DocumentNo: Code[20]; EventNo: Integer)
+    local procedure FilterServiceDocumentLog(var ServiceDocumentLog: Record "Service Document Log"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; EventNo: Integer)
     begin
         ServiceDocumentLog.SetRange("Document Type", DocumentType);
         ServiceDocumentLog.SetRange("Document No.", DocumentNo);
@@ -3008,7 +3006,7 @@ codeunit 136103 "Service Items"
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
@@ -3030,7 +3028,7 @@ codeunit 136103 "Service Items"
         end;
     end;
 
-    local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
@@ -3206,7 +3204,7 @@ codeunit 136103 "Service Items"
         end;
     end;
 
-    local procedure VerifyServiceItem(ServiceItemLine: Record "Service Item Line"; Status: Option)
+    local procedure VerifyServiceItem(ServiceItemLine: Record "Service Item Line"; Status: Enum "Service Item Status")
     var
         ServiceItem: Record "Service Item";
     begin
@@ -3329,7 +3327,7 @@ codeunit 136103 "Service Items"
         ServiceShipmentLine.TestField(Quantity, ServiceLine.Quantity);
     end;
 
-    local procedure VerifyServiceDocumentLogEntry(OrderNo: Code[20]; DocumentType: Option; EventNo: Integer)
+    local procedure VerifyServiceDocumentLogEntry(OrderNo: Code[20]; DocumentType: Enum "Service Log Document Type"; EventNo: Integer)
     var
         ServiceDocumentLog: Record "Service Document Log";
     begin
@@ -3363,7 +3361,7 @@ codeunit 136103 "Service Items"
         Assert.AreEqual(TroubleshootingLineNo, Troubleshooting."No.".Value, 'Troubleshooting');
     end;
 
-    local procedure VerifyValueEntry(DocumentType: Option; DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyValueEntry(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -3410,7 +3408,7 @@ codeunit 136103 "Service Items"
         ItemLedgerEntry.TestField("Posting Date", PostingDate);
     end;
 
-    local procedure VerifyCustomerNoAndStatusOnServiceItem(ItemNo: Code[20]; ExpectedCustomerNo: Code[20]; ExpectedStatus: Option)
+    local procedure VerifyCustomerNoAndStatusOnServiceItem(ItemNo: Code[20]; ExpectedCustomerNo: Code[20]; ExpectedStatus: Enum "Service Item Status")
     var
         ServiceItem: Record "Service Item";
     begin

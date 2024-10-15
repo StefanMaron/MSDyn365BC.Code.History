@@ -283,7 +283,7 @@ codeunit 8614 "Config. XML Exchange"
                     ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
             until RecRef.Next = 0;
             // Tag used for analytics - DO NOT MODIFY
-            SendTraceTag('0000BV0', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), DataClassification::SystemMetadata);
+            Session.LogMessage('0000BV0', StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             if ShowDialog then
                 ConfigProgressBarRecord.Close();
         end else begin
@@ -337,7 +337,7 @@ codeunit 8614 "Config. XML Exchange"
         StartTime: DateTime;
     begin
         StartTime := CurrentDateTime();
-        SendTraceTag('00009Q4', RapidStartTxt, Verbosity::Normal, PackageExportStartMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q4', PackageExportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         ConfigPackageTable.FindFirst;
         ConfigPackage.Get(ConfigPackageTable."Package Code");
@@ -360,7 +360,7 @@ codeunit 8614 "Config. XML Exchange"
 
         DurationAsInt := CurrentDateTime() - StartTime;
         // Tag used for analytics - DO NOT MODIFY
-        SendTraceTag('00009Q5', RapidStartTxt, Verbosity::Normal, StrSubstNo(PackageExportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q5', StrSubstNo(PackageExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         if not CalledFromCode then begin
             CompressedFileName := FileManagement.ServerTempFileName('');
@@ -523,7 +523,7 @@ codeunit 8614 "Config. XML Exchange"
         ImportedTableFields: Integer;
     begin
         StartTime := CurrentDateTime();
-        SendTraceTag('00009Q6', RapidStartTxt, Verbosity::Normal, PackageImportStartMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         FileSize := PackageXML.OuterXml.Length() * 2; // due to UTF-16 encoding
         DocumentElement := PackageXML.DocumentElement;
@@ -581,7 +581,7 @@ codeunit 8614 "Config. XML Exchange"
             if Evaluate(TableID, Format(TableNode.FirstChild.InnerText)) then begin
                 if GetTableStatisticsForTelemetry(TableNode, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields) then
                     // Tag used for analytics - DO NOT MODIFY
-                    SendTraceTag('0000BV1', RapidStartTxt, Verbosity::Normal, StrSubstNo(ImportedTableContentTxt, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields), DataClassification::SystemMetadata);
+                    Session.LogMessage('0000BV1', StrSubstNo(ImportedTableContentTxt, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
                 NoOfChildNodes := TableNode.ChildNodes.Count();
                 if (NoOfChildNodes < ConfigPackage."Min. Count For Async Import") or ExcelMode then
@@ -627,7 +627,7 @@ codeunit 8614 "Config. XML Exchange"
 
         ConfigPackageMgt.UpdateConfigLinePackageData(ConfigPackage.Code);
         DurationAsInt := CurrentDateTime() - StartTime;
-        SendTraceTag('00009Q7', RapidStartTxt, Verbosity::Normal, StrSubstNo(PackageImportFinishMsg, DurationAsInt, FileSize), DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q7', StrSubstNo(PackageImportFinishMsg, DurationAsInt, FileSize), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         // autoapply configuration lines
         ConfigPackageMgt.ApplyConfigTables(ConfigPackage);

@@ -48,7 +48,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
           '=', SalesHeader."Document Type"::Invoice, '=', CreateCurrency(Currency."VAT Rounding Type"::Down));
     end;
 
-    local procedure CreateAndVerifySalesDoc(VATRoundingDirection: Text[1]; DocumentType: Option; RoundingType: Text[1]; CurrencyCode: Code[10])
+    local procedure CreateAndVerifySalesDoc(VATRoundingDirection: Text[1]; DocumentType: Enum "Sales Document Type"; RoundingType: Text[1]; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -95,7 +95,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
           '=', SalesHeader."Document Type"::Invoice, '<', CreateCurrency(Currency."VAT Rounding Type"::Down));
     end;
 
-    local procedure CreatePostAndVerifySalesDoc(VATRoundingDirection: Text[1]; DocumentType: Option; RoundingType: Text[1]; CurrencyCode: Code[10])
+    local procedure CreatePostAndVerifySalesDoc(VATRoundingDirection: Text[1]; DocumentType: Enum "Sales Document Type"; RoundingType: Text[1]; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
         TempSalesLine: Record "Sales Line" temporary;
@@ -153,7 +153,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
           '=', PurchaseHeader."Document Type"::"Credit Memo", '>', CreateCurrency(Currency."VAT Rounding Type"::Up));
     end;
 
-    local procedure CreateAndVerifyPurchaseDoc(VATRoundingDirection: Text[1]; DocumentType: Option; RoundingType: Text[1]; CurrencyCode: Code[10])
+    local procedure CreateAndVerifyPurchaseDoc(VATRoundingDirection: Text[1]; DocumentType: Enum "Purchase Document Type"; RoundingType: Text[1]; CurrencyCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -212,7 +212,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
           '=', PurchaseHeader."Document Type"::"Credit Memo", '>', CreateCurrency(Currency."VAT Rounding Type"::Up), 1);
     end;
 
-    local procedure CreatePostAndVerifyPurchaseDoc(VATRoundingDirection: Text[1]; DocumentType: Option; RoundingType: Text[1]; CurrencyCode: Code[10]; SignFactor: Integer)
+    local procedure CreatePostAndVerifyPurchaseDoc(VATRoundingDirection: Text[1]; DocumentType: Enum "Purchase Document Type"; RoundingType: Text[1]; CurrencyCode: Code[10]; SignFactor: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         TempPurchaseLine: Record "Purchase Line" temporary;
@@ -352,7 +352,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Verify: Verify Amount and VAT Amount in GL Entry for Posted Sales Order.
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         VerifyGLEntry(
-          GeneralPostingSetup."Sales Inv. Disc. Account", SalesHeader."Document Type"::Invoice, PostedDocumentNo,
+          GeneralPostingSetup."Sales Inv. Disc. Account", SalesHeader."Document Type"::Invoice.AsInteger(), PostedDocumentNo,
           InvoiceDiscountAmount, VATAmount);
     end;
 
@@ -601,7 +601,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Verify: Verify Amount and VAT Amount in GL Entry for Posted Purchase Order.
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         VerifyGLEntry(
-          GeneralPostingSetup."Purch. Inv. Disc. Account", PurchaseHeader."Document Type"::Invoice, PostedDocumentNo,
+          GeneralPostingSetup."Purch. Inv. Disc. Account", PurchaseHeader."Document Type"::Invoice.AsInteger(), PostedDocumentNo,
           -InvoiceDiscountAmount, -VATAmount);
     end;
 
@@ -832,7 +832,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -857,7 +857,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
             CreateSalesLine(SalesLine, SalesHeader, CreateItem);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
@@ -871,7 +871,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateVATPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateVATPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -882,7 +882,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);  // Copy Second Purchase Line to Temporary Purchase Line.
     end;
 
-    local procedure CreateVATSalesDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateVATSalesDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -903,7 +903,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchaseDocWithDiscount(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocWithDiscount(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         VATAmountLine: Record "VAT Amount Line";
@@ -1192,13 +1192,13 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         until TempPurchaseLine.Next = 0;
     end;
 
-    local procedure VerifyInvDiscAmt(GLAccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyInvDiscAmt(GLAccountNo: Code[20]; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
         GeneralLedgerSetup.Get();
-        FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
+        FindGLEntry(GLEntry, GLAccountNo, DocumentType.AsInteger(), DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));

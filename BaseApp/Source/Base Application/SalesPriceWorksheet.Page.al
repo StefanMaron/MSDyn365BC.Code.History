@@ -8,6 +8,9 @@ page 7023 "Sales Price Worksheet"
     SaveValues = true;
     SourceTable = "Sales Price Worksheet";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '17.0';
 
     layout
     {

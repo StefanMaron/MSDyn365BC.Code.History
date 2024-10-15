@@ -72,7 +72,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStepArgument.Insert(true);
     end;
 
-    procedure CreateNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserID: Code[50]; NotificationType: Option; NotificationMethod: Option Email,Note)
+    procedure CreateNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserID: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Enum "Notification Method Type")
     begin
         NotificationSetup.Init();
         NotificationSetup."User ID" := UserID;
@@ -105,6 +105,18 @@ codeunit 131101 "Library - Workflow"
         SMTPMailSetup.SetPassword('TestPassword');
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup.Insert();
+    end;
+
+    procedure SetUpEmailAccount()
+    var
+        TempAccount: Record "Email Account" temporary;
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+    begin
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
     end;
 
     procedure VerifyEmailWithMockService(UserId: Code[50]; NotificationBodyText: Text)

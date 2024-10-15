@@ -583,7 +583,7 @@ codeunit 142072 "UT PAG SWS46"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -595,7 +595,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalBatch.Insert();
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -646,11 +646,11 @@ codeunit 142072 "UT PAG SWS46"
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure CreatePaymentAndRefund(var GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; RefundAmount: Decimal; BalanceLCYPmt: Decimal; BalanceLCYRefund: Decimal; DocumentType: Option)
+    local procedure CreatePaymentAndRefund(var GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; RefundAmount: Decimal; BalanceLCYPmt: Decimal; BalanceLCYRefund: Decimal; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, DocumentType);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, TemplateType);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type", GenJournalLine."Account No.",
@@ -665,11 +665,11 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePaymentAndRefundOnBalAccount(var GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; RefundAmount: Decimal; BalanceLCYPmt: Decimal; BalanceLCYRefund: Decimal; DocumentType: Option)
+    local procedure CreatePaymentAndRefundOnBalAccount(var GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal; RefundAmount: Decimal; BalanceLCYPmt: Decimal; BalanceLCYRefund: Decimal; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, DocumentType);
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, TemplateType);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
@@ -710,7 +710,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
     end;
 
-    local procedure PostGenJournalInvoice(AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure PostGenJournalInvoice(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -741,7 +741,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal.OK.Invoke;
     end;
 
-    local procedure UpdateGenJournalLineAmountAndAccount(var GenJournalLine: Record "Gen. Journal Line"; NewAmount: Decimal; AccountType: Option; AccountNo: Code[20])
+    local procedure UpdateGenJournalLineAmountAndAccount(var GenJournalLine: Record "Gen. Journal Line"; NewAmount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJournalLine.Validate(Amount, NewAmount);
         GenJournalLine.Validate("Account Type", AccountType);
@@ -749,7 +749,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure UpdateGenJournalLineAmountAndBalAccount(var GenJournalLine: Record "Gen. Journal Line"; NewAmount: Decimal; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure UpdateGenJournalLineAmountAndBalAccount(var GenJournalLine: Record "Gen. Journal Line"; NewAmount: Decimal; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         GenJournalLine.Validate(Amount, NewAmount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);

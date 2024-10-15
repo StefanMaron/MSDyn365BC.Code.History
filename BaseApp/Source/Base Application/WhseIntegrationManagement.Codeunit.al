@@ -43,22 +43,22 @@ codeunit 7317 "Whse. Integration Management"
         BinType.Get(Bin."Bin Type Code");
         case SourceTable of
             DATABASE::"Warehouse Shipment Header",
-          DATABASE::"Warehouse Shipment Line":
+            DATABASE::"Warehouse Shipment Line":
                 BinType.TestField(Ship, true);
             DATABASE::"Warehouse Receipt Header",
-          DATABASE::"Warehouse Receipt Line":
+            DATABASE::"Warehouse Receipt Line":
                 BinType.TestField(Receive, true);
             DATABASE::"Production Order",
-          DATABASE::"Prod. Order Line",
-          DATABASE::"Assembly Header":
+            DATABASE::"Prod. Order Line",
+            DATABASE::"Assembly Header":
                 AllowPutawayPickOrQCBinsOnly(BinType);
             DATABASE::"Prod. Order Component",
-          DATABASE::"Assembly Line":
+            DATABASE::"Assembly Line":
                 AllowPutawayOrQCBinsOnly(BinType);
             DATABASE::"Machine Center":
                 case BinCodeFieldCaption of
                     MachineCenter.FieldCaption("Open Shop Floor Bin Code"),
-                  MachineCenter.FieldCaption("To-Production Bin Code"):
+                    MachineCenter.FieldCaption("To-Production Bin Code"):
                         AllowPutawayOrQCBinsOnly(BinType);
                     MachineCenter.FieldCaption("From-Production Bin Code"):
                         AllowPutawayPickOrQCBinsOnly(BinType);
@@ -66,7 +66,7 @@ codeunit 7317 "Whse. Integration Management"
             DATABASE::"Work Center":
                 case BinCodeFieldCaption of
                     WorkCenter.FieldCaption("Open Shop Floor Bin Code"),
-                  WorkCenter.FieldCaption("To-Production Bin Code"):
+                    WorkCenter.FieldCaption("To-Production Bin Code"):
                         AllowPutawayOrQCBinsOnly(BinType);
                     WorkCenter.FieldCaption("From-Production Bin Code"):
                         AllowPutawayPickOrQCBinsOnly(BinType);
@@ -74,22 +74,22 @@ codeunit 7317 "Whse. Integration Management"
             DATABASE::Location:
                 case BinCodeFieldCaption of
                     Location.FieldCaption("Open Shop Floor Bin Code"),
-                  Location.FieldCaption("To-Production Bin Code"),
-                  Location.FieldCaption("To-Assembly Bin Code"):
+                    Location.FieldCaption("To-Production Bin Code"),
+                    Location.FieldCaption("To-Assembly Bin Code"):
                         AllowPutawayOrQCBinsOnly(BinType);
                     Location.FieldCaption("From-Production Bin Code"),
-                  Location.FieldCaption("From-Assembly Bin Code"):
+                    Location.FieldCaption("From-Assembly Bin Code"):
                         AllowPutawayPickOrQCBinsOnly(BinType);
                 end;
             DATABASE::"Item Journal Line":
                 case AdditionalIdentifier of
-                    ItemJournalLine."Entry Type"::Output:
+                    ItemJournalLine."Entry Type"::Output.AsInteger():
                         AllowPutawayPickOrQCBinsOnly(BinType);
-                    ItemJournalLine."Entry Type"::Consumption:
+                    ItemJournalLine."Entry Type"::Consumption.AsInteger():
                         AllowPutawayOrQCBinsOnly(BinType);
                 end;
             DATABASE::"Service Line":
-                if AdditionalIdentifier = ServiceLine."Document Type"::Invoice then
+                if AdditionalIdentifier = ServiceLine."Document Type"::Invoice.AsInteger() then
                     BinType.TestField(Pick, true);
             else
                 OnCheckBinTypeCode(Location, Bin, BinType, SourceTable, BinCodeFieldCaption, AdditionalIdentifier);

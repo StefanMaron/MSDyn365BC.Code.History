@@ -167,8 +167,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount := 0;
         CheckQuoteDiscountTypePercentage(0, TotalAmount, SalesQuote, false, '');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::Quote);
-        SalesLine.SetRange("Document No.",SalesQuote."No.".Value);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
+        SalesLine.SetRange("Document No.", SalesQuote."No.".Value);
         SalesLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
@@ -648,8 +648,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder.CalculateInvoiceDiscount.Invoke;
         CheckOrderDiscountTypePercentage(0, TotalAmount, SalesOrder, false, '');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.",SalesOrder."No.".Value);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrder."No.".Value);
         SalesLine.FindFirst;
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
@@ -1411,7 +1411,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
           SalesHeader, Item, Customer, ItemQuantity, NumberOfLines, SalesHeader."Document Type"::Order);
     end;
 
-    local procedure CreateSalesHeaderWithDocTypeAndNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Option)
+    local procedure CreateSalesHeaderWithDocTypeAndNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         I: Integer;

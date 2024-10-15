@@ -254,7 +254,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, ComponentsBinCode);
     end;
 
-    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Option; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
+    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
@@ -322,7 +322,7 @@ codeunit 137097 "SCM Kitting - Undo"
         until AssemblyLine.Next = 0;
     end;
 
-    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Decimal; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Decimal; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -432,7 +432,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblyPost.Run(AssemblyHeader);
     end;
 
-    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal)
+    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal)
     begin
         Clear(AssemblyHeader);
         AssemblyHeader.SetRange("Document Type", DocumentType);
@@ -452,7 +452,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblyHeader.FindSet;
     end;
 
-    local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
     begin
         AssemblyLine.SetRange("Document Type", DocumentType);
         AssemblyLine.SetRange("Document No.", DocumentNo);

@@ -30,7 +30,6 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
     procedure TestVerifyIDandLastDateModified()
     var
         ShipmentMethod: Record "Shipment Method";
-        IntegrationRecord: Record "Integration Record";
         ShipmentMethodCode: Code[10];
         ShipmentMethodId: Guid;
     begin
@@ -44,12 +43,7 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
         // [WHEN] we retrieve the Shipment Method from the database
         ShipmentMethod.Reset();
         ShipmentMethod.Get(ShipmentMethodCode);
-        ShipmentMethodId := ShipmentMethod.Id;
-
-        // [THEN] the Shipment Method should have an integration id and last date time modified
-        IntegrationRecord.Get(ShipmentMethodId);
-        IntegrationRecord.TestField("Integration ID");
-        ShipmentMethod.TestField("Last Modified Date Time");
+        ShipmentMethodId := ShipmentMethod.SystemId;
     end;
 
     [Test]

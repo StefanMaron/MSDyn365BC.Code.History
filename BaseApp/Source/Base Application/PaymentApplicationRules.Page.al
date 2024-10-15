@@ -47,6 +47,12 @@ page 1252 "Payment Application Rules"
                     Caption = 'Direct Debit Collection Matched';
                     ToolTip = 'Specifies if the Transaction ID value on the payment reconciliation journal line must match with the value in the related Transaction ID field in the Direct Debit Collect. Entries window.';
                 }
+                field("Review Required"; "Review Required")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Review Required';
+                    ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
+                }
             }
         }
     }

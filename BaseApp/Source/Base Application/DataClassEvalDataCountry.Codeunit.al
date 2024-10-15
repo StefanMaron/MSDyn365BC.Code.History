@@ -57,6 +57,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Expect. Phys. Inv. Track. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Post. Exp. Ph. In. Track. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
+        OnAfterClassifyCountrySpecificTables();
     end;
 
     local procedure ClassifyPayableEmployeeLedgerEntry()
@@ -255,5 +256,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetTableFieldsToNormal(TableNo);
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClassifyCountrySpecificTables()
+    begin
+    end;
+}

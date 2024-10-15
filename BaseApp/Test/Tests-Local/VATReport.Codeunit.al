@@ -2887,7 +2887,7 @@ codeunit 144001 "VAT Report"
         end;
     end;
 
-    local procedure CreateMockVATEntryForSalesDocument(PostingDate: Date; DocumentType: Option; VATBase: Decimal; VATAmount: Integer; CountryCode: Code[10]; VATRegNo: Text[20])
+    local procedure CreateMockVATEntryForSalesDocument(PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; VATBase: Decimal; VATAmount: Integer; CountryCode: Code[10]; VATRegNo: Text[20])
     var
         VATEntry: Record "VAT Entry";
     begin

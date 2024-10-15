@@ -140,7 +140,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; GenPostingType: Option; GLAccountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; GLAccountNo: Code[20])
     begin
         with GLEntry do begin
             SetRange("Document Type", DocumentType);

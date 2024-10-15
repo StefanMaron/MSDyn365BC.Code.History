@@ -580,10 +580,10 @@ codeunit 134091 "ERM Additional Currency II"
                 PostingDate, GenJnlLine."Document Type"::Invoice, IsVend, CVNo, CurrencyCode, Amounts[i]);
     end;
 
-    local procedure CreatePostGenJnlLine(PostingDate: Date; DocType: Option; IsVend: Boolean; CVNo: Code[20]; CurrencyCode: Code[10]; PayAmount: Decimal): Code[20]
+    local procedure CreatePostGenJnlLine(PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; IsVend: Boolean; CVNo: Code[20]; CurrencyCode: Code[10]; PayAmount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
-        BalAccountType: Option;
+        BalAccountType: Enum "Gen. Journal Account Type";
     begin
         with GenJnlLine do begin
             if IsVend then
@@ -597,7 +597,7 @@ codeunit 134091 "ERM Additional Currency II"
         end;
     end;
 
-    local procedure CreatePostGenJnlLineWithBalanceAcc(PostingDate: Date; DocType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal): Code[20]
+    local procedure CreatePostGenJnlLineWithBalanceAcc(PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -619,7 +619,7 @@ codeunit 134091 "ERM Additional Currency II"
         end;
     end;
 
-    local procedure CreatePostGenJnlLineAndApplyToDoc(AccountType: Option; AccountNo: Code[20]; PayAmount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreatePostGenJnlLineAndApplyToDoc(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PayAmount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -636,7 +636,7 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGenLines(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; Amount2: Decimal): Code[20]
+    local procedure CreateAndPostGenLines(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; Amount2: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1113,7 +1113,7 @@ codeunit 134091 "ERM Additional Currency II"
         end;
     end;
 
-    local procedure VerifyZeroCustRemainingAmountLCY(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyZeroCustRemainingAmountLCY(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1124,7 +1124,7 @@ codeunit 134091 "ERM Additional Currency II"
           StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, CustLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyCustRemainingAmount(DocumentType: Option; DocumentNo: Code[20]; ExpectedAmt: Decimal)
+    local procedure VerifyCustRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmt: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1152,7 +1152,7 @@ codeunit 134091 "ERM Additional Currency II"
           StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), -Amount, VendorLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyZeroVendRemainingAmountLCY(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyZeroVendRemainingAmountLCY(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1163,7 +1163,7 @@ codeunit 134091 "ERM Additional Currency II"
           StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, VendorLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyVendRemainingAmount(DocumentType: Option; DocumentNo: Code[20]; ExpectedAmt: Decimal)
+    local procedure VerifyVendRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmt: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

@@ -134,7 +134,7 @@ page 850 "Cash Flow Forecast Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

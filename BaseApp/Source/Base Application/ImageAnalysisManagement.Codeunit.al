@@ -31,8 +31,9 @@ codeunit 2020 "Image Analysis Management"
     procedure Initialize()
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
-        AzureAIUsage: Record "Azure AI Usage";
         EnvironmentInfo: Codeunit "Environment Information";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
     begin
         if IsInitialized then
             exit;
@@ -49,9 +50,9 @@ codeunit 2020 "Image Analysis Management"
             AzureAIUsage.SetImageAnalysisIsSetup(true);
 
         if LimitValue = 0 then begin
-            AzureAIUsage.GetSingleInstance(AzureAIUsage.Service::"Computer Vision");
-            LimitType := AzureAIUsage."Limit Period";
-            LimitValue := AzureAIUsage."Original Resource Limit";
+            AzureAIService := AzureAIService::"Computer Vision";
+            LimitType := AzureAIUsage.GetLimitPeriod(AzureAIService);
+            LimitValue := AzureAIUsage.GetResourceLimit(AzureAIService);
         end;
 
         if LimitValue = 0 then

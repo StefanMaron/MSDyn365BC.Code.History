@@ -21,7 +21,6 @@ report 99003802 "Copy Production Order Document"
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Status';
-                        OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
                         ToolTip = 'Specifies the status of the production order that you want to copy from. Click the field to see the existing production order status types.';
 
                         trigger OnValidate()
@@ -99,7 +98,7 @@ report 99003802 "Copy Production Order Document"
         Text000: Label 'You must enter a document number. ';
         ToProdOrder: Record "Production Order";
         FromProdOrder: Record "Production Order";
-        StatusType: Option Simulated,Planned,"Firm Planned",Released,Finished;
+        StatusType: Enum "Production Order Status";
         DocNo: Code[20];
         IncludeHeader: Boolean;
         Text002: Label 'The %1 cannot be copied onto itself.';

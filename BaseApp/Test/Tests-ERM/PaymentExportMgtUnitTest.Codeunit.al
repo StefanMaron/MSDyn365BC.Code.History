@@ -2035,14 +2035,14 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // [GIVEN] General Journal Line "A" in batch "X" related to Posting Exch. Field
         LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJnlLine, 0, GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
+          GenJnlLine, "Gen. Journal Document Type"::" ", GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Data Exch. Entry No." := DataExchField."Data Exch. No.";
         GenJnlLine."Data Exch. Line No." := DataExchField."Line No.";
         GenJnlLine.Modify(true);
 
         // [GIVEN] General Journal Line "B" in batch "X" without relation to Posting Exch. Field
         LibraryJournals.CreateGenJournalLine(
-          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", 0,
+          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", "Gen. Journal Document Type"::" ",
           GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
           GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
 
@@ -2101,7 +2101,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         ApplyToOpenLedgerEntriesWithAppliesToID(GenJnlLine, VendLedgerEntry, AppliesToID);
     end;
 
-    local procedure ApplyToOpenLedgerEntriesWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure ApplyToOpenLedgerEntriesWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         with GenJnlLine do begin
             Validate("Applies-to Doc. Type", AppliesToDocType);
@@ -2189,7 +2189,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         BankAccount.Modify(true);
     end;
 
-    local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; Exported: Boolean)
+    local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; Exported: Boolean)
     var
         PaymentMethod: Record "Payment Method";
     begin
@@ -2260,7 +2260,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         end;
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; Exported: Boolean)
+    local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; Exported: Boolean)
     var
         PaymentMethod: Record "Payment Method";
         VendorBankAccount: Record "Vendor Bank Account";
@@ -2316,7 +2316,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
             for RecIndex := 1 to BatchRecCount do
                 LibraryJournals.CreateGenJournalLine(
-                  GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0, 0, '', 0, '', 0);
+                  GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+                  "Gen. Journal Account Type"::"G/L Account", '', "Gen. Journal Account Type"::"G/L Account", '', 0);
         end;
         exit(GenJournalTemplate.Name);
     end;
@@ -2409,7 +2410,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; FileType: Option)
     begin
         DataExchDef.InsertRecForExport(LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def"),
-          LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export", 0, FileType);
+          LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(), 0, FileType);
     end;
 
     local procedure CreateDataExchColDef(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; Name: Text[30]; DataType: Option; DataTypeFormatting: Text[100]; Length: Integer; Constant: Text[30])

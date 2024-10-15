@@ -47,6 +47,7 @@ codeunit 8800 "Custom Layout Reporting"
         NotInitializedErr: Label 'Report data not initialized.';
         OutputNotSupportedErr: Label 'The chosen output method is not supported.';
         SMTPNotSetupErr: Label 'To send as email, you must set up SMTP.';
+        EmailAccountsNotSetupErr: Label 'To send as email, you must register an email account.';
         ReportingType: Option "Object","Layout";
         ZipFileName: Text;
         ZipDownloadTxt: Label 'AllReports.zip';
@@ -66,8 +67,8 @@ codeunit 8800 "Custom Layout Reporting"
         WordOutputXmlHasDataVerified: Boolean;
         IgnoreRequestParameters: Boolean;
         PredefinedRequestParameters: Text;
-        ErrorForDataOccuredErr: Label 'The error, %1, occurred when running report %2 for %3.', Comment = '%1 - Error text, %2 - Report ID, %3 - Record ID.';
         EscapeTok: Label '''%1''', Locked = true;
+        ErrorForDataOccuredErr: Label 'The error, %1, occurred when running report %2 for %3.', Comment = '%1 - Error text, %2 - Report ID, %3 - Record ID.';
         TableFilterForReportID: Integer;
         TableFilterTok: Label '<?xml version="1.0" standalone="yes"?><ReportParameters id="@%1"><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field1 =1(%2))</DataItem></DataItems></ReportParameters>', Locked = true;
         TableFilterTxt: Text;
@@ -240,17 +241,26 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [Scope('OnPrem')]
-    procedure ProcessReportForData(ReportSelectionUsage: Integer; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
+    procedure ProcessReportData(ReportUsage: Enum "Report Selection Usage"; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
     begin
         // Provides a single function to run initialization code, check for issues, and start report processing
         if not Initialized then
-            InitializeData(
-                ReportSelectionUsage, DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName,
+            InitializeReportData(
+                ReportUsage, DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName,
                 DataItemTableSameAsIterator);
         // If there was an error during initalization, exit
         if not Initialized then
             exit;
         ProcessReport;
+    end;
+
+    [Obsolete('Replaced by ProcessReportData().', '17.0')]
+    [Scope('OnPrem')]
+    procedure ProcessReportForData(ReportSelectionUsage: Integer; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
+    begin
+        ProcessReportData(
+            "Report Selection Usage".FromInteger(ReportSelectionUsage),
+            DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
     end;
 
     local procedure ProcessReportPerLayout()
@@ -718,6 +728,8 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure GetRequestParameters()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
+        EmailAccount: Codeunit "Email Account";
+        EmailFeature: Codeunit "Email Feature";
         DataVariant: Variant;
         RequestPageParameters: Text;
         FilterGroup: Integer;
@@ -765,8 +777,11 @@ codeunit 8800 "Custom Layout Reporting"
                 if (Path = '') and IsTestMode then
                     Path := TemporaryPath;
 
-                // If email is chosen, ensure that SMTP is set up
-                if (OutputType = OutputType::Email) and not SMTPMailSetup.GetSetup and not SupressOutput then
+                // If email is chosen, ensure that email account is set up
+                if EmailFeature.IsEnabled() and (OutputType = OutputType::Email) and not EmailAccount.IsAnyAccountRegistered() and not SupressOutput then
+                    Error(EmailAccountsNotSetupErr);
+
+                if not EmailFeature.IsEnabled() and (OutputType = OutputType::Email) and not SMTPMailSetup.GetSetup and not SupressOutput then
                     Error(SMTPNotSetupErr);
             until ReportSelections.Next = 0;
         Initialized := true;
@@ -788,7 +803,7 @@ codeunit 8800 "Custom Layout Reporting"
         SetOutputOption(OptionInt);
     end;
 
-    local procedure SetReportUsage(ReportSelectionUsage: Integer)
+    local procedure SetReportUsage(ReportSelectionUsage: Enum "Report Selection Usage")
     begin
         ReportSelections.SetRange(Usage, ReportSelectionUsage);
         CustomReportSelection.SetRange(Usage, ReportSelectionUsage);
@@ -999,12 +1014,20 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeData(ReportSelectionUsage: Integer; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
+    procedure InitializeReportData(ReportUsage: Enum "Report Selection Usage"; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
     begin
         // Initialize parameters and request pages, but do not run the reports yet
-        SetReportUsage(ReportSelectionUsage);
+        SetReportUsage(ReportUsage);
         SetReportDataItem(DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
-        GetRequestParameters;
+        GetRequestParameters();
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitializeData(ReportSelectionUsage: Integer; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
+    begin
+        InitializeReportData(
+            "Report Selection Usage".FromInteger(ReportSelectionUsage),
+            DataRecordRef, SourceJoinFieldName, DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
     end;
 
     procedure HasRequestParameterData(ReportID: Integer): Boolean
@@ -1131,9 +1154,10 @@ codeunit 8800 "Custom Layout Reporting"
         DocumentMailing: Codeunit "Document-Mailing";
         MailSent: Boolean;
     begin
-        MailSent := DocumentMailing.EmailFile(
+        MailSent :=
+            DocumentMailing.EmailFile(
                 CopyStr(TempFilePath, 1, 250), FileName, TempEmailBodyFilePath, '', CustomReportSelection.GetSendToEmail(true),
-                StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage);
+                StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage.AsInteger());
         if Exists(TempFilePath) then begin
             TempEraseFileNameValueBuffer.AddNewEntry(TempFilePath, Format(FieldRef2.Value));
             if not MailSent then
@@ -1294,9 +1318,8 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         if IgnoreRequestParameters then
             exit('');
-        if ReportId = TableFilterForReportID then
+        If ReportId = TableFilterForReportID then
             exit(TableFilterTxt);
-
         if not ObjectOptions.Get(LastUsedTxt, ReportID, ObjectOptions."Object Type"::Report, UserId, CompanyName) then
             exit('');
         ObjectOptions.CalcFields("Option Data");

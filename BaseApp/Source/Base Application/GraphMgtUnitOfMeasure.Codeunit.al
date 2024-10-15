@@ -5,6 +5,7 @@ codeunit 5498 "Graph Mgt - Unit Of Measure"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyUofMWithoutId: Boolean)
     var
         DummyUnitOfMeasure: Record "Unit of Measure";

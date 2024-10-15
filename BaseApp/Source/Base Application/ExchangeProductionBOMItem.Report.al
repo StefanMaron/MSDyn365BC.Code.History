@@ -21,7 +21,7 @@ report 99001043 "Exchange Production BOM Item"
                   Text004 +
                   Text005);
 
-                Window.Update(1, SelectStr(FromBOMType + 1, TypeTxt));
+                Window.Update(1, SelectStr(FromBOMType.AsInteger() + 1, TypeTxt));
                 Window.Update(2, FromBOMNo);
 
                 ProdBOMLine.SetCurrentKey(Type, "No.");
@@ -387,7 +387,9 @@ report 99001043 "Exchange Production BOM Item"
             Error(Text002);
 
         if (FromBOMType = ToBOMType) and (FromBOMNo = ToBOMNo) then
-            Error(ItemBOMExchangeErr, SelectStr(FromBOMType + 1, TypeTxt), FromBOMNo, SelectStr(ToBOMType + 1, TypeTxt), ToBOMNo);
+            Error(
+                ItemBOMExchangeErr,
+                SelectStr(FromBOMType.AsInteger() + 1, TypeTxt), FromBOMNo, SelectStr(ToBOMType.AsInteger() + 1, TypeTxt), ToBOMNo);
     end;
 
     var

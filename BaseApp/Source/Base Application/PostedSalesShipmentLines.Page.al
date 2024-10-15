@@ -154,7 +154,7 @@ page 525 "Posted Sales Shipment Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

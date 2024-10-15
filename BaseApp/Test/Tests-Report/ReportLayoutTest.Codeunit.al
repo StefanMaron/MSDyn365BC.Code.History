@@ -260,7 +260,7 @@ codeunit 134600 "Report Layout Test"
         OldLayoutCode := CustomReportLayout.Code;
 
         // Execute copy
-        NewLayoutCode := CustomReportLayout.CopyRecord;
+        NewLayoutCode := CustomReportLayout.CopyReportLayout();
 
         // Validate
         CustomReportLayout.Get(NewLayoutCode);
@@ -281,7 +281,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportLayout.DeleteAll();
 
         // Negative test
-        asserterror CustomReportLayout.ImportLayout('');
+        asserterror CustomReportLayout.ImportReportLayout('');
 
         // Import different types
         TestImportLayoutByType(CustomReportLayout.Type::Word);
@@ -306,9 +306,9 @@ codeunit 134600 "Report Layout Test"
         // Init
         Initialize;
         CustomReportLayout.Reset();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word.AsInteger());
         CustomReportLayout.Get(LayoutCode);
-        DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+        DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ServerTempFileName('docx'), false);
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
         CustomReportLayout.DeleteAll();
@@ -325,7 +325,7 @@ codeunit 134600 "Report Layout Test"
             ReportLayout.Insert();
         end;
 
-        CustomReportLayout.ImportLayout(DefaultFileName);
+        CustomReportLayout.ImportReportLayout(DefaultFileName);
 
         Assert.AreNotEqual(LayoutCode, CustomReportLayout.Code, '');
         Assert.AreEqual(StrSubstNo(CopyOfTxt, LayoutDescription), CustomReportLayout.Description, '');
@@ -366,9 +366,9 @@ codeunit 134600 "Report Layout Test"
     begin
         // init
         Initialize;
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word.AsInteger());
         CustomReportLayout.Get(LayoutCode);
-        DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ClientTempFileName('xml'), false);
+        DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ClientTempFileName('xml'), false);
 
         // Execute
         DefaultFileName := CustomReportLayout.ExportSchema(DefaultFileName, false);
@@ -387,7 +387,7 @@ codeunit 134600 "Report Layout Test"
     begin
         // init
         Initialize;
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
         // Execute / verify
@@ -404,7 +404,7 @@ codeunit 134600 "Report Layout Test"
     begin
         // init
         Initialize;
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
 
@@ -424,7 +424,7 @@ codeunit 134600 "Report Layout Test"
     begin
         // init
         Initialize;
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
 
@@ -498,7 +498,7 @@ codeunit 134600 "Report Layout Test"
         if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
             ReportLayoutSelection.Delete();
 
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
         ReportLayoutSelection.Init();
@@ -568,7 +568,7 @@ codeunit 134600 "Report Layout Test"
         Erase(FileNameXml);
     end;
 
-    local procedure TestImportLayoutByType(LayoutType: Option)
+    local procedure TestImportLayoutByType(LayoutType: Enum "Custom Report Layout Type")
     var
         CustomReportLayout: Record "Custom Report Layout";
         FileManagement: Codeunit "File Management";
@@ -580,23 +580,23 @@ codeunit 134600 "Report Layout Test"
 
         // Init
         CustomReportLayout.Reset();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
         case LayoutType of
             CustomReportLayout.Type::Word:
-                DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+                DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ServerTempFileName('docx'), false);
             CustomReportLayout.Type::RDLC:
-                DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('rdl'), false);
+                DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ServerTempFileName('rdl'), false);
         end;
 
-        LayoutCode := CustomReportLayout.CopyRecord;
+        LayoutCode := CustomReportLayout.CopyReportLayout();
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout.ClearLayout;
         Assert.IsFalse(CustomReportLayout.HasLayout, '');
 
         // Execute
-        CustomReportLayout.ImportLayout(DefaultFileName);
+        CustomReportLayout.ImportReportLayout(DefaultFileName);
 
         // validate
         Assert.IsTrue(CustomReportLayout.HasLayout, '');
@@ -1135,11 +1135,11 @@ codeunit 134600 "Report Layout Test"
         Assert.ExpectedMessage(FileNameIsBlankMsg, LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
-    local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Option; WithCompanyName: Boolean)
+    local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
     begin
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         Assert.AreEqual(StandardSalesInvoiceReportID, CustomReportLayout."Report ID", '');
         if WithCompanyName then begin
@@ -1170,14 +1170,14 @@ codeunit 134600 "Report Layout Test"
             Selection::"Custom RDLC":
                 begin
                     ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
-                    LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::RDLC);
+                    LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::RDLC.AsInteger());
                     CustomReportLayout.Get(LayoutCode);
                     ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
                 end;
             Selection::"Custom Word":
                 begin
                     ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
-                    LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::Word);
+                    LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayout.Type::Word.AsInteger());
                     CustomReportLayout.Get(LayoutCode);
                     ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
                 end;
@@ -1214,7 +1214,7 @@ codeunit 134600 "Report Layout Test"
           CustomerNo, CustomReportSelection.Usage::"S.Invoice", REPORT::"Sales - Invoice", '');
     end;
 
-    local procedure AddCustomerDocumentLayoutReport(CustomerNo: Code[20]; NewUsage: Integer; ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure AddCustomerDocumentLayoutReport(CustomerNo: Code[20]; NewUsage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20])
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin

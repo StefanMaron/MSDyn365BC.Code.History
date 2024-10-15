@@ -154,11 +154,9 @@ table 5625 "Maintenance Ledger Entry"
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }
-        field(32; "Gen. Posting Type"; Option)
+        field(32; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(33; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -264,7 +262,7 @@ table 5625 "Maintenance Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

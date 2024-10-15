@@ -45,7 +45,7 @@ codeunit 142075 "UT SWS"
         OnPreDataItemCalculateInventory(true, true, ItemJournalLine."Entry Type"::"Positive Adjmt.");  // Zero Quantity - TRUE.
     end;
 
-    local procedure OnPreDataItemCalculateInventory(ZeroQuantity: Boolean; IncludeItemWithoutTransactions: Boolean; EntryType: Option)
+    local procedure OnPreDataItemCalculateInventory(ZeroQuantity: Boolean; IncludeItemWithoutTransactions: Boolean; EntryType: Enum "Item Ledger Entry Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
@@ -434,7 +434,7 @@ codeunit 142075 "UT SWS"
         GenJournalLine.Modify();
     end;
 
-    local procedure VerifyPhysInventoryItemJournalLine(ItemNo: Code[20]; QtyCalculated: Decimal; PhysInventory: Boolean; EntryType: Option)
+    local procedure VerifyPhysInventoryItemJournalLine(ItemNo: Code[20]; QtyCalculated: Decimal; PhysInventory: Boolean; EntryType: Enum "Item Ledger Entry Type")
     var
         ItemJournalLine: Record "Item Journal Line";
     begin

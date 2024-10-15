@@ -158,7 +158,7 @@ page 5005273 "Issued Delivery Reminder"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

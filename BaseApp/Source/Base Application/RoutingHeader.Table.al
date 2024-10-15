@@ -35,17 +35,15 @@ table 99000763 "Routing Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("Manufacturing Comment Line" WHERE("Table Name" = CONST("Routing Header"),
+            CalcFormula = Exist("Manufacturing Comment Line" WHERE("Table Name" = CONST("Routing Header"),
                                                                     "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Routing Status")
         {
             Caption = 'Status';
-            OptionCaption = 'New,Certified,Under Development,Closed';
-            OptionMembers = New,Certified,"Under Development",Closed;
 
             trigger OnValidate()
             begin

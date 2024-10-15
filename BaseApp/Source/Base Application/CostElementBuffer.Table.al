@@ -5,19 +5,15 @@ table 5820 "Cost Element Buffer"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Cost Entry Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance,Total';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance,Total;
         }
-        field(2; "Variance Type"; Option)
+        field(2; "Variance Type"; Enum "Cost Variance Type")
         {
             Caption = 'Variance Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Purchase,Material,Capacity,Capacity Overhead,Manufacturing Overhead,Subcontracted';
-            OptionMembers = " ",Purchase,Material,Capacity,"Capacity Overhead","Manufacturing Overhead",Subcontracted;
         }
         field(3; "Actual Cost"; Decimal)
         {
@@ -91,11 +87,16 @@ table 5820 "Cost Element Buffer"
 
     procedure AddActualCost(NewType: Option; NewVarianceType: Option; NewActualCost: Decimal; NewActualCostACY: Decimal)
     begin
+        AddActualCostElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType), NewActualCost, NewActualCostACY);
+    end;
+
+    procedure AddActualCostElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"; NewActualCost: Decimal; NewActualCostACY: Decimal)
+    begin
         if not HasNewCost(NewActualCost, NewActualCostACY) then begin
-            Retrieve(NewType, NewVarianceType);
+            GetElement(NewEntryType, NewVarianceType);
             exit;
         end;
-        if Retrieve(NewType, NewVarianceType) then begin
+        if GetElement(NewEntryType, NewVarianceType) then begin
             "Actual Cost" := "Actual Cost" + NewActualCost;
             "Actual Cost (ACY)" := "Actual Cost (ACY)" + NewActualCostACY;
             Modify;
@@ -106,13 +107,19 @@ table 5820 "Cost Element Buffer"
         end;
     end;
 
+    [Obsolete('Replaced by AddExpectedCostElement();', '17.0')]
     procedure AddExpectedCost(NewType: Option; NewVarianceType: Option; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
     begin
+        AddExpectedCostElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType), NewExpectedCost, NewExpectedCostACY);
+    end;
+
+    procedure AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
+    begin
         if not HasNewCost(NewExpectedCost, NewExpectedCostACY) then begin
-            Retrieve(NewType, NewVarianceType);
+            GetElement(NewEntryType, NewVarianceType);
             exit;
         end;
-        if Retrieve(NewType, NewVarianceType) then begin
+        if GetElement(NewEntryType, NewVarianceType) then begin
             "Expected Cost" := "Expected Cost" + NewExpectedCost;
             "Expected Cost (ACY)" := "Expected Cost (ACY)" + NewExpectedCostACY;
             Modify;
@@ -145,13 +152,19 @@ table 5820 "Cost Element Buffer"
           "Actual Cost (ACY)" - InvtAdjmtBuffer."Cost Amount (Actual) (ACY)" - InvtAdjmtBuffer."Cost Amount (Expected) (ACY)";
     end;
 
+    [Obsolete('Replaced by GetElement().', '17.0')]
     procedure Retrieve(NewType: Option; NewVarianceType: Option): Boolean
     begin
-        Reset;
-        Type := NewType;
+        exit(GetElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType)));
+    end;
+
+    procedure GetElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"): Boolean
+    begin
+        Reset();
+        Type := NewEntryType;
         "Variance Type" := NewVarianceType;
-        if not Find then begin
-            Init;
+        if not Find() then begin
+            Init();
             exit(false);
         end;
         exit(true);

@@ -70,7 +70,7 @@ page 99000896 "Available - Transfer Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2, Direction);
+                        SetReservationFilters(ReservEntry2, TransferDirection);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
@@ -114,7 +114,7 @@ page 99000896 "Available - Transfer Lines"
                     begin
                         ReservEntry.LockTable();
                         UpdateReservMgt();
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Direction);
+                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -141,7 +141,7 @@ page 99000896 "Available - Transfer Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2, Direction);
+                        SetReservationFilters(ReservEntry2, TransferDirection);
                         if ReservEntry2.Find('-') then begin
                             UpdateReservMgt();
                             repeat
@@ -158,7 +158,7 @@ page 99000896 "Available - Transfer Lines"
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Direction);
+        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
     end;
 
     trigger OnOpenPage()
@@ -167,7 +167,7 @@ page 99000896 "Available - Transfer Lines"
         if not DirectionIsSet then
             Error(Text000);
 
-        SetFilters;
+        SetSourceTableFilters();
     end;
 
     var
@@ -187,8 +187,13 @@ page 99000896 "Available - Transfer Lines"
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
-        Direction: Enum "Transfer Direction";
+        TransferDirection: Enum "Transfer Direction";
         DirectionIsSet: Boolean;
+
+    procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
+    begin
+        SetSource(CurrentSourceRecRef, CurrentReservEntry, TransferDirection::Outbound);
+    end;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
@@ -204,67 +209,67 @@ page 99000896 "Available - Transfer Lines"
         SetInbound(ReservMgt.IsPositive);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; Direction: Option Outbound,Inbound)
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
+    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
     begin
         SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, Direction);
+        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
@@ -275,8 +280,8 @@ page 99000896 "Available - Transfer Lines"
         LocationCode: Code[10];
         EntryDate: Date;
     begin
-        case Direction of
-            Direction::Outbound:
+        case TransferDirection of
+            TransferDirection::Outbound:
                 begin
                     CalcFields("Reserved Qty. Outbnd. (Base)");
                     QtyThisLine := "Outstanding Qty. (Base)";
@@ -285,7 +290,7 @@ page 99000896 "Available - Transfer Lines"
                     TestField("Transfer-from Code", ReservEntry."Location Code");
                     LocationCode := "Transfer-from Code";
                 end;
-            Direction::Inbound:
+            TransferDirection::Inbound:
                 begin
                     CalcFields("Reserved Qty. Inbnd. (Base)");
                     QtyThisLine := "Outstanding Qty. (Base)";
@@ -304,7 +309,7 @@ page 99000896 "Available - Transfer Lines"
 
         UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Transfer Line", Direction, "Document No.", '', "Derived From Line No.", "Line No.",
+          DATABASE::"Transfer Line", TransferDirection.AsInteger(), "Document No.", '', "Derived From Line No.", "Line No.",
           "Variant Code", LocationCode, "Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
           ReservEntry.Description, EntryDate, ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
@@ -313,7 +318,7 @@ page 99000896 "Available - Transfer Lines"
 
     local procedure UpdateReservFrom()
     begin
-        SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+        SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
 
         OnAfterUpdateReservFrom(ReservEntry);
     end;
@@ -321,7 +326,7 @@ page 99000896 "Available - Transfer Lines"
     local procedure UpdateReservMgt()
     begin
         Clear(ReservMgt);
-        ReservMgt.SetReservSource(SourceRecRef, ReservEntry."Source Subtype");
+        ReservMgt.SetReservSource(SourceRecRef, ReservEntry.GetTransferDirection());
 
         OnAfterUpdateReservMgt(ReservEntry);
     end;
@@ -329,7 +334,7 @@ page 99000896 "Available - Transfer Lines"
     local procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2, Direction);
+        SetReservationFilters(ReservEntry2, TransferDirection);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -337,35 +342,35 @@ page 99000896 "Available - Transfer Lines"
     procedure SetInbound(DirectionIsInbound: Boolean)
     begin
         if DirectionIsInbound then
-            Direction := Direction::Inbound
+            TransferDirection := TransferDirection::Inbound
         else
-            Direction := Direction::Outbound;
+            TransferDirection := TransferDirection::Outbound;
         DirectionIsSet := true;
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    [Obsolete('Replaced by SetSource procedure.','16.0')]
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    local procedure SetFilters()
+    local procedure SetSourceTableFilters()
     begin
-        case Direction of
-            Direction::Outbound:
+        case TransferDirection of
+            TransferDirection::Outbound:
                 begin
                     SetFilter("Shipment Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
                     SetRange("Transfer-from Code", ReservEntry."Location Code");
                 end;
-            Direction::Inbound:
+            TransferDirection::Inbound:
                 begin
                     SetFilter("Receipt Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
                     SetRange("Transfer-to Code", ReservEntry."Location Code");

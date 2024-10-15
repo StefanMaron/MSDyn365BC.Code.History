@@ -1,4 +1,4 @@
-﻿codeunit 7301 "Whse. Jnl.-Register Line"
+codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -61,87 +61,82 @@
     begin
         WhseEntryNo := WhseEntryNo + 1;
 
-        with WhseJnlLine do begin
-            WhseEntry.Init();
-            WhseEntry."Entry No." := WhseEntryNo;
-            WhseEntryNo := WhseEntry."Entry No.";
-            WhseEntry."Journal Template Name" := "Journal Template Name";
-            WhseEntry."Journal Batch Name" := "Journal Batch Name";
-            if "Entry Type" <> "Entry Type"::Movement then begin
-                if Sign >= 0 then
-                    WhseEntry."Entry Type" := WhseEntry."Entry Type"::"Positive Adjmt."
+        WhseEntry.Init();
+        WhseEntry."Entry No." := WhseEntryNo;
+        WhseEntryNo := WhseEntry."Entry No.";
+        WhseEntry."Journal Template Name" := WhseJnlLine."Journal Template Name";
+        WhseEntry."Journal Batch Name" := WhseJnlLine."Journal Batch Name";
+        if WhseJnlLine."Entry Type" <> WhseJnlLine."Entry Type"::Movement then begin
+            if Sign >= 0 then
+                WhseEntry."Entry Type" := WhseEntry."Entry Type"::"Positive Adjmt."
+            else
+                WhseEntry."Entry Type" := WhseEntry."Entry Type"::"Negative Adjmt.";
+        end else
+            WhseEntry."Entry Type" := WhseJnlLine."Entry Type";
+        WhseEntry."Line No." := WhseJnlLine."Line No.";
+        WhseEntry."Whse. Document No." := WhseJnlLine."Whse. Document No.";
+        WhseEntry."Whse. Document Type" := WhseJnlLine."Whse. Document Type";
+        WhseEntry."Whse. Document Line No." := WhseJnlLine."Whse. Document Line No.";
+        WhseEntry."No. Series" := WhseJnlLine."Registering No. Series";
+        WhseEntry."Location Code" := WhseJnlLine."Location Code";
+        WhseEntry."Zone Code" := ZoneCode;
+        WhseEntry."Bin Code" := BinCode;
+        GetBin(WhseJnlLine."Location Code", BinCode);
+        WhseEntry.Dedicated := Bin.Dedicated;
+        WhseEntry."Bin Type Code" := Bin."Bin Type Code";
+        WhseEntry."Item No." := WhseJnlLine."Item No.";
+        WhseEntry.Description := GetItemDescription(WhseJnlLine."Item No.", WhseJnlLine.Description);
+        if Location."Directed Put-away and Pick" then begin
+            WhseEntry.Quantity := WhseJnlLine."Qty. (Absolute)" * Sign;
+            WhseEntry."Unit of Measure Code" := WhseJnlLine."Unit of Measure Code";
+            WhseEntry."Qty. per Unit of Measure" := WhseJnlLine."Qty. per Unit of Measure";
+        end else begin
+            WhseEntry.Quantity := WhseJnlLine."Qty. (Absolute, Base)" * Sign;
+            WhseEntry."Unit of Measure Code" := WMSMgt.GetBaseUOM(WhseJnlLine."Item No.");
+            WhseEntry."Qty. per Unit of Measure" := 1;
+        end;
+        WhseEntry."Qty. (Base)" := WhseJnlLine."Qty. (Absolute, Base)" * Sign;
+        WhseEntry."Registering Date" := WhseJnlLine."Registering Date";
+        WhseEntry."User ID" := WhseJnlLine."User ID";
+        WhseEntry."Variant Code" := WhseJnlLine."Variant Code";
+        WhseEntry."Source Type" := WhseJnlLine."Source Type";
+        WhseEntry."Source Subtype" := WhseJnlLine."Source Subtype";
+        WhseEntry."Source No." := WhseJnlLine."Source No.";
+        WhseEntry."Source Line No." := WhseJnlLine."Source Line No.";
+        WhseEntry."Source Subline No." := WhseJnlLine."Source Subline No.";
+        WhseEntry."Source Document" := WhseJnlLine."Source Document";
+        WhseEntry."Reference Document" := WhseJnlLine."Reference Document";
+        WhseEntry."Reference No." := WhseJnlLine."Reference No.";
+        WhseEntry."Source Code" := WhseJnlLine."Source Code";
+        WhseEntry."Reason Code" := WhseJnlLine."Reason Code";
+        WhseEntry.Cubage := WhseJnlLine.Cubage * Sign;
+        WhseEntry.Weight := WhseJnlLine.Weight * Sign;
+        WhseEntry.CopyTrackingFromWhseJnlLine(WhseJnlLine);
+        WhseEntry."Expiration Date" := WhseJnlLine."Expiration Date";
+        if OnMovement and (WhseJnlLine."Entry Type" = WhseJnlLine."Entry Type"::Movement) then begin
+            WhseEntry.CopyTrackingFromNewWhseJnlLine(WhseJnlLine);
+            if (WhseJnlLine."New Expiration Date" <> WhseJnlLine."Expiration Date") and (WhseEntry."Entry Type" = WhseEntry."Entry Type"::Movement) then
+                WhseEntry."Expiration Date" := WhseJnlLine."New Expiration Date";
+        end;
+        WhseEntry."Warranty Date" := WhseJnlLine."Warranty Date";
+        WhseEntry."Phys Invt Counting Period Code" := WhseJnlLine."Phys Invt Counting Period Code";
+        WhseEntry."Phys Invt Counting Period Type" := WhseJnlLine."Phys Invt Counting Period Type";
+
+        OnInitWhseEntryCopyFromWhseJnlLine(WhseEntry, WhseJnlLine, OnMovement, Sign);
+
+        if Sign > 0 then begin
+            if BinCode <> Location."Adjustment Bin Code" then begin
+                if not ToBinContent.Get(
+                        WhseJnlLine."Location Code", BinCode, WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Unit of Measure Code")
+                then
+                    InsertToBinContent(WhseEntry)
                 else
-                    WhseEntry."Entry Type" := WhseEntry."Entry Type"::"Negative Adjmt.";
-            end else
-                WhseEntry."Entry Type" := "Entry Type";
-            WhseEntry."Line No." := "Line No.";
-            WhseEntry."Whse. Document No." := "Whse. Document No.";
-            WhseEntry."Whse. Document Type" := "Whse. Document Type";
-            WhseEntry."Whse. Document Line No." := "Whse. Document Line No.";
-            WhseEntry."No. Series" := "Registering No. Series";
-            WhseEntry."Location Code" := "Location Code";
-            WhseEntry."Zone Code" := ZoneCode;
-            WhseEntry."Bin Code" := BinCode;
-            GetBin("Location Code", BinCode);
-            WhseEntry.Dedicated := Bin.Dedicated;
-            WhseEntry."Bin Type Code" := Bin."Bin Type Code";
-            WhseEntry."Item No." := "Item No.";
-            WhseEntry.Description := GetItemDescription("Item No.", Description);
-            if Location."Directed Put-away and Pick" then begin
-                WhseEntry.Quantity := "Qty. (Absolute)" * Sign;
-                WhseEntry."Unit of Measure Code" := "Unit of Measure Code";
-                WhseEntry."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            end else begin
-                WhseEntry.Quantity := "Qty. (Absolute, Base)" * Sign;
-                WhseEntry."Unit of Measure Code" := WMSMgt.GetBaseUOM("Item No.");
-                WhseEntry."Qty. per Unit of Measure" := 1;
-            end;
-            WhseEntry."Qty. (Base)" := "Qty. (Absolute, Base)" * Sign;
-            WhseEntry."Registering Date" := "Registering Date";
-            WhseEntry."User ID" := "User ID";
-            WhseEntry."Variant Code" := "Variant Code";
-            WhseEntry."Source Type" := "Source Type";
-            WhseEntry."Source Subtype" := "Source Subtype";
-            WhseEntry."Source No." := "Source No.";
-            WhseEntry."Source Line No." := "Source Line No.";
-            WhseEntry."Source Subline No." := "Source Subline No.";
-            WhseEntry."Source Document" := "Source Document";
-            WhseEntry."Reference Document" := "Reference Document";
-            WhseEntry."Reference No." := "Reference No.";
-            WhseEntry."Source Code" := "Source Code";
-            WhseEntry."Reason Code" := "Reason Code";
-            WhseEntry.Cubage := Cubage * Sign;
-            WhseEntry.Weight := Weight * Sign;
-            WhseEntry.CopyTrackingFromWhseJnlLine(WhseJnlLine);
-            WhseEntry."Expiration Date" := "Expiration Date";
-            if OnMovement and ("Entry Type" = "Entry Type"::Movement) then begin
-                if "New Serial No." <> '' then
-                    WhseEntry."Serial No." := "New Serial No.";
-                if "New Lot No." <> '' then
-                    WhseEntry."Lot No." := "New Lot No.";
-                if ("New Expiration Date" <> "Expiration Date") and (WhseEntry."Entry Type" = WhseEntry."Entry Type"::Movement) then
-                    WhseEntry."Expiration Date" := "New Expiration Date";
-            end;
-            WhseEntry."Warranty Date" := "Warranty Date";
-            WhseEntry."Phys Invt Counting Period Code" := "Phys Invt Counting Period Code";
-            WhseEntry."Phys Invt Counting Period Type" := "Phys Invt Counting Period Type";
-
-            OnInitWhseEntryCopyFromWhseJnlLine(WhseEntry, WhseJnlLine, OnMovement, Sign);
-
-            if Sign > 0 then begin
-                if BinCode <> Location."Adjustment Bin Code" then begin
-                    if not ToBinContent.Get(
-                         "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code")
-                    then
-                        InsertToBinContent(WhseEntry)
-                    else
-                        if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
-                            UpdateDefaultBinContent("Item No.", "Variant Code", "Location Code", BinCode);
-                end
-            end else begin
-                if BinCode <> Location."Adjustment Bin Code" then
-                    DeleteFromBinContent(WhseEntry);
-            end;
+                    if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
+                        UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
+            end
+        end else begin
+            if BinCode <> Location."Adjustment Bin Code" then
+                DeleteFromBinContent(WhseEntry);
         end;
     end;
 
@@ -153,64 +148,58 @@
         Sign: Integer;
         IsHandled: Boolean;
     begin
-        with WhseEntry do begin
-            FromBinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-            ItemTrackingMgt.GetWhseItemTrkgSetup(FromBinContent."Item No.", WhseItemTrackingSetup);
-            if WhseItemTrackingSetup."Lot No. Required" then
-                FromBinContent.SetRange("Lot No. Filter", "Lot No.");
-            if WhseItemTrackingSetup."Serial No. Required" then
-                FromBinContent.SetRange("Serial No. Filter", "Serial No.");
-            OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry);
-            FromBinContent.CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
-            if FromBinContent."Quantity (Base)" + "Qty. (Base)" = 0 then begin
-                WhseEntry2.SetCurrentKey(
-                  "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
-                WhseEntry2.SetRange("Item No.", "Item No.");
-                WhseEntry2.SetRange("Bin Code", "Bin Code");
-                WhseEntry2.SetRange("Location Code", "Location Code");
-                WhseEntry2.SetRange("Variant Code", "Variant Code");
-                WhseEntry2.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                if WhseItemTrackingSetup."Lot No. Required" then
-                    WhseEntry2.SetRange("Lot No.", "Lot No.");
-                if WhseItemTrackingSetup."Serial No. Required" then
-                    WhseEntry2.SetRange("Serial No.", "Serial No.");
-                OnDeleteFromBinContentOnAfterSetFiltersForWhseEntry(WhseEntry2, FromBinContent, WhseEntry);
-                WhseEntry2.CalcSums(Cubage, Weight, "Qty. (Base)");
-                Cubage := -WhseEntry2.Cubage;
-                Weight := -WhseEntry2.Weight;
-                if WhseEntry2."Qty. (Base)" + "Qty. (Base)" <> 0 then
-                    RegisterRoundResidual(WhseEntry, WhseEntry2);
+        FromBinContent.Get(
+            WhseEntry."Location Code", WhseEntry."Bin Code", WhseEntry."Item No.", WhseEntry."Variant Code",
+            WhseEntry."Unit of Measure Code");
+        ItemTrackingMgt.GetWhseItemTrkgSetup(FromBinContent."Item No.", WhseItemTrackingSetup);
+        WhseItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+        FromBinContent.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
+        OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry);
+        FromBinContent.CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
+        if FromBinContent."Quantity (Base)" + WhseEntry."Qty. (Base)" = 0 then begin
+            WhseEntry2.SetCurrentKey(
+                "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
+            WhseEntry2.SetRange("Item No.", WhseEntry."Item No.");
+            WhseEntry2.SetRange("Bin Code", WhseEntry."Bin Code");
+            WhseEntry2.SetRange("Location Code", WhseEntry."Location Code");
+            WhseEntry2.SetRange("Variant Code", WhseEntry."Variant Code");
+            WhseEntry2.SetRange("Unit of Measure Code", WhseEntry."Unit of Measure Code");
+            WhseEntry2.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
+            OnDeleteFromBinContentOnAfterSetFiltersForWhseEntry(WhseEntry2, FromBinContent, WhseEntry);
+            WhseEntry2.CalcSums(Cubage, Weight, "Qty. (Base)");
+            WhseEntry.Cubage := -WhseEntry2.Cubage;
+            WhseEntry.Weight := -WhseEntry2.Weight;
+            if WhseEntry2."Qty. (Base)" + WhseEntry."Qty. (Base)" <> 0 then
+                RegisterRoundResidual(WhseEntry, WhseEntry2);
 
-                FromBinContent.SetRange("Lot No. Filter");
-                FromBinContent.SetRange("Serial No. Filter");
-                FromBinContent.CalcFields("Quantity (Base)");
-                if FromBinContent."Quantity (Base)" + "Qty. (Base)" = 0 then
-                    if (FromBinContent."Positive Adjmt. Qty. (Base)" = 0) and
-                       (FromBinContent."Put-away Quantity (Base)" = 0) and
-                       (not FromBinContent.Fixed)
-                    then begin
-                        OnDeleteFromBinContentOnBeforeFromBinContentDelete(FromBinContent);
-                        FromBinContent.Delete();
-                    end;
-            end else begin
-                OnDeleteFromBinContentOnBeforeCheckQuantity(FromBinContent, WhseEntry);
-                FromBinContent.CalcFields(Quantity);
-                if FromBinContent.Quantity + Quantity = 0 then begin
-                    "Qty. (Base)" := -FromBinContent."Quantity (Base)";
-                    Sign := WhseJnlLine."Qty. (Base)" / WhseJnlLine."Qty. (Absolute, Base)";
-                    WhseJnlLine."Qty. (Base)" := "Qty. (Base)" * Sign;
-                    WhseJnlLine."Qty. (Absolute, Base)" := Abs("Qty. (Base)");
-                    OnDeleteFromBinContenOnAfterQtyUpdate(FromBinContent, WhseEntry, WhseJnlLine, Sign);
-                end else
-                    if FromBinContent."Quantity (Base)" + "Qty. (Base)" < 0 then begin
-                        IsHandled := false;
-                        OnDeleteFromBinContentOnBeforeFieldError(FromBinContent, WhseEntry, IsHandled);
-                        if not IsHandled then
-                            FromBinContent.FieldError(
-                              "Quantity (Base)",
-                              StrSubstNo(Text000, FromBinContent."Quantity (Base)", -(FromBinContent."Quantity (Base)" + "Qty. (Base)")));
-                    end;
-            end;
+            FromBinContent.ClearTrackingFilters();
+            FromBinContent.CalcFields("Quantity (Base)");
+            if FromBinContent."Quantity (Base)" + WhseEntry."Qty. (Base)" = 0 then
+                if (FromBinContent."Positive Adjmt. Qty. (Base)" = 0) and
+                    (FromBinContent."Put-away Quantity (Base)" = 0) and
+                    (not FromBinContent.Fixed)
+                then begin
+                    OnDeleteFromBinContentOnBeforeFromBinContentDelete(FromBinContent);
+                    FromBinContent.Delete();
+                end;
+        end else begin
+            OnDeleteFromBinContentOnBeforeCheckQuantity(FromBinContent, WhseEntry);
+            FromBinContent.CalcFields(Quantity);
+            if FromBinContent.Quantity + WhseEntry.Quantity = 0 then begin
+                WhseEntry."Qty. (Base)" := -FromBinContent."Quantity (Base)";
+                Sign := WhseJnlLine."Qty. (Base)" / WhseJnlLine."Qty. (Absolute, Base)";
+                WhseJnlLine."Qty. (Base)" := WhseEntry."Qty. (Base)" * Sign;
+                WhseJnlLine."Qty. (Absolute, Base)" := Abs(WhseEntry."Qty. (Base)");
+                OnDeleteFromBinContenOnAfterQtyUpdate(FromBinContent, WhseEntry, WhseJnlLine, Sign);
+            end else
+                if FromBinContent."Quantity (Base)" + WhseEntry."Qty. (Base)" < 0 then begin
+                    IsHandled := false;
+                    OnDeleteFromBinContentOnBeforeFieldError(FromBinContent, WhseEntry, IsHandled);
+                    if not IsHandled then
+                        FromBinContent.FieldError(
+                            "Quantity (Base)",
+                            StrSubstNo(Text000, FromBinContent."Quantity (Base)", -(FromBinContent."Quantity (Base)" + WhseEntry."Qty. (Base)")));
+                end;
         end;
     end;
 
@@ -465,6 +454,16 @@
         WhseJnlLine.Copy(WarehouseJournalLine);
         Code;
         WarehouseJournalLine := WhseJnlLine;
+    end;
+
+    procedure SetWhseEntryNo(NewWhseEntryNo: Integer)
+    begin
+        WhseEntryNo := NewWhseEntryNo;
+    end;
+
+    procedure GetWhseEntryNo(): Integer
+    begin
+        exit(WhseEntryNo);
     end;
 
     [IntegrationEvent(false, false)]

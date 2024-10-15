@@ -420,7 +420,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         end;
     end;
 
-    local procedure CreateGLAccount(GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -428,7 +428,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         exit(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType));
     end;
 
-    local procedure CreatePostGenJnlLines(GLAccountNo: Code[20]; CVNo: Code[20]; BalAccountType: Option; SignFactor: Integer)
+    local procedure CreatePostGenJnlLines(GLAccountNo: Code[20]; CVNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; SignFactor: Integer)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";

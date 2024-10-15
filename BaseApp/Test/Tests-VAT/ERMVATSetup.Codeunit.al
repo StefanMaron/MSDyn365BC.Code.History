@@ -1036,7 +1036,7 @@ codeunit 134047 "ERM VAT Setup"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         // Use Random Amount for General Journal Line.
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
@@ -1104,7 +1104,7 @@ codeunit 134047 "ERM VAT Setup"
         end;
     end;
 
-    local procedure VerifyVATRegistrationLogEntryExists(AccountType: Option; AccountNo: Code[20])
+    local procedure VerifyVATRegistrationLogEntryExists(AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20])
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
@@ -1170,7 +1170,7 @@ codeunit 134047 "ERM VAT Setup"
         CompanyInformation.Modify(true);
     end;
 
-    local procedure UpdateBalanceAccountInGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure UpdateBalanceAccountInGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);

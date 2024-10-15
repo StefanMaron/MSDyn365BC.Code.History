@@ -20,6 +20,18 @@ page 9027 "Accountant Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control123; "Team Member Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control1907692008; "My Accounts")
             {
                 ApplicationArea = Basic, Suite;
@@ -40,7 +52,11 @@ page 9027 "Accountant Role Center"
             }
             part(Control10; "Product Video Topics")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Assisted Setup.';
+                Visible = false;
                 ApplicationArea = All;
+                ObsoleteTag = '17.0';
             }
             part(Control100; "Cash Flow Forecast Chart")
             {
@@ -54,10 +70,6 @@ page 9027 "Accountant Role Center"
             part(Control122; "Power BI Report Spinner Part")
             {
                 ApplicationArea = Basic, Suite;
-            }
-            part(Control123; "Team Member Activities")
-            {
-                ApplicationArea = Suite;
             }
             systempart(Control1901377608; MyNotes)
             {
@@ -664,6 +676,13 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                }
+                action(PostedGeneralJournals)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted General Journals';
+                    RunObject = Page "Posted General Journal";
+                    ToolTip = 'Open the list of posted general journal lines.';
                 }
             }
             group("Cash Management")
@@ -1392,6 +1411,14 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "Cost Accounting Setup";
                     ToolTip = 'Specify how you transfer general ledger entries to cost accounting, how you link dimensions to cost centers and cost objects, and how you handle the allocation ID and allocation document number.';
                 }
+                action("Business Units")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Business Units';
+                    Image = Setup;
+                    RunObject = Page "Business Unit List";
+                    ToolTip = 'Set up Business Units that you need to consolidate into this company.';
+                }
             }
             group(History)
             {
@@ -1399,13 +1426,13 @@ page 9027 "Accountant Role Center"
                 action("Navi&gate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Navi&gate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
         }
     }
 }
-

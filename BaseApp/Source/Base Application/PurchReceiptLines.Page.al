@@ -197,7 +197,7 @@ page 5806 "Purch. Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

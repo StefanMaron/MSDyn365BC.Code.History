@@ -204,7 +204,7 @@ codeunit 11110 "Update VAT-AT"
                     InsertData(
                       'EULIEF',
                       CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
-                      1, VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '', false, true);
+                      1, VATStatementLine."Gen. Posting Type"::Sale.AsInteger(), VATStatementLine."Amount Type"::Base.AsInteger(), '', false, true);
                 until Next = 0;
             end;
         end;
@@ -306,11 +306,11 @@ codeunit 11110 "Update VAT-AT"
 
         VATStatementLine."Row No." := RowNo;
         VATStatementLine.Description := Description;
-        VATStatementLine.Type := Type;
-        VATStatementLine."Gen. Posting Type" := GenPostingType;
+        VATStatementLine.Type := "VAT Statement Line Type".FromInteger(Type);
+        VATStatementLine."Gen. Posting Type" := "General Posting Type".FromInteger(GenPostingType);
         VATStatementLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         VATStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        VATStatementLine."Amount Type" := AmountType;
+        VATStatementLine."Amount Type" := "VAT Statement Line Amount Type".FromInteger(AmountType);
         VATStatementLine."Row Totaling" := RowTotaling;
         VATStatementLine.Print := Print;
         if ReverseSign then
@@ -324,7 +324,7 @@ codeunit 11110 "Update VAT-AT"
         VATStatementLine.Insert();
     end;
 
-    local procedure CreateVATStatementLines(RowNoPrefix: Text; VATCalculationType: Option; VATPercentage: Integer; GenPostingType: Option; AmountType: Option; IsAgriculture: Boolean; AgricultureVATProdPostingGroups: Text)
+    local procedure CreateVATStatementLines(RowNoPrefix: Text; VATCalculationType: Enum "Tax Calculation Type"; VATPercentage: Integer; GenPostingType: Enum "General Posting Type"; AmountType: Enum "VAT Statement Line Amount Type"; IsAgriculture: Boolean; AgricultureVATProdPostingGroups: Text)
     begin
         if IsAgriculture and (AgricultureVATProdPostingGroups = '') then
             exit;
@@ -341,7 +341,7 @@ codeunit 11110 "Update VAT-AT"
                     InsertData(
                       RowNoPrefix + Format(VATPercentage),
                       CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
-                      1, GenPostingType, AmountType, '', false, GenPostingType = VATStatementLine."Gen. Posting Type"::Sale);
+                      1, GenPostingType.AsInteger(), AmountType.AsInteger(), '', false, GenPostingType = VATStatementLine."Gen. Posting Type"::Sale);
                 until Next = 0;
         end;
     end;

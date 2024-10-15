@@ -1963,7 +1963,7 @@ codeunit 134923 "ERM Finance Performance"
         ColumnLayout.FindFirst;
     end;
 
-    local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; Totaling: Text[250]; TotalingType: Option)
+    local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; Totaling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     begin
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
         AccScheduleLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));

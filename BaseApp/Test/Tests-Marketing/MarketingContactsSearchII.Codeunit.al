@@ -290,7 +290,7 @@ codeunit 136212 "Marketing Contacts Search II"
         Assert.ExpectedError(EmptySetupErr);
     end;
 
-    local procedure DuplicateContacts(Type: Option; SearchHitPct: Integer; ContactName: Text[50])
+    local procedure DuplicateContacts(Type: Enum "Contact Type"; SearchHitPct: Integer; ContactName: Text[50])
     var
         MarketingSetup: Record "Marketing Setup";
     begin
@@ -310,7 +310,7 @@ codeunit 136212 "Marketing Contacts Search II"
         UpdateMarketingSetup(MarketingSetup."Autosearch for Duplicates", MarketingSetup."Search Hit %");
     end;
 
-    local procedure CreateContactCard(Type: Option; Name: Text[50]) ContactNo: Code[20]
+    local procedure CreateContactCard(Type: Enum "Contact Type"; Name: Text[50]) ContactNo: Code[20]
     var
         ContactCard: TestPage "Contact Card";
     begin

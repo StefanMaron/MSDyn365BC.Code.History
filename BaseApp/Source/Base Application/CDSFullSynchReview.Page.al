@@ -118,6 +118,7 @@ page 7208 "CDS Full Synch. Review"
     trigger OnInit()
     begin
         Codeunit.Run(Codeunit::"CRM Integration Management");
+        Commit();
     end;
 
     [NonDebuggable]

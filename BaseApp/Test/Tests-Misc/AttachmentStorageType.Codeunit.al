@@ -987,16 +987,40 @@ codeunit 136450 "Attachment Storage Type"
     [Test]
     [HandlerFunctions('EmailDialog_Cancel_MPH')]
     [Scope('OnPrem')]
+    procedure SendAttachment_HTML_CancelSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendAttachment_HTML_Cancel_Internal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure SendAttachment_HTML_Cancel()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendAttachment_HTML_Cancel_Internal();
+    end;
+
+    procedure SendAttachment_HTML_Cancel_Internal()
     var
         InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
         TempDeliverySorter: Record "Delivery Sorter" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send() with "html" attachment: InteractLogEntry."Delivery Status" = Error in case of canceling "Email Dialog"
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
+
         LibraryVariableStorage.Enqueue(CreateHTMLReadyAttachment(Attachment));
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Email, Attachment."No.");
         MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
@@ -1361,7 +1385,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment.Modify();
     end;
 
-    local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; CorrespondenceType: Option; AttachmentNo: Integer): Integer
+    local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; CorrespondenceType: Enum "Correspondence Type"; AttachmentNo: Integer): Integer
     var
         Contact: Record Contact;
     begin
@@ -1555,6 +1579,20 @@ codeunit 136450 "Attachment Storage Type"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, EmailDialog.BodyText.Value);
         EmailDialog.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, EmailEditor.BodyField.Value);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [MessageHandler]

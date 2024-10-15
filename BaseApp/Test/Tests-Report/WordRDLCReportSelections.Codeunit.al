@@ -1051,7 +1051,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         RunStatementReport_TwoCust_OneSelection(CustomerNo1, CustomerNo2, StartingDate, EndingDate);
     end;
 
-    local procedure CreateReportSelection(ReportSelectionsUsage: Option; SequenceCode: Code[10]; ReportId: Integer)
+    local procedure CreateReportSelection(ReportSelectionsUsage: Enum "Report Selection Usage"; SequenceCode: Code[10]; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -1184,7 +1184,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         CustomLayoutReporting.SetOutputSupression(false);
         CustomLayoutReporting.SetSavePath(TemporaryPath);
         Commit();
-        CustomLayoutReporting.ProcessReportForData(
+        CustomLayoutReporting.ProcessReportData(
           ReportSelections.Usage::"C.Statement", CustomerRecordRef,
           Customer.FieldName("No."), DATABASE::Customer, Customer.FieldName("No."), true);
     end;

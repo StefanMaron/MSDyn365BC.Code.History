@@ -593,7 +593,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure CreateAndPostPaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; VendorNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]): Code[20]
+    local procedure CreateAndPostPaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

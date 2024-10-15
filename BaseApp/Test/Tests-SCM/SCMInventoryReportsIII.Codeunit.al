@@ -654,7 +654,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         CreatePurchaseOrder(PurchaseLine, CreateLotTrackedItem(false), LibraryRandom.RandInt(10), Bin."Location Code");  // Use random value for Quantity.
         PurchaseLine.Validate("Bin Code", Bin.Code);
         PurchaseLine.Modify(true);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         FindReservationEntry(ReservationEntry, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
@@ -1469,7 +1469,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         exit(ProductionItem."No.");
     end;
 
-    local procedure CreateItemSubstitution(var ItemSubstitution: Record "Item Substitution"; ItemSubstitutionType: Option; ItemNo: Code[20])
+    local procedure CreateItemSubstitution(var ItemSubstitution: Record "Item Substitution"; ItemSubstitutionType: Enum "Item Substitution Type"; ItemNo: Code[20])
     begin
         with ItemSubstitution do begin
             Init;
@@ -1552,7 +1552,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; PostingDate: Date; UnitAmount: Decimal; Quantity: Decimal)
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; PostingDate: Date; UnitAmount: Decimal; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -1661,7 +1661,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateAndUpdateItem(var Item: Record Item; Reserve: Option; ReorderingPolicy: Option; MaximumInventory: Decimal; ReorderPoint: Decimal; CostingMethod: Option; ItemTrackingCode: Code[10]; LotNos: Code[20])
+    local procedure CreateAndUpdateItem(var Item: Record Item; Reserve: Enum "Reserve Method"; ReorderingPolicy: Enum "Reordering Policy"; MaximumInventory: Decimal; ReorderPoint: Decimal; CostingMethod: Enum "Costing Method"; ItemTrackingCode: Code[10]; LotNos: Code[20])
     begin
         Item.Get(CreateItem);
         Item.Validate("Reordering Policy", ReorderingPolicy);
@@ -1704,7 +1704,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         exit(LibraryInventory.CreateItem(Item));
     end;
 
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalTemplate: Record "Item Journal Template"; TemplateType: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalTemplate: Record "Item Journal Template"; TemplateType: Enum "Item Journal Template Type")
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
@@ -1791,7 +1791,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     local procedure CreatePurchaseOrderWithItemTracking(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; LotWarehouseTracking: Boolean)
     begin
         CreatePurchaseOrder(PurchaseLine, CreateLotTrackedItem(LotWarehouseTracking), 1 + LibraryRandom.RandInt(10), LocationCode);  // Add random value to take Quantity more than 1.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateRevaluationJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1857,7 +1857,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         end;
     end;
 
-    local procedure FindItemLedgerEntry(ItemNo: Code[20]; DocumentNo: Code[20]; EntryType: Option): Integer
+    local procedure FindItemLedgerEntry(ItemNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"): Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -1895,7 +1895,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -1964,7 +1964,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Ship, Receive);
     end;
 
-    local procedure PostPurchaseOrderForVariance(var Item: Record Item; CostingMethod: Option)
+    local procedure PostPurchaseOrderForVariance(var Item: Record Item; CostingMethod: Enum "Costing Method")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2265,7 +2265,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure SetupProductionItem(CostingMethod: Option; ReplenishmentSystem: Option; StandardCost: Decimal): Code[20]
+    local procedure SetupProductionItem(CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; StandardCost: Decimal): Code[20]
     var
         Item: Record Item;
     begin

@@ -280,7 +280,7 @@ codeunit 2110 "O365 Sales Initial Setup"
           'MS-1306-INVOICING', SalesMailTok, DummyReportSelections."Email Body Layout Type"::"HTML Layout");
     end;
 
-    local procedure InitializeReportSelection(ReportID: Integer; ReportUsage: Integer; LayoutCode: Code[20]; EmailBodyLayoutCode: Code[20]; EmailBodyLayoutType: Option)
+    local procedure InitializeReportSelection(ReportID: Integer; ReportUsage: Enum "Report Selection Usage"; LayoutCode: Code[20]; EmailBodyLayoutCode: Code[20]; EmailBodyLayoutType: Option)
     var
         ReportSelections: Record "Report Selections";
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -528,12 +528,19 @@ codeunit 2110 "O365 Sales Initial Setup"
     local procedure InitializeDefaultBCC()
     var
         O365EmailSetup: Record "O365 Email Setup";
+        EmailAccount: Record "Email Account";
+        EmailFeature: Codeunit "Email Feature";
+        EmailScenario: Codeunit "Email Scenario";
         BccEmail: Text[80];
     begin
-        BccEmail := TryGetEmailFromSmtpSetup;
+        if EmailFeature.IsEnabled() then begin
+            if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
+                BccEmail := CopyStr(EmailAccount."Email Address", 1, MaxStrLen(BccEmail));
+        end else
+            BccEmail := TryGetEmailFromSmtpSetup();
 
         if BccEmail = '' then begin
-            BccEmail := TryGetEmailFromCurrentUser;
+            BccEmail := TryGetEmailFromCurrentUser();
             if BccEmail = '' then
                 exit;
         end;
@@ -605,10 +612,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         if WindowsLanguage.Get(UserPersonalization."Locale ID") then
             exit;
 
-        SendTraceTag(
-          '00001UN', InitialSetupCategoryTxt, VERBOSITY::Warning,
-          StrSubstNo(BadLocaleMsg, UserPersonalization."Locale ID", Language.GetDefaultApplicationLanguageId),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001UN', StrSubstNo(BadLocaleMsg, UserPersonalization."Locale ID", Language.GetDefaultApplicationLanguageId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InitialSetupCategoryTxt);
 
         UserPersonalization.Validate("Locale ID", Language.GetDefaultApplicationLanguageId);
         UserPersonalization.Modify(true);

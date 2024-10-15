@@ -2981,7 +2981,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);

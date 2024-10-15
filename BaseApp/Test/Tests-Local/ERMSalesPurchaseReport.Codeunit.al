@@ -182,7 +182,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesSetupAndSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo", CompanyInfoVATRegistrationNo);
     end;
 
-    local procedure SalesSetupAndSalesReport(DocumentType: Option; Number: Integer; VATRegNoName: Text[50])
+    local procedure SalesSetupAndSalesReport(DocumentType: Enum "Sales Document Type"; Number: Integer; VATRegNoName: Text[50])
     var
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
@@ -788,7 +788,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Sales/Purchase Report");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.SaveSalesSetup();
-        
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Sales/Purchase Report");
     end;
 
@@ -806,7 +806,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
             until VendorLedgerEntry.Next = 0;
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateVendorWithDimension);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -858,7 +858,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -872,7 +872,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";

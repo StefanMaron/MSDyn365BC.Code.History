@@ -247,8 +247,20 @@ report 208 "Sales - Shipment"
                         }
                         column(CrossReferenceNo_Line; "Cross-Reference No.")
                         {
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Replaced by Item Reference No.';
+                            ObsoleteTag = '17.0';
                         }
-                        column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                        column(CrossReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
+                        {
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Replaced by Item Reference No.';
+                            ObsoleteTag = '17.0';
+                        }
+                        column(ItemReferenceNo_Line; "Cross-Reference No.")
+                        {
+                        }
+                        column(ItemReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
                         {
                         }
                         column(Qty_SalesShptLine; Quantity)

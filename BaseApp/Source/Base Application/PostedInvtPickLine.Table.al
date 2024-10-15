@@ -37,12 +37,10 @@ table 7343 "Posted Invt. Pick Line"
             BlankZero = true;
             Caption = 'Source Subline No.';
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,Prod. Output';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output";
         }
         field(11; "Location Code"; Code[10])
         {
@@ -157,7 +155,7 @@ table 7343 "Posted Invt. Pick Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -166,7 +164,7 @@ table 7343 "Posted Invt. Pick Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -240,6 +238,7 @@ table 7343 "Posted Invt. Pick Line"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin

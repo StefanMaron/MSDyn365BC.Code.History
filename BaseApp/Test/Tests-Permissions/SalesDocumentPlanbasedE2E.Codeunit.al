@@ -14,6 +14,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        LibraryTemplates: Codeunit "Library - Templates";
         NoPermissionOnCountryRegionInsertErr: Label 'You do not have the following permissions on TableData 9: Insert';
         IsInitialized: Boolean;
 
@@ -227,7 +228,6 @@ codeunit 135404 "Sales Document Plan-based E2E"
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
         RoutingLine: Record "Routing Line";
-        AssemblySetup: Record "Assembly Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -244,9 +244,9 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode);
 
         IsInitialized := true;
         Commit();

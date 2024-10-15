@@ -426,7 +426,7 @@ codeunit 144050 "ERM Finance Reports"
         end;
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, AccountType, GenJournalLine."Document Type"::" ", AccountNo, LibraryRandom.RandDec(100, 2));  // Use Random Amount.
@@ -467,7 +467,7 @@ codeunit 144050 "ERM Finance Reports"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -685,7 +685,7 @@ codeunit 144050 "ERM Finance Reports"
     [Scope('OnPrem')]
     procedure VATAdvNotAccProofReqPageHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         GLVATReconciliation.StartDate.SetValue(Format(WorkDate));  // Setting value for control Start Date.
         GLVATReconciliation.EndDateReq.SetValue(Format(WorkDate));  // Setting value for control End Date.

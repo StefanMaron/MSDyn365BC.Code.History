@@ -208,7 +208,7 @@ page 450 "Issued Finance Charge Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 separator(Action6)
@@ -266,11 +266,12 @@ page 450 "Issued Finance Charge Memo"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin

@@ -986,7 +986,7 @@ codeunit 134389 "ERM Customer Statistics"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateSalesOrderAndVerifyFactBox(Type: Option; No: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesOrderAndVerifyFactBox(Type: Enum "Sales Line Type"; No: Code[20]; ItemNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1040,7 +1040,7 @@ codeunit 134389 "ERM Customer Statistics"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -1141,7 +1141,7 @@ codeunit 134389 "ERM Customer Statistics"
         end;
     end;
 
-    local procedure MockSalesLine(CustNo: Code[20]; DocType: Option; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal; RetRcvdNotInvoicedLCY: Decimal)
+    local procedure MockSalesLine(CustNo: Code[20]; DocType: Enum "Sales Document Type"; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal; RetRcvdNotInvoicedLCY: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1156,7 +1156,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesLine.Insert();
     end;
 
-    local procedure MockServLine(CustNo: Code[20]; DocType: Option; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal)
+    local procedure MockServLine(CustNo: Code[20]; DocType: Enum "Service Document Type"; OutstandingAmountLCY: Decimal; ShippedNotInvoicedLCY: Decimal)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -1227,7 +1227,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerCard."Statistics by C&urrencies".Invoke;
     end;
 
-    local procedure OpenSalesOrderAndFindLine(var SalesOrder: TestPage "Sales Order"; DocumentNo: Code[20]; No: Code[20]; Type: Option)
+    local procedure OpenSalesOrderAndFindLine(var SalesOrder: TestPage "Sales Order"; DocumentNo: Code[20]; No: Code[20]; Type: Enum "Sales Line Type")
     begin
         SalesOrder.OpenView;
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);

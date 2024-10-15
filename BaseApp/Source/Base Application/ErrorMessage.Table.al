@@ -69,7 +69,7 @@ table 700 "Error Message"
         }
         field(11; "Field Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table Number"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table Number"),
                                                               "No." = FIELD("Field Number")));
             Caption = 'Field Name';
             Editable = false;
@@ -77,7 +77,7 @@ table 700 "Error Message"
         }
         field(12; "Table Name"; Text[80])
         {
-            CalcFormula = Lookup ("Table Metadata".Caption WHERE(ID = FIELD("Table Number")));
+            CalcFormula = Lookup("Table Metadata".Caption WHERE(ID = FIELD("Table Number")));
             Caption = 'Table Name';
             Editable = false;
             FieldClass = FlowField;
@@ -100,7 +100,7 @@ table 700 "Error Message"
         }
         field(15; "Context Field Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Context Table Number"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Context Table Number"),
                                                               "No." = FIELD("Context Field Number")));
             Caption = 'Context Field Name';
             Editable = false;
@@ -120,6 +120,11 @@ table 700 "Error Message"
         field(18; Context; Boolean)
         {
             Caption = 'Context';
+            DataClassification = SystemMetadata;
+        }
+        field(20; Duplicate; Boolean)
+        {
+            Caption = 'Duplicate';
             DataClassification = SystemMetadata;
         }
     }
