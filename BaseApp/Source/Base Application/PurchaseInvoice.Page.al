@@ -871,6 +871,7 @@ page 51 "Purchase Invoice"
                     trigger OnAction()
                     begin
                         OpenDocumentStatistics();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

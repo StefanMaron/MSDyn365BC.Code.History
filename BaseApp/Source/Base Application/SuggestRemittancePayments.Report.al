@@ -299,6 +299,7 @@ report 15000001 "Suggest Remittance Payments"
         VendLedgEntry.SetRange("On Hold", '');
         VendLedgEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
         VendLedgEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
+        OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(VendLedgEntry);
         if VendLedgEntry.Find('-') then
             repeat
                 SaveAmount;
@@ -627,6 +628,11 @@ report 15000001 "Suggest Remittance Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; var TempPaymentBuffer: Record "Payment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

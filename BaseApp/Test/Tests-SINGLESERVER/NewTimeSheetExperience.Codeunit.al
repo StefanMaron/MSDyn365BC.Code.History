@@ -26,6 +26,8 @@ codeunit 136506 "New Time Sheet Experience"
         EmployeesStatusTxt: Label 'Employees (%1 employees)', Comment = '%1 - number';
         CauseofAbsenceStatusTxt: Label 'Causes of Absence (%1 causes of absence)', Comment = '%1 - number';
         navUserEmailTxt: Label 'navuser@email.com', Locked = true;
+        TimeSheetCardOwnerUserIDFilter: Text;
+        TimeSheetArchiveCardOwnerUserIDFilter: Text;
 
     [Test]
     [Scope('OnPrem')]
@@ -1473,6 +1475,196 @@ codeunit 136506 "New Time Sheet Experience"
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetCardDefaultFilterNotAdmin()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetCard: TestPage "Time Sheet Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user is not time sheet admin
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Create time sheet 
+        CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
+
+        // [GIVEN] Current user is not time sheet admin
+        UserSetup.Get(UserId);
+        UserSetup.Validate("Time Sheet Admin.", false);
+        UserSetup.Modify();
+
+        // [WHEN] Time Sheet card page is opened
+        TimeSheetCard.OpenEdit();
+
+        // [THEN] Page filtered by Owner User Id
+        Assert.AreEqual(UserId(), NewTimeSheetExperience.GetTimeSheetCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UserSetup.Delete();
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetCardDefaultFilterAdmin()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetCard: TestPage "Time Sheet Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Card page has no defult filter by owner id if current user is time sheet admin
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Create time sheet 
+        CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
+
+        // [GIVEN] Current user is time sheet admin
+        UserSetup.Get(UserId);
+        UserSetup.TestField("Time Sheet Admin.", true);
+
+        // [WHEN] Time Sheet card page is opened
+        TimeSheetCard.OpenEdit();
+
+        // [THEN] Page is not filtered by Owner User Id
+        Assert.AreEqual('', NewTimeSheetExperience.GetTimeSheetCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetCardDefaultFilterNoUserSetup()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetCard: TestPage "Time Sheet Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user does not have user setup
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Create time sheet 
+        CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
+
+        // [GIVEN] Mock no user setup for current user
+        UserSetup.Get(UserId);
+        UserSetup.Delete();
+
+        // [WHEN] Time Sheet card page is opened
+        TimeSheetCard.OpenEdit();
+
+        // [THEN] Page filtered by Owner User Id
+        Assert.AreEqual(UserId(), NewTimeSheetExperience.GetTimeSheetCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetArchiveCardDefaultFilterNotAdmin()
+    var
+        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetArchiveCard: TestPage "Time Sheet Archive Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Mock time sheet archive
+        MockArchivedTimeSheet(TimeSheetHeaderArchive);
+
+        // [GIVEN] Current user is not time sheet admin
+        UserSetup.Get(UserId);
+        UserSetup.Validate("Time Sheet Admin.", false);
+        UserSetup.Modify();
+
+        // [WHEN] Time Sheet Archive card page is opened
+        TimeSheetArchiveCard.OpenEdit();
+
+        // [THEN] Page filtered by Owner User Id
+        Assert.AreEqual(UserId(), NewTimeSheetExperience.GetTimeSheetArchiveCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UserSetup.Delete();
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetArchiveCardDefaultFilterAdmin()
+    var
+        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetArchiveCard: TestPage "Time Sheet Archive Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Archive Card page has no defult filter by owner id if current user is time sheet admin
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Mock time sheet archive
+        MockArchivedTimeSheet(TimeSheetHeaderArchive);
+
+        // [GIVEN] Current user is time sheet admin
+        UserSetup.Get(UserId);
+        UserSetup.TestField("Time Sheet Admin.", true);
+
+        // [WHEN] Time Sheet Archive card page is opened
+        TimeSheetArchiveCard.OpenEdit();
+
+        // [THEN] Page is not filtered by Owner User Id
+        Assert.AreEqual('', NewTimeSheetExperience.GetTimeSheetArchiveCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetArchiveCardDefaultFilterNoUserSetup()
+    var
+        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
+        UserSetup: Record "User Setup";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TimeSheetArchiveCard: TestPage "Time Sheet Archive Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
+        Initialize();
+
+        // [GIVEN] Enable Time Sheet V2
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [GIVEN] Mock time sheet archive
+        MockArchivedTimeSheet(TimeSheetHeaderArchive);
+
+        // [GIVEN] Mock no user setup for current user
+        UserSetup.Get(UserId);
+        UserSetup.Delete();
+
+        // [WHEN] Time Sheet Archive card page is opened
+        TimeSheetArchiveCard.OpenEdit();
+
+        // [THEN] Page filtered by Owner User Id
+        Assert.AreEqual(UserId(), NewTimeSheetExperience.GetTimeSheetArchiveCardOwnerUserIDFilter(), 'Invalid default owner id filter');
+        UnbindSubscription(NewTimeSheetExperience);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1675,6 +1867,16 @@ codeunit 136506 "New Time Sheet Experience"
         until FromTimeSheetDetail.Next() = 0;
     end;
 
+    procedure GetTimeSheetCardOwnerUserIDFilter(): Text
+    begin
+        exit(TimeSheetCardOwnerUserIDFilter);
+    end;
+
+    procedure GetTimeSheetArchiveCardOwnerUserIDFilter(): Text
+    begin
+        exit(TimeSheetArchiveCardOwnerUserIDFilter);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
@@ -1728,5 +1930,21 @@ codeunit 136506 "New Time Sheet Experience"
     local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
     begin
         Result := TimeSheetV2Enabled;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Time Sheet Card", 'OnAfterOnOpenPage', '', false, false)]
+    local procedure OnAfterTimeSheetCardOpened(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
+        TimeSheetHeader.FilterGroup(2);
+        TimeSheetCardOwnerUserIDFilter := TimeSheetHeader.GetFilter("Owner User ID");
+        TimeSheetHeader.FilterGroup(2);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Time Sheet Archive Card", 'OnAfterOnOpenPage', '', false, false)]
+    local procedure OnAfterTimeSheetArchiveCardOpened(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive")
+    begin
+        TimeSheetHeaderArchive.FilterGroup(2);
+        TimeSheetArchiveCardOwnerUserIDFilter := TimeSheetHeaderArchive.GetFilter("Owner User ID");
+        TimeSheetHeaderArchive.FilterGroup(2);
     end;
 }

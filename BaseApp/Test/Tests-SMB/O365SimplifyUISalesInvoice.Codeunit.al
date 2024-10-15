@@ -4542,6 +4542,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName(Id));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
 
         OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);
     end;
@@ -4552,6 +4553,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         FieldListToExclude.Add(PurchaseLineRef.FieldName("Document Type"));
         FieldListToExclude.Add(PurchaseLineRef.FieldName("Document No."));
+        FieldListToExclude.Add(PurchaseLineRef.FieldName("Transaction Specification"));
 
         OnAfterFillPurchaseLineExcludedFieldList(FieldListToExclude);
     end;

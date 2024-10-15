@@ -13,6 +13,77 @@ codeunit 10600 "Norwegian VAT Tools"
         Text007: Label '=%1 can only be used when posting without Tax';
         Text008: Label 'must be zero when posting outside tax area';
         Text009: Label 'must be zero when %1 in %2 is True';
+        AdjustmentTok: Label 'justering', Locked = true;
+        AdjustmentDescriptionTxt: Label 'Justering av merverdiavgift for kapitalvarer', Locked = true;
+        LossesOnClaimsTok: Label 'tapPåKrav', Locked = true;
+        LossesOnClaimsDescriptionTxt: Label 'Tap på Krav', Locked = true;
+        ReversalInputVATTok: Label 'tilbakeføringAvInngåendeMerverdiavgift', Locked = true;
+        ReversalInputVATDescriptionTxt: Label 'Tilbakeføring av merverdiavgift for kapitalvarer (kun personkjøretøy og fast eiendom)', Locked = true;
+        WithdrawalsTok: Label 'uttak', Locked = true;
+        WithdrawalsDescriptionTxt: Label 'uttak', Locked = true;
+        GoodsTok: Label 'varer', Locked = true;
+        GoodsDescriptionTxt: Label 'varer', Locked = true;
+        ServicesTok: Label 'tjenester', Locked = true;
+        ServicesDescriptionTxt: Label 'tjenester', Locked = true;
+        OutputVATDescriptionTxt: Label 'Output VAT (Withdrawals)';
+        NoOutputVATDescriptionTxt: Label 'No output VAT';
+        InputVATDeductDomDescrTxt: Label 'Input VAT deduct. (domestic)';
+        ImportOfGoodsDescrTxt: Label 'Imp. of goods, VAT deduct.';
+        NonStandardInvoicingTok: Label 'avvikende fakturering', Locked = true;
+        NonStandardInvoicingDescriptionTxt: Label 'Husleie som faktureres kvartalsvis, halvårlig eller årlig eller sesongvariasjoner i virksomheten', Locked = true;
+        AccrualsTok: Label 'periodisering', Locked = true;
+        AccrualsDescriptionTxt: Label 'Korrigering pga. etterfakturering, tidligere utelatt eller glemt faktura eller årsoppgjørsdisposisjoner', Locked = true;
+        PreviouslyUsedVATCodeNotCorrectTok: Label 'feil mva-kode brukt tidligere', Locked = true;
+        PreviouslyUsedVATCodeNotCorrectDescrTxt: Label 'Korrigering på grunn av rapportering under feil mva-kode', Locked = true;
+        ErrorsInAccSoftwareTok: Label 'feil i regnskapsprogram', Locked = true;
+        ErrorsInAccSoftwareDescrTxt: Label 'Omsetningen er korrigert på grunn av tidligere feil i regnskapsprogram', Locked = true;
+        InsuranceSettlementTok: Label 'Forsikringsoppgjør', Locked = true;
+        InsuranceSettlementDescrTxt: Label 'Det er fradragsført merverdiavgift i forbindelse med et forsikringsoppgjør som gjelder virksomheten', Locked = true;
+        TurnoverBeforeRegistrationTok: Label 'Omsetning før registrering', Locked = true;
+        TurnoverBeforeRegistrationDescrTxt: Label 'Omsetning før registrering i Merverdiavgiftsregisteret', Locked = true;
+        RecalculationOfReturnsTok: Label 'Omberegning eller retur', Locked = true;
+        RecalculationOfReturnsDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        TemporaryImportTok: Label 'Midlertidig innførsel', Locked = true;
+        TemporaryImportDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        ReimportTok: Label 'Gjeninnførsel', Locked = true;
+        ReimportDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        CustDeclUnderIncorrVATRegNumberTok: Label 'Tolldeklarasjon på feil organisasjonsnummer', Locked = true;
+        CustDeclUnderIncorrVATRegNumberDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        ReexportOfReturnsTok: Label 'Gjenutførsel eller retur', Locked = true;
+        ReexportOfReturnsDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        TemporaryExportTok: Label 'Midlertidig utførsel', Locked = true;
+        TemporaryExportDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        ExportOfServicesTok: Label 'Tjenesteeksport', Locked = true;
+        ExportOfServicesDescrTxt: Label 'Forklaring på differanse mellom rapport fra Toll (tolldeklarasjoner) og skattemeldingen for merverdiavgift', Locked = true;
+        LargePurchasesTok: Label 'Store anskaffelser', Locked = true;
+        LargePurchasesDescrTxt: Label 'Forklaring på store fradrag for inngående merverdiavgift', Locked = true;
+        CreditNotesTok: Label 'Kreditnota', Locked = true;
+        CreditNotesDescrTxt: Label 'Faktura er brukt til å endre hele eller deler av en tidligere faktura', Locked = true;
+        PurchMadeBeforeRegTok: Label 'Anskaffelser foretatt før mva registrering', Locked = true;
+        PurchMadeBeforeRegDescrTxt: Label 'Anskaffelser foretatt før registrering i Merverdiavgiftsregisteret, tilbakegående avgiftsoppgjør eller forklaring på store fradrag for inngående merverdiavgift', Locked = true;
+        BuldForOwnExpenseAndRiskTok: Label 'Bygg i egenregi', Locked = true;
+        BuldForOwnExpenseAndRiskDescrTxt: Label 'Varer og tjenester tatt ut til fra virksomheten før bygget selges', Locked = true;
+        WithdrawalAfterCessationTok: Label 'Uttak av varer ved opphør', Locked = true;
+        WithdrawalAfterCessationDescrTxt: Label 'Uttak av varer ved opphør av virksomheten', Locked = true;
+        RealPropertyTok: Label 'fast eiendom', Locked = true;
+        RealPropertyDescrTxt: Label 'Tilbakeføring av merverdiavgift på kapitalvarer som gjelder fast eiendom', Locked = true;
+        PassengerVehiclesTok: Label 'personkjøretøy', Locked = true;
+        PassengerVehiclesDescrTxt: Label 'Tilbakeføring av merverdiavgift på kapitalvarer som gjelder personkjøretøy', Locked = true;
+        DemonstrationCarTok: Label 'demobil', Locked = true;
+        DemonstrationCarDescrTxt: Label 'Beregning av utgående avgift på bil som er fradragsført og registrert i virksomheten', Locked = true;
+        BindingAdvanceRulingTok: Label 'Bindende forhåndsuttalelse', Locked = true;
+        BindingAdvanceRulingDescrTxt: Label 'Skatteetatens bindende forhåndsuttalelse (BFU) skal legges til grunn', Locked = true;
+        EnterpriseUnderLiquidationTok: Label 'Virksomhet under avvikling', Locked = true;
+        EnterpriseUnderLiquidationDescrTxt: Label 'Virksomheten skal slettes i Merverdiavgiftsregisteret', Locked = true;
+        EnterpriseChangedLegalStructureTok: Label 'Virksomheten har endret selskapsform', Locked = true;
+        EnterpriseChangedLegalStructureDescrTxt: Label 'Virksomheten er overført til/fra annet organisasjonsnummer', Locked = true;
+        DropInRevenueExtrCircTok: Label 'Omsetningssvikt pga. ekstraordinære forhold', Locked = true;
+        DropInRevenueExtrCircDescrTxt: Label 'Mindre omsetning enn det som er vanlig for virksomheten', Locked = true;
+        ShipwreckTok: Label 'Forlis', Locked = true;
+        ShipwreckDescrTxt: Label 'Utbetaling ved forlis mv.', Locked = true;
+        VATFreeSalesOfFishingVesselTok: Label 'Avgiftsfritt salg av fiskefartøy', Locked = true;
+        VATFreeSalesOfFishingVesselDescrTxt: Label 'Avgiftsfritt salg av fiskefartøy', Locked = true;
+
 
     [Scope('OnPrem')]
     procedure GLEntryCalcPropDeduction(var PropDeductionVAT: Decimal; var PropDeductionVATACY: Decimal; GLEntry: Record "G/L Entry"; GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; AddCurrGLEntryVATAmt: Decimal): Boolean
@@ -329,6 +400,133 @@ codeunit 10600 "Norwegian VAT Tools"
                     FieldError("Bal. VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption));
             end;
         end;
+    end;
+
+    procedure GetVATSpecifications2022(var TempVATSpecification: Record "VAT Specification" temporary)
+    begin
+        AddTempVATSpecification(TempVATSpecification, GetAdjustmentCode(), AdjustmentDescriptionTxt);
+        AddTempVATSpecification(TempVATSpecification, GetLossesOnClaimsSpecificationCode(), LossesOnClaimsDescriptionTxt);
+        AddTempVATSpecification(TempVATSpecification, GetReversalInputVATSpecificationCode(), ReversalInputVATDescriptionTxt);
+        AddTempVATSpecification(TempVATSpecification, GetWithdrawalSpecificationCode(), WithdrawalsDescriptionTxt);
+        AddTempVATSpecification(TempVATSpecification, GoodsTok, GoodsDescriptionTxt);
+        AddTempVATSpecification(TempVATSpecification, ServicesTok, ServicesDescriptionTxt);
+    end;
+
+    procedure GetVATNotes2022(var TempVATNote: Record "VAT Note" temporary)
+    begin
+        AddTempVATNote(TempVATNote, NonStandardInvoicingTok, NonStandardInvoicingDescriptionTxt);
+        AddTempVATNote(TempVATNote, AccrualsTok, AccrualsDescriptionTxt);
+        AddTempVATNote(TempVATNote, PreviouslyUsedVATCodeNotCorrectTok, PreviouslyUsedVATCodeNotCorrectDescrTxt);
+        AddTempVATNote(TempVATNote, ErrorsInAccSoftwareTok, ErrorsInAccSoftwareDescrTxt);
+        AddTempVATNote(TempVATNote, InsuranceSettlementTok, InsuranceSettlementDescrTxt);
+        AddTempVATNote(TempVATNote, TurnoverBeforeRegistrationTok, TurnoverBeforeRegistrationDescrTxt);
+        AddTempVATNote(TempVATNote, RecalculationOfReturnsTok, RecalculationOfReturnsDescrTxt);
+        AddTempVATNote(TempVATNote, TemporaryImportTok, TemporaryImportDescrTxt);
+        AddTempVATNote(TempVATNote, ReimportTok, ReimportDescrTxt);
+        AddTempVATNote(TempVATNote, CustDeclUnderIncorrVATRegNumberTok, CustDeclUnderIncorrVATRegNumberDescrTxt);
+        AddTempVATNote(TempVATNote, ReexportOfReturnsTok, ReexportOfReturnsDescrTxt);
+        AddTempVATNote(TempVATNote, TemporaryExportTok, TemporaryExportDescrTxt);
+        AddTempVATNote(TempVATNote, ExportOfServicesTok, ExportOfServicesDescrTxt);
+        AddTempVATNote(TempVATNote, LargePurchasesTok, LargePurchasesDescrTxt);
+        AddTempVATNote(TempVATNote, CreditNotesTok, CreditNotesDescrTxt);
+        AddTempVATNote(TempVATNote, PurchMadeBeforeRegTok, PurchMadeBeforeRegDescrTxt);
+        AddTempVATNote(TempVATNote, BuldForOwnExpenseAndRiskTok, BuldForOwnExpenseAndRiskDescrTxt);
+        AddTempVATNote(TempVATNote, WithdrawalAfterCessationTok, WithdrawalAfterCessationDescrTxt);
+        AddTempVATNote(TempVATNote, GetRealPropertyTok(), RealPropertyDescrTxt);
+        AddTempVATNote(TempVATNote, GetPassengerVehicles(), PassengerVehiclesDescrTxt);
+        AddTempVATNote(TempVATNote, DemonstrationCarTok, DemonstrationCarDescrTxt);
+        AddTempVATNote(TempVATNote, BindingAdvanceRulingTok, BindingAdvanceRulingDescrTxt);
+        AddTempVATNote(TempVATNote, EnterpriseUnderLiquidationTok, EnterpriseUnderLiquidationDescrTxt);
+        AddTempVATNote(TempVATNote, EnterpriseChangedLegalStructureTok, EnterpriseChangedLegalStructureDescrTxt);
+        AddTempVATNote(TempVATNote, DropInRevenueExtrCircTok, DropInRevenueExtrCircDescrTxt);
+        AddTempVATNote(TempVATNote, ShipwreckTok, ShipwreckDescrTxt);
+        AddTempVATNote(TempVATNote, VATFreeSalesOfFishingVesselTok, VATFreeSalesOfFishingVesselDescrTxt);
+    end;
+
+    local procedure AddTempVATNote(var TempVATNote: Record "VAT Note" temporary; Value: Text[50]; Description: Text[250])
+    begin
+        TempVATNote.Validate(Code, Value);
+        TempVATNote.Validate("VAT Report Value", Value);
+        TempVATNote.Validate(Description, Description);
+        TempVATNote.Insert(true);
+    end;
+
+    local procedure AddTempVATSpecification(var TempVATSpecification: Record "VAT Specification" temporary; Value: Text[50]; Description: Text[250])
+    begin
+        TempVATSpecification.Validate(Code, Value);
+        TempVATSpecification.Validate("VAT Report Value", Value);
+        TempVATSpecification.Validate(Description, Description);
+        TempVATSpecification.Insert(true);
+    end;
+
+    local procedure GetWithdrawalSpecificationCode(): Text[50]
+    begin
+        exit(WithdrawalsTok);
+    end;
+
+    local procedure GetReversalInputVATSpecificationCode(): Text[50]
+    begin
+        exit(ReversalInputVATTok);
+    end;
+
+    local procedure GetLossesOnClaimsSpecificationCode(): Text[50]
+    begin
+        exit(LossesOnClaimsTok);
+    end;
+
+    local procedure GetAdjustmentCode(): Text[50]
+    begin
+        exit(AdjustmentTok);
+    end;
+
+    local procedure GetRealPropertyTok(): Text[50]
+    begin
+        exit(RealPropertyTok);
+    end;
+
+    local procedure GetPassengerVehicles(): Text[50]
+    begin
+        exit(PassengerVehiclesTok);
+    end;
+
+    procedure GetVATCodes2022(var TempVATCode: Record "VAT Code" temporary)
+    begin
+        AddTempVATCode(TempVATCode, '31U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '31');
+        AddTempVATCode(TempVATCode, '33U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '33');
+        AddTempVATCode(TempVATCode, '3U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '3');
+        AddTempVATCode(TempVATCode, '5U', NoOutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '5');
+        AddTempVATCode(TempVATCode, '11U', InputVATDeductDomDescrTxt, GetWithdrawalSpecificationCode(), '', '11');
+        AddTempVATCode(TempVATCode, '11T', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), '', '11');
+        AddTempVATCode(TempVATCode, '13T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '13');
+        AddTempVATCode(TempVATCode, '1J', InputVATDeductDomDescrTxt, GetAdjustmentCode(), '', '1');
+        AddTempVATCode(TempVATCode, '1TF', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetRealPropertyTok(), '1');
+        AddTempVATCode(TempVATCode, '1TP', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '1');
+        AddTempVATCode(TempVATCode, '81TP', ImportOfGoodsDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '81');
+        AddTempVATCode(TempVATCode, '12T', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), '', '12');
+    end;
+
+    local procedure AddTempVATCode(var TempVATCode: Record "VAT Code" temporary; Code: Code[10]; Description: Text[30]; VATSpecificationCode: Code[50]; VATNoteCode: Code[50]; SAFTVATCode: Code[10])
+    var
+        VATCode: Record "VAT Code";
+    begin
+        if SAFTVATCode <> '' then
+            if VATCode.Get(SAFTVATCode) then
+                TempVATCode := VATCode
+            else
+                exit;
+        TempVATCode.Validate(Code, Code);
+        TempVATCode.Validate(Description, Description);
+        TempVATCode.Validate("VAT Specification Code", VATSpecificationCode);
+        TempVATCode.Validate("SAF-T VAT Code", SAFTVATCode);
+        TempVATCode.Validate("VAT Note Code", VATNoteCode);
+        TempVATCode.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"VAT Statement", 'OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters', '', true, true)]
+    local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
+    begin
+        if VATStmtLine."VAT Code" <> '' then
+            VATEntry.SetRange("VAT Code", VATStmtLine."VAT Code");
     end;
 }
 

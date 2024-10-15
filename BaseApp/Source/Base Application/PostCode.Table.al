@@ -338,7 +338,7 @@ table 225 "Post Code"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidatePostCode(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeValidatePostCode(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; var UseDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

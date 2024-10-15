@@ -43,6 +43,21 @@ page 10602 "VAT Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reporting field that links the VAT code to the Box No. field in the Trade Settlement 2017 report in case of reverse charge VAT.';
                 }
+                field("VAT Specification Code"; "VAT Specification Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT specification code';
+                }
+                field("VAT Note Code"; "VAT Note Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT note code.';
+                }
+                field("SAF-T VAT Code"; "SAF-T VAT Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the SAF-T VAT code.';
+                }
             }
         }
     }

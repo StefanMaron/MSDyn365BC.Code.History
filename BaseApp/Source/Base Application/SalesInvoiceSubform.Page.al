@@ -93,9 +93,9 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1176,7 +1176,9 @@
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1215,10 +1217,13 @@
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
@@ -1445,12 +1450,12 @@
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var

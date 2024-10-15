@@ -2807,6 +2807,7 @@
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO 360806] Loaner Entry is not inserted when Loaner No. change is not confirmed
+        Initialize();
 
         // [GIVEN] Service Order with Loaner
         CreateServiceDocWithLoaner(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Order);
@@ -3459,6 +3460,7 @@
         ResponsibilityCenterCode: Code[10];
     begin
         // [SCENARIO 215838] System gets responsibility center from customer when it is specified for customer on making service order from quote.
+        Initialize();
         // [GIVEN] Customer "X" where"Responsibility Center" = "RC1"
         CreateCustomerWithResponsibilityCenter(Customer);
         ResponsibilityCenterCode := Customer."Responsibility Center";
@@ -4080,6 +4082,7 @@
     begin
         // [FEATURE] [Line Discount] [Sales Price] [Warranty]
         // [SCENARIO 348944] Change "Exclude Warranty" to True in Service Line
+        Initialize();
         // [GIVEN] Customer and Item 
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
