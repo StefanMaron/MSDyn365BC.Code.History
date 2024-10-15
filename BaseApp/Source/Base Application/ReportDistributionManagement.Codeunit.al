@@ -55,36 +55,103 @@ codeunit 452 "Report Distribution Management"
         HideDialog := NewHideDialog;
     end;
 
-    local procedure GetDocumentType(DocumentVariant: Variant): Text[50]
+    local procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
         DummySalesHeader: Record "Sales Header";
         DummyServiceHeader: Record "Service Header";
         DummyPurchaseHeader: Record "Purchase Header";
+        TranslationHelper: Codeunit "Translation Helper";
         DocumentRecordRef: RecordRef;
     begin
+        TranslationHelper.SetGlobalLanguageByCode(GetDocumentLanguageCode(DocumentVariant));
+
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                exit(Format(DummySalesHeader."Document Type"::Invoice));
+                DocumentTypeText := Format(DummySalesHeader."Document Type"::Invoice);
             DATABASE::"Sales Cr.Memo Header":
-                exit(Format(DummySalesHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := Format(DummySalesHeader."Document Type"::"Credit Memo");
             DATABASE::"Service Invoice Header":
-                exit(Format(DummyServiceHeader."Document Type"::Invoice));
+                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Invoice);
             DATABASE::"Service Cr.Memo Header":
-                exit(Format(DummyServiceHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := Format(DummyServiceHeader."Document Type"::"Credit Memo");
             DATABASE::"Purchase Header":
-                exit(Format(DummyPurchaseHeader."Document Type"::Order));
+                DocumentTypeText := Format(DummyPurchaseHeader."Document Type"::Order);
             DATABASE::"Service Header":
                 begin
                     DummyServiceHeader := DocumentVariant;
                     if DummyServiceHeader."Document Type" = DummyServiceHeader."Document Type"::Quote then
-                        exit(Format(DummyServiceHeader."Document Type"::Quote));
+                        DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
                 end;
             DATABASE::"Sales Header":
                 begin
                     DummySalesHeader := DocumentVariant;
                     if DummySalesHeader."Document Type" = DummySalesHeader."Document Type"::Quote then
-                        exit(Format(DummySalesHeader."Document Type"::Quote));
+                        DocumentTypeText := Format(DummySalesHeader."Document Type"::Quote);
+                end;
+        end;
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    procedure GetDocumentLanguageCode(DocumentVariant: Variant): Code[10]
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ServiceHeader: Record "Service Header";
+        Job: Record Job;
+        DocumentRecordRef: RecordRef;
+    begin
+        if DocumentVariant.IsRecord then
+            DocumentRecordRef.GetTable(DocumentVariant)
+        else
+            if DocumentVariant.IsRecordRef then
+                DocumentRecordRef := DocumentVariant;
+
+        case DocumentRecordRef.Number of
+            DATABASE::"Sales Invoice Header":
+                begin
+                    DocumentRecordRef.SetTable(SalesInvoiceHeader);
+                    exit(SalesInvoiceHeader."Language Code");
+                end;
+            DATABASE::"Sales Cr.Memo Header":
+                begin
+                    DocumentRecordRef.SetTable(SalesCrMemoHeader);
+                    exit(SalesCrMemoHeader."Language Code");
+                end;
+            DATABASE::"Service Invoice Header":
+                begin
+                    DocumentRecordRef.SetTable(ServiceInvoiceHeader);
+                    exit(ServiceInvoiceHeader."Language Code");
+                end;
+            DATABASE::"Service Cr.Memo Header":
+                begin
+                    DocumentRecordRef.SetTable(ServiceCrMemoHeader);
+                    exit(ServiceCrMemoHeader."Language Code");
+                end;
+            DATABASE::"Sales Header":
+                begin
+                    DocumentRecordRef.SetTable(SalesHeader);
+                    exit(SalesHeader."Language Code");
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    DocumentRecordRef.SetTable(PurchaseHeader);
+                    exit(PurchaseHeader."Language Code");
+                end;
+            DATABASE::"Service Header":
+                begin
+                    DocumentRecordRef.SetTable(ServiceHeader);
+                    exit(ServiceHeader."Language Code");
+                end;
+            DATABASE::Job:
+                begin
+                    DocumentRecordRef.SetTable(Job);
+                    exit(Job."Language Code");
                 end;
         end;
     end;
@@ -280,7 +347,9 @@ codeunit 452 "Report Distribution Management"
         if not DocumentSendingProfile.GET(Customer."Document Sending Profile") then
             exit;
 
-        IF DocumentSendingProfile.Disk <> DocumentSendingProfile.Disk::No then
+        if DocumentSendingProfile.Disk in
+           [DocumentSendingProfile.Disk::"Electronic Document", DocumentSendingProfile.Disk::"PDF & Electronic Document"]
+        then
             IF NOT ElectronicDocumentFormat.GET(DocumentSendingProfile."Disk Format") then
                 exit;
 
@@ -293,6 +362,7 @@ codeunit 452 "Report Distribution Management"
     procedure CreateOrAppendZipFile(var DataCompression: Codeunit "Data Compression"; ServerFilePath: Text[250]; ClientFileName: Text[250]; var ClientZipFileName: Text[250])
     var
         FileManagement: Codeunit "File Management";
+        ServerTempBlob: Codeunit "Temp Blob";
         ServerFile: File;
         ServerFileInStream: InStream;
         IsGZip: Boolean;
@@ -305,6 +375,8 @@ codeunit 452 "Report Distribution Management"
             ClientZipFileName := ClientFileName;
         end else begin
             DataCompression.CreateZipArchive;
+            FileManagement.BLOBImportFromServerFile(ServerTempBlob, ServerFilePath);
+            ServerTempBlob.CreateInStream(ServerFileInStream);
             DataCompression.AddEntry(ServerFileInStream, ClientFileName);
             ClientZipFileName := CopyStr(FileManagement.GetFileNameWithoutExtension(ClientFileName) + '.zip', 1, 250);
         end;

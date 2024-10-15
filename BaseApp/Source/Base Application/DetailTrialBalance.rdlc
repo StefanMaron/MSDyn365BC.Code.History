@@ -4317,67 +4317,62 @@
                 <TablixMember>
                   <Group Name="Table1_Group">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!PageGroupNo.Value</GroupExpression>
+                      <GroupExpression>=Fields!No_GLAcc.Value</GroupExpression>
                     </GroupExpressions>
+                    <PageBreak>
+                      <BreakLocation>Between</BreakLocation>
+                      <Disabled>=(not Fields!PrintOnlyOnePerPage.Value)</Disabled>
+                    </PageBreak>
                   </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!No_GLAcc.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
                   <TablixMembers>
                     <TablixMember>
-                      <Group Name="Table1_Group2">
-                        <GroupExpressions>
-                          <GroupExpression>=Fields!No_GLAcc.Value</GroupExpression>
-                        </GroupExpressions>
+                      <KeepWithGroup>After</KeepWithGroup>
+                      <RepeatOnNewPage>true</RepeatOnNewPage>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
+                      <Visibility>
+                        <Hidden>=Last(Fields!ClosingEntry.Value)</Hidden>
+                      </Visibility>
+                      <KeepWithGroup>After</KeepWithGroup>
+                      <RepeatOnNewPage>true</RepeatOnNewPage>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
+                      <Group Name="Table1_Details_Group">
+                        <DataElementName>Detail</DataElementName>
                       </Group>
-                      <SortExpressions>
-                        <SortExpression>
-                          <Value>=Fields!No_GLAcc.Value</Value>
-                        </SortExpression>
-                      </SortExpressions>
                       <TablixMembers>
                         <TablixMember>
-                          <KeepWithGroup>After</KeepWithGroup>
-                          <RepeatOnNewPage>true</RepeatOnNewPage>
-                          <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
                           <Visibility>
-                            <Hidden>=Last(Fields!ClosingEntry.Value)</Hidden>
-                          </Visibility>
-                          <KeepWithGroup>After</KeepWithGroup>
-                          <RepeatOnNewPage>true</RepeatOnNewPage>
-                          <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
-                          <Group Name="Table1_Details_Group">
-                            <DataElementName>Detail</DataElementName>
-                          </Group>
-                          <TablixMembers>
-                            <TablixMember>
-                              <Visibility>
-                                <Hidden>=IIF(((First(Fields!PrintClosingEntries.Value, "Table1_Group2")=FALSE) and Fields!ClosingEntry.Value) or 
+                            <Hidden>=IIF(((First(Fields!PrintClosingEntries.Value, "Table1_Group")=FALSE) and Fields!ClosingEntry.Value) or 
 Fields!EntryNo_GLEntry.Value&lt;=0 or 
 ((not Fields!PrintReversedEntries.Value)and(Fields!Reversed_GLEntry.Value)) or 
 (Fields!PrintOnlyCorrections.Value and(not ((Fields!DebitAmount_GLEntry.Value&lt;0)or(Fields!CreditAmount_GLEntry.Value&lt;0)))),TRUE,FALSE)</Hidden>
-                              </Visibility>
-                            </TablixMember>
-                          </TablixMembers>
-                          <DataElementName>Detail_Collection</DataElementName>
-                          <DataElementOutput>Output</DataElementOutput>
-                          <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
-                          <Visibility>
-                            <Hidden>=IIF((CountDistinct(Fields!ClosingEntry.Value)=1) and (First(Fields!ClosingEntry.Value)) and
-(not Fields!PrintClosingEntries.Value),TRUE,FALSE)</Hidden>
                           </Visibility>
-                          <KeepWithGroup>Before</KeepWithGroup>
-                          <KeepTogether>true</KeepTogether>
                         </TablixMember>
                       </TablixMembers>
+                      <DataElementName>Detail_Collection</DataElementName>
+                      <DataElementOutput>Output</DataElementOutput>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
                       <Visibility>
-                        <Hidden>=IIF((First(Fields!StartBalance.Value)=0) and (First(Fields!EntryNo_GLEntry.Value) = 0),TRUE,FALSE)</Hidden>
+                        <Hidden>=IIF((CountDistinct(Fields!ClosingEntry.Value)=1) and (First(Fields!ClosingEntry.Value)) and
+(not Fields!PrintClosingEntries.Value),TRUE,FALSE)</Hidden>
                       </Visibility>
+                      <KeepWithGroup>Before</KeepWithGroup>
+                      <KeepTogether>true</KeepTogether>
                     </TablixMember>
                   </TablixMembers>
+                  <Visibility>
+                    <Hidden>=IIF((First(Fields!StartBalance.Value)=0) and (First(Fields!EntryNo_GLEntry.Value) = 0),TRUE,FALSE)</Hidden>
+                  </Visibility>
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
@@ -4798,6 +4793,9 @@ End Function</Code>
         </Field>
         <Field Name="PageGroupNo">
           <DataField>PageGroupNo</DataField>
+        </Field>
+        <Field Name="PrintOnlyOnePerPage">
+          <DataField>PrintOnlyOnePerPage</DataField>
         </Field>
         <Field Name="PrintClosingEntries">
           <DataField>PrintClosingEntries</DataField>
