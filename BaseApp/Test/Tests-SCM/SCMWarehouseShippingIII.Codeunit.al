@@ -1,4 +1,4 @@
-codeunit 137162 "SCM Warehouse - Shipping III"
+﻿codeunit 137162 "SCM Warehouse - Shipping III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1126,6 +1126,65 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerSimple')]
+    procedure DirectTransferOrderWithWarehouseShipmentAndPickDirectTransferPosting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        InventorySetup: Record "Inventory Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+        FromLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        DirectTransferHeader: Record "Direct Trans. Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseActivityRegister: Codeunit "Whse.-Activity-Register";
+    begin
+        // [FEATURE] [Direct Transfer] [Warehouse Shipment]
+        // [SCENARIO 325564] Direct Transfer from Required Shipment location (GREEN) to non warehouse location (BLUE) can be completely posted by posting of warehouse shipment
+        Initialize();
+
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        WarehouseSetup.Get();
+        WarehouseSetup."Shipment Posting Policy" :=
+            WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error";
+        WarehouseSetup.Modify();
+
+        // [GIVEN] Released Direct Transfer Order "T1"
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, true, false, true);
+
+        // [GIVEN] Post 10 pcs to inventory.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", FromLocation.Code, '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateAndReleaseDirectTransferOrder(TransferHeader, FromLocation.Code, LocationBlue.Code, Item."No.", 1);
+
+        // [WHEN] Create Warehouse Shipment for this Transfer Order
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [WHEN] Find Warehouse Shipment, create and register Pick and post Warehouse Shipment
+        FindWarehouseShipmentHeaderBySource(WarehouseShipmentHeader, DATABASE::"Transfer Line", 0, TransferHeader."No.", -1);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WhseActivityRegister.Run(WarehouseActivityLine);
+
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Direct transfer order is fully posted to posted direct transfer
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        DirectTransferHeader.FindFirst();
+        asserterror TransferHeader.Get(TransferHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure WhseReceiptAfterReleasedSalesReturnOrderExternalDocNoChanged()
     var
         SalesHeader: Record "Sales Header";
@@ -1666,15 +1725,18 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        CreateLocationSetup;
-        CreateTransferRoute;
+        CreateLocationSetup();
+        CreateTransferRoute();
         NoSeriesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
+        LibrarySetupStorage.Save(Database::"Warehouse Setup");
 
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Shipping III");
     end;
 
@@ -2330,6 +2392,17 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         TransferLine: Record "Transfer Line";
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+    end;
+
+    local procedure CreateAndReleaseDirectTransferOrder(var TransferHeader: Record "Transfer Header"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify();
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
