@@ -93,6 +93,7 @@ table 2003 "Cortana Intelligence Usage"
             exit("Total Resource Usage");
     end;
 
+    [NonDebuggable]
     procedure GetSingleInstance(ServiceOption: Option): Boolean
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
