@@ -754,10 +754,22 @@ report 5753 "Get Source Documents"
     begin
         OnBeforeCheckFillQtyToHandle(DoNotFillQtytoHandle, RequestType);
 
-        if DoNotFillQtytoHandle and (RequestType = RequestType::Receive) then begin
-            WhseReceiptLine.Reset();
-            WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
-            WhseReceiptLine.DeleteQtyToReceive(WhseReceiptLine);
+        if not DoNotFillQtytoHandle then
+            exit;
+
+        case RequestType of
+            RequestType::Receive:
+                begin
+                    WhseReceiptLine.Reset();
+                    WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
+                    WhseReceiptLine.DeleteQtyToReceive(WhseReceiptLine);
+                end;
+            RequestType::Ship:
+                begin
+                    WhseShptLine.Reset();
+                    WhseShptLine.SetRange("No.", WhseShptHeader."No.");
+                    WhseShptLine.DeleteQtyToHandle(WhseShptLine);
+                end;
         end;
     end;
 
