@@ -186,6 +186,7 @@ table 263 "Intrastat Jnl. Line"
         field(22; "Total Weight"; Decimal)
         {
             Caption = 'Total Weight';
+            DecimalPlaces = 2 : 5;
             Editable = false;
         }
         field(23; "Supplementary Units"; Boolean)
