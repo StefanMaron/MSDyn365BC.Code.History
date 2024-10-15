@@ -7,7 +7,8 @@ codeunit 414 "Release Sales Document"
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        Code;
+        SalesHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
+        Code();
         Rec := SalesHeader;
     end;
 
