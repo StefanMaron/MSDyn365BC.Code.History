@@ -55,6 +55,7 @@ codeunit 136907 Resource
         DaysTok: Label 'day(s)';
         JobLedgEntryExistsErr: Label 'Incorrect Job Ledger Entry exists.';
         DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.';
+        UnitPriceErr: Label 'Unit Price must not change.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1483,6 +1484,44 @@ codeunit 136907 Resource
         ResLedgerEntry.TestField("Source No.");
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyManualSalesPriceNotResetWhenQuantityChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DefaultUnitPrice: Decimal;
+        ManualUnitPrice: Decimal;
+    begin
+        // [SCENARIO 491841] Resources in Sales Document: Manual Sales Price Resets When Quantity Changes
+        Initialize();
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create sales line with Resource has positive "Unit Price" = 100
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Resource,
+            LibraryResource.CreateResourceNo(),
+            LibraryRandom.RandIntInRange(5, 10));
+        DefaultUnitPrice := SalesLine."Unit Price";
+
+        // [WHEN] Update Sales Line Unit Price manually, and Quantity on Sales Line
+        ManualUnitPrice := LibraryRandom.RandDec(100, 2);
+        SalesLine.Validate("Unit Price", ManualUnitPrice);
+        SalesLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+
+        // [VERIFY] Verify: Unit Price not changed on Sales Line when updating Quantity
+        Assert.AreNotEqual(DefaultUnitPrice, SalesLine."Unit Price", UnitPriceErr);
+        Assert.AreEqual(ManualUnitPrice, SalesLine."Unit Price", UnitPriceErr);
     end;
 
     local procedure Initialize()

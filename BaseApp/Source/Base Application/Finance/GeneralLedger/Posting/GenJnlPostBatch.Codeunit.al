@@ -255,6 +255,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, PostingLinesMsg);
                 ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine, ICProccessedLines);
                 ProcessICTransaction(LastICTransactionNo, ICTransactionNo);
+                OnProcessLinesOnAfterProcessICTransaction(GenJnlLine);
                 GenJnlLine3 := GenJnlLine;
                 if not PostGenJournalLine(GenJnlLine3, CurrentICPartner, ICTransactionNo) then
                     SkippedLine := true;
@@ -1535,6 +1536,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         CheckRecurringLine(GenJournalLineToUpdate);
         IsModified := UpdateRecurringAmt(GenJournalLineToUpdate);
         CheckAllocations(GenJournalLineToUpdate);
+        OnCheckLineOnAfterCheckAllocations(GenJournalLineToUpdate);
         GenJnlLine5.Copy(GenJournalLineToUpdate);
         if not PostingAfterWorkingDateConfirmed then
             PostingAfterWorkingDateConfirmed :=
@@ -1605,6 +1607,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     local procedure CalcReversePostingDate(GenJournalLine: Record "Gen. Journal Line") PostingDate: Date
     begin
+        OnBeforeCalcReversePostingDate(GenJournalLine);
+
         if Format(GenJournalLine."Reverse Date Calculation") <> '' then begin
             PostingDate := CalcDate(GenJournalLine."Reverse Date Calculation", GenJournalLine."Posting Date");
             if PostingDate <= GenJournalLine."Posting Date" then
@@ -2205,6 +2209,21 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGenJnlLineWithVATInfo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineVATInfoSource: Record "Gen. Journal Line"; StartLineNo: Integer; LastLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessLinesOnAfterProcessICTransaction(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLineOnAfterCheckAllocations(GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReversePostingDate(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

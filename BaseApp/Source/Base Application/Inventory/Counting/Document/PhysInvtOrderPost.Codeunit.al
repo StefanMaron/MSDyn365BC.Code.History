@@ -222,6 +222,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
             "Last Posting No." := "Posting No.";
 
             MakeInventoryAdjustment();
+            OnCodeOnAfterMakeInventoryAdjustment(PhysInvtOrderHeader);
 
             if PreviewMode then
                 GenJnlPostPreview.ThrowError();
@@ -763,6 +764,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCheckLinesToPost(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var LinesToPost: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterMakeInventoryAdjustment(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 }

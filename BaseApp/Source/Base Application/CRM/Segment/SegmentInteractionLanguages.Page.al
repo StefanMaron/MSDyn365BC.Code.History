@@ -3,7 +3,7 @@ namespace Microsoft.CRM.Segment;
 page 5155 "Segment Interaction Languages"
 {
     Caption = 'Segment Interaction Languages';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = List;
     SourceTable = "Segment Interaction Language";
 

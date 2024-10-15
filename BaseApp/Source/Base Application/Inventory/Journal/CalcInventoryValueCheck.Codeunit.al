@@ -157,10 +157,16 @@ codeunit 5899 "Calc. Inventory Value-Check"
         OnAfterCheckCalculatePer(Item);
     end;
 
-    local procedure FindOpenOutboundEntry(var Item: Record Item): Boolean
+    local procedure FindOpenOutboundEntry(var Item: Record Item) Result: Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindOpenOutboundEntry2(Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
@@ -235,6 +241,11 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemLocationVariantFilters(var Item: Record Item; var TempErrorBuf: Record "Error Buffer" temporary; var ErrorCounter: Integer; TestMode: Boolean; ByLocation: Boolean; ByVariant: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOpenOutboundEntry2(var Item: Record Item; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

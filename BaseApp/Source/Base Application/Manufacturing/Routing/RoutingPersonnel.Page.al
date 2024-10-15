@@ -4,7 +4,7 @@ page 99000836 "Routing Personnel"
 {
     AutoSplitKey = true;
     Caption = 'Routing Personnel';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Personnel";

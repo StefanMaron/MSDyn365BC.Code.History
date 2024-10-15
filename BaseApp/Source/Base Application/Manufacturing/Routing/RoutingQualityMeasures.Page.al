@@ -4,7 +4,7 @@ page 99000837 "Routing Quality Measures"
 {
     AutoSplitKey = true;
     Caption = 'Routing Quality Measures';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Quality Measure";
