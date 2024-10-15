@@ -15,6 +15,11 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
                 field("Use Default Price Lists"; Rec."Use Default Price Lists")
                 {
                     ApplicationArea = All;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
+#pragma warning disable AS0072
+                    ObsoleteTag = '19.0';
+#pragma warning restore AS0072
                     ToolTip = 'Specifies if the old pricing data should be split to separate price lists.';
                     trigger OnValidate()
                     begin
@@ -29,6 +34,11 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
                     Editable = false;
                     MultiLine = true;
                     ToolTip = 'Specifies the description of how "Split Data to Price Lists" affects the data update task.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
+#pragma warning disable AS0072
+                    ObsoleteTag = '19.0';
+#pragma warning restore AS0072
                 }
             }
         }

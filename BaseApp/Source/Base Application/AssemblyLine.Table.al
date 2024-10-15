@@ -1598,7 +1598,13 @@ table 901 "Assembly Line"
     var
         Location: Record Location;
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindBin(Rec, NewBinCode, IsHandled);
+        if IsHandled then
+            exit(NewBinCode);
+
         if ("Location Code" <> '') and ("No." <> '') then begin
             GetLocation(Location, "Location Code");
             NewBinCode := Location."To-Assembly Bin Code";
@@ -1930,6 +1936,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetHeader(var AssemblyLine: Record "Assembly Line"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBin(var AssemblyLine: Record "Assembly Line"; var NewBinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

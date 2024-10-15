@@ -23,6 +23,7 @@ codeunit 1501 "Workflow Management"
         // Telemetry strings
         WorkflowTelemetryCategoryTxt: Label 'Workflow', Locked = true;
         WorkflowEventStartTelemetryTxt: Label 'Workflow event: Start Scope', Locked = true;
+        WorkflowUpgradeTxt: Label 'Skip executing workflow during upgrade.', Locked = true;
         WorkflowEventEndTelemetryTxt: Label 'Workflow event: End Scope', Locked = true;
         WorkflowStepFoundTelemetryTxt: Label 'Active workflow step instance was found for the provided function and the conditions were met', Locked = true;
         WorkflowStepCondionsNotMetTelemetryTxt: Label 'Active workflow step instances were found for the provided function, but the conditions were not met', Locked = true;
@@ -438,11 +439,19 @@ codeunit 1501 "Workflow Management"
     procedure HandleEventWithxRec(FunctionName: Code[128]; Variant: Variant; xVariant: Variant)
     var
         ActionableWorkflowStepInstance: Record "Workflow Step Instance";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         RecRef: RecordRef;
         IsHandled: Boolean;
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
+        FeatureTelemetry.LogUptake('0000GDP', 'Workflows', Enum::"Feature Uptake Status"::"Used");
         GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
+
+        if GetExecutionContext() = ExecutionContext::Upgrade then begin
+            Session.LogMessage('0000GG5', WorkflowUpgradeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
+            exit;
+        end;
+
         Session.LogMessage('0000DYS', WorkflowEventStartTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
 
         IsHandled := false;
@@ -454,8 +463,10 @@ codeunit 1501 "Workflow Management"
         if RecRef.IsTemporary() then
             exit;
 
-        if FindEventWorkflowStepInstance(ActionableWorkflowStepInstance, FunctionName, Variant, xVariant) then
+        if FindEventWorkflowStepInstance(ActionableWorkflowStepInstance, FunctionName, Variant, xVariant) then begin
             ExecuteResponses(Variant, xVariant, ActionableWorkflowStepInstance);
+            FeatureTelemetry.LogUsage('0000GDQ', 'Workflows', 'Event processed');
+        end;
 
         GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
         Session.LogMessage('0000DYV', WorkflowEventEndTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);

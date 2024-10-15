@@ -95,7 +95,6 @@
         field(14; Amount; Decimal)
         {
             Caption = 'Amount';
-            DecimalPlaces = 0 : 0;
 
             trigger OnValidate()
             begin
@@ -108,7 +107,6 @@
         field(15; Quantity; Decimal)
         {
             Caption = 'Quantity';
-            DecimalPlaces = 0 : 0;
 
             trigger OnValidate()
             begin
@@ -145,7 +143,6 @@
         field(18; "Statistical Value"; Decimal)
         {
             Caption = 'Statistical Value';
-            DecimalPlaces = 0 : 0;
         }
         field(19; "Document No."; Code[20])
         {
@@ -188,7 +185,6 @@
         field(22; "Total Weight"; Decimal)
         {
             Caption = 'Total Weight';
-            DecimalPlaces = 0 : 0;
             Editable = false;
         }
         field(23; "Supplementary Units"; Boolean)
@@ -265,7 +261,7 @@
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
-        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Area", "Entry/Exit Point", "Transaction Specification", "Country/Region of Origin Code")
+        key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Area", "Entry/Exit Point", "Transaction Specification", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
         key(Key4; "Internal Ref. No.")
@@ -405,6 +401,8 @@
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         Customer: Record Customer;
         Vendor: Record Vendor;
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
         if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
@@ -475,6 +473,16 @@
                         ServiceCrMemoHeader."Bill-to Country/Region Code", ServiceCrMemoHeader."VAT Registration No.",
                         IsCustomerPrivatePerson(ServiceCrMemoHeader."Bill-to Customer No."), ServiceCrMemoHeader."EU 3-Party Trade"));
                 end;
+            ItemLedgerEntry."Document Type"::"Transfer Receipt":
+                if TransferReceiptHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferReceiptHeader."Partner VAT ID", false, false));
+            ItemLedgerEntry."Document Type"::"Transfer Shipment":
+                if TransferShipmentHeader.Get(ItemLedgerEntry."Document No.") then
+                    exit(
+                        GetPartnerIDForCountry(
+                            ItemLedgerEntry."Country/Region Code", TransferShipmentHeader."Partner VAT ID", false, false));
         end;
 
         case ItemLedgerEntry."Source Type" of
@@ -522,16 +530,18 @@
         if IsPrivatePerson then
             exit('QN999999999999');
 
-        if IsThirdPartyTrade then
+        if IsThirdPartyTrade then begin
+            if CountryRegionCode <> '' then
+                if CountryRegion.Get(CountryRegionCode) then
+                    if CountryRegion."Intrastat Code" <> '' then
+                        exit(CountryRegion."Intrastat Code" + '999999999999');
             exit('QV999999999999');
+        end;
 
         if (CountryRegionCode <> '') and CountryRegion.Get(CountryRegionCode) then
             if CountryRegion.IsEUCountry(CountryRegionCode) then
                 if VATRegistrationNo <> '' then
                     exit(VATRegistrationNo);
-
-        if CountryRegion."Intrastat Code" <> '' then
-            exit(CountryRegion."Intrastat Code" + '999999999999');
 
         exit('QV999999999999');
     end;

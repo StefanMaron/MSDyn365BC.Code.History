@@ -362,7 +362,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCarryOutReqLineAction(ReqLine, Failed, IsHandled);
+        OnBeforeCarryOutReqLineAction(ReqLine, Failed, IsHandled, SuppressCommit, OrderCounter);
         if Failed then begin
             SetFailedReqLine(ReqLine);
             exit;
@@ -509,6 +509,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderLine."Prod. Order No." := "Prod. Order No.";
             PurchOrderLine."Prod. Order Line No." := "Prod. Order Line No.";
             InitPurchOrderLineUpdateQuantity(RequisitionLine);
+
+            Validate("Order Date", PurchOrderHeader."Order Date");
             if PurchOrderHeader."Prices Including VAT" then
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100))
             else
@@ -516,6 +518,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             OnInitPurchOrderLineOnBeforeValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
             PurchOrderLine.Validate("Line Discount %", "Line Discount %");
             OnInitPurchOrderLineOnAfterValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
+
             PurchOrderLine."Vendor Item No." := "Vendor Item No.";
             PurchOrderLine.Description := Description;
             PurchOrderLine."Description 2" := "Description 2";
@@ -1323,7 +1326,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var Failed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var Failed: Boolean; var IsHandled: Boolean; SuppressCommit: Boolean; var OrderCounter: Integer)
     begin
     end;
 
