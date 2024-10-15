@@ -12,6 +12,8 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DayDateFormulaTxt: Label '<%1D>', Locked = false, Comment = '%1 = no. of days';
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
@@ -368,6 +370,46 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         Assert.AreEqual(10, AvailabilityTestPage.ItemAvailLoTNoLines.QtyAvailable.AsInteger(), 'Expected available inventory of 10.');
 
         AvailabilityTestPage.Close();
+    end;
+
+    [Test]
+    procedure ExpirationDateOnItemAvailByLotPage()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemAvailabilityByLotNo: TestPage "Item Availability by Lot No.";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 426457] Expiration Date is displayed for lot no. that is present in item tracking for sales line.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item with expiration date.
+        LibraryItemTracking.CreateItemTrackingCodeWithExpirationDate(ItemTrackingCode, false, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Post item journal line, assign lot no. "L", expiration date = WorkDate.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(11, 20));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine."Quantity (Base)");
+        ReservationEntry.Validate("Expiration Date", WorkDate());
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for item "L", select lot no. "L".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, Salesline."Quantity (Base)");
+
+        // [WHEN] Open "Item Availability by Lot No." page.
+        ItemAvailabilityByLotNo.OpenView();
+        ItemAvailabilityByLotNo.GoToRecord(Item);
+
+        // [THEN] Expiration date = WorkDate.
+        ItemAvailabilityByLotNo.ItemAvailLoTNoLines.ExpirationDate.AssertEquals(WorkDate());
     end;
 
     local procedure CreateItem(var Item: Record Item)

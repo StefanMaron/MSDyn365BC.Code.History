@@ -10629,6 +10629,12 @@ End Function</Code>
         <Field Name="ServiceInvoiceHeaderPostingDateCaption">
           <DataField>ServiceInvoiceHeaderPostingDateCaption</DataField>
         </Field>
+        <Field Name="CompanyBankBranchNo">
+          <DataField>CompanyBankBranchNo</DataField>
+        </Field>
+        <Field Name="CompanyBankBranchNo_Lbl">
+          <DataField>CompanyBankBranchNo_Lbl</DataField>
+        </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>
         </Field>

@@ -2,7 +2,7 @@ page 5882 "Phys. Invt. Recording Lines"
 {
     Caption = 'Phys. Invt. Recording Lines';
     Editable = false;
-    PageType = ListPart;
+    PageType = List;
     SourceTable = "Phys. Invt. Record Line";
 
     layout

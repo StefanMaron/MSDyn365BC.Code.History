@@ -448,12 +448,16 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
             Database::"Sales Line":
                 begin
                     SalesLine := Line;
+                    if SalesLine.Type <> SalesLine.Type::Resource then
+                        exit;
                     PurchPriceCalcMgt.FindResUnitCost(SalesLine);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, SalesLine);
                 end;
             Database::"Service Line":
                 begin
                     ServiceLine := Line;
+                    if ServiceLine.Type <> ServiceLine.Type::Resource then
+                        exit;
                     PurchPriceCalcMgt.FindResUnitCost(ServiceLine);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, ServiceLine);
                 end;
