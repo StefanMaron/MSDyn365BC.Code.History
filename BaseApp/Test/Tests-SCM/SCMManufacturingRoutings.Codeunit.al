@@ -1386,6 +1386,77 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CapacityLedgerEntry.TestField("Concurrent Capacity", ProdOrderRoutingLine."Concurrent Capacities");
     end;
 
+    [Test]
+    procedure UnitCostPerNotEditableForMachineCenterWithSpecificUnitCostWorkCenter()
+    var
+        WorkCenter: array[2] of Record "Work Center";
+        MachineCenter: array[2] of Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Routing: TestPage Routing;
+    begin
+        // [FEATURE] [Machine Center] [Work Center] [UI]
+        // [SCENARIO 432680] "Unit Cost Per" on routing line is not editable for machine center belonging to a work center with "Specific Unit Cost" = TRUE.
+        Initialize();
+
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[2]);
+        WorkCenter[2].Validate("Specific Unit Cost", true);
+        WorkCenter[2].Modify(true);
+
+        LibraryManufacturing.CreateMachineCenter(MachineCenter[1], WorkCenter[1]."No.", 1);
+        LibraryManufacturing.CreateMachineCenter(MachineCenter[2], WorkCenter[2]."No.", 1);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(1), RoutingLine.Type::"Machine Center", MachineCenter[1]."No.");
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(2), RoutingLine.Type::"Machine Center", MachineCenter[2]."No.");
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(3), RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+
+        Routing.OpenEdit();
+        Routing.FILTER.SetFilter("No.", RoutingHeader."No.");
+
+        Routing.RoutingLine.First();
+        Routing.RoutingLine."No.".AssertEquals(MachineCenter[1]."No.");
+        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable, '');
+
+        Routing.RoutingLine.Next();
+        Routing.RoutingLine."No.".AssertEquals(MachineCenter[2]."No.");
+        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable, '');
+
+        Routing.RoutingLine.Next();
+        Routing.RoutingLine."No.".AssertEquals(WorkCenter[2]."No.");
+        Assert.IsTrue(Routing.RoutingLine."Unit Cost per".Editable, '');
+
+        Routing.Close();
+    end;
+
+    [Test]
+    procedure UnitCostPerIsResetWhenChangingNoOnRoutingLine()
+    var
+        WorkCenter: array[2] of Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 432680] "Unit Cost Per" on routing line is reset when changing "No."
+        Initialize();
+
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[1]);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter[2]);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(1), RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        RoutingLine.Validate("Unit Cost per", LibraryRandom.RandDec(100, 2));
+
+        RoutingLine.Validate("No.", WorkCenter[2]."No.");
+
+        RoutingLine.TestField("Unit Cost per", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");

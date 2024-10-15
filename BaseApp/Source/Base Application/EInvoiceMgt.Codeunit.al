@@ -2587,7 +2587,7 @@
             repeat
                 AddElementCFDI(XMLCurrNode, 'Traslado', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
-                AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempVATAmountLine."Amount Including VAT"));
+                AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempVATAmountLine."VAT Base"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', GetTaxCode(TempVATAmountLine."VAT %", TempVATAmountLine."VAT Amount"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                 AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempVATAmountLine."VAT %" / 100), 8, '0'));
@@ -3163,7 +3163,7 @@
         TempVATAmountLine.SetRange(Positive, true);
         if TempVATAmountLine.FindSet() then begin
             repeat
-                WriteOutStr(OutStream, FormatAmount(TempVATAmountLine."Amount Including VAT") + '|'); // Base
+                WriteOutStr(OutStream, FormatAmount(TempVATAmountLine."VAT Base") + '|'); // Base
                 WriteOutStr(OutStream, GetTaxCode(TempVATAmountLine."VAT %", TempVATAmountLine."VAT Amount") + '|'); // Impuesto
                 WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                 WriteOutStr(OutStream, PadStr(FormatAmount(TempVATAmountLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
@@ -4265,7 +4265,7 @@
     begin
         Export := true;
         Customer.Get(CustLedgerEntry."Customer No.");
-
+        Customer.TestField("Payment Method Code");
         Session.LogMessage('0000C7Y', PaymentStampReqMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
@@ -4829,8 +4829,8 @@
             WriteOutStr(OutStream, FormatAmount(PaymentAmountLCY) + '|');// Totales/MontoTotalPagos
 
             WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
-            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|');// FormaDePagoP
-            WriteOutStr(OutStream, "Currency Code" + '|');// MonedaP
+            WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code") + '|');// FormaDePagoP
+            WriteOutStr(OutStream, ConvertCurrency("Currency Code") + '|');// MonedaP
             if ConvertCurrency("Currency Code") <> GLSetup."LCY Code" then
                 WriteOutStr(OutStream, FormatDecimal(1 / "Original Currency Factor", 6) + '|') // TipoCambioP
             else

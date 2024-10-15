@@ -2411,13 +2411,13 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox1">
+                        <Textbox Name="NoOfRecords">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Count("Table1_Group1")</Value>
+                                  <Value>=Last(Fields!NoOfRecords.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -2426,7 +2426,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox1</rd:DefaultName>
+                          <rd:DefaultName>NoOfRecords</rd:DefaultName>
                           <ZIndex>38</ZIndex>
                           <Style>
                             <PaddingLeft>2pt</PaddingLeft>
@@ -2608,6 +2608,8 @@
                           <GroupExpression>=Fields!TariffNo_IntraJnlLine.Value</GroupExpression>
                           <GroupExpression>=Fields!TransacType_IntraJnlLine.Value</GroupExpression>
                           <GroupExpression>=Fields!TransportMet_IntraJnlLine.Value</GroupExpression>
+                          <GroupExpression>=Fields!CountryRegionofOriginCode_IntrastatJnlLine.Value</GroupExpression>
+                          <GroupExpression>=Fields!PartnerVATID_IntrastatJnlLine.Value</GroupExpression>
                         </GroupExpressions>
                         <DataElementName>Detail</DataElementName>
                       </Group>
@@ -3103,6 +3105,12 @@ End Function
         </Field>
         <Field Name="NoOfRecordsCaption">
           <DataField>NoOfRecordsCaption</DataField>
+        </Field>
+        <Field Name="CountryRegionofOriginCode_IntrastatJnlLine">
+          <DataField>CountryRegionofOriginCode_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="PartnerVATID_IntrastatJnlLine">
+          <DataField>PartnerVATID_IntrastatJnlLine</DataField>
         </Field>
       </Fields>
       <Query>

@@ -3656,13 +3656,15 @@
                     end;
 
                     BlanketOrderPurchLine."Qty. to Invoice" :=
-                      BlanketOrderPurchLine.Quantity - BlanketOrderPurchLine."Quantity Invoiced";
-                    BlanketOrderPurchLine."Qty. to Receive" :=
-                      BlanketOrderPurchLine.Quantity - BlanketOrderPurchLine."Quantity Received";
+                        BlanketOrderPurchLine.Quantity - BlanketOrderPurchLine."Quantity Invoiced";
+                    if (PurchLine.Quantity = PurchLine."Quantity Received") or (PurchLine."Quantity Received" = 0) then
+                        BlanketOrderPurchLine."Qty. to Receive" :=
+                            BlanketOrderPurchLine.Quantity - BlanketOrderPurchLine."Quantity Received";
                     BlanketOrderPurchLine."Qty. to Invoice (Base)" :=
-                      BlanketOrderPurchLine."Quantity (Base)" - BlanketOrderPurchLine."Qty. Invoiced (Base)";
-                    BlanketOrderPurchLine."Qty. to Receive (Base)" :=
-                      BlanketOrderPurchLine."Quantity (Base)" - BlanketOrderPurchLine."Qty. Received (Base)";
+                        BlanketOrderPurchLine."Quantity (Base)" - BlanketOrderPurchLine."Qty. Invoiced (Base)";
+                    if (PurchLine."Quantity (Base)" = PurchLine."Qty. Received (Base)") or (PurchLine."Qty. Received (Base)" = 0) then
+                        BlanketOrderPurchLine."Qty. to Receive (Base)" :=
+                            BlanketOrderPurchLine."Quantity (Base)" - BlanketOrderPurchLine."Qty. Received (Base)";
 
                     OnBeforeBlanketOrderPurchLineModify(BlanketOrderPurchLine, PurchLine, Ship, Receive, Invoice);
                     BlanketOrderPurchLine.Modify();
@@ -5602,8 +5604,7 @@
         DiffAmtToDeduct: Decimal;
     begin
         if PurchInvoiceLine."Prepayment %" = 100 then begin
-            PurchOrderLine := TempTotalPurchLine;
-            PurchOrderLine.Find();
+            PurchOrderLine.Get(TempTotalPurchLine."Document Type", TempTotalPurchLine."Document No.", TempTotalPurchLine."Line No.");
             if TempTotalPurchLine."Qty. to Invoice" = PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced" then begin
                 DiffAmtToDeduct :=
                   PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted" - TempTotalPurchLine."Prepmt Amt to Deduct";

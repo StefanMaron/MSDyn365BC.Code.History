@@ -3572,13 +3572,15 @@
                     end;
 
                     BlanketOrderSalesLine."Qty. to Invoice" :=
-                      BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Invoiced";
-                    BlanketOrderSalesLine."Qty. to Ship" :=
-                      BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Shipped";
+                        BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Invoiced";
+                    if (SalesLine.Quantity = SalesLine."Quantity Shipped") or (SalesLine."Quantity Shipped" = 0) then
+                        BlanketOrderSalesLine."Qty. to Ship" :=
+                            BlanketOrderSalesLine.Quantity - BlanketOrderSalesLine."Quantity Shipped";
                     BlanketOrderSalesLine."Qty. to Invoice (Base)" :=
-                      BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Invoiced (Base)";
-                    BlanketOrderSalesLine."Qty. to Ship (Base)" :=
-                      BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Shipped (Base)";
+                        BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Invoiced (Base)";
+                    if (SalesLine."Quantity (Base)" = SalesLine."Qty. Shipped (Base)") or (SalesLine."Qty. Shipped (Base)" = 0) then
+                        BlanketOrderSalesLine."Qty. to Ship (Base)" :=
+                            BlanketOrderSalesLine."Quantity (Base)" - BlanketOrderSalesLine."Qty. Shipped (Base)";
 
                     OnBeforeBlanketOrderSalesLineModify(BlanketOrderSalesLine, SalesLine);
                     BlanketOrderSalesLine.Modify();
@@ -5323,12 +5325,16 @@
                     "Inv. Discount Amount" * "Qty. to Invoice" / Quantity,
                     Currency."Amount Rounding Precision");
             "Quantity (Base)" := "Qty. to Invoice (Base)";
-            "Line Amount" := Round("Qty. to Invoice" * "Unit Price", Currency."Amount Rounding Precision");
-            if Quantity <> "Qty. to Invoice" then
-                "Line Discount Amount" :=
-                  Round("Line Amount" * "Line Discount %" / 100, Currency."Amount Rounding Precision");
+            if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
+                "Line Amount" := "Prepmt Amt to Deduct"
+            else begin
+                "Line Amount" := Round("Qty. to Invoice" * "Unit Price", Currency."Amount Rounding Precision");
+                if Quantity <> "Qty. to Invoice" then
+                    "Line Discount Amount" :=
+                      Round("Line Amount" * "Line Discount %" / 100, Currency."Amount Rounding Precision");
+                "Line Amount" := "Line Amount" - "Line Discount Amount";
+            end;
             Quantity := "Qty. to Invoice";
-            "Line Amount" := "Line Amount" - "Line Discount Amount";
             "Inv. Discount Amount" := "Inv. Disc. Amount to Invoice";
             Amount := "Line Amount" - "Inv. Discount Amount";
             "VAT Base Amount" := Amount;
@@ -5421,8 +5427,7 @@
         DiffAmtToDeduct: Decimal;
     begin
         if SalesInvoiceLine."Prepayment %" = 100 then begin
-            SalesOrderLine := TempTotalSalesLine;
-            SalesOrderLine.Find();
+            SalesOrderLine.Get(TempTotalSalesLine."Document Type", TempTotalSalesLine."Document No.", TempTotalSalesLine."Line No.");
             if TempTotalSalesLine."Qty. to Invoice" = SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced" then begin
                 DiffAmtToDeduct :=
                   SalesOrderLine."Prepmt. Amt. Inv." - SalesOrderLine."Prepmt Amt Deducted" - TempTotalSalesLine."Prepmt Amt to Deduct";

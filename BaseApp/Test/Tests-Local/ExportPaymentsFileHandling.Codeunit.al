@@ -159,17 +159,18 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
         VendorNo, VendorBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (ACH)] [Payables]
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Vendor.Name
+        // [SCENARIO 430249] Exported Payment File (ACH) has 22 chars length Vendor Name.
         Initialize;
         UpdateCompanyInfo;
-
-        // [GIVEN] Vendor with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
 
+        // [GIVEN] Vendor with Name of length 100.
         VendorNo := CreateLongNameVendorNo();
         VendorBankAccountNo := LibraryRandom.RandText(20);
         CreateVendorBankAccount(VendorNo, VendorBankAccountNo, BankAccount."Export Format"::US);
@@ -180,8 +181,9 @@ codeunit 142500 "Export Payments File Handling"
         // [WHEN] Export Payments (ACH)
         ExportPayments_ACH(GenJournalLine);
 
-        // [THEN] Exported File (ACH) has Vendor name value = "X"
-        VerifyExportedFileACHVendorName(VendorNo, BankAccount."No.");
+        // [THEN] Exported File (ACH) has Vendor name value trimmed to 22 chars.
+        Vendor.Get(VendorNo);
+        VerifyExportedFileACHCustVendorName(CopyStr(Vendor.Name, 1, 22), GetBankExportFileName(BankAccount."No."));
 
         DeleteDirectory(TempPath);
     end;
@@ -192,17 +194,18 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
         CustomerNo, CustomerBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (ACH)] [Receivables]
         // [SCENARIO 364614] Exported Payment File (ACH) has 16-chars length Customer.Name
+        // [SCENARIO 430249] Exported Payment File (ACH) has 22 chars length Customer Name.
         Initialize;
         UpdateCompanyInfo;
-
-        // [GIVEN] Customer with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
 
+        // [GIVEN] Customer with Name of length 100.
         CustomerNo := CreateLongNameCustomerNo();
         CustomerBankAccountNo := LibraryRandom.RandText(20);
         CreateCustomerBankAccount(CustomerNo, CustomerBankAccountNo, BankAccount."Export Format"::US);
@@ -213,8 +216,9 @@ codeunit 142500 "Export Payments File Handling"
         // [WHEN] Export Payments (ACH)
         ExportPayments_ACH(GenJournalLine);
 
-        // [THEN] Exported File (ACH) has Customer name value = "X"
-        VerifyExportedFileACHCustomerName(CustomerNo, BankAccount."No.");
+        // [THEN] Exported File (ACH) has Customer name value trimmed to 22 chars.
+        Customer.Get(CustomerNo);
+        VerifyExportedFileACHCustVendorName(CopyStr(Customer.Name, 1, 22), GetBankExportFileName(BankAccount."No."));
 
         DeleteDirectory(TempPath);
     end;
@@ -549,8 +553,20 @@ codeunit 142500 "Export Payments File Handling"
     end;
 
     local procedure ReadExportedFile_ACH_NameValue(FileName: Text): Text
+    var
+        LineText: Text;
+        CustVendName: Text;
+        NameLength: Integer;
+        i: Integer;
     begin
-        exit(LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 59, 16));
+        NameLength := 100;
+        LineText := LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 59, NameLength);
+        for i := 1 to StrLen(LineText) - 1 do begin
+            if (LineText[i] = ' ') and (LineText[i + 1] = ' ') then
+                NameLength := i - 1;    // Name is followed by two spaces
+        end;
+        CustVendName := CopyStr(LineText, 1, NameLength);
+        exit(CustVendName);
     end;
 
     local procedure ReadExportedFile_Cecoban_NameValue(FileName: Text): Text
@@ -592,22 +608,9 @@ codeunit 142500 "Export Payments File Handling"
           StrSubstNo(FieldsAreNotEqualMsg, PadStr(ExpectedValue, FieldSize, '0'), FieldValue));
     end;
 
-    local procedure VerifyExportedFileACHVendorName(VendorNo: Code[20]; BankAccountNo: Code[20])
-    var
-        Vendor: Record Vendor;
+    local procedure VerifyExportedFileACHCustVendorName(ExpectedCustVendName: Text; FileName: Text)
     begin
-        Vendor.Get(VendorNo);
-        Assert.AreEqual(
-          CopyStr(Vendor.Name, 1, 16), ReadExportedFile_ACH_NameValue(GetBankExportFileName(BankAccountNo)), ExportedCVNameErr);
-    end;
-
-    local procedure VerifyExportedFileACHCustomerName(CustomerNo: Code[20]; BankAccountNo: Code[20])
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(CustomerNo);
-        Assert.AreEqual(
-          CopyStr(Customer.Name, 1, 16), ReadExportedFile_ACH_NameValue(GetBankExportFileName(BankAccountNo)), ExportedCVNameErr);
+        Assert.AreEqual(ExpectedCustVendName, ReadExportedFile_ACH_NameValue(FileName), ExportedCVNameErr);
     end;
 
     local procedure VerifyExportedFileCecobanVendorName(VendorNo: Code[20]; BankAccountNo: Code[20])

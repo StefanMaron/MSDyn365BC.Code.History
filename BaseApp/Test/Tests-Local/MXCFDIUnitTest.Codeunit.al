@@ -2038,6 +2038,31 @@ codeunit 144000 "MX CFDI Unit Test"
         VerifyCopyOfRetentionLines(SalesHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestStampMenuHandler')]
+    procedure RequestStampPaymentCustomerError()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 437903] Customer should have a Payment Method Code when request payment stamp
+        Initialize();
+        UpdateGLSetupSAT();
+        CreateCustomerWithCFDIFields(Customer);
+        Customer."Payment Method Code" := '';
+        Customer.Modify();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FIELDNO("Entry No."));
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Payment;
+        CustLedgerEntry."Customer No." := Customer."No.";
+        CustLedgerEntry.Insert();
+
+        asserterror CustLedgerEntry.RequestStampEDocument();
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, Customer.FieldCaption("Payment Method Code")));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

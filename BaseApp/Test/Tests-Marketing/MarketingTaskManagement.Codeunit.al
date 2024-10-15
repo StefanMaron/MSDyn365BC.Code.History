@@ -37,6 +37,7 @@ codeunit 136203 "Marketing Task Management"
         InviationSentNotSetErr: Label 'Invitation Sent is not set';
         WrongSalespersonCodeErr: Label 'Wrong Salesperson Code';
         CannotDeleteSalespersonDueToActiveOpportunitiesErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open opportunities.';
+        MeetingSaaSNotSupportedErr: Label 'You cannot create a task of type Meeting because you''re not using an on-premises deployment.';
 
     [Test]
     [HandlerFunctions('ModalFormHandlerForTeamTask')]
@@ -1249,6 +1250,55 @@ codeunit 136203 "Marketing Task Management"
         // [THEN] "Salesperson Code" is not enabled 
         Assert.IsFalse(CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should not be enabled');
         CreateTask.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaskEmptyTypeEndingDateChange()
+    var
+        Todo: Record "To-do";
+        EndingDate: Date;
+    begin
+        // [SCEANRIO 437183] Ending Date for Task with Type = " " should not be changed after setting value
+        Initialize();
+
+        // [GIVEN] Task with type " ", "Ending Date" = D1
+        LibraryMarketing.CreateTask(Todo);
+        Todo.Validate(Type, Todo.Type::" ");
+        Todo.Validate(Date, WorkDate());
+        EndingDate := Todo."Ending Date";
+        Todo.Modify(true);
+
+        // [WHEN] Set "Ending Date" = D1 + 1 day
+        Todo.Validate("Ending Date", EndingDate + 1);
+        Todo.Modify();
+
+        // [THEN] "Ending Date" = D1 + 1 day
+        Todo.TestField("Ending Date", EndingDate + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MeetingTaskTypeSaaSNotAllowed()
+    var
+        Todo: Record "To-do";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+    begin
+        // [SCEANRIO 435531] Task with Type = Meeting should be allowed in SaaS
+        Initialize();
+
+        // [GIVEN] SaaS Environment
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        // [GIVEN] Task 
+        LibraryMarketing.CreateTask(Todo);
+
+        // [WHEN] Task Type is set to Meeting
+        // [THEN] Error message 'Task Type Meeting is not supported in online environments.' appears
+        asserterror Todo.Validate(Type, Todo.Type::Meeting);
+        Assert.ExpectedError(MeetingSaaSNotSupportedErr);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()
