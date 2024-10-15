@@ -5929,7 +5929,10 @@
             end;
             // NAVCZ
             OnBeforePurchInvHeaderInsert(PurchInvHeader, PurchHeader, SuppressCommit);
-            PurchInvHeader."Draft Invoice SystemId" := PurchHeader.SystemId;
+
+            if PurchHeader."Document Type" = PurchHeader."Document Type"::Invoice then
+                PurchInvHeader."Draft Invoice SystemId" := PurchHeader.SystemId;
+            
             PurchInvHeader.Insert(true);
             OnAfterPurchInvHeaderInsert(PurchInvHeader, PurchHeader);
 
