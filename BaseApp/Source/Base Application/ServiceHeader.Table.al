@@ -1224,10 +1224,13 @@ table 5900 "Service Header"
             var
                 PaymentMethod: Record "Payment Method";
             begin
-                if PaymentMethod.Get("Payment Method Code") then begin
-                    "Bal. Account Type" := PaymentMethod."Bal. Account Type";
-                    "Bal. Account No." := PaymentMethod."Bal. Account No.";
-                end;
+                PaymentMethod.Init;
+                if "Payment Method Code" <> '' then
+                    PaymentMethod.Get("Payment Method Code");
+                if PaymentMethod."Direct Debit" and ("Payment Terms Code" = '') then 
+                    "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+                "Bal. Account Type" := PaymentMethod."Bal. Account Type";
+                "Bal. Account No." := PaymentMethod."Bal. Account No.";
                 if "Bal. Account No." <> '' then begin
                     TestField("Applies-to Doc. No.", '');
                     TestField("Applies-to ID", '');

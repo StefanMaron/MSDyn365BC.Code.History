@@ -3,6 +3,9 @@ report 126 "Reminder Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './ReminderNos.rdlc';
     Caption = 'Reminder Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

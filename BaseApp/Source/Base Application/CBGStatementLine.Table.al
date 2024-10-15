@@ -936,6 +936,14 @@ table 11401 "CBG Statement Line"
         if Correction then
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
 
+        GenJnlLine.Description := Description;
+        if "Applies-to Doc. No." <> '' then begin
+            GenJnlLine.Validate("Applies-to Doc. Type", "Applies-to Doc. Type");
+            GenJnlLine.Validate("Applies-to Doc. No.", "Applies-to Doc. No.");
+        end else
+            if "Applies-to ID" <> '' then
+                GenJnlLine.Validate("Applies-to ID", "Applies-to ID");
+
         if "Debit Incl. VAT" <> 0 then
             GenJnlLine.Validate("Debit Amount", "Debit Incl. VAT")
         else
@@ -947,11 +955,6 @@ table 11401 "CBG Statement Line"
             else
                 if ("Credit VAT" <> 0) and (-"Credit VAT" <> GenJnlLine."VAT Amount") then
                     GenJnlLine.Validate("VAT Amount", -"Credit VAT");
-
-        GenJnlLine.Description := Description;
-        GenJnlLine."Applies-to Doc. Type" := "Applies-to Doc. Type";
-        GenJnlLine."Applies-to Doc. No." := "Applies-to Doc. No.";
-        GenJnlLine."Applies-to ID" := "Applies-to ID";
     end;
 
     procedure ReadGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")

@@ -680,6 +680,41 @@ codeunit 134826 "UT Contact Table"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetLastDateTimeFilter_EmptyDate()
+    var
+        Contact: Record Contact;
+        EmptyDateTime: DateTime;
+    begin
+        // [Feature] [DateTime]
+        // [SCENARIO 370714] SetLastDateTimeFilter correctly processes empty DateTime input value
+
+        // [WHEN] Contact table method SetLastDateTimeFilter input DateTime parameter is empty
+        Contact.SetLastDateTimeFilter(EmptyDateTime);
+
+        // [THEN] The method runs without error. "Last Date Modified" filter = ">=''"
+        Assert.AreEqual('>=''''', Contact.GetFilter("Last Date Modified"), 'Wrong filter value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetLastDateTimeFilter_ZeroDate()
+    var
+        Contact: Record Contact;
+        ZeroDateTime: DateTime;
+    begin
+        // [Feature] [DateTime]
+        // [SCENARIO 370714] SetLastDateTimeFilter correctly processes zero DateTime input value
+
+        // [WHEN] Contact table method SetLastDateTimeFilter input DateTime parameter is 0DT
+        ZeroDateTime := 0DT;
+        Contact.SetLastDateTimeFilter(ZeroDateTime);
+
+        // [THEN] The method runs without error. "Last Date Modified" filter = ">=''"
+        Assert.AreEqual('>=''''', Contact.GetFilter("Last Date Modified"), 'Wrong filter value');
+    end;
+
     local procedure GetContactNoFromContBusRelations(LinkOption: Option; CodeNo: Code[20]): Code[20]
     var
         ContactBusinessRelation: Record "Contact Business Relation";

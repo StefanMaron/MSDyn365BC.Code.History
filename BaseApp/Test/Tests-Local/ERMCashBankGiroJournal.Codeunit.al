@@ -108,6 +108,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLineAppliedErr: Label 'Reconciliation Status should be Applied if system matches record in CBG Statement Line';
         CBGStatementLineAmountErr: Label 'Wrong amount in CBG Statement Line after application.';
         WrongTemplateFilterErr: Label 'Wrong Gen. Journal Template filter';
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         isInitialized: Boolean;
         EarlierPostingDateErr: Label 'You cannot apply to an entry with a posting date before the posting date of the entry that you want to apply.';
         EmptyDateErr: Label 'Date must have a value in CBG Statement Line: Journal Template Name=%1, No.=%2, Line No.=%3. It cannot be zero or empty.';
@@ -2564,6 +2565,213 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyCBGStatementWithPaymentTolerance()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        Customer: Record Customer;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        ExportProtocolCode: Code[20];
+        BankAccountNo: Code[20];
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+        PaymentTolerancePct: Decimal;
+    begin
+        // [FEATURE] [Apply] [Unapply] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO] Stan can unapply applied payment to invoice via Bank/Giro Journal page with Payment Tolerance
+        Initialize();
+
+        // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(3, 7);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
+
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BankAccountNo);
+
+        // [GIVEN] Invoice with Amount = 1000
+        CreateGeneralJournal(GenJournalLine, CustomerBankAccount."Customer No.", GenJournalLine."Account Type"::Customer, InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
+        // [GIVEN] Selected "Leave Remaining Amount" on Payment Tolerance Warning dialog
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(CustomerBankAccount."Customer No.");
+
+        // [GIVEN] Selected "Leave Remaining Amount" on Payment Tolerance Warning dialog
+        BankGiroJournal.Subform.ApplyEntries.Invoke();
+        PaymentAmount := Round(BankGiroJournal.Subform.Credit.AsDecimal * (100 - PaymentTolerancePct / 2) / 100);
+        LibraryVariableStorage.Enqueue(2);
+        BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+        LibraryVariableStorage.AssertEmpty();
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(2);
+        BankGiroJournal.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Bank Account Ledger entry created with Amount = "-990"
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindFirst();
+        BankAccountLedgerEntry.TestField(Amount, PaymentAmount);
+
+        // [THEN] Invoice's customer ledger applied to payment with "Remaining Amount" = 10. Entry remains open.
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, InvoiceAmount - PaymentAmount, true);
+
+        // [THEN] Payment's customer ledger applied to invoice fully, "Remaining Amount" = 10. Entry has been closed.
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, 0, false);
+
+        Customer.Get(CustomerBankAccount."Customer No.");
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        // [THEN] Nothing posted on customer's "Payment Tolerance Credit Account"
+        GLEntry.FindLast();
+        GLEntry.SetRange("Document No.", GLEntry."Document No.");
+        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Payment Tolerance Credit Acc.");
+        Assert.RecordIsEmpty(GLEntry);
+
+        // [THEN] Payment's amount posted on "Receivables Account" of the customer
+        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
+        GLEntry.FindLast();
+        GLEntry.TestField(Amount, -PaymentAmount);
+
+        // [THEN] Stan able to unapply payment entry
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GLEntry."Document No.");
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, InvoiceAmount, true);
+
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, -PaymentAmount, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningVerifyValuesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BalanceInPaymToleranceWarningForCustomerInCBGStatement()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        BankAccountNo: Code[20];
+        PaymentTolerancePct: Decimal;
+        InvoiceAmount: Decimal;
+        PaymentDiscountAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Customer] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 370410] Payment tolerance warning message shows correct balance of customer invoice after Stan changes amount on Bank/Giro Journal line.
+        Initialize();
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(6, 10);
+        PaymentDiscountAmount := LibraryRandom.RandInt(5);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        PaymentAmount := InvoiceAmount * (1 - PaymentTolerancePct / 100);
+
+        // [GIVEN] Enable "Payment Tolerance Warning" and set "Payment Tolerance %" = 7 in G/L Setup.
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        // [GIVEN] Customer with bank account.
+        Customer.Get(CreateCustomer);
+
+        // [GIVEN] Post invoice for the customer. Amount = 1000.00, "Payment Discount %" = 2.
+        CreateGeneralJournal(GenJournalLine, Customer."No.", GenJournalLine."Account Type"::Customer, InvoiceAmount);
+        GenJournalLine.Validate("Payment Discount %", PaymentDiscountAmount);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create new Bank/Giro Statement, select the customer and apply the statement to the posted invoice.
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.FILTER.SetFilter("Account No.", BankAccountNo);
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(Customer."No.");
+        BankGiroJournal.Subform.ApplyEntries.Invoke();
+
+        // [WHEN] Adjust the credit amount to 950.00. This amount is within the payment tolerance (>=930.00) but outside the limit of the payment discount (<980.00)
+        BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+
+        // [THEN] The payment tolerance warning is shown.
+        // [THEN] The "Balance" amount in the warning shows 50.00.
+        Assert.AreNearlyEqual(
+          InvoiceAmount - PaymentAmount, LibraryVariableStorage.DequeueDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          'Wrong balance in Payment Tolerance warning.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDVendorModalPageHandler,PaymentToleranceWarningVerifyValuesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BalanceInPaymToleranceWarningForVendorInCBGStatement()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        BankAccountNo: Code[20];
+        PaymentTolerancePct: Decimal;
+        InvoiceAmount: Decimal;
+        PaymentDiscountAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Vendor] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 370410] Payment tolerance warning message shows correct balance of vendor invoice after Stan changes amount on Bank/Giro Journal line.
+        Initialize();
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(6, 10);
+        PaymentDiscountAmount := LibraryRandom.RandInt(5);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        PaymentAmount := InvoiceAmount * (1 - PaymentTolerancePct / 100);
+
+        // [GIVEN] Enable "Payment Tolerance Warning" and set "Payment Tolerance %" = 7 in G/L Setup.
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        // [GIVEN] Vendor with bank account.
+        Vendor.Get(CreateVendor);
+
+        // [GIVEN] Post invoice for the vendor. Amount = 1000.00, "Payment Discount %" = 2.
+        CreateGeneralJournal(GenJournalLine, Vendor."No.", GenJournalLine."Account Type"::Vendor, -InvoiceAmount);
+        GenJournalLine.Validate("Payment Discount %", PaymentDiscountAmount);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create new Bank/Giro Statement, select the vendor and apply the statement to the posted invoice.
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.FILTER.SetFilter("Account No.", BankAccountNo);
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        BankGiroJournal.Subform."Account No.".SetValue(Vendor."No.");
+        BankGiroJournal.Subform.ApplyEntries.Invoke();
+
+        // [WHEN] Adjust the debit amount to 950.00. This amount is within the payment tolerance (>=930.00) but outside the limit of the payment discount (<980.00)
+        BankGiroJournal.Subform.Debit.SetValue(PaymentAmount);
+
+        // [THEN] The payment tolerance warning is shown.
+        // [THEN] The "Balance" amount in the warning shows 50.00.
+        Assert.AreNearlyEqual(
+          PaymentAmount - InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          'Wrong balance in Payment Tolerance warning.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2571,18 +2779,18 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorageConfirmHandler.Clear();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        GenJournalTemplate.DeleteAll;
-        GenJournalBatch.DeleteAll;
-        LibrarySetupStorage.Restore;
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
 
         LibraryNLLocalization.CreateFreelyTransferableMaximum('NL', '');
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
@@ -3959,6 +4167,16 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankGiroJournal.Close;
     end;
 
+    local procedure UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePct);
+        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure UpdateProposalLine(var ProposalLine: Record "Proposal Line"; OurBankNo: Code[30]; AccountNo: Code[20]; NatureOfThePayment: Option)
     begin
         ProposalLine.SetRange("Our Bank No.", OurBankNo);
@@ -4091,6 +4309,23 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.");
         CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.TestField(Open, false);
+    end;
+
+    local procedure VerifyCustomerLedgerEntryAmountRemainingAmountOpen(CustomerNo: Code[20]; DocumentType: Option; ExpectedAmount: Decimal; ExpectedRemaningAmount: Decimal; ExpectedOpen: Boolean)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        with CustLedgerEntry do begin
+            SetRange("Document Type", DocumentType);
+            SetRange("Customer No.", CustomerNo);
+            FindLast();
+
+            CalcFields(Amount, "Remaining Amount");
+
+            TestField(Amount, ExpectedAmount);
+            TestField("Remaining Amount", ExpectedRemaningAmount);
+            TestField(Open, ExpectedOpen);
+        end;
     end;
 
     [ModalPageHandler]
@@ -4301,6 +4536,22 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     procedure RequestPageHandlerExportSEPAISO20022(var ExportSEPAISO20022: TestRequestPage "Export SEPA ISO20022")
     begin
         ExportSEPAISO20022.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentToleranceWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
+    begin
+        PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger());
+        PaymentToleranceWarning.Yes.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentToleranceWarningVerifyValuesModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
+    begin
+        LibraryVariableStorage.Enqueue(PaymentToleranceWarning.BalanceAmount.AsDecimal());
+        PaymentToleranceWarning.Yes.Invoke();
     end;
 }
 
