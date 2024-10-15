@@ -560,7 +560,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         if IsHandled then
             exit;
 
-        RequisitionLine.Validate("Order Date", PurchOrderHeader."Order Date");
+        if PurchOrderLine.CountPrice(true) > 0 then
+            RequisitionLine.Validate("Order Date", PurchOrderHeader."Order Date");
     end;
 
     procedure InsertPurchOrderLine(var ReqLine2: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")

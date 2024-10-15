@@ -329,6 +329,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Warehouse UT - NamedType TransferRouteErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2904136712 - NamedType 45511431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %1 because there are one or more warehouse entries for this item.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Changed field name]D;]A;(LookupHint=Codeunit SCM - Warehouse UT - NamedType WhseEntriesExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893768030 - NamedType 1258720181" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document %1 has been archived.]]></Val>

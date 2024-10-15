@@ -2884,13 +2884,8 @@
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if GenJournalLine.Count = 1 then
-            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then begin
+            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
                 ApprovalsMgmt.OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
-                if GenJournalBatch."Pending Approval" then begin
-                    GenJournalBatch."Pending Approval" := false;
-                    GenJournalBatch.Modify();
-                end;
-            end;
 
         TestField("Check Printed", false);
 
@@ -3301,7 +3296,7 @@
         GenJnlLine2.SetRange("Document No.", FirstTempDocNo, LastTempDocNo);
         RenumberDocNoOnLines(DocNo, GenJnlLine2);
 
-        Get("Journal Template Name", "Journal Batch Name", "Line No.");
+        if Get("Journal Template Name", "Journal Batch Name", "Line No.") then;
     end;
 
     local procedure SkipRenumberDocumentNo() Result: Boolean
@@ -3333,7 +3328,7 @@
 
         FirstDocNo := DocNo;
         with GenJnlLine2 do begin
-            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
+            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             LastGenJnlLine.Init();
@@ -3352,7 +3347,10 @@
                     end;
                     if "Document No." = FirstDocNo then
                         exit;
-                    if not First and (("Document No." <> PrevDocNo) or ("Bal. Account No." <> '')) and not LastGenJnlLine.EmptyLine then
+                    if not First and
+                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        not LastGenJnlLine.EmptyLine
+                    then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
                     if "Document No." <> '' then begin

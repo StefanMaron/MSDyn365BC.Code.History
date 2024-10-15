@@ -411,14 +411,15 @@ table 288 "Vendor Bank Account"
             exit(DelChr("ESR Account No.", '=', '-'));
 
         if ("Giro Account No." <> '') and ("Payment Form" = "Payment Form"::"Post Payment Domestic") then
-            exit("Giro Account No.");
+            exit(DelChr("Giro Account No.", '=', '-'));
 
         if ("Clearing No." <> '') and ("Payment Form" = "Payment Form"::"Bank Payment Domestic") then
             exit("Clearing No.");
-	    
+
         OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
 
-        if Handled then exit(ResultBankAccountNo);
+        if Handled then
+            exit(ResultBankAccountNo);
 
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));

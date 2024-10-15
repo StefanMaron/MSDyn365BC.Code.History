@@ -935,7 +935,7 @@ codeunit 6520 "Item Tracing Mgt."
 
                 "Serial No. Filter" := CopyStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 "Lot No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                "Package No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
+                "Package No. Filter" := CopyStr(PackageNoFilter, 1, MaxStrLen("Package No. Filter"));
                 "Item No. Filter" := CopyStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
                 "Variant Filter" := CopyStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
 
@@ -949,7 +949,7 @@ codeunit 6520 "Item Tracing Mgt."
                 LevelCount += 1;
                 SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 LotNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
-                PackageNoFilter := DelStr(LotNoFilter, 1, MaxStrLen("Package No. Filter"));
+                PackageNoFilter := DelStr(PackageNoFilter, 1, MaxStrLen("Package No. Filter"));
                 ItemNoFilter := DelStr(ItemNoFilter, 1, MaxStrLen("Item No. Filter"));
                 VariantFilter := DelStr(VariantFilter, 1, MaxStrLen("Variant Filter"));
             until (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (VariantFilter = '') and
