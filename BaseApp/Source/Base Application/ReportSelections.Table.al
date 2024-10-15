@@ -1217,11 +1217,28 @@
     end;
 
     procedure ShouldSendToCustDirectly(ReportUsageEnum: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Boolean
+    var
+        TempAttachReportSelections: Record "Report Selections" temporary;
+        EmailAddress: Text[250];
     begin
-        exit(
-           (not MailManagementEnabled()) or
-           (GetEmailAddressIgnoringLayout(ReportUsageEnum, RecordVariant, CustNo) = '') or
-            OfficeMgtAvailable());
+        FindEmailAttachmentUsageForCust(ReportUsageEnum, CustNo, TempAttachReportSelections);
+        EmailAddress := GetEmailAddress(ReportUsageEnum, RecordVariant, CustNo, TempAttachReportSelections);
+        exit((not MailManagementEnabled()) or (EmailAddress = '') or OfficeMgtAvailable());
+    end;
+
+    local procedure ShouldSendToVendorDirectly(ReportUsageEnum: Enum "Report Selection Usage"; RecordVariant: Variant; VendorNo: Code[20]): Boolean
+    var
+        TempAttachReportSelections: Record "Report Selections" temporary;
+        EmailAddress: Text[250];
+    begin
+        EmailAddress := GetEmailAddressForVend(VendorNo, RecordVariant, ReportUsageEnum);
+        if EmailAddress = '' then begin
+            FindEmailAttachmentUsageForVend(ReportUsageEnum, VendorNo, TempAttachReportSelections);
+            if not TempAttachReportSelections.IsEmpty() then
+                EmailAddress := FindEmailAddressForEmailLayout(TempAttachReportSelections."Email Body Layout Code", VendorNo, ReportUsageEnum, Database::Vendor);
+        end;
+
+        exit((not MailManagementEnabled()) or (EmailAddress = '') or OfficeMgtAvailable());
     end;
 
     local procedure OfficeMgtAvailable(): Boolean
@@ -1246,7 +1263,6 @@
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
-        VendorEmail: Text[250];
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
         ParameterString: Text;
@@ -1275,8 +1291,7 @@
             exit;
         end;
 
-        VendorEmail := GetEmailAddressForVend(VendorNo, RecordVariant, ReportUsageEnum);
-        if ShowDialog or not MailManagementEnabled() or (VendorEmail = '') or OfficeMgtAvailable() then begin
+        if ShowDialog or ShouldSendToVendorDirectly(ReportUsageEnum, RecordVariant, VendorNo) then begin
             SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
             exit;
         end;
@@ -1338,7 +1353,6 @@
         GraphMail: Codeunit "Graph Mail";
         RecRef: RecordRef;
         ReportUsageEnum: Enum "Report Selection Usage";
-        VendorEmail: Text[250];
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
         ParameterString: Text;
@@ -1362,8 +1376,7 @@
             exit;
         end;
 
-        VendorEmail := GetEmailAddressForVend(VendorNo, RecordVariant, ReportUsageEnum);
-        if ShowDialog or not MailManagementEnabled() or (VendorEmail = '') or OfficeMgtAvailable() then begin
+        if ShowDialog or ShouldSendToVendorDirectly(ReportUsageEnum, RecordVariant, VendorNo) then begin
             SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
             exit;
         end;

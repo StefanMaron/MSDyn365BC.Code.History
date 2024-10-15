@@ -24,7 +24,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata Customer = RIMD,
                   tabledata "Customer Bank Account" = IMD,
                   tabledata "Customer Discount Group" = RIMD,
-                  tabledata "Customer Templ." = r,
+                  tabledata "Customer Templ." = rm,
 #if not CLEAN18
                   tabledata "Customer Template" = r,
 #endif

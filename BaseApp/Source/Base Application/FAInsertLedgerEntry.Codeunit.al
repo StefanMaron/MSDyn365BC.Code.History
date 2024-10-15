@@ -208,13 +208,14 @@
             FALedgEntry2.Modify();
             FALedgEntry.Modify();
             FALedgEntry."FA No." := FALedgEntry3."FA No.";
+            OnInsertFAOnAfterSetFALedgEntryFANo(FALedgEntry3, FALedgEntry2, FALedgEntry, NextEntryNo);
         end;
 
         if FALedgEntry3."FA Posting Category" = FALedgEntry3."FA Posting Category"::" " then
             if FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger() then
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry);
 
-        OnBeforeInsertRegister(FALedgEntry, FALedgEntry2);
+        OnBeforeInsertRegister(FALedgEntry, FALedgEntry2, NextEntryNo);
 
         InsertRegister(0, NextEntryNo);
         if FALedgEntry.Quantity > 0 then begin
@@ -1130,8 +1131,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; var NextEntryNo: Integer)
     begin
     end;
 
@@ -1151,7 +1152,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertFAOnBeforeCheckFALedgEntry(FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnInsertFAOnAfterSetFALedgEntryFANo(FALedgEntry3: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry"; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFAOnBeforeCheckFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

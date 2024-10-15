@@ -24,6 +24,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
         TransHeader := Rec;
         TransHeader.SetHideValidationDialog(HideValidationDialog);
 
+        OnRunOnAfterTransHeaderSetHideValidationDialog(TransHeader, Rec, HideValidationDialog);
+
         with TransHeader do begin
             TestField("Transfer-from Code");
             TestField("Transfer-to Code");
@@ -244,6 +246,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransHeader."No." :=
             NoSeriesMgt.GetNextNo(InvtSetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
         DirectTransHeader.Insert();
+
+        OnAfterInsertDirectTransHeader(DirectTransHeader, TransferHeader);
     end;
 
     local procedure InsertDirectTransLine(DirectTransHeader: Record "Direct Trans. Header"; TransLine: Record "Transfer Line")
@@ -286,10 +290,19 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 1);
         end;
         DirectTransLine.Insert();
+
+        OnAfterInsertDirectTransLine(DirectTransLine, DirectTransHeader, TransLine)
     end;
 
     local procedure CheckDim()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDim(TransHeader, TransLine);
+        if IsHandled then
+            exit;
+
         TransLine."Line No." := 0;
         CheckDimComb(TransHeader, TransLine);
         CheckDimValuePosting(TransHeader, TransLine);
@@ -328,7 +341,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    local procedure InsertShptEntryRelation(var DirectTransLine: Record "Direct Trans. Line"): Integer
+    local procedure InsertShptEntryRelation(var DirectTransLine: Record "Direct Trans. Line") Result: Integer
     var
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
@@ -348,16 +361,24 @@ codeunit 5856 "TransferOrder-Post Transfer"
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
                     TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next() = 0;
-                exit(0);
+                Result := 0;
             end;
         end else
-            exit(ItemJnlLine."Item Shpt. Entry No.");
+            Result := ItemJnlLine."Item Shpt. Entry No.";
+
+        OnAfterInsertShptEntryRelation(ItemEntryRelation, DirectTransLine, Result);
     end;
 
     procedure TransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal)
     var
         DummySpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferTracking(FromTransLine, ToTransLine, TransferQty, IsHandled);
+        if IsHandled then
+            exit;
+
         TempHandlingSpecification.Reset();
         TempHandlingSpecification.SetRange("Source Prod. Order Line", ToTransLine."Derived From Line No.");
         if TempHandlingSpecification.Find('-') then begin
@@ -410,6 +431,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                     WhseJnlLine."Source No." := DirectTransHeader."No.";
                     if Direction = 1 then
                         WhseJnlLine."To Bin Code" := "New Bin Code";
+                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2);
                     ItemTrackingMgt.SplitWhseJnlLine(
                       WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
                     if TempWhseJnlLine2.Find('-') then
@@ -435,7 +457,42 @@ codeunit 5856 "TransferOrder-Post Transfer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertDirectTransHeader(var DirectTransHeader: Record "Direct Trans. Header"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertDirectTransLine(var DirectTransLine: Record "Direct Trans. Line"; DirectTransHeader: Record "Direct Trans. Header"; TransLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertShptEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; var DirectTransLine: Record "Direct Trans. Line"; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDim(var TransferHeader: Record "Transfer Header"; var TransferLife: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempHandlingSpecification: Record "Tracking Specification" temporary; Direction: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnBeforeSplitWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTransHeaderSetHideValidationDialog(var TransHeader: Record "Transfer Header"; var Rec: Record "Transfer Header"; var HideValidationDialog: Boolean);
     begin
     end;
 }

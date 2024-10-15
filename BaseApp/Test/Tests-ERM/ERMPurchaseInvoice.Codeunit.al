@@ -2839,6 +2839,90 @@ codeunit 134328 "ERM Purchase Invoice"
         Assert.KnownFailure('Line Discount % must', 396550);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceFCYReverseChargeVATAndLineDiscount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        Item: Record Item;
+        CurrencyCode: Code[10];
+        ExchangeRateAmount: Decimal;
+        ExpectedAmount: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Line Discount] [Reverse Charge VAT]
+        // [SCENARIO 424978] System considers foreign currency exchange rate when posting negative VAT entry for Reverse Charge VAT caused by Line Discount.
+        Initialize();
+
+        ExchangeRateAmount := Round(1 / LibraryRandom.RandDecInRange(10, 20, 2));
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
+        CreatePurchaseHeader(PurchaseHeader, CreateVendor(CurrencyCode), PurchaseHeader."Document Type"::Invoice);
+
+        CreateItemWithLastDirectCost(Item);
+        CreateVATPostingSetupWithReverseChargeVAT(VATPostingSetup, PurchaseHeader);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(20, 50));
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        ExpectedAmount := Round(PurchaseLine."Line Discount Amount" * VATPostingSetup."VAT %" / 100 / ExchangeRateAmount);
+        // Discounted VAT Amount on Purchase Account 
+        VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetPurchAccount(false), false, -ExpectedAmount);
+        // Discounted VAT Amount on Reverse Charge VAT Account
+        VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetRevChargeAccount(false), true, ExpectedAmount);
+        // Discounted VAT Amount on VAT Entry
+        VerifyVATEntryAmount(GenJournalDocumentType::Invoice, DocumentNo, false, -ExpectedAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceFCYNormalVATAndLineDiscount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        Item: Record Item;
+        CurrencyCode: Code[10];
+        ExchangeRateAmount: Decimal;
+        ExpectedAmount: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Line Discount] [Normal VAT]
+        // [SCENARIO 424978] System considers foreign currency exchange rate when posting negative VAT entry for Normal VAT caused by Line Discount.
+        Initialize();
+
+        ExchangeRateAmount := Round(1 / LibraryRandom.RandDecInRange(10, 20, 2));
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
+        CreatePurchaseHeader(PurchaseHeader, CreateVendor(CurrencyCode), PurchaseHeader."Document Type"::Invoice);
+
+        CreateItemWithLastDirectCost(Item);
+        CreateVATPostingSetupWithVATCalculationType(VATPostingSetup, PurchaseHeader, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(20, 50));
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        ExpectedAmount := Round(PurchaseLine."Line Discount Amount" * VATPostingSetup."VAT %" / 100 / ExchangeRateAmount);
+        // Discounted VAT Amount on Purchase Account 
+        VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetPurchAccount(false), false, -ExpectedAmount);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3268,14 +3352,20 @@ codeunit 134328 "ERM Purchase Invoice"
     end;
 
     local procedure CreateVATPostingSetupWithReverseChargeVAT(var VATPostingSetup: Record "VAT Posting Setup"; PurchaseHeader: Record "Purchase Header")
+    begin
+        CreateVATPostingSetupWithVATCalculationType(VATPostingSetup, PurchaseHeader, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+    end;
+
+    local procedure CreateVATPostingSetupWithVATCalculationType(var VATPostingSetup: Record "VAT Posting Setup"; PurchaseHeader: Record "Purchase Header"; TaxCalculationType: Enum "Tax Calculation Type")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 25));
+          VATPostingSetup, TaxCalculationType, LibraryRandom.RandIntInRange(15, 35));
         VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Insert();
     end;
 
@@ -3652,13 +3742,42 @@ codeunit 134328 "ERM Purchase Invoice"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet();
-        repeat
-            TotalGLAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        GLEntry.CalcSums(Amount);
+        TotalGLAmount := GLEntry.Amount;
         Assert.AreNearlyEqual(
           Amount, TotalGLAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
+    end;
+
+    local procedure VerifyGLEntryForGLAccount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; PositiveAmount: Boolean; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+        TotalGLAmount: Decimal;
+    begin
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        if PositiveAmount then
+            GLEntry.SetFilter(Amount, '>0')
+        else
+            GLEntry.SetFilter(Amount, '<0');
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyVATEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PositiveAmount: Boolean; ExpectedAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        TotalGLAmount: Decimal;
+    begin
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        if PositiveAmount then
+            VATEntry.SetFilter(Amount, '>0')
+        else
+            VATEntry.SetFilter(Amount, '<0');
+        VATEntry.FindFirst();
+        VATEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyValueEntry(DocumentNo: Code[20]; Amount: Decimal)

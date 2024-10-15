@@ -670,8 +670,8 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine.Validate("Document Type", InvSalesHeader."Document Type");
         SalesLine.Validate("Document No.", InvSalesHeader."No.");
 
-        // Verify: Get Shipment Lines
-        LibrarySales.GetShipmentLines(SalesLine);
+        // Verify: Get Shipment Lines produce error
+        asserterror LibrarySales.GetShipmentLines(SalesLine);
     end;
 
     [Test]

@@ -44,118 +44,126 @@ codeunit 5632 "FA Jnl.-Post Line"
         Text12400: Label 'You must specify FA Location Code and FA New Location Code';
 
     procedure FAJnlPostLine(FAJnlLine: Record "FA Journal Line"; CheckLine: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeFAJnlPostLine(FAJnlLine);
+        IsHandled := false;
+        OnBeforeFAJnlPostLine(FAJnlLine, FAInsertLedgEntry, CheckLine, IsHandled);
+        if not IsHandled then begin
+            FAInsertLedgEntry.SetGLRegisterNo(0);
+            with FAJnlLine do begin
+                if "FA No." = '' then
+                    exit;
+                if "Posting Date" = 0D then
+                    "Posting Date" := "FA Posting Date";
 
-        FAInsertLedgEntry.SetGLRegisterNo(0);
-        with FAJnlLine do begin
-            if "FA No." = '' then
-                exit;
-            if "Posting Date" = 0D then
-                "Posting Date" := "FA Posting Date";
+                FA.Get("FA No.");
+                FASetup.Get();
+                if FASetup."FA Location Mandatory" then begin
+                    if "Location Code" = '' then
+                        "Location Code" := FA."FA Location Code";
+                    TestField("Location Code");
+                end;
+                if FASetup."Employee No. Mandatory" then begin
+                    if "Employee No." = '' then
+                        "Employee No." := FA."Responsible Employee";
+                    TestField("Employee No.");
+                end;
 
-            FA.Get("FA No.");
-            FASetup.Get();
-            if FASetup."FA Location Mandatory" then begin
-                if "Location Code" = '' then
-                    "Location Code" := FA."FA Location Code";
-                TestField("Location Code");
+                if CheckLine then
+                    FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
+                DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
+                FANo := "FA No.";
+                BudgetNo := "Budgeted FA No.";
+                DeprBookCode := "Depreciation Book Code";
+                FAPostingType := "FA Posting Type";
+                FAPostingDate := "FA Posting Date";
+                Amount2 := Amount;
+                SalvageValue := "Salvage Value";
+                DeprUntilDate := "Depr. until FA Posting Date";
+                DeprAcqCost := "Depr. Acquisition Cost";
+                ErrorEntryNo := "FA Error Entry No.";
+                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
+                    MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
+                    PostMaintenance;
+                end else begin
+                    MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
+                    PostFixedAsset;
+                end;
+                UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
             end;
-            if FASetup."Employee No. Mandatory" then begin
-                if "Employee No." = '' then
-                    "Employee No." := FA."Responsible Employee";
-                TestField("Employee No.");
-            end;
-
-            if CheckLine then
-                FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
-            DuplicateDeprBook.DuplicateFAJnlLine(FAJnlLine);
-            FANo := "FA No.";
-            BudgetNo := "Budgeted FA No.";
-            DeprBookCode := "Depreciation Book Code";
-            FAPostingType := "FA Posting Type";
-            FAPostingDate := "FA Posting Date";
-            Amount2 := Amount;
-            SalvageValue := "Salvage Value";
-            DeprUntilDate := "Depr. until FA Posting Date";
-            DeprAcqCost := "Depr. Acquisition Cost";
-            ErrorEntryNo := "FA Error Entry No.";
-            if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
-                MakeMaintenanceLedgEntry.CopyFromFAJnlLine(MaintenanceLedgEntry, FAJnlLine);
-                PostMaintenance;
-            end else begin
-                MakeFALedgEntry.CopyFromFAJnlLine(FALedgEntry, FAJnlLine);
-                PostFixedAsset;
-            end;
-            UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
         end;
 
         OnAfterFAJnlPostLine(FAJnlLine);
     end;
 
     procedure GenJnlPostLine(GenJnlLine: Record "Gen. Journal Line"; FAAmount: Decimal; VATAmount: Decimal; NextTransactionNo: Integer; NextGLEntryNo: Integer; GLRegisterNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeGenJnlPostLine(GenJnlLine);
+        IsHandled := false;
+        OnBeforeGenJnlPostLine(GenJnlLine, FAInsertLedgEntry, FAAmount, VATAmount, NextTransactionNo, NextGLEntryNo, GLRegisterNo, IsHandled);
+        if not IsHandled then begin
+            FAInsertLedgEntry.SetGLRegisterNo(GLRegisterNo);
+            FAInsertLedgEntry.DeleteAllGLAcc;
+            with GenJnlLine do begin
+                if "Account No." = '' then
+                    exit;
+                if "FA Posting Date" = 0D then
+                    "FA Posting Date" := "Posting Date";
+                GLSetup.Get();
+                if not GLSetup."Enable Russian Accounting" then
+                    if "Journal Template Name" = '' then
+                        Quantity := 0;
 
-        FAInsertLedgEntry.SetGLRegisterNo(GLRegisterNo);
-        FAInsertLedgEntry.DeleteAllGLAcc;
-        with GenJnlLine do begin
-            if "Account No." = '' then
-                exit;
-            if "FA Posting Date" = 0D then
-                "FA Posting Date" := "Posting Date";
-            GLSetup.Get();
-            if not GLSetup."Enable Russian Accounting" then
-                if "Journal Template Name" = '' then
-                    Quantity := 0;
-
-            FA.Get("Account No.");
-            FASetup.Get();
-            if FASetup."FA Location Mandatory" then begin
-                if "FA Location Code" = '' then
-                    "FA Location Code" := FA."FA Location Code";
-                TestField("FA Location Code");
-            end;
-            if FASetup."Employee No. Mandatory" then begin
-                if "Employee No." = '' then
-                    "Employee No." := FA."Responsible Employee";
-                TestField("Employee No.");
-            end;
-
-            DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
-            FANo := "Account No.";
-            BudgetNo := "Budgeted FA No.";
-            DeprBookCode := "Depreciation Book Code";
-            FAPostingType := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
-            FAPostingDate := "FA Posting Date";
-            Amount2 := FAAmount;
-            SalvageValue := GetLCYSalvageValue("Salvage Value", "Posting Date", "Source Currency Code");
-            DeprUntilDate := "Depr. until FA Posting Date";
-            DeprAcqCost := "Depr. Acquisition Cost";
-            ErrorEntryNo := "FA Error Entry No.";
-            if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
-                MakeMaintenanceLedgEntry.CopyFromGenJnlLine(MaintenanceLedgEntry, GenJnlLine);
-                MaintenanceLedgEntry.Amount := FAAmount;
-                MaintenanceLedgEntry."VAT Amount" := VATAmount;
-                MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
-                MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
-                PostMaintenance;
-            end else begin
-                MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
-                FALedgEntry.Amount := FAAmount;
-
-                if FALedgEntry.Amount > 0 then begin
-                    FA.Validate("FA Location Code", GenJnlLine."FA Location Code");
-                    FA."Responsible Employee" := GenJnlLine."Employee No.";
+                FA.Get("Account No.");
+                FASetup.Get();
+                if FASetup."FA Location Mandatory" then begin
+                    if "FA Location Code" = '' then
+                        "FA Location Code" := FA."FA Location Code";
+                    TestField("FA Location Code");
+                end;
+                if FASetup."Employee No. Mandatory" then begin
+                    if "Employee No." = '' then
+                        "Employee No." := FA."Responsible Employee";
+                    TestField("Employee No.");
                 end;
 
-                FALedgEntry."VAT Amount" := VATAmount;
-                FALedgEntry."Transaction No." := NextTransactionNo;
-                FALedgEntry."G/L Entry No." := NextGLEntryNo;
-                OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
-                PostFixedAsset;
+                DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
+                FANo := "Account No.";
+                BudgetNo := "Budgeted FA No.";
+                DeprBookCode := "Depreciation Book Code";
+                FAPostingType := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
+                FAPostingDate := "FA Posting Date";
+                Amount2 := FAAmount;
+                SalvageValue := GetLCYSalvageValue("Salvage Value", "Posting Date", "Source Currency Code");
+                DeprUntilDate := "Depr. until FA Posting Date";
+                DeprAcqCost := "Depr. Acquisition Cost";
+                ErrorEntryNo := "FA Error Entry No.";
+                if "FA Posting Type" = "FA Posting Type"::Maintenance then begin
+                    MakeMaintenanceLedgEntry.CopyFromGenJnlLine(MaintenanceLedgEntry, GenJnlLine);
+                    MaintenanceLedgEntry.Amount := FAAmount;
+                    MaintenanceLedgEntry."VAT Amount" := VATAmount;
+                    MaintenanceLedgEntry."Transaction No." := NextTransactionNo;
+                    MaintenanceLedgEntry."G/L Entry No." := NextGLEntryNo;
+                    PostMaintenance;
+                end else begin
+                    MakeFALedgEntry.CopyFromGenJnlLine(FALedgEntry, GenJnlLine);
+                    FALedgEntry.Amount := FAAmount;
+
+                    if FALedgEntry.Amount > 0 then begin
+                        FA.Validate("FA Location Code", GenJnlLine."FA Location Code");
+                        FA."Responsible Employee" := GenJnlLine."Employee No.";
+                    end;
+
+                    FALedgEntry."VAT Amount" := VATAmount;
+                    FALedgEntry."Transaction No." := NextTransactionNo;
+                    FALedgEntry."G/L Entry No." := NextGLEntryNo;
+                    OnBeforePostFixedAssetFromGenJnlLine(GenJnlLine, FALedgEntry, FAAmount, VATAmount);
+                    PostFixedAsset;
+                end;
+                UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
             end;
-            UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
         end;
 
         OnAfterGenJnlPostLine(GenJnlLine);
@@ -783,12 +791,12 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
+    local procedure OnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; CheckLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal; NextTransactionNo: Integer; NextGLEntryNo: Integer; GLRegisterNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -437,6 +437,7 @@
     local procedure CheckConsistency()
     var
         IsHandled: Boolean;
+        ShouldCheckNoOfDepreciationDays: Boolean;
     begin
         if GenJnlPosting then
             with GenJnlLine do begin
@@ -476,10 +477,9 @@
                         FieldError("Depr. until FA Posting Date", FieldErrorText);
                 end;
 
-                if ("FA Posting Type" <> "FA Posting Type"::Depreciation) and
-                   ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and
-                   ("No. of Depreciation Days" <> 0)
-                then
+                ShouldCheckNoOfDepreciationDays := ("FA Posting Type" <> "FA Posting Type"::Depreciation) and ("FA Posting Type" <> "FA Posting Type"::"Custom 1") and ("No. of Depreciation Days" <> 0);
+                OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJnlLine, FieldErrorText, ShouldCheckNoOfDepreciationDays);
+                if ShouldCheckNoOfDepreciationDays then
                     FieldError("No. of Depreciation Days", FieldErrorText);
 
                 if "FA Posting Type" = "FA Posting Type"::Disposal then begin
@@ -718,6 +718,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var FANo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckConsistencyOnAfterCalcShouldCheckNoOfDepreciationDays(GenJournalLine: Record "Gen. Journal Line"; FieldErrorText: Text[250]; var ShouldCheckNoOfDepreciationDays: Boolean);
     begin
     end;
 

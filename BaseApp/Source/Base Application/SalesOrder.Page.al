@@ -718,18 +718,20 @@
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
-                            Editable = BillToOptions = BillToOptions::"Another Customer";
-                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
+                            Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             Importance = Promoted;
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
                             begin
-                                if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                    if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                        SetRange("Bill-to Customer No.");
+                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
+                                    if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                        if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                            SetRange("Bill-to Customer No.");
 
-                                CurrPage.Update();
+                                    CurrPage.Update();
+                                end;
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -1459,7 +1461,7 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
-                    ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
+                    ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
                     var
@@ -2367,6 +2369,7 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        ShouldSearchForCustByName: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
@@ -2526,6 +2529,8 @@
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
+
+        ShouldSearchForCustByName := ShouldSearchForCustomerByName("Sell-to Customer No.");
     end;
 
     local procedure ShowPostedConfirmationMessage()

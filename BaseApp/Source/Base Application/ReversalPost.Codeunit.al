@@ -31,7 +31,7 @@ codeunit 179 "Reversal-Post"
                 exit;
 
         Handled := false;
-        OnRunOnAfterConfirm(Rec, Handled);
+        OnRunOnAfterConfirm(Rec, Handled, PrintRegister, HideDialog);
         If Handled then
             exit;
 
@@ -137,7 +137,7 @@ codeunit 179 "Reversal-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterConfirm(var ReversalEntry: Record "Reversal Entry"; var Handled: Boolean)
+    local procedure OnRunOnAfterConfirm(var ReversalEntry: Record "Reversal Entry"; var Handled: Boolean; PrintRegister: Boolean; HideDialog: Boolean)
     begin
     end;
 }

@@ -353,6 +353,7 @@
                             OnCalculateDeprAmountOnDeprMethodCaseLastEntry(
                                 FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
                     end;
+                OnCalculateDeprAmountOnAfterAssignAmountLastEntry(FADeprBook, UntilDate, DateFromProjection, BookValue, UseHalfYearConvention, DaysInFiscalYear, NumberOfDays);
             end
             // Method Last Depreciation Entry
             else begin
@@ -1237,6 +1238,11 @@
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValues2(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; Year365Days: Boolean; var DeprYears: Decimal; var DeprMethod: Enum "FA Depr. Method Internal"; var DeprBasis: Decimal; var BookValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDeprAmountOnAfterAssignAmountLastEntry(FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; DateFromProjection: Date; BookValue: Decimal; UseHalfYearConvention: Boolean; DaysInFiscalYear: Integer; NumberOfDays: Integer)
     begin
     end;
 

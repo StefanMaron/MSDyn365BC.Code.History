@@ -15,7 +15,7 @@ codeunit 5602 "FA Get G/L Account No."
     begin
         with FALedgEntry do begin
             FAPostingGr.GetPostingGroup("FA Posting Group", "Depreciation Book Code");
-            OnGetAccNoOnAfterGetFAPostingGroup(FAPostingGr);
+            OnGetAccNoOnAfterGetFAPostingGroup(FAPostingGr, FALedgEntry);
             GLAccNo := '';
             if "FA Posting Category" = "FA Posting Category"::" " then
                 case "FA Posting Type" of
@@ -101,7 +101,7 @@ codeunit 5602 "FA Get G/L Account No."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetAccNoOnAfterGetFAPostingGroup(var FAPostingGr: Record "FA Posting Group")
+    local procedure OnGetAccNoOnAfterGetFAPostingGroup(var FAPostingGr: Record "FA Posting Group"; FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 }

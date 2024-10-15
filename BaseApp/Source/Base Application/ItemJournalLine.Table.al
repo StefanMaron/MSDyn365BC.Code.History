@@ -971,6 +971,7 @@
                                     begin
                                         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Order No.");
                                         Description := AssemblyHeader.Description;
+                                        OnValidateOrderNoOnAfterProcessOrderTypeAssembly(Rec, ProdOrder);
                                     end;
                             end;
 
@@ -4702,6 +4703,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateOrderNoOrderTypeProduction(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order")
     begin
     end;
 

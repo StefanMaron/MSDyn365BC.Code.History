@@ -401,6 +401,20 @@ codeunit 130512 "Library - Purchase"
         StandardPurchaseLine.Insert(true);
     end;
 
+    procedure CreateVendorDocumentLayout(VendorNo: Code[20]; ReportSelectionUsage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20]; EmailAddress: Text)
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        CustomReportSelection.Init();
+        CustomReportSelection.Validate("Source Type", Database::Vendor);
+        CustomReportSelection.Validate("Source No.", VendorNo);
+        CustomReportSelection.Validate(Usage, ReportSelectionUsage);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Custom Report Layout Code", CustomReportLayoutCode);
+        CustomReportSelection.Validate("Send To Email", CopyStr(EmailAddress, 1, MaxStrLen(CustomReportSelection."Send To Email")));
+        CustomReportSelection.Insert(true);
+    end;
+
     procedure CreateSubcontractor(var Vendor: Record Vendor)
     begin
         CreateVendor(Vendor);

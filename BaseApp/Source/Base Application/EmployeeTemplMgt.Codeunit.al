@@ -4,6 +4,9 @@ codeunit 1387 "Employee Templ. Mgt."
     begin
     end;
 
+    var
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+
     procedure InsertEmployeeFromTemplate(var Employee: Record Employee): Boolean
     var
         EmployeeTempl: Record "Employee Templ.";
@@ -94,6 +97,11 @@ codeunit 1387 "Employee Templ. Mgt."
     end;
 
     procedure ApplyEmployeeTemplate(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
+    begin
+        ApplyEmployeeTemplate(Employee, EmployeeTempl, false);
+    end;
+
+    procedure ApplyEmployeeTemplate(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ."; UpdateExistingValues: Boolean)
     begin
         ApplyTemplate(Employee, EmployeeTempl);
         InsertDimensions(Employee."No.", EmployeeTempl.Code, Database::Employee, Database::"Employee Templ.");
@@ -210,7 +218,7 @@ codeunit 1387 "Employee Templ. Mgt."
         if not CanBeUpdatedFromTemplate(EmployeeTempl) then
             exit;
 
-        ApplyEmployeeTemplate(Employee, EmployeeTempl);
+        ApplyEmployeeTemplate(Employee, EmployeeTempl, GetUpdateExistingValuesParam());
     end;
 
     local procedure CanBeUpdatedFromTemplate(var EmployeeTempl: Record "Employee Templ."): Boolean
@@ -238,8 +246,19 @@ codeunit 1387 "Employee Templ. Mgt."
 
         if Employee.FindSet() then
             repeat
-                ApplyEmployeeTemplate(Employee, EmployeeTempl);
+                ApplyEmployeeTemplate(Employee, EmployeeTempl, GetUpdateExistingValuesParam());
             until Employee.Next() = 0;
+    end;
+
+    local procedure GetUpdateExistingValuesParam() Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUpdateExistingValuesParam(Result, IsHandled);
+        if not IsHandled then
+            Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
     end;
 
     [IntegrationEvent(false, false)]
@@ -254,6 +273,11 @@ codeunit 1387 "Employee Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTemplateFromEmployeeOnBeforeEmployeeTemplInsert(var EmployeeTempl: Record "Employee Templ."; Employee: Record Employee)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
