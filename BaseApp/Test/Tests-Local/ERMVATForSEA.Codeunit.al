@@ -19,6 +19,7 @@ codeunit 141037 "ERM VAT For SEA"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ValueMatchMsg: Label 'Value must be same.';
+        WHTCertErr: Label 'WHT Certificate No. Series must have a value in Purchases & Payables Setup';
 
     [Test]
     [Scope('OnPrem')]
@@ -272,6 +273,77 @@ codeunit 141037 "ERM VAT For SEA"
         VerifyGLEntry(GenJournalLine."Document Type"::Refund, DocumentNo2, Amount - VATAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostWHTEntryWithoutAnyError()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] No Error message is displayed when a Purchase Invoice with WHT calculation is posted - AU
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        //[GIVEN] Create General Posting Setup 
+        CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create WHT Posting Setup
+        CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
+
+        // [GIVEN] Create Vendor
+        VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", WHTPostingSetup."WHT Business Posting Group");
+
+        // [VERIFY] Post and Verify the WHT Entry created successfully
+        PostPurchaseInvoiceAndVerifyWHTEntry(
+        VendorNo, VendorNo, CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", WHTPostingSetup."WHT Product Posting Group"),
+          PurchaseLine."Document Type"::Invoice, WHTPostingSetup."WHT %", VATPostingSetup."VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyErrorOnWHTCertificateNoSeries()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        ErrTxt: Text;
+    begin
+        // [SCENARIO] No Error message is displayed when a Purchase Invoice with WHT calculation is posted - AU
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        //[GIVEN] Create General Posting Setup 
+        CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create WHT Posting Setup
+        CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
+
+        // [GIVEN] Update WHT Certificate No. Series as blank on Purchase & Payable Setup
+        UpdateWHTCertificateNoSerOnPurchSetup();
+
+        // [GIVEN] Create Vendor
+        VendorNo := CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", WHTPostingSetup."WHT Business Posting Group");
+
+        // [GIVEN] Create G/l Account
+        GLAccountNo := CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", WHTPostingSetup."WHT Product Posting Group");
+
+        // [VERIFY] Create and Post the Purchase Invoice
+        asserterror CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::"G/L Account", VendorNo, GLAccountNo, VendorNo);
+
+        // [GIVEN] Verify the WHT Certificate No. series error
+        Assert.IsSubstring(GetLastErrorText(), WHTCertErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -419,10 +491,13 @@ codeunit 141037 "ERM VAT For SEA"
     var
         WHTBusinessPostingGroup: Record "WHT Business Posting Group";
         WHTProductPostingGroup: Record "WHT Product Posting Group";
+        WHTRevenueTypes: Record "WHT Revenue Types";
     begin
         LibraryAPACLocalization.CreateWHTBusinessPostingGroup(WHTBusinessPostingGroup);
         LibraryAPACLocalization.CreateWHTProductPostingGroup(WHTProductPostingGroup);
         LibraryAPACLocalization.CreateWHTPostingSetup(WHTPostingSetup, WHTBusinessPostingGroup.Code, WHTProductPostingGroup.Code);
+        LibraryAPACLocalization.CreateWHTRevenueTypes(WHTRevenueTypes);
+        WHTPostingSetup.Validate("Revenue Type", WHTRevenueTypes.Code);
         WHTPostingSetup.Validate("WHT %", LibraryRandom.RandInt(5));
         WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::Invoice);
         WHTPostingSetup.Validate("Prepaid WHT Account Code", CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", ''));   // WHT Prod. Posting Group as blank.
@@ -505,6 +580,26 @@ codeunit 141037 "ERM VAT For SEA"
         VerifyWHTEntry(
           GenJournalLine."Document Type"::Invoice, FindPostedPurchaseInvoice(No), PurchaseLine.Amount * WHTPct / 100, PurchaseLine.Amount);
         VerifyGLEntry(GenJournalLine."Document Type"::Payment, DocumentNo, -Amount);
+    end;
+
+    local procedure PostPurchaseInvoiceAndVerifyWHTEntry(BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; No: Code[20]; DocumentType: Enum "Purchase Document Type"; WHTPct: Decimal; VATPct: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        PurchaseLine: Record "Purchase Line";
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // Create and post Purchase Document.
+        UpdatePurchasesPayableSetup;
+        CreateAndPostPurchaseDocument(PurchaseLine, DocumentType, PurchaseLine.Type::"G/L Account", BuyFromVendorNo, No, PayToVendorNo);
+        WHTAmount := PurchaseLine.Amount * WHTPct / 100;
+        Amount := PurchaseLine."Amount Including VAT" - WHTAmount;  // Calculate Amount excluding WHT Amount.
+
+        // Verify.
+        VerifyWHTEntry(
+         GenJournalLine."Document Type"::Invoice, FindPostedPurchaseInvoice(No), PurchaseLine.Amount * WHTPct / 100, PurchaseLine.Amount);
     end;
 
     local procedure PostSalesInvoiceAndApplyPayment(BillToCustomerNo: Code[20]; SellToCustomerNo: Code[20]; No: Code[20]; DocumentType: Enum "Sales Document Type"; WHTPct: Decimal)
@@ -636,6 +731,15 @@ codeunit 141037 "ERM VAT For SEA"
         WHTEntry.FindFirst();
         Assert.AreNearlyEqual(WHTEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
         Assert.AreNearlyEqual(WHTEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
+    end;
+
+    local procedure UpdateWHTCertificateNoSerOnPurchSetup()
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        PurchSetup.Validate("WHT Certificate No. Series", '');
+        PurchSetup.Modify(true);
     end;
 
     [ConfirmHandler]

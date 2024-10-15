@@ -520,6 +520,7 @@ table 6650 "Return Shipment Header"
     var
         CertificateOfSupply: Record "Certificate of Supply";
     begin
+        PostPurchLinesDelete.IsDocumentDeletionAllowed("Posting Date");
         LockTable();
         PostPurchLinesDelete.DeletePurchShptLines(Rec);
 

@@ -113,10 +113,13 @@ report 17 "Consolidated Trial Balance"
                 trigger OnAfterGetRecord()
                 begin
                     "G/L Account".SetRange("Business Unit Filter", Code);
-                    if ("Starting Date" <> 0D) or ("Ending Date" <> 0D) then
+                    if ("Starting Date" <> 0D) and ("Ending Date" <> 0D) then
                         "G/L Account".SetRange("Date Filter", "Starting Date", "Ending Date")
                     else
-                        "G/L Account".SetRange("Date Filter", ConsolidStartDate, ConsolidEndDate);
+                        if ("Starting Date" <> 0D) and ("Ending Date" = 0D) then
+                            "G/L Account".SetRange("Date Filter", "Starting Date", ConsolidEndDate)
+                        else
+                            "G/L Account".SetRange("Date Filter", ConsolidStartDate, ConsolidEndDate);
 
                     "G/L Account".CalcFields("Net Change", "Balance at Date");
                     GLAccNetChange := "G/L Account"."Net Change";
@@ -135,6 +138,9 @@ report 17 "Consolidated Trial Balance"
                 begin
                     Clear(GLAccNetChange);
                     Clear(GLBalance);
+
+                    if BUFilter <> '' then
+                        SetFilter(Code, BUFilter);
                 end;
             }
             dataitem(ConsolidCounter; "Integer")
@@ -261,6 +267,8 @@ report 17 "Consolidated Trial Balance"
         GLFilter := "G/L Account".GetFilters();
         "G/L Account".SetRange("Date Filter", ConsolidStartDate, ConsolidEndDate);
         PeriodText := "G/L Account".GetFilter("Date Filter");
+
+        BUFilter := "G/L Account".GetFilter("Business Unit Filter");
     end;
 
     var
@@ -274,6 +282,7 @@ report 17 "Consolidated Trial Balance"
         GLBalance: Decimal;
         EliminationAmount: Decimal;
         PeriodText: Text;
+        BUFilter: Text;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         InclSimulationEntriesLbl: Label 'This report includes simulation entries.';

@@ -1922,4 +1922,3 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesLine.FieldNo("Qty. to Ship"), DummySalesLine.FieldNo("Quantity Shipped"), DummySalesLine.FieldNo("Quantity Invoiced"));
     end;
 }
-

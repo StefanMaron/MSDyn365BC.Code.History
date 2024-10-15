@@ -1,4 +1,4 @@
-codeunit 699 "Exch. Rate Adjmt. Process"
+﻿codeunit 699 "Exch. Rate Adjmt. Process"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -13,6 +13,9 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     trigger OnRun()
     begin
         ExchRateAdjmtParameters.Copy(Rec);
+#if not CLEAN20
+        CheckIfFeatureCanBeUsed();
+#endif
 
         SourceCodeSetup.Get();
         GetGLSetup();
@@ -99,7 +102,6 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         GLAddCurrNetChangeTotal: Decimal;
         GLNetChangeBase: Decimal;
         GLAddCurrNetChangeBase: Decimal;
-        AdjPerEntry: Boolean;
         AddCurrCurrencyFactor: Decimal;
         VATEntryNoTotal: Decimal;
         VATEntryNo: Decimal;
@@ -122,6 +124,25 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         PostingDateNotInPeriodErr: Label 'This posting date cannot be entered because it does not occur within the adjustment period. Reenter the posting date.';
         RatesAdjustedMsg: Label 'One or more currency exchange rates have been adjusted.';
         NothingToAdjustMsg: Label 'There is nothing to adjust.';
+
+#if not CLEAN20
+    local procedure CheckIfFeatureCanBeUsed()
+    var
+        FeatureKey: Record "Feature Key";
+        EnvironmentInformation: Codeunit "Environment Information";
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+        ExtensibleExchangeRateAdjustmentLbl: Label 'ExtensibleExchangeRateAdjustment', Locked = true;
+    begin
+        if ExchRateAdjmtParameters."Hide UI" then
+            exit;
+
+        FeatureKey.Get(ExtensibleExchangeRateAdjustmentLbl);
+        if EnvironmentInformation.IsSaaS() and EnvironmentInformation.IsProduction() then
+            error(FeatureKeyManagement.GetFeatureCannotBeEnabledErr(), FeatureKey.Description);
+        if not FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then
+            error(FeatureKeyManagement.GetFeatureShouldBeEnabledErr(), FeatureKey.Description);
+    end;
+#endif
 
     local procedure RunAdjustment()
     begin
@@ -865,7 +886,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempExchRateAdjmtBuffer.SetRange("Dimension Entry No.", DimEntryNo2);
         TempExchRateAdjmtBuffer.SetRange("IC Partner Code", ICCode2);
         TempExchRateAdjmtBuffer.SetRange("Posting Date", PostingDate2);
-        if AdjPerEntry then
+        if ExchRateAdjmtParameters."Adjust Per Entry" then
             TempExchRateAdjmtBuffer.SetRange("Entry No.", EntryNo2);
 
         Found := TempExchRateAdjmtBuffer.FindFirst();
@@ -883,7 +904,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
             TempExchRateAdjmtBuffer."Adjmt. Amount" := AdjAmount2;
             TempExchRateAdjmtBuffer."Gains Amount" := GainsAmount2;
             TempExchRateAdjmtBuffer."Losses Amount" := LossesAmount2;
-            if AdjPerEntry then
+            if ExchRateAdjmtParameters."Adjust Per Entry" then
                 TempExchRateAdjmtBuffer."Entry No." := EntryNo2;
             MaxAdjExchRateBufIndex += 1;
             TempExchRateAdjmtBuffer.Index := MaxAdjExchRateBufIndex;
@@ -973,7 +994,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 TempExchRateAdjmtBuffer2.SetRange("Dimension Entry No.", TempExchRateAdjmtBuffer."Dimension Entry No.");
                 TempExchRateAdjmtBuffer2.SetRange("Posting Date", TempExchRateAdjmtBuffer."Posting Date");
                 TempExchRateAdjmtBuffer2.SetRange("IC Partner Code", TempExchRateAdjmtBuffer."IC Partner Code");
-                if AdjPerEntry then
+                if ExchRateAdjmtParameters."Adjust Per Entry" then
                     TempExchRateAdjmtBuffer2.SetRange("Entry No.", TempExchRateAdjmtBuffer."Entry No.");
 
                 Found := TempExchRateAdjmtBuffer2.FindFirst();
@@ -984,7 +1005,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                     TempExchRateAdjmtBuffer2."Dimension Entry No." := TempExchRateAdjmtBuffer."Dimension Entry No.";
                     TempExchRateAdjmtBuffer2."Posting Date" := TempExchRateAdjmtBuffer."Posting Date";
                     TempExchRateAdjmtBuffer2."IC Partner Code" := TempExchRateAdjmtBuffer."IC Partner Code";
-                    if AdjPerEntry then
+                    if ExchRateAdjmtParameters."Adjust Per Entry" then
                         TempExchRateAdjmtBuffer2."Entry No." := TempExchRateAdjmtBuffer."Entry No.";
                     TempExchRateAdjmtBuffer2."Adjmt. Base" := TempExchRateAdjmtBuffer."Adjmt. Base";
                     TempExchRateAdjmtBuffer2."Gains Amount" := TempExchRateAdjmtBuffer."Gains Amount";
@@ -1476,7 +1497,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         GenJnlLine."Shortcut Dimension 1 Code" := GetGlobalDimVal(GLSetup."Global Dimension 1 Code", DimSetEntry);
         GenJnlLine."Shortcut Dimension 2 Code" := GetGlobalDimVal(GLSetup."Global Dimension 2 Code", DimSetEntry);
         GenJnlLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
+        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine, ExchRateAdjmtParameters);
         GenJnlPostLine.Run(GenJnlLine);
         OnPostGenJnlLineOnAfterGenJnlPostLineRun(GenJnlLine, GenJnlPostLine);
         exit(GenJnlPostLine.GetNextTransactionNo());
@@ -2174,42 +2195,42 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
-    local procedure InsertExchRateAdjmtCustLedgerEntry(CustLedgEntry: Record "Cust. Ledger Entry"; DtldCustledgEntry: Record "Detailed Cust. Ledg. Entry");
+    local procedure InsertExchRateAdjmtCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry");
     begin
         TempExchRateAdjmtLedgEntry.Init();
         NewRegLedgEntryNo += 1;
         TempExchRateAdjmtLedgEntry."Entry No." := NewRegLedgEntryNo;
-        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry Type" := DtldCustLedgEntry."Entry Type";
-        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry No." := DtldCustLedgEntry."Entry No.";
+        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry Type" := DetailedCustLedgEntry2."Entry Type";
+        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry No." := DetailedCustLedgEntry2."Entry No.";
         TempExchRateAdjmtLedgEntry."Account Type" := "Exch. Rate Adjmt. Account Type"::Customer;
-        TempExchRateAdjmtLedgEntry."Account No." := CustLedgEntry."Customer No.";
-        TempExchRateAdjmtLedgEntry."Document Type" := CustLedgEntry."Document Type";
-        TempExchRateAdjmtLedgEntry."Document No." := CustLedgEntry."Document No.";
+        TempExchRateAdjmtLedgEntry."Account No." := CustLedgerEntry."Customer No.";
+        TempExchRateAdjmtLedgEntry."Document Type" := CustLedgerEntry."Document Type";
+        TempExchRateAdjmtLedgEntry."Document No." := CustLedgerEntry."Document No.";
         TempExchRateAdjmtLedgEntry."Posting Date" := ExchRateAdjmtParameters."Posting Date";
-        TempExchRateAdjmtLedgEntry."Currency Code" := Currency.Code;
-        TempExchRateAdjmtLedgEntry."Currency Factor" := Currency."Currency Factor";
-        TempExchRateAdjmtLedgEntry."Base Amount" := CustLedgEntry."Remaining Amount";
-        TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
+        TempExchRateAdjmtLedgEntry."Currency Code" := CustLedgerEntry."Currency Code";
+        TempExchRateAdjmtLedgEntry."Currency Factor" := CustLedgerEntry."Adjusted Currency Factor";
+        TempExchRateAdjmtLedgEntry."Base Amount" := CustLedgerEntry."Remaining Amount";
+        TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := CustLedgerEntry."Remaining Amt. (LCY)";
         TempExchRateAdjmtLedgEntry."Adjustment Amount" := CurrAdjAmount;
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
-    local procedure InsertExchRateAdjmtVendLedgerEntry(VendLedgEntry: Record "Vendor Ledger Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry");
+    local procedure InsertExchRateAdjmtVendLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry");
     begin
         TempExchRateAdjmtLedgEntry.Init();
         NewRegLedgEntryNo += 1;
         TempExchRateAdjmtLedgEntry."Entry No." := NewRegLedgEntryNo;
-        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry Type" := DtldVendLedgEntry."Entry Type";
-        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry No." := DtldVendLedgEntry."Entry No.";
+        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry Type" := DetailedVendorLedgEntry2."Entry Type";
+        TempExchRateAdjmtLedgEntry."Detailed Ledger Entry No." := DetailedVendorLedgEntry2."Entry No.";
         TempExchRateAdjmtLedgEntry."Account Type" := "Exch. Rate Adjmt. Account Type"::Vendor;
-        TempExchRateAdjmtLedgEntry."Account No." := VendLedgEntry."Vendor No.";
-        TempExchRateAdjmtLedgEntry."Document Type" := VendLedgEntry."Document Type";
-        TempExchRateAdjmtLedgEntry."Document No." := VendLedgEntry."Document No.";
+        TempExchRateAdjmtLedgEntry."Account No." := VendorLedgerEntry."Vendor No.";
+        TempExchRateAdjmtLedgEntry."Document Type" := VendorLedgerEntry."Document Type";
+        TempExchRateAdjmtLedgEntry."Document No." := VendorLedgerEntry."Document No.";
         TempExchRateAdjmtLedgEntry."Posting Date" := ExchRateAdjmtParameters."Posting Date";
-        TempExchRateAdjmtLedgEntry."Currency Code" := Currency.Code;
-        TempExchRateAdjmtLedgEntry."Currency Factor" := Currency."Currency Factor";
-        TempExchRateAdjmtLedgEntry."Base Amount" := VendLedgEntry."Remaining Amount";
-        TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
+        TempExchRateAdjmtLedgEntry."Currency Code" := VendorLedgerEntry."Currency Code";
+        TempExchRateAdjmtLedgEntry."Currency Factor" := VendorLedgerEntry."Adjusted Currency Factor";
+        TempExchRateAdjmtLedgEntry."Base Amount" := VendorLedgerEntry."Remaining Amount";
+        TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := VendorLedgerEntry."Remaining Amt. (LCY)";
         TempExchRateAdjmtLedgEntry."Adjustment Amount" := CurrAdjAmount;
         TempExchRateAdjmtLedgEntry.Insert();
     end;
@@ -2355,7 +2376,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters")
     begin
     end;
 

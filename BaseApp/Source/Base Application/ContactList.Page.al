@@ -478,9 +478,17 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Relate&d Contacts';
                     Image = Users;
-                    RunObject = Page "Contact List";
-                    RunPageLink = "Company No." = FIELD("Company No.");
                     ToolTip = 'View a list of all contacts.';
+
+                    trigger OnAction()
+                    var
+                        Contact: Record Contact;
+                        ContactList: Page "Contact List";
+                    begin
+                        Contact.SetRange("Company No.", Rec."Company No.");
+                        ContactList.SetTableView(Contact);
+                        ContactList.Run();
+                    end;
                 }
                 action("Segmen&ts")
                 {
