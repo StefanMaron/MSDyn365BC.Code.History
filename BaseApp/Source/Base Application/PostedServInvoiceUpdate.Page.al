@@ -99,6 +99,11 @@ page 10768 "Posted Serv. Invoice - Update"
                     Editable = true;
                     ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
                 }
+                field("Issued By Third Party"; "Issued By Third Party")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the invoice was issued by a third party.';
+                }
             }
             group(Shipping)
             {
@@ -148,7 +153,8 @@ page 10768 "Posted Serv. Invoice - Update"
           ("Invoice Type" <> xServiceInvoiceHeader."Invoice Type") or
           ("ID Type" <> xServiceInvoiceHeader."ID Type") or
           ("Succeeded Company Name" <> xServiceInvoiceHeader."Succeeded Company Name") or
-          ("Succeeded VAT Registration No." <> xServiceInvoiceHeader."Succeeded VAT Registration No.");
+          ("Succeeded VAT Registration No." <> xServiceInvoiceHeader."Succeeded VAT Registration No.") or
+          ("Issued By Third Party" <> xServiceInvoiceHeader."Issued By Third Party");
 
         OnAfterRecordIsChanged(Rec, xServiceInvoiceHeader, RecordIsChanged);
     end;

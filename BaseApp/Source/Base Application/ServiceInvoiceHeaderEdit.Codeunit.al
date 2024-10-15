@@ -21,6 +21,7 @@ codeunit 10768 "Service Invoice Header - Edit"
         ServiceInvoiceHeader."ID Type" := "ID Type";
         ServiceInvoiceHeader."Succeeded Company Name" := "Succeeded Company Name";
         ServiceInvoiceHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
+        ServiceInvoiceHeader."Issued By Third Party" := "Issued By Third Party";
         OnRunOnBeforeServiceInvoiceHeaderModify(ServiceInvoiceHeader, Rec);
         ServiceInvoiceHeader.TestField("No.", "No.");
         ServiceInvoiceHeader.Modify();
@@ -53,6 +54,7 @@ codeunit 10768 "Service Invoice Header - Edit"
         SIIDocUploadState.IDType := ServiceInvoiceHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := ServiceInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := ServiceInvoiceHeader."Succeeded VAT Registration No.";
+        SIIDocUploadState."Issued By Third Party" := ServiceInvoiceHeader."Issued By Third Party";
         SIIDocUploadState.Modify();
     end;
 

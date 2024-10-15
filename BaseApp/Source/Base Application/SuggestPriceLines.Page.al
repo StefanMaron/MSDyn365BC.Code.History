@@ -53,6 +53,7 @@ page 7021 "Suggest Price Lines"
                         trigger OnAssistEdit()
                         begin
                             Rec.EditPriceLineFilter();
+                            CurrPage.Update(true);
                         end;
                     }
                     field("Copy As New Lines"; Rec."Copy As New Lines")
@@ -88,6 +89,7 @@ page 7021 "Suggest Price Lines"
                         trigger OnAssistEdit()
                         begin
                             Rec.EditAssetFilter();
+                            CurrPage.SaveRecord();
                         end;
                     }
                 }
@@ -243,7 +245,7 @@ page 7021 "Suggest Price Lines"
         if PriceListFilters.RunModal() = Action::LookupOK then begin
             PriceListFilters.GetRecord(TempDefaultsPriceListHeader);
             Defaults := GetDefaults();
-            CurrPage.Update(false);
+            CurrPage.Update(true);
         end;
     end;
 }

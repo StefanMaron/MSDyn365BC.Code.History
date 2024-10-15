@@ -15,6 +15,7 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         ServiceCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         ServiceCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         OnRunOnBeforeServiceCrMemoHeaderModify(ServiceCrMemoHeader, Rec);
+        ServiceCrMemoHeader."Issued By Third Party" := "Issued By Third Party";
         ServiceCrMemoHeader.TestField("No.", "No.");
         ServiceCrMemoHeader.Modify();
         Rec := ServiceCrMemoHeader;
@@ -44,6 +45,7 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         SIIDocUploadState."Sales Special Scheme Code" := ServiceCrMemoHeader."Special Scheme Code" + 1;
         SIISchemeCodeMgt.ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState."Is Credit Memo Removal" := SIIDocUploadState.IsCreditMemoRemoval();
+        SIIDocUploadState."Issued By Third Party" := ServiceCrMemoHeader."Issued By Third Party";
         SIIDocUploadState.Modify();
     end;
 

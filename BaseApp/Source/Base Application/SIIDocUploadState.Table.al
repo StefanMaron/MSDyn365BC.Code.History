@@ -198,6 +198,10 @@ table 10752 "SII Doc. Upload State"
         {
             Caption = 'Succeeded VAT Registration No.';
         }
+        field(62; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
+        }
         field(70; "Version No."; Option)
         {
             Caption = 'Version No.';
@@ -497,38 +501,45 @@ table 10752 "SII Doc. Upload State"
                                     TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                       ServiceHeader."Bill-to Customer No.", ServiceHeader."Invoice Type" + 1, 0, ServiceHeader."Special Scheme Code" + 1,
                                       ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
+                                    TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
                                 end else begin
                                     CustLedgerEntry.Get(EntryNo);
                                     TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                       CustLedgerEntry."Customer No.", CustLedgerEntry."Invoice Type" + 1, 0, CustLedgerEntry."Special Scheme Code" + 1,
                                       CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
                                       CustLedgerEntry."ID Type");
+                                    TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
                                 end;
-                            end else
+                            end else begin
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                   SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Invoice Type" + 1, 0,
                                   SalesInvoiceHeader."Special Scheme Code" + 1, SalesInvoiceHeader."Succeeded Company Name",
                                   SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type");
+                                TempSIIDocUploadState."Issued By Third Party" := SalesInvoiceHeader."Issued By Third Party";
+                            end;
                         end;
                     "Document Type"::"Credit Memo":
-                        if SalesCrMemoHeader.Get(DocumentNo) then
+                        if SalesCrMemoHeader.Get(DocumentNo) then begin
                             TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                               SalesCrMemoHeader."Bill-to Customer No.", 0, SalesCrMemoHeader."Cr. Memo Type" + 1,
                               SalesCrMemoHeader."Special Scheme Code" + 1, SalesCrMemoHeader."Succeeded Company Name",
-                              SalesCrMemoHeader."Succeeded VAT Registration No.", SalesCrMemoHeader."ID Type")
-                        else begin
+                              SalesCrMemoHeader."Succeeded VAT Registration No.", SalesCrMemoHeader."ID Type");
+                            TempSIIDocUploadState."Issued By Third Party" := SalesCrMemoHeader."Issued By Third Party";
+                        end else begin
                             ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
                             ServiceHeader.SetRange("Posting No.", DocumentNo);
-                            if ServiceHeader.FindFirst then
+                            if ServiceHeader.FindFirst then begin
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                   ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type" + 1, ServiceHeader."Special Scheme Code" + 1,
-                                  ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type")
-                            else begin
+                                  ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
+                                TempSIIDocUploadState."Issued By Third Party" := ServiceHeader."Issued By Third Party";
+                            end else begin
                                 CustLedgerEntry.Get(EntryNo);
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                   CustLedgerEntry."Customer No.", 0, CustLedgerEntry."Cr. Memo Type" + 1, CustLedgerEntry."Special Scheme Code" + 1,
                                   CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
                                   CustLedgerEntry."ID Type");
+                                TempSIIDocUploadState."Issued By Third Party" := CustLedgerEntry."Issued By Third Party";
                             end;
                         end;
                 end;

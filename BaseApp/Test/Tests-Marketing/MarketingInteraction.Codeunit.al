@@ -2792,6 +2792,121 @@ codeunit 136208 "Marketing Interaction"
     end;
     */
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler,ModalReportHandler,ConfirmHandler')]
+    procedure LogSegmentWithWordTemplate2Lines1PDF()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        Segment: TestPage Segment;
+        WizardAction: Enum "Interaction Template Wizard Action";
+        ExpectedEntryNo: Integer;
+    begin
+        // [SCENARIO] Segment with Word Template when logged for 2 contacts generates 1 pdf file
+        Initialize();
+
+        // [GIVEN] Segment for Interaction Template with Word template and given wizard action and 2 Contacts
+        PrepareSegmentWordTemplate(SegmentHeader, WizardAction::"Merge");
+
+        // [WHEN] Log Segment
+        Segment.OpenView();
+        Segment.GotoRecord(SegmentHeader);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        Segment.LogSegment.Invoke();
+
+        // [THEN] 1 pdf file is generated
+        Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."Subject (Default)" + '.pdf');
+        ClearVariables(SegmentHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,ConfirmHandler')]
+    procedure LogSegmentWithWordAttachment2Lines1Zip()
+    var
+        SegmentHeader: Record "Segment Header";
+        Contact: Array[2] of Record Contact;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        DataCompression: Codeunit "Data Compression";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        InStreamVar: InStream;
+        ZipEntryName: Text;
+        ZipEntryList: List of [Text];
+    begin
+        // [SCENARIO 428476] Segment with Attachment when logged for 2 contacts generates zip file with 2 pdfs inside
+        Initialize();
+
+        // [GIVEN] Segment with Attachment for 2 Contacts (Company Contact "CC1" and Person Contact "CC2")
+        FileExtension := 'DOC';
+        CreateContactWithEmail(Contact[1]);
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact[2]);
+        PrepareSegmentWithAttachment(SegmentHeader, FileExtension, Contact[1]);
+        CreateSalespersonPurchaserWithEmailAndPhoneNo(SalespersonPurchaser);
+        CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", Contact[2]."No.", SalespersonPurchaser.Code);
+        Commit();
+
+        // [WHEN] Log Segment
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        Segment.LogSegment.Invoke;
+
+        // [THEN] 1 zip file with name = SegmentHeader.'No.'
+        Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."No." + '.zip');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        TempBlob.CreateInStream(InStreamVar);
+        DataCompression.OpenZipArchive(InStreamVar, false);
+        DataCompression.GetEntryList(ZipEntryList);
+
+        // [THEN] Zip file contains 2 pdf files. 
+        // 1st file name = Contact[1]."No." + '.pdf'
+        // 2nd file name = "Contact[2].Company Name - Contact[2]."No." + '.pdf'
+        Assert.AreEqual(2, ZipEntryList.Count, '');
+        Assert.IsTrue(ZipEntryList.Contains(Contact[1]."No." + '.pdf'), '');
+        Assert.IsTrue(ZipEntryList.Contains(Contact[2]."Company Name" + ' - ' + Contact[2]."No." + '.pdf'), '');
+        DataCompression.CloseZipArchive();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,ConfirmHandler')]
+    procedure LogSegmentWithWordAttachment1Line1Pdf()
+    var
+        SegmentHeader: Record "Segment Header";
+        Contact: Record Contact;
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 428476] Segment with Attachment when logged for 1 contacts generates 1 pdf file
+        Initialize();
+
+        // [GIVEN] Segment with Attachment for 1 Contact 
+        FileExtension := 'DOC';
+        CreateContactWithEmail(Contact);
+        PrepareSegmentWithAttachment(SegmentHeader, FileExtension, Contact);
+        Commit();
+
+        // [WHEN] Log Segment
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        Segment.LogSegment.Invoke;
+
+        // [THEN] One file with name = Segment.Subject and 'pdf' extensions downloaded
+        Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."Subject (Default)" + '.pdf');
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -2978,13 +3093,10 @@ codeunit 136208 "Marketing Interaction"
         Base64.FromBase64(GetWordTemplate(), OutStream);
         Document.CreateInStream(InStream, TextEncoding::UTF8);
 
-        WordTemplateRec.Code := LibraryUtility.GenerateRandomText(30);
+        WordTemplateRec.Code := LibraryUtility.GenerateRandomAlphabeticText(10, 0);
         WordTemplateRec."Table ID" := Database::"Interaction Merge Data";
         WordTemplateRec.Template.ImportStream(InStream, 'Template');
         WordTemplateRec.Insert();
-
-        WordTemplate.RemoveRelatedTable(WordTemplateRec.Code, Database::"Contact");
-        WordTemplate.RemoveRelatedTable(WordTemplateRec.Code, Database::"Salesperson/Purchaser");
 
         WordTemplate.AddRelatedTable(WordTemplateRec.Code, 'CONTA', Database::"Interaction Merge Data", Database::"Contact", InteractionMergeData.FieldNo("Contact No."));
         WordTemplate.AddRelatedTable(WordTemplateRec.Code, 'SALES', Database::"Interaction Merge Data", Database::"Salesperson/Purchaser", InteractionMergeData.FieldNo("Salesperson Code"));
@@ -3053,7 +3165,6 @@ codeunit 136208 "Marketing Interaction"
 
     local procedure CreateSegmentWithInteractionTemplateAndContactAndSalesperson(var SegmentHeader: Record "Segment Header"; InteractionTemplateCode: Code[10]; ContactNo: Code[20]; SalespersonCode: Code[20]; CorrespondenceType: Enum "Correspondence Type")
     var
-        SegmentLine: Record "Segment Line";
     begin
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         SegmentHeader.Validate("Interaction Template Code", InteractionTemplateCode);
@@ -3061,7 +3172,14 @@ codeunit 136208 "Marketing Interaction"
         SegmentHeader.Validate("Subject (Default)", LibraryUtility.GenerateRandomText(MaxStrLen(SegmentHeader."Subject (Default)")));
         SegmentHeader.Validate("Salesperson Code", SalespersonCode);
         SegmentHeader.Modify(true);
-        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
+        CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", ContactNo, SalespersonCode);
+    end;
+
+    local procedure CreateSegmentLineWithContactSalesPerson(SegmentHeaderNo: Code[20]; ContactNo: Code[20]; SalespersonCode: Code[20])
+    var
+        SegmentLine: Record "Segment Line";
+    begin
+        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeaderNo);
         SegmentLine.Validate("Contact No.", ContactNo);
         SegmentLine.Validate("Salesperson Code", SalespersonCode);
         SegmentLine.Modify(true);
@@ -3388,6 +3506,45 @@ codeunit 136208 "Marketing Interaction"
         LibraryVariableStorage.Enqueue(SalespersonPurchaser."E-Mail");
         LibraryVariableStorage.Enqueue(SalespersonPurchaser."Phone No.");
         LibraryVariableStorage.Enqueue(SegmentHeader."Subject (Default)");
+    end;
+
+    local procedure PrepareSegmentWordTemplate(var SegmentHeader: Record "Segment Header"; WizardAction: Enum "Interaction Template Wizard Action")
+    var
+        Contact: Array[2] of Record Contact;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        InteractionTemplate: Record "Interaction Template";
+        WordTemplateCode: Code[30];
+    begin
+        WordTemplateCode := CreateWordTemplateWithRelatedTables();
+        CreateInteractionTemplateWithCorrespondenceTypeAndWizardAction(InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::"Hard Copy", WizardAction, WordTemplateCode);
+        CreateInteractionTmplLanguageWithWordTemplate(InteractionTemplate.Code, WordTemplateCode);
+
+        CreateContactWithEmailAndPhoneNo(Contact[1]);
+        CreateContactWithEmailAndPhoneNo(Contact[2]);
+        CreateSalespersonPurchaserWithEmailAndPhoneNo(SalespersonPurchaser);
+
+        CreateSegmentWithInteractionTemplateAndContactAndSalesperson(SegmentHeader, InteractionTemplate.Code, Contact[1]."No.", SalespersonPurchaser.Code, SegmentHeader."Correspondence Type (Default)"::Email);
+        SegmentHeader.Validate("Subject (Default)", LibraryUtility.GenerateRandomAlphabeticText(10, 0));
+        SegmentHeader.Modify();
+        CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", Contact[2]."No.", SalespersonPurchaser.Code);
+        Commit();
+
+    end;
+
+    local procedure PrepareSegmentWithAttachment(var SegmentHeader: Record "Segment Header"; FileExtension: Text[250]; Contact: Record Contact)
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::"Hard Copy");
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+        CreateSalespersonPurchaserWithEmailAndPhoneNo(SalespersonPurchaser);
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::"Hard Copy");
+        SegmentHeader.Validate("Subject (Default)", LibraryUtility.GenerateRandomAlphabeticText(10, 0));
+        SegmentHeader.Modify();
     end;
 
     local procedure RunLogSegment(SegmentNo: Code[20])

@@ -382,6 +382,11 @@ page 5978 "Posted Service Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
                     }
+                    field("Issued By Third Party"; "Issued By Third Party")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                    }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
                         ApplicationArea = Basic, Suite;

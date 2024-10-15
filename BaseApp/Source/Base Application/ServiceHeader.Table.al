@@ -2495,6 +2495,10 @@
         {
             Caption = 'Do Not Send To SII';
         }
+        field(10725; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
+        }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
             Caption = 'Applies-to Bill No.';

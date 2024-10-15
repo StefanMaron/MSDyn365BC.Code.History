@@ -152,6 +152,7 @@ report 10710 "Make 349 Declaration"
                         Message(Text1100009)
                     else begin
                         CVWarning349.SetRecord(CustVendWarning349);
+                        CVWarning349.SetExcludeGenProductPostingGroupFilter(FilterString);
                         if (CVWarning349.RunModal in [ACTION::Cancel, ACTION::OK]) and CVWarning349.Cancelled then begin
                             CustVendWarning349.Reset();
                             CustVendWarning349.DeleteAll();
@@ -1684,6 +1685,12 @@ report 10710 "Make 349 Declaration"
         ReportFileName := ReportTempFileName;
     end;
 
+    [Scope('OnPrem')]
+    procedure SetFilterString(FilterStringNew: Text[1024])
+    begin
+        FilterString := FilterStringNew;
+    end;
+
     local procedure GetExportedAmountIn349(CurrencyCode: Code[20]; CurrencyFactor: Decimal; LineAmount: Decimal): Decimal
     var
         Currency: Record Currency;
@@ -1800,12 +1807,16 @@ report 10710 "Make 349 Declaration"
 
     local procedure CalcNoTaxableAmountVendor(var NormalAmount: Decimal; var EUServiceAmount: Decimal; VendorNo: Code[20]; FromDate: Date; ToDate: Date; FilterString: Text[1024])
     begin
+        if not CompInfShipToCountryRegCode then
+            exit;
         NoTaxableMgt.CalcNoTaxableAmountVendor(
           NormalAmount, EUServiceAmount, VendorNo, FromDate, ToDate, FilterString);
     end;
 
     local procedure CalcNoTaxableAmountCustomer(var NoTaxableNormalAmountSales: array[3] of Decimal)
     begin
+        if not CompInfShipToCountryRegCode then
+            exit;
         NoTaxableMgt.CalcNoTaxableAmountCustomerWithDeliveryCode(
           NoTaxableNormalAmountSales, NoTaxableAmountEUService, NoTaxableAmountOpTri, Customer2."No.", FromDate, ToDate, FilterString);
     end;

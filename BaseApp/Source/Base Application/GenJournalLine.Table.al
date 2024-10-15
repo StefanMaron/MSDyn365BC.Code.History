@@ -2975,6 +2975,10 @@
         {
             Caption = 'Do Not Send To SII';
         }
+        field(10725; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -6000,6 +6004,7 @@
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
         "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
+        "Issued By Third Party" := SalesHeader."Issued By Third Party";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6096,6 +6101,7 @@
         "Sales Special Scheme Code" := ServiceHeader."Special Scheme Code";
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
+        "Issued By Third Party" := ServiceHeader."Issued By Third Party";
         "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
