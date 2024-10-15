@@ -244,6 +244,9 @@ table 10752 "SII Doc. Upload State"
         key(Key3; Status, "Is Manual")
         {
         }
+        key(Key4; "Document No.", "Document Source", "Document Type")
+        {
+        }
     }
 
     fieldgroups
