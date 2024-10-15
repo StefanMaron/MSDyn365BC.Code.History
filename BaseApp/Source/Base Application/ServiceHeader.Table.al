@@ -1,4 +1,4 @@
-table 5900 "Service Header"
+﻿table 5900 "Service Header"
 {
     Caption = 'Service Header';
     DataCaptionFields = "No.", Name, Description;
@@ -818,7 +818,7 @@ table 5900 "Service Header"
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin

@@ -222,7 +222,7 @@ report 1316 "Standard Statement"
                         }
                         dataitem(DtldCustLedgEntries; "Detailed Cust. Ledg. Entry")
                         {
-                            DataItemTableView = SORTING("Customer No.", "Posting Date", "Entry Type", "Currency Code");
+                            DataItemTableView = SORTING("Customer No.", "Posting Date", "Entry Type", "Currency Code") where("Excluded from calculation" = const(false));
                             column(PostDate_DtldCustLedgEntries; Format("Posting Date"))
                             {
                             }
