@@ -1689,6 +1689,7 @@
     local procedure AutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempReservEntryBefore: Record "Reservation Entry" temporary; var TempReservEntryAfter: Record "Reservation Entry" temporary)
     var
         SalesLine: Record "Sales Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
         IsHandled: Boolean;
@@ -1703,24 +1704,27 @@
         with TempWhseActivLineToReserve do
             if FindSet() then
                 repeat
-                    SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                    ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                    if HasRequiredTracking(WhseItemTrackingSetup) then begin
+                        SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
 
-                    TempReservEntryBefore.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-                    TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
-                    TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
+                        TempReservEntryBefore.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                        TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
+                        TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
 
-                    TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
-                    TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
+                        TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
+                        TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
 
-                    QtyToReserve :=
-                      "Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
-                    QtyToReserveBase :=
-                      "Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
+                        QtyToReserve :=
+                          "Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
+                        QtyToReserveBase :=
+                          "Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
 
-                    if not IsSalesLineCompletelyReserved(SalesLine) and (QtyToReserve > 0) then begin
-                        ReservMgt.SetReservSource(SalesLine);
-                        ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
-                        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
+                        if not IsSalesLineCompletelyReserved(SalesLine) and (QtyToReserve > 0) then begin
+                            ReservMgt.SetReservSource(SalesLine);
+                            ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
+                            ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
+                        end;
                     end;
                 until Next() = 0;
     end;
