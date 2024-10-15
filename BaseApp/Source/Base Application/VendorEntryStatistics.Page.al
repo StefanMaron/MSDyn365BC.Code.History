@@ -570,6 +570,7 @@
                 VendLedgEntry[j].SetRange(Prepayment, false);
             if j = 7 then
                 VendLedgEntry[j].SetRange(Prepayment, true);
+            OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(VendLedgEntry[j]);
             if VendLedgEntry[j].FindLast then
                 VendLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
@@ -578,7 +579,7 @@
         VendLedgEntry2.SetRange("Vendor No.", "No.");
         VendLedgEntry2.SetRange(Open, true);
         VendLedgEntry2.SetFilter("Agreement No.", GetFilter("Agreement Filter"));
-
+        OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcRemainingAmountLCY(VendLedgEntry2);
         if VendLedgEntry2.Find('+') then
             repeat
                 j := VendLedgEntry2."Document Type".AsInteger();
@@ -599,6 +600,7 @@
             VendLedgEntry2.SetCurrentKey("Vendor No.", "Posting Date");
             VendLedgEntry2.SetRange("Vendor No.", "No.");
             VendLedgEntry2.SetFilter("Posting Date", VendDateFilter[i]);
+            OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcPaymentDiscMissedLCY(VendLedgEntry2);
             if VendLedgEntry2.Find('+') then
                 repeat
                     j := VendLedgEntry2."Document Type".AsInteger();
@@ -636,5 +638,20 @@
         i: Integer;
         j: Integer;
         Text000: Label 'Placeholder';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcRemainingAmountLCY(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcPaymentDiscMissedLCY(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
 }
 

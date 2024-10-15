@@ -693,6 +693,7 @@
         QtyToPutAway: Decimal;
         ErrorText: Text[250];
     begin
+        OnBeforeCheckBalanceQtyToHandle(WhseActivLine2);
         WhseActivLine.Copy(WhseActivLine2);
 
         WhseActivLine.SetCurrentKey("Activity Type", "No.", "Item No.", "Variant Code", "Action Type");
@@ -734,22 +735,7 @@
                     end;
 
                     if QtyToPick <> QtyToPutAway then begin
-                        if WhseActivLine3.TrackingFilterExists() then
-                            ErrorText :=
-                              StrSubstNo(
-                                Text016,
-                                WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
-                                WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
-                                WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.",
-                                WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.",
-                                QtyToPick, QtyToPutAway)
-                        else
-                            ErrorText :=
-                                StrSubstNo(
-                                Text005,
-                                WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
-                                WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
-                                QtyToPick, QtyToPutAway);
+                        ErrorText := GetWrongPickPutAwayQtyErrorText(WhseActivLine, WhseActivLine3, QtyToPick, QtyToPutAway);
                         HandleError(ErrorText);
                     end;
 
@@ -757,6 +743,34 @@
                     QtyToPutAway := 0;
                 end;
             until WhseActivLine.Next() = 0;
+    end;
+
+    local procedure GetWrongPickPutAwayQtyErrorText(WhseActivLine: Record "Warehouse Activity Line"; WhseActivLine3: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal) ErrorText: Text[250]
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetWrongPickPutAwayQtyErrorText(WhseActivLine3, QtyToPick, QtyToPutAway, ErrorText, IsHandled);
+        if IsHandled then
+            exit(ErrorText);
+
+        with WhseActivLine do
+            if WhseActivLine3.TrackingFilterExists() then
+                ErrorText :=
+                  StrSubstNo(
+                    Text016,
+                    WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
+                    WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
+                    WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.",
+                    WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.",
+                    QtyToPick, QtyToPutAway)
+            else
+                ErrorText :=
+                    StrSubstNo(
+                    Text005,
+                    WhseActivLine.FieldCaption("Item No."), WhseActivLine."Item No.",
+                    WhseActivLine.FieldCaption("Variant Code"), WhseActivLine."Variant Code",
+                    QtyToPick, QtyToPutAway);
     end;
 
     procedure CheckPutAwayAvailability(BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal; Prohibit: Boolean)
@@ -1553,10 +1567,16 @@
         exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, WhseItemTrackingSetup, CurrBinCode));
     end;
 
-    procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]): Code[20]
+    procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]) BinCode: Code[20]
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, WhseItemTrackingSetup, CurrBinCode, BinCode, IsHandled);
+        if IsHandled then
+            exit(BinCode);
+
         GetItem(ItemNo);
         BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code");
         BinContent.SetRange("Location Code", LocationCode);
@@ -1601,7 +1621,13 @@
     procedure FindBinContent(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10])
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindBinContent(LocationCode, BinCode, ItemNo, VariantCode, ZoneCode, IsHandled);
+        if IsHandled then
+            exit;
+
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
@@ -2016,6 +2042,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]; BinCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalanceQtyToHandle(var WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemJnlLineLocation(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2041,12 +2077,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinContent(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAllowedLocation(var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultLocation(var LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWrongPickPutAwayQtyErrorText(var WhseActivLine: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal; var ErrorTxt: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

@@ -264,7 +264,7 @@ table 5612 "FA Depreciation Book"
         field(15; "Acquisition Cost"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Acquisition Cost"),
@@ -280,7 +280,7 @@ table 5612 "FA Depreciation Book"
         field(16; Depreciation; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST(Depreciation),
@@ -296,7 +296,7 @@ table 5612 "FA Depreciation Book"
         field(17; "Book Value"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "Part of Book Value" = CONST(true),
                                                               "FA Posting Date" = FIELD("FA Posting Date Filter"),
@@ -311,7 +311,7 @@ table 5612 "FA Depreciation Book"
         field(18; "Proceeds on Disposal"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Proceeds on Disposal"),
@@ -327,7 +327,7 @@ table 5612 "FA Depreciation Book"
         field(19; "Gain/Loss"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Gain/Loss"),
@@ -343,7 +343,7 @@ table 5612 "FA Depreciation Book"
         field(20; "Write-Down"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Write-Down"),
@@ -359,7 +359,7 @@ table 5612 "FA Depreciation Book"
         field(21; Appreciation; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST(Appreciation),
@@ -375,7 +375,7 @@ table 5612 "FA Depreciation Book"
         field(22; "Custom 1"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Custom 1"),
@@ -391,7 +391,7 @@ table 5612 "FA Depreciation Book"
         field(23; "Custom 2"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Custom 2"),
@@ -407,7 +407,7 @@ table 5612 "FA Depreciation Book"
         field(24; "Depreciable Basis"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "Part of Depreciable Basis" = CONST(true),
                                                               "FA Posting Date" = FIELD("FA Posting Date Filter"),
@@ -422,7 +422,7 @@ table 5612 "FA Depreciation Book"
         field(25; "Salvage Value"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(" "),
                                                               "FA Posting Type" = CONST("Salvage Value"),
@@ -438,7 +438,7 @@ table 5612 "FA Depreciation Book"
         field(26; "Book Value on Disposal"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                               "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                               "FA Posting Category" = CONST(Disposal),
                                                               "FA Posting Type" = CONST("Book Value on Disposal"),
@@ -454,7 +454,7 @@ table 5612 "FA Depreciation Book"
         field(27; Maintenance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Maintenance Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
+            CalcFormula = Sum("Maintenance Ledger Entry".Amount WHERE("FA No." = FIELD("FA No."),
                                                                        "Depreciation Book Code" = FIELD("Depreciation Book Code"),
                                                                        "Maintenance Code" = FIELD("Maintenance Code Filter"),
                                                                        "FA Posting Date" = FIELD("FA Posting Date Filter"),
@@ -908,7 +908,14 @@ table 5612 "FA Depreciation Book"
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         FAMoveEntries.MoveFAEntries(Rec);
     end;
 
@@ -1125,7 +1132,10 @@ table 5612 "FA Depreciation Book"
 
     local procedure CheckApplyDeprBookDefaults()
     begin
-        if (DeprBook."Default Ending Book Value" <> 0) and ("Ending Book Value" = 0) then
+        if not "Ignore Def. Ending Book Value" and
+           (DeprBook."Default Ending Book Value" <> 0) and
+           ("Ending Book Value" = 0)
+        then
             "Ending Book Value" := DeprBook."Default Ending Book Value";
         if (DeprBook."Default Final Rounding Amount" <> 0) and ("Final Rounding Amount" = 0) then
             "Final Rounding Amount" := DeprBook."Default Final Rounding Amount"
@@ -1280,6 +1290,11 @@ table 5612 "FA Depreciation Book"
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
         if GetFilter("FA Posting Date Filter") <> '' then
             FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var FADeprecBook: Record "FA Depreciation Book"; xFADeprecBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1589,11 +1589,7 @@ page 22 "Customer List"
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-        SocialListeningMgt: Codeunit "Social Listening Management";
     begin
-        if SocialListeningSetupVisible then
-            SocialListeningMgt.GetCustFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
-
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
@@ -1605,8 +1601,6 @@ page 22 "Customer List"
 
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
-
-        SetWorkflowManagementEnabledState;
     end;
 
     trigger OnInit()
@@ -1616,11 +1610,11 @@ page 22 "Customer List"
         CurrPage.Caption(CaptionTxt);
         PowerBIVisible := false;
         CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
+        SetWorkflowManagementEnabledState();
     end;
 
     trigger OnOpenPage()
     var
-        SocialListeningSetup: Record "Social Listening Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemReferenceMgt: Codeunit "Item Reference Management";
@@ -1631,9 +1625,8 @@ page 22 "Customer List"
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             if IntegrationTableMapping.Get('CUSTOMER') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
+
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        with SocialListeningSetup do
-            SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         SetRange("Date Filter", 0D, WorkDate());
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
@@ -1641,8 +1634,6 @@ page 22 "Customer List"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ExtendedPriceEnabled: Boolean;
-        SocialListeningSetupVisible: Boolean;
-        SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;

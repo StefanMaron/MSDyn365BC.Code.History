@@ -1,17 +1,26 @@
 codeunit 131102 "Library - Application Area"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         AppAreaNotSupportedErr: Label 'Application area Basic %1 is not supported.', Comment = '%1 = application area';
 
+    procedure GetApplicationAreaCache(var Cache: Dictionary of [Text, Text])
+    var
+        ApplicationAreaCache: Codeunit "Application Area Cache";
+    begin
+        ApplicationAreaCache.GetCache(Cache);
+    end;
+
+    procedure ClearApplicationAreaCache()
+    var
+        ApplicationAreaCache: Codeunit "Application Area Cache";
+    begin
+        ApplicationAreaCache.ClearCache()
+    end;
+    
     procedure EnableFoundationSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableFoundationSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableFoundationSetupForCurrentCompany();
     end;
 
     procedure EnableFoundationSetupForCurrentCompany()
@@ -20,7 +29,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateFoundationSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableFoundationSetupForCurrentProfile()
@@ -29,7 +38,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateFoundationSetupForCurrentProfile(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableFoundationSetupForCurrentUser()
@@ -38,7 +47,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateFoundationSetupForCurrentUser(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure CreateFoundationSetupForCurrentCompany(var ApplicationAreaSetup: Record "Application Area Setup")
@@ -81,13 +90,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateAdvancedSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableBasicSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableBasicSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableBasicSetupForCurrentCompany();
     end;
 
     procedure EnableBasicSetupForCurrentCompany()
@@ -96,7 +105,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateBasicSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableCommentsSetupForCurrentCompany()
@@ -105,7 +114,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateCommentsSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableEssentialSetup()
@@ -113,7 +122,7 @@ codeunit 131102 "Library - Application Area"
         DummyExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        DisableApplicationAreaSetup;
+        DisableApplicationAreaSetup();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(DummyExperienceTierSetup.FieldCaption(Essential));
     end;
 
@@ -122,80 +131,80 @@ codeunit 131102 "Library - Application Area"
         DummyExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        DisableApplicationAreaSetup;
+        DisableApplicationAreaSetup();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(DummyExperienceTierSetup.FieldCaption(Premium));
     end;
 
     procedure EnableJobsSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableJobsSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableJobsSetupForCurrentCompany();
     end;
 
     procedure EnableJobsAndSuiteSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableJobsAndSuiteSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableJobsAndSuiteSetupForCurrentCompany();
     end;
 
     procedure EnableLocationsSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableLocationsSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableLocationsSetupForCurrentCompany();
     end;
 
     procedure EnableItemChargeSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableItemChargeSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableItemChargeSetupForCurrentCompany();
     end;
 
     procedure EnableSalesAnalysisSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableSalesAnalysisSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableSalesAnalysisSetupForCurrentCompany();
     end;
 
     procedure EnablePurchaseAnalysisSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnablePurchaseAnalysisSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnablePurchaseAnalysisSetupForCurrentCompany();
     end;
 
     procedure EnableInventoryAnalysisSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableInventoryAnalysisSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableInventoryAnalysisSetupForCurrentCompany();
     end;
 
     procedure EnableCostAccountingSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableCostAccountingSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableCostAccountingSetupForCurrentCompany();
     end;
 
     procedure EnableSalesBudgetSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableSalesBudgetSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableSalesBudgetSetupForCurrentCompany();
     end;
 
     procedure EnablePurchaseBudgetSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnablePurchaseBudgetSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnablePurchaseBudgetSetupForCurrentCompany();
     end;
 
     procedure EnableItemBudgetSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableItemBudgetSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableItemBudgetSetupForCurrentCompany();
     end;
 
     procedure EnableInvoicingSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableInvoicingSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableInvoicingSetupForCurrentCompany();
     end;
 
     procedure EnableJobsSetupForCurrentCompany()
@@ -204,7 +213,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateJobsSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableJobsAndSuiteSetupForCurrentCompany()
@@ -213,13 +222,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateJobsAndSuiteSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableFixedAssetsSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableFixedAssetsSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableFixedAssetsSetupForCurrentCompany();
     end;
 
     procedure EnableFixedAssetsSetupForCurrentCompany()
@@ -228,7 +237,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateFixedAssetsSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableLocationsSetupForCurrentCompany()
@@ -237,7 +246,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateLocationsSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableItemChargeSetupForCurrentCompany()
@@ -246,7 +255,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateItemChargeSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableSalesAnalysisSetupForCurrentCompany()
@@ -255,7 +264,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateSalesAnalysisSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnablePurchaseAnalysisSetupForCurrentCompany()
@@ -264,7 +273,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreatePurchaseAnalysisSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableInventoryAnalysisSetupForCurrentCompany()
@@ -273,7 +282,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateInventoryAnalysisSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableCostAccountingSetupForCurrentCompany()
@@ -282,7 +291,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateCostAccountingSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableSalesBudgetSetupForCurrentCompany()
@@ -291,7 +300,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateSalesBudgetSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnablePurchaseBudgetSetupForCurrentCompany()
@@ -300,7 +309,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreatePurchaseBudgetSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableItemBudgetSetupForCurrentCompany()
@@ -309,7 +318,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateItemBudgetSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableReservationSetupForCurrentCompany()
@@ -318,19 +327,19 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateReservationSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableReservationSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableReservationSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableReservationSetupForCurrentCompany();
     end;
 
     procedure EnableBasicHRSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableBasicHRSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableBasicHRSetupForCurrentCompany();
     end;
 
     procedure EnableBasicHRSetupForCurrentCompany()
@@ -339,13 +348,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateBasicHRSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableAssemblySetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableAssemblySetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableAssemblySetupForCurrentCompany();
     end;
 
     procedure EnableAssemblySetupForCurrentCompany()
@@ -354,13 +363,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateAssemblySetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableSalesReturnOrderSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableSalesReturnOrderSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableSalesReturnOrderSetupForCurrentCompany();
     end;
 
     procedure EnableSalesReturnOrderSetupForCurrentCompany()
@@ -369,13 +378,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateSalesReturnOrderSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnablePurchaseReturnOrderSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnablePurchaseReturnOrderSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnablePurchaseReturnOrderSetupForCurrentCompany();
     end;
 
     procedure EnablePurchaseReturnOrderSetupForCurrentCompany()
@@ -384,13 +393,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreatePurchaseReturnOrderSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableReturnOrderSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableReturnOrderSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableReturnOrderSetupForCurrentCompany();
     end;
 
     procedure EnableReturnOrderSetupForCurrentCompany()
@@ -399,7 +408,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateReturnOrderSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableInvoicingSetupForCurrentCompany()
@@ -408,13 +417,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateInvoicingSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnablePrepaymentsSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnablePrepaymentsSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnablePrepaymentsSetupForCurrentCompany();
     end;
 
     procedure EnablePrepaymentsSetupForCurrentCompany()
@@ -423,14 +432,14 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreatePrepaymentsSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     [Scope('OnPrem')]
     procedure EnableServiceManagementSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableServiceManagementSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableServiceManagementSetupForCurrentCompany();
     end;
 
     [Scope('OnPrem')]
@@ -440,13 +449,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateServiceManagementSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableItemTrackingSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableItemTrackingSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableItemTrackingSetupForCurrentCompany();
     end;
 
     procedure EnableItemTrackingSetupForCurrentCompany()
@@ -455,13 +464,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateItemTrackingSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableVATSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableVATSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableVATSetupForCurrentCompany();
     end;
 
     procedure EnableVATSetupForCurrentCompany()
@@ -470,12 +479,12 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateVATSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableBasicCountrySetup(CountryCode: Code[10])
     begin
-        DisableApplicationAreaSetup;
+        DisableApplicationAreaSetup();
         EnableBasicCountrySetupForCurrentCompany(CountryCode);
     end;
 
@@ -485,13 +494,13 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateBasicCountrySetupForCurrentCompany(ApplicationAreaSetup, CountryCode);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure EnableSalesTaxSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableSalesTaxSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableSalesTaxSetupForCurrentCompany();
     end;
 
     procedure EnableSalesTaxSetupForCurrentCompany()
@@ -500,7 +509,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateSalesTaxSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure CreateAdvancedSetupForCurrentCompany(var ApplicationAreaSetup: Record "Application Area Setup")
@@ -778,8 +787,8 @@ codeunit 131102 "Library - Application Area"
 
     procedure EnableRelationshipMgtSetup()
     begin
-        DisableApplicationAreaSetup;
-        EnableRelationshipMgtSetupForCurrentCompany;
+        DisableApplicationAreaSetup();
+        EnableRelationshipMgtSetupForCurrentCompany();
     end;
 
     procedure EnableRelationshipMgtSetupForCurrentCompany()
@@ -788,7 +797,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         CreateRelationshipMgtSetupForCurrentCompany(ApplicationAreaSetup);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure CreateRelationshipMgtSetupForCurrentCompany(var ApplicationAreaSetup: Record "Application Area Setup")
@@ -805,7 +814,7 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
         ApplicationAreaSetup.SetRange(Suite, true);
-        exit(not ApplicationAreaSetup.IsEmpty);
+        exit(not ApplicationAreaSetup.IsEmpty());
     end;
 
     procedure DisableApplicationAreaSetup()
@@ -813,8 +822,11 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        ApplicationAreaSetup.DeleteAll(true);
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        if ApplicationAreaSetup.IsEmpty() then
+            ClearApplicationAreaCache()
+        else
+            ApplicationAreaSetup.DeleteAll(true);
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     procedure DeleteExistingFoundationSetup()
@@ -827,7 +839,6 @@ codeunit 131102 "Library - Application Area"
 
     procedure VerifyApplicationAreaBasicExperience(ApplicationAreaSetup: Record "Application Area Setup")
     begin
-        ApplicationAreaSetup.TestField(Invoicing, false);
         VerifyApplicationAreaBasicGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaEssentialGroup(ApplicationAreaSetup, false);
         VerifyApplicationAreaPremiumGroup(ApplicationAreaSetup, false);
@@ -836,7 +847,6 @@ codeunit 131102 "Library - Application Area"
 
     procedure VerifyApplicationAreaFullExperience(ApplicationAreaSetup: Record "Application Area Setup")
     begin
-        ApplicationAreaSetup.TestField(Invoicing, false);
         VerifyApplicationAreaBasicGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaEssentialGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaPremiumGroup(ApplicationAreaSetup, false);
@@ -846,7 +856,6 @@ codeunit 131102 "Library - Application Area"
     [Scope('OnPrem')]
     procedure VerifyApplicationAreaPremiumExperience(ApplicationAreaSetup: Record "Application Area Setup")
     begin
-        ApplicationAreaSetup.TestField(Invoicing, false);
         VerifyApplicationAreaBasicGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaEssentialGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaPremiumGroup(ApplicationAreaSetup, true);
@@ -855,7 +864,6 @@ codeunit 131102 "Library - Application Area"
 
     procedure VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup: Record "Application Area Setup")
     begin
-        ApplicationAreaSetup.TestField(Invoicing, false);
         VerifyApplicationAreaBasicGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaEssentialGroup(ApplicationAreaSetup, true);
         VerifyApplicationAreaPremiumGroup(ApplicationAreaSetup, false);

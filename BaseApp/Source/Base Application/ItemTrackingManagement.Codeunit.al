@@ -1560,12 +1560,13 @@
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
     begin
+        OnBeforeGetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+
         Clear(WhseItemTrackingSetup);
         if Item."No." <> ItemNo then
             Item.Get(ItemNo);
         if Item."Item Tracking Code" <> '' then begin
-            if ItemTrackingCode.Code <> Item."Item Tracking Code" then
-                ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Get(Item."Item Tracking Code");
             WhseItemTrackingSetup.Code := ItemTrackingCode.Code;
             WhseItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Warehouse Tracking";
             WhseItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Warehouse Tracking";
@@ -1809,7 +1810,7 @@
         Qty: Decimal;
         ZeroQtyToHandle: Boolean;
     begin
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 if TempTrackingSpecification.Correction then begin
                     if IsPick then begin
@@ -1843,7 +1844,7 @@
                                     ReservEntry."Qty. to Invoice (Base)" := 0;
                                     ReservEntry.Modify();
                                 end;
-                            until ReservEntry.Next = 0;
+                            until ReservEntry.Next() = 0;
 
                         if ReservEntry.FindSet(true) then
                             repeat
@@ -1869,7 +1870,7 @@
                     end;
                     TempTrackingSpecification.Delete();
                 end;
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
 
         RegisterNewItemTrackingLines(TempTrackingSpecification);
     end;
@@ -2641,13 +2642,14 @@
                 end;
             until TempTrackingSpec.Next = 0;
 
-        if TempTrackingSpec.FindSet then
+        if TempTrackingSpec.FindSet() then
             repeat
                 TempTrackingSpec."Quantity (Base)" := Abs(TempTrackingSpec."Qty. to Handle (Base)");
                 TempTrackingSpec."Qty. to Handle (Base)" := Abs(TempTrackingSpec."Qty. to Handle (Base)");
                 TempTrackingSpec."Qty. to Invoice (Base)" := Abs(TempTrackingSpec."Qty. to Invoice (Base)");
+                OnSynchronizeWhseActivItemTrkgOnAfterAssignAbsQty(TempTrackingSpec);
                 TempTrackingSpec.Modify();
-            until TempTrackingSpec.Next = 0;
+            until TempTrackingSpec.Next() = 0;
 
         RegisterNewItemTrackingLines(TempTrackingSpec);
     end;
@@ -3615,5 +3617,14 @@
     local procedure OnCollectItemTrkgInfWhseJnlLineOnAfterSetFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseJnlLine: Record "Warehouse Journal Line")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeWhseActivItemTrkgOnAfterAssignAbsQty(var TempTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+}

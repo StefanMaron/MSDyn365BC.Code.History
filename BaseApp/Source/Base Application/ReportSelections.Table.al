@@ -517,7 +517,7 @@
         CustomReportSelection.SetRange(Usage, TempReportSelections.Usage);
         CustomReportSelection.SetRange("Report ID", TempReportSelections."Report ID");
 
-        ReportInvolvedInCustomSelection := not CustomReportSelection.IsEmpty;
+        ReportInvolvedInCustomSelection := not CustomReportSelection.IsEmpty();
 
         AccountNoFilter := '';
 
@@ -556,13 +556,13 @@
             Reset();
             SetRange(Usage, ReportUsage);
             FindReportSelections(TempReportSelections, AccountNo, TableNo);
-            if not TempReportSelections.FindSet then
-                FindSet;
+            if not TempReportSelections.FindSet() then
+                FindSet();
         end else
             FindPrintUsageInternal(ReportUsage, AccountNo, TempReportSelections, TableNo);
 
-        if TempReportSelections.Count > 1 then begin
-            TempReportSelections.FindFirst;
+        if TempReportSelections.Count() > 1 then begin
+            TempReportSelections.FindFirst();
 
             if PAGE.RunModal(PAGE::"Report Selection - Print", TempReportSelections) <> ACTION::LookupOK then
                 TempReportSelections.DeleteAll();
@@ -586,13 +586,13 @@
         AccountNo: Code[20];
         LastSequence: Code[10];
     begin
-        if TempNameValueBuffer.FindSet then
+        if TempNameValueBuffer.FindSet() then
             repeat
                 AccountNo := CopyStr(TempNameValueBuffer.Name, 1, MaxStrLen(AccountNo));
                 TempReportSelectionsAccount.Reset();
                 TempReportSelectionsAccount.DeleteAll();
                 SelectTempReportSelections(TempReportSelectionsAccount, AccountNo, WithCheck, ReportUsage, TableNo);
-                if TempReportSelectionsAccount.FindSet then
+                if TempReportSelectionsAccount.FindSet() then
                     repeat
                         LastSequence := GetLastSequenceNo(TempReportSelections, ReportUsage);
                         if not HasReportWithUsage(TempReportSelections, ReportUsage, TempReportSelectionsAccount."Report ID") then begin
@@ -646,6 +646,15 @@
 
         ServerEmailBodyFilePath :=
             SaveReportAsPDF(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
+    end;
+
+    procedure GetPdfReportForCust(var TempBlob: Codeunit "Temp Blob"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20])
+    var
+        TempBodyReportSelections: Record "Report Selections" temporary;
+    begin
+        FindReportUsageForCust(ReportUsage, CustNo, TempBodyReportSelections);
+
+        SaveReportAsPDFInTempBlob(TempBlob, TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
     end;
 
     [Obsolete('Replaced by GetPdfReportForCust().', '17.0')]
@@ -1156,7 +1165,13 @@
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
         ServerAttachmentFilePath: Text[250];
         EmailAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendEmailDirectly(Rec, ReportUsage, RecordVariant, DocNo, DocName, FoundBody, FoundAttachment, ServerEmailBodyFilePath, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, AllEmailsWereSuccessful, IsHandled);
+        if IsHandled then
+            exit(AllEmailsWereSuccessful);
+
         AllEmailsWereSuccessful := true;
 
         ShowNoBodyNoAttachmentError(ReportUsage, FoundBody, FoundAttachment);
@@ -1415,20 +1430,42 @@
 
     local procedure SaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage") FilePath: Text[250]
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        ReportLayoutSelectionLocal: Record "Report Layout Selection";
         FileMgt: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
         IsHandled: Boolean;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FilePath := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 250);
 
-        ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
-        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage);
+        ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage, false, TempBlob);
         if not IsHandled then
-            REPORT.SaveAsPdf(ReportID, FilePath, RecordVariant);
-        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, FilePath);
+            Report.SaveAsPdf(ReportID, FilePath, RecordVariant);
+        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, FilePath, false, TempBlob);
 
-        ReportLayoutSelection.SetTempLayoutSelected('');
+        ReportLayoutSelectionLocal.SetTempLayoutSelected('');
+
+        Commit();
+    end;
+
+    local procedure SaveReportAsPDFInTempBlob(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
+    var
+        ReportLayoutSelectionLocal: Record "Report Layout Selection";
+        IsHandled: Boolean;
+        OutStream: OutStream;
+    begin
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
+
+        ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob);
+        if not IsHandled then begin
+            TempBlob.CreateOutStream(OutStream);
+            Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecordVariant);
+        end;
+        OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob);
+
+        ReportLayoutSelectionLocal.SetTempLayoutSelected('');
 
         Commit();
     end;
@@ -1723,7 +1760,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250])
+    local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 
@@ -1793,7 +1830,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveReportAsPDF(var ReportID: Integer; RecordVariant: Variant; var LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
+    local procedure OnBeforeSaveReportAsPDF(var ReportID: Integer; RecordVariant: Variant; var LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 
@@ -1854,6 +1891,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendEmailDirectly(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var AllEmailsWereSuccessful: Boolean; var IsHandled: Boolean)
     begin
     end;
 

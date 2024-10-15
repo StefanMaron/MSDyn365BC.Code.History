@@ -284,15 +284,7 @@ report 292 "Copy Sales Document"
                     FromDocType::"Arch. Blanket Order",
                     FromDocType::"Arch. Return Order":
                         begin
-                            if not FromSalesHeaderArchive.Get(
-                                 CopyDocMgt.GetSalesDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
-                            then begin
-                                FromSalesHeaderArchive.SetRange("No.", FromDocNo);
-                                if FromSalesHeaderArchive.FindLast then begin
-                                    FromDocNoOccurrence := FromSalesHeaderArchive."Doc. No. Occurrence";
-                                    FromDocVersionNo := FromSalesHeaderArchive."Version No.";
-                                end;
-                            end;
+                            FindFromSalesHeaderArchive();
                             FromSalesHeader.TransferFields(FromSalesHeaderArchive);
                         end;
                 end;
@@ -309,6 +301,26 @@ report 292 "Copy Sales Document"
         OnBeforeValidateIncludeHeader(IncludeHeader);
         ValidateIncludeHeader;
         OnAfterValidateIncludeHeader(IncludeHeader, RecalculateLines);
+    end;
+
+    local procedure FindFromSalesHeaderArchive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindFromSalesHeaderArchive(FromSalesHeaderArchive, FromDocType, FromDocNo, FromDocNoOccurrence, FromDocVersionNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not FromSalesHeaderArchive.Get(
+             CopyDocMgt.GetSalesDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
+        then begin
+            FromSalesHeaderArchive.SetRange("No.", FromDocNo);
+            if FromSalesHeaderArchive.FindLast then begin
+                FromDocNoOccurrence := FromSalesHeaderArchive."Doc. No. Occurrence";
+                FromDocVersionNo := FromSalesHeaderArchive."Version No.";
+            end;
+        end;
     end;
 
     local procedure LookupDocNo()
@@ -474,6 +486,11 @@ report 292 "Copy Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateIncludeHeader(var IncludeHeader: Boolean; var RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindFromSalesHeaderArchive(var FromSalesHeaderArchive: Record "Sales Header Archive"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; var DocNoOccurrence: Integer; var DocVersionNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

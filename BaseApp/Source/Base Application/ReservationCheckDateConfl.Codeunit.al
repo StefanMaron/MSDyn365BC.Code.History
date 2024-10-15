@@ -352,7 +352,13 @@ codeunit 99000815 "Reservation-Check Date Confl."
     procedure DateConflict(Date: Date; var ForceRequest: Boolean; var ReservationEntry: Record "Reservation Entry") IsConflict: Boolean
     var
         ReservEntry2: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDateConflict(ReservationEntry, Date, IsConflict, IsHandled);
+        if IsHandled then
+            exit;
+
         ReservEntry2.Copy(ReservationEntry);
 
         if not ReservEntry2.FindFirst then
@@ -374,6 +380,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
         ForceRequest := not ReservEntry2.IsEmpty and ForceRequest;
 
+        OnAfterDateConflict(ReservationEntry, Date, IsConflict);
         exit(IsConflict);
     end;
 
@@ -498,6 +505,16 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
     [IntegrationEvent(false, false)]
     local procedure OnAssemblyLineCheckOnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDateConflict(var ReservationEntry: Record "Reservation Entry"; var Date: Date; var IsConflict: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDateConflict(var ReservationEntry: Record "Reservation Entry"; var Date: Date; var IsConflict: Boolean; var IsHandled: Boolean)
     begin
     end;
 

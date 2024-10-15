@@ -314,7 +314,8 @@
         ReservEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ReservEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
-        if ReservEntry.FindSet then
+        OnRetrieveLookupDataOnAfterReservEntrySetFilters(ReservEntry, TempTrackingSpecification);
+        if ReservEntry.FindSet() then
             repeat
                 TempReservEntry := ReservEntry;
                 if CanIncludeReservEntryToTrackingSpec(TempReservEntry) then
@@ -499,6 +500,8 @@
             // If consumption/output fill in double entry value here:
             TempGlobalEntrySummary."Double-entry Adjustment" :=
               MaxDoubleEntryAdjustQty(TrackingSpecification, TempGlobalEntrySummary);
+
+            OnCreateEntrySummary2OnAfterSetDoubleEntryAdjustment(TempGlobalEntrySummary, TempReservEntry);
 
             DoInsert := true;
         end;
@@ -1313,6 +1316,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateEntrySummary2OnAfterSetDoubleEntryAdjustment(var TempGlobalEntrySummary: Record "Entry Summary"; var TempReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAssistEditTrackingNoOnAfterCopyNewTrackingFromTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -1339,6 +1347,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveLookupDataOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry"; TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 }

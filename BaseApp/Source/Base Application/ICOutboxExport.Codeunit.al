@@ -74,6 +74,7 @@ codeunit 431 "IC Outbox Export"
         DocumentMailing: Codeunit "Document-Mailing";
         ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
         EmailDialog: Page "Email Dialog";
+        InStream: InStream;
         OFile: File;
         FileName: Text;
         ICPartnerFilter: Text[1024];
@@ -130,22 +131,19 @@ codeunit 431 "IC Outbox Export"
                         end;
 
                         if IsWebClient() then begin
-                            CreateEmailItem(
-                              EmailItem,
-                              ICPartner."Inbox Details",
-                              StrSubstNo('%1 %2', ICOutboxTrans."Document Type", ICOutboxTrans."Document No."),
-                              Format(FileName, -MaxStrLen(EmailItem."Attachment File Path")),
-                              StrSubstNo('%1.xml', ICPartner.Code));
+                            EmailItem."Send to" := ICPartner."Inbox Details";
+                            EmailItem.Subject := StrSubstNo('%1 %2', ICOutboxTrans."Document Type", ICOutboxTrans."Document No.");
                             Commit();
-
                             EmailDialog.SetValues(EmailItem, false, true);
-                            if EmailDialog.RunModal = ACTION::Cancel then
+                            if EmailDialog.RunModal = Action::Cancel then
                                 exit;
 
                             EmailDialog.GetRecord(EmailItem);
+                            OFile.Open(FileName);
+                            OFile.CreateInStream(InStream);
                             DocumentMailing.EmailFile(
-                              EmailItem."Attachment File Path",
-                              EmailItem."Attachment Name",
+                              InStream,
+                              StrSubstNo('%1.xml', ICPartner.Code),
                               '',
                               ICOutboxTrans."Document No.",
                               EmailItem."Send to",
@@ -258,20 +256,6 @@ codeunit 431 "IC Outbox Export"
                                 end;
                         end;
             until ICOutboxTransaction.Next = 0
-    end;
-
-    local procedure CreateEmailItem(var EmailItem: Record "Email Item"; SendTo: Text[250]; Subject: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250])
-    begin
-        EmailItem.Initialize;
-        EmailItem.Insert();
-        EmailItem."Send to" := SendTo;
-        EmailItem.Subject := Subject;
-
-        if AttachmentFilePath <> '' then begin
-            EmailItem."Attachment File Path" := AttachmentFilePath;
-            EmailItem."Attachment Name" := AttachmentFileName;
-        end;
-        EmailItem.Modify(true);
     end;
 
     local procedure ExportOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; var FileName: Text)

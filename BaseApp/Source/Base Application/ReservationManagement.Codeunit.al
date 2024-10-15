@@ -511,8 +511,8 @@
         CalcReservEntry2 := CalcReservEntry;
         GetItemSetup(CalcReservEntry);
         Positive := EntryIsPositive;
-        CalcReservEntry2.SetPointerFilter;
-        CallCalcReservedQtyOnPick;
+        CalcReservEntry2.SetPointerFilter();
+        CallCalcReservedQtyOnPick();
     end;
 
     procedure UpdateStatistics(var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; HandleItemTracking2: Boolean)
@@ -2462,12 +2462,17 @@
     end;
 
     local procedure CallCalcReservedQtyOnPick()
+    var
+        ShouldCalsReservedQtyOnPick: Boolean;
     begin
-        if Positive and (CalcReservEntry."Location Code" <> '') then
-            if Location.Get(CalcReservEntry."Location Code") and
-               (Location."Bin Mandatory" or Location."Require Pick")
-            then
-                CalcReservedQtyOnPick(TotalAvailQty, QtyAllocInWhse);
+        ShouldCalsReservedQtyOnPick :=
+            Positive and (CalcReservEntry."Location Code" <> '') and
+            Location.Get(CalcReservEntry."Location Code") and (Location."Bin Mandatory" or Location."Require Pick");
+
+        OnBeforeCallCalcReservedQtyOnPick(CalcReservEntry, Positive, ShouldCalsReservedQtyOnPick);
+
+        if ShouldCalsReservedQtyOnPick then
+            CalcReservedQtyOnPick(TotalAvailQty, QtyAllocInWhse);
     end;
 
     local procedure CalcReservedQtyOnPick(var AvailQty: Decimal; var AllocQty: Decimal)
@@ -2538,8 +2543,9 @@
             end;
 
             CalcAvailAllocQuantities(
-                Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins,
-                AvailQty, AllocQty);
+                Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins, AvailQty, AllocQty);
+
+            OnAfterCalcReservedQtyOnPick(Item, WhseActivLine, CalcReservEntry, AvailQty, AllocQty);
         end;
     end;
 
@@ -3324,6 +3330,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReservedQtyOnPick(var Item: Record Item; var WhseActivLine: Record "Warehouse Activity Line"; var CalcReservEntry: Record "Reservation Entry"; var AvailQty: Decimal; var AllocQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallCalcReservedQtyOnPick(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean; var ShouldCalsReservedQtyOnPick: Boolean)
     begin
     end;
 }

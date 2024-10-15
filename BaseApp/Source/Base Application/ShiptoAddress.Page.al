@@ -1,4 +1,4 @@
-page 300 "Ship-to Address"
+﻿page 300 "Ship-to Address"
 {
     Caption = 'Ship-to Address';
     DataCaptionExpression = Caption;
@@ -208,11 +208,15 @@ page 300 "Ship-to Address"
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
         if not Customer.Get(GetFilterCustNo) then
             exit;
 
-        OnBeforeOnNewRecord(Customer);
+        IsHandled := false;
+        OnBeforeOnNewRecord(Customer, IsHandled);
+        if IsHandled then
+            exit;
 
         Validate(Name, Customer.Name);
         Validate(Address, Customer.Address);
@@ -242,7 +246,7 @@ page 300 "Ship-to Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnNewRecord(var Customer: Record Customer)
+    local procedure OnBeforeOnNewRecord(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

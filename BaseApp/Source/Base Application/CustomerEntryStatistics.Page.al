@@ -1,4 +1,4 @@
-page 302 "Customer Entry Statistics"
+﻿page 302 "Customer Entry Statistics"
 {
     Caption = 'Customer Entry Statistics';
     Editable = false;
@@ -570,6 +570,7 @@ page 302 "Customer Entry Statistics"
                 CustLedgEntry[j].SetRange(Prepayment, false);
             if j = 7 then
                 CustLedgEntry[j].SetRange(Prepayment, true);
+            OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(CustLedgEntry[j]);
             if CustLedgEntry[j].FindLast then
                 CustLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
@@ -578,6 +579,7 @@ page 302 "Customer Entry Statistics"
         CustLedgEntry2.SetRange("Customer No.", "No.");
         CustLedgEntry2.SetRange(Open, true);
         CustLedgEntry2.SetFilter("Agreement No.", GetFilter("Agreement Filter"));
+        OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcRemainingAmountLCY(CustLedgEntry2);
         if CustLedgEntry2.Find('+') then
             repeat
                 j := CustLedgEntry2."Document Type".AsInteger();
@@ -612,6 +614,7 @@ page 302 "Customer Entry Statistics"
             NoOfInv := 0;
 
             CustLedgEntry2.SetFilter("Posting Date", CustDateFilter[i]);
+            OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcDaysToPay(CustLedgEntry2);
             if CustLedgEntry2.Find('+') then
                 repeat
                     j := CustLedgEntry2."Document Type".AsInteger();
@@ -671,5 +674,19 @@ page 302 "Customer Entry Statistics"
         DaysToPay := DaysToPay + NoOfDays;
         NoOfInv := NoOfInv + 1;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcRemainingAmountLCY(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcDaysToPay(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+}

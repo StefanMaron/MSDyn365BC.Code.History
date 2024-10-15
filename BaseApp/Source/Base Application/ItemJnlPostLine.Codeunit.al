@@ -354,6 +354,7 @@
             OnPostConsumptionOnBeforeFindSetProdOrderComp(ProdOrderComp, ItemJnlLine);
 
             if FindSet then begin
+                OnPostConsumptionOnAfterFindProdOrderComp(ProdOrderComp);
                 if ItemJnlLine.TrackingExists and not BlockRetrieveIT then
                     UseItemTrackingApplication :=
                       ItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification);
@@ -495,10 +496,10 @@
                 CapLedgEntry.Get("Item Shpt. Entry No.")
             else begin
                 TestField("Order Type", "Order Type"::Production);
-                ProdOrder.Get(ProdOrder.Status::Released, "Order No.");
+                GetOutputProdOrder(ProdOrder);
                 ProdOrder.TestField(Blocked, false);
                 ProdOrderLine.LockTable();
-                ProdOrderLine.Get(ProdOrder.Status::Released, "Order No.", "Order Line No.");
+                GetOutputProdOrderLine(ProdOrderLine);
 
                 "Inventory Posting Group" := ProdOrderLine."Inventory Posting Group";
 
@@ -506,7 +507,8 @@
                 ProdOrderRtngLine.SetRange("Prod. Order No.", "Order No.");
                 ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
                 ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-                if ProdOrderRtngLine.FindFirst then begin
+                OnPostOutputOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine);
+                if not ProdOrderRtngLine.IsEmpty() then begin
                     TestField("Operation No.");
                     TestField("No.");
 
@@ -520,18 +522,9 @@
                     ApplyCapNeed("Setup Time (Base)", "Run Time (Base)");
                 end;
 
-                if "Operation No." <> '' then begin
-                    ProdOrderRtngLine.Get(
-                      ProdOrderRtngLine.Status::Released, "Order No.",
-                      "Routing Reference No.", "Routing No.", "Operation No.");
-                    if Finished then
-                        ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
-                    else
-                        ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
-                    LastOperation := (not NextOperationExist(ProdOrderRtngLine));
-                    OnPostOutputOnBeforeProdOrderRtngLineModify(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine);
-                    ProdOrderRtngLine.Modify();
-                end else
+                if "Operation No." <> '' then
+                    PostOutputUpdateProdOrderRtngLine(ProdOrderLine)
+                else
                     LastOperation := true;
 
                 if Subcontracting then
@@ -613,6 +606,54 @@
         end;
 
         OnAfterPostOutput(GlobalItemLedgEntry, ProdOrderLine, ItemJnlLine);
+    end;
+
+    local procedure GetOutputProdOrder(var ProdOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetOutputProdOrder(ProdOrder, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrder.Get(ProdOrder.Status::Released, ItemJnlLine."Order No.");
+    end;
+
+    local procedure GetOutputProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetOutputProdOrderLine(ProdOrderLine, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, ItemJnlLine."Order No.", ItemJnlLine."Order Line No.");
+    end;
+
+    local procedure PostOutputUpdateProdOrderRtngLine(ProdOrderLine: Record "Prod. Order Line")
+    var
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostOutputUpdateProdOrderRtngLine(ProdOrderRtngLine, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ItemJnlLine do begin
+            ProdOrderRtngLine.Get(
+              ProdOrderRtngLine.Status::Released, "Order No.",
+              "Routing Reference No.", "Routing No.", "Operation No.");
+            if Finished then
+                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
+            else
+                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
+            LastOperation := (not NextOperationExist(ProdOrderRtngLine));
+            OnPostOutputOnBeforeProdOrderRtngLineModify(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine);
+            ProdOrderRtngLine.Modify();
+        end;
     end;
 
     procedure PostItem()
@@ -1034,6 +1075,8 @@
                 TempValueEntryRelation."Value Entry No." := ValueEntry."Entry No.";
                 TempValueEntryRelation.Insert();
             end;
+            OnInsertCapValueEntryOnAfterInsertValueEntryRelation(ValueEntry, ItemJnlLine, TempValueEntryRelation);
+
             if ("Item Shpt. Entry No." <> 0) and
                (ValueEntryType = "Value Entry Type"::"Direct Cost")
             then begin
@@ -1198,9 +1241,7 @@
         xCalledFromInvtPutawayPick := CalledFromInvtPutawayPick;
         CalledFromInvtPutawayPick := false;
 
-        ProdOrderRoutingLine.Get(
-          ProdOrderRoutingLine.Status::Released, OldItemJnlLine."Order No.",
-          OldItemJnlLine."Routing Reference No.", OldItemJnlLine."Routing No.", OldItemJnlLine."Operation No.");
+        GetProdOrderRoutingLine(ProdOrderRoutingLine, OldItemJnlLine);
         if ProdOrderRoutingLine."Routing Link Code" <> '' then
             with ProdOrderComp do begin
                 SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code", "Flushing Method");
@@ -1232,6 +1273,20 @@
         CalledFromInvtPutawayPick := xCalledFromInvtPutawayPick;
 
         OnAfterFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
+    end;
+
+    local procedure GetProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetProdOrderRoutingLine(ProdOrderRoutingLine, OldItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderRoutingLine.Get(
+          ProdOrderRoutingLine.Status::Released, OldItemJnlLine."Order No.",
+          OldItemJnlLine."Routing Reference No.", OldItemJnlLine."Routing No.", OldItemJnlLine."Operation No.");
     end;
 
     local procedure PostFlushedConsump(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
@@ -2425,7 +2480,8 @@
 
             if AverageTransfer then begin
                 if (Quantity > 0) or (ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Transfer Receipt") then
-                    ItemApplnEntry."Cost Application" := ItemApplnEntry.IsOutbndItemApplEntryCostApplication(ItemLedgEntryNo);
+                    ItemApplnEntry."Cost Application" :=
+                      ItemApplnEntry.IsOutbndItemApplEntryCostApplication(ItemLedgEntryNo) and IsNotValuedByAverageCost(ItemLedgEntryNo);
             end else
                 case true of
                     Item."Costing Method" <> Item."Costing Method"::Average,
@@ -3891,7 +3947,7 @@
                     OnSplitItemJnlLineOnBeforePostItemJnlLine(TempTrackingSpecification, GlobalItemLedgEntry);
                     if PostItemJnlLine then
                         TempTrackingSpecification."Entry No." := TempTrackingSpecification."Item Ledger Entry No.";
-                    OnSplitItemJnlLineOnBeforeInsertTempTrkgSpecification(TempTrackingSpecification, ItemJnlLine2);
+                    OnSplitItemJnlLineOnBeforeInsertTempTrkgSpecification(TempTrackingSpecification, ItemJnlLine2, SignFactor);
                     InsertTempTrkgSpecification(FreeEntryNo);
                 end else
                     if (ItemJnlLine2."Item Charge No." = '') and (ItemJnlLine2."Job No." = '') then
@@ -4878,6 +4934,16 @@
     local procedure IsWarehouseReclassification(ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
         exit(ItemJournalLine."Warehouse Adjustment" and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer));
+    end;
+
+    local procedure IsNotValuedByAverageCost(CostItemLedgEntryNo: Integer): Boolean
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", CostItemLedgEntryNo);
+        ValueEntry.SetRange("Valued By Average Cost", true);
+        exit(ValueEntry.IsEmpty());
     end;
 
     local procedure MoveApplication(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"): Boolean
@@ -6041,6 +6107,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckPostingCostToGL(var PostCostToGL: Boolean)
     begin
     end;
@@ -6407,6 +6478,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostConsumptionOnAfterInsertEntry(var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostConsumptionOnAfterFindProdOrderComp(var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 
@@ -6806,6 +6882,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetOutputProdOrder(var ProdOrder: Record "Production Order"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetOutputProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsNotInternalWhseMovement(ItemJnlLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -6816,12 +6907,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostOutputUpdateProdOrderRtngLine(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckExpirationDateOnBeforeAssignExpirationDate(var TempTrackingSpecification: Record "Tracking Specification" temporary; ExistingExpirationDate: Date; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSplitItemJnlLineOnBeforeInsertTempTrkgSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlLine2: Record "Item Journal Line")
+    local procedure OnSplitItemJnlLineOnBeforeInsertTempTrkgSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlLine2: Record "Item Journal Line"; SignFactor: Integer)
     begin
     end;
 
@@ -6832,6 +6928,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemLedgEntryOnBeforeVerifyOnInventory(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCapValueEntryOnAfterInsertValueEntryRelation(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line"; var TempValueEntryRelation: Record "Value Entry Relation" temporary)
     begin
     end;
 

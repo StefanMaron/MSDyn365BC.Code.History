@@ -39,7 +39,8 @@ codeunit 104030 "Upgrade Plan Permissions"
         CompanyHubDescriptionTxt: Label 'Company Hub';
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
-
+        CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Comment = '%1 = Permission Set Code', Locked = true;
+	
     local procedure AddFeatureDataUpdatePernissions()
     var
         Permission: Record Permission;
@@ -101,7 +102,8 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAddBackupRestorePermissionSetUpgradeTag()) then
             exit;
 
-        AddBackupRestorePermissionSet();
+        if not AddBackupRestorePermissionSet() then
+            exit;
         AddBackupRestoreUserGroup();
         AddBackupRestorePermissionSetToGroup();
         AddBackupRestoreUserGroupToDelegatedAdminPlan();
@@ -110,15 +112,17 @@ codeunit 104030 "Upgrade Plan Permissions"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddBackupRestorePermissionSetUpgradeTag());
     end;
 
-    local procedure AddBackupRestorePermissionSet();
+    local procedure AddBackupRestorePermissionSet(): Boolean
     var
         PermissionSet: Record "Permission Set";
         Permission: Record Permission;
     begin
-        InsertPermissionSet(CopyStr(BackupRestoreTok, 1, MaxStrLen(PermissionSet."Role ID")),
-            CopyStr(BackupRestoreDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
-        InsertPermission(CopyStr(BackupRestoreTok, 1, MaxStrLen(Permission."Role ID")), 10, 5410, 1, 1, 1, 1, 1);
-        InsertPermission(CopyStr(BackupRestoreTok, 1, MaxStrLen(Permission."Role ID")), 10, 5420, 1, 1, 1, 1, 1);
+        if TryInsertPermissionSet(CopyStr(BackupRestoreTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(BackupRestoreDescriptionTxt, 1, MaxStrLen(PermissionSet.Name))) then begin
+            InsertPermission(CopyStr(BackupRestoreTok, 1, MaxStrLen(Permission."Role ID")), 10, 5410, 1, 1, 1, 1, 1);
+            InsertPermission(CopyStr(BackupRestoreTok, 1, MaxStrLen(Permission."Role ID")), 10, 5420, 1, 1, 1, 1, 1);
+            exit(true);
+        end;
     end;
 
     local procedure AddBackupRestoreUserGroup();
@@ -155,28 +159,43 @@ codeunit 104030 "Upgrade Plan Permissions"
             PlanIds.GetInternalAdminPlanId());
     end;
 
-    local procedure InsertPermissionSet(PermissionSetID: Code[20]; PermissionSetName: Text[30])
+    local procedure TryInsertPermissionSet(PermissionSetID: Code[20]; PermissionSetName: Text[30]): Boolean
     var
         PermissionSet: Record "Permission Set";
+        EnvironmentInformation: Codeunit "Environment Information";
+        TelemetryCustomDimensions: Dictionary of [Text, Text];
     begin
         if PermissionSet.Get(PermissionSetID) then
-            exit;
+            exit(true);
+
+        if EnvironmentInformation.IsSaaS() then begin
+            TelemetryCustomDimensions.Add(PermissionSet.FieldCaption("Role ID"), PermissionSetID);
+            TelemetryCustomDimensions.Add(PermissionSet.FieldCaption(Name), PermissionSetName);
+            Session.LogMessage('0000DW1', StrSubstNo(CannotCreatePermissionSetLbl, PermissionSetID), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryCustomDimensions);
+            exit(false);
+        end;
 
         PermissionSet."Role ID" := PermissionSetID;
         PermissionSet.Name := PermissionSetName;
         PermissionSet.Insert();
+        exit(true);
     end;
 
     local procedure InsertPermission(PermissionSetID: Code[20]; ObjType: Option; ObjId: Integer; ReadPerm: Option; InsertPerm: Option; ModifyPerm: Option; DeletePerm: Option; ExecutePerm: Option)
     var
         Permission: Record Permission;
         PermissionSet: Record "Permission Set";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
-        if not PermissionSet.Get(PermissionSetID) then
-            exit;
         if Permission.Get(PermissionSetID, ObjType, ObjId) then
             exit;
 
+        if EnvironmentInformation.IsSaaS() then
+            exit;
+        
+        if not PermissionSet.Get(PermissionSetID) then
+            exit;
+            
         Permission."Role ID" := PermissionSetID;
         Permission."Object Type" := ObjType;
         Permission."Object ID" := ObjId;
@@ -233,7 +252,8 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag()) then
             exit;
 
-        AddExcelExportActionPermissionSet();
+        if not AddExcelExportActionPermissionSet() then
+            exit;
         AddExcelExportActionUserGroup();
         AddExcelExportActionPermissionSetToGroup();
         AddExcelExportActionUserGroupToExistingPlans();
@@ -241,14 +261,16 @@ codeunit 104030 "Upgrade Plan Permissions"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag());
     end;
 
-    local procedure AddExcelExportActionPermissionSet();
+    local procedure AddExcelExportActionPermissionSet(): Boolean
     var
         PermissionSet: Record "Permission Set";
         Permission: Record Permission;
     begin
-        InsertPermissionSet(CopyStr(ExcelExportActionTok, 1, MaxStrLen(PermissionSet."Role ID")),
-            CopyStr(ExcelExportActionDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
-        InsertPermission(CopyStr(ExcelExportActionTok, 1, MaxStrLen(Permission."Role ID")), 10, 6110, 0, 0, 0, 0, 1);
+        if TryInsertPermissionSet(CopyStr(ExcelExportActionTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(ExcelExportActionDescriptionTxt, 1, MaxStrLen(PermissionSet.Name))) then begin
+            InsertPermission(CopyStr(ExcelExportActionTok, 1, MaxStrLen(Permission."Role ID")), 10, 6110, 0, 0, 0, 0, 1);
+            exit(true);
+        end;
     end;
 
     local procedure AddExcelExportActionUserGroup();
@@ -318,24 +340,27 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag()) then
             exit;
 
-        AddSmartListDesignerPermissionSet();
+        if not AddSmartListDesignerPermissionSet() then
+            exit;
         AddSmartListDesignerUserGroup();
         AddSmartListDesignerPermissionSetToGroup();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag());
     end;
 
-    local procedure AddSmartListDesignerPermissionSet();
+    local procedure AddSmartListDesignerPermissionSet(): Boolean
     var
         PermissionSet: Record "Permission Set";
         Permission: Record Permission;
     begin
-        InsertPermissionSet(CopyStr(SmartListDesignerTok, 1, MaxStrLen(PermissionSet."Role ID")),
-            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
-        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9600, 0, 0, 0, 0, 1);
-        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9605, 0, 0, 0, 0, 1);
-        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9610, 0, 0, 0, 0, 1);
-        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9615, 0, 0, 0, 0, 1);
+        if TryInsertPermissionSet(CopyStr(SmartListDesignerTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(PermissionSet.Name))) then begin
+            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9600, 0, 0, 0, 0, 1);
+            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9605, 0, 0, 0, 0, 1);
+            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9610, 0, 0, 0, 0, 1);
+            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9615, 0, 0, 0, 0, 1);
+            exit(true);
+        end;
     end;
 
     local procedure AddSmartListDesignerUserGroup();
@@ -362,19 +387,20 @@ codeunit 104030 "Upgrade Plan Permissions"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCompanyHubPermissionSetUpgradeTag()) then
             exit;
 
-        AddCompanyHubPermissionSet();
+        if not AddCompanyHubPermissionSet() then
+            exit;
         AddCompanyHubUserGroup();
         AddCompanyHubPermissionSetToGroup();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCompanyHubPermissionSetUpgradeTag());
     end;
 
-    local procedure AddCompanyHubPermissionSet();
+    local procedure AddCompanyHubPermissionSet(): Boolean
     var
         PermissionSet: Record "Permission Set";
     begin
-        InsertPermissionSet(CopyStr(CompanyHubTok, 1, MaxStrLen(PermissionSet."Role ID")),
-            CopyStr(CompanyHubDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
+        exit(TryInsertPermissionSet(CopyStr(CompanyHubTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(CompanyHubDescriptionTxt, 1, MaxStrLen(PermissionSet.Name))));
     end;
 
     local procedure AddCompanyHubUserGroup();

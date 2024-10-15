@@ -688,6 +688,7 @@
         QtyReservedOnPickShip: Decimal;
         QtyReservedForCurrLine: Decimal;
         QtyOnDedicatedBins: Decimal;
+        PutAwayQtyOnDedicatedBins: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -719,9 +720,12 @@
 
             QtyOnDedicatedBins := WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code");
 
+            if Location."Require Receive" and Location."Require Put-away" then
+                PutAwayQtyOnDedicatedBins := CalcPutAwayQtyReceivedOnDedicatedBins("Location Code", "Item No.", "Variant Code");
+
             AvailQtyBase :=
               WhseAvailMgt.CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine) +
-              QtyReservedOnPickShip + QtyReservedForCurrLine - QtyOnDedicatedBins;
+              QtyReservedOnPickShip + QtyReservedForCurrLine - QtyOnDedicatedBins + PutAwayQtyOnDedicatedBins;
         end;
 
         AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines;
@@ -766,6 +770,25 @@
             end;
         end;
         exit(QtyAvailToMoveBase);
+    end;
+
+    local procedure CalcPutAwayQtyReceivedOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WhseActivityLine.SetCurrentKey(
+          "Item No.", "Location Code", "Activity Type", "Bin Type Code",
+          "Unit of Measure Code", "Variant Code", "Breakbulk No.");
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Put-away");
+        WhseActivityLine.SetRange("Whse. Document Type", WhseActivityLine."Whse. Document Type"::Receipt);
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Location Code", LocationCode);
+        WhseActivityLine.SetRange("Variant Code", VariantCode);
+        WhseActivityLine.SetFilter("Action Type", '%1|%2', WhseActivityLine."Action Type"::" ", WhseActivityLine."Action Type"::Take);
+        WhseActivityLine.SetRange("Original Breakbulk", false);
+        WhseActivityLine.SetRange(Dedicated, true);
+        WhseActivityLine.CalcSums("Qty. Outstanding (Base)");
+        exit(WhseActivityLine."Qty. Outstanding (Base)");
     end;
 
     procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")

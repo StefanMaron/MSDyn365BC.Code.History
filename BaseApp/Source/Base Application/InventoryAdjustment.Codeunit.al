@@ -2066,7 +2066,14 @@
     end;
 
     local procedure CopyItemToItem(var FromItem: Record Item; var ToItem: Record Item)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyItemToItem(FromItem, ToItem, IsHandled);
+        if IsHandled then
+            exit;
+
         with ToItem do begin
             Reset;
             DeleteAll();
@@ -2666,6 +2673,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyILEToILE(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemToItem(var FromItem: Record Item; var ToItem: Record Item; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,13 +1,11 @@
 ﻿codeunit 365 "Format Address"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    SingleInstance = true;
 
     var
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
+        GLSetupRead: Boolean;
         i: Integer;
         LanguageCode: Code[10];
 
@@ -27,10 +25,11 @@
         CountryLineNo: Integer;
         IsHandled: Boolean;
     begin
+        OnBeforeFormatAddr(Country, CountryCode);
         Clear(AddrArray);
 
         if CountryCode = '' then begin
-            GLSetup.Get();
+            GetGLSetup();
             Clear(Country);
             Country."Address Format" := GLSetup."Local Address Format";
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
@@ -145,11 +144,12 @@
     var
         Country: Record "Country/Region";
     begin
+        OnBeforeFormatPostCodeCity(Country, CountryCode);
         Clear(PostCodeCityText);
         Clear(CountyText);
 
         if CountryCode = '' then begin
-            GLSetup.Get();
+            GetGLSetup();
             Clear(Country);
             Country."Address Format" := GLSetup."Local Address Format";
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
@@ -212,6 +212,8 @@
                     CountyText := County;
                 end;
         end;
+
+        OnAfterGeneratePostCodeCity(Country, PostCode, PostCodeCityText, City, CountyText, County);
     end;
 
     local procedure GenerateCustomPostCodeCity(var PostCodeCityText: Text[100]; City: Text[50]; PostCode: Code[20]; County: Text[50]; Country: Record "Country/Region")
@@ -1404,7 +1406,7 @@
         CustomAddressFormat: Record "Custom Address Format";
     begin
         if CountryCode = '' then begin
-            GLSetup.Get();
+            GetGLSetup();
             case true of
                 GLSetup."Local Address Format" = GLSetup."Local Address Format"::"City+County+Post Code":
                     exit(true);
@@ -1474,9 +1476,24 @@
         end;
     end;
 
+    local procedure GetGLSetup()
+    begin
+        if GLSetupRead then
+            exit;
+        GLSetupRead := true;
+        GLSetup.Get();
+    end;
+
+
     procedure SetLanguageCode(NewLanguageCode: Code[10])
     begin
         LanguageCode := NewLanguageCode;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterModifyEvent', '', false, false)]
+    local procedure ResetGLSetupReadOnGLSetupModify()
+    begin
+        GLSetupRead := false;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1486,6 +1503,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatAddress(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGeneratePostCodeCity(var Country: Record "Country/Region"; var PostCode: Code[20]; var PostCodeCityText: Text[100]; var City: Text[50]; var CountyText: Text[50]; var County: Text[50])
     begin
     end;
 
@@ -1511,6 +1533,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatAddress(Country: Record "Country/Region"; var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; NameLineNo: Integer; Name2LineNo: Integer; AddrLineNo: Integer; Addr2LineNo: Integer; ContLineNo: Integer; PostCodeCityLineNo: Integer; CountyLineNo: Integer; CountryLineNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatAddr(var Country: Record "Country/Region"; CountryCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatPostCodeCity(var Country: Record "Country/Region"; CountryCode: Code[10])
     begin
     end;
 

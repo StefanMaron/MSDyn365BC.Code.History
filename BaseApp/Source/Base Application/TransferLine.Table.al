@@ -1120,7 +1120,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckTransferHeader(TransferHeader, IsHandled);
+        OnBeforeCheckTransferHeader(TransferHeader, IsHandled, Rec, xRec);
         if IsHandled then
             exit;
 
@@ -1752,7 +1752,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean);
+    local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line");
     begin
     end;
 

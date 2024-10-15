@@ -19,6 +19,7 @@ codeunit 139048 "SMB Office Pages"
         Assert: Codeunit Assert;
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
         OfficeHostType: DotNet OfficeHostType;
         CommandType: DotNet OutlookCommand;
         BusRelCodeForVendors: Code[10];
@@ -1472,6 +1473,7 @@ codeunit 139048 "SMB Office Pages"
         NoSeries.Get(SalesReceivablesSetup."Quote Nos.");
         NoSeries."Manual Nos." := false;
         NoSeries.Modify();
+        DocumentNoVisibility.ClearState();
 
         // [WHEN] The primary contact for the customer is set to contact1
         Customer.Get(CustomerNo);
@@ -1529,6 +1531,7 @@ codeunit 139048 "SMB Office Pages"
         NoSeries.Get(PurchasesPayablesSetup."Invoice Nos.");
         NoSeries."Manual Nos." := false;
         NoSeries.Modify();
+        DocumentNoVisibility.ClearState();
 
         // [WHEN] The primary contact for the vendor is set to contact1
         Vendor.Get(VendorNo);

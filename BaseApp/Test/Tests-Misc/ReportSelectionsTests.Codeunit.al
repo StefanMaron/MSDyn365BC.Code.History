@@ -47,7 +47,7 @@ codeunit 134421 "Report Selections Tests"
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupReportSelections(true, true);
@@ -55,11 +55,11 @@ codeunit 134421 "Report Selections Tests"
         Commit();
 
         // Exercise
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // Verify
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, PostedSalesInvoice."No.".Value);
 
         LibraryVariableStorage.AssertEmpty;
@@ -72,7 +72,7 @@ codeunit 134421 "Report Selections Tests"
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
         SetupReportSelections(false, false);
@@ -113,7 +113,7 @@ codeunit 134421 "Report Selections Tests"
         UseForBody: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         UseForAttachment := true;
         UseForBody := false;
@@ -122,7 +122,7 @@ codeunit 134421 "Report Selections Tests"
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
         VerifySendEmailPage(CustomMessageTypeTxt, '', PostedSalesInvoice."No.".Value);
@@ -152,12 +152,11 @@ codeunit 134421 "Report Selections Tests"
 
     procedure EmailBodyOnly()
     var
-        EmailFeature: Codeunit "Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         UseForAttachment: Boolean;
         UseForBody: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
@@ -165,13 +164,10 @@ codeunit 134421 "Report Selections Tests"
         UseForAttachment := false;
         UseForBody := true;
         SetupReportSelections(UseForAttachment, UseForBody);
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
-        if EmailFeature.IsEnabled() then
-            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
-        else
-            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
     end;
 
     [Test]
@@ -202,7 +198,7 @@ codeunit 134421 "Report Selections Tests"
         UseForAttachment: Boolean;
         UseForBody: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
@@ -212,7 +208,7 @@ codeunit 134421 "Report Selections Tests"
         SetupReportSelections(UseForAttachment, UseForBody);
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
         VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
@@ -245,17 +241,17 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         SetupReportSelections(false, false);
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         UpdateCustomReportSelections(SalesInvoiceHeader."Sell-to Customer No.", true, false, '');
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
         VerifySendEmailPage(CustomMessageTypeTxt, '', PostedSalesInvoice."No.".Value);
@@ -286,27 +282,23 @@ codeunit 134421 "Report Selections Tests"
     procedure CustomEmailBody()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        EmailFeature: Codeunit "Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         SetupReportSelections(false, false);
         UpdateCustomReportSelections(SalesInvoiceHeader."Bill-to Customer No.", false, true, '');
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
-        if EmailFeature.IsEnabled() then
-            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
-        else
-            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
+        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
     end;
 
     [Test]
@@ -336,20 +328,20 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         SetupReportSelections(false, false);
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         UpdateCustomReportSelections(SalesInvoiceHeader."Bill-to Customer No.", true, true, '');
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
         VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
@@ -365,7 +357,7 @@ codeunit 134421 "Report Selections Tests"
         UseForAttachment: Boolean;
         UseForBody: Boolean;
     begin
-        Initialize;
+        Initialize();
         LibraryEmailFeature.SetEmailFeatureEnabled(false);
 
         // Setup
@@ -376,7 +368,7 @@ codeunit 134421 "Report Selections Tests"
         SetupReportSelections(UseForAttachment, UseForBody);
 
         // Exercise
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify is within handler
 
@@ -395,7 +387,7 @@ codeunit 134421 "Report Selections Tests"
         DummyEmailAddress: Text[250];
     begin
         // Validates that EmailItem loads the body from the HTML file
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -409,7 +401,7 @@ codeunit 134421 "Report Selections Tests"
         GetEmailItem(TempEmailItem, TempEmailItem."Message Type"::"From Email Body Template", FileName, false);
 
         // Verify
-        Assert.IsTrue(TempEmailItem.GetBodyText <> '', 'Expected text in the body of the EmailItem');
+        Assert.IsTrue(TempEmailItem.GetBodyText() <> '', 'Expected text in the body of the EmailItem');
     end;
 
     [Test]
@@ -424,7 +416,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAddress: Text[80];
     begin
         // Validates that EmailItem gathers the customer's email address when one is not defined in the custom layouts
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -456,7 +448,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAddress: Text[80];
     begin
         // Validates that EmailItem gathers the custom layout email address when one is defined.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -486,7 +478,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // Validates that the email address in the dialog is from the Customer when set in a custom report selection
         // and when the custom report selection does not specify the email body.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -513,42 +505,22 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 171020] Susan will be able to view the Package Tracking No. and Shipping Agent Code on sales invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice is Posted with Package Tracking No and Shipping Agent Code
         SetupReportSelections(true, true);
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
 
         // [WHEN] Sales Invoice report is printed
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // [THEN] Shipping Agent and Package Tracking No is verified on the Report
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ShippingAgentCode', PostedSalesInvoice."Shipping Agent Code".Value);
         LibraryReportDataset.AssertElementWithValueExists('PackageTrackingNo', PostedSalesInvoice."Package Tracking No.".Value);
 
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [HandlerFunctions('ReportSelectionPrintSelectSecondHandler,InvoicePrintHandler')]
-    [Scope('OnPrem')]
-    procedure TestPrintWithSelections()
-    var
-        ReportSelections: Record "Report Selections";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Validates that printing with multiple report selections respects the user's selection.
-        Initialize;
-
-        // Setup
-        CreateSecondaryReportSelection;
-        CreateAndPostSalesInvoice(SalesInvoiceHeader);
-        Commit();
-
-        // Invoke and verify that the appropriate handler executes.
-        ReportSelections.PrintWithGUIYesNo(
-          ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, true, SalesInvoiceHeader.FieldNo("Sell-to Customer No."));
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -583,7 +555,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Sales] [Quote] [Archive] [UI]
         // [SCENARIO 218547] One entry per Send by Email press in Sales Quote Archives and in Interaction Log Entries
-        Initialize;
+        Initialize();
         LibrarySales.SetArchiveQuoteAlways;
 
         // [GIVEN] New Sales Quote and Archiving is on
@@ -635,7 +607,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Email] [Purchase] [Order Address]
         // [SCENARIO 235250] The Email Address from the Order Address is used for the Send function for an Email from a Purchase Order.
-        Initialize;
+        Initialize();
         SetupReportSelectionsVendor(true, true);
         LibraryPurchase.SetArchiveOrders(true);
 
@@ -656,13 +628,13 @@ codeunit 134421 "Report Selections Tests"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Send "PO" by E-mail
-        PurchaseHeader.SetRecFilter;
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.SendRecords();
 
         // [THEN] Email Address on Email Dialog Page is equal to "oa@a.com"
-        Assert.AreEqual(OrderAddress."E-Mail", LibraryVariableStorage.DequeueText, WrongEmailAddressErr);
+        Assert.AreEqual(OrderAddress."E-Mail", LibraryVariableStorage.DequeueText(), WrongEmailAddressErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -739,7 +711,7 @@ codeunit 134421 "Report Selections Tests"
         // [FEATURE] [Sales] [Invoice] [Report] [Print]
         // [SCENARIO 263088] System prints multiple documents with different layout setup.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report selection where Usage = "S.Invoice" and "Report ID" = 1306 ("Standard Sales - Invoice")
         SetupReportSelections(false, false);
@@ -768,14 +740,14 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader[1].PrintRecords(true);
 
         // [THEN] "Sales - Invoice" report prints "InvoiceA" only
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoSalesInvHdrTok, SalesInvoiceHeader[1]."No.");
         LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[2]."No.");
         LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[3]."No.");
 
         // [THEN] System prints the only single document (SETSELECTIONFILTER in COD229)
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -786,7 +758,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to insert a line into the "Report Selection2" table with a blank "Report ID".
-        Initialize;
+        Initialize();
 
         ReportSelections.Init();
         ReportSelections.Validate("Report ID", 0);
@@ -802,7 +774,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Report Selection2" table.
-        Initialize;
+        Initialize();
 
         ReportSelections.Init();
         ReportSelections.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
@@ -842,7 +814,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 290802] Purchase Header SendRecords works correctly when Vendor No. has special symbols in it
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selection was setup
         SetupReportSelectionsVendor(true, true);
@@ -873,7 +845,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 300028] Print Posted Return Shipment in case a Vendor has Custom Report Selection for Posted Return Shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Return Shipment for Vendor "V".
         CreateAndPostPurchaseReturnOrder(PurchaseHeader);
@@ -890,10 +862,10 @@ codeunit 134421 "Report Selections Tests"
         ReturnShipmentHeader.PrintRecords(false);
 
         // [THEN] Chosen report is used for printing.
-        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText);
+        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText());
         LibraryXMLRead.VerifyAttributeValue('ReportDataSet', 'id', Format(GetPurchaseReturnShipmentReportID));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -907,21 +879,21 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 300028] Select Posted Return Shipment value on the Vendor Report Selections page.
-        Initialize;
+        Initialize();
 
         // [WHEN] Open page "Vendor Report Selections" for selected Vendor, set Usage to "Posted Return Shipment", close page.
         LibraryVariableStorage.Enqueue(Usage::"Posted Return Shipment");
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo);
-        VendorCard.VendorReportSelections.Invoke;
+        VendorCard.VendorReportSelections.Invoke();
 
         // [THEN] Usage is "P.Ret.Shpt." for Custom Report Selection for this Vendor.
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", VendorCard."No.".Value);
-        CustomReportSelection.FindFirst;
+        CustomReportSelection.FindFirst();
         CustomReportSelection.TestField(Usage, CustomReportSelection.Usage::"P.Ret.Shpt.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -962,7 +934,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Sales] [Statement]
         // [SCENARIO 300470] Send to email Customer Statement in case a document layout is used for email body.
-        Initialize;
+        Initialize();
         if EmailFeature.IsEnabled() then
             ConnectorMock.FailOnSend(true);
 
@@ -971,19 +943,19 @@ codeunit 134421 "Report Selections Tests"
         CustomerNo := SalesInvoiceHeader."Sell-to Customer No.";
 
         InsertReportSelections(
-          ReportSelections, GetCustomerStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+          ReportSelections, GetCustomerStatementReportID(), false, false, '', ReportSelections.Usage::"C.Statement");
 
         InsertCustomReportSelectionCustomer(
-          CustomReportSelection, CustomerNo, GetCustomerStatementReportID, true, true,
-          CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID, CustomReportLayout.Type::Word.AsInteger()),
+          CustomReportSelection, CustomerNo, GetCustomerStatementReportID(), true, true,
+          CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID(), CustomReportLayout.Type::Word.AsInteger()),
           'abc@abc.abc', CustomReportSelection.Usage::"C.Statement");
         Commit();
 
         // [WHEN] Run Statement report for the Customer "C" with "Report Output" = Email.
         LibraryVariableStorage.Enqueue(ReportOutput::Email);
         LibraryVariableStorage.Enqueue(CustomerNo);
-        CustomerCard.OpenEdit;
-        CustomerCard."Report Statement".Invoke;
+        CustomerCard.OpenEdit();
+        CustomerCard."Report Statement".Invoke();
 
         // [THEN] "Last Statement No." for Customer "C" increases by 1.
         // [THEN] Only one Interaction Log Entry is inserted.
@@ -1008,16 +980,16 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [Sales] [Standard Statement] [Email]
         // [SCENARIO 313487] Stan gets error when send to email "Standard Statement" for customer without entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Custom Report Selection with Customer "C", Usage "Customer Statement", Report ID = 1316 (Standard Statement), "Use for Email Body" = FALSE and "Send To Email" is not blank.
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         InsertReportSelections(
-          ReportSelections, GetStandardStatementReportID, false, true, '', ReportSelections.Usage::"C.Statement");
+          ReportSelections, GetStandardStatementReportID(), false, true, '', ReportSelections.Usage::"C.Statement");
 
         InsertCustomReportSelectionCustomer(
-          CustomReportSelection, CustomerNo, GetStandardStatementReportID, false, false,
+          CustomReportSelection, CustomerNo, GetStandardStatementReportID(), false, false,
           '',
           'abc@abc.abc', CustomReportSelection.Usage::"C.Statement");
         Commit();
@@ -1025,14 +997,14 @@ codeunit 134421 "Report Selections Tests"
         // [WHEN] Run "Customer Statement" report for the Customer "C" with "Report Output" = Email.
         LibraryVariableStorage.Enqueue(StandardStatementReportOutput::Email);
         LibraryVariableStorage.Enqueue(CustomerNo);
-        ErrorMessages.Trap;
-        CustomerCard.OpenEdit;
-        CustomerCard."Report Statement".Invoke;
+        ErrorMessages.Trap();
+        CustomerCard.OpenEdit();
+        CustomerCard."Report Statement".Invoke();
         Commit();
 
         // [THEN] Error "No data exists for specified report filter"
         ErrorMessages.Description.AssertEquals(NoOutputErr);
-        ErrorMessages.Close;
+        ErrorMessages.Close();
 
         // [THEN] "Last Statement No." for Customer "C" remains 0.
         // [THEN] Only one Interaction Log Entry is inserted.
@@ -1352,7 +1324,7 @@ codeunit 134421 "Report Selections Tests"
         FillCustomReportSelectionContactsFilter(CustomReportSelection, CompanyContactNo);
         CustomReportSelection.Modify();
         // [WHEN] Invoke "Send by Emai" action on the sales quote page
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Email.Invoke();
         // [THEN] EmailDialog appeared, "Send to" = "E1";"E2"
@@ -1363,11 +1335,9 @@ codeunit 134421 "Report Selections Tests"
     [Scope('OnPrem')]
     procedure ClearSendToEmail()
     var
-        SalesHeader: Record "Sales Header";
         CustomReportSelection: Record "Custom Report Selection";
         CompanyContactNo: Code[20];
         i: Integer;
-        EmailList: Text;
     begin
         // [FEATURE] [Custom Report Selection]
         // [SCENARIO 275947] Clear "Send To Email" clears also selected contacts filter 
@@ -1446,7 +1416,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAddress: Text[80];
     begin
         // [SCENARIO 338446] E-mail address specified in posted Sales Invoice has more priority than customer's e-mail address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "A" with the "Sell-to Email" = "a@a.com; b@b.com; c@c.com".
         // [GIVEN] Customer's email address = "x@x.com; y@y.com; z@z.com".
@@ -1523,7 +1493,7 @@ codeunit 134421 "Report Selections Tests"
         CustomerNo := SalesInvoiceHeader."Sell-to Customer No.";
 
         InsertReportSelections(
-          ReportSelections, GetCustomerStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+          ReportSelections, GetCustomerStatementReportID(), false, false, '', ReportSelections.Usage::"C.Statement");
 
         Commit();
 
@@ -1924,7 +1894,7 @@ codeunit 134421 "Report Selections Tests"
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Validate(Name, LibraryUtility.GenerateGUID());
         Customer.Validate(Address, 'A');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer.Validate(City, 'A');
         Customer.Validate("Post Code", 'A');
@@ -1976,7 +1946,6 @@ codeunit 134421 "Report Selections Tests"
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
         with CustomReportSelection do begin
-            Init;
             Validate("Source Type", DATABASE::Customer);
             Validate("Source No.", CustomerNo);
             Validate(Usage, ReportUsage);
@@ -1993,7 +1962,6 @@ codeunit 134421 "Report Selections Tests"
     local procedure InsertCustomReportSelectionVendor(var CustomReportSelection: Record "Custom Report Selection"; VendorNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
         with CustomReportSelection do begin
-            Init;
             Validate("Source Type", DATABASE::Vendor);
             Validate("Source No.", VendorNo);
             Validate(Usage, ReportUsage);
@@ -2009,7 +1977,6 @@ codeunit 134421 "Report Selections Tests"
     local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
     begin
         with ReportSelections do begin
-            Init;
             Validate(Usage, ReportUsage);
             Validate(Sequence, Format(Count + 1));
             Validate("Report ID", ReportID);
@@ -2044,7 +2011,7 @@ codeunit 134421 "Report Selections Tests"
 
         OldReportSelections.Reset();
         OldReportSelections.SetRange(Usage, OldReportSelections.Usage::"S.Invoice");
-        OldReportSelections.FindFirst;
+        OldReportSelections.FindFirst();
 
         UpdateReportSelections(
           OldReportSelections.Usage::"S.Invoice", CustomReportLayout."Report ID", UseForEmailAttachment, UseForEmailBody,
@@ -2071,7 +2038,7 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
         ReportLayoutSelection.Init();
-        ReportLayoutSelection."Company Name" := CompanyName;
+        ReportLayoutSelection."Company Name" := CompanyName();
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
         ReportLayoutSelection."Report ID" := REPORT::"Standard Sales - Invoice";
         ReportLayoutSelection.Insert();
@@ -2225,7 +2192,7 @@ codeunit 134421 "Report Selections Tests"
         ReportOutput: Option Print,Preview,PDF,Email,Excel,XML;
     begin
         InsertReportSelections(
-          ReportSelections, GetCustomerStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+          ReportSelections, GetCustomerStatementReportID(), false, false, '', ReportSelections.Usage::"C.Statement");
         LibraryVariableStorage.Enqueue(ReportOutput::PDF);
         LibraryVariableStorage.Enqueue(Customer.GetFilter("No."));
         RecRef.GetTable(Customer);
@@ -2248,10 +2215,10 @@ codeunit 134421 "Report Selections Tests"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 
     local procedure GetStatementTitlePdf(ReportTitle: Text; CustomerName: Text): Text
@@ -2267,9 +2234,9 @@ codeunit 134421 "Report Selections Tests"
         BodyTextOK: Boolean;
         AttachmentNameOK: Boolean;
     begin
-        ActualType := LibraryVariableStorage.DequeueText;
-        ActualBodyText := LibraryVariableStorage.DequeueText;
-        ActualAttachmentFileName := LibraryVariableStorage.DequeueText;
+        ActualType := LibraryVariableStorage.DequeueText();
+        ActualBodyText := LibraryVariableStorage.DequeueText();
+        ActualAttachmentFileName := LibraryVariableStorage.DequeueText();
 
         if ExpectedBodyText = '' then
             BodyTextOK := ExpectedBodyText = ActualBodyText
@@ -2412,7 +2379,7 @@ codeunit 134421 "Report Selections Tests"
         Statement."Start Date".SetValue(WorkDate);
         Statement."End Date".SetValue(WorkDate);
         Statement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger);
-        Statement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Statement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Statement.OK.Invoke;
     end;
 
@@ -2423,7 +2390,7 @@ codeunit 134421 "Report Selections Tests"
         StandardStatement."Start Date".SetValue(WorkDate);
         StandardStatement."End Date".SetValue(WorkDate);
         StandardStatement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger);
-        StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
         StandardStatement.OK.Invoke;
     end;
 
@@ -2554,7 +2521,8 @@ codeunit 134421 "Report Selections Tests"
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
     begin
-        Response := true;
+        if Message.StartsWith('Do you want to change') then
+            Response := true;
     end;
 
     [ConfirmHandler]

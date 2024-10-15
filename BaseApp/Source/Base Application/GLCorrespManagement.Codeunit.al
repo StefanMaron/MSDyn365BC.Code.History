@@ -68,18 +68,15 @@ codeunit 12404 "G/L Corresp. Management"
         CurrentTempGLEntry: Record "G/L Entry" temporary;
         Level: Integer;
         MaxLevel: Integer;
-        SimpleMode: Boolean;
         FoundEntry: Boolean;
     begin
-        SimpleMode := false;
         MaxLevel := 3;
 
         if IsReversedGLReg(TempGLEntry) then
             TempGLEntry.Ascending(false);
 
         with TempGLEntry do begin
-            for Level := 1 to MaxLevel do begin
-                SimpleMode := Level > 1;
+            for Level := 1 to MaxLevel do
                 if Find('-') then
                     repeat
                         if (Amount = 0) and ("Additional-Currency Amount" = 0) then
@@ -93,7 +90,7 @@ codeunit 12404 "G/L Corresp. Management"
                                     if (not CurrentTempGLEntry."Used in Correspondence") or
                                        (not "Used in Correspondence")
                                     then
-                                        if ValidateEntries(CurrentTempGLEntry, TempGLEntry, SimpleMode) then begin
+                                        if ValidateEntries(CurrentTempGLEntry, TempGLEntry, Level) then begin
                                             FoundEntry := true;
                                             InsertCorrespEntry(CurrentTempGLEntry, TempGLEntry);
                                             if (Amount = 0) and ("Additional-Currency Amount" = 0) then
@@ -111,7 +108,6 @@ codeunit 12404 "G/L Corresp. Management"
                                 Modify;
                         end;
                     until Next = 0;
-            end;
 
             Reset;
             if Find('-') then
@@ -212,35 +208,38 @@ codeunit 12404 "G/L Corresp. Management"
         end;
     end;
 
-    local procedure ValidateEntries(var GLEntry1: Record "G/L Entry"; var GLEntry2: Record "G/L Entry"; SimpleMode: Boolean): Boolean
+    local procedure ValidateEntries(var GLEntry1: Record "G/L Entry"; var GLEntry2: Record "G/L Entry"; CurrentAttempt: Integer): Boolean
     var
         SameDebit: Boolean;
         SameSign: Boolean;
     begin
-        if not SimpleMode then
-            if Reverse(GLEntry1) <> Reverse(GLEntry2) then
-                exit(false);
         SameDebit := Debit(GLEntry1) = Debit(GLEntry2);
         SameSign := SignEntry(GLEntry1, false) = SignEntry(GLEntry2, false);
         if SameDebit = SameSign then
             exit(false);
 
-        if not SimpleMode then begin
-            if (GLEntry1."Bal. Account Type" <> GLEntry1."Bal. Account Type"::"G/L Account") or
-               (GLEntry2."Bal. Account Type" <> GLEntry2."Bal. Account Type"::"G/L Account")
-            then
-                exit(false);
-
-            if ((GLEntry1."Bal. Account Type" = GLEntry1."Bal. Account Type"::"G/L Account") and
-                (GLEntry1."Bal. Account No." <> GLEntry2."G/L Account No.")) or
-               (GLEntry1."Bal. Account No." = '') or
-               ((GLEntry2."Bal. Account Type" = GLEntry2."Bal. Account Type"::"G/L Account") and
-                (GLEntry2."Bal. Account No." <> GLEntry1."G/L Account No.")) or
-               (GLEntry2."Bal. Account No." = '')
-            then
-                exit(false);
+        case CurrentAttempt of
+            1:
+                begin
+                    if Reverse(GLEntry1) <> Reverse(GLEntry2) then
+                        exit(false);
+                    if (GLEntry1."Bal. Account Type" <> GLEntry1."Bal. Account Type"::"G/L Account") or
+                       (GLEntry2."Bal. Account Type" <> GLEntry2."Bal. Account Type"::"G/L Account")
+                    then
+                        exit(false);
+                    if (GLEntry1."Bal. Account No." = '') or (GLEntry1."Bal. Account No." <> GLEntry2."G/L Account No.") or
+                       (GLEntry2."Bal. Account No." = '') or (GLEntry2."Bal. Account No." <> GLEntry1."G/L Account No.")
+                    then
+                        exit(false);
+                end;
+            2:
+                if (GLEntry1."Bal. Account No." = '') and (GLEntry2."Bal. Account No." = '') and
+                   (GLEntry1."G/L Account No." = GLEntry2."G/L Account No.")
+                then
+                    exit(false);
         end;
-        exit(true)
+
+        exit(true);
     end;
 
     local procedure SignEntry(GLentry: Record "G/L Entry"; ACY: Boolean): Integer

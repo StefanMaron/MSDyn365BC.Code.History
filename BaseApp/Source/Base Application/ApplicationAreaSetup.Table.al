@@ -281,7 +281,7 @@ table 9178 "Application Area Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsFoundationEnabled instead.
-        exit(ApplicationAreaMgmtFacade.IsFoundationEnabled)
+        exit(ApplicationAreaMgmtFacade.IsFoundationEnabled())
     end;
 
     procedure IsAdvanced(): Boolean
@@ -289,7 +289,7 @@ table 9178 "Application Area Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsAdvancedEnabled instead.
-        exit(ApplicationAreaMgmtFacade.IsAdvancedEnabled)
+        exit(ApplicationAreaMgmtFacade.IsAdvancedEnabled())
     end;
 
     procedure IsSuiteEnabled(): Boolean
@@ -297,7 +297,7 @@ table 9178 "Application Area Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         // This function is deprecated and will be removed. Use ApplicationAreaMgmtFacade.IsSuiteEnabled instead.
-        exit(ApplicationAreaMgmtFacade.IsSuiteEnabled)
+        exit(ApplicationAreaMgmtFacade.IsSuiteEnabled())
     end;
 
     procedure GetExperienceTierCurrentCompany(var ExperienceTier: Option)
