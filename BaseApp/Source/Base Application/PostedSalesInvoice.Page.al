@@ -476,6 +476,11 @@ page 132 "Posted Sales Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the relation of the CFDI document. ';
                     }
+                    field("CFDI Export Code"; "CFDI Export Code")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                    }
                     field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
                     {
                         ApplicationArea = BasicMX;
