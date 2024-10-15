@@ -1032,6 +1032,8 @@ xmlport 11766 "VAT Statement DPHDP3 CZL"
                         trigger OnBeforePassVariable()
                         begin
                             GetAmtAndSkipIfEmpty(dano, 'dano');
+                            if (dano <> '') and not DeclarationIsSupplementary() then
+                                dano := '';
                         end;
                     }
                     textattribute(odp_zocelk)
@@ -1383,15 +1385,19 @@ xmlport 11766 "VAT Statement DPHDP3 CZL"
     local procedure SetVATLiability()
     begin
         dano_no := '';
-        dano_da := GetAmount('dano_da');
-        dano_da := DelChr(dano_da, '=', '-');
+        if not DeclarationIsSupplementary() then begin
+            dano_da := GetAmount('dano_da');
+            dano_da := DelChr(dano_da, '=', '-');
+        end;
     end;
 
     local procedure SetExcessVATDeduction()
     begin
         dano_da := '';
-        dano_no := GetAmount('dano_no');
-        dano_no := DelChr(dano_no, '=', '-');
+        if not DeclarationIsSupplementary() then begin
+            dano_no := GetAmount('dano_no');
+            dano_no := DelChr(dano_no, '=', '-');
+        end;
     end;
 
     local procedure GetAmount(XMLTag: Code[20]): Text[14]

@@ -7337,6 +7337,7 @@
         CurrExchRate: Record "Currency Exchange Rate";
         VATAmountLine: Record "VAT Amount Line";
         VATBaseAmount: Decimal;
+        VATBaseAmountACY: Decimal;
         VATAmount: Decimal;
         VATAmountACY: Decimal;
         VATAmountRemainder: Decimal;
@@ -7363,19 +7364,16 @@
                                 VATBaseAmount := TempInvoicePostBuffer.Amount
                             else
                                 VATBaseAmount := TempInvoicePostBuffer."VAT Base Amount";
+                            VATBaseAmount := VATBaseAmount * (1 - PurchHeader."VAT Base Discount %" / 100);
+                            VATBaseAmountACY := TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100);
 
                             if PurchHeader."Currency Code" <> '' then
                                 VATBaseAmount := CurrExchRate.ExchangeAmtLCYToFCY(
                                     PurchHeader.GetUseDate(), PurchHeader."Currency Code",
                                     VATBaseAmount, PurchHeader."Currency Factor");
 
-                            VATAmount :=
-                                VATBaseAmount * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100;
-
-                            VATAmountACY :=
-                                TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100;
+                            VATAmount := VATBaseAmount * VATPostingSetup."VAT %" / 100;
+                            VATAmountACY := VATBaseAmountACY * VATPostingSetup."VAT %" / 100;
 
                             TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
                             if TempInvoicePostBufferReverseCharge.Find then begin
@@ -7393,10 +7391,24 @@
 
                                 VATAmountACYRemainder += VATAmountACY;
                                 TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
-                                VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)"
+                                VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)";
+
+                                if PurchSetup."Allow VAT Difference" then
+                                    VATBaseAmount := TempInvoicePostBuffer.Amount
+                                else
+                                    VATBaseAmount := TempInvoicePostBuffer."VAT Base Amount";
+                                TempInvoicePostBuffer."VAT Base Amount" := Round(VATBaseAmount * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                TempInvoicePostBuffer."VAT Base Amount (ACY)" := Round(TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end else begin
                                 TempInvoicePostBuffer."VAT Amount" := Round(VATAmount);
                                 TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
+
+                                if PurchSetup."Allow VAT Difference" then
+                                    VATBaseAmount := TempInvoicePostBuffer.Amount
+                                else
+                                    VATBaseAmount := TempInvoicePostBuffer."VAT Base Amount";
+                                TempInvoicePostBuffer."VAT Base Amount" := Round(VATBaseAmount * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                TempInvoicePostBuffer."VAT Base Amount (ACY)" := Round(TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
                             TempInvoicePostBuffer.Modify();
                         end;

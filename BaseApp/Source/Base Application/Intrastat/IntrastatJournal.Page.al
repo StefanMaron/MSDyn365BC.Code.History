@@ -97,7 +97,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {

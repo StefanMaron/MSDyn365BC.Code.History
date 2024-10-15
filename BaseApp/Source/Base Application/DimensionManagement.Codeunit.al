@@ -315,7 +315,7 @@
     local procedure GetLastDimErrorID(): Integer
     begin
         if ErrorMessageMgt.IsActive then
-            exit(ErrorMessageMgt.GetLastErrorID);
+            exit(ErrorMessageMgt.GetCachedLastErrorID());
         exit(LastErrorMessage.ID);
     end;
 

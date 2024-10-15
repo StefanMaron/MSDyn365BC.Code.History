@@ -465,7 +465,7 @@ page 5167 "Purchase Order Archive"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {

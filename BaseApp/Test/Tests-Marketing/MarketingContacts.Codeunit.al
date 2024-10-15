@@ -2791,7 +2791,7 @@ codeunit 136201 "Marketing Contacts"
         PersonContact: Record Contact;
         Customer: Record Customer;
     begin
-        // [SCENARIO 202046] Customer Email and Phone No. updated when Primary Contact field updated
+        // [SCENARIO 202046] Customer Email and Phone No. is not updated when the Primary Contact field is referring to a personal contact.
         Initialize;
 
         // [GIVEN] Company Contact "CC"
@@ -2815,8 +2815,8 @@ codeunit 136201 "Marketing Contacts"
         Customer.Modify();
 
         // [THEN] Customer E-Mail = "EMAIL", Phone No. = "PHONENO"
-        Customer.TestField("E-Mail", PersonContact."E-Mail");
-        Customer.TestField("Phone No.", PersonContact."Phone No.");
+        Customer.TestField("E-Mail", CompanyContact."E-Mail");
+        Customer.TestField("Phone No.", CompanyContact."Phone No.");
     end;
 
     [Test]
@@ -2827,7 +2827,7 @@ codeunit 136201 "Marketing Contacts"
         PersonContact: Record Contact;
         Vendor: Record Vendor;
     begin
-        // [SCENARIO 202046] Vendor Email and Phone No. updated when Primary Contact field updated
+        // [SCENARIO 202046] Vendor Email and Phone No. is not updated when the Primary Contact field is referring to a personal contact.
         Initialize;
 
         // [GIVEN] Company Contact "CC"
@@ -2849,10 +2849,10 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Vendor Primary Contact No. changed to "PC"
         Vendor.Validate("Primary Contact No.", PersonContact."No.");
         Vendor.Modify();
-
+        
         // [THEN] Vendor E-Mail = "EMAIL", Phone No. = "PHONENO"
-        Vendor.TestField("E-Mail", PersonContact."E-Mail");
-        Vendor.TestField("Phone No.", PersonContact."Phone No.");
+        Vendor.TestField("E-Mail", CompanyContact."E-Mail");
+        Vendor.TestField("Phone No.", CompanyContact."Phone No.");
     end;
 
     [Test]
