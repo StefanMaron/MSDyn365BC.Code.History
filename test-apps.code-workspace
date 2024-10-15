@@ -84,6 +84,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./paymentpractices/test/Payment Practices Tests"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {
@@ -216,6 +219,9 @@
       "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
+      "path": "./saf-t/test/SAF-T Tests"
+    },
+    {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
     },
     {
@@ -223,6 +229,9 @@
     },
     {
       "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
+    },
+    {
+      "path": "./SAFTModificationDK/Test/SAF-T Modification DK Tests"
     },
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
