@@ -1132,9 +1132,9 @@ codeunit 134767 "Test OData Wizard US"
         Contact."Home Page" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact."Home Page")), 1, MaxStrLen(Contact."Home Page"));
         Contact."Phone No." :=
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact."Phone No.")), 1, MaxStrLen(Contact."Phone No."));
+          CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen(Contact."Phone No.")), 1, MaxStrLen(Contact."Phone No."));
         Contact."Mobile Phone No." :=
-          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact."Mobile Phone No.")), 1, MaxStrLen(Contact."Mobile Phone No."));
+          CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen(Contact."Mobile Phone No.")), 1, MaxStrLen(Contact."Mobile Phone No."));
         Contact."Fax No." :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact."Fax No.")), 1, MaxStrLen(Contact."Fax No."));
         Contact.Address :=
