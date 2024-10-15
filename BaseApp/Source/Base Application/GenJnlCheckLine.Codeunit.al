@@ -341,11 +341,11 @@
             if not DateCheckDone then
                 if DateNotAllowed("Posting Date", "Journal Template Name") then
                     FieldError("Posting Date", ErrorInfo.Create(Text001, true));
-
             SourceCodeSetup.Get();
             if SourceCodeSetup."Close Income Statement" = "Source Code" then
                 CheckPostingPeriod(false);
-            if SourceCodeSetup."Inventory Post Cost" <> "Source Code" then
+            OnBeforeCheckNOVATTools(GenJnlLine);
+            if (SourceCodeSetup."Inventory Post Cost" <> "Source Code") then
                 VATTools.RunCheckNorwegianVAT(GenJnlLine, AllowPostingInClosedVATPeriod);
             CheckPostingPeriod(true);
 
@@ -1002,6 +1002,11 @@
     begin
         exit((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") or 
             (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" "));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNOVATTools(var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
     
     [IntegrationEvent(true, false)]

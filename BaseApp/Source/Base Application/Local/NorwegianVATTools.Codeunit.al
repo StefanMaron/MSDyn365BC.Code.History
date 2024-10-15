@@ -366,9 +366,9 @@ codeunit 10600 "Norwegian VAT Tools"
             if AllowPostingInClosedVATPeriod then
                 AllowPostingInClosedVATPeriod := false
             else
-                if SettledVATPeriod.Get(Date2DMY("Posting Date", 3), VATPeriodNo("Posting Date")) then
+                if SettledVATPeriod.Get(Date2DMY("VAT Reporting Date", 3), VATPeriodNo("VAT Reporting Date")) then
                     if SettledVATPeriod.Closed then
-                        FieldError("Posting Date", StrSubstNo(Text005, SettledVATPeriod.Year, SettledVATPeriod."Period No."));
+                        FieldError("VAT Reporting Date", StrSubstNo(Text005, SettledVATPeriod.Year, SettledVATPeriod."Period No."));
 
             if "VAT Base Amount Type" <> "VAT Base Amount Type"::Automatic then begin
                 if ("Gen. Posting Type" = "Gen. Posting Type"::Purchase) or
@@ -521,6 +521,17 @@ codeunit 10600 "Norwegian VAT Tools"
         TempVATCode.Validate("SAF-T VAT Code", SAFTVATCode);
         TempVATCode.Validate("VAT Note Code", VATNoteCode);
         TempVATCode.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnBeforeCheckNOVATTools', '', true, true)]
+    local procedure OnBeforeCheckNOVATTools(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        if GenJournalLine."VAT Reporting Date" = 0D then begin
+            GenJournalLine."VAT Reporting Date" := GLSetup.GetVATDate(GenJournalLine."Posting Date", GenJournalLine."Document Date");
+            GenJournalLine.Modify();
+        end;
     end;
 
 #if not CLEAN20

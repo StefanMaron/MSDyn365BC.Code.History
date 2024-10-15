@@ -655,6 +655,11 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'VAT Date';
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';

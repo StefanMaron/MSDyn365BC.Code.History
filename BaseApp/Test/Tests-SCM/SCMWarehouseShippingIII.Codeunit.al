@@ -1241,6 +1241,86 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DirectTransferOrderWithTransferToBinCode()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
+    begin
+        // [FEATURE] [Direct Transfer] 
+        // [SCENARIO 467919] Posted Direct Transfer line has blank GǣTransfer-to Bin CodeGǥ when transfer to location has Bin Mandatory setup
+        Initialize();
+
+        // [GIVEN] when in Inventory Setup field "Direct Transfer Posting" is set as "Direct Transfer"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Created new item and put on the inventory
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationBlue.Code, '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Set default bin on the destination location 
+        CreatedDefaulBinContent(LocationSilver, Item, '');
+
+        // [GIVEN] Created new transfer order 
+        CreateAndReleaseDirectTransferOrder(TransferHeader, LocationBlue.Code, LocationSilver.Code, Item."No.", 1);
+
+        // [WHEN] transfer order posted as direct transfer
+        TransferOrderPostTransfer.SetHideValidationDialog(true);
+        TransferOrderPostTransfer.Run(TransferHeader);
+
+        // [THEN] posted direct transfer line contains info about transfer-to bin code
+        CheckPostedDirectTransfer(TransferHeader, Item);
+    end;
+
+    local procedure CheckPostedDirectTransfer(TransferHeader: Record "Transfer Header"; Item: Record Item)
+    var
+        DirectTransferHeader: Record "Direct Trans. Header";
+        DirectTransferLine: Record "Direct Trans. Line";
+    begin
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        DirectTransferHeader.FindFirst();
+
+        DirectTransferLine.SetRange("Document No.", DirectTransferHeader."No.");
+        DirectTransferLine.SetRange("Item No.", Item."No.");
+        DirectTransferLine.FindFirst();
+        DirectTransferLine.TestField("Transfer-To Bin Code");
+    end;
+
+    local procedure CreatedDefaulBinContent(Location: Record Location; Item: Record Item; BinCode: Code[20])
+    var
+        BinContent: Record "Bin Content";
+        Bin: Record Bin;
+    begin
+        Location.TestField("Bin Mandatory");
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        if BinContent.FindFirst() then begin
+            if BinCode <> '' then
+                BinContent.TestField("Bin Code", BinCode);
+            exit;
+        end;
+
+        if BinCode = '' then begin
+            LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+            BinCode := Bin.Code;
+        end;
+
+        BinContent.Init();
+        BinContent.Validate("Location Code", Location.Code);
+        BinContent.Validate("Bin Code", BinCode);
+        BinContent.Validate("Item No.", Item."No.");
+        BinContent.Default := true;
+        BinContent.Insert();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure WhseReceiptAfterReleasedSalesReturnOrderExternalDocNoChanged()
     var
         SalesHeader: Record "Sales Header";

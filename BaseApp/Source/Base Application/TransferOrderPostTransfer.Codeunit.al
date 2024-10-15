@@ -66,18 +66,18 @@
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get();
-            InvtSetup.TestField("Posted Direct Trans. Nos.");
+            InventorySetup.Get();
+            InventorySetup.TestField("Posted Direct Trans. Nos.");
 
             NoSeriesLine.LockTable();
             if NoSeriesLine.FindLast() then;
-            if InvtSetup."Automatic Cost Posting" then begin
+            if InventorySetup."Automatic Cost Posting" then begin
                 GLEntry.LockTable();
                 if GLEntry.FindLast() then;
             end;
 
             InsertDirectTransHeader(TransHeader, DirectTransHeader);
-            if InvtSetup."Copy Comments Order to Shpt." then begin
+            if InventorySetup."Copy Comments Order to Shpt." then begin
                 InvtCommentLine.CopyCommentLines(
                     "Inventory Comment Document Type"::"Transfer Order", "No.",
                     "Inventory Comment Document Type"::"Posted Direct Transfer", DirectTransHeader."No.");
@@ -141,7 +141,7 @@
         TransHeader: Record "Transfer Header";
         TransLine: Record "Transfer Line";
         Location: Record Location;
-        InvtSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
         ItemJnlLine: Record "Item Journal Line";
         WhseRqst: Record "Warehouse Request";
         PostedWhseShptHeader: Record "Posted Whse. Shipment Header";
@@ -259,10 +259,10 @@
         DirectTransHeader."Dimension Set ID" := TransferHeader."Dimension Set ID";
         DirectTransHeader."Transfer Order No." := TransferHeader."No.";
         DirectTransHeader."External Document No." := TransferHeader."External Document No.";
-        DirectTransHeader."No. Series" := InvtSetup."Posted Direct Trans. Nos.";
+        DirectTransHeader."No. Series" := InventorySetup."Posted Direct Trans. Nos.";
         OnInsertDirectTransHeaderOnBeforeGetNextNo(DirectTransHeader, TransferHeader);
         DirectTransHeader."No." :=
-            NoSeriesMgt.GetNextNo(InvtSetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
+            NoSeriesMgt.GetNextNo(InventorySetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
         OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
         DirectTransHeader.Insert();
 
@@ -487,8 +487,21 @@
     var
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        if InventorySetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnAfterValidateQtyToShip', '', false, false)]
+    local procedure WarehouseShipmentLineOnValidateQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+        if WarehouseShipmentLine."Qty. to Ship (Base)" <> 0 then
+            CheckDirectTransferQtyToShip(WarehouseShipmentLine);
+    end;
+
+    local procedure CheckDirectTransferQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+        if WarehouseShipmentLine.CheckDirectTransfer(false, false) then
+            WarehouseShipmentLine.TestField("Qty. to Ship (Base)", WarehouseShipmentLine."Qty. Outstanding (Base)");
     end;
 
     [IntegrationEvent(false, false)]
