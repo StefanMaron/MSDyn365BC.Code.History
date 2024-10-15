@@ -119,6 +119,53 @@ codeunit 145403 "AU Feature Bugs"
           GeneralLedgerSetup."Unrealized VAT");
     end;
 
+    [Test]
+    //[HandlerFunctions('HandleEditdimSetEntryForm')]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionValueLenOnWHT()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: Record "Dimension Value";
+        DimensionSetID: Integer;
+        ShortcutDimCode: Code[20];
+        ShortcutDimValueCode: Code[20];
+        VendorNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 449150] Dimension value characters limit error 'The length of the string is 20, but it must be less than or equal to 10 characters. Value: XXXXXXXXXXX'
+        // [GIVEN] Create Setup and Disable GST Australia and Enable WHT to true on General Ledger Setup  
+        CreateWHTPostingSetup(WHTPostingSetup);
+        UpdateGeneralLedgerSetup(true, true, true, true);
+        UpdateGSTAusOnGenLedgSetup(false);
+        FindAndUpdateVATPostingSetup(VATPostingSetup);
+
+        // [THEN] Create General journal Batch and Create Dimension Code.
+        PrepareGeneralJournal(GenJournalBatch);
+        ShortcutDimCode := FindShortcutDimension;
+        CreateDimensionValue(DimensionValue, ShortcutDimCode);
+
+        // [GIVEN] Create the general journal line
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, CreateVendor(VATPostingSetup."VAT Bus. Posting Group",
+            WHTPostingSetup."WHT Business Posting Group"), LibraryRandom.RandInt(1000));
+
+        // [THEN] Change shortcut dimension on the general journal line
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        GenJournalLine.Modify(true);
+        VendorNo := GenJournalLine."Account No.";
+        Amount := GenJournalLine.Amount;
+
+        // [THEN] Post genjournal line 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        //[VERIFY] Verify the posted Vendor Ledger Entry.
+        VerifyVendorLedgerEntry(VendorNo, Amount);
+    end;
+
     local procedure CreateAndPostGeneralJournalLine(): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -317,6 +364,50 @@ codeunit 145403 "AU Feature Bugs"
             CalcSums(Amount);
             Assert.AreEqual(Amount, 0, AmountMustBeZeroMsg);
         end;
+    end;
+
+    local procedure PrepareGeneralJournal(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+    end;
+
+    local procedure FindShortcutDimension(): Code[20]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        exit(GeneralLedgerSetup."Shortcut Dimension 1 Code");
+    end;
+
+    local procedure UpdateGSTAusOnGenLedgSetup(EnableGSTAustralia: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Enable GST (Australia)", EnableGSTAustralia);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
+    begin
+        DimensionValue.Init();
+        DimensionValue.Validate("Dimension Code", DimensionCode);
+        DimensionValue.Validate(
+          Code, 'XXXXXXXXXXXXXXXXXXXX');
+        DimensionValue.Insert(true);
+    end;
+
+    local procedure VerifyVendorLedgerEntry(VendorNo: Code[20]; RemainingAmount: Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindSet();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        repeat
+            VendorLedgerEntry.TestField("Remaining Amount", RemainingAmount);
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

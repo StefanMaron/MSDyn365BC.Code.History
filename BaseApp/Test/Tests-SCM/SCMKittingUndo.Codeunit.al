@@ -32,6 +32,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         GenProdPostingGr: Code[20];
         AsmInvtPostingGr: Code[20];
         CompInvtPostingGr: Code[20];
@@ -58,6 +59,7 @@ codeunit 137097 "SCM Kitting - Undo"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Undo");
         ConfirmUndoCount := 0;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -675,6 +677,20 @@ codeunit 137097 "SCM Kitting - Undo"
         ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
           Round(QtyToReserve / SalesLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        i: Integer;
+    begin
+        ItemTrackingLines.First();
+        for i := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+            ItemTrackingLines.Next();
+        end;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2031,6 +2047,146 @@ codeunit 137097 "SCM Kitting - Undo"
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Lot No.", LotNo);
         ItemLedgerEntry.TestField("Expiration Date", WorkDate2 + 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure ItemTrackingLinesForFullyPostedAndUndoneAssembly()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        LotNos: array[2] of Code[50];
+        InventoryQty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 441849] Show proper values on Item Tracking Lines page after assembly order has been posted, undone, and the reservation has been deleted.
+        Initialize();
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        InventoryQty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Assembly item; lot-tracked component item.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryItemTracking.CreateLotItem(CompItem);
+        AddComponentToAssemblyList(
+          BOMComponent, "BOM Component Type"::Item, CompItem."No.", AsmItem."No.", '', 0, CompItem."Base Unit of Measure", 1);
+
+        // [GIVEN] Post two lots "L1" and "L2" of the component item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', InventoryQty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[1], InventoryQty / 2);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[2], InventoryQty / 2);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Assembly order for 11 pcs - lot "L1" for 5 pcs, lot "L2" for 6 pcs.
+        // [GIVEN] Post the assembly order.
+        CreateAssemblyOrder(AssemblyHeader, AsmItem, '', '', '', WorkDate2, 11); // odd number so that the quantity will be distributed by lots unequally.
+        FindAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNos[1], 5);
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNos[2], 6);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Undo the posted assembly and restore the original order.
+        FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
+        LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
+
+        // [GIVEN] Check that item tracking lines have been recreated correctly and delete them.
+        AssemblyHeader.Find();
+        FindAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
+        ReservationEntry.SetSourceFilter(
+          Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
+          AssemblyLine."Line No.", true);
+        ReservationEntry.CalcSums("Quantity (Base)");
+        ReservationEntry.TestField("Quantity (Base)", -AssemblyLine."Quantity (Base)");
+        ReservationEntry.DeleteAll(true);
+
+        // [WHEN] Open item tracking page for the assembly line.
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(0);
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [THEN] The item tracking lines page is empty.
+        // Verification is done in ItemTrackingLinesModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure ItemTrackingLinesForPartiallyPostedAndUndoneAssembly()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        LotNos: array[2] of Code[50];
+        InventoryQty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Partial Posting]
+        // [SCENARIO 441849] Show proper values on Item Tracking Lines page after assembly order has been partially posted and undone.
+        Initialize();
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        InventoryQty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Assembly item; lot-tracked component item.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryItemTracking.CreateLotItem(CompItem);
+        AddComponentToAssemblyList(
+          BOMComponent, "BOM Component Type"::Item, CompItem."No.", AsmItem."No.", '', 0, CompItem."Base Unit of Measure", 1);
+
+        // [GIVEN] Post two lots "L1" and "L2" of the component item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', InventoryQty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[1], InventoryQty / 2);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[2], InventoryQty / 2);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Assembly order for 11 pcs, set "Quantity to Assemble " = 5.
+        // [GIVEN] Select lot "L1": Quantity = 5 pcs, Qty. to Handle = 2 pcs.
+        // [GIVEN] Select lot "L2": Quantity = 6 pcs, Qty. to Handle = 3 pcs.
+        // [GIVEN] Partially post the assembly order.
+        CreateAssemblyOrder(AssemblyHeader, AsmItem, '', '', '', WorkDate2, 11); // odd number so that the quantity will be distributed by lots unequally.
+        AssemblyHeader.Validate("Quantity to Assemble", 5);
+        AssemblyHeader.Modify(true);
+        FindAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNos[1], 5);
+        ReservationEntry.Validate("Qty. to Handle (Base)", -2);
+        ReservationEntry.Modify(true);
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNos[2], 6);
+        ReservationEntry.Validate("Qty. to Handle (Base)", -3);
+        ReservationEntry.Modify(true);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Undo the assembly order.
+        FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
+        LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
+
+        // [WHEN] Open item tracking lines for the assembly line.
+        LibraryVariableStorage.Enqueue(2);
+        LibraryVariableStorage.Enqueue(LotNos[1]);
+        LibraryVariableStorage.Enqueue(5);
+        LibraryVariableStorage.Enqueue(LotNos[2]);
+        LibraryVariableStorage.Enqueue(6);
+        AssemblyLine.OpenItemTrackingLines();
+
+        // [THEN] Item tracking has been restored properly - 5 pcs of lot "L1" and 6 pcs of lot "L2".
+        // Verification is done in ItemTrackingLinesModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 }
 

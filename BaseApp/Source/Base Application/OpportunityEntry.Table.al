@@ -408,7 +408,7 @@ table 5093 "Opportunity Entry"
                 end;
     end;
 
-    procedure GetSalesDocValue(SalesHeader: Record "Sales Header"): Decimal
+    procedure GetSalesDocValue(SalesHeader: Record "Sales Header") Result: Decimal
     var
         TotalSalesLine: Record "Sales Line";
         TotalSalesLineLCY: Record "Sales Line";
@@ -418,7 +418,13 @@ table 5093 "Opportunity Entry"
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
         TotalAdjCostLCY: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesDocValue(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesPost.SumSalesLines(
           SalesHeader, 0, TotalSalesLine, TotalSalesLineLCY,
           VATAmount, VATAmountText, ProfitLCY, ProfitPct, TotalAdjCostLCY);
@@ -969,6 +975,11 @@ table 5093 "Opportunity Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateStageList(var OpportunityEntry: Record "Opportunity Entry"; var OpportunityEntryRec: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesDocValue(SalesHeader: Record "Sales Header"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

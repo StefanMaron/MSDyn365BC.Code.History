@@ -41,6 +41,12 @@ page 1001 "Job Task Lines Subform"
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this. Choose the field to select one of the following five options:';
+
+                    trigger OnValidate()
+                    begin
+                        StyleIsStrong := "Job Task Type" <> "Job Task Type"::Posting;
+                        CurrPage.Update();
+                    end;
                 }
                 field(Totaling; Totaling)
                 {

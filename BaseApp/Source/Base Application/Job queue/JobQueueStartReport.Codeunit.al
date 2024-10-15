@@ -41,10 +41,7 @@ codeunit 487 "Job Queue Start Report"
                 else
                     REPORT.Execute(ReportID, JobQueueEntry.GetReportParameters());
             JobQueueEntry."Report Output Type"::Print:
-                if RunOnRec then
-                    REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name", RecRef)
-                else
-                    REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name");
+                ProcessPrint(ReportID, JobQueueEntry, RunOnRec, RecRef);
             JobQueueEntry."Report Output Type"::PDF:
                 begin
                     if RunOnRec then
@@ -71,6 +68,8 @@ codeunit 487 "Job Queue Start Report"
                 end;
         end;
 
+        OnRunReportOnAfterProcessDifferentReportOutputTypes(ReportID, JobQueueEntry);
+
         case JobQueueEntry."Report Output Type" of
             JobQueueEntry."Report Output Type"::"None (Processing only)":
                 begin
@@ -85,12 +84,31 @@ codeunit 487 "Job Queue Start Report"
             JobQueueEntry."Report Output Type"::Print:
                 ;
             else begin
+                IsHandled := false;
+                OnRunReportOnBeforeReportInboxInsert(ReportInbox, JobQueueEntry, IsHandled);
+                if not IsHandled then begin
                     ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
                     ReportInbox.Insert(true);
                 end;
+            end;
         end;
         OnRunReportOnBeforeCommit(ReportInbox, JobQueueEntry);
         Commit();
+    end;
+
+    local procedure ProcessPrint(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; RunOnRec: Boolean; var RecRef: RecordRef)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessPrint(ReportID, JobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if RunOnRec then
+            REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name", RecRef)
+        else
+            REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name");
     end;
 
     local procedure SetReportTimeOut(JobQueueEntry: Record "Job Queue Entry")
@@ -124,6 +142,11 @@ codeunit 487 "Job Queue Start Report"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessPrint(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -135,6 +158,16 @@ codeunit 487 "Job Queue Start Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunReportOnAfterAssignFields(var ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportOnAfterProcessDifferentReportOutputTypes(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportOnBeforeReportInboxInsert(ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 

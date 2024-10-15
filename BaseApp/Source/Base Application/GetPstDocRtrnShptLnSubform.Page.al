@@ -191,7 +191,7 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -199,7 +199,7 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -217,6 +217,19 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
         DocumentNoOnFormat();
     end;
 
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnFindRecordOnBeforeFind(Rec, Which, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(Rec.Find(Which));
+    end;
+
     trigger OnOpenPage()
     begin
     end;
@@ -231,17 +244,17 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
     begin
         TempReturnShptLine.Reset();
         TempReturnShptLine.CopyFilters(Rec);
-        TempReturnShptLine.SetRange("Document No.", "Document No.");
+        TempReturnShptLine.SetRange("Document No.", Rec."Document No.");
         if not TempReturnShptLine.FindFirst() then begin
             ReturnShptLine.CopyFilters(Rec);
-            ReturnShptLine.SetRange("Document No.", "Document No.");
+            ReturnShptLine.SetRange("Document No.", Rec."Document No.");
             if not ReturnShptLine.FindFirst() then
                 exit(false);
             TempReturnShptLine := ReturnShptLine;
             TempReturnShptLine.Insert();
         end;
 
-        exit("Line No." = TempReturnShptLine."Line No.");
+        exit(Rec."Line No." = TempReturnShptLine."Line No.");
     end;
 
     procedure GetSelectedLine(var FromReturnShptLine: Record "Return Shipment Line")
@@ -254,7 +267,7 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
     var
         ReturnShptHeader: Record "Return Shipment Header";
     begin
-        if not ReturnShptHeader.Get("Document No.") then
+        if not ReturnShptHeader.Get(Rec."Document No.") then
             exit;
         PAGE.Run(PAGE::"Posted Return Shipment", ReturnShptHeader);
     end;
@@ -271,6 +284,11 @@ page 5858 "Get Pst.Doc-RtrnShptLn Subform"
     begin
         if not IsFirstDocLine() then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordOnBeforeFind(var ReturnShipmentLine: Record "Return Shipment Line"; var Which: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

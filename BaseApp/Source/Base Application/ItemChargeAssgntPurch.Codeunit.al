@@ -136,7 +136,13 @@
     var
         ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)";
         NextLine: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateRcptChargeAssgnt(FromPurchRcptLine, ItemChargeAssgntPurch, IsHandled);
+        if IsHandled then
+            exit;
+
         FromPurchRcptLine.TestField("Work Center No.", '');
         NextLine := ItemChargeAssgntPurch."Line No.";
         ItemChargeAssgntPurch2.SetRange("Document Type", ItemChargeAssgntPurch."Document Type");
@@ -929,6 +935,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDocChargeAssgn(var LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var FromPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRcptChargeAssgnt(var FromPurchRcptLine: Record "Purch. Rcpt. Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
     begin
     end;
 

@@ -2683,6 +2683,9 @@
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
         VATAmountLine: Record "VAT Amount Line";
+        VATPostingSetup: Record "Vat Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
         PurchPost: Codeunit "Purch.-Post";
     begin
         // [FEATURE] [Purchase] [UT]
@@ -2690,14 +2693,23 @@
         Initialize();
 
         // [GIVEN] Purchase order with 100% prepayment.
-        CreatePurchaseHeader(PurchaseHeader, '', 100, false);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(11, 20));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify(true);
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreatePurchaseHeader(
+          PurchaseHeader,
+          LibraryPurchase.CreateVendorWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"),
+          100, false);
+        Item.Get(
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(11, 20), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Post prepayment invoice.
         // [GIVEN] Post the receipt.
+        UpdatePurchasePrepmtAccount(
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -2727,6 +2739,9 @@
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         VATAmountLine: Record "VAT Amount Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
         SalesPost: Codeunit "Sales-Post";
     begin
         // [FEATURE] [Sales] [UT]
@@ -2734,14 +2749,23 @@
         Initialize();
 
         // [GIVEN] Sales order with 100% prepayment.
-        CreateSalesHeader(SalesHeader, '', 100, false);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(11, 20));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesHeader(
+          SalesHeader,
+          LibrarySales.CreateCustomerWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"),
+          100, false);
+        Item.Get(
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandIntInRange(11, 20), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Post prepayment invoice.
         // [GIVEN] Post the shipment.
+        UpdateSalesPrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 

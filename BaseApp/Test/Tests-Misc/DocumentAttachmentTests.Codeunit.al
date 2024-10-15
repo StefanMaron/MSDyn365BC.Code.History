@@ -113,6 +113,83 @@ codeunit 134776 "Document Attachment Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('RelatedAttachmentsHandler,CloseEmailEditorHandler')]
+    procedure EnsureRelatedAttachmentIsFound()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        Email: Codeunit Email;
+        EmailMessage: Codeunit "Email Message";
+        RecRef: RecordRef;
+        EmailEditorPage: TestPage "Email Editor";
+    begin
+        // [SCENARIO] Ensure that event OnFindRelatedAttachments finds the related attachment
+
+        // [GIVEN] A purchase order exists with a vendor no and an attachment
+        Initialize();
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        RecRef.GetTable(PurchaseHeader);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+
+        // [GIVEN] The purchase order is added to an email as a related source
+        EmailMessage.Create('', '', '', true);
+        Email.SaveAsDraft(EmailMessage);
+        Email.AddRelation(EmailMessage, DATABASE::"Purchase Header", PurchaseHeader.SystemId, Enum::"Email Relation Type"::"Primary Source", Enum::"Email Relation Origin"::"Compose Context");
+
+        // [WHEN] Opening the Email Related Attachments page
+        EmailEditorPage.Trap();
+        Email.OpenInEditor(EmailMessage);
+        EmailEditorPage.Attachments.SourceAttachments.Invoke();
+
+        // [THEN] The Email Related Attachments page contains the attachment from the purchase order (verified in RelatedAttachmentsHandler)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RelatedAttachmentsHandler,CloseEmailEditorHandler')]
+    procedure EnsureRelatedAttachmentIsFoundWithDuplicateNumber()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        LocalVendor: Record Vendor;
+        Email: Codeunit Email;
+        EmailMessage: Codeunit "Email Message";
+        RecRef: RecordRef;
+        EmailEditorPage: TestPage "Email Editor";
+    begin
+        // [SCENARIO] Ensure that event OnFindRelatedAttachments finds the correct attachment when the No. of two records are the same.
+
+        // [GIVEN] A purchase order exists with a vendor no and an attachment
+        Initialize();
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        RecRef.GetTable(PurchaseHeader);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+
+        // [GIVEN] A vendor with the same No. and an attachment
+        LocalVendor.Init();
+        LocalVendor."No." := PurchaseHeader."No.";
+        LocalVendor.Insert();
+
+        RecRef.GetTable(LocalVendor);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'bar.jpeg');
+
+        // [GIVEN] The purchase order is added to an email as a related source
+        EmailMessage.Create('', '', '', true);
+        Email.SaveAsDraft(EmailMessage);
+        Email.AddRelation(EmailMessage, DATABASE::"Purchase Header", PurchaseHeader.SystemId, Enum::"Email Relation Type"::"Primary Source", Enum::"Email Relation Origin"::"Compose Context");
+
+        // [WHEN] Opening the Email Related Attachments page
+        EmailEditorPage.Trap();
+        Email.OpenInEditor(EmailMessage);
+        EmailEditorPage.Attachments.SourceAttachments.Invoke();
+
+        // [THEN] The Email Related Attachments page only contains the attachment from the purchase order (verified in RelatedAttachmentsHandler)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure EnsureDuplicateFileWithSameNameAndExtIsNotSaved()
     var
         Customer: Record Customer;
@@ -2544,6 +2621,15 @@ codeunit 134776 "Document Attachment Tests"
     end;
 
     [ModalPageHandler]
+    procedure RelatedAttachmentsHandler(var RelatedAttachmentsPage: TestPage "Email Related Attachments")
+    begin
+        RelatedAttachmentsPage.First();
+        Assert.AreEqual('foo.jpeg', RelatedAttachmentsPage.FileName.Value(), 'Wrong attachment');
+        Assert.IsFalse(RelatedAttachmentsPage.Next(), 'Unexpected related attachment, only one is expected');
+        RelatedAttachmentsPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ListSalesFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
@@ -2656,6 +2742,13 @@ codeunit 134776 "Document Attachment Tests"
     procedure PrintedToAttachmentNotificationHandler(var Notification: Notification): Boolean
     begin
         LibraryVariableStorage.Enqueue(Notification.Message);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [StrMenuHandler]

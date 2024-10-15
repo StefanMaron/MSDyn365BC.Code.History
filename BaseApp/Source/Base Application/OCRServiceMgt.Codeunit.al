@@ -139,6 +139,7 @@ codeunit 1294 "OCR Service Mgt."
     end;
 
     [TryFunction]
+    [NonDebuggable]
     local procedure TryAuthenticate(var AuthenticationSucceeded: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -322,6 +323,7 @@ codeunit 1294 "OCR Service Mgt."
         exit(Result);
     end;
 
+    [NonDebuggable]
     local procedure RsoAddHeaders(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
     begin
         HttpWebRequestMgt.AddHeader('x-rs-version', '2011-10-14');

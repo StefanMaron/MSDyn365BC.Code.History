@@ -361,6 +361,10 @@ table 13 "Salesperson/Purchaser"
                 MailManagement.ValidateEmailAddressField("E-Mail 2");
             end;
         }
+        field(5087; Blocked; Boolean)
+        {
+            Caption = 'Blocked';
+        }
     }
 
     keys
