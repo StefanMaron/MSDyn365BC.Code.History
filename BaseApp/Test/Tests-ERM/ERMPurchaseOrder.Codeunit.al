@@ -5988,6 +5988,47 @@ codeunit 134327 "ERM Purchase Order"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeWithHundredPctDiscount()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        DocNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase Order] [Item Charge]
+        // [SCENARIO 371811] Stan can post purchase order that has the item charge with hundred percent line discount
+
+        Initialize();
+
+        // [GIVEN] Create Purch. Order with item and item charge lines. Item Charge Line has quantity = 1, line discount % = 100, amount = 0
+        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
+        CreatePurchaseLineWithDirectUnitCost(
+          PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
+        Qty := PurchaseLine.Quantity;
+        CreatePurchaseLineWithDirectUnitCost(
+          PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
+          LibraryInventory.CreateItemChargeNo, Qty, PurchaseLine."Unit Cost" / 3);
+        PurchaseLine.Validate("Line Discount %", 100);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line
+        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
+
+        // [GIVEN] Post purchase order
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [THEN] Posted Purchase Invoice Line has quantity and amount of purchase order
+        PurchInvLine.SetRange("Document No.", DocNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
+        PurchInvLine.FindFirst();
+        PurchInvLine.TestField(Quantity, PurchaseLine.Quantity);
+        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

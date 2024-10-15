@@ -1,4 +1,4 @@
-codeunit 5884 "Phys. Invt. Order-Post"
+﻿codeunit 5884 "Phys. Invt. Order-Post"
 {
     Permissions = TableData "Item Entry Relation" = ri,
                   TableData "Pstd. Phys. Invt. Order Hdr" = rimd,
@@ -490,6 +490,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                   WhseJnlLine, TempWhseJnlLine2, TempWhseTrackingSpecification, false);
                 if TempWhseJnlLine2.Find('-') then
                     repeat
+                        OnPostWhseJnlLineOnBeforeCheckWhseJnlLine(TempWhseJnlLine2, Positive, Location, PhysInvtOrderLine);
                         WMSMgt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, false);
                         WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                         Clear(WhseJnlRegisterLine);
@@ -516,6 +517,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 WhsePosting := Location."Bin Mandatory";
             end;
 
+            OnPostPhysInventoryOrderLineOnBeforePostPositiveItemJnlLine(PhysInvtOrderLine, WhsePosting, ItemJnlLine, PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine);
             if (PhysInvtOrderLine."Pos. Qty. (Base)" <> 0) or
                (PhysInvtOrderLine."Neg. Qty. (Base)" = 0)
             then begin
@@ -596,5 +598,14 @@ codeunit 5884 "Phys. Invt. Order-Post"
     local procedure OnInsertPostedRecordingsOnBeforeInsertLine(PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line"; var IsHandled: Boolean);
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnBeforeCheckWhseJnlLine(var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; Positive: Boolean; Location: Record Location; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPhysInventoryOrderLineOnBeforePostPositiveItemJnlLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; WhsePosting: Boolean; var ItemJnlLine: Record "Item Journal Line"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line")
+    begin
+    end;
+}

@@ -36,17 +36,21 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        if Job.Get(PriceSource."Parent Source No.") then;
+        xPriceSource := PriceSource;
+        if Job.Get(xPriceSource."Parent Source No.") then;
         if Page.RunModal(Page::"Job List", Job) = ACTION::LookupOK then begin
-            PriceSource.Validate("Parent Source No.", Job."No.");
-            JobTask.SetRange("Job No.", PriceSource."Parent Source No.");
+            xPriceSource.Validate("Parent Source No.", Job."No.");
+            JobTask.SetRange("Job No.", xPriceSource."Parent Source No.");
         end;
-        if JobTask.Get(PriceSource."Parent Source No.", PriceSource."Source No.") then;
+        if JobTask.Get(xPriceSource."Parent Source No.", xPriceSource."Source No.") then;
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
         if Page.RunModal(Page::"Job Task List", JobTask) = ACTION::LookupOK then begin
-            PriceSource.Validate("Parent Source No.", JobTask."Job No.");
-            PriceSource.Validate("Source No.", JobTask."Job Task No.");
+            xPriceSource.Validate("Parent Source No.", JobTask."Job No.");
+            xPriceSource.Validate("Source No.", JobTask."Job Task No.");
+            PriceSource := xPriceSource;
             exit(true);
         end;
     end;

@@ -439,14 +439,32 @@ table 5335 "Integration Table Mapping"
     end;
 
     procedure SynchronizeNow(ResetLastSynchModifiedOnDateTime: Boolean)
+    begin
+        SynchronizeNow(ResetLastSynchModifiedOnDateTime, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SynchronizeNow(ResetLastSynchModifiedOnDateTime: Boolean; ResetSynchonizationTimestampOnRecords: Boolean)
     var
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         Codeunit.Run(Codeunit::"CRM Integration Management");
         if ResetLastSynchModifiedOnDateTime then begin
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");
             Modify;
+        end;
+        if ResetSynchonizationTimestampOnRecords then begin
+            CRMIntegrationManagement.RepairBrokenCouplings(true);
+            CRMIntegrationRecord.SetRange("Table ID", "Table ID");
+            case Direction of
+                Direction::ToIntegrationTable:
+                    CRMIntegrationRecord.ModifyAll("Last Synch. Modified On", 0DT);
+                Direction::FromIntegrationTable:
+                    CRMIntegrationRecord.ModifyAll("Last Synch. CRM Modified On", 0DT);
+            end
         end;
         Commit();
         CRMSetupDefaults.CreateJobQueueEntry(Rec);

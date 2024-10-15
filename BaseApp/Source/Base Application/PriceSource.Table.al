@@ -1,8 +1,8 @@
 table 7005 "Price Source"
 {
-    #pragma warning disable AS0034
+#pragma warning disable AS0034
     TableType = Temporary;
-    #pragma warning restore AS0034
+#pragma warning restore AS0034
 
     fields
     {
@@ -159,6 +159,7 @@ table 7005 "Price Source"
         "Parent Source No." := '';
         "Source No." := '';
         "Filter Source No." := '';
+        "Currency Code" := '';
         GetPriceType();
     end;
 

@@ -3164,12 +3164,12 @@ codeunit 134341 "UT Page Actions & Controls"
         Users: TestPage Users;
     begin
         // [FEATURE] [Users]
-        // [SCENARIO 294901] License Type field is not be editable in SaaS
+        // [SCENARIO 294901] License Type field is not be visible in SaaS
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        Users.OpenEdit;
-        Assert.IsFalse(Users."License Type".Editable, '');
+        Users.OpenEdit();
+        Assert.IsFalse(Users."License Type".Visible(), '');
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;

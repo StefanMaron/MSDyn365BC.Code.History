@@ -5,15 +5,6 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 1686413693 - NamedType 2197338853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Amount=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Copy Workflow Tests - NamedType AmountCondXmlTemplateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1105208579 - NamedType 3436912248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must select an approver before continuing.]]></Val>
@@ -653,15 +644,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4032696654 - NamedType 3619648015" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purchase Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Purchase Line">SORTING(Field1,Field3,Field4) WHERE(Field5=1(%1))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType DynamicRequestPageParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 630459484 - NamedType 430806804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
@@ -1085,15 +1067,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 3619648015" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4) WHERE(Field5=1(%1))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType DynamicRequestPageParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 722135856 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
@@ -1328,24 +1301,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Notification Schedule Tests - NamedType WrongFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 639470280 - NamedType 1069306593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NOTIFYNOW]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Notification Schedule Tests - NamedType NotifyNowLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 639470280 - NamedType 2171919649" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NOTIFYLTR]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WF Notification Schedule Tests - NamedType NotifyLaterLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1922943253 - NamedType 3183848495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Response %1 is not supported in the workflow.]]></Val>
@@ -1373,15 +1328,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Customer Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1153111 - NamedType 2513306467" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Customer Approval - NamedType DynamicRequestPageParametersCustomerTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1153111 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
@@ -1407,15 +1353,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Item Approval - NamedType BogusUserIdTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3266576520 - NamedType 486720756" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Item">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Item Approval - NamedType DynamicRequestPageParametersItemTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3266576520 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1499,24 +1436,6 @@
       <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 3919393496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purchase Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Purchase Line">SORTING(Field1,Field3,Field4)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType DynamicRequestPageParametersOpenPurchaseOrderTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -1589,24 +1508,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 1463255865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType DynamicRequestPageParametersOpenSalesOrderTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Contoso]]></Val>
@@ -1614,15 +1515,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Vendor Approval - NamedType BogusUserIdTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 93122047 - NamedType 2588538379" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Vendor">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit WFWH Vendor Approval - NamedType DynamicRequestPageParametersVendorTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1643,24 +1535,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Wizard Test - Pmt. Jnl App. - NamedType ExitWithoutSavingConfirmMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2088442401 - NamedType 294274101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Doc. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Additional Scenarios - NamedType PurchHeaderTypeCondnTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2088442401 - NamedType 1975269121" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Sales Doc. Event Conditions" id="1504"><DataItems><DataItem name="Sales Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Sales Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Additional Scenarios - NamedType SalesHeaderTypeCondnTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2088442401 - NamedType 2399250197" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[One or more entry-point steps exist that use the same event on table %1. You must specify unique event conditions on entry-point steps that use the same table.]]></Val>
@@ -1668,33 +1542,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Table Caption]D;]A;(LookupHint=Codeunit Workflow Additional Scenarios - NamedType SameEventConditionsErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 711704922 - NamedType 2197338853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Amount=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Cond. Eval. Tests - NamedType AmountCondXmlTemplateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 711704922 - NamedType 1095393744" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Buy-from Vendor Name=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Cond. Eval. Tests - NamedType VendorNameCondXmlTemplateTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 711704922 - NamedType 73457907" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.)</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Location Code=FILTER(%1))</DataItem><DataItem name="Vendor">SORTING(No.) WHERE(Country/Region Code=FILTER(%2))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Cond. Eval. Tests - NamedType VendorNameLocCodeCondXmlTemplateTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1152258713 - NamedType 2723863605" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1814,24 +1661,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType OrphanWorkflowStepsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 2008634357" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType ParametersHeaderLineTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 3309408469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType ParametersLineHeaderTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 1720088568" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 was found.]]></Val>
@@ -1940,15 +1769,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType MissingFunctionNamesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 4077555044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;" /><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;" /><Field name="&quot;Purchase Line&quot;.Description" /><Field name="&quot;Purchase Line&quot;.Quantity">0</Field></Options><DataItems><DataItem name="Table38">SORTING(Document Type,No.)</DataItem><DataItem name="Table39">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType BlankParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 2254829066" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Enabled workflows cannot be edited.]]></Val>
@@ -1956,24 +1776,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Event Arguments Test - NamedType CannotEditEnabledWorkflowErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 3560231500" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[/ReportParameters/DataItems/DataItem]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType DataItemPathTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 1350370793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table38">VERSION(1) SORTING(Field1,Field3)</DataItem><DataItem name="Table39">VERSION(1) SORTING(Field1,Field3,Field4)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType DynamicRequestPageBlankParametersTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 2273760738" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1992,15 +1794,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Event Arguments Test - NamedType DynamicRequestPageNotPreparedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 3619648015" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table38">VERSION(1) SORTING(Field1,Field3) WHERE(Field2=1(%1),Field24=1(%2),Field60=1(&gt;%3))</DataItem><DataItem name="Table39">VERSION(1) SORTING(Field1,Field3,Field4) WHERE(Field5=1(2),Field6=1(%4),Field22=1(&gt;%5))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType DynamicRequestPageParametersTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 430645926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2037,69 +1830,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Event Arguments Test - NamedType NullArgumentErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 2911183302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Table38">SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table39">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType ParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 3498291126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Sales Invoice Step" id="50000"><Options><Field name="&quot;Sales Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Sales Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Sales Line&quot;.Description">Hello, World!</Field><Field name="&quot;Sales Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType SalesParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 886831204" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType ParametersWithoutDataItemsTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 4169461464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VERSION(1) SORTING(Document Type,No.)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType PurchaseHeaderBlankParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 1698350794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(>%2))]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType PurchaseHeaderParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 2126403817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VERSION(1) SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(>500))]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType PurchaseLineParametersTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1130895803 - NamedType 1165895295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VERSION(1) SORTING(Document Type,Document No.,Line No.)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType PurchaseLineBlankParametersTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 3674415759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2235,15 +1965,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType CustomerTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3961072956 - NamedType 2684757100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no substitute, direct approver, or approval administrator for user ID %1 in the Approval User Setup window.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Notification Test - NamedType NoSubstituteFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3961072956 - NamedType 825728447" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2525,15 +2246,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotDifferentFromRightErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1450676016 - NamedType 506510241" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Amount=FILTER(100))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType AmountConditionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1450676016 - NamedType 2332069388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<Template>]]></Val>
@@ -2678,24 +2390,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow User Group Tests - NamedType UserNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 193295468 - NamedType 2447563966" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Workflow Event Simple Args" id="134300"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(Invoice),Status=FILTER(Released),Amount=FILTER(&gt;1.000))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType AmountGreaterThanThousandParameterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 193295468 - NamedType 1389422395" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Workflow Event Simple Args" id="134300"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(Invoice),Status=FILTER(Released),Amount=FILTER(&lt;=1.000))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType AmountLessThanThousandParameterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 193295468 - NamedType 2108288509" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[cannot refer to the current workflow]]></Val>
@@ -2723,15 +2417,6 @@
       <Cmt Name="Dev"><![CDATA[%1=TableCaption,%2=Filters]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType RecordNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 193295468 - NamedType 3884486599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Workflow Event Simple Args" id="134300"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(Invoice),Status=FILTER(Released))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType StatusParameterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 193295468 - NamedType 473927150" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must enable the sub-workflow %1 before you can enable the %2 workflow.]]></Val>
@@ -2739,24 +2424,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType SubWorkflowNotEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 193295468 - NamedType 2384099453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Workflow Event Simple Args" id="134300"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.)</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(G/L Account))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType TypeGLAccountParameterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 193295468 - NamedType 562843216" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Workflow Event Simple Args" id="134300"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.)</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow with Sub-Workflows - NamedType TypeItemParameterTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 193295468 - NamedType 1166973463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

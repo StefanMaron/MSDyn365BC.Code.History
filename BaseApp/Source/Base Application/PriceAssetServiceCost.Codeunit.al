@@ -6,6 +6,7 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
 
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Service Cost";
         if ServiceCost.GetBySystemId(PriceAsset."Asset ID") then begin
             PriceAsset."Asset No." := ServiceCost.Code;
             FillAdditionalFields(PriceAsset);
@@ -15,6 +16,7 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
 
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Service Cost";
         if ServiceCost.Get(PriceAsset."Asset No.") then begin
             PriceAsset."Asset ID" := ServiceCost.SystemId;
             FillAdditionalFields(PriceAsset);
@@ -23,10 +25,14 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        xPriceAsset: Record "Price Asset";
     begin
-        if ServiceCost.Get(PriceAsset."Asset No.") then;
+        xPriceAsset := PriceAsset;
+        if ServiceCost.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"Service Costs", ServiceCost) = ACTION::LookupOK then begin
-            PriceAsset.Validate("Asset No.", ServiceCost.Code);
+            xPriceAsset.Validate("Asset No.", ServiceCost.Code);
+            PriceAsset := xPriceAsset;
             exit(true);
         end;
     end;

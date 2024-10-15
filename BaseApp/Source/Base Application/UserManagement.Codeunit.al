@@ -100,6 +100,10 @@ codeunit 418 "User Management"
         Text001Qst: Label 'You are renaming an existing user. This will also update all related records. Are you sure that you want to rename the user?';
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
+        BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
+        BasicAuthDepricationTok: Label 'Web Service Access Key is being deprecated on SaaS. Please use OAuth.';
+        DontShowAgainTok: Label 'Don''t show me again';
+        ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
         UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2 and %3 are supported in the online environment.', Comment = '%1= license type, %2= license type, %3= license type';
         DisableUserMsg: Label 'To permanently disable a user, go to your Office 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Office 365.';
@@ -297,6 +301,51 @@ codeunit 418 "User Management"
             end;
         OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
     end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthDepricationNotificationId(): Guid
+    begin
+        exit('8f5a1371-94e3-42b6-84df-6ed215bc374a');
+    end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthDepricationNotificationDefault(Enabled: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit;
+        MyNotifications.InsertDefault(
+          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification: Notification)
+    begin
+        BasicAuthDepricationNotification.Id := BasicAuthDepricationNotificationId();
+        BasicAuthDepricationNotification.Recall();
+        BasicAuthDepricationNotification.Message(BasicAuthDepricationTok);
+        BasicAuthDepricationNotification.AddAction(DontShowAgainTok, CODEUNIT::"User Management", 'DisableNotifications');
+        BasicAuthDepricationNotification.AddAction(ShowMoreLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
+        BasicAuthDepricationNotification.Scope(NotificationScope::LocalScope);
+        BasicAuthDepricationNotification.Send();
+    end;
+
+    [Scope('OnPrem')]
+    procedure DisableNotifications(Notification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.Disable(Notification.Id);
+    end;
+
+    [Scope('OnPrem')]
+    procedure BasicAuthDepricationNotificationShowMore(Notification: Notification)
+    begin
+        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2144416');
+    end;
+
 
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     var

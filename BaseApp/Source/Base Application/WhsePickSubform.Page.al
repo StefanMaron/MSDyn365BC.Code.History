@@ -518,7 +518,13 @@ page 5780 "Whse. Pick Subform"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSerialNoOnAfterValidate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Serial No." <> '' then
             ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
                 "Lot No.", "Serial No.", false, EntriesExist);
@@ -532,7 +538,13 @@ page 5780 "Whse. Pick Subform"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLotNoOnAfterValidate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Lot No." <> '' then
             ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
                 "Lot No.", "Serial No.", false, EntriesExist);
@@ -549,6 +561,16 @@ page 5780 "Whse. Pick Subform"
     protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLotNoOnAfterValidate(var Rec: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSerialNoOnAfterValidate(var Rec: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

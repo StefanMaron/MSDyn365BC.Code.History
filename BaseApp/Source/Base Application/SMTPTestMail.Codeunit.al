@@ -57,7 +57,7 @@ codeunit 412 "SMTP Test Mail"
     begin
         SMTPMailSetup.GetSetup;
 
-        SendToList.Add(EmailAddress);
+        MailManagement.RecipientStringToList(EmailAddress, SendToList);
 
         if SMTPMailSetup.Authentication = SMTPMailSetup.Authentication::Anonymous then
             SenderEmail := EmailAddress

@@ -2112,6 +2112,7 @@ codeunit 137414 "SCM Item Categories"
     var
         ItemAttribute: Record "Item Attribute";
         ItemCategory: Record "Item Category";
+        ItemCategories: TestPage "Item Categories";
         ItemCategoryCard: TestPage "Item Category Card";
         Date: Date;
     begin
@@ -2137,8 +2138,12 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Close();
 
         // [WHEN] Page was open again
-        ItemCategoryCard.OpenEdit();
-        ItemCategoryCard.FILTER.SetFilter(Code, ItemCategory.Code);
+        ItemCategories.OpenView();
+        ItemCategories.Filter.SetFilter(Code, ItemCategory.Code);
+        ItemCategories.First();
+
+        ItemCategoryCard.Trap();
+        ItemCategories.View().Invoke();
 
         // [THEN] Attribute still has value 10-01-2021
         ItemCategoryCard.Attributes.Value.AssertEquals(Date);

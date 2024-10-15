@@ -2,7 +2,7 @@ page 21 "Customer Card"
 {
     Caption = 'Customer Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,New Document,Approve,Request Approval,Prices and Discounts,Navigate,Customer';
+    PromotedActionCategories = 'New,Process,Report,New Document,Approve,Request Approval,Prices & Discounts,Navigate,Customer';
     RefreshOnActivate = true;
     SourceTable = Customer;
 
@@ -92,7 +92,7 @@ page 21 "Customer Card"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which transactions with the customer that cannot be blocked, for example, because the customer is insolvent.';
+                    ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
                 }
                 field("Privacy Blocked"; "Privacy Blocked")
                 {
@@ -1275,17 +1275,18 @@ page 21 "Customer Card"
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists (Prices)';
+                    Caption = 'Sales Price Lists';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category8;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
                 action(PriceListsDiscounts)
@@ -1293,8 +1294,11 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -1309,6 +1313,8 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1330,6 +1336,8 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1349,10 +1357,12 @@ page 21 "Customer Card"
                 action("Prices and Discounts Overview")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Special Prices & Discounts Overview';
+                    Caption = 'Prices & Discounts Overview';
                     Image = PriceWorksheet;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = not ExtendedPriceEnabled;
-                    ToolTip = 'View all the special prices and line discounts that you grant for this customer when certain criteria are met, such as quantity, or ending date.';
+                    ToolTip = 'View all the sales prices and line discounts that you grant for this customer when certain criteria are met, such as quantity, or ending date.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1987,9 +1997,9 @@ page 21 "Customer Card"
 
                     trigger OnAction()
                     var
-                        MiniCustomerTemplate: Record "Mini Customer Template";
+                        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
                     begin
-                        MiniCustomerTemplate.UpdateCustomerFromTemplate(Rec);
+                        CustomerTemplMgt.UpdateCustomerFromTemplate(Rec);
                     end;
                 }
                 action(SaveAsTemplate)
@@ -2248,6 +2258,7 @@ page 21 "Customer Card"
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        OnAfterOnOpenPage(Rec, xRec);
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
@@ -2406,6 +2417,7 @@ page 21 "Customer Card"
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         ShowCharts := "No." <> '';
         IsOfficeAddin := OfficeManagement.IsAvailable;
+        OnAfterActivateFields(Rec);
     end;
 
     local procedure ContactOnAfterValidate()
@@ -2470,6 +2482,16 @@ page 21 "Customer Card"
                 EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
                 CustomerRecRef.SetTable(Customer);
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterActivateFields(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var Customer: Record Customer; xCustomer: Record Customer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

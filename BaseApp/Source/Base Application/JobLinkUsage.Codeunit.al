@@ -1,4 +1,4 @@
-codeunit 1026 "Job Link Usage"
+﻿codeunit 1026 "Job Link Usage"
 {
     Permissions = TableData "Job Usage Link" = rimd;
 
@@ -96,6 +96,8 @@ codeunit 1026 "Job Link Usage"
                 JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
             JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
+
+        OnAfterMatchUsageSpecified(JobPlanningLine, JobJournalLine, JobLedgerEntry);
     end;
 
     procedure FindMatchingJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"): Boolean
@@ -216,6 +218,11 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindMatchingJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLineFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMatchUsageSpecified(var JobPlanningLine: Record "Job Planning Line"; var JobJournalLine: Record "Job Journal Line"; var JobLedgerEntry: Record "Job Ledger Entry");
     begin
     end;
 

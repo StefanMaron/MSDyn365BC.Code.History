@@ -1,4 +1,4 @@
-page 1160 "Sales Documents"
+﻿page 1160 "Sales Documents"
 {
     Caption = 'Sales Documents';
     DeleteAllowed = false;
@@ -78,6 +78,8 @@ page 1160 "Sales Documents"
         Customer.Get("Customer No.");
         CustomerName := Customer.Name;
         StyleTxt := SetStyle;
+
+        OnAfterOnAfterGetRecord(Rec, StyleTxt);
     end;
 
     trigger OnOpenPage()
@@ -125,6 +127,11 @@ page 1160 "Sales Documents"
         SetRange(Open, true);
         Ascending := false;
         CurrPage.Update;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnAfterGetRecord(CustLedgerEntry: Record "Cust. Ledger Entry"; var StyleTxt: Text)
+    begin
     end;
 }
 

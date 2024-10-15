@@ -630,7 +630,7 @@ table 1237 "Transformation Rule"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeIsDataFormatUpdateAllowed(FieldNumber: Integer; var DataFormatUpdateAllowed: Boolean; var IsHandled: Boolean)
     begin
     end;

@@ -989,7 +989,7 @@ table 5964 "Service Contract Line"
               ServContractLine2."Service Item No.", "Line No.");
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalculateNextServiceVisit(ServContractHeader: Record "Service Contract Header"; ServMgtSetup: Record "Service Mgt. Setup")
     begin
     end;
@@ -1009,7 +1009,7 @@ table 5964 "Service Contract Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckServContractHeader(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1044,7 +1044,7 @@ table 5964 "Service Contract Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnValidateServiceItemNoOnBeforeModify(ServItem: Record "Service Item"; ServContractHeader: Record "Service Contract Header")
     begin
     end;

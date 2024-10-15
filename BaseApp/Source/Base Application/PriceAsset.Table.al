@@ -1,8 +1,8 @@
 table 7003 "Price Asset"
 {
-    #pragma warning disable AS0034
+#pragma warning disable AS0034
     TableType = Temporary;
-    #pragma warning restore AS0034
+#pragma warning restore AS0034
 
     fields
     {
@@ -19,6 +19,7 @@ table 7003 "Price Asset"
             begin
                 VerifyConsistentAssetType();
                 InitAsset();
+                ValidateAssetNo();
             end;
         }
         field(3; "Asset No."; Code[20])
@@ -56,15 +57,12 @@ table 7003 "Price Asset"
         {
             DataClassification = SystemMetadata;
             trigger OnValidate()
-            var
-                ItemVariant: Record "Item Variant";
             begin
                 if "Variant Code" <> '' then begin
                     TestField("Asset Type", "Asset Type"::Item);
                     TestField("Asset No.");
-                    ItemVariant.Get("Asset No.", "Variant Code");
-                    Description := ItemVariant.Description;
                 end;
+                ValidateAssetNo();
             end;
         }
         field(7; "Unit of Measure Code"; Code[10])
@@ -95,6 +93,21 @@ table 7003 "Price Asset"
         field(8; "Price Type"; Enum "Price Type")
         {
             DataClassification = SystemMetadata;
+        }
+        field(9; "Table Id"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(17; "Unit Price"; Decimal)
+        {
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
+        field(18; "Unit Price 2"; Decimal)
+        {
+            DataClassification = SystemMetadata;
+            MinValue = 0;
         }
         field(22; "Allow Invoice Disc."; Boolean)
         {

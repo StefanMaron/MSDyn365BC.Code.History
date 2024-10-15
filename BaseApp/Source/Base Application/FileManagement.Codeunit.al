@@ -1046,6 +1046,7 @@ codeunit 419 "File Management"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('GetFileContent will be replaced with GetFileContents. This currently uses InStream.ReadText() which only returns the stream contents up to the first line break character.', '17.0')]
     procedure GetFileContent(FilePath: Text) Result: Text
     var
         FileHandle: File;
@@ -1058,6 +1059,38 @@ codeunit 419 "File Management"
         FileHandle.CreateInStream(InStr);
 
         InStr.ReadText(Result);
+    end;
+
+    /// <summary>
+    /// Gets the file contents as text from the file path provided in UTF8 text encoding.
+    /// </summary>
+    /// <param name="FilePath">The path to the file.</param>
+    /// <returns>The text content of the file in UTF8 text encoding.</returns>
+    [Scope('OnPrem')]
+    procedure GetFileContents(FilePath: Text) Result: Text
+    begin
+        exit(GetFileContents(FilePath, TextEncoding::UTF8));
+    end;
+
+    /// <summary>
+    /// Gets the file contents as text from the file path provided in the requested text encoding.
+    /// </summary>
+    /// <param name="FilePath">The path to the file.</param>
+    /// <param name="Encoding">The text encoding to open the file with.</param>
+    /// <returns>The text content of the file in requested text encoding.</returns>
+    [Scope('OnPrem')]
+    procedure GetFileContents(FilePath: Text; Encoding: TextEncoding) Result: Text
+    var
+        FileHandle: File;
+        InStr: InStream;
+    begin
+        if not FILE.Exists(FilePath) then
+            exit;
+
+        FileHandle.Open(FilePath, Encoding);
+        FileHandle.CreateInStream(InStr);
+
+        InStr.Read(Result);
     end;
 
     procedure IsAllowedPath(Path: Text; SkipError: Boolean): Boolean

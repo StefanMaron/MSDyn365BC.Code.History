@@ -42,6 +42,12 @@ page 1811 "Setup Email Logging"
                 group("Welcome to Email Logging Setup")
                 {
                     Caption = 'Welcome to Email Logging Setup';
+                    group(OAuth2)
+                    {
+                        Visible = not SoftwareAsAService;
+                        Caption = '';
+                        InstructionalText = 'This guide will help you to setup Email Logging with OAuth2 authentication flow to connect to Exchange.';
+                    }
                     group(Control4)
                     {
                         Caption = '';
@@ -683,12 +689,12 @@ page 1811 "Setup Email Logging"
     trigger OnInit()
     var
         MarketingSetup: Record "Marketing Setup";
-        EnvrionmentInfo: Codeunit "Environment Information";
+        EnvrionmentInformation: Codeunit "Environment Information";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         ClientSecretLocal: Text;
     begin
         LoadTopBanners();
-        SoftwareAsAService := EnvrionmentInfo.IsSaaS();
+        SoftwareAsAService := EnvrionmentInformation.IsSaaSInfrastructure();
         DefaultFolderSetup := true;
         QueueFolderPath := QueueFolderPathTxt;
         StorageFolderPath := StorageFolderPathTxt;
@@ -968,7 +974,8 @@ page 1811 "Setup Email Logging"
 
         Session.LogMessage('0000D9Z', ServiceInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if not ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder) then begin
+        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
+        if TempExchangeFolder.IsEmpty() then begin
             Session.LogMessage('0000DA0', StrSubstNo(CannotAccessRootPublicFolderTxt, UserEmail, ServiceUri, Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotAccessRootPublicFolderErr);
         end;

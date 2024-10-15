@@ -157,12 +157,8 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         GLEntry.FindLast;
 
         // EXERCISE
-        asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
-        PurchCheckNothingIsCreated(Vend, GLEntry);
-
-        // EXERCISE
-        asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
-        PurchCheckNothingIsCreated(Vend, GLEntry);
+        CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
+        PurchaseCheckCreditMemoCreated(Vend, GLEntry);
     end;
 
     local procedure CreateItemWithCost(var Item: Record Item; UnitCost: Decimal)
@@ -207,9 +203,18 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        Assert.IsFalse(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsFalse(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        Assert.IsFalse(SalesCrMemoHeader.IsEmpty, 'The Credit Memo should have been created');
+        Assert.RecordIsNotEmpty(SalesCrMemoHeader);
+    end;
+
+    local procedure PurchaseCheckCreditMemoCreated(Vendor: Record Vendor; LastGLEntry: Record "G/L Entry")
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+    begin
+        Assert.IsFalse(LastGLEntry.Next() = 0, 'No new G/L entries are created');
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", Vendor."No.");
+        Assert.RecordIsNotEmpty(PurchCrMemoHdr);
     end;
 
     local procedure SetNoSeries()

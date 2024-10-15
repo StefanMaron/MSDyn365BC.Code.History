@@ -2,18 +2,18 @@
     "id":  "c49d9d39-1c94-46d2-8bf7-3cce15ba54dc",
     "name":  "Tests-SMTP",
     "publisher":  "Microsoft",
-    "version":  "17.0.16993.0",
+    "version":  "17.1.18256.18474",
     "platform":  "17.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "17.0.0.0"
+                             "version":  "17.1.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "17.0.0.0",
+    "application":  "17.1.0.0",
     "brief":  "Tests-SMTP (W1)"
 }

@@ -881,6 +881,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         // [GIVEN] Mock Line2 deleted
         JournalErrorsMgt.InsertDeletedLine(GenJournalLine[2]);
+        GenJournalLine[2].Delete();
 
         // [WHEN] Run CleanTempErrorMessages 
         SetErrorHandlingParameters(ErrorHandlingParameters, GenJournalLine[1], GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date",
@@ -935,7 +936,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         // [GIVEN] Mock 2 extra lines deleted
         JournalErrorsMgt.InsertDeletedLine(ExtraGenJournalLine[1]);
+        ExtraGenJournalLine[1].Delete();
         JournalErrorsMgt.InsertDeletedLine(ExtraGenJournalLine[2]);
+        ExtraGenJournalLine[2].Delete();
 
         // [WHEN] Run CleanTempErrorMessages 
         SetErrorHandlingParameters(ErrorHandlingParameters, GenJournalLine[1], GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date",
@@ -1486,6 +1489,45 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         UnBindSubscription(ERMGenJnlErrorHandling);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDeletedDocumentsFromArgsUT()
+    var
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        TempResultGenJnlLine: Record "Gen. Journal Line" temporary;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        Args: Dictionary of [Text, Text];
+        i: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 367332] Unit test for function GetDeletedDocumentsFromArgs
+        Initialize();
+
+        CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
+        // [GIVEN] Mock 3 jounrnal document lines with different "Document No." and "Posing Date" deleted
+        for i := 1 to LibraryRandom.RandIntInRange(5, 10) do
+            MockDummyJournalDocumentLineDeleted(GenJournalBatch, TempGenJnlLine);
+
+        // [GIVEN] Pack buffer to Args
+        BackgroundErrorHandlingMgt.PackDeletedDocumentsToArgs(Args);
+
+        // [WHEN] Function GetDeletedDocumentsFromArgs is being run
+        BackgroundErrorHandlingMgt.GetDeletedDocumentsFromArgs(Args, TempResultGenJnlLine);
+
+        // [THEN] Buffer contains all 3 documents
+        Assert.AreEqual(TempGenJnlLine.Count, TempResultGenJnlLine.Count, 'Number of buffer records must be the same');
+        TempGenJnlLine.FindSet();
+        TempResultGenJnlLine.FindSet();
+        repeat
+            TempResultGenJnlLine.TestField("Document No.", TempGenJnlLine."Document No.");
+            TempResultGenJnlLine.TestField("Posting Date", TempGenJnlLine."Posting Date");
+
+            TempResultGenJnlLine.Next();
+        until TempGenJnlLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1518,6 +1560,21 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalLine.Validate(Amount, 0);
         GenJournalLine."Document No." := '';
         GenJournalLine.Modify();
+    end;
+
+    local procedure MockDummyJournalDocumentLineDeleted(GenJournalBatch: Record "Gen. Journal Batch"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    var
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+    begin
+        if TempGenJnlLine.FindLast() then;
+        TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
+        TempGenJnlLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        TempGenJnlLine."Journal Batch Name" := GenJournalBatch.Name;
+        TempGenJnlLine."Posting Date" := LibraryRandom.RandDate(100);
+        TempGenJnlLine."Document No." := LibraryRandom.RandText(MaxStrLen(TempGenJnlLine."Document No."));
+        TempGenJnlLine.Insert();
+
+        JournalErrorsMgt.InsertDeletedLine(TempGenJnlLine);
     end;
 
     local procedure CreateGLAccountWithTwoMandatoryDefaultDim(var Dimension: array[2] of Record Dimension) GLAccountNo: Code[20]

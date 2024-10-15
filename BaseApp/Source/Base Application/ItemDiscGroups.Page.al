@@ -3,6 +3,7 @@ page 513 "Item Disc. Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Item Discount Groups';
     PageType = List;
+    PromotedActionCategories = 'New,Process,Report,Prices & Discounts';
     SourceTable = "Item Discount Group";
     UsageCategory = Administration;
 
@@ -54,7 +55,7 @@ page 513 "Item Disc. Groups"
                     Image = SalesLineDisc;
                     Visible = not ExtendedPriceEnabled;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -77,12 +78,13 @@ page 513 "Item Disc. Groups"
                 Image = Discount;
                 action(SalesPriceListsDiscounts)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = SalesLineDisc;
                     Visible = ExtendedPriceEnabled;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     ToolTip = 'Set up sales discounts for the item discount group.';
 
                     trigger OnAction()
