@@ -3229,6 +3229,71 @@ codeunit 147520 SIIDocumentTests
         Assert.AreEqual(DotNetVariableNotInstantiatedErr, GetLastErrorText(), ErrorTextMustMatchErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSalesXmlWhenVATCashRegimeEnabledAndInvoiceWithSpecialCash()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedSalesInvoiceNo: Code[20];
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [SCENARIO: 536255] The Special Scheme Code used in the Request XML submitted via SII History is wrong in case you use Unrealized VAT without VAT Cash in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Update G/L Setup, Create Customer with VAT Posting Setup 
+        UpdateVATCashRegimeOnGLSetup(true);
+        LibrarySales.CreateCustomer(Customer);
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 21);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Last);
+        VATPostingSetup.Modify(true);
+
+        // [WHEN] Create and Post Sales Invoice for a local customer
+        PostedSalesInvoiceNo := CreateAndPostSalesInvoiceWithItem(Customer, VATPostingSetup, 1, 1000);
+        SalesInvoiceHeader.Get(PostedSalesInvoiceNo);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        CustLedgerEntry.FindFirst();
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Verify the Special Scheme Code is 07
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ClaveRegimenEspecialOTrascendencia', '07');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSalesXmlAndValidateImporteTotalWithSpecialSchemeCode09TravelAgencyServices()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        PostedSalesInvoiceNo: Code[20];
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [SCENARIO 536602] "Si la ClaveRegimenEspecialOTrascendencia o alguna ClaveRegimenEspecialOTrascendenciaAdicional tienen un valor 
+        // 03, 05 o 09 el campo ImporteTotal debe estar informado" error if we submit so SII a document with Special Scheme Code 09
+        Initialize();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Create and Post Sales Invoice for a local customer
+        PostedSalesInvoiceNo := CreateAndPostSalesInvoiceWithItemWithTravelAgencyServices(Customer, 1, 1000);
+        SalesInvoiceHeader.Get(PostedSalesInvoiceNo);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        CustLedgerEntry.FindFirst();
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] Verify ImporteTotal is available in XML for 09 Travel Agency Services
+        CustLedgerEntry.CalcFields("Original Amt. (LCY)");
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(CustLedgerEntry."Original Amt. (LCY)"));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3794,6 +3859,66 @@ codeunit 147520 SIIDocumentTests
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer.Modify(true);
+    end;
+
+    local procedure UpdateVATCashRegimeOnGLSetup(VATCashRegime: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", VATCashRegime);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithItem(var Customer: Record Customer; var VATPostingSetup: Record "VAT Posting Setup"; LineQuantity: Decimal; UnitPrice: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"07 Special Cash");
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateVATPostingSetupVATCashRegime(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("VAT Cash Regime", true);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithItemWithTravelAgencyServices(var Customer: Record Customer; LineQuantity: Decimal; UnitPrice: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"09 Travel Agency Services");
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     [MessageHandler]

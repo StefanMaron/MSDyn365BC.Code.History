@@ -548,7 +548,8 @@ codeunit 10750 "SII XML Creator"
               ((InvoiceType in [GetF2InvoiceType(), 'F4']) and
                (TempServVATEntryCalcNonExempt.Count + TempGoodsVATEntryCalcNonExempt.Count = 1)) or
               (SIIDocUploadState."Sales Special Scheme Code" in [SIIDocUploadState."Sales Special Scheme Code"::"03 Special System",
-                                                                 SIIDocUploadState."Sales Special Scheme Code"::"05 Travel Agencies"]);
+                                                                 SIIDocUploadState."Sales Special Scheme Code"::"05 Travel Agencies",
+                                                                 SIIDocUploadState."Sales Special Scheme Code"::"09 Travel Agency Services"]);
             DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
             CalculateTotalVatAndBaseAmounts(CustLedgerEntryRecRef, TotalBase, TotalNonExemptBase, TotalVATAmount);
             if AddNodeForTotals then begin
@@ -1848,6 +1849,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure GetClaveRegimenNodeSales(var RegimeCodes: array[3] of Code[2]; SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer)
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         CustLedgerEntryRecRef: RecordRef;
         IsHandled: Boolean;
@@ -1857,12 +1859,13 @@ codeunit 10750 "SII XML Creator"
         if IsHandled then
             exit;
 
+        GeneralLedgerSetup.Get();
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then begin
             RegimeCodes[1] := '16';
             exit;
         end;
         DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
-        if SIIManagement.IsLedgerCashFlowBased(CustLedgerEntryRecRef) then begin
+        if (SIIManagement.IsLedgerCashFlowBased(CustLedgerEntryRecRef)) and (GeneralLedgerSetup."VAT Cash Regime") then begin
             RegimeCodes[1] := '07';
             exit;
         end;
@@ -1879,6 +1882,7 @@ codeunit 10750 "SII XML Creator"
 
     local procedure GetClaveRegimenNodePurchases(var RegimeCodes: array[3] of Code[2]; SIIDocUploadState: Record "SII Doc. Upload State"; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor)
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         VendorLedgerEntryRecRef: RecordRef;
         IsHandled: Boolean;
@@ -1888,12 +1892,13 @@ codeunit 10750 "SII XML Creator"
         if IsHandled then
             exit;
 
+        GeneralLedgerSetup.Get();
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(VendorLedgerEntry."Posting Date") then begin
             RegimeCodes[1] := '14';
             exit;
         end;
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
-        if SIIManagement.IsLedgerCashFlowBased(VendorLedgerEntryRecRef) then begin
+        if (SIIManagement.IsLedgerCashFlowBased(VendorLedgerEntryRecRef)) and (GeneralLedgerSetup."VAT Cash Regime") then begin
             RegimeCodes[1] := '07';
             exit;
         end;

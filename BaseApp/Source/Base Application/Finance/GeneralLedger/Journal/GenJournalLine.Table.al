@@ -5969,6 +5969,7 @@ table 81 "Gen. Journal Line"
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := VendLedgEntry.FindFirst();
+                        SetRecipientBankAccount(VendLedgEntry."Recipient Bank Account");
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5977,6 +5978,7 @@ table 81 "Gen. Journal Line"
                             "Exported to Payment File" := VendLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := VendLedgEntry."External Document No.";
                             RecBankAccount := VendLedgEntry."Recipient Bank Account";
+                            SetRecipientBankAccount(VendLedgEntry."Recipient Bank Account");
                         end;
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
@@ -7964,6 +7966,15 @@ table 81 "Gen. Journal Line"
         ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(Rec);
         if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
             ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(GenJournalBatch);
+    end;
+
+    local procedure SetRecipientBankAccount(RecipientBankAccount: Code[20])
+    var
+    begin
+        if RecipientBankAccount = '' then
+            exit;
+
+        Validate("Recipient Bank Account", RecipientBankAccount);
     end;
 
     [IntegrationEvent(false, false)]

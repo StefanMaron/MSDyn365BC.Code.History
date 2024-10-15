@@ -2696,6 +2696,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Miscellaneous ES - NamedType PrintDetailsCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3246342698 - NamedType 4127967452" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Recipant Bank Account must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Recipant Bank %2=Table Name]D;]A;(LookupHint=Codeunit ERM Miscellaneous ES - NamedType RecipientBankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3246342698 - NamedType 3700768806" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reversed Sign must be TRUE.]]></Val>
