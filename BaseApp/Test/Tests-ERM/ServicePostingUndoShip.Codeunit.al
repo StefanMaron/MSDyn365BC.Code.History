@@ -26,7 +26,8 @@ codeunit 136117 "Service Posting - Undo Ship"
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed';
         QtyMustBeZeroError: Label '%1 must be zero.';
         UnknownError: Label 'Unknown error.';
-        ExpectedCostPostingConfirm: Label 'If you change the Expected Cost Posting to G/L';
+        ExpectedCostPostingEnableConfirm: Label 'If you enable the Expected Cost Posting to G/L';
+        ExpectedCostPostingDisableConfirm: Label 'If you disable the Expected Cost Posting to G/L';
         QtyShippedErrorServiceTier: Label '%1 must be equal to ''%2''  in %3: %4=%5, %6=%7. Current value is ''%8''.';
         ServiceShipLineMustNotExist: Label '%1 = %2,%3 = %4 must not exist in %5.';
         ConfirmUndoConsumption: Label 'Do you want to undo consumption of the selected shipment line(s)?';
@@ -890,7 +891,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     local procedure ExecuteUIHandlers()
     begin
         Message(StrSubstNo(ExpectedMsg));
-        if Confirm(StrSubstNo(ExpectedCostPostingConfirm)) then;
+        if Confirm(StrSubstNo(ExpectedCostPostingEnableConfirm)) then;
     end;
 
     local procedure VerifyEntriesOnPostedShipment(ServiceHeaderNo: Code[20])
@@ -1066,7 +1067,8 @@ codeunit 136117 "Service Posting - Undo Ship"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(
-          (StrPos(Question, ExpectedCostPostingConfirm) = 1) or
+          (StrPos(Question, ExpectedCostPostingEnableConfirm) = 1) or
+          (StrPos(Question, ExpectedCostPostingDisableConfirm) = 1) or
           (StrPos(Question, ConfirmServiceCost) = 1) or
           (StrPos(Question, ConfirmUndoSelectedShipment) = 1) or
           (StrPos(Question, ConfirmUndoConsumption) = 1),
