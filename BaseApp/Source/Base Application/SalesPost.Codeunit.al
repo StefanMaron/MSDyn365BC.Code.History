@@ -323,7 +323,7 @@
         Text1130007Err: Label 'must not be prior to %1';
         Text1130008Err: Label 'It is not possible to post document with a customer with VAT exemption if an active VAT exemption doesn''t exist.';
         Text1130009Err: Label 'The error is in line no. %1.';
-        DownloadShipmentAlsoQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
+        SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         SuppressCommit: Boolean;
         PostingPreviewNoTok: Label '***', Locked = true;
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
@@ -6990,7 +6990,7 @@
         if IsHandled then
             exit(Result);
 
-        if ConfirmManagement.GetResponseOrDefault(DownloadShipmentAlsoQst, true) then
+        if ConfirmManagement.GetResponseOrDefault(SendShipmentAlsoQst, true) then
             exit(true);
 
         exit(false);

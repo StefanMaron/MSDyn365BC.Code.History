@@ -3785,6 +3785,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout - Local - NamedType CustLedgEntry3OriginalAmtTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4237532168 - NamedType 4120771995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify a date range in the Date Filter field in the request page, such as the past quarter or the current year.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout - Local - NamedType DateFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4237532168 - NamedType 1601259338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Detailed_Cust__Ledg__Entry__Document_No__]]></Val>

@@ -817,6 +817,7 @@ page 44 "Sales Credit Memo"
                             Commit();
 
                         OpenDocumentStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(CreditMemo_CustomerCard)

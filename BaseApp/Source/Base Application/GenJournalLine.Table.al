@@ -624,6 +624,11 @@
                   DATABASE::Campaign, "Campaign No.");
             end;
         }
+        field(28; "Pending Approval"; Boolean)
+        {
+            Caption = 'Pending Approval';
+            Editable = false;
+        }
         field(29; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
@@ -3220,8 +3225,6 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
-        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
-        GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3401,7 +3404,10 @@
 
     procedure CheckDocNoBasedOnNoSeries(LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
     var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
         IsHandled: Boolean;
+        DoDocumentNoTest: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckDocNoBasedOnNoSeries(Rec, LastDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
@@ -3411,11 +3417,19 @@
         if NoSeriesCode = '' then
             exit;
 
-        if (LastDocNo = '') or ("Document No." <> LastDocNo) then
-            if "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false) then begin
+        if (LastDocNo = '') or ("Document No." <> LastDocNo) then begin
+            DoDocumentNoTest := "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
+            if not DoDocumentNoTest then begin
+                if NoSeries.Get(NoSeriesCode) then;
+                if (NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date")) then
+                    DoDocumentNoTest := not NoSeries."Manual Nos." and not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine);
+            end;
+
+            if DoDocumentNoTest then begin
                 NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
                 NoSeriesMgtInstance.ClearNoSeriesLine();
             end;
+        end;
     end;
 
     procedure RenumberDocumentNo()
@@ -5031,105 +5045,110 @@
     procedure GetCustLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Customer) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange(Open, true);
-            if not CustLedgEntry.FindFirst then
+            if not CustLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", CustLedgEntry."Customer No.");
             OnGetCustLedgerEntryOnAfterAssignCustomerNo(Rec, CustLedgEntry);
 
-            CustLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                CustLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
-                Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -CustLedgEntry."Remaining Amount";
+                if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
+                    Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -CustLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> CustLedgEntry."Currency Code" then
-                UpdateCurrencyCode(CustLedgEntry."Currency Code");
+                if "Currency Code" <> CustLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(CustLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+                OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+            end;
         end;
     end;
 
     procedure GetVendLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Vendor) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '') 
         then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             VendLedgEntry.SetRange(Open, true);
-            if not VendLedgEntry.FindFirst then
+            if not VendLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", VendLedgEntry."Vendor No.");
             OnGetVendLedgerEntryOnAfterAssignVendorNo(Rec, VendLedgEntry);
 
-            VendLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                VendLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
-                Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -VendLedgEntry."Remaining Amount";
+                if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
+                    Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -VendLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> VendLedgEntry."Currency Code" then
-                UpdateCurrencyCode(VendLedgEntry."Currency Code");
+                if "Currency Code" <> VendLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(VendLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+                OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+            end;
         end;
     end;
 
     procedure GetEmplLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Employee) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             EmplLedgEntry.SetRange(Open, true);
-            if not EmplLedgEntry.FindFirst then
+            if not EmplLedgEntry.FindFirst() then
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", EmplLedgEntry."Employee No.");
-            EmplLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                EmplLedgEntry.CalcFields("Remaining Amount");
 
-            Amount := -EmplLedgEntry."Remaining Amount";
+                Amount := -EmplLedgEntry."Remaining Amount";
 
-            SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
+                SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
-
-            OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
+                OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+            end;
         end;
     end;
 
@@ -8490,30 +8509,9 @@
 
     procedure SendToPosting(PostingCodeunitID: Integer)
     var
-        ErrorMessageMgt: Codeunit "Error Message Management";
-        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
     begin
-        Commit();
-        ErrorMessageMgt.Activate(ErrorMessageHandler);
-
-        if not Codeunit.Run(PostingCodeunitID, Rec) then begin
-            ErrorMessageHandler.ShowErrors();
-            LogFailurePostTelemetry();
-        end;
-    end;
-
-    local procedure LogFailurePostTelemetry()
-    var
-        ErrorMessage: Record "Error Message";
-        Dimensions: Dictionary of [Text, Text];
-        ErrorMessageTxt: Text;
-    begin
-        ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
-        if ErrorMessage.FindLast() then
-            ErrorMessageTxt := ErrorMessage.Description;
-        Dimensions.Add('Category', TelemetryCategoryTxt);
-        Dimensions.Add('Error', ErrorMessageTxt);
-        Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, Rec."Journal Template Name", Rec."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+        BatchProcessingMgt.BatchProcessGenJournalLine(Rec, PostingCodeunitID);
     end;
 
     local procedure RecallSetDimFiltersNotification()

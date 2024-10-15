@@ -120,6 +120,16 @@ page 12203 "Self-Billing Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                 }
+                field("Fattura Vendor No."; "Fattura Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor to export the information to the Cedente/prestatore XML node.';
+
+                    trigger OnValidate()
+                    begin
+                        FatturaDocHelper.SetFatturaVendorNoInVATEntry("Entry No.", "Fattura Vendor No.");
+                    end;
+                }
                 field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -196,6 +206,11 @@ page 12203 "Self-Billing Documents"
                         FatturaDocHelper.UpdateFatturaDocTypeInVATEntry("Entry No.", "Fattura Document Type");
                     end;
                 }
+                field("Fattura File Exported"; "Fattura File Exported")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the file was already generated for this entry.';
+                }
             }
         }
     }
@@ -218,6 +233,7 @@ page 12203 "Self-Billing Documents"
                 trigger OnAction()
                 begin
                     ExportSelectedEntries;
+                    CurrPage.Update();
                 end;
             }
         }

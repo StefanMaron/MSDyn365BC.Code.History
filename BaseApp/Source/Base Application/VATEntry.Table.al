@@ -580,6 +580,15 @@ table 254 "VAT Entry"
             Caption = 'Fattura Document Type';
             TableRelation = "Fattura Document Type";
         }
+        field(12187; "Fattura File Exported"; Boolean)
+        {
+            Caption = 'Fattura File Exported';
+        }
+        field(12188; "Fattura Vendor No."; Code[20])
+        {
+            Caption = 'Fattura Vendor No.';
+            TableRelation = Vendor;
+        }
     }
 
     keys

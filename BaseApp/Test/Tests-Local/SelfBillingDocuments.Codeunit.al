@@ -1,7 +1,7 @@
 codeunit 144206 "Self-Billing Documents"
 {
     Subtype = Test;
-    Permissions = tabledata "VAT Entry" = m;
+    Permissions = tabledata "VAT Entry" = im;
 
     trigger OnRun()
     begin
@@ -495,6 +495,72 @@ codeunit 144206 "Self-Billing Documents"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetFatturaVendorNoInSelfBillingDocumentsPage()
+    var
+        VATEntry: Record "VAT Entry";
+        SelfBillingDocuments: TestPage "Self-Billing Documents";
+        VendNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 416695] Stan can set "Fattura Vendor No." in "Self-Billing Documents" page
+
+        Initialize();
+        MockSimpleVATEntryForSelfBillingDoc(VATEntry);
+
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryLowerPermissions.SetLocal();
+        LibraryLowerPermissions.AddO365Setup();
+
+        SelfBillingDocuments.OpenEdit();
+        SelfBillingDocuments.GotoRecord(VATEntry);
+        VendNo := LibraryPurchase.CreateVendorNo();
+        SelfBillingDocuments."Fattura Vendor No.".SetValue(VendNo);
+        SelfBillingDocuments.Close();
+        VATEntry.Find();
+        VATEntry.TestField("Fattura Vendor No.", VendNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSingleSelfBillingDocumentWithFatturaVendNo()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
+        PurchaseHeader: Record "Purchase Header";
+        VATEntry: Record "VAT Entry";
+        Vendor: Record Vendor;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
+        ServerFilePath: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 303491] Stan can export a single Self-Billing Document with "Fattura Vendor No." setup
+
+        Initialize();
+
+        // [GIVEN] Vendor X
+        MockFatturaVendor(Vendor);
+
+        // [GIVEN] Posted Self-Billing Document
+        CreatePurchDocument(PurchaseHeader);
+
+        // [GIVEN] Set "Fattura Vendor No." equals "X" in VAT entry associated with the Self-Billing Document
+        FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        VATEntry."Fattura Vendor No." := Vendor."No.";
+        VATEntry.Modify();
+
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
+
+        // [WHEN] Export posted Self-Billing Document to XML
+        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+
+        // [THEN] The structure of a single XML document with "Fattura Vendor No." for Self-Billing Document is correct
+        VerifyFatturaVendorNoInformation(ServerFilePath, Vendor);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -580,6 +646,37 @@ codeunit 144206 "Self-Billing Documents"
     begin
         TempVATEntry := VATEntry;
         TempVATEntry.Insert();
+    end;
+
+    local procedure MockSimpleVATEntryForSelfBillingDoc(var VATEntry: Record "VAT Entry")
+    var
+        FatturaSetup: Record "Fattura Setup";
+    begin
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Posting Date" := WorkDate();
+        FatturaSetup.Get();
+        VATEntry."VAT Bus. Posting Group" := FatturaSetup."Self-Billing VAT Bus. Group";
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Reverse Charge VAT";
+        VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+        VATEntry.Insert();
+    end;
+
+    local procedure MockFatturaVendor(var Vendor: Record Vendor)
+    var
+        CountryRegion: Record "Country/Region";
+        PostCode: Record "Post Code";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Vendor."Country/Region Code" := CountryRegion.Code;
+        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID();
+        Vendor.Address := LibraryUtility.GenerateGUID();
+        LibraryERM.CreatePostCode(PostCode);
+        Vendor."Post Code" := PostCode.Code;
+        Vendor.City := PostCode.City;
+        Vendor.Modify();
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text[250]
@@ -825,6 +922,29 @@ codeunit 144206 "Self-Billing Documents"
         // - country code + the transmitter's unique identity code + unique progressive number of the file
         Assert.IsTrue(StrPos(ActualFileName, (CompanyInformation."Country/Region Code" +
                                              CompanyInformation."Fiscal Code" + '_')) = 1, '');
+    end;
+
+    local procedure VerifyFatturaVendorNoInformation(ServerFileName: Text[250]; Vendor: Record Vendor)
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore');
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.Next(); // <DatiAnagrafici
+        TempXMLBuffer.Next(); // IdFiscaleIVA
+        AssertElementValue(TempXMLBuffer, 'IdPaese', Vendor."Country/Region Code");
+        AssertElementValue(TempXMLBuffer, 'IdCodice', Vendor."VAT Registration No.");
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.Next(); // Anagrafica
+        AssertElementValue(TempXMLBuffer, 'Denominazione', Vendor.Name);
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.Next(); // Sede
+        AssertElementValue(TempXMLBuffer, 'Indirizzo', Vendor.Address);
+        AssertElementValue(TempXMLBuffer, 'CAP', '00000');
+        AssertElementValue(TempXMLBuffer, 'Comune', Vendor.City);
+        AssertElementValue(TempXMLBuffer, 'Nazione', Vendor."Country/Region Code");
     end;
 
     [ConfirmHandler]

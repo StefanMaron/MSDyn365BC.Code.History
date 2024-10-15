@@ -114,6 +114,7 @@ page 508 "Blanket Sales Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }

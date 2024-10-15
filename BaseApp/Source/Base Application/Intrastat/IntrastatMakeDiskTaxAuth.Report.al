@@ -9,7 +9,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         {
             DataItemTableView = SORTING("File Disk No.");
             RequestFilterFields = "Journal Template Name", Name;
-            dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
+            dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemLinkReference = "Intrastat Jnl. Batch";
@@ -20,16 +20,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     EU3PartyTrade: Boolean;
                 begin
                     TotalLines := TotalLines + 1;
-#if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
-                    else begin
-                        TestField("Country/Region Code");
-                        TestField("Partner VAT ID");
-                    end;
-#endif
+                    CheckLine(IntrastatJnlLine);
+
                     if not "Intrastat Jnl. Batch"."Corrective Entry" then
                         TestField(Amount);
 
@@ -37,14 +29,14 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         TestField("Document No.");
                         TestField(Date);
                         TestField("Service Tariff No.");
-                        if not SkipTransportMethodVerification("Intrastat Jnl. Line") then
+                        if not SkipTransportMethodVerification(IntrastatJnlLine) then
                             TestField("Transport Method");
                         if "Intrastat Jnl. Batch"."Corrective Entry" then begin
                             TestField("Custom Office No.");
                             TestField("Progressive No.");
-                            CheckCorrectiveStatPeriod("Intrastat Jnl. Line", "Intrastat Jnl. Batch"."Statistics Period");
+                            CheckCorrectiveStatPeriod(IntrastatJnlLine, "Intrastat Jnl. Batch"."Statistics Period");
                         end;
-                        "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
+                        "Intra - form Buffer".TransferFields(IntrastatJnlLine);
                         "Intra - form Buffer"."User ID" := UserId;
                         "Intra - form Buffer"."No." := "Intra - form Buffer"."No." + TotalLines;
                         "Intra - form Buffer"."Progressive No." := "Progressive No.";
@@ -77,31 +69,31 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             if Sales then
                                 CountryOriginCode := ''
                             else
-                                CountryOriginCode := "Intrastat Jnl. Line"."Country/Region of Origin Code";
+                                CountryOriginCode := IntrastatJnlLine."Country/Region of Origin Code";
                             if not "Supplementary Units" then
                                 SupplUnits := 0
                             else
-                                SupplUnits := "Intrastat Jnl. Line".Quantity;
+                                SupplUnits := IntrastatJnlLine.Quantity;
 
-                            EU3PartyTrade := IsEU3PartyTrade("Intrastat Jnl. Line");
+                            EU3PartyTrade := IsEU3PartyTrade(IntrastatJnlLine);
                             "Intra - form Buffer".Reset();
                             if "Intra - form Buffer".Get("Partner VAT ID",
-                                 "Intrastat Jnl. Line"."Transaction Type", "Intrastat Jnl. Line"."Tariff No.",
-                                 "Intrastat Jnl. Line"."Group Code", "Intrastat Jnl. Line"."Transport Method",
-                                 "Intrastat Jnl. Line"."Transaction Specification", CountryOriginCode,
-                                 "Intrastat Jnl. Line".Area, "Intrastat Jnl. Line"."Corrective entry", EU3PartyTrade)
+                                 IntrastatJnlLine."Transaction Type", IntrastatJnlLine."Tariff No.",
+                                 IntrastatJnlLine."Group Code", IntrastatJnlLine."Transport Method",
+                                 IntrastatJnlLine."Transaction Specification", CountryOriginCode,
+                                 IntrastatJnlLine.Area, IntrastatJnlLine."Corrective entry", EU3PartyTrade)
                             then begin
                                 TotalAmount -= Round("Intra - form Buffer".Amount, 1);
                                 "Intra - form Buffer".Amount += Amount;
                                 "Intra - form Buffer"."Source Currency Amount" := "Intra - form Buffer"."Source Currency Amount" +
-                                  "Intrastat Jnl. Line"."Source Currency Amount";
-                                "Intra - form Buffer"."Total Weight" := "Intra - form Buffer"."Total Weight" + "Intrastat Jnl. Line"."Total Weight";
+                                    IntrastatJnlLine."Source Currency Amount";
+                                "Intra - form Buffer"."Total Weight" := "Intra - form Buffer"."Total Weight" + IntrastatJnlLine."Total Weight";
                                 "Intra - form Buffer"."Statistical Value" += "Statistical Value";
                                 "Intra - form Buffer".Quantity := "Intra - form Buffer".Quantity + SupplUnits;
                                 "Intra - form Buffer".Modify();
                                 TotalAmount += Round("Intra - form Buffer".Amount, 1);
                             end else begin
-                                "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
+                                "Intra - form Buffer".TransferFields(IntrastatJnlLine);
                                 "Intra - form Buffer"."Country/Region of Origin Code" := CountryOriginCode;
                                 "Intra - form Buffer".Quantity := SupplUnits;
                                 "Intra - form Buffer"."User ID" := UserId;
@@ -126,8 +118,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             TestField(Area);
                             TestField("Transport Method");
                             TestField("Transaction Specification");
-                            CheckCorrectiveStatPeriod("Intrastat Jnl. Line", "Intrastat Jnl. Batch"."Statistics Period");
-                            "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
+                            CheckCorrectiveStatPeriod(IntrastatJnlLine, "Intrastat Jnl. Batch"."Statistics Period");
+                            "Intra - form Buffer".TransferFields(IntrastatJnlLine);
                             "Intra - form Buffer"."User ID" := UserId;
                             "Intra - form Buffer".Insert();
                             TotalAmount += Round(Amount, 1);
@@ -145,10 +137,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPostDataItem()
                 begin
 #if CLEAN19
-                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+                    IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+                        IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
 #endif                
                 end;
             }
@@ -182,22 +174,22 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     if not (StrPos(RoundTotalWeight, '.') = 0) then
                         RoundTotalWeight := DelChr(RoundTotalWeight, '=', '.');
 
-                    "Intrastat Jnl. Line".SetRange("Document No.", "Document No.");
-                    "Intrastat Jnl. Line".FindFirst;
+                    IntrastatJnlLine.SetRange("Document No.", "Document No.");
+                    IntrastatJnlLine.FindFirst();
                     WriteRecord;
-                    "Intrastat Jnl. Line".SetRange("Document No.");
+                    IntrastatJnlLine.SetRange("Document No.");
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    "Intrastat Jnl. Batch".Reported := true;
-                    "Intrastat Jnl. Batch".Modify();
-                    "Intrastat Jnl. Line".ModifyAll("Statistics Period", "Intrastat Jnl. Batch"."Statistics Period");
+                    IntrastatJnlLine.ModifyAll("Statistics Period", "Intrastat Jnl. Batch"."Statistics Period");
+                    IntrastatFileWriter.AddCurrFileToResultFile();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    IntraFile.Write(GetRecordTypeZero);
+                    IntrastatFileWriter.InitializeNextFile(DefaultFilenameTxt);
+                    IntrastatFileWriter.WriteLine(GetRecordTypeZero());
                 end;
             }
 
@@ -208,15 +200,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 TestField("Statistics Period");
                 TestField("File Disk No.");
                 IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
+                SetBatchIsExported("Intrastat Jnl. Batch");
+                IntrastatFileWriter.SetStatisticsPeriod("Statistics Period");
             end;
 
             trigger OnPostDataItem()
             begin
-                IntraFile.Close;
-                if ServerFileName = '' then
-                    FileMgt.DownloadHandler(FileName, '', '', FileMgt.GetToFilterText('', DefaultFilenameTxt), DefaultFilenameTxt)
-                else
-                    FileMgt.CopyServerFile(FileName, ServerFileName, true);
                 Message(Text1130000 + Text1130001, NoOfRecords);
             end;
         }
@@ -236,17 +225,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
-            if not IntrastatSetup.Get then
-                exit;
-
-            if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-                exit;
-
-            if IntrastatSetup."Report Receipts" then
-                "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Receipt)
-            else
-                if IntrastatSetup."Report Shipments" then
-                    "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Shipment)
+            FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
 
@@ -254,16 +233,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     {
     }
 
-    trigger OnPostReport()
-    begin
-        "Intra - form Buffer".Reset();
-        "Intra - form Buffer".SetFilter("User ID", UserId);
-        "Intra - form Buffer".DeleteAll();
-    end;
-
     trigger OnPreReport()
     begin
-        FileName := FileMgt.ServerTempFileName('');
+        IntrastatFileWriter.Initialize(false, false, 0);
 
         CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
@@ -271,23 +243,22 @@ report 593 "Intrastat - Make Disk Tax Auth"
         "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
         "Intra - form Buffer".DeleteAll();
-        if FileName = '' then
-            Error(Text000);
-        IntraFile.TextMode := true;
-        IntraFile.WriteMode := true;
-        IntraFile.Create(FileName);
+    end;
+
+    trigger OnPostReport()
+    begin
+        "Intra - form Buffer".Reset();
+        "Intra - form Buffer".SetFilter("User ID", UserId);
+        "Intra - form Buffer".DeleteAll();
+        IntrastatFileWriter.CloseAndDownloadResultFile();
     end;
 
     var
-        Text000: Label 'Enter the file name.';
         Text001: Label 'WwWw';
         CompanyInfo: Record "Company Information";
         IntrastatSetup: Record "Intrastat Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
-        FileMgt: Codeunit "File Management";
-        IntraFile: File;
-        FileName: Text;
-        ServerFileName: Text;
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
         DefaultFilenameTxt: Label 'scambi.cee', Locked = true;
         Text1130000: Label 'File was created successfully.\';
         Text1130001: Label 'Records created:  %1';
@@ -310,19 +281,54 @@ report 593 "Intrastat - Make Disk Tax Auth"
         LineNo: Integer;
         TotalLines: Integer;
 
+    local procedure FilterSourceLinesByIntrastatSetupExportTypes()
+    begin
+        if not IntrastatSetup.Get() then
+            exit;
+
+        if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
+            exit;
+
+        if IntrastatSetup."Report Receipts" then
+            IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
+        else
+            if IntrastatSetup."Report Shipments" then
+                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
+    end;
+
+    local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+#if CLEAN19
+        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false);
+#else
+        if IntrastatSetup."Use Advanced Checklist" then
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false)
+        else begin
+            IntrastatJnlLine.TestField("Country/Region Code");
+            IntrastatJnlLine.TestField("Partner VAT ID");
+        end;
+#endif
+    end;
+
+    local procedure SetBatchIsExported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    begin
+        IntrastatJnlBatch.Validate(Reported, true);
+        IntrastatJnlBatch.Modify(true);
+    end;
+
     [Scope('OnPrem')]
     procedure WriteRecord()
     begin
         if not "Intrastat Jnl. Batch"."EU Service" then begin
             if not "Intrastat Jnl. Batch"."Corrective Entry" then
-                IntraFile.Write(GetRecordTypeOne)
+                IntrastatFileWriter.WriteLine(GetRecordTypeOne())
             else
-                IntraFile.Write(GetRecordTypeTwo);
+                IntrastatFileWriter.WriteLine(GetRecordTypeTwo());
         end else begin
             if not "Intrastat Jnl. Batch"."Corrective Entry" then
-                IntraFile.Write(GetRecordTypeThree)
+                IntrastatFileWriter.WriteLine(GetRecordTypeThree())
             else
-                IntraFile.Write(GetRecordTypeFour);
+                IntrastatFileWriter.WriteLine(GetRecordTypeFour());
         end;
     end;
 
@@ -380,10 +386,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetRecordTypeZero(): Text[131]
+    procedure GetRecordTypeZero(): Text
     var
         Vendor: Record Vendor;
-        OutText: Text[131];
+        OutText: Text;
     begin
         OutText += GetFixedPart(0);
         if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
@@ -406,9 +412,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetRecordTypeOne(): Text[119]
+    procedure GetRecordTypeOne(): Text
     var
-        OutText: Text[119];
+        OutText: Text;
     begin
         OutText += GetFixedPart(1);
         OutText += GetCountryCodeVATRegNo;
@@ -425,6 +431,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
                     OutText += FormatAlphaNum("Intra - form Buffer"."Country/Region of Origin Code", 2);
                 OutText += FormatAlphaNum("Intra - form Buffer".Area, 2);
+                OutText += FormatAlphaNum(CopyStr("Intra - form Buffer"."Transaction Type", 2, 1), 1);
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
+                    OutText += FormatAlphaNum('', 2);
             end else begin
                 OutText += FormatNum('', 10);
                 OutText += FormatNum('', 10);
@@ -435,6 +444,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
                     OutText += FormatAlphaNum('', 2);
                 OutText += FormatAlphaNum('', 2);
+                OutText += FormatAlphaNum('', 1);
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
+                    OutText += FormatAlphaNum('', 2);
             end;
         exit(OutText);
     end;
@@ -510,9 +522,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetTotals(): Text[72]
+    procedure GetTotals(): Text
     var
-        OutText: Text[150];
+        OutText: Text;
     begin
         if "Intrastat Jnl. Batch"."EU Service" then begin
             if "Intrastat Jnl. Batch"."Corrective Entry" then begin
@@ -537,6 +549,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 OutText += GetTotalRecTotalAmt;
                 OutText += FormatNum('0', 54);
             end;
+        OutText += FormatNum('0', 5);
         exit(OutText);
     end;
 
@@ -632,7 +645,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             IntrastatJnlLine2.SetRange("Journal Template Name", "Intra - form Buffer"."Journal Template Name");
             IntrastatJnlLine2.SetRange("Journal Batch Name", "Intra - form Buffer"."Corrected Intrastat Report No.");
             IntrastatJnlLine2.SetRange("Document No.", CorrDocNo);
-            if IntrastatJnlLine2.FindFirst then
+            if IntrastatJnlLine2.FindFirst() then
                 DocumentDate := IntrastatJnlLine2.Date;
         end else begin
             DocumentNo := "Intra - form Buffer"."Document No.";
@@ -647,7 +660,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     begin
         if PaymentMethod.Get("Intra - form Buffer"."Payment Method") then;
         OutText += FormatAlphaNum(PaymentMethod."Intrastat Payment Method", 1);
-        OutText += FormatAlphaNum("Intrastat Jnl. Line"."Country/Region of Payment Code", 2);
+        OutText += FormatAlphaNum(IntrastatJnlLine."Country/Region of Payment Code", 2);
         exit(OutText);
     end;
 
@@ -727,7 +740,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             SetRange("Journal Template Name", "Intra - form Buffer"."Journal Template Name");
             SetRange("Journal Batch Name", "Intra - form Buffer"."Journal Batch Name");
             SetRange("Document No.", "Intra - form Buffer"."Document No.");
-            if FindFirst then
+            if FindFirst() then
                 exit("Corrected Document No.");
         end;
     end;
@@ -744,7 +757,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         then
             exit(false);
 
-        ItemLedgerEntry.Get("Intrastat Jnl. Line"."Source Entry No.");
+        ItemLedgerEntry.Get(IntrastatJnlLine."Source Entry No.");
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Shipment":
                 begin
@@ -763,9 +776,17 @@ report 593 "Intrastat - Make Disk Tax Auth"
         exit(false);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
     procedure InitializeRequest(newServerFileName: Text)
     begin
-        ServerFileName := newServerFileName;
+        IntrastatFileWriter.SetServerFileName(newServerFileName);
+    end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream)
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
     end;
 
     local procedure SkipTransportMethodVerification(IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
@@ -785,7 +806,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         ValueEntry.SetRange("Document No.", VATEntry."Document No.");
         ValueEntry.SetRange("Posting Date", VATEntry."Posting Date");
         ValueEntry.SetFilter("Item No.", '<>%1', '');
-        if ValueEntry.FindSet then begin
+        if ValueEntry.FindSet() then begin
             repeat
                 if IsInventoriableTypeItem(ValueEntry."Item No.") then
                     exit(false);

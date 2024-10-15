@@ -4699,21 +4699,30 @@
  iif(Fields!No_Vendor.Value="",true,false)</Hidden>
                               </Visibility>
                             </TablixMember>
+                            <TablixMember>
+                              <Visibility>
+                                <Hidden>=iif(Previous(Fields!Name1_Vendor.Value)="",false,true) or
+ iif(Fields!Name1_Vendor.Value="",true,false) or
+ iif(Fields!No_Vendor.Value="",true,false)</Hidden>
+                              </Visibility>
+                            </TablixMember>
+                            <TablixMember>
+                              <Visibility>
+                                <Hidden>=iif(Previous(Fields!Name1_Vendor.Value)="",false,true) or
+ iif(Fields!Name1_Vendor.Value="",true,false) or
+ iif(Fields!No_Vendor.Value="",true,false)</Hidden>
+                              </Visibility>
+                            </TablixMember>
+                            <TablixMember>
+                              <Visibility>
+                                <Hidden>=iif(Fields!Name1_Vendor.Value="",true,false) or
+ iif(Fields!No_Vendor.Value="",true,false)</Hidden>
+                              </Visibility>
+                            </TablixMember>
                           </TablixMembers>
                           <DataElementName>Detail_Collection</DataElementName>
                           <DataElementOutput>Output</DataElementOutput>
                           <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
-                          <KeepWithGroup>Before</KeepWithGroup>
-                          <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
-                          <KeepWithGroup>Before</KeepWithGroup>
-                          <KeepTogether>true</KeepTogether>
-                        </TablixMember>
-                        <TablixMember>
-                          <KeepWithGroup>Before</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <KeepWithGroup>Before</KeepWithGroup>

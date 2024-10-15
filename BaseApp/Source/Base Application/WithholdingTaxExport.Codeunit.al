@@ -76,7 +76,7 @@ codeunit 12132 "Withholding Tax Export"
         WithholdingTax: Record "Withholding Tax";
     begin
         with WithholdingTax do begin
-            SetCurrentKey("Vendor No.", Reason);
+            SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
             SetRange(Year, ReportingYearStart, ReportingYearEnd);
             if FindSet() then begin
                 repeat
@@ -85,7 +85,7 @@ codeunit 12132 "Withholding Tax Export"
                             TempErrorMessage.LogIfEmpty(WithholdingTax, FieldNo(Reason), TempErrorMessage."Message Type"::Error);
                         if ("Vendor No." <> TempWithholdingTax."Vendor No.") or
                            (Reason <> TempWithholdingTax.Reason) or
-                           ("Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type")
+                           (("Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type") and (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" "))
                         then begin
                             if TempWithholdingTax."Entry No." <> 0 then
                                 TempWithholdingTax.Insert();
@@ -93,6 +93,8 @@ codeunit 12132 "Withholding Tax Export"
                         end;
                         if "Related Date" <> 0D then
                             TempWithholdingTax."Related Date" := "Related Date";
+                        if "Non-Taxable Income Type" <> "Non-Taxable Income Type"::" " then
+                            TempWithholdingTax."Non-Taxable Income Type" := "Non-Taxable Income Type";
                         TempWithholdingTax."Total Amount" += "Total Amount";
                         TempWithholdingTax."Non Taxable Amount By Treaty" += "Non Taxable Amount By Treaty";
                         TempWithholdingTax."Base - Excluded Amount" += "Base - Excluded Amount";
