@@ -158,6 +158,9 @@ codeunit 1006 "Copy Job"
                     NextPlanningLineNo += 10000;
                     Validate("Line No.", NextPlanningLineNo);
                     TransferFields(SourceJobPlanningLine, false);
+                    if not CopyPrices then
+                        UpdateAllAmounts();
+
                     "Remaining Qty." := 0;
                     "Remaining Qty. (Base)" := 0;
                     "Remaining Total Cost" := 0;

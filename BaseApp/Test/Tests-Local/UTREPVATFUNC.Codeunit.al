@@ -448,7 +448,7 @@ codeunit 142057 "UT REP VATFUNC"
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetRange("VAT Reporting Date", WorkDate());
         VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
         VATEntry.SetFilter("Country/Region Code", '<>%1', '');
         VATViesDeclarationTaxDE.SetTableView(VATEntry);
