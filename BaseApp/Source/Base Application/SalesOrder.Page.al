@@ -717,22 +717,24 @@
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
-                            Editable = BillToOptions = BillToOptions::"Another Customer";
-                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
+                            Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             Importance = Promoted;
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
                             begin
-                                if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
-                                    if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
-                                        SetRange("Bill-to Customer No.");
+                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
+                                    if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                        if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                            SetRange("Bill-to Customer No.");
 
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                                    CurrPage.SaveRecord;
+                                    if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                                CurrPage.Update(false);
+                                    CurrPage.Update(false);
+                                end;
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -2370,6 +2372,7 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        ShouldSearchForCustByName: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
@@ -2529,6 +2532,8 @@
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
+
+        ShouldSearchForCustByName := ShouldSearchForCustomerByName("Sell-to Customer No.");
     end;
 
     local procedure ShowPostedConfirmationMessage()

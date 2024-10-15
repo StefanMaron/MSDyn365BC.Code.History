@@ -84,14 +84,11 @@ table 381 "VAT Registration No. Format"
 
         case TableID of
             DATABASE::Customer:
-                if not CheckCust(VATRegNo, Number) then
-                    exit(false);
+                CheckCust(VATRegNo, Number);
             DATABASE::Vendor:
-                if not CheckVendor(VATRegNo, Number) then
-                    exit(false);
+                CheckVendor(VATRegNo, Number);
             DATABASE::Contact:
-                if not CheckContact(VATRegNo, Number) then
-                    exit(false);
+                CheckContact(VATRegNo, Number);
             DATABASE::Person:
                 CheckPerson(VATRegNo, Number);
             else
@@ -104,7 +101,7 @@ table 381 "VAT Registration No. Format"
         exit(true);
     end;
 
-    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20])
     var
         Cust: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
@@ -137,12 +134,8 @@ table 381 "VAT Registration No. Format"
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             ShowCheckCustMessage(TextString);
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     local procedure ShowCheckCustMessage(TextString: Text)
@@ -157,7 +150,7 @@ table 381 "VAT Registration No. Format"
         Message(StrSubstNo(Text002, TextString));
     end;
 
-    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20])
     var
         Vend: Record Vendor;
         Check: Boolean;
@@ -183,12 +176,8 @@ table 381 "VAT Registration No. Format"
                 AppendString(TextString, Finish, Vend."No.");
             until (Vend.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             ShowCheckVendMessage(TextString);
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     local procedure ShowCheckVendMessage(TextString: Text)
@@ -203,7 +192,7 @@ table 381 "VAT Registration No. Format"
         Message(StrSubstNo(Text003, TextString));
     end;
 
-    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
+    local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20])
     var
         Cont: Record Contact;
         Check: Boolean;
@@ -228,12 +217,8 @@ table 381 "VAT Registration No. Format"
                 AppendString(TextString, Finish, Cont."No.");
             until (Cont.Next() = 0) or Finish;
         end;
-        if not Check then begin
+        if not Check then
             Message(StrSubstNo(Text004, TextString));
-            exit(false);
-        end;
-
-        exit(true);
     end;
 
     [Scope('OnPrem')]
