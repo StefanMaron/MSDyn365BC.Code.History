@@ -243,17 +243,16 @@
 
             RoundingResidualAmount := 0;
             RoundingResidualAmountACY := 0;
-            if "Value Entry Type" = "Value Entry Type"::Revaluation then
-                if GetItem("Item No.", false) and (Item."Costing Method" = Item."Costing Method"::Average) then begin
-                    RoundingResidualAmount := Quantity *
-                      ("Unit Cost" - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
-                    RoundingResidualAmountACY := Quantity *
-                      ("Unit Cost (ACY)" - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
-                    if Abs(RoundingResidualAmount) < GLSetup."Amount Rounding Precision" then
-                        RoundingResidualAmount := 0;
-                    if Abs(RoundingResidualAmountACY) < Currency."Amount Rounding Precision" then
-                        RoundingResidualAmountACY := 0;
-                end;
+            if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
+                RoundingResidualAmount := Quantity *
+                  ("Unit Cost" - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
+                RoundingResidualAmountACY := Quantity *
+                  ("Unit Cost (ACY)" - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
+                if Abs(RoundingResidualAmount) < GLSetup."Amount Rounding Precision" then
+                    RoundingResidualAmount := 0;
+                if Abs(RoundingResidualAmountACY) < Currency."Amount Rounding Precision" then
+                    RoundingResidualAmountACY := 0;
+            end;
 
             "Unit Amount" := Round(
                 "Unit Amount" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision");
@@ -1960,11 +1959,13 @@
                 SetRange("Serial No.", FromItemLedgEntry."Serial No.");
             if ItemTrackingCode."Lot Specific Tracking" then
                 SetRange("Lot No.", FromItemLedgEntry."Lot No.");
-            if Location.Get(FromItemLedgEntry."Location Code") then
-                if Location."Use As In-Transit" then begin
-                    SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
-                    SetRange("Order No.", FromItemLedgEntry."Order No.");
-                end;
+            if (Location.Get(FromItemLedgEntry."Location Code") and Location."Use As In-Transit") or
+               (FromItemLedgEntry."Location Code" = '') and
+               (FromItemLedgEntry."Document Type" = FromItemLedgEntry."Document Type"::"Transfer Receipt")
+            then begin
+                SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
+                SetRange("Order No.", FromItemLedgEntry."Order No.");
+            end;
         end;
 
         OnAfterApplyItemLedgEntrySetFilters(ToItemLedgEntry, FromItemLedgEntry, ItemJnlLine);
@@ -2855,9 +2856,7 @@
             CostAmtACY :=
               ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
 
-            if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation) and
-               (Item."Costing Method" = Item."Costing Method"::Average)
-            then begin
+            if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
             end;
@@ -5535,6 +5534,14 @@
           (OldItemLedgEntry."Order Type" = OldItemLedgEntry."Order Type"::Production) and
           (OldItemLedgEntry."Order No." = PrevAppliedItemLedgEntry."Order No.") and
           (OldItemLedgEntry."Order Line No." = PrevAppliedItemLedgEntry."Order Line No."));
+    end;
+
+    local procedure MustConsiderUnitCostRoundingOnRevaluation(ItemJournalLine: Record "Item Journal Line"): Boolean
+    begin
+        exit(
+          (ItemJournalLine."Value Entry Type" = ItemJournalLine."Value Entry Type"::Revaluation) and
+          (GetItem(ItemJournalLine."Item No.", false) and (Item."Costing Method" = Item."Costing Method"::Average) or
+           (ItemJournalLine."Applies-to Entry" <> 0)));
     end;
 
     [IntegrationEvent(false, false)]

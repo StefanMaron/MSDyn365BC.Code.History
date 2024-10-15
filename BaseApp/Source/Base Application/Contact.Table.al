@@ -2286,7 +2286,7 @@
         ContBusRel.SetRange("Contact No.", "Company No.");
         if ContBusRel.FindFirst then
             if Customer.Get(ContBusRel."No.") then
-                if Customer."Primary Contact No." = "No." then begin
+                if (("No." <> '') and (Customer."Primary Contact No." = "No.")) then begin
                     Customer.Contact := Name;
                     Customer.Modify();
                 end;
@@ -2294,7 +2294,7 @@
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
         if ContBusRel.FindFirst then
             if Vendor.Get(ContBusRel."No.") then
-                if Vendor."Primary Contact No." = "No." then begin
+                if (("No." <> '') and (Vendor."Primary Contact No." = "No.")) then begin
                     Vendor.Contact := Name;
                     Vendor.Modify();
                 end;
