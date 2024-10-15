@@ -90,7 +90,7 @@ page 396 "Sales Shipment Statistics"
                 if SalesShptLine."Units per Parcel" > 0 then
                     TotalParcels += Round(SalesShptLine.Quantity / SalesShptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    SalesShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    SalesShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until SalesShptLine.Next() = 0;
     end;
 
@@ -100,7 +100,7 @@ page 396 "Sales Shipment Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesShipmentLine: Record "Sales Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesShipmentLine: Record "Sales Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

@@ -59,6 +59,7 @@
                 end;
                 Description := Item.Description;
                 UpdateUOMFromItem(Item);
+                OnValidateItemNoOnAfterUpdateUOMFromItem(Rec, xRec, Item);
                 GetUpdateFromSKU;
                 CreateDim(DATABASE::Item, "Item No.");
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -86,7 +87,7 @@
 
                 UpdateUnitCost;
 
-                Validate("Expected Quantity", Quantity * ProdOrderNeeds);
+                UpdateExpectedQuantity();
             end;
         }
         field(14; Quantity; Decimal)
@@ -125,7 +126,7 @@
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
             begin
-                Validate("Expected Quantity", Quantity * ProdOrderNeeds);
+                UpdateExpectedQuantity();
 
                 ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
 
@@ -345,7 +346,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -356,7 +358,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -488,7 +491,7 @@
                 end;
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
                 "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
-                Validate("Expected Quantity", Quantity * ProdOrderNeeds);
+                UpdateExpectedQuantity();
             end;
         }
         field(45; "Quantity per"; Decimal)
@@ -616,6 +619,7 @@
                         CalcFields("Act. Consumption (Qty)");
                     OnValidateExpectedQtyBaseOnAfterCalcActConsumptionQty(Rec, xRec);
                     "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)";
+                    OnValidateExpectedQtyBaseOnAfterCalcRemainingQuantity(Rec, xRec);
                     "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                 end;
                 "Cost Amount" := Round("Expected Quantity" * "Unit Cost");
@@ -1494,6 +1498,18 @@
             ProdOrderComp."Bin Code" := ProdOrderComp2."Bin Code";
     end;
 
+    local procedure UpdateExpectedQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateExpectedQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Expected Quantity", Quantity * ProdOrderNeeds());
+    end;
+
     procedure CheckBin()
     var
         BinContent: Record "Bin Content";
@@ -1664,6 +1680,8 @@
             SetFilter("Remaining Qty. (Base)", '<0')
         else
             SetFilter("Remaining Qty. (Base)", '>0');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, NewStatus, AvailabilityFilter, Positive);
     end;
 
     procedure ShowDimensions()
@@ -1749,6 +1767,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var ProdOrderComponent: Record "Prod. Order Component"; ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetBinCodeFromLocation(var ProdOrderComponent: Record "Prod. Order Component"; Location: Record Location; var BinCode: Code[20])
     begin
     end;
@@ -1805,6 +1828,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBinCodeOnLookup(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateExpectedQuantity(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1920,6 +1948,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReservation(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateExpectedQtyBaseOnAfterCalcRemainingQuantity(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterUpdateUOMFromItem(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; Item: Record Item)
     begin
     end;
 }

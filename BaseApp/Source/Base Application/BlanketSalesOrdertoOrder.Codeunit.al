@@ -87,6 +87,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesOrderLine.Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
                         if SalesOrderLine.Quantity <> 0 then
                             SalesOrderLine.Validate("Inv. Discount Amount", BlanketOrderSalesLine."Inv. Discount Amount");
+                        OnRunOnBeforeSalesLineReserveTransferSaleLineToSalesLine(BlanketOrderSalesLine, SalesOrderLine);
                         SalesLineReserve.TransferSaleLineToSalesLine(
                           BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
                     end;
@@ -444,6 +445,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSalesOrderLineValidateShipmentDate(BlanketOrderSalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeSalesLineReserveTransferSaleLineToSalesLine(var BlanketOrderSalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
     begin
     end;
 

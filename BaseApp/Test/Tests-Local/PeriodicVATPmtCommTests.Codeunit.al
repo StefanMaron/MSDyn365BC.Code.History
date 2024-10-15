@@ -229,10 +229,9 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           'GetTaxDeclarantPosionCode incorrect');
 
         // [WHEN] Intermmediaries parameters
+        SetIntermediaryValuesInVATReportSetup();
         VATReportSetup.Get();
-        VATReportSetup."Intermediary Date" := DMY2Date(1, 9, 2018);
-        VATReportSetup."Intermediary VAT Reg. No." := '28051977200';
-        VATReportSetup.Modify();
+        VATReportSetup.Modify;
         VATPmtCommDataLookup.Init();
 
         // [THEN] Check intermmediaries
@@ -1158,6 +1157,30 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           '//Comunicazione/DatiContabili/Modulo/ImportoACredito', DecimalToText(CurrPeriodVATAmount));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CFIntermediarioNodeExportsInsteadOfCodicefiscaleSocietaNodeWhenIntermediaryOptionUsed()
+    var
+        LocalVATPmtCommDataLookup: Codeunit "VAT Pmt. Comm. Data Lookup";
+        LocalVATPmtCommXMLGenerator: Codeunit "VAT Pmt. Comm. XML Generator";
+        XmlDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 405053] A "CFIntermediarioNode" xml node exports instead of "CodicefiscaleSocieta" node when "Intermediary" option is used
+
+        Initialize();
+
+        SetIntermediaryValuesInVATReportSetup();
+        LocalVATPmtCommDataLookup.Init();
+        LocalVATPmtCommDataLookup.SetStartDate(WorkDate);
+        LocalVATPmtCommDataLookup.SetIsIntermediary(true);
+        LocalVATPmtCommXMLGenerator.SetVATPmtCommDataLookup(LocalVATPmtCommDataLookup);
+        LocalVATPmtCommXMLGenerator.CreateXml(XmlDoc);
+
+        Assert.AreEqual(0, XmlDoc.GetElementsByTagName('CodicefiscaleSocieta').Count, '');
+        Assert.AreEqual(1, XmlDoc.GetElementsByTagName('CFIntermediario').Count, '');
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     begin
@@ -1442,6 +1465,16 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         CalcAndPostVATSettlement.SaveAsXml('');
     end;
 
+    local procedure SetIntermediaryValuesInVATReportSetup()
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get();
+        VATReportSetup."Intermediary Date" := DMY2Date(1, 9, 2018);
+        VATReportSetup."Intermediary VAT Reg. No." := '28051977200';
+        VATReportSetup.Modify();
+    end;
+
     local procedure UpdateVATEntryPostingGroups(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         VATEntry.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -1533,6 +1566,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         Assert.AreEqual('VAT settlement ending date', VATPaymentCommunication.VATSettlementEndingDate.Caption, WrongCaptionErr);
         Assert.AreEqual('Declarant fiscal code', VATPaymentCommunication.DeclarantFiscalcode.Caption, WrongCaptionErr);
         Assert.AreEqual('Declarant appointment code', VATPaymentCommunication.DeclarantAppointmentCode.Caption, WrongCaptionErr);
+        VATPaymentCommunication.YearOfDeclaration.AssertEquals(18); // TFS ID 404191: Years of declaration is "Supply code" which is always equal to "18"
 
         VATPaymentCommunication.Cancel.Invoke;
     end;

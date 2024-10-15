@@ -122,5 +122,19 @@ table 12204 "Fattura Line"
     fieldgroups
     {
     }
+
+    procedure GetItem(var Item: Record Item): Boolean
+    var
+        SalesLine: Record "Sales Line";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        if Type <> FatturaDocHelper.GetOptionCaptionValue(SalesLine.Type::Item) then
+            exit(false);
+
+        if not Item.Get("No.") then
+            exit(false);
+
+        exit(Item.GTIN <> '');
+    end;
 }
 

@@ -238,6 +238,12 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     end;
 
     [Scope('OnPrem')]
+    procedure WasIntermediarySet(): Boolean
+    begin
+        exit(IsIntermediary);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetIsIntermediary(): Text[1]
     begin
         if IsIntermediary then

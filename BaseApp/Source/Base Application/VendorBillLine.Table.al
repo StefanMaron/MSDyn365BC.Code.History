@@ -28,7 +28,7 @@ table 12182 "Vendor Bill Line"
         }
         field(11; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup (Vendor.Name WHERE("No." = FIELD("Vendor No.")));
+            CalcFormula = Lookup(Vendor.Name WHERE("No." = FIELD("Vendor No.")));
             Caption = 'Vendor Name';
             Editable = false;
             FieldClass = FlowField;
@@ -161,7 +161,7 @@ table 12182 "Vendor Bill Line"
         }
         field(66; "Has Payment Export Error"; Boolean)
         {
-            CalcFormula = Exist ("Payment Jnl. Export Error Text" WHERE("Journal Line No." = FIELD("Line No."),
+            CalcFormula = Exist("Payment Jnl. Export Error Text" WHERE("Journal Line No." = FIELD("Line No."),
                                                                         "Document No." = FIELD("Vendor Bill List No.")));
             Caption = 'Has Payment Export Error';
             Editable = false;
@@ -319,8 +319,10 @@ table 12182 "Vendor Bill Line"
                     VendBillWithhTax."Old Withholding Amount" := VendBillWithhTax."Withholding Tax Amount";
                     VendBillWithhTax."Old Free-Lance Amount" := VendBillWithhTax."Free-Lance Amount";
                 end;
+            OnCreateVendBillWithhTaxOnBeforeVendBillWithhTaxInsert(VendBillWithhTax, Vend);
             if VendBillWithhTax."Withholding Tax Code" <> '' then
                 VendBillWithhTax.Insert();
+            OnCreateVendBillWithhTaxOnAfterVendBillWithhTaxInsert(VendBillWithhTax);
         end;
         "Withholding Tax Amount" := VendBillWithhTax."Withholding Tax Amount";
         "Social Security Amount" := VendBillWithhTax."Total Social Security Amount";
@@ -379,9 +381,12 @@ table 12182 "Vendor Bill Line"
     var
         TotalPaymentAmt: Decimal;
     begin
+        OnBeforeUpdateVendBillWithhTaxWHTAmounts(VendorBillWithholdingTax, ComputedWithholdingTax);
+
         TotalPaymentAmt := CalcTotalAmountFromVendLedgEntry;
         if TotalPaymentAmt * "Remaining Amount" <> 0 then
             VendorBillWithholdingTax."Total Amount" := ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount";
+        VendorBillWithholdingTax."Original Total Amount" := ComputedWithholdingTax."Total Amount";
         VendorBillWithholdingTax."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
         VendorBillWithholdingTax.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
         if ComputedWithholdingTax."WHT Amount Manual" <> 0 then
@@ -427,5 +432,21 @@ table 12182 "Vendor Bill Line"
     local procedure OnAfterUpdateVendBillWithTaxWHTAmounts(var VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax"; ComputedWithholdingTax: Record "Computed Withholding Tax")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendBillWithhTaxOnAfterVendBillWithhTaxInsert(var VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendBillWithhTaxOnBeforeVendBillWithhTaxInsert(var VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax"; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVendBillWithhTaxWHTAmounts(var VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax"; ComputedWithholdingTax: Record "Computed Withholding Tax")
+    begin
+    end;
+
 }
 

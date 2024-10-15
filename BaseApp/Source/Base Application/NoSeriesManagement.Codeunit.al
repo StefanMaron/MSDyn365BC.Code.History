@@ -809,7 +809,7 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; Result: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var Result: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

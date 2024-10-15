@@ -86,7 +86,7 @@ codeunit 12179 "Export FatturaPA Document"
         FileManagement.DeleteServerFile(FileName);
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Save(FileName);
-        OnAfterCreateXML(TempXMLBuffer);
+        OnAfterCreateXML(TempXMLBuffer, FileName);
 
         Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
         exit(CopyStr(FileName, 1, 250))
@@ -435,9 +435,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddGroupElement('DettaglioLinee');
             AddNonEmptyElement('NumeroLinea', Format(TempFatturaLine."Line No."));
 
-            if (TempFatturaLine.Type = 'Item') and
-               Item.Get(TempFatturaLine."No.") and (Item.GTIN <> '')
-            then begin
+            if TempFatturaLine.GetItem(Item) then begin
                 AddGroupElement('CodiceArticolo');
                 AddNonEmptyElement('CodiceTipo', 'GTIN');
                 AddNonEmptyLastElement('CodiceValore', Item.GTIN);
@@ -525,7 +523,14 @@ codeunit 12179 "Export FatturaPA Document"
     end;
 
     local procedure PopulatePaymentData(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePopulatePaymentData(TempFatturaLine, TempFatturaHeader, TempXMLBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         // 2.4. DatiPagamento - Payment Data
         with TempXMLBuffer do begin
             TempFatturaLine.Reset();
@@ -681,7 +686,12 @@ codeunit 12179 "Export FatturaPA Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateXML(var TempXMLBuffer: Record "XML Buffer" temporary)
+    local procedure OnAfterCreateXML(var TempXMLBuffer: Record "XML Buffer" temporary; FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePopulatePaymentData(var TempFatturaLine: Record "Fattura Line"; TempFatturaHeader: Record "Fattura Header"; var TempXMLBuffer: record "XML Buffer"; var IsHandled: Boolean)
     begin
     end;
 

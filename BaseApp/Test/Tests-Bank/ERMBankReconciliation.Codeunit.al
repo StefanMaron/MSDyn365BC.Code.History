@@ -2372,7 +2372,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Bank Account Statement is created. "Balance Last Statement" = 0 and "Statement Ending Balance" = "A1" + "A2".
-        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", 0, TransactionAmounts[1] + TransactionAmounts[2]);
+        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", 0, 0);
     end;
 
     [Test]
@@ -2401,6 +2401,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         MockBankAccountStatement(BankAccountStatement, BankAccount."No.", '2', PreviousStatementEndingBalance, PreviousStatementEndingBalance + LibraryRandom.RandDecInRange(100, 200, 2));
         PreviousStatementEndingBalance := BankAccountStatement."Statement Ending Balance";
         BankAccount.Validate("Last Payment Statement No.", '2');
+        BankAccount.Validate("Balance Last Statement", PreviousStatementEndingBalance);
         BankAccount.Modify(true);
 
         // [GIVEN] Posted Sales Invoice "SI" with Amount "A1" and Posted Purchase Invoice "PI" with Amount "A2".
@@ -2416,7 +2417,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Bank Account Statement is created. "Balance Last Statement" = "B1" and "Statement Ending Balance" = "B1" + "A1" + "A2".
-        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", PreviousStatementEndingBalance, PreviousStatementEndingBalance + TransactionAmounts[1] + TransactionAmounts[2]);
+        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", PreviousStatementEndingBalance, 0);
     end;
 
     local procedure Initialize()

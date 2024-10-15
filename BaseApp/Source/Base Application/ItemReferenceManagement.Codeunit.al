@@ -1,4 +1,4 @@
-codeunit 5720 "Item Reference Management"
+﻿codeunit 5720 "Item Reference Management"
 {
 
     trigger OnRun()
@@ -479,6 +479,7 @@ codeunit 5720 "Item Reference Management"
                 SalesLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
             if ReturnedItemReference."Unit of Measure" <> '' then
                 SalesLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
+            OnValidateSalesReferenceNoOnAfterAssignNo(SalesLine, ReturnedItemReference);
         end;
 
         SalesLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
@@ -545,6 +546,7 @@ codeunit 5720 "Item Reference Management"
                 PurchaseLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
             if ReturnedItemReference."Unit of Measure" <> '' then
                 PurchaseLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
+            OnValidatePurchaseReferenceNoOnBeforePurchaseLineUpdateDirectUnitCost(PurchaseLine, ReturnedItemReference);
             PurchaseLine.UpdateDirectUnitCost(PurchaseLine.FieldNo("Item Reference No."));
         end;
 
@@ -575,31 +577,6 @@ codeunit 5720 "Item Reference Management"
     procedure GetFeatureKey(): Text[50]
     begin
         exit(ItemReferenceFeatureIdTok);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterDeleteRelatedData', '', false, false)]
-    local procedure ItemOnAfterDeleteRelatedData(Item: Record Item)
-    begin
-        ItemReference.SetRange("Item No.", Item."No.");
-        ItemReference.DeleteAll();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure CustomerOnAfterDelete(var Rec: Record Customer)
-    begin
-        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
-        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
-        ItemReference.SetRange("Reference Type No.", Rec."No.");
-        ItemReference.DeleteAll();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure VendorOnAfterDelete(var Rec: Record Vendor)
-    begin
-        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
-        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
-        ItemReference.SetRange("Reference Type No.", Rec."No.");
-        ItemReference.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]
@@ -703,7 +680,17 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateSalesReferenceNoOnAfterAssignNo(var SalesLine: Record "Sales Line"; ReturnedItemReference: Record "Item Reference");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateSalesReferenceNoOnBeforeAssignNo(var SalesLine: Record "Sales Line"; ReturnedItemReference: Record "Item Reference");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePurchaseReferenceNoOnBeforePurchaseLineUpdateDirectUnitCost(var PurchaseLine: Record "Purchase Line"; ItemReference: Record "Item Reference")
     begin
     end;
 

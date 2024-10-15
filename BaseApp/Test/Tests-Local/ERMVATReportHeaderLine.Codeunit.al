@@ -252,7 +252,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Released;
         VATReportHdr."Tax Auth. Receipt No." := 'x';
-        VATReportHdr."Tax Auth. Doc. No." := 'y';
+        VATReportHdr."Tax Auth. Document No." := 'y';
         VATReportHdr.CheckIfCanBeSubmitted;
 
         VATReportHdr.Status := VATReportHdr.Status::Open;

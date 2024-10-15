@@ -426,6 +426,7 @@ table 12113 "Tmp Withholding Contribution"
           "Taxable Base";
 
         "Withholding Tax Amount" := Round("Taxable Base" * "Withholding Tax %" / 100);
+        OnCalculateWithholdingTaxOnAfterAssignWithholdingTaxAmount(Rec);
 
         if "Taxable Base" < 0 then
             Error(NegativeTaxableBaseErr);
@@ -574,6 +575,11 @@ table 12113 "Tmp Withholding Contribution"
             Modify(true);
         end;
         SetRange("Payment Line-Soc. Sec.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateWithholdingTaxOnAfterAssignWithholdingTaxAmount(var TmpWithholdingContribution: Record "Tmp Withholding Contribution")
+    begin
     end;
 }
 

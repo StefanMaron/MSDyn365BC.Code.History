@@ -677,9 +677,7 @@ page 5964 "Service Quote"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Service Statistics", Rec);
+                        OpenStatistics();
                     end;
                 }
                 action("Customer Card")

@@ -52,7 +52,7 @@ page 43 "Sales Invoice"
                     NotBlank = true;
                     ShowMandatory = true;
                     AboutTitle = 'Who you are selling to';
-                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.​';
+                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
@@ -69,8 +69,7 @@ page 43 "Sales Invoice"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -235,6 +234,13 @@ page 43 "Sales Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the incoming document that this sales document is created for.';
                     Visible = false;
+                }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -1561,7 +1567,7 @@ page 43 "Sales Invoice"
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     AboutTitle = 'When all is set, you post';
-                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.​ After posting, the sales invoice is moved to the Posted Sales Invoices list.';
+                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count. After posting, the sales invoice is moved to the Posted Sales Invoices list.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()

@@ -580,6 +580,7 @@ codeunit 12182 "Datifattura Export"
         DatiIVAXmlNode: DotNet XmlNode;
         XmlNode: DotNet XmlNode;
         DocumentType: Text;
+        IsHandled: Boolean;
     begin
         // 2.2.3.2 DatiRiepilogo node
         XMLDOMManagement.AddElement(InvoiceXmlNode, 'DatiRiepilogo', '', '', DatiRiepilogoXmlNode);
@@ -592,17 +593,20 @@ codeunit 12182 "Datifattura Export"
         else
             XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'ImponibileImporto', FormatAmount(Abs(VATReportLine.Base)), '', XmlNode);
 
-        if VATPostingSetup.Get(VATReportLine."VAT Bus. Posting Group", VATReportLine."VAT Prod. Posting Group") then begin
-            // DatiIVA
-            XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'DatiIVA', '', '', DatiIVAXmlNode);
-            XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Imposta', FormatAmount(Abs(VATReportLine.Amount)), '', XmlNode);
-            XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Aliquota', FormatAmount(VATPostingSetup."VAT %"), '', XmlNode);
+        IsHandled := false;
+        OnAddInvoiceAmountsDataOnBeforeGetVATPostingSetup(VATReportLine, XMLDOMManagement, IsHandled);
+        if not IsHandled then
+            if VATPostingSetup.Get(VATReportLine."VAT Bus. Posting Group", VATReportLine."VAT Prod. Posting Group") then begin
+                // DatiIVA
+                XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'DatiIVA', '', '', DatiIVAXmlNode);
+                XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Imposta', FormatAmount(Abs(VATReportLine.Amount)), '', XmlNode);
+                XMLDOMManagement.AddElement(DatiIVAXmlNode, 'Aliquota', FormatAmount(VATPostingSetup."VAT %"), '', XmlNode);
 
-            if (VATReportLine.Amount = 0) or
-               (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT")
-            then
-                XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'Natura', VATReportLine."VAT Transaction Nature", '', XmlNode);
-        end;
+                if (VATReportLine.Amount = 0) or
+                (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT")
+                then
+                    XMLDOMManagement.AddElement(DatiRiepilogoXmlNode, 'Natura', VATReportLine."VAT Transaction Nature", '', XmlNode);
+            end;
 
         AddEsigibilitaIVATag(DatiRiepilogoXmlNode, XmlNode, VATReportLine);
     end;
@@ -865,6 +869,11 @@ codeunit 12182 "Datifattura Export"
     procedure InitializeRequest(FilePath: Text)
     begin
         ServerFilePath := FilePath;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddInvoiceAmountsDataOnBeforeGetVATPostingSetup(VATReportLine: Record "VAT Report Line"; XMLDOMManagement: Codeunit "XML DOM Management"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

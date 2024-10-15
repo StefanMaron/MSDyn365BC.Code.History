@@ -318,6 +318,7 @@ table 5965 "Service Contract Header"
                         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
                         if not SkipBillToContact then
                             "Bill-to Contact" := Cust.Contact;
+                        OnValidateBillToCustomerNoOnAfterCopyFieldsFromCust(Rec, Cust, SkipBillToContact);
                     end;
 
                     if not HideValidationDialog then
@@ -441,7 +442,14 @@ table 5965 "Service Contract Header"
             Caption = 'Invoice Period';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateInvoicePeriod(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CalcInvPeriodDuration;
                 if (Format("Price Update Period") <> '') and
                    (CalcDate("Price Update Period", "Starting Date") < CalcDate(InvPeriodDuration, "Starting Date"))
@@ -489,7 +497,14 @@ table 5965 "Service Contract Header"
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLastInvoiceDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Starting Date");
                 if "Last Invoice Date" = 0D then
                     if Prepaid then
@@ -535,6 +550,11 @@ table 5965 "Service Contract Header"
                 ServLedgEntry: Record "Service Ledger Entry";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNextInvoiceDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Next Invoice Date" = 0D then begin
                     "Next Invoice Period Start" := 0D;
                     "Next Invoice Period End" := 0D;
@@ -600,6 +620,7 @@ table 5965 "Service Contract Header"
                     end;
                 end;
 
+                OnValidateNextInvoiceDateOnBeforeValidateNextInvoicePeriod(Rec);
                 ValidateNextInvoicePeriod;
             end;
         }
@@ -622,6 +643,7 @@ table 5965 "Service Contract Header"
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("New Line", true);
+                    OnValidateStartingDateOnAfterServContractLineSetFilters(Rec, ServContractLine);
                     if ServContractLine.Find('-') then begin
                         repeat
                             ServContractLine."Starting Date" := 0D;
@@ -637,6 +659,7 @@ table 5965 "Service Contract Header"
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("New Line", true);
+                    OnValidateStartingDateOnAfterServContractLineSetFilters(Rec, ServContractLine);
                     if ServContractLine.Find('-') then begin
                         repeat
                             ServContractLine.SuspendStatusCheck(true);
@@ -1006,7 +1029,8 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1019,7 +1043,8 @@ table 5965 "Service Contract Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -2138,7 +2163,7 @@ table 5965 "Service Contract Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateNextInvoicePeriod(Rec, IsHandled);
+        OnBeforeValidateNextInvoicePeriod(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -2274,6 +2299,8 @@ table 5965 "Service Contract Header"
                 "Bill-to Contact" := Cust.Contact;
             end;
         end;
+
+        OnAfterUpdateBillToCont(Rec, Cust, Cont);
     end;
 
     procedure UpdateCust(ContactNo: Code[20])
@@ -2345,6 +2372,7 @@ table 5965 "Service Contract Header"
             exit;
         end;
 
+        OnUpdateBillToCustOnBeforeContBusinessRelationFindByContact(Rec, Cust, Cont);
         if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
             if "Bill-to Customer No." = '' then begin
                 SkipBillToContact := true;
@@ -2585,6 +2613,11 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBillToCont(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdContractChangeLog(var ServiceContractHeader: Record "Service Contract Header"; OldServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -2595,7 +2628,7 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyServiceContractQuoteTemplate(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeApplyServiceContractQuoteTemplate(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2610,7 +2643,12 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateNextInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateNextInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; xServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNextInvoiceDate(var ServiceContractHeader: Record "Service Contract Header"; xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2620,22 +2658,52 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNextInvoiceDateOnBeforeCheck(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateLastInvoiceDate(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateEndPeriodDateOnPrepaidCaseElse(ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    local procedure OnBeforeValidateInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateEndPeriodDateCaseElse(ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    local procedure OnValidateNextInvoiceDateOnBeforeCheck(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcInvPeriodDurationCaseElse(ServiceContractHeader: Record "Service Contract Header"; InvPeriodDuration: DateFormula)
+    local procedure OnValidateNextInvoiceDateOnBeforeValidateNextInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingDateOnAfterServContractLineSetFilters(var ServiceContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateEndPeriodDateOnPrepaidCaseElse(var ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateEndPeriodDateCaseElse(var ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcInvPeriodDurationCaseElse(var ServiceContractHeader: Record "Service Contract Header"; InvPeriodDuration: DateFormula)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnBeforeContBusinessRelationFindByContact(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnAfterCopyFieldsFromCust(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; SkipBillToContact: Boolean)
     begin
     end;
 

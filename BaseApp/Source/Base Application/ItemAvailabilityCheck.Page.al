@@ -210,6 +210,8 @@ page 1872 "Item Availability Check"
             AvailableInventoryCaption := AvailableInventoryLbl
         else
             AvailableInventoryCaption := StrSubstNo('%1 (%2)', AvailableInventoryLbl, LocationCode);
+
+        OnAfterInitializeFromNotification(Rec, AvailabilityCheckNotification);
     end;
 
     [Scope('OnPrem')]
@@ -296,6 +298,11 @@ page 1872 "Item Availability Check"
         PurchaseLine.Modify(true);
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeFromNotification(var Item: Record Item; var AvailabilityCheckNotification: Notification)
+    begin
     end;
 }
 

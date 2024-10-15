@@ -103,7 +103,11 @@ report 6004 "Batch Post Service Invoices"
         }
 
         trigger OnOpenPage()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;

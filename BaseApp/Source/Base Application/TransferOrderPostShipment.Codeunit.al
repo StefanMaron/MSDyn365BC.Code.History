@@ -160,6 +160,7 @@
                 until TransLine.Next() = 0;
             end;
 
+            OnRunOnBeforeLockTables(ItemJnlPostLine);
             if WhseShip then
                 WhseShptLine.LockTable();
             LockTable();
@@ -241,7 +242,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforePostItem(TransShptHeader2, IsHandled);
+        OnBeforePostItem(TransShptHeader2, IsHandled, TransferLine, TransShptLine2, WhseShip, WhseShptHeader2);
         if IsHandled then
             exit;
 
@@ -544,7 +545,13 @@
     local procedure TransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal)
     var
         DummySpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferTracking(FromTransLine, ToTransLine, TransferQty, IsHandled);
+        if IsHandled then
+            exit;
+
         TempHandlingSpecification.Reset();
         TempHandlingSpecification.SetRange("Source Prod. Order Line", ToTransLine."Derived From Line No.");
         if TempHandlingSpecification.Find('-') then begin
@@ -706,7 +713,14 @@
     end;
 
     local procedure CopyTransLine(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line"; var NextLineNo: Integer; TransferHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyTransLine(NewTransferLine, TransferLine, NextLineNo, TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         NewTransferLine.Init();
         NewTransferLine := TransferLine;
         if TransferHeader."In-Transit Code" <> '' then
@@ -868,6 +882,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyTransLine(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line"; var NextLineNo: Integer; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -898,12 +917,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItem(var TransferShipmentHeader: Record "Transfer Shipment Header"; var IsHandled: Boolean)
+    local procedure OnBeforePostItem(var TransferShipmentHeader: Record "Transfer Shipment Header"; var IsHandled: Boolean; var TransferLine: Record "Transfer Line"; TransShptLine2: Record "Transfer Shipment Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseDocument(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -959,6 +983,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInsertShipmentLines(var WhseShptHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeLockTables(var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 

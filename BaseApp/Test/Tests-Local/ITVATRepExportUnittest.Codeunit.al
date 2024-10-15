@@ -511,11 +511,11 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // Verify
         VerifyStructure(TextFileAgg, VATReportHeader, 1, 1);
-        LibrarySpesometro.VerifyValue(TextFileAgg, '1', 2, 116, 1, ConstFormat::CB);
+        LibrarySpesometro.VerifyValue(TextFileAgg, '1', 2, 128, 1, ConstFormat::CB);
         VerifyCustomerTotal(
           TextFileAgg, VATReportLine.Type::Sale, CustNo, VATReportLine.Amount + VATReportLine2.Amount - VATReportLine3.Amount);
         VerifyStructure(TextFileDetailed, VATReportHeader, 1, 1);
-        LibrarySpesometro.VerifyValue(TextFileDetailed, '1', 2, 117, 1, ConstFormat::CB);
+        LibrarySpesometro.VerifyValue(TextFileDetailed, '1', 2, 129, 1, ConstFormat::CB);
         VerifyCustomerTotal(
           TextFileDetailed, VATReportLine.Type::Sale, CustNo, VATReportLine.Amount + VATReportLine2.Amount - VATReportLine3.Amount);
     end;
@@ -1241,7 +1241,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         OrgVATReportHeader.Validate("Tax Auth. Receipt No.", '12345');
-        OrgVATReportHeader.Validate("Tax Auth. Doc. No.", '678901');
+        OrgVATReportHeader.Validate("Tax Auth. Document No.", '678901');
         OrgVATReportHeader.Modify(true);
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Corrective);
         VATReportHeader."Original Report No." := OrgVATReportHeader."No.";
@@ -1304,7 +1304,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         OrgVATReportHeader."Tax Auth. Receipt No." := '12345';
-        OrgVATReportHeader."Tax Auth. Doc. No." := '678901';
+        OrgVATReportHeader."Tax Auth. Document No." := '678901';
         OrgVATReportHeader.Modify(true);
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Corrective);
         VATReportHeader."Original Report No." := OrgVATReportHeader."No.";
@@ -1336,7 +1336,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         OrgVATReportHeader.Validate("Tax Auth. Receipt No.", '12345');
-        OrgVATReportHeader."Tax Auth. Doc. No." := '678901';
+        OrgVATReportHeader."Tax Auth. Document No." := '678901';
         OrgVATReportHeader.Modify(true);
 
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::"Cancellation ");
@@ -1840,19 +1840,19 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LoadNextFile(TextFile);
 
         // [THEN] Fields B41-B50 are blank / null
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, '', 16), 2, 382, 16, ConstFormat::CF); // B41 Fiscal Code
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '0', 2), 2, 398, 2, ConstFormat::NU); // B42 Appointment Code
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 400, 8, ConstFormat::DT); // B43 Starting Date
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, '', 16), 2, 394, 16, ConstFormat::CF); // B41 Fiscal Code
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '0', 2), 2, 410, 2, ConstFormat::NU); // B42 Appointment Code
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 412, 8, ConstFormat::DT); // B43 Starting Date
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 420, 8, ConstFormat::DT); // B44 Ending Date
 
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 416, 24, ConstFormat::AN); // B45 First Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 440, 20, ConstFormat::AN); // B46 Last Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 460, 1, ConstFormat::AN); // B47 Gender
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 461, 8, ConstFormat::DT); // B48 Date of Birth
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 469, 40, ConstFormat::AN); // B49 Municipality
-        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 509, 2, ConstFormat::PN); // B50 Province
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 428, 24, ConstFormat::AN); // B45 First Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 452, 20, ConstFormat::AN); // B46 Last Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 472, 1, ConstFormat::AN); // B47 Gender
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 473, 8, ConstFormat::DT); // B48 Date of Birth
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 481, 40, ConstFormat::AN); // B49 Municipality
+        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 521, 2, ConstFormat::PN); // B50 Province
 
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 511, 60, ConstFormat::AN); // B51 Designation
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 523, 60, ConstFormat::AN); // B51 Designation
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -1914,28 +1914,28 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [THEN] B42 uses a code that represent Tax Representative
         // [THEN] B43-44 are filled with the date range of the report
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::CF, Vendor."Fiscal Code", 16), 2, 382, 16, ConstFormat::CF); // B41 Fiscal Code
+          LibrarySpesometro.FormatPadding(ConstFormat::CF, Vendor."Fiscal Code", 16), 2, 394, 16, ConstFormat::CF); // B41 Fiscal Code
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::NUp, '06', 2), 2, 398, 2, ConstFormat::NU); // B42 Appointment Code
+          LibrarySpesometro.FormatPadding(ConstFormat::NUp, '06', 2), 2, 410, 2, ConstFormat::NU); // B42 Appointment Code
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatDate(VATReportHeader."Start Date", ConstFormat::DT), 2, 400, 8, ConstFormat::DT); // B43 Starting Date
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+          LibrarySpesometro.FormatDate(VATReportHeader."Start Date", ConstFormat::DT), 2, 412, 8, ConstFormat::DT); // B43 Starting Date
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 420, 8, ConstFormat::DT); // B44 Ending Date
 
         // [THEN] B45-50 are filled with data from the Tax Representative Vendor card
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."First Name", 24), 2, 416, 24, ConstFormat::AN); // B45 First Name
+          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."First Name", 24), 2, 428, 24, ConstFormat::AN); // B45 First Name
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."Last Name", 20), 2, 440, 20, ConstFormat::AN); // B46 Last Name
+          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."Last Name", 20), 2, 452, 20, ConstFormat::AN); // B46 Last Name
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::AN, 'M', 1), 2, 460, 1, ConstFormat::AN); // B47 Gender
+          LibrarySpesometro.FormatPadding(ConstFormat::AN, 'M', 1), 2, 472, 1, ConstFormat::AN); // B47 Gender
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatDate(Vendor."Date of Birth", ConstFormat::DT), 2, 461, 8, ConstFormat::DT); // B48 Date of Birth
+          LibrarySpesometro.FormatDate(Vendor."Date of Birth", ConstFormat::DT), 2, 473, 8, ConstFormat::DT); // B48 Date of Birth
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."Birth City", 40), 2, 469, 40, ConstFormat::AN); // B49 Municipality
-        LibrarySpesometro.VerifyValue(TextFile, Vendor."Birth County", 2, 509, 2, ConstFormat::PN); // B50 Province
+          LibrarySpesometro.FormatPadding(ConstFormat::AN, Vendor."Birth City", 40), 2, 481, 40, ConstFormat::AN); // B49 Municipality
+        LibrarySpesometro.VerifyValue(TextFile, Vendor."Birth County", 2, 521, 2, ConstFormat::PN); // B50 Province
 
         // [THEN] 51 is blank because the Vendor is an individual
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 511, 60, ConstFormat::AN); // B51 Designation
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 523, 60, ConstFormat::AN); // B51 Designation
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -1999,23 +1999,23 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [THEN] B42 uses a code that represent Tax Representative
         // [THEN] B43-44 are filled with the date range of the report
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, Vendor."Fiscal Code", 16), 2, 382, 16, ConstFormat::CF); // B41 Fiscal Code
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '06', 2), 2, 398, 2, ConstFormat::NU); // B42 Appointment Code
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, Vendor."Fiscal Code", 16), 2, 394, 16, ConstFormat::CF); // B41 Fiscal Code
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '06', 2), 2, 410, 2, ConstFormat::NU); // B42 Appointment Code
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatDate(VATReportHeader."Start Date", ConstFormat::DT), 2, 400, 8, ConstFormat::DT); // B43 Starting Date
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+          TextFile, LibrarySpesometro.FormatDate(VATReportHeader."Start Date", ConstFormat::DT), 2, 412, 8, ConstFormat::DT); // B43 Starting Date
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 420, 8, ConstFormat::DT); // B44 Ending Date
 
         // [THEN] B45-50 are blank
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 416, 24, ConstFormat::AN); // B45 First Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 440, 20, ConstFormat::AN); // B46 Last Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 460, 1, ConstFormat::AN); // B47 Gender
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 461, 8, ConstFormat::DT); // B48 Date of Birth
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 469, 40, ConstFormat::AN); // B49 Municipality
-        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 509, 2, ConstFormat::PN); // B50 Province
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 428, 24, ConstFormat::AN); // B45 First Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 452, 20, ConstFormat::AN); // B46 Last Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 472, 1, ConstFormat::AN); // B47 Gender
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 473, 8, ConstFormat::DT); // B48 Date of Birth
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 481, 40, ConstFormat::AN); // B49 Municipality
+        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 521, 2, ConstFormat::PN); // B50 Province
 
         // [THEN] 51 is needed because the Vendor is a non-individual
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, TaxRepresentativeTxt, 60), 2, 511, 60, ConstFormat::AN); // B51 Designation
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, TaxRepresentativeTxt, 60), 2, 523, 60, ConstFormat::AN); // B51 Designation
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -2070,38 +2070,38 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.VerifyValue(
           TextFile,
           LibrarySpesometro.FormatPadding(ConstFormat::CF, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Fiscal Code"), 16), 2,
-          382, 16,
+          394, 16,
           ConstFormat::CF); // B41 Fiscal Code
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 398, 2,
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 410, 2,
           ConstFormat::NU); // B42 Appointment Code
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 400, 8, ConstFormat::DT); // B43 Starting Date
+          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 412, 8, ConstFormat::DT); // B43 Starting Date
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 420, 8, ConstFormat::DT); // B44 Ending Date
         LibrarySpesometro.VerifyValue(
           TextFile,
           LibrarySpesometro.FormatPadding(ConstFormat::AN, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"First Name"), 24), 2,
-          416, 24,
+          428, 24,
           ConstFormat::AN); // B45 First Name
         LibrarySpesometro.VerifyValue(
           TextFile,
           LibrarySpesometro.FormatPadding(ConstFormat::AN, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Last Name"), 20), 2,
-          440, 20,
+          452, 20,
           ConstFormat::AN); // B46 Last Name
         LibrarySpesometro.VerifyValue(
           TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, SpesometroAppointment1.GetValueOf(AppointmentFieldName::Gender), 1),
-          2, 460, 1,
+          2, 472, 1,
           ConstFormat::AN); // B47 Gender
         LibrarySpesometro.VerifyValue(
-          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Date of Birth"), 2, 461, 8, ConstFormat::DT); // B48 Date of Birth
+          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Date of Birth"), 2, 473, 8, ConstFormat::DT); // B48 Date of Birth
         LibrarySpesometro.VerifyValue(
-          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::Municipality), 2, 469, 40, ConstFormat::AN); // B49 Municipality
+          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::Municipality), 2, 481, 40, ConstFormat::AN); // B49 Municipality
         LibrarySpesometro.VerifyValue(
-          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::Province), 2, 509, 2, ConstFormat::PN); // B50 Province
+          TextFile, SpesometroAppointment1.GetValueOf(AppointmentFieldName::Province), 2, 521, 2, ConstFormat::PN); // B50 Province
 
         // [THEN] 51 is blank because the Vendor is an individual
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 511, 60, ConstFormat::AN); // B51 Designation
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 60), 2, 523, 60, ConstFormat::AN); // B51 Designation
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -2161,27 +2161,27 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.VerifyValue(
           TextFile,
           LibrarySpesometro.FormatPadding(ConstFormat::CF, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Fiscal Code"), 16), 2,
-          382, 16,
+          394, 16,
           ConstFormat::CF); // B41 Fiscal Code
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 398, 2,
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 410, 2,
           ConstFormat::NU); // B42 Appointment Code
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 400, 8, ConstFormat::DT); // B43 Starting Date
+          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 412, 8, ConstFormat::DT); // B43 Starting Date
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+          TextFile, LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 420, 8, ConstFormat::DT); // B44 Ending Date
 
         // [THEN] Fields B45-50 are blank
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 416, 24, ConstFormat::AN); // B45 First Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 440, 20, ConstFormat::AN); // B46 Last Name
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 460, 1, ConstFormat::AN); // B47 Gender
-        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 461, 8, ConstFormat::DT); // B48 Date of Birth
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 469, 40, ConstFormat::AN); // B49 Municipality
-        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 509, 2, ConstFormat::PN); // B50 Province
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 24), 2, 428, 24, ConstFormat::AN); // B45 First Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 20), 2, 452, 20, ConstFormat::AN); // B46 Last Name
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 1), 2, 472, 1, ConstFormat::AN); // B47 Gender
+        LibrarySpesometro.VerifyValue(TextFile, '00000000', 2, 473, 8, ConstFormat::DT); // B48 Date of Birth
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, '', 40), 2, 481, 40, ConstFormat::AN); // B49 Municipality
+        LibrarySpesometro.VerifyValue(TextFile, '  ', 2, 521, 2, ConstFormat::PN); // B50 Province
 
         // [THEN] 51 is needed because the Vendor is a non-individual
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, SpesometroAppointment1.Designation, 60), 2, 511, 60, ConstFormat::AN); // B51 Designation
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::AN, SpesometroAppointment1.Designation, 60), 2, 523, 60, ConstFormat::AN); // B51 Designation
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -2236,14 +2236,14 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         LibrarySpesometro.VerifyValue(
           TextFile,
           LibrarySpesometro.FormatPadding(ConstFormat::CF, SpesometroAppointment1.GetValueOf(AppointmentFieldName::"Fiscal Code"), 16), 2,
-          382, 16,
+          394, 16,
           ConstFormat::CF); // B41 Fiscal Code
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 398, 2, ConstFormat::NU); // B42 Appointment Code
+          LibrarySpesometro.FormatPadding(ConstFormat::NUp, SpesometroAppointment1."Appointment Code", 2), 2, 410, 2, ConstFormat::NU); // B42 Appointment Code
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 400, 8, ConstFormat::DT); // B43 Starting Date
+          LibrarySpesometro.FormatDate(SpesometroAppointment1."Starting Date", ConstFormat::DT), 2, 412, 8, ConstFormat::DT); // B43 Starting Date
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 408, 8, ConstFormat::DT); // B44 Ending Date
+          LibrarySpesometro.FormatDate(SpesometroAppointment1."Ending Date", ConstFormat::DT), 2, 420, 8, ConstFormat::DT); // B44 Ending Date
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
@@ -2280,7 +2280,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [THEN] Field B52 contains the value from "VAT Report Setup"."Intermediary VAT Registration No."
         LibrarySpesometro.VerifyValue(TextFile,
-          LibrarySpesometro.FormatPadding(ConstFormat::CF, VATReportSetup."Intermediary VAT Reg. No.", 16), 2, 571, 16, ConstFormat::CF); // B52 Declarer's fiscal code
+          LibrarySpesometro.FormatPadding(ConstFormat::CF, VATReportSetup."Intermediary VAT Reg. No.", 16), 2, 583, 16, ConstFormat::CF); // B52 Declarer's fiscal code
 
         // [THEN] Field B2, C2, E2 contains company's "Fiscal Code"
         // [THEN] Field D2 contains company's "VAT Registration No."
@@ -2324,7 +2324,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [THEN] No error is thrown
         // [THEN] The file is generated with field B53 blank
-        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '', 5), 2, 587, 5, ConstFormat::NU); // B53
+        LibrarySpesometro.VerifyValue(TextFile, LibrarySpesometro.FormatPadding(ConstFormat::NUp, '', 5), 2, 599, 5, ConstFormat::NU); // B53
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 

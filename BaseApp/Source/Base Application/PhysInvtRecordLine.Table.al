@@ -159,8 +159,12 @@ table 5878 "Phys. Invt. Record Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                ShouldCheckSerialNo: Boolean;
             begin
-                if Quantity > 1 then
+                ShouldCheckSerialNo := Quantity > 1;
+                OnQuatityOnValidateOnAfterCalcShouldCheckSerialNo(Rec, ShouldCheckSerialNo);
+                if ShouldCheckSerialNo then
                     if "Serial No." <> '' then
                         Error(QuantityCannotBeErr);
                 GetPhysInvtRecordHeader;
@@ -470,6 +474,11 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQuatityOnValidateOnAfterCalcShouldCheckSerialNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var ShouldCheckSerialNo: Boolean)
     begin
     end;
 

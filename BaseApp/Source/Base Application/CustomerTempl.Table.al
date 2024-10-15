@@ -49,7 +49,8 @@ table 1381 "Customer Templ."
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -60,7 +61,8 @@ table 1381 "Customer Templ."
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -160,6 +162,11 @@ table 1381 "Customer Templ."
         {
             Caption = 'Prices Including VAT';
         }
+        field(83; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+        }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
@@ -202,6 +209,15 @@ table 1381 "Customer Templ."
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+        field(108; "Tax Area Code"; Code[20])
+        {
+            Caption = 'Tax Area Code';
+            TableRelation = "Tax Area";
+        }
+        field(109; "Tax Liable"; Boolean)
+        {
+            Caption = 'Tax Liable';
+        }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
@@ -210,6 +226,10 @@ table 1381 "Customer Templ."
         field(116; "Block Payment Tolerance"; Boolean)
         {
             Caption = 'Block Payment Tolerance';
+        }
+        field(132; "Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Partner Type';
         }
         field(5050; "Contact Type"; Enum "Contact Type")
         {
@@ -233,6 +253,15 @@ table 1381 "Customer Templ."
             Clustered = true;
         }
     }
+
+    trigger OnDelete()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", Database::"Customer Templ.");
+        DefaultDimension.SetRange("No.", Code);
+        DefaultDimension.DeleteAll();
+    end;
 
     trigger OnRename()
     var

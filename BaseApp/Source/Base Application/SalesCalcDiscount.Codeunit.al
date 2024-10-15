@@ -89,6 +89,7 @@ codeunit 60 "Sales-Calc. Discount"
             CustInvDisc.GetRec(
               SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
+            OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader);
             if CustInvDisc."Service Charge" <> 0 then begin
                 OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
                 Currency.Initialize(SalesHeader."Currency Code");
@@ -310,6 +311,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header")
     begin
     end;
 

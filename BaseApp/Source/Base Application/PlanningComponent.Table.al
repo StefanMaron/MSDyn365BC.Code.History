@@ -47,6 +47,7 @@ table 99000829 "Planning Component"
 
                 GetItem;
                 Description := Item.Description;
+                OnItemNoOnValidateOnAfterInitFromItem(Rec, Item);
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
                 GetUpdateFromSKU;
                 CreateDim(DATABASE::Item, "Item No.");
@@ -240,7 +241,8 @@ table 99000829 "Planning Component"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -252,7 +254,8 @@ table 99000829 "Planning Component"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1155,6 +1158,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlanningNeeds(var PlanningComponent: Record "Planning Component"; var NeededQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemNoOnValidateOnAfterInitFromItem(var PlanningComponent: Record "Planning Component"; Item: Record Item)
     begin
     end;
 

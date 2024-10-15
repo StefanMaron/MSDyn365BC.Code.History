@@ -1,4 +1,4 @@
-table 5409 "Prod. Order Routing Line"
+﻿table 5409 "Prod. Order Routing Line"
 {
     Caption = 'Prod. Order Routing Line';
     DrillDownPageID = "Prod. Order Routing";
@@ -411,6 +411,7 @@ table 5409 "Prod. Order Routing Line"
                         ProdOrderRtngCommentLine."Operation No." := "Operation No.";
                         ProdOrderRtngCommentLine."Line No." := StdTaskComment."Line No.";
                         ProdOrderRtngCommentLine.Comment := StdTaskComment.Text;
+                        OnValidateStandardTaskCodeOnBeforeProdOrderRtngCommentLineInsert(ProdOrderRtngCommentLine, StdTaskComment);
                         ProdOrderRtngCommentLine.Insert();
                         OnAfterTransferFromStdTaskComment(ProdOrderRtngCommentLine, StdTaskComment);
                     until StdTaskComment.Next() = 0;
@@ -1777,6 +1778,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPlanningRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PlanningRoutingLine: Record "Planning Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStandardTaskCodeOnBeforeProdOrderRtngCommentLineInsert(var ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line"; StdTaskComment: Record "Standard Task Description")
     begin
     end;
 }

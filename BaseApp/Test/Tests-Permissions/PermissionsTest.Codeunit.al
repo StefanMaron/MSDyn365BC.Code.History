@@ -358,13 +358,13 @@ codeunit 139400 "Permissions Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure D365BusFullAccessShouldHaveRIMDPermissionsOnUserGroupMember()
+    procedure D365BusFullAccessShouldNotHaveDirectPermissionsOnUserGroupMember()
     var
         UserGroupMember: Record "User Group Member";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         Cassie: Guid;
     begin
-        // [SCENARIO] D365 Bus Full Access should have RIMD on User Group Member
+        // [SCENARIO] D365 Bus Full Access should not have direct on User Group Member
         // [GIVEN] SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         // [GIVEN] D365 Full Bus Permission Set
@@ -376,9 +376,7 @@ codeunit 139400 "Permissions Test"
         UserGroupMember.Init();
         UserGroupMember."User Security ID" := Cassie;
         UserGroupMember."User Group Code" := UserGroupFinanceTxt;
-        UserGroupMember.Insert();
-        UserGroupMember.Delete();
-        // [THEN] No error is thrown
+        asserterror UserGroupMember.Insert();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         TearDown();

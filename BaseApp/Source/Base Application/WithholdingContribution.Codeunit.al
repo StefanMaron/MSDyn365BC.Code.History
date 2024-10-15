@@ -48,6 +48,7 @@
                     ComputedWithholdingTax."Withholding Tax Code" := "Withholding Tax Code";
                     ComputedWithholdingTax."Related Date" := "Related Date";
                     ComputedWithholdingTax."Payment Date" := "Payment Date";
+                    OnPostPaymentsOnBeforeComputedWithholdingTaxModify(TempWithholdingSocSec, ComputedWithholdingTax);
                     ComputedWithholdingTax.Modify();
                 end;
 
@@ -707,6 +708,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateWithholdingTaxOnAfterPurchLineSetFilters(var PurchLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPaymentsOnBeforeComputedWithholdingTaxModify(var TempWithholdingSocSec: Record "Tmp Withholding Contribution"; var ComputedWithholdingTax: Record "Computed Withholding Tax")
     begin
     end;
 }

@@ -63,6 +63,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                         if PurchOrderLine.Quantity <> 0 then
                             PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
                         PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
+                        OnRunOnAfterCalcReservedQtyBase(Rec, PurchBlanketOrderLine, PurchOrderHeader, PurchOrderLine);
                         if PurchBlanketOrderLine."Reserved Qty. (Base)" <> 0 then
                             PurchLineReserve.TransferPurchLineToPurchLine(
                               PurchBlanketOrderLine, PurchOrderLine, -PurchBlanketOrderLine."Qty. to Receive (Base)");
@@ -352,6 +353,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterPurchBlanketOrderLineSetFilters(var PurchBlanketOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCalcReservedQtyBase(var PurchaseBlanketOrder: Record "Purchase Header"; var PurchaseBlanketOrderLine: Record "Purchase Line"; PurchaseOrder: Record "Purchase Header"; var PurchaseOrderLine: Record "Purchase Line")
     begin
     end;
 

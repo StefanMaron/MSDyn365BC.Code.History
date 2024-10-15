@@ -257,6 +257,32 @@ codeunit 144003 "IT - Activity Code"
         VerifyVATEntry(CustLedgerEntry."Document No.", ServiceHeader."Activity Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATEntryHasActivityCodeWhenUseActivityCodeOptionDisabled()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [General Journal] [Post]
+        // [SCENARIO 405435] VAT Entry has activity code even when "Use Activity Code" option is disabled
+
+        Initialize();
+
+        // [GIVEN] "Use Activity Code" is disabled in General Ledger Setup
+        SetUseActivityCode(false);
+
+        // [GIVEN] General journal line was created with an activity code
+        CreateGenJournalLine(GenJournalLine);
+        GenJournalLine.Validate("Activity Code", CreateActivityCode());
+        GenJournalLine.Modify();
+
+        // [WHEN] Post Gen. Journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Document is posted and VAT Entry has activity code
+        VerifyVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then

@@ -1,5 +1,5 @@
 /// <summary>
-/// Upgrade to code to fix references of obsolete permission sets.
+/// Upgrade code to fix references of obsolete permission sets.
 /// </summary>
 codeunit 104042 "Upgrade Permission Sets"
 {
@@ -61,26 +61,44 @@ codeunit 104042 "Upgrade Permission Sets"
         NewAccessControl: Record "Access Control";
         OldUserGroupPermissionSet: Record "User Group Permission Set";
         NewUserGroupPermissionSet: Record "User Group Permission Set";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
+        AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
+        AggregatePermissionSet.SetRange("Role ID", NewPermissionSet);
+        if not AggregatePermissionSet.FindFirst() then begin
+            Session.LogMessage('0000FGT', 
+                StrSubstNo(NewPermissionSetNotFoundTxt, OldPermissionSet, NewPermissionSet),
+                Verbosity::Normal,
+                DataClassification::SystemMetadata,
+                TelemetryScope::ExtensionPublisher,
+                'Category',
+                TelemetryCategoryTxt);
+            exit;
+        end;
+
         // User Groups need to be updated first as they result in modifications to Access Control
         // Change the User Group Permission Set entries that point to the old permission set to point to the new one
         OldUserGroupPermissionSet.SetRange("Role ID", OldPermissionSet);
         if OldUserGroupPermissionSet.FindSet() then
             repeat
-                if NewUserGroupPermissionSet.Get(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, OldUserGroupPermissionSet.Scope, OldUserGroupPermissionSet."App ID") then
+                if NewUserGroupPermissionSet.Get(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, AggregatePermissionSet.Scope, AggregatePermissionSet."App ID") then
                     OldUserGroupPermissionSet.Delete()
                 else
-                    OldUserGroupPermissionSet.Rename(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, OldUserGroupPermissionSet.Scope, OldUserGroupPermissionSet."App ID");
+                    OldUserGroupPermissionSet.Rename(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
             until OldUserGroupPermissionSet.Next() = 0;
 
         // Change the Access Control entries that point to the old permission set to point to the new one
         OldAccessControl.SetRange("Role ID", OldPermissionSet);
         if OldAccessControl.FindSet() then
             repeat
-                if NewAccessControl.Get(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", OldAccessControl.Scope, OldAccessControl."App ID") then
+                if NewAccessControl.Get(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", AggregatePermissionSet.Scope, AggregatePermissionSet."App ID") then
                     OldAccessControl.Delete()
                 else
-                    OldAccessControl.Rename(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", OldAccessControl.Scope, OldAccessControl."App ID");
+                    OldAccessControl.Rename(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
             until OldAccessControl.Next() = 0;
     end;
+
+    var
+        NewPermissionSetNotFoundTxt: Label 'Skipping the upgrade of %1 to %2, as we could not find the permission set %2.', Locked = true;
+        TelemetryCategoryTxt: Label 'AL SaaS upgrade', Locked = true;
 }

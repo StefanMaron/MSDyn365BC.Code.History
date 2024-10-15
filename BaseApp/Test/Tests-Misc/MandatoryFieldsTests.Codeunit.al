@@ -236,8 +236,10 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
+        SetExternalDocNoMandatory(true);
         SalesInvoice.OpenNew;
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt); // TFS 405629
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
         SalesInvoice.SalesLines.New;
         Assert.AreEqual(false, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -254,6 +256,12 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
         Assert.IsFalse(SalesInvoice.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice.Close;
+
+        // verify that external document number is not mandatory if you specify so in the setup
+        SetExternalDocNoMandatory(false);
+        SalesInvoice.OpenNew;
+        Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        SalesInvoice.Close;
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesOrder(Customer: Record Customer)
@@ -261,8 +269,10 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
+        SetExternalDocNoMandatory(true);
         SalesOrder.OpenNew;
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt); // TFS 405629
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
         SalesOrder.SalesLines.New;
         Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -278,6 +288,12 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
         Assert.IsFalse(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        SalesOrder.Close;
+
+        // verify that external document number is not mandatory if you specify so in the setup
+        SetExternalDocNoMandatory(false);
+        SalesOrder.OpenNew;
+        Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder.Close;
     end;
 

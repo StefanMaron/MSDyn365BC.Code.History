@@ -1207,20 +1207,42 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
+            var
+                CustomerName: Text;
             begin
-                LookupSellToCustomerName();
+                CustomerName := "Sell-to Customer Name";
+                LookupSellToCustomerName(CustomerName);
+                "Sell-to Customer Name" := CopyStr(CustomerName, 1, MaxStrLen("Sell-to Customer Name"));
             end;
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
+                LookupStateManager: Codeunit "Lookup State Manager";
+                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateSellToCustomerName(Rec, Customer, IsHandled);
-                if IsHandled then
+                if IsHandled then begin
+                    if LookupStateManager.IsRecordSaved() then
+                        LookupStateManager.ClearSavedRecord();
                     exit;
+                end;
+
+                if LookupStateManager.IsRecordSaved() then begin
+                    Customer := LookupStateManager.GetSavedRecord();
+                    if Customer."No." <> '' then begin
+                        LookupStateManager.ClearSavedRecord();
+                        Validate("Sell-to Customer No.", Customer."No.");
+
+                        GetShippingTime(FieldNo("Sell-to Customer Name"));
+                        if "No." <> '' then
+                            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+                        exit;
+                    end;
+                end;
 
                 if not EnvInfoProxy.IsInvoicing and ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
@@ -1460,7 +1482,7 @@
                 OnBeforeValidateDocumentDate(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
- 
+
                 if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) then
                     if "Document Date" > "Posting Date" then
                         Error(Text1130018, FieldCaption("Document Date"), FieldCaption("Posting Date"));
@@ -2570,18 +2592,8 @@
                 end;
 
                 Validate("Ship-to Code", '');
-                if BillToCustTemplate.Get("Bill-to Customer Templ. Code") then begin
-                    BillToCustTemplate.TestField("Customer Posting Group");
-                    "Customer Posting Group" := BillToCustTemplate."Customer Posting Group";
-                    "Invoice Disc. Code" := BillToCustTemplate."Invoice Disc. Code";
-                    "Customer Price Group" := BillToCustTemplate."Customer Price Group";
-                    "Customer Disc. Group" := BillToCustTemplate."Customer Disc. Group";
-                    "Allow Line Disc." := BillToCustTemplate."Allow Line Disc.";
-                    Validate("Payment Terms Code", BillToCustTemplate."Payment Terms Code");
-                    Validate("Payment Method Code", BillToCustTemplate."Payment Method Code");
-                    "Prices Including VAT" := BillToCustTemplate."Prices Including VAT";
-                    "Shipment Method Code" := BillToCustTemplate."Shipment Method Code";
-                end;
+                if BillToCustTemplate.Get("Bill-to Customer Templ. Code") then
+                    InitFromBillToCustTemplate(BillToCustTemplate);
 
                 CreateDim(
                   DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code",
@@ -3424,7 +3436,7 @@
         ModifyCustomerAddressNotificationLbl: Label 'Update the address';
         DontShowAgainActionLbl: Label 'Don''t show again';
         ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1=customer name';
-        ValidVATNoMsg: Label 'The VAT registration number is valid.';
+        ValidVATNoMsg: Label 'The specified VAT registration number is valid.';
         InvalidVatRegNoMsg: Label 'The VAT registration number is not valid. Try entering the number again.';
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
@@ -3517,6 +3529,8 @@
                             NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
                     end;
             end;
+
+        SetOperationType();
 
         InitShipmentDate();
 
@@ -3953,7 +3967,13 @@
     local procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
     var
         SalesCommentLine: Record "Sales Comment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStoreSalesCommentLineToTemp(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesCommentLine.SetRange("Document Type", "Document Type");
         SalesCommentLine.SetRange("No.", "No.");
         if SalesCommentLine.FindSet() then
@@ -4034,7 +4054,7 @@
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         Updated: Boolean;
     begin
-        OnBeforeUpdateCurrencyFactor(Rec, Updated);
+        OnBeforeUpdateCurrencyFactor(Rec, Updated, CurrExchRate);
         if Updated then
             exit;
 
@@ -4155,6 +4175,7 @@
         JobTransferLine: Codeunit "Job Transfer Line";
         Question: Text[250];
         IsHandled: Boolean;
+        ShouldConfirmReservationDateConflict: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateSalesLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled, xRec);
@@ -4170,18 +4191,20 @@
         if AskQuestion then begin
             Question := StrSubstNo(Text031, Field."Field Caption");
             if GuiAllowed and not GetHideValidationDialog then
-                if DIALOG.Confirm(Question, true) then
-                    case ChangedFieldNo of
+                if DIALOG.Confirm(Question, true) then begin
+                    ShouldConfirmReservationDateConflict := ChangedFieldNo in [
                         FieldNo("Shipment Date"),
                         FieldNo("Shipping Agent Code"),
                         FieldNo("Shipping Agent Service Code"),
                         FieldNo("Shipping Time"),
                         FieldNo("Requested Delivery Date"),
                         FieldNo("Promised Delivery Date"),
-                        FieldNo("Outbound Whse. Handling Time"):
-                            ConfirmReservationDateConflict();
-                    end
-                else
+                        FieldNo("Outbound Whse. Handling Time")
+                    ];
+                    OnUpdateSalesLinesByFieldNoOnAfterCalcShouldConfirmReservationDateConflict(Rec, ChangedFieldNo, ShouldConfirmReservationDateConflict);
+                    if ShouldConfirmReservationDateConflict then
+                        ConfirmReservationDateConflict();
+                end else
                     exit
         end;
 
@@ -4727,6 +4750,7 @@
                 SetShipToAddress(
                   SearchContact."Company Name", SearchContact."Name 2", SearchContact.Address, SearchContact."Address 2",
                   SearchContact.City, SearchContact."Post Code", SearchContact.County, SearchContact."Country/Region Code");
+                OnUpdateSellToCustOnAfterSetShipToAddress(Rec, SearchContact);
 #if not CLEAN18
                 if not CustomerTemplMgt.IsEnabled() then begin
                     if ("Sell-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
@@ -7123,6 +7147,22 @@
         end;
     end;
 
+    local procedure InitFromBillToCustTemplate(BillToCustTemplate: Record "Customer Templ.")
+    begin
+        BillToCustTemplate.TestField("Customer Posting Group");
+        "Customer Posting Group" := BillToCustTemplate."Customer Posting Group";
+        "Invoice Disc. Code" := BillToCustTemplate."Invoice Disc. Code";
+        "Customer Price Group" := BillToCustTemplate."Customer Price Group";
+        "Customer Disc. Group" := BillToCustTemplate."Customer Disc. Group";
+        "Allow Line Disc." := BillToCustTemplate."Allow Line Disc.";
+        Validate("Payment Terms Code", BillToCustTemplate."Payment Terms Code");
+        Validate("Payment Method Code", BillToCustTemplate."Payment Method Code");
+        "Prices Including VAT" := BillToCustTemplate."Prices Including VAT";
+        "Shipment Method Code" := BillToCustTemplate."Shipment Method Code";
+
+        OnAfterInitFromBillToCustTemplate(Rec, BillToCustTemplate);
+    end;
+
     local procedure ValidateTaxAreaCode()
     var
         TaxArea: Record "Tax Area";
@@ -7661,6 +7701,8 @@
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced with LookupSellToCustomerName(var CustomerName: Text[100]): Boolean', '19.0')]
     procedure LookupSellToCustomerName(): Boolean
     var
         Customer: Record Customer;
@@ -7676,6 +7718,28 @@
             GetShippingTime(FieldNo("Sell-to Customer Name"));
             if "No." <> '' then
                 StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            OnLookupSellToCustomerNameOnAfterSuccessfulLookup(Rec);
+            exit(true);
+        end;
+    end;
+#endif
+    procedure LookupSellToCustomerName(var CustomerName: Text): Boolean
+    var
+        Customer: Record Customer;
+        LookupStateManager: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
+        if "Sell-to Customer No." <> '' then
+            Customer.Get("Sell-to Customer No.");
+
+        if Customer.LookupCustomer(Customer) then begin
+            if Rec."Sell-to Customer Name" = Customer.Name then
+                CustomerName := ''
+            else
+                CustomerName := Customer.Name;
+            RecVariant := Customer;
+            LookupStateManager.SaveRecord(RecVariant);
             exit(true);
         end;
     end;
@@ -7787,6 +7851,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesHeader(var SalesHeader: Record "Sales Header"; SourceSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromBillToCustTemplate(var SalesHeader: Record "Sales Header"; BillToCustTemplate: Record "Customer Templ.")
     begin
     end;
 
@@ -8244,7 +8313,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean)
+    local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 
@@ -8325,6 +8394,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultSalesperson(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStoreSalesCommentLineToTemp(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8572,6 +8646,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookupSellToCustomerNameOnAfterSuccessfulLookup(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
     begin
     end;
@@ -8617,6 +8696,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLinesByFieldNoOnAfterCalcShouldConfirmReservationDateConflict(var SalesHeader: Record "Sales Header"; ChangedFieldNo: Integer; var ShouldConfirmReservationDateConflict: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
@@ -8628,6 +8712,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnAfterSetFromSearchContact(var SalesHeader: Record "Sales Header"; var SearchContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnAfterSetShipToAddress(var SalesHeader: Record "Sales Header"; var SearchContact: Record Contact)
     begin
     end;
 

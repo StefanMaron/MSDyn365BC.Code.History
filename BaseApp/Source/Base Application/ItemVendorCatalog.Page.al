@@ -33,6 +33,14 @@ page 114 "Item Vendor Catalog"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
+
+                    trigger OnValidate()
+                    var
+                        ItemReferenceManagement: Codeunit "Item Reference Management";
+                    begin
+                        if Rec."Vendor Item No." <> xRec."Vendor Item No." then
+                            ItemReferenceManagement.UpdateItemReference(Rec, xRec);
+                    end;
                 }
                 field("Lead Time Calculation"; "Lead Time Calculation")
                 {

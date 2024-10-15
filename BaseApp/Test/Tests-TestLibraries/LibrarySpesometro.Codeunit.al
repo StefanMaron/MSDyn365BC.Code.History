@@ -275,16 +275,16 @@ codeunit 143001 "Library - Spesometro"
                 VerifyValue(
                   TextFile, FormatPadding(ConstFormat::NUp, OrgVATReportHeader."Tax Auth. Receipt No.", 17), LineNo, 93, 17, ConstFormat::NU);
                 VerifyValue(
-                  TextFile, FormatPadding(ConstFormat::NUp, OrgVATReportHeader."Tax Auth. Doc. No.", 6), LineNo, 110, 6, ConstFormat::NU);
+                  TextFile, FormatPadding(ConstFormat::NUp, OrgVATReportHeader."Tax Auth. Document No.", 18), LineNo, 110, 18, ConstFormat::NU);
             end;
 
         if ReportType <> ReportType::Cancellation then begin
             if LineType = 'C' then
-                VerifyValue(TextFile, '10', LineNo, 116, 2, ConstFormat::AN)
+                VerifyValue(TextFile, '10', LineNo, 128, 2, ConstFormat::AN)
             else
-                VerifyValue(TextFile, '01', LineNo, 116, 2, ConstFormat::AN);
+                VerifyValue(TextFile, '01', LineNo, 128, 2, ConstFormat::AN);
         end else
-            VerifyValue(TextFile, '00', LineNo, 116, 2, ConstFormat::AN);
+            VerifyValue(TextFile, '00', LineNo, 128, 2, ConstFormat::AN);
 
         for Index := 1 to Round(TextFile.Length / 1900, 1, '>') do begin
             Type := '';
@@ -297,32 +297,32 @@ codeunit 143001 "Library - Spesometro"
         end;
 
         for Index := 1 to 11 do
-            VerifyValue(TextFile, Format(TypeCount[Index], 1, '<integer>'), LineNo, 117 + Index, 1, ConstFormat::CB);
+            VerifyValue(TextFile, Format(TypeCount[Index], 1, '<integer>'), LineNo, 129 + Index, 1, ConstFormat::CB);
 
         VATReportSetup.Get();
         if VATReportSetup."Intermediary VAT Reg. No." <> '' then begin
-            VerifyValue(TextFile, VATReportSetup."Intermediary VAT Reg. No.", LineNo, 571, 16, ConstFormat::CF);
-            VerifyValue(TextFile, VATReportSetup."Intermediary CAF Reg. No.", LineNo, 587, 5, ConstFormat::NUp);
+            VerifyValue(TextFile, VATReportSetup."Intermediary VAT Reg. No.", LineNo, 583, 16, ConstFormat::CF);
+            VerifyValue(TextFile, VATReportSetup."Intermediary CAF Reg. No.", LineNo, 599, 5, ConstFormat::NUp);
             if VATReportSetup."Intermediary CAF Reg. No." <> '' then
-                VerifyValue(TextFile, '2', LineNo, 592, 1, ConstFormat::NU)
+                VerifyValue(TextFile, '2', LineNo, 604, 1, ConstFormat::NU)
             else
-                VerifyValue(TextFile, '1', LineNo, 592, 1, ConstFormat::NU);
+                VerifyValue(TextFile, '1', LineNo, 604, 1, ConstFormat::NU);
             if VATReportSetup."Intermediary Date" <> 0D then
-                VerifyValue(TextFile, FormatDate(VATReportSetup."Intermediary Date", ConstFormat::DT), LineNo, 594, 8, ConstFormat::DT)
+                VerifyValue(TextFile, FormatDate(VATReportSetup."Intermediary Date", ConstFormat::DT), LineNo, 606, 8, ConstFormat::DT)
             else
-                VerifyValue(TextFile, '00000000', LineNo, 594, 8, ConstFormat::NU);
+                VerifyValue(TextFile, '00000000', LineNo, 606, 8, ConstFormat::NU);
         end else
-            VerifyValue(TextFile, '0', LineNo, 592, 1, ConstFormat::NU);
+            VerifyValue(TextFile, '0', LineNo, 604, 1, ConstFormat::NU);
 
-        VerifyValue(TextFile, GetNumericValue(CompanyInfo."VAT Registration No."), LineNo, 130, 11, ConstFormat::PI);
-        VerifyValue(TextFile, EncodeString(DelChr(CompanyInfo."Industrial Classification", '=', '.')), LineNo, 141, 6, ConstFormat::AN);
-        VerifyValue(TextFile, CleanPhoneNumber(CompanyInfo."Phone No."), LineNo, 147, 12, ConstFormat::AN);
-        VerifyValue(TextFile, CleanPhoneNumber(CompanyInfo."Fax No."), LineNo, 159, 12, ConstFormat::AN);
-        VerifyValue(TextFile, CopyStr(CompanyInfo."E-Mail", 1, 50), LineNo, 171, 50, ConstFormat::AN);
-        VerifyValue(TextFile, CopyStr(CompanyInfo.Name, 1, 60), LineNo, 316, 60, ConstFormat::AN);
+        VerifyValue(TextFile, GetNumericValue(CompanyInfo."VAT Registration No."), LineNo, 142, 11, ConstFormat::PI);
+        VerifyValue(TextFile, EncodeString(DelChr(CompanyInfo."Industrial Classification", '=', '.')), LineNo, 153, 6, ConstFormat::AN);
+        VerifyValue(TextFile, CleanPhoneNumber(CompanyInfo."Phone No."), LineNo, 159, 12, ConstFormat::AN);
+        VerifyValue(TextFile, CleanPhoneNumber(CompanyInfo."Fax No."), LineNo, 171, 12, ConstFormat::AN);
+        VerifyValue(TextFile, CopyStr(CompanyInfo."E-Mail", 1, 50), LineNo, 183, 50, ConstFormat::AN);
+        VerifyValue(TextFile, CopyStr(CompanyInfo.Name, 1, 60), LineNo, 328, 60, ConstFormat::AN);
 
         if StartDate <> 0D then
-            VerifyValue(TextFile, FormatDate(StartDate, ConstFormat::DA), LineNo, 376, 4, ConstFormat::DA);
+            VerifyValue(TextFile, FormatDate(StartDate, ConstFormat::DA), LineNo, 388, 4, ConstFormat::DA);
     end;
 
     [Scope('OnPrem')]

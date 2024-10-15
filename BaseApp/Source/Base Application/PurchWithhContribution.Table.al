@@ -440,6 +440,8 @@ table 12137 "Purch. Withh. Contribution"
           "Non Taxable Amount By Treaty" -
           "Taxable Base";
 
+        OnValorizzaRitenuteOnBeforeValidateWithholdingTaxAmount(Rec);
+
         Validate("Withholding Tax Amount", Round("Taxable Base" * "Withholding Tax %" / 100, Curr."Amount Rounding Precision"));
     end;
 
@@ -631,6 +633,11 @@ table 12137 "Purch. Withh. Contribution"
     begin
         if PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.") then
             PurchWithhContribution.Delete(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValorizzaRitenuteOnBeforeValidateWithholdingTaxAmount(var PurchWithhContribution: Record "Purch. Withh. Contribution")
+    begin
     end;
 }
 

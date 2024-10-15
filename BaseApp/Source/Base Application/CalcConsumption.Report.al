@@ -155,6 +155,7 @@ report 5405 "Calc. Consumption"
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
         QtyToPost: Decimal;
+        ShouldModifyItemJnlLine: Boolean;
     begin
         QtyToPost := OriginalQtyToPost;
         OnBeforeCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost);
@@ -164,10 +165,13 @@ report 5405 "Calc. Consumption"
         if Location.Get(LocationCode) and Location."Require Pick" and Location."Require Shipment" then
             "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
 
-        if (ItemJnlLine."Item No." = "Prod. Order Component"."Item No.") and
-           (LocationCode = ItemJnlLine."Location Code") and
-           (BinCode = ItemJnlLine."Bin Code")
-        then begin
+        ShouldModifyItemJnlLine :=
+            (ItemJnlLine."Item No." = "Prod. Order Component"."Item No.") and
+            (LocationCode = ItemJnlLine."Location Code") and
+            (BinCode = ItemJnlLine."Bin Code");
+        OnCreateConsumpJnlLineOnAfterCalcShouldModifyItemJnlLine(ItemJnlLine, ShouldModifyItemJnlLine);
+
+        if ShouldModifyItemJnlLine then begin
             ValidateItemJnlLineQuantity(QtyToPost, QtyToPost < OriginalQtyToPost);
             OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
             ItemJnlLine.Modify();
@@ -211,6 +215,7 @@ report 5405 "Calc. Consumption"
 
             if Item."Item Tracking Code" <> '' then
                 AssignItemTracking("Prod. Order Component", ItemJnlLine);
+            OnCreateConsumpJnlLineOnAfterAssignItemTracking(ItemJnlLine, NextConsumpJnlLineNo);
         end;
 
         NextConsumpJnlLineNo := NextConsumpJnlLineNo + 10000;
@@ -327,6 +332,16 @@ report 5405 "Calc. Consumption"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPreDataItemProdOrderComp(var ProdOrderComponent: Record "Prod. Order Component");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateConsumpJnlLineOnAfterCalcShouldModifyItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var ShouldModifyItemJnlLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateConsumpJnlLineOnAfterAssignItemTracking(var ItemJnlLine: Record "Item Journal Line"; var NextConsumpJnlLineNo: Integer)
     begin
     end;
 }

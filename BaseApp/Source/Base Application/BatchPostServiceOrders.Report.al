@@ -113,8 +113,11 @@ report 6001 "Batch Post Service Orders"
         }
 
         trigger OnOpenPage()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
-            InitValues;
+            if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then
+                InitValues;
         end;
     }
 

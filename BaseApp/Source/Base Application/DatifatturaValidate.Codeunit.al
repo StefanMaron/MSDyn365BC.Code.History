@@ -33,7 +33,7 @@ codeunit 12183 "Datifattura Validate"
                 ErrorMessage.LogIfEmpty(
                   OrgVATReportHeader, OrgVATReportHeader.FieldNo("Tax Auth. Receipt No."), ErrorMessage."Message Type"::Error);
                 ErrorMessage.LogIfEmpty(
-                  OrgVATReportHeader, OrgVATReportHeader.FieldNo("Tax Auth. Doc. No."), ErrorMessage."Message Type"::Error);
+                  OrgVATReportHeader, OrgVATReportHeader.FieldNo("Tax Auth. Document No."), ErrorMessage."Message Type"::Error);
             end;
 
         if not SpesometroAppointment.FindAppointmentByDate(VATReportHeader."Start Date", VATReportHeader."End Date") then

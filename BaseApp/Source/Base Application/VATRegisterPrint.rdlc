@@ -2367,23 +2367,26 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="IntraC2">
+                                          <Textbox Name="DocumentTotal">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!IntraC.Value</Value>
+                                                    <Value>=Fields!DocumentTotal.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
+                                                      <Format>=Fields!DocumentTotalFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
-                                                <Style />
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>IntraC</rd:DefaultName>
+                                            <rd:DefaultName>DocumentTotal</rd:DefaultName>
                                             <ZIndex>122</ZIndex>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
@@ -2403,7 +2406,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value />
+                                                    <Value>=Fields!VATReg.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2423,14 +2426,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox157">
+                                          <Textbox Name="IntraC2">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value />
+                                                    <Value>=Fields!IntraC.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -2439,7 +2442,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Textbox157</rd:DefaultName>
+                                            <rd:DefaultName>IntraC</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>

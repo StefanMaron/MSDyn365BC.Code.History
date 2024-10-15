@@ -791,10 +791,9 @@
 
                 if not (("Document Type" = "Document Type"::Reminder) or IsReminderFinChargeMemoCanceling(GenJnlLine)) then begin
                     GeneralLedgerSetup.GetRecordOnce();
-                    if GeneralLedgerSetup."Use Activity Code" then begin
+                    if GeneralLedgerSetup."Use Activity Code" then
                         TestField("Activity Code");
-                        VATEntry."Activity Code" := "Activity Code";
-                    end;
+                    VATEntry."Activity Code" := "Activity Code";
                 end;
                 CheckVATPlafond(VATEntry, true);
                 SetRelatedEntryData(GenJnlLine);
@@ -1094,7 +1093,7 @@
             end;
             CustPostingGr.Get("Posting Group");
             ReceivablesAccount := GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
-	        OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
+            OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -1569,6 +1568,8 @@
             DeferralPosting("Deferral Code", "Source Code", BankAccPostingGr."G/L Account No.", GenJnlLine, Balancing);
         end;
         OnMoveGenJournalLine(GenJnlLine, BankAccLedgEntry.RecordId);
+
+        OnAfterPostBankAcc(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
     end;
 
     local procedure PostFixedAsset(GenJnlLine: Record "Gen. Journal Line")
@@ -2688,13 +2689,13 @@
             DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Adjustment)";
-            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+        DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)";
-            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
+        DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Adjustment)";
-        end;
+    end;
         DtldCVLedgEntryBuf."Posting Date" := GenJnlLine."Posting Date";
         DtldCVLedgEntryBuf."Document Type" := GenJnlLine."Document Type";
         DtldCVLedgEntryBuf."Document No." := GenJnlLine."Document No.";
@@ -5525,6 +5526,7 @@
             Closed := false;
             CopyAmountsFromVATEntry(VATEntry, true);
             "Posting Date" := GenJnlLine."Posting Date";
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
@@ -7236,10 +7238,10 @@
            (TempCVLedgerEntryBufferDocOccurrence."CV No." <> CVNo)
         then begin
             TempCVLedgerEntryBufferDocOccurrence."Document Type" := DocumentType;
-            TempCVLedgerEntryBufferDocOccurrence."Document No." := DocumentNo;
-            TempCVLedgerEntryBufferDocOccurrence."Posting Date" := PostingDate;
-            TempCVLedgerEntryBufferDocOccurrence."CV No." := CVNo;
-            TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" := AppliedAmount;
+                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Document No." := DocumentNo;
+                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Posting Date" := PostingDate;
+                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."CV No." := CVNo;
+                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" := AppliedAmount;
         end else
             TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" += AppliedAmount;
     end;
@@ -7426,6 +7428,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterIsNotPayment(DocumentType: Enum "Gen. Journal Document Type"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterPostBankAcc(var GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
     end;
 
@@ -7694,7 +7701,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; TaxDetail: Record "Tax Detail"; var NextConnectionNo: Integer; var AddCurrGLEntryVATAmt: Decimal; AddCurrencyCode: Code[10]; UseCurrFactorOnly: Boolean)
     begin
     end;
@@ -8171,7 +8178,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostBankAccOnAfterBankAccLedgEntryInsert(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account")
     begin
     end;
@@ -8252,7 +8259,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 
@@ -8262,7 +8269,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 

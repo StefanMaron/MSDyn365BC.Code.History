@@ -186,11 +186,17 @@ table 2158 "O365 Document Sent History"
         exit(Insert(true));
     end;
 
-    procedure NewInProgressFromRecRef(RecRef: RecordRef): Boolean
+    procedure NewInProgressFromRecRef(RecRef: RecordRef) Result: Boolean
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNewInProgressFromRecRef(RecRef, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case RecRef.Number of
             DATABASE::"Sales Header":
                 begin
@@ -245,6 +251,11 @@ table 2158 "O365 Document Sent History"
 
         Session.LogMessage('00001ZP', StrSubstNo(FailedToSetStatusTelemetryErr, "Job Last Status"::Finished, GetLastErrorText), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewInProgressFromRecRef(RecRef: RecordRef; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

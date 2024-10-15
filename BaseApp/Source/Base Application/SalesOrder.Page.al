@@ -58,8 +58,7 @@ page 42 "Sales Order"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 group(Control114)
@@ -239,6 +238,13 @@ page 42 "Sales Order"
                     ApplicationArea = OrderPromising;
                     Importance = Additional;
                     ToolTip = 'Specifies the date that you have promised to deliver the order, as a result of the Order Promising function.';
+                }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Your Reference"; "Your Reference")
                 {
@@ -2485,6 +2491,7 @@ page 42 "Sales Order"
 
     local procedure Prepayment37OnAfterValidate()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 
@@ -2587,10 +2594,16 @@ page 42 "Sales Order"
         CallNotificationCheck := true;
     end;
 
-    local procedure ShowReleaseNotification(): Boolean
+    local procedure ShowReleaseNotification() Result: Boolean
     var
         LocationsQuery: Query "Locations from items Sales";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReleaseNotification(Rec, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if TestStatusIsNotReleased then begin
             LocationsQuery.SetRange(Document_No, "No.");
             LocationsQuery.SetRange(Require_Pick, true);
@@ -2607,6 +2620,11 @@ page 42 "Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShippingOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReleaseNotification(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

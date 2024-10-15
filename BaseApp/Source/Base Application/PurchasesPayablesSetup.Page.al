@@ -139,7 +139,7 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the default value that is inserted in the Qty. to Receive field in purchase order lines and in the Return Qty. to Ship field on purchase return order lines.';
+                    ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
                 }
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {

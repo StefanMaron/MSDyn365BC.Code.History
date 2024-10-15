@@ -71,10 +71,10 @@ codeunit 744 "VAT Report Validate"
                       StrSubstNo(
                         EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Receipt No."), VATReportHeader.TableCaption,
                         VATReportHeader."Original Report No."));
-                if OrgVATReportHeader."Tax Auth. Doc. No." = '' then
+                if OrgVATReportHeader."Tax Auth. Document No." = '' then
                     InsertErrorLog(
                       StrSubstNo(
-                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Doc. No."), VATReportHeader.TableCaption,
+                        EmptyFieldOriginalReportErr, VATReportHeader.FieldCaption("Tax Auth. Document No."), VATReportHeader.TableCaption,
                         VATReportHeader."Original Report No."));
             end;
     end;

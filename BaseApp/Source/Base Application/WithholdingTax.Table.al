@@ -269,6 +269,7 @@ table 12116 "Withholding Tax"
         "Tax Code" := WithholdCode."Tax Code";
 
         "Source-Withholding Tax" := WithholdCode."Source-Withholding Tax";
+        OnValorizzaRitenuteOnAfterAssignSourceWithholdingTax(Rec);
 
         ClearRelatedNonTaxableLines();
     end;
@@ -318,6 +319,11 @@ table 12116 "Withholding Tax"
     begin
         WithholdingTaxLine.SetRange("Withholding Tax Entry No.", "Entry No.");
         WithholdingTaxLine.DeleteAll(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValorizzaRitenuteOnAfterAssignSourceWithholdingTax(var WithholdingTax: Record "Withholding Tax")
+    begin
     end;
 }
 
