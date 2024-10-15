@@ -20,6 +20,7 @@ codeunit 70 "Purch.-Calc.Discount"
         PurchLine.Copy(Rec);
 
         TempPurchHeader.Get(Rec."Document Type", Rec."Document No.");
+        OnOnRunOnBeforeUpdateHeader(TempPurchHeader, Rec);
         UpdateHeader := true;
         CalculateInvoiceDiscount(TempPurchHeader, TempPurchLine);
 
@@ -309,6 +310,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeDeletePurchaseLine(UpdateHeader: Boolean; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnRunOnBeforeUpdateHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

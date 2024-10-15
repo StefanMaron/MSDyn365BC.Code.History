@@ -18,6 +18,7 @@ report 116 Statement
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Customer/Statement.rdlc';
     Caption = 'Statement';
+    WordMergeDataItem = Customer;
 
     dataset
     {

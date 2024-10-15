@@ -44,6 +44,8 @@ codeunit 144005 "Reference No Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         RefNoNoSeriesCode: Code[20];
+        DocumentPostingTxt: Label 'Error in Document Posting';
+        abcTxt: Label 'ABC';
 
     [Test]
     [HandlerFunctions('PostedServiceInvoiceReportHandler')]
@@ -212,6 +214,30 @@ codeunit 144005 "Reference No Test"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Reference No.", SalesInvoiceHeader."Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesOrderPostWhenCustomerWithLetters()
+    var
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 485328] Verify that No error message,and the letters should be removed from the Reference No. when Customer No Contains the Alphanumeric letters.
+        Initialize();
+
+        // [GIVEN] Setup the Sales & Receivables Setup & Update some fields.
+        SetupInvNoAndCustomerNoTrueOnSalesAndReceivablesSetup();
+
+        // [GIVEN] Create a Customer & Add Letters on Customer.
+        CreateCustomerAndRename(Customer);
+
+        // Create A Sales Invoice & Post.
+        DocumentNo := CreateSalesInvoiceAndPost(Customer."No.");
+
+        // [VERIFY] Verify that Sales Invoice Successfully Posted.
+        Assert.IsTrue(SalesInvoiceHeader.Get(DocumentNo), DocumentPostingTxt);
     end;
 
     local procedure Initialize()
@@ -398,5 +424,35 @@ codeunit 144005 "Reference No Test"
 
         LibraryVariableStorage.AssertEmpty;
     end;
-}
 
+    local procedure SetupInvNoAndCustomerNoTrueOnSalesAndReceivablesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Reference Nos." := '';
+        SalesReceivablesSetup."Print Reference No." := true;
+        SalesReceivablesSetup."Invoice No." := true;
+        SalesReceivablesSetup."Customer No." := true;
+        SalesReceivablesSetup.Date := false;
+        SalesReceivablesSetup."Default Number" := '';
+        SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure CreateCustomerAndRename(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Rename(Customer."No." + abcTxt);
+    end;
+
+    local procedure CreateSalesInvoiceAndPost(CustomerNo: Code[20]): Code[20];
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(item), LibraryRandom.RandInt(10));
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+}

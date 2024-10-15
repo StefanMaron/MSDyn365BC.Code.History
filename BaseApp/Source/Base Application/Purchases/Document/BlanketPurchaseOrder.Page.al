@@ -905,7 +905,7 @@ page 509 "Blanket Purchase Order"
                     Ellipsis = true;
                     Enabled = Rec."No." <> '';
                     Image = CopyDocument;
-                    ToolTip = 'Copy document lines and header information from another sales document to this document. You can copy a posted sales invoice into a new sales invoice to quickly create a similar document.';
+                    ToolTip = 'Copy document lines and header information from another purchase document to this document. You can copy a posted purchase invoice into a new purchase invoice to quickly create a similar document.';
 
                     trigger OnAction()
                     begin

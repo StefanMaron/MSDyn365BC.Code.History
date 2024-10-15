@@ -2882,127 +2882,29 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SalesHeader: Record "Sales Header";
         CRMPricelevel: Record "CRM Pricelevel";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SourceRecordRef.SetTable(SalesHeader);
         DestinationRecordRef.SetTable(CRMSalesorder);
 
         if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
             if IsNullGuid(CRMSalesorder.PriceLevelId) then begin
-                CRMSyncHelper.FindCRMDefaultPriceList(CRMPricelevel);
+                if not CRMSynchHelper.FindCRMPriceListByCurrencyCode(CRMPricelevel, SalesHeader."Currency Code") then
+                    CRMSynchHelper.CreateCRMPricelevelInCurrency(CRMPricelevel, SalesHeader."Currency Code", SalesHeader."Currency Factor");
                 CRMSalesorder.PriceLevelId := CRMPricelevel.PriceLevelId;
                 DestinationRecordRef.GetTable(CRMSalesorder);
             end;
+            CRMSynchHelper.UpdateCRMPriceList(SalesHeader, CRMSalesorder.PriceLevelId);
         end else
             if IsNullGuid(CRMSalesorder.PriceLevelId) then begin
-                CreateCRMPriceList(SalesHeader, CRMPricelevel);
+                CRMPricelevel.SetRange(Name, StrSubstNo(OrderPriceListLbl, SalesHeader."No."));
+                if not CRMPricelevel.FindFirst() then
+                    CRMSynchHelper.CreateCRMPriceList(SalesHeader, CRMPricelevel)
+                else
+                    CRMSynchHelper.UpdateCRMPriceList(SalesHeader, CRMPricelevel.PriceLevelId);
                 CRMSalesorder.PriceLevelId := CRMPricelevel.PriceLevelId;
                 DestinationRecordRef.GetTable(CRMSalesorder);
             end else
-                UpdateCRMPriceList(SalesHeader, CRMSalesorder.PriceLevelId);
-    end;
-
-    local procedure CreateCRMPriceList(SalesHeader: Record "Sales Header"; var CRMPricelevel: Record "CRM Pricelevel")
-    var
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        Resource: Record Resource;
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMTransactioncurrency: Record "CRM Transactioncurrency";
-        CRMProduct: Record "CRM Product";
-        CRMUom: Record "CRM Uom";
-        CRMId: Guid;
-    begin
-        CRMPricelevel.Init();
-        CRMPricelevel.Name := StrSubstNo(OrderPriceListLbl, SalesHeader."No.");
-        CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
-        CRMPricelevel.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
-        CRMPricelevel.TransactionCurrencyIdName := CRMTransactioncurrency.CurrencyName;
-        CRMPricelevel.Insert();
-
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet() then
-            repeat
-                case SalesLine.Type of
-                    SalesLine.Type::Item:
-                        begin
-                            Item.Get(SalesLine."No.");
-                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then
-                                if CRMProduct.Get(CRMId) then begin
-                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
-                                    if CRMUom.FindSet() then
-                                        repeat
-                                            CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
-                                        until CRMUom.Next() = 0;
-                                end;
-                        end;
-                    SalesLine.Type::Resource:
-                        begin
-                            Resource.Get(SalesLine."No.");
-                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then
-                                if CRMProduct.Get(CRMId) then begin
-                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
-                                    if CRMUom.FindSet() then
-                                        repeat
-                                            CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
-                                        until CRMUom.Next() = 0;
-                                end;
-                        end;
-                end;
-            until SalesLine.Next() = 0;
-    end;
-
-    local procedure UpdateCRMPriceList(SalesHeader: Record "Sales Header"; CRMPricelevelId: Guid)
-    var
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        Resource: Record Resource;
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMProduct: Record "CRM Product";
-        CRMProductpricelevel: Record "CRM Productpricelevel";
-        CRMUom: Record "CRM Uom";
-        CRMId: Guid;
-    begin
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet() then
-            repeat
-                case SalesLine.Type of
-                    SalesLine.Type::Item:
-                        begin
-                            Item.Get(SalesLine."No.");
-                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then begin
-                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
-                                CRMProductpricelevel.SetRange(ProductId, CRMId);
-                                if CRMProductpricelevel.IsEmpty() then
-                                    if CRMProduct.Get(CRMId) then begin
-                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
-                                        if CRMUom.FindSet() then
-                                            repeat
-                                                CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
-                                            until CRMUom.Next() = 0;
-                                    end;
-                            end;
-                        end;
-                    SalesLine.Type::Resource:
-                        begin
-                            Resource.Get(SalesLine."No.");
-                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then begin
-                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
-                                CRMProductpricelevel.SetRange(ProductId, CRMId);
-                                if CRMProductpricelevel.IsEmpty() then
-                                    if CRMProduct.Get(CRMId) then begin
-                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
-                                        if CRMUom.FindSet() then
-                                            repeat
-                                                CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
-                                            until CRMUom.Next() = 0;
-                                    end;
-                            end;
-                        end;
-                end;
-            until SalesLine.Next() = 0;
+                CRMSynchHelper.UpdateCRMPriceList(SalesHeader, CRMSalesorder.PriceLevelId);
     end;
 
     local procedure SetCRMOrderName(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)

@@ -222,9 +222,9 @@ codeunit 5992 "Purchases Warehouse Mgt."
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]
-    local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents")
+    local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request")
     var
-        PurchaseHeader: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader.SetFilter("Buy-from Vendor No.", WarehouseSourceFilter."Buy-from Vendor No. Filter");
@@ -236,6 +236,7 @@ codeunit 5992 "Purchases Warehouse Mgt."
         PurchaseLine.SetFilter("Expected Receipt Date", WarehouseSourceFilter."Expected Receipt Date");
         PurchaseLine.SetFilter("Planned Receipt Date", WarehouseSourceFilter."Planned Receipt Date");
 
+        OnSetFiltersOnSourceTablesOnBeforeSetPurchaseTableView(WarehouseSourceFilter, WarehouseRequest, PurchaseHeader, PurchaseLine);
         GetSourceDocuments.SetTableView(PurchaseHeader);
         GetSourceDocuments.SetTableView(PurchaseLine);
     end;
@@ -466,6 +467,11 @@ codeunit 5992 "Purchases Warehouse Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfPurchLine2ShptLine(var PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFiltersOnSourceTablesOnBeforeSetPurchaseTableView(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

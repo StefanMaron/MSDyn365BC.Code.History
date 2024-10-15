@@ -508,6 +508,7 @@ table 7000 "Price List Header"
         PriceSource."Source No." := "Source No.";
         PriceSource."Parent Source No." := "Parent Source No.";
         PriceSource."Source ID" := "Source ID";
+        PriceSource."Filter Source No." := "Filter Source No.";
 
         PriceSource."Price Type" := "Price Type";
         PriceSource."Currency Code" := "Currency Code";

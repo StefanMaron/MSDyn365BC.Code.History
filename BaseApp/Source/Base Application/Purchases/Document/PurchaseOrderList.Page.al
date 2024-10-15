@@ -428,7 +428,7 @@ page 9307 "Purchase Order List"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageLink = "Prepayment Order No." = field("No.");
                     RunPageView = sorting("Prepayment Order No.");
-                    ToolTip = 'View related posted sales invoices that involve a prepayment. ';
+                    ToolTip = 'View related posted purchase invoices that involve a prepayment.';
                 }
                 action("Prepayment Credi&t Memos")
                 {
@@ -438,7 +438,7 @@ page 9307 "Purchase Order List"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageLink = "Prepayment Order No." = field("No.");
                     RunPageView = sorting("Prepayment Order No.");
-                    ToolTip = 'View related posted sales credit memos that involve a prepayment. ';
+                    ToolTip = 'View related posted purchase credit memos that involve a prepayment.';
                 }
             }
             group(Warehouse)
@@ -603,7 +603,7 @@ page 9307 "Purchase Order List"
                     Caption = 'Delete Invoiced Orders';
                     Image = Delete;
                     RunObject = Report "Delete Invoiced Purch. Orders";
-                    ToolTip = 'Delete orders that were not automatically deleted after completion. For example, when several sales orders were completed by a single invoice.';
+                    ToolTip = 'Delete orders that were not automatically deleted after completion. For example, when several purchase orders were completed by a single invoice.';
                 }
             }
             group("Request Approval")

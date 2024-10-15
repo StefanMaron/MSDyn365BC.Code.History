@@ -169,6 +169,11 @@ page 1386 "Vendor Templ. Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     }
+                    field("Format Region"; Rec."Format Region")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the region format to be used on printouts for this vendor.';
+                    }
                     field("Document Sending Profile"; Rec."Document Sending Profile")
                     {
                         ApplicationArea = Basic, Suite;

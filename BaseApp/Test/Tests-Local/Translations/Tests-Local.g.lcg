@@ -419,6 +419,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PAYDISC Test - NamedType OpenStateErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3248514752 - NamedType 2295309100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ABC]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reference No Test - NamedType abcTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3248514752 - NamedType 4171073481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Error in Document Posting]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reference No Test - NamedType DocumentPostingTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 52913649 - NamedType 1987074413" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[File full path '%1' exceeds length (%3) of field '%2' ]]></Val>

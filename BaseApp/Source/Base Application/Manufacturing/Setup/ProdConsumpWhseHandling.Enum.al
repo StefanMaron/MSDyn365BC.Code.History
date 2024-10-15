@@ -10,14 +10,18 @@ enum 99000700 "Prod. Consump. Whse. Handling"
 
     value(0; "No Warehouse Handling")
     {
+        Caption = 'No Warehouse Handling';
     }
     value(10; "Warehouse Pick (optional)")
     {
+        Caption = 'Warehouse Pick (optional)';
     }
     value(20; "Inventory Pick/Movement")
     {
+        Caption = 'Inventory Pick/Movement';
     }
     value(30; "Warehouse Pick (mandatory)")
     {
+        Caption = 'Warehouse Pick (mandatory)';
     }
 }

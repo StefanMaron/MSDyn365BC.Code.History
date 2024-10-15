@@ -258,6 +258,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateHeader.Code := Code;
         ConfigTemplateHeader.Description := Description;
         ConfigTemplateHeader."Table ID" := TableID;
+        OnCreateConfigTemplateAndLinesOnBeforeConfigTemplateHeaderInsert(ConfigTemplateHeader);
         ConfigTemplateHeader.Insert(true);
 
         for I := 1 to ArrayLen(DefaultValuesFieldRefArray) do begin
@@ -631,6 +632,11 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyTemplateLinesWithoutValidationOnBeforeValidateFieldValue(var ConfigTemplateHeader: Record "Config. Template Header"; var ConfigTemplateLine: Record "Config. Template Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateConfigTemplateAndLinesOnBeforeConfigTemplateHeaderInsert(var ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 }

@@ -28,6 +28,7 @@ report 405 "Order"
     RDLCLayout = './Purchases/Document/Order.rdlc';
     Caption = 'Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
