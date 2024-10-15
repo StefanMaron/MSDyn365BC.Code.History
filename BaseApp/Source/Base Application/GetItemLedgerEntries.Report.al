@@ -296,7 +296,7 @@ report 594 "Get Item Ledger Entries"
             SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
 
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Item Entry";
+            Validate("Source Type", "Source Type"::"Item Entry");
             Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision));
             Validate("Cost Regulation %", IndirectCostPctReq);
 
@@ -342,7 +342,7 @@ report 594 "Get Item Ledger Entries"
                 Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
 
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Job Entry";
+            Validate("Source Type", "Source Type"::"Job Entry");
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
 
             Validate("Cost Regulation %", IndirectCostPctReq);
@@ -534,7 +534,7 @@ report 594 "Get Item Ledger Entries"
                 end;
 
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Item Entry";
+            Validate("Source Type", "Source Type"::"Item Entry");
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
             Validate("Cost Regulation %", IndirectCostPctReq);
 
