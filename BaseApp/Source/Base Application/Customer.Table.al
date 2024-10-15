@@ -18,7 +18,8 @@
                   TableData "Sales Line Discount" = rd,
 #endif
                   TableData "Sales Price Access" = rd,
-                  TableData "Sales Discount Access" = rd;
+                  TableData "Sales Discount Access" = rd,
+                  tabledata "Customer Templ." = rm;
 
     fields
     {
@@ -1986,7 +1987,13 @@
         ContactBusinessRelation: Record "Contact Business Relation";
         Cont: Record Contact;
         TempCust: Record Customer temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupContactList(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.FilterGroup(2);
         if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then
             Cont.SetRange("Company No.", ContactBusinessRelation."Contact No.")
@@ -3339,6 +3346,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupContactList(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

@@ -136,7 +136,6 @@ codeunit 28 "Error Message Management"
         RecRef.Close;
     end;
 
-    [Scope('OnPrem')]
     procedure ShowErrors(Notification: Notification)
     var
         RegisterID: Guid;
@@ -147,7 +146,6 @@ codeunit 28 "Error Message Management"
         ShowErrors(RegisterID);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowErrors(RegisterID: Guid)
     var
         ErrorMessage: Record "Error Message";

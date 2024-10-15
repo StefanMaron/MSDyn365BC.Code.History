@@ -886,8 +886,10 @@ table 210 "Job Journal Line"
                         if "Remaining Qty." > 0 then
                             "Remaining Qty." := 0;
                     end;
-                end;
-                "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
+
+                    "Remaining Qty. (Base)" := CalcBaseQtyForJobPlanningLine("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"), JobPlanningLine);
+                end else
+                    "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
                  CheckItemAvailable;
             end;
@@ -1128,17 +1130,21 @@ table 210 "Job Journal Line"
     local procedure CopyFromResource()
     var
         Resource: Record Resource;
+        IsHandled: Boolean;
     begin
-        Resource.Get("No.");
-        CheckResource(Resource);
-        OnCopyFromResourceOnAfterCheckResource(Rec, Resource, CurrFieldNo);
+        IsHandled := false;
+        OnBeforeCopyFromResource(Rec, Resource, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            Resource.Get("No.");
+            CheckResource(Resource);
+            OnCopyFromResourceOnAfterCheckResource(Rec, Resource, CurrFieldNo);
 
-        Description := Resource.Name;
-        "Description 2" := Resource."Name 2";
-        "Resource Group No." := Resource."Resource Group No.";
-        "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
-        Validate("Unit of Measure Code", Resource."Base Unit of Measure");
-
+            Description := Resource.Name;
+            "Description 2" := Resource."Name 2";
+            "Resource Group No." := Resource."Resource Group No.";
+            "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
+            Validate("Unit of Measure Code", Resource."Base Unit of Measure");
+        end;
 
         OnAfterAssignResourceValues(Rec, Resource, CurrFieldNo);
     end;
@@ -1172,34 +1178,46 @@ table 210 "Job Journal Line"
     end;
 
     local procedure CopyFromItem()
+    var
+        IsHandled: Boolean;
     begin
-        GetItem;
-        Item.TestField(Blocked, false);
-        OnCopyFromItemOnAfterCheckItem(Rec, Item);
-        Description := Item.Description;
-        "Description 2" := Item."Description 2";
-        GetJob;
-        if Job."Language Code" <> '' then
-            GetItemTranslation;
-        "Posting Group" := Item."Inventory Posting Group";
-        "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        IsHandled := false;
+        OnBeforeCopyFromItem(Rec, Item, IsHandled);
+        if not IsHandled then begin
+            GetItem;
+            Item.TestField(Blocked, false);
+            OnCopyFromItemOnAfterCheckItem(Rec, Item);
+            Description := Item.Description;
+            "Description 2" := Item."Description 2";
+            GetJob;
+            if Job."Language Code" <> '' then
+                GetItemTranslation;
+            "Posting Group" := Item."Inventory Posting Group";
+            "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+            Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        end;
 
         OnAfterAssignItemValues(Rec, Item);
     end;
 
     local procedure CopyFromGLAccount()
+    var
+        IsHandled: Boolean;
     begin
-        GLAcc.Get("No.");
-        GLAcc.CheckGLAcc;
-        GLAcc.TestField("Direct Posting", true);
-        Description := GLAcc.Name;
-        "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-        "Unit of Measure Code" := '';
-        "Direct Unit Cost (LCY)" := 0;
-        "Unit Cost (LCY)" := 0;
-        "Unit Price" := 0;
+        IsHandled := false;
+        OnBeforeCopyFromGLAccount(Rec, GLAcc, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            GLAcc.Get("No.");
+            GLAcc.CheckGLAcc;
+            GLAcc.TestField("Direct Posting", true);
+            Description := GLAcc.Name;
+            "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
+            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+            "Unit of Measure Code" := '';
+            "Direct Unit Cost (LCY)" := 0;
+            "Unit Cost (LCY)" := 0;
+            "Unit Price" := 0;
+        end;
 
         OnAfterAssignGLAccountValues(Rec, GLAcc);
     end;
@@ -1207,6 +1225,7 @@ table 210 "Job Journal Line"
     local procedure CheckItemAvailable()
     var
         JobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
     begin
         OnBeforeCheckItemAvailable(Rec, ItemJnlLine, CheckedAvailability);
 
@@ -1218,15 +1237,19 @@ table 210 "Job Journal Line"
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            if "Job Planning Line No." = 0 then
-                ItemJnlLine.Quantity := Quantity
-            else begin
-                JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
-                if JobPlanningLine."Remaining Qty." < (Quantity + "Remaining Qty.") then
-                    ItemJnlLine.Quantity := (Quantity + "Remaining Qty.") - JobPlanningLine."Remaining Qty."
-                else
-                    exit;
-            end;
+
+            IsHandled := false;
+            OnCheckItemAvailableOnBeforeAssignQuantity(Rec, ItemJnlLine, IsHandled);
+            if not IsHandled then
+                if "Job Planning Line No." = 0 then
+                    ItemJnlLine.Quantity := Quantity
+                else begin
+                    JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
+                    if JobPlanningLine."Remaining Qty." < (Quantity + "Remaining Qty.") then
+                        ItemJnlLine.Quantity := (Quantity + "Remaining Qty.") - JobPlanningLine."Remaining Qty."
+                    else
+                        exit;
+                end;
             if ItemCheckAvail.ItemJnlCheckLine(ItemJnlLine) then
                 ItemCheckAvail.RaiseUpdateInterruptedError;
             CheckedAvailability := true;
@@ -1338,7 +1361,14 @@ table 210 "Job Journal Line"
     end;
 
     local procedure GetJob()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetJob(Rec, Job, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Job No.");
         if "Job No." <> Job."No." then
             Job.Get("Job No.");
@@ -1963,6 +1993,12 @@ table 210 "Job Journal Line"
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    local procedure CalcBaseQtyForJobPlanningLine(Qty: Decimal; FromFieldName: Text; ToFieldName: Text; JobPlanningLine: Record "Job Planning Line"): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGLAccountValues(var JobJournalLine: Record "Job Journal Line"; GLAccount: Record "G/L Account")
     begin
@@ -2086,6 +2122,11 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJob(var JobJournalLine: Record "Job Journal Line"; var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeEmptyLine(var JobJournalLine: Record "Job Journal Line"; var LineIsEmpty: Boolean)
     begin
     end;
@@ -2166,6 +2207,11 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckItemAvailableOnBeforeAssignQuantity(var JobJournalLine: Record "Job Journal Line"; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterCheckItem(var JobJournalLine: Record "Job Journal Line"; Item: Record Item)
     begin
     end;
@@ -2192,6 +2238,21 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateJobTaskNo(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromGLAccount(var JobJournalLine: Record "Job Journal Line"; GLAccount: Record "G/L Account"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromItem(var JobJournalLine: Record "Job Journal Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromResource(var JobJournalLine: Record "Job Journal Line"; Resource: Record Resource; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

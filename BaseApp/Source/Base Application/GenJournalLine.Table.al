@@ -2424,7 +2424,13 @@
             var
                 DeferralUtilities: Codeunit "Deferral Utilities";
                 DeferralPostDate: Date;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDeferralCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Deferral Code" <> '' then
                     TestField("Account Type", "Account Type"::"G/L Account");
                 DeferralPostDate := GetDeferralPostDate();
@@ -2808,8 +2814,13 @@
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if GenJournalLine.Count = 1 then
-            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
+            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then begin
                 ApprovalsMgmt.OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
+                if GenJournalBatch."Pending Approval" then begin
+                    GenJournalBatch."Pending Approval" := false;
+                    GenJournalBatch.Modify();
+                end;
+            end;
 
         TestField("Check Printed", false);
 
@@ -3074,7 +3085,7 @@
             "Invoice Receipt Date" := "Document Date";
 
         IsHandled := false;
-        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled);
+        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine);
         if not IsHandled then begin
             "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset"]) and
@@ -7293,6 +7304,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDeferralCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7443,7 +7459,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean)
+    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean)
     begin
     end;
 

@@ -64,6 +64,8 @@ codeunit 1104 "Cost Account Allocation"
     var
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
+        OnBeforeCalcAllocationKey(CostAllocationSource);
+
         CostAllocationTarget.Reset();
         CostAllocationTarget.SetRange(ID, CostAllocationSource.ID);
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
@@ -73,6 +75,8 @@ codeunit 1104 "Cost Account Allocation"
             until CostAllocationTarget.Next() = 0;
 
         CostAllocationTarget.Validate(Share);
+
+        OnAfterCalcAllocationKey(CostAllocationSource);
     end;
 
     procedure CalcLineShare(var CostAllocationTarget: Record "Cost Allocation Target")
@@ -409,6 +413,16 @@ codeunit 1104 "Cost Account Allocation"
     procedure GetTotalShare(var ControlTotalShare: Decimal)
     begin
         ControlTotalShare := TotalShare;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAllocationKey(var CostAllocationSource: Record "Cost Allocation Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAllocationKey(var CostAllocationSource: Record "Cost Allocation Source")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

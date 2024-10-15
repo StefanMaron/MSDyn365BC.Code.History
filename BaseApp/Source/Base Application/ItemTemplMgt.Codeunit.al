@@ -6,6 +6,7 @@ codeunit 1336 "Item Templ. Mgt."
 
     var
         VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
 
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean) Result: Boolean
     var
@@ -33,12 +34,17 @@ codeunit 1336 "Item Templ. Mgt."
 
     procedure ApplyItemTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")
     begin
-        ApplyTemplate(Item, ItemTempl);
+        ApplyItemTemplate(Item, ItemTempl, false);
+    end;
+
+    procedure ApplyItemTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
+    begin
+        ApplyTemplate(Item, ItemTempl, UpdateExistingValues);
         InsertDimensions(Item."No.", ItemTempl.Code, Database::Item, Database::"Item Templ.");
         Item.Get(Item."No.");
     end;
 
-    local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")
+    local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -64,11 +70,11 @@ codeunit 1336 "Item Templ. Mgt."
 
         for i := 3 to ItemTemplRecRef.FieldCount do begin
             ItemTemplFldRef := ItemTemplRecRef.FieldIndex(i);
-            if TemplateFieldCanBeProcessed(ItemTemplFldRef, FieldExclusionList) then begin
+            if TemplateFieldCanBeProcessed(ItemTemplFldRef.Number, FieldExclusionList) then begin
                 ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
-                if (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) then
+                if (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) or UpdateExistingValues then
                     ItemFldRef.Value := ItemTemplFldRef.Value;
             end;
         end;
@@ -183,7 +189,7 @@ codeunit 1336 "Item Templ. Mgt."
         if not CanBeUpdatedFromTemplate(ItemTempl, IsHandled) then
             exit;
 
-        ApplyItemTemplate(Item, ItemTempl);
+        ApplyItemTemplate(Item, ItemTempl, GetUpdateExistingValuesParam());
     end;
 
     procedure UpdateItemsFromTemplate(var Item: Record Item)
@@ -207,7 +213,7 @@ codeunit 1336 "Item Templ. Mgt."
 
         if Item.FindSet() then
             repeat
-                ApplyItemTemplate(Item, ItemTempl);
+                ApplyItemTemplate(Item, ItemTempl, GetUpdateExistingValuesParam());
             until Item.Next() = 0;
     end;
 
@@ -327,9 +333,26 @@ codeunit 1336 "Item Templ. Mgt."
         exit('');
     end;
 
-    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    local procedure TemplateFieldCanBeProcessed(FieldNumber: Integer; FieldExclusionList: List of [Integer]): Boolean
+    var
+        ItemField: Record Field;
+        ItemTemplateField: Record Field;
     begin
-        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+        if FieldExclusionList.Contains(FieldNumber) or (FieldNumber > 2000000000) then
+            exit(false);
+
+        if not (ItemField.Get(Database::Item, FieldNumber) and ItemTemplateField.Get(Database::"Item Templ.", FieldNumber)) then
+            exit(false);
+
+        if (ItemField.Class <> ItemField.Class::Normal) or (ItemTemplateField.Class <> ItemTemplateField.Class::Normal) or
+            (ItemField.Type <> ItemTemplateField.Type) or (ItemField.FieldName <> ItemTemplateField.FieldName) or
+            (ItemField.Len <> ItemTemplateField.Len) or
+            (ItemField.ObsoleteState = ItemField.ObsoleteState::Removed) or
+            (ItemTemplateField.ObsoleteState = ItemTemplateField.ObsoleteState::Removed)
+        then
+            exit(false);
+
+        exit(true);
     end;
 
     local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
@@ -342,6 +365,17 @@ codeunit 1336 "Item Templ. Mgt."
         FieldExclusionList.Add(ItemTempl.FieldNo("Item Category Code"));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
+    end;
+
+    local procedure GetUpdateExistingValuesParam() Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUpdateExistingValuesParam(Result, IsHandled);
+        if not IsHandled then
+            Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
     end;
 
     [IntegrationEvent(false, false)]
@@ -470,6 +504,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTemplateFromItemOnBeforeItemTemplInsert(var ItemTempl: Record "Item Templ."; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

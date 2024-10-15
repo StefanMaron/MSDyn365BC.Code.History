@@ -166,6 +166,8 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         InsertDocumentEntry(Database::"Job Resource Price", JobResourcePrice.TableCaption, JobResourcePrice.Count());
         InsertDocumentEntry(Database::"Resource Price", ResourcePrice.TableCaption, ResourcePrice.Count());
         InsertDocumentEntry(Database::"Resource Cost", ResourceCost.TableCaption, ResourceCost.Count());
+
+        OnAfterCountRecords(TempDocumentEntry);
     end;
 
     local procedure FillPriceListNos()
@@ -216,7 +218,7 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         exit(SeriesCode);
     end;
 
-    local procedure GetListOfTables(): Text;
+    local procedure GetListOfTables() Result: Text;
     var
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
@@ -228,13 +230,13 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         ResourceCost: Record "Resource Cost";
         ResourcePrice: Record "Resource Price";
     begin
-        exit(
-            StrSubstNo(
-                Description1Txt,
-                SalesPrice.TableCaption(), SalesLineDiscount.TableCaption(),
-                PurchasePrice.TableCaption(), PurchaseLineDiscount.TableCaption(),
-                JobItemPrice.TableCaption(), JobGLAccountPrice.TableCaption(), JobResourcePrice.TableCaption(),
-                JobResourcePrice.TableCaption(), ResourcePrice.TableCaption(), ResourceCost.TableCaption()));
+        Result := StrSubstNo(
+                      Description1Txt,
+                      SalesPrice.TableCaption(), SalesLineDiscount.TableCaption(),
+                      PurchasePrice.TableCaption(), PurchaseLineDiscount.TableCaption(),
+                      JobItemPrice.TableCaption(), JobGLAccountPrice.TableCaption(), JobResourcePrice.TableCaption(),
+                      JobResourcePrice.TableCaption(), ResourcePrice.TableCaption(), ResourceCost.TableCaption());
+        OnAfterGetListOfTables(Result);
     end;
 
     local procedure InsertDocumentEntry(TableID: Integer; TableName: Text; RecordCount: Integer)
@@ -308,6 +310,16 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
     begin
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
             error(FeatureIsOnErr)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCountRecords(var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetListOfTables(var Result: Text)
+    begin
     end;
 }
 #endif
