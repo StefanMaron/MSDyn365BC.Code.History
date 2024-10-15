@@ -1192,7 +1192,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - I");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         UpdateInventorySetupCostPosting();
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();

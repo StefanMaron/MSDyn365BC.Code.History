@@ -185,6 +185,7 @@ page 9807 "User Card"
                     Caption = 'Windows Security ID';
                     ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
                     Visible = false;
+                    Editable = not IsSaas;
                 }
                 field("Windows User Name"; WindowsUserName)
                 {

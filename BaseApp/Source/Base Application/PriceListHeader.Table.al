@@ -67,6 +67,7 @@ table 7000 "Price List Header"
 
             trigger OnLookup()
             begin
+                PriceCalculationMgt.FeatureCustomizedLookupUsage(Database::"Price List Header");
                 LookupSourceNo();
             end;
         }
@@ -331,6 +332,7 @@ table 7000 "Price List Header"
     var
         PriceSource: Record "Price Source";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ConfirmUpdateQst: Label 'Do you want to update %1 in the price list lines?', Comment = '%1 - the field caption';
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - the field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';

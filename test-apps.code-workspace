@@ -69,6 +69,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./shopify/test/Shopify Connector Test"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Bank"
     },
     {
