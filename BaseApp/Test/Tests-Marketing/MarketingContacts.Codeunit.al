@@ -5419,40 +5419,48 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('ModalSelectCustomerTemplListHandler,ConfirmHandlerTrue')]
     procedure ContactBusinessRelationAfterContactMerge()
     var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        BusinessRelation: Record "Business Relation";
+        ContactCompany: array[2] of Record Contact;
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         ContactBusinessRelation: Record "Contact Business Relation";
+        MarketingContacts: Codeunit "Marketing Contacts";
         ContactList: TestPage "Contact List";
     begin
         // [SCENARIO 431320] "Business Relation" on Contact List should be updated if initial value = None, but Business Relation exists
         Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
 
-        // [GIVEN] Customer with Contact "C" and contact business relation.
-        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
-        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
-        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Created Contact 'A' with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany[1]);
+        ContactCompany[1].SetHideValidationDialog(true);
+        ContactCompany[1].CreateCustomer();
 
-        Customer.SetRange("No.", Customer."No.");
-        RunCreateContsFromCustomersReport(Customer);
+        // [GIVEN] Created Contact 'B' with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany[2]);
+        ContactCompany[2].SetHideValidationDialog(true);
+        ContactCompany[2].CreateCustomer();
 
-        FindContactBusinessRelation(
-            ContactBusinessRelation, BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
-        Contact.Get(ContactBusinessRelation."Contact No.");
+        // [GIVEN] Remove Contact Business Relation for Contact 'B' (simulation of removing duplicate on Contact Merge page), 
+        ContactBusinessRelation.SetRange("Contact No.", ContactCompany[2]."No.");
+        ContactBusinessRelation.FindFirst();
+        ContactBusinessRelation.Delete(true);
+        ContactCompany[2].UpdateBusinessRelation();
 
-        // [GIVEN] Contact "C" has "Contact Business Relation" = None (according to hotfix scenario this happens after contacts merge)
-        Contact."Contact Business Relation" := Contact."Contact Business Relation"::None;
-        Contact.Modify();
-        Commit();
+        // [WHEN] Merge Contact 'B' to 'A'     
+        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Contact;
+        TempMergeDuplicatesBuffer.Duplicate := ContactCompany[2]."No.";
+        TempMergeDuplicatesBuffer.Current := ContactCompany[1]."No.";
+        TempMergeDuplicatesBuffer.Insert();
+        TempMergeDuplicatesBuffer.Merge;
 
         // [WHEN] Open Contact List
         ContactList.OpenView();
-        ContactList.Filter.SetFilter("No.", Contact."No.");
+        ContactList.Filter.SetFilter("No.", ContactCompany[1]."No.");
 
-        // [THEN] "Business Relation" for Contact "C" = Customer
-        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Customer);
+        // [THEN] "Business Relation" for Contact "A" = Customer
+        ContactList."Business Relation".AssertEquals(ContactCompany[1]."Contact Business Relation"::Customer);
     end;
 
     [Test]

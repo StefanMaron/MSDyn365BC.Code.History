@@ -307,8 +307,9 @@ table 320 "Tax Jurisdiction"
         Language: Codeunit Language;
     begin
         if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode) then
-            exit(TaxJurisdictionTranslation.Description);
-        exit(Description);
+            exit(CopyStr(TaxJurisdictionTranslation.Description, 1, 50));
+
+        exit(CopyStr(Description, 1, 50));
     end;
 
     procedure GetName(): Text[30]
@@ -319,4 +320,3 @@ table 320 "Tax Jurisdiction"
         exit(Name);
     end;
 }
-
