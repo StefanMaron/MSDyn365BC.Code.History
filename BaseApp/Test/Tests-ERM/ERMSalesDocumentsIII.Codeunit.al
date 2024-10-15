@@ -5361,6 +5361,44 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CrMemoGetPostedDocumentLinesPostedReturnReceiptUnitPrice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPrice: Record "Sales Price";
+        InitialUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Get Document Lines to Reverse]
+        // [SCENARIO 393339] Action "Get Document Lines to Reserse" copies Unit Price from Posted Return Receipt and not from current Sales Price
+        Initialize();
+
+        UpdateSalesSetup(True, False);
+        // [GIVEN] Posted Sales Credit Memo with one line for Item "I1": "Unit Price" = 10
+        CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        InitialUnitPrice := SalesLine."Unit Price";
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Sales Price for Item "I1" = 100 for WorkDate
+        LibrarySales.CreateSalesPrice(
+          SalesPrice, SalesLine."No.", "Sales Price Type"::"All Customers", '', WorkDate, '', '', '', 0, InitialUnitPrice + 5);
+        SalesLine.Reset();
+
+        // [GIVEN] Create Credit Memo
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Run Get Document Lines to Reverse and copy from posted Posted Return Receipt
+        GetPostedDocumentLines(SalesHeader."No.", OptionString::PostedReturnReceipt);
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::Item);
+
+        // [THEN] Sales Line suggested has "Unit Price" = 10 for Item "I1"
+        Assert.AreEqual(InitialUnitPrice, SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

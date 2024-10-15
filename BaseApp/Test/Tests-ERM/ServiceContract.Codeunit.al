@@ -617,6 +617,44 @@ codeunit 136100 "Service Contract"
         WorkDate := CurrentWorkDate;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDialog,SelectTemplate,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LockSignedContractWith100PctLineDisc()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        LockOpenServContract: Codeunit "Lock-OpenServContract";
+    begin
+        // [SCENARIO 394609] Unlock then lock signed contract with 100 % line discount
+        Initialize;
+
+        // [GIVEN] Unlocked signed service contract with several lines, last line has "Line Discount" = 100 %
+        CreateServiceContract(ServiceContractHeader, false);
+        ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceContractLine.FindLast();
+        ServiceContractLine.Validate("Line Discount %", 100);
+        ServiceContractLine.Modify(true);
+
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServiceContractHeader.Validate("Annual Amount", CalcAnnualAmount(ServiceContractHeader));
+        ServiceContractHeader.Modify(true);
+
+        SignContract(ServiceContractHeader."Contract No.");
+
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        LockOpenServContract.OpenServContract(ServiceContractHeader);
+
+        // [WHEN] Lock signed contract
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        LockOpenServContract.LockServContract(ServiceContractHeader);
+
+        // [THEN] Contratc successfully locked
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServiceContractHeader.TestField("Change Status", ServiceContractHeader."Change Status"::Locked);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
