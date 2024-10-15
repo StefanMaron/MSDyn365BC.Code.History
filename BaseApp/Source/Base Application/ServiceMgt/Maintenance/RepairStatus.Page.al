@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 page 5942 "Repair Status"
 {
     Caption = 'Repair Status';
@@ -11,7 +13,7 @@ page 5942 "Repair Status"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the repair status.';

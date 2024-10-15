@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Environment;
+using System.Security.AccessControl;
+
 page 192 "Incoming Document Approvers"
 {
     Caption = 'Incoming Document Approvers';
@@ -8,8 +17,8 @@ page 192 "Incoming Document Approvers"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = User;
-    SourceTableView = SORTING("User Name")
-                      WHERE(State = CONST(Enabled));
+    SourceTableView = sorting("User Name")
+                      where(State = const(Enabled));
 
     layout
     {
@@ -53,7 +62,7 @@ page 192 "Incoming Document Approvers"
 
     trigger OnAfterGetRecord()
     begin
-        IsApprover := IncomingDocumentApprover.Get("User Security ID");
+        IsApprover := IncomingDocumentApprover.Get(Rec."User Security ID");
     end;
 
     trigger OnOpenPage()
@@ -73,10 +82,10 @@ page 192 "Incoming Document Approvers"
         if not EnvironmentInfo.IsSaaS() then
             exit;
 
-        OriginalFilterGroup := FilterGroup;
-        FilterGroup := 2;
-        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::"AAD Group");
-        FilterGroup := OriginalFilterGroup;
+        OriginalFilterGroup := Rec.FilterGroup;
+        Rec.FilterGroup := 2;
+        Rec.SetFilter("License Type", '<>%1&<>%2', Rec."License Type"::"External User", Rec."License Type"::"AAD Group");
+        Rec.FilterGroup := OriginalFilterGroup;
     end;
 }
 

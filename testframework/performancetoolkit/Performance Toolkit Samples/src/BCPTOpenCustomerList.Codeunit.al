@@ -1,3 +1,7 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Sales.Customer;
+
 codeunit 149110 "BCPT Open Customer List"
 {
     // Test codeunits can only run in foreground (UI)

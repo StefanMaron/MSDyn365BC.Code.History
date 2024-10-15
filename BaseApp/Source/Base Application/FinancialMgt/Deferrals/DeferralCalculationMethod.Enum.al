@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Deferral;
+
 enum 1700 "Deferral Calculation Method"
 {
     Extensible = true;

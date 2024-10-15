@@ -4529,7 +4529,9 @@ codeunit 134984 "ERM Sales Report III"
             LibraryReportDataset.AssertCurrentRowValueEquals('YourReference', "Your Reference");
             LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', "External Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', "No.");
+#if not CLEAN23
             LibraryReportDataset.AssertCurrentRowValueEquals('CompanyLegalOffice', CompanyInformation.GetLegalOffice());
+#endif
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPersonName', "Salesperson Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentMethodDescription', ShipmentMethod.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('Currency', LibraryERM.GetLCYCode());

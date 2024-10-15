@@ -10,7 +10,7 @@ page 2358 "BC O365 Sent Documents List"
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
-    SourceTableView = SORTING("Sell-to Customer Name");
+    SourceTableView = sorting("Sell-to Customer Name");
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -77,7 +77,7 @@ page 2358 "BC O365 Sent Documents List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument();
+                    Rec.OpenDocument();
                 end;
             }
             action(Clear)
@@ -92,7 +92,7 @@ page 2358 "BC O365 Sent Documents List"
                 var
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
-                    O365DocumentSendMgt.ClearNotificationsForDocument("No.", Posted, "Document Type");
+                    O365DocumentSendMgt.ClearNotificationsForDocument(Rec."No.", Rec.Posted, Rec."Document Type");
                     CurrPage.Update(true);
                 end;
             }
@@ -135,17 +135,17 @@ page 2358 "BC O365 Sent Documents List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(OnFind(Which));
+        exit(Rec.OnFind(Which));
     end;
 
     trigger OnInit()
     begin
-        SetSortByDocDate();
+        Rec.SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(OnNext(Steps));
+        exit(Rec.OnNext(Steps));
     end;
 }
 #endif

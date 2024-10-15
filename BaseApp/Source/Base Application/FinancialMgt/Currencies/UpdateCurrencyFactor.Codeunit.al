@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Purchases.History;
+using Microsoft.Sales.History;
+
 codeunit 325 "Update Currency Factor"
 {
     Permissions = TableData "Sales Invoice Header" = rm,

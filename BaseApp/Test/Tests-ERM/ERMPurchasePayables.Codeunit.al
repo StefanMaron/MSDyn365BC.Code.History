@@ -2516,6 +2516,71 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 
     [Test]
+    procedure EditDescriptionVendorLedgerEntryLoggedInChangeLog()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        RecordRef: RecordRef;
+        NewDescription, OldDescription : Text;
+    begin
+        Initialize();
+
+        // [GIVEN] Create Vendor Ledger Entry
+        LibraryPurchase.CreatePostVendorLedgerEntry(VendorLedgerEntry);
+        OldDescription := LibraryRandom.RandText(MaxStrLen(VendorLedgerEntry.Description));
+        VendorLedgerEntry.Description := OldDescription;
+        VendorLedgerEntry.Modify();
+
+        // [WHEN] Description is modified in vendor ledger entries
+        NewDescription := LibraryRandom.RandText(MaxStrLen(VendorLedgerEntry.Description));
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntries.Description.Value(NewDescription);
+        VendorLedgerEntries.Close();
+
+        // [THEN] Description is changed & the change is logged in change log entry
+        VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
+        Assert.AreEqual(NewDescription, VendorLedgerEntry.Description, VendorLedgerEntry.FieldCaption(Description));
+        RecordRef.GetTable(VendorLedgerEntry);
+        VerifyChangeLogFieldValue(RecordRef, VendorLedgerEntry.FieldNo(Description), OldDescription, NewDescription);
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeLogEntriesModalPageHandler')]
+    procedure ShowLoggedDescriptionChangesInVendorLedgerEntries()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        RecordRef: RecordRef;
+        NewDescription, OldDescription : Text;
+    begin
+        Initialize();
+
+        // [GIVEN] Create Vendor Ledger Entry
+        LibraryPurchase.CreatePostVendorLedgerEntry(VendorLedgerEntry);
+        OldDescription := LibraryRandom.RandText(MaxStrLen(VendorLedgerEntry.Description));
+        VendorLedgerEntry.Description := OldDescription;
+        VendorLedgerEntry.Modify();
+
+        // [GIVEN] Description is modified
+        NewDescription := LibraryRandom.RandText(MaxStrLen(VendorLedgerEntry.Description));
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntries.Description.Value(NewDescription);
+        VendorLedgerEntries.Close();
+
+        LibraryVariableStorage.Enqueue(OldDescription);
+        LibraryVariableStorage.Enqueue(NewDescription);
+
+        // [WHEN] Show change log action is run
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntries.ShowChangeHistory.Invoke();
+
+        // [THEN] Modal page Change Log Entries with logged changed is open
+    end;
+
+    [Test]
     procedure ValidateSalesPrepayAccountGLWhenPurchasePrepayPosted()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3454,6 +3519,19 @@ codeunit 134331 "ERM Purchase Payables"
     end;
 #endif
 
+    local procedure VerifyChangeLogFieldValue(RecordRef: RecordRef; FieldNo: Integer; OldValue: Text; NewValue: Text)
+    var
+        ChangeLogEntry: Record "Change Log Entry";
+    begin
+        ChangeLogEntry.SetRange("Table No.", RecordRef.Number);
+        ChangeLogEntry.SetRange("User ID", UserId);
+        ChangeLogEntry.SetRange("Primary Key", RecordRef.GetPosition(false));
+        ChangeLogEntry.SetRange("Field No.", FieldNo);
+        ChangeLogEntry.FindLast();
+        Assert.AreEqual(ChangeLogEntry."Old Value", OldValue, 'Change Log Entry (old value) for field ' + Format(FieldNo));
+        Assert.AreEqual(ChangeLogEntry."New Value", NewValue, 'Change Log Entry (new value) for field ' + Format(FieldNo));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BatchPostPurchaseOrderCHandler(var BatchPostPurchaseOrders: TestRequestPage "Batch Post Purchase Orders")
@@ -3696,5 +3774,12 @@ codeunit 134331 "ERM Purchase Payables"
             Assert.AreEqual(PostBatchForm.PrintDoc.AsBoolean(), true, 'Expected value to be restored.');
         end;
     end;
-}
 
+    [ModalPageHandler]
+    procedure ChangeLogEntriesModalPageHandler(var ChangeLogEntries: TestPage "Change Log Entries");
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ChangeLogEntries."Old Value".Value(), ChangeLogEntries."Old Value".Caption());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ChangeLogEntries."New Value".Value(), ChangeLogEntries."New Value".Caption());
+        ChangeLogEntries.OK().Invoke();
+    end;
+}

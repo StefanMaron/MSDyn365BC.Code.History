@@ -1,3 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using System.Environment.Configuration;
+using System.Apps;
+using System.Environment;
+using Microsoft.Foundation.Company;
+
 codeunit 1760 "Data Geo. Notification"
 {
     Permissions = TableData "NAV App Installed App" = r;

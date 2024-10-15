@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+
 page 9322 "Service Contract Quotes"
 {
     ApplicationArea = Service;
@@ -6,7 +13,7 @@ page 9322 "Service Contract Quotes"
     Editable = false;
     PageType = List;
     SourceTable = "Service Contract Header";
-    SourceTableView = WHERE("Contract Type" = CONST(Quote));
+    SourceTableView = where("Contract Type" = const(Quote));
     UsageCategory = Lists;
 
     layout
@@ -70,15 +77,15 @@ page 9322 "Service Contract Quotes"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -113,7 +120,7 @@ page 9322 "Service Contract Quotes"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -123,10 +130,10 @@ page 9322 "Service Contract Quotes"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Contract"),
-                                  "Table Subtype" = FIELD("Contract Type"),
-                                  "No." = FIELD("Contract No."),
-                                  "Table Line No." = CONST(0);
+                    RunPageLink = "Table Name" = const("Service Contract"),
+                                  "Table Subtype" = field("Contract Type"),
+                                  "No." = field("Contract No."),
+                                  "Table Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Service Dis&counts")
@@ -135,8 +142,8 @@ page 9322 "Service Contract Quotes"
                     Caption = 'Service Dis&counts';
                     Image = Discount;
                     RunObject = Page "Contract/Service Discounts";
-                    RunPageLink = "Contract Type" = FIELD("Contract Type"),
-                                  "Contract No." = FIELD("Contract No.");
+                    RunPageLink = "Contract Type" = field("Contract Type"),
+                                  "Contract No." = field("Contract No.");
                     ToolTip = 'View or edit the discounts that you grant for the contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
                 }
                 action("Service &Hours")
@@ -145,8 +152,8 @@ page 9322 "Service Contract Quotes"
                     Caption = 'Service &Hours';
                     Image = ServiceHours;
                     RunObject = Page "Service Hours";
-                    RunPageLink = "Service Contract No." = FIELD("Contract No."),
-                                  "Service Contract Type" = FILTER(Quote);
+                    RunPageLink = "Service Contract No." = field("Contract No."),
+                                  "Service Contract Type" = filter(Quote);
                     ToolTip = 'View the service hours that are valid for the service contract. This window displays the starting and ending service hours for the contract for each weekday.';
                 }
                 action("&Filed Contract Quotes")
@@ -155,10 +162,10 @@ page 9322 "Service Contract Quotes"
                     Caption = '&Filed Contract Quotes';
                     Image = Quote;
                     RunObject = Page "Filed Service Contract List";
-                    RunPageLink = "Contract Type Relation" = FIELD("Contract Type"),
-                                  "Contract No. Relation" = FIELD("Contract No.");
-                    RunPageView = SORTING("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  ORDER(Descending);
+                    RunPageLink = "Contract Type Relation" = field("Contract Type"),
+                                  "Contract No. Relation" = field("Contract No.");
+                    RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
+                                  order(Descending);
                     ToolTip = 'View filed contract quotes.';
                 }
             }
@@ -225,7 +232,7 @@ page 9322 "Service Contract Quotes"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
     end;
 }
 

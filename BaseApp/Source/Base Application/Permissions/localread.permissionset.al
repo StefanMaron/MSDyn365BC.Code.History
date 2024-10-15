@@ -1,3 +1,12 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.Document;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

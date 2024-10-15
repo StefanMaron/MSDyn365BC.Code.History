@@ -15,8 +15,8 @@ codeunit 144005 "EHF Reminder"
         EInvoiceReminderHelper: Codeunit "E-Invoice Reminder Helper";
         EInvoiceFinChMemoHelper: Codeunit "E-Invoice Fin. Ch. Memo Helper";
         isInitialized: Boolean;
-        CustomizationIDTxt: Label 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0#conformant#urn:fdc:anskaffelser.no:2019:ehf:reminder:3.0', Comment = 'Locked';
-        ProfileIDTxt: Label 'urn:fdc:anskaffelser.no:2019:ehf:postaward:g3:06:1.0', Comment = 'Locked';
+        CustomizationIDTxt: Label 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0#conformant#urn:fdc:anskaffelser.no:2019:ehf:reminder:3.0', Locked = true;
+        ProfileIDTxt: Label 'urn:fdc:anskaffelser.no:2019:ehf:postaward:g3:06:1.0', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -321,6 +321,7 @@ codeunit 144005 "EHF Reminder"
         LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:InvoiceLine', 2);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ExportIssuedReminderandCheckDataInExportedXMLFile()
@@ -354,6 +355,7 @@ codeunit 144005 "EHF Reminder"
             i += 1;
         until IssuedReminderLine.Next() = 0;
     end;
+#endif
 
     local procedure Initialize()
     var

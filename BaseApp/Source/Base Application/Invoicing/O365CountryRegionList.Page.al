@@ -20,7 +20,7 @@ page 2152 "O365 Country/Region List"
         {
             repeater(Group)
             {
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                 }
@@ -43,18 +43,18 @@ page 2152 "O365 Country/Region List"
     begin
         if CountryRegion.FindSet() then
             repeat
-                Code := CountryRegion.Code;
-                Name := CountryRegion.GetNameInCurrentLanguage();
-                "VAT Scheme" := CountryRegion."VAT Scheme";
-                if Insert() then;
+                Rec.Code := CountryRegion.Code;
+                Rec.Name := CountryRegion.GetNameInCurrentLanguage();
+                Rec."VAT Scheme" := CountryRegion."VAT Scheme";
+                if Rec.Insert() then;
             until CountryRegion.Next() = 0;
 
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
-        DeleteAll();
+        Rec.DeleteAll();
     end;
 }
 #endif

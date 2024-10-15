@@ -15,7 +15,7 @@ page 138900 "O365 Sales Test Invoice Page"
                 ApplicationArea = Invoicing;
                 Caption = 'Create test invoice.';
                 RunObject = Page "BC O365 Sales Invoice";
-                RunPageLink = "No." = CONST('TESTINVOICE');
+                RunPageLink = "No." = const('TESTINVOICE');
                 RunPageMode = Create;
                 ToolTip = 'ENU=Create the test invoice.';
             }

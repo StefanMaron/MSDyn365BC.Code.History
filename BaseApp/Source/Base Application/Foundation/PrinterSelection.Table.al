@@ -1,3 +1,9 @@
+﻿namespace System.Device;
+
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.User;
+
 table 78 "Printer Selection"
 {
     Caption = 'Printer Selection';
@@ -11,8 +17,6 @@ table 78 "Printer Selection"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -25,7 +29,7 @@ table 78 "Printer Selection"
         field(2; "Report ID"; Integer)
         {
             Caption = 'Report ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
         }
         field(3; "Printer Name"; Text[250])
         {
@@ -34,8 +38,8 @@ table 78 "Printer Selection"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Report ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+                                                                           "Object ID" = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
             FieldClass = FlowField;

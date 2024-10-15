@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 enum 85 "Acc. Schedule Line Totaling Type"
 {
     Extensible = true;

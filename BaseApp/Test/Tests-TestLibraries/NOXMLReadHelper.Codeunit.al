@@ -192,7 +192,7 @@ codeunit 143001 "NO XML Read Helper"
         GetElementInCurrNode(CurrNode, ElementName, Node);
 
         if IsNull(Node) then
-            Error(StrSubstNo(SubNodeNotFoundErr, ElementName, CurrNode.Name));
+            Error(SubNodeNotFoundErr, ElementName, CurrNode.Name);
 
         exit(Node.InnerText);
     end;

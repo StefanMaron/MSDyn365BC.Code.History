@@ -15,7 +15,7 @@
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         ValidationErr: Label '%1 must be %2 in Report.';
-        WarningMsg: Label 'Statement Ending Balance must be equal to Total Balance.';
+        WarningMsg: Label 'Statement Ending Balance is not equal to Total Balance.';
         HeaderDimensionTxt: Label '%1 - %2';
         PostingGroupErr: Label 'The Customer Posting Group does not exist.';
         NoSeriesGapWarningMsg: Label 'There is a gap in the number series.';
@@ -500,7 +500,7 @@
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('DimensionsCaption', 'Dimensions');
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DimensionsCaption', 'Dimensions'));
+            Error(RowNotFoundErr, 'DimensionsCaption', 'Dimensions');
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'DimText', StrSubstNo(HeaderDimensionTxt, DimensionValue."Dimension Code", DimensionValue.Code));
     end;
@@ -572,7 +572,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_GLAccount', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_GLAccount', GenJournalLine."Account No."));
+            Error(RowNotFoundErr, 'No_GLAccount', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('FiscalYearNetChange', FiscalYearNetChange);
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChangeIncreasePct', NetChangeIncreasePct);
         LibraryReportDataset.AssertCurrentRowValueEquals('LastYearNetChange', GLAccount."Net Change");
@@ -632,7 +632,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('GLAccNetChangeNo', GenJournalLine."Bal. Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'GLAccNetChangeNo', GenJournalLine."Bal. Account No."));
+            Error(RowNotFoundErr, 'GLAccNetChangeNo', GenJournalLine."Bal. Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccNetChangeNetChangeJnl', -GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccNetChangeBalafterPost', -GenJournalLine.Amount);
     end;
@@ -750,7 +750,7 @@
     end;
 
     [Test]
-#if not CLEAN20
+#if not CLEAN23
     [HandlerFunctions('AdjustExchangeRateReportReqPageHandler,StatisticsMessageHandler')]
 #else
     [HandlerFunctions('ExchRateAdjustmentReportReqPageHandler,StatisticsMessageHandler')]
@@ -772,7 +772,7 @@
         LibraryVariableStorage.Enqueue(CurrencyCode);
 
         // 2. Exercise: Running the Adjust Exchange Rates Report.
-#if not CLEAN20
+#if not CLEAN23
         REPORT.Run(REPORT::"Adjust Exchange Rates");
 #else
         REPORT.Run(REPORT::"Exch. Rate Adjustment");
@@ -1543,6 +1543,7 @@
 
     local procedure Initialize()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports II");
@@ -1560,6 +1561,9 @@
         if IsInitialized then
             exit;
 
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Financial Reports II");
         IsInitialized := true;
@@ -2476,7 +2480,7 @@
 
         LibraryReportDataset.SetRange('Check_Ledger_Entry__Check_Date_', Format(WorkDate()));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Check_Ledger_Entry__Check_Date_', Format(WorkDate())));
+            Error(RowNotFoundErr, 'Check_Ledger_Entry__Check_Date_', Format(WorkDate()));
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Check_Ledger_Entry__Bal__Account_No__', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -2494,7 +2498,7 @@
         // Verify Lines
         LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate()));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate())));
+            Error(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Applied_Amount_', -GenJournalLine.Amount);
 
         // Verify Totals
@@ -2531,7 +2535,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('PostingDate_GenJnlLine', Format(GenJournalLine."Posting Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'PostingDate_GenJnlLine', Format(GenJournalLine."Posting Date")));
+            Error(RowNotFoundErr, 'PostingDate_GenJnlLine', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocType_GenJnlLine', Format(GenJournalLine."Document Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_GenJnlLine', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('AccountType_GenJnlLine', Format(GenJournalLine."Account Type"));
@@ -2562,14 +2566,14 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date")));
+            Error(RowNotFoundErr, 'DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         AddnlFeeAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"G/L Account");
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt));
+            Error(RowNotFoundErr, 'Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
@@ -2615,7 +2619,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line__Document_Type_', Format(GenJournalLine."Document Type"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Finance_Charge_Memo_Line__Document_Type_', Format(GenJournalLine."Document Type")));
+            Error(RowNotFoundErr, 'Finance_Charge_Memo_Line__Document_Type_', Format(GenJournalLine."Document Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line__Original_Amount_',
           FinanceChargeMemoLine."Original Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line__Remaining_Amount_',
@@ -2626,13 +2630,13 @@
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt));
+            Error(RowNotFoundErr, 'Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line_Amount', FinanceChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code")));
+            Error(RowNotFoundErr, 'TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         LibraryReportDataset.GetElementValueInCurrentRow('TotalAmount', Variant);
         TotalAmt := Variant;
         if TotalAmt <> 0 then
@@ -2677,7 +2681,7 @@
             LibraryReportDataset.SetRange('VATAmtSpecCaption', VATAmtSpecLabelTxt);
             LibraryReportDataset.SetRange('VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %"));
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %")));
+                Error(RowNotFoundErr, 'VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %"));
             LibraryReportDataset.FindCurrentRowValue('VALVATBase', Amount);
             Assert.AreNearlyEqual(
               IssuedFinChargeMemoLine.Amount,
@@ -2738,7 +2742,7 @@
 
         LibraryReportDataset.SetRange('Reminder_Line__Document_Type_', Format(ReminderLine."Document Type"::Invoice));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Reminder_Line__Document_Type_', Format(ReminderLine."Document Type"::Invoice)));
+            Error(RowNotFoundErr, 'Reminder_Line__Document_Type_', Format(ReminderLine."Document Type"::Invoice));
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Original_Amount_', GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Remaining_Amount_', ReminderHeader."Remaining Amount");
@@ -2747,7 +2751,7 @@
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account"));
+            Error(RowNotFoundErr, 'Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account");
         LibraryReportDataset.AssertCurrentRowValueEquals('Remaining_Amount____ReminderInterestAmount____VAT_Amount_',
           ReminderLevel."Additional Fee (LCY)")
     end;
@@ -2771,7 +2775,7 @@
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT___', ReminderLine."VAT %");
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFoundErr, 'VATAmountLine__VAT___', ReminderLine."VAT %"));
+                Error(RowNotFoundErr, 'VATAmountLine__VAT___', ReminderLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT_Base_', ReminderLine.Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__Amount_Including_VAT_',
               ReminderLine.Amount + ReminderLine."VAT Amount");
@@ -2787,7 +2791,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date")));
+            Error(RowNotFoundErr, 'DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuedReminderLine', IssuedReminderLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt_IssuedReminderLine', IssuedReminderLine."Original Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('RemAmt_IssuedReminderLine', IssuedReminderLine."Remaining Amount");
@@ -2960,7 +2964,7 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange(IssuedHeaderNo, No);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, IssuedHeaderNo, No));
+            Error(RowNotFoundErr, IssuedHeaderNo, No);
         LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number_', ExpectedWarningMessage);
     end;
 
@@ -3010,7 +3014,7 @@
         Assert.IsTrue(LibraryReportDataset.CurrentRowHasElement(ErrorTextNumberTok), ExpectedErrorText);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AdjustExchangeRateReportReqPageHandler(var AdjustExchangeRate: TestRequestPage "Adjust Exchange Rates")

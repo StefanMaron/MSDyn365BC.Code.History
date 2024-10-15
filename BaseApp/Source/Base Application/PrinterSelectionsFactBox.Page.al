@@ -1,3 +1,8 @@
+﻿namespace System.Device;
+
+using System.Reflection;
+using System.Security.User;
+
 page 9839 "Printer Selections FactBox"
 {
     Caption = 'Printer Selections';
@@ -22,7 +27,7 @@ page 9839 "Printer Selections FactBox"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Report ID"; Rec."Report ID")

@@ -24,6 +24,7 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
         ItemTrackingAction: Option AssignSerialNo,SelectEntries,ManualSN;
 
     [Test]
@@ -510,6 +511,116 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         Assert.AreEqual('', InvtDocumentHeader."Posting No. Series", '');
     end;
 
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostingPreviewShouldNotJumpToAnotherDocumentForInventoryReceipt()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        InvtDocumentHeader: array[3] of Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtReceipt: TestPage "Invt. Receipt";
+    begin
+        // [SCENARIO 477577] Verify that the posting preview should not jump to another document for inventory receipt.
+        Initialize();
+
+        // [GIVEN] Create an item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create a multiple Inventory Receipt document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[1], InvtDocumentHeader[1]."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[2], InvtDocumentHeader[2]."Document Type"::Receipt, Location.Code);
+
+
+        // [GIVEN] Create another Inventory Receipt document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[3], InvtDocumentHeader[3]."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(
+            InvtDocumentHeader[3],
+            InvtDocumentLine,
+            Item."No.",
+            LibraryRandom.RandInt(100),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Open and Preview the Inventory Receipt document.
+        InvtReceipt.OpenEdit();
+        InvtReceipt.GoToRecord(InvtDocumentHeader[3]);
+        InvtReceipt.PreviewPosting.Invoke();
+
+        // [VERIFY] Verify that the posting preview should not jump to another document for inventory receipt. 
+        Assert.AreEqual(
+            InvtDocumentHeader[3]."No.",
+            InvtReceipt."No.".Value(),
+             StrSubstNo(
+                ValueMustBeEqualErr,
+                InvtDocumentHeader[3].FieldCaption("No."),
+                InvtDocumentHeader[3]."No.",
+                InvtDocumentHeader[3].TableCaption()));
+
+        InvtReceipt.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostingPreviewShouldNotJumpToAnotherDocumentForInventoryShipment()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        InvtDocumentHeader: array[3] of Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtShipment: TestPage "Invt. Shipment";
+    begin
+        // [SCENARIO 477577] Verify that the posting preview should not jump to another document for inventory Shipment.
+        Initialize();
+
+        // [GIVEN] Create an item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create a multiple Inventory Shipment document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[1], InvtDocumentHeader[1]."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[2], InvtDocumentHeader[2]."Document Type"::Shipment, Location.Code);
+
+
+        // [GIVEN] Create another Inventory Shipment document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader[3], InvtDocumentHeader[3]."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(
+            InvtDocumentHeader[3],
+            InvtDocumentLine,
+            Item."No.",
+            LibraryRandom.RandInt(100),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Open and Preview the Inventory Shipment document.
+        InvtShipment.OpenEdit();
+        InvtShipment.GoToRecord(InvtDocumentHeader[3]);
+        InvtShipment.PreviewPosting.Invoke();
+
+        // [VERIFY] Verify that the posting preview should not jump to another document for inventory Shipment. 
+        Assert.AreEqual(
+            InvtDocumentHeader[3]."No.",
+            InvtShipment."No.".Value(),
+             StrSubstNo(
+                ValueMustBeEqualErr,
+                InvtDocumentHeader[3].FieldCaption("No."),
+                InvtDocumentHeader[3]."No.",
+                InvtDocumentHeader[3].TableCaption()));
+
+        InvtShipment.Close();
+    end;
+
     local procedure Initialize()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -700,5 +811,12 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.OK.Invoke;
     end;
 }

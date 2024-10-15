@@ -1,3 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Assembly.Document;
+using Microsoft.HumanResources.Absence;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Document;
+
 table 952 "Time Sheet Detail"
 {
     Caption = 'Time Sheet Detail';
@@ -34,7 +46,7 @@ table 952 "Time Sheet Detail"
         field(7; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
-            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(9; "Cause of Absence Code"; Code[10])
         {
@@ -44,7 +56,7 @@ table 952 "Time Sheet Detail"
         field(13; "Service Order No."; Code[20])
         {
             Caption = 'Service Order No.';
-            TableRelation = IF (Posted = CONST(false)) "Service Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if (Posted = const(false)) "Service Header"."No." where("Document Type" = const(Order));
         }
         field(14; "Service Order Line No."; Integer)
         {
@@ -62,7 +74,7 @@ table 952 "Time Sheet Detail"
         field(18; "Assembly Order No."; Code[20])
         {
             Caption = 'Assembly Order No.';
-            TableRelation = IF (Posted = CONST(false)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if (Posted = const(false)) "Assembly Header"."No." where("Document Type" = const(Order));
         }
         field(19; "Assembly Order Line No."; Integer)
         {

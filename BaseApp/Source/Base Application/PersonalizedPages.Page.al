@@ -1,3 +1,11 @@
+﻿namespace System.Environment.Configuration;
+
+using System;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.User;
+using System.Tooling;
+
 page 9200 "Personalized Pages"
 {
     ApplicationArea = Basic, Suite;
@@ -102,7 +110,7 @@ page 9200 "Personalized Pages"
                 begin
                     ShowingOnlyErrors := true;
                     TempDesignerDiagnostics.Reset();
-                    TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+                    TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Error);
 
                     if Rec.FindSet() then
                         repeat
@@ -126,10 +134,10 @@ page 9200 "Personalized Pages"
 
                 trigger OnAction()
                 begin
-                    ClearMarks();
-                    MarkedOnly(false);
+                    Rec.ClearMarks();
+                    Rec.MarkedOnly(false);
                     ShowingOnlyErrors := false;
-                    if FindFirst() then;
+                    if Rec.FindFirst() then;
                     UpdateUserDiagnosticsListPart();
                 end;
             }
@@ -157,7 +165,7 @@ page 9200 "Personalized Pages"
     var
         PageMetadata: Record "Page Metadata";
     begin
-        if PageMetadata.Get("Page ID") then
+        if PageMetadata.Get(Rec."Page ID") then
             PageName := PageMetadata.Caption
         else
             PageName := '';
@@ -187,7 +195,7 @@ page 9200 "Personalized Pages"
         Errors: Integer;
     begin
         TempDesignerDiagnostics.Reset();
-        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Error);
         Errors := TempDesignerDiagnostics.Count();
 
         if Errors > 0 then
@@ -285,22 +293,22 @@ page 9200 "Personalized Pages"
     begin
         HealthStatusStyleExpr := 'Favorable';
 
-        if not UserSidToOperationId.Get(Format("User SID") + Format("Page ID"), OperationId) then
+        if not UserSidToOperationId.Get(Format(Rec."User SID") + Format(Rec."Page ID"), OperationId) then
             exit;
 
         TempDesignerDiagnostics.Reset();
         TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
-        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Error);
         if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Unfavorable';
             exit(StrSubstNo(PageValidationFailedWithErrorsTxt, TempDesignerDiagnostics.Count()));
         end;
-        TempDesignerDiagnostics.SetRange(Severity, Severity::Warning);
+        TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Warning);
         if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Ambiguous';
             exit(StrSubstNo(PageSuccessfullyValidatedWithWarningsTxt, TempDesignerDiagnostics.Count()));
         end;
-        TempDesignerDiagnostics.SetRange(Severity, Severity::Information);
+        TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Information);
         if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Favorable';
             exit(StrSubstNo(PageSuccessfullyValidatedWithInformationalMessagesTxt, TempDesignerDiagnostics.Count()));
@@ -326,7 +334,7 @@ page 9200 "Personalized Pages"
     var
         OperationId: Guid;
     begin
-        if UserSidToOperationId.Get(Format("User SID") + Format("Page ID"), OperationId) then;
+        if UserSidToOperationId.Get(Format(Rec."User SID") + Format(Rec."Page ID"), OperationId) then;
         TempDesignerDiagnostics.Reset();
         TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
         CurrPage.UserDiagnosticsListPart.Page.SetRecords(TempDesignerDiagnostics);

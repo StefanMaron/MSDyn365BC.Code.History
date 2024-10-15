@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Automation;
+
 codeunit 133 "Send Incoming Document to OCR"
 {
     TableNo = "Incoming Document";

@@ -1,3 +1,20 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Resources.Journal;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.UOM;
+using Microsoft.Utilities;
+
 permissionset 4969 "Resources - Admin"
 {
     Access = Public;

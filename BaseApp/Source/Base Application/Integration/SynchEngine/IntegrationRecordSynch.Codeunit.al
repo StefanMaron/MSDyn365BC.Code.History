@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using Microsoft.CRM.Outlook;
+using System.Reflection;
+using System.Utilities;
+
 codeunit 5336 "Integration Record Synch."
 {
 

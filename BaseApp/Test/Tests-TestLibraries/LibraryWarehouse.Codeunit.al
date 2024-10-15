@@ -181,6 +181,24 @@ codeunit 132204 "Library - Warehouse"
         Location."Bin Mandatory" := true;
         Location.Validate("Directed Put-away and Pick", true);
         Location.Validate("Use Cross-Docking", true);
+        if Location."Require Pick" then
+            if Location."Require Shipment" then begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            end else begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            end
+        else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        end;
+
+        if Location."Require Put-away" and not Location."Require Receive" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
         Location.Modify(true);
 
         // Create Zones and bins
@@ -482,8 +500,10 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateLocationWMS(var Location: Record Location; BinMandatory: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
     begin
         CreateLocationWithInventoryPostingSetup(Location);
-        if RequirePutAway then
+        if RequirePutAway then begin
             Location.Validate("Require Put-away", true);
+            Location.Validate("Always Create Put-away Line", true);
+        end;
         if RequirePick then
             Location.Validate("Require Pick", true);
         if RequireReceive then
@@ -491,6 +511,26 @@ codeunit 132204 "Library - Warehouse"
         if RequireShipment then
             Location.Validate("Require Shipment", true);
         Location."Bin Mandatory" := BinMandatory;
+
+        if RequirePick then
+            if RequireShipment then begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            end else begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            end
+        else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        end;
+
+        if RequirePutAway and not RequireReceive then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+
         Location.Modify();
 
         OnAfterCreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
@@ -1051,6 +1091,21 @@ codeunit 132204 "Library - Warehouse"
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
         with WhseRcptLine do begin
+            SetRange("Source Type", SourceType);
+            SetRange("Source Subtype", SourceSubtype);
+            SetRange("Source No.", SourceNo);
+            if FindFirst() then
+                exit("No.");
+
+            exit('');
+        end;
+    end;
+
+    procedure FindWhseActivityNoBySourceDoc(SourceType: Option; SourceSubtype: Option; SourceNo: Code[20]): Code[20]
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        with WhseActivityLine do begin
             SetRange("Source Type", SourceType);
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source No.", SourceNo);

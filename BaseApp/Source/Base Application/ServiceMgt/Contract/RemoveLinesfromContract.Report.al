@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Service.Reports;
+using Microsoft.Service.Setup;
+
 report 6034 "Remove Lines from Contract"
 {
     ApplicationArea = Service;
@@ -9,7 +15,7 @@ report 6034 "Remove Lines from Contract"
     {
         dataitem("Service Contract Line"; "Service Contract Line")
         {
-            DataItemTableView = SORTING("Contract Type", "Contract No.", Credited, "New Line") WHERE("Contract Type" = CONST(Contract), "Contract Status" = CONST(Signed), "New Line" = CONST(false));
+            DataItemTableView = sorting("Contract Type", "Contract No.", Credited, "New Line") where("Contract Type" = const(Contract), "Contract Status" = const(Signed), "New Line" = const(false));
             RequestFilterFields = "Contract No.", "Service Item No.";
 
             trigger OnAfterGetRecord()

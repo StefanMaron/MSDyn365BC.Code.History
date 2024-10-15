@@ -1,3 +1,17 @@
+﻿namespace Microsoft.Warehouse.Journal;
+
+using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Structure;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.Excel;
+
 page 7324 "Whse. Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
@@ -25,13 +39,13 @@ page 7324 "Whse. Item Journal"
                 trigger OnLookup(var Text: Text): Boolean
                 begin
                     CurrPage.SaveRecord();
-                    LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+                    Rec.LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
 
                 trigger OnValidate()
                 begin
-                    CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+                    Rec.CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrentJnlBatchNameOnAfterVali();
                 end;
             }
@@ -64,7 +78,7 @@ page 7324 "Whse. Item Journal"
 
                     trigger OnValidate()
                     begin
-                        GetItem("Item No.", ItemDescription);
+                        Rec.GetItem(Rec."Item No.", ItemDescription);
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -158,7 +172,7 @@ page 7324 "Whse. Item Journal"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -172,7 +186,7 @@ page 7324 "Whse. Item Journal"
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Item Card";
-                    RunPageLink = "No." = FIELD("Item No.");
+                    RunPageLink = "No." = field("Item No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
@@ -182,10 +196,10 @@ page 7324 "Whse. Item Journal"
                     Caption = 'Warehouse Entries';
                     Image = BinLedger;
                     RunObject = Page "Warehouse Entries";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Location Code" = FIELD("Location Code");
-                    RunPageView = SORTING("Item No.", "Location Code", "Variant Code");
+                    RunPageLink = "Item No." = field("Item No."),
+                                  "Variant Code" = field("Variant Code"),
+                                  "Location Code" = field("Location Code");
+                    RunPageView = sorting("Item No.", "Location Code", "Variant Code");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View completed warehouse activities related to the document.';
                 }
@@ -195,10 +209,10 @@ page 7324 "Whse. Item Journal"
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
                     RunObject = Page "Item Ledger Entries";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Location Code" = FIELD("Location Code");
-                    RunPageView = SORTING("Item No.");
+                    RunPageLink = "Item No." = field("Item No."),
+                                  "Variant Code" = field("Variant Code"),
+                                  "Location Code" = field("Location Code");
+                    RunPageView = sorting("Item No.");
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
                 action("Bin Contents")
@@ -207,10 +221,10 @@ page 7324 "Whse. Item Journal"
                     Caption = 'Bin Contents';
                     Image = BinContent;
                     RunObject = Page "Bin Contents List";
-                    RunPageLink = "Location Code" = FIELD("Location Code"),
-                                  "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code");
-                    RunPageView = SORTING("Location Code", "Item No.", "Variant Code");
+                    RunPageLink = "Location Code" = field("Location Code"),
+                                  "Item No." = field("Item No."),
+                                  "Variant Code" = field("Variant Code");
+                    RunPageView = sorting("Location Code", "Item No.", "Variant Code");
                     ToolTip = 'View items in the bin if the selected line contains a bin code.';
                 }
                 action("Reservation Entries")
@@ -219,15 +233,40 @@ page 7324 "Whse. Item Journal"
                     Caption = 'Reservation Entries';
                     Image = ReservationLedger;
                     RunObject = Page "Reservation Entries";
-                    RunPageLink = "Reservation Status" = CONST(Reservation),
-                                  "Item No." = FIELD("Item No.");
-                    RunPageView = SORTING("Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.");
+                    RunPageLink = "Reservation Status" = const(Reservation),
+                                  "Item No." = field("Item No.");
+                    RunPageView = sorting("Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.");
                     ToolTip = 'View the entries for every reservation that is made, either manually or automatically.';
                 }
             }
         }
         area(processing)
         {
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
+                    begin
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Journal Batch Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentJnlBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Journal Template Name")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Journal Template Name", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Location Code")), Enum::"Edit in Excel Filter Type"::Equal, CurrentLocationCode, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Whse. Item Journal", EditInExcelFilters);
+                    end;
+                }
+            }
             group("&Registering")
             {
                 Caption = '&Registering';
@@ -256,7 +295,7 @@ page 7324 "Whse. Item Journal"
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -271,7 +310,7 @@ page 7324 "Whse. Item Journal"
                     trigger OnAction()
                     begin
                         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register+Print", Rec);
-                        CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -339,18 +378,29 @@ page 7324 "Whse. Item Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetItem("Item No.", ItemDescription);
+        Rec.GetItem(Rec."Item No.", ItemDescription);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        SetUpNewLine(xRec);
+        // if called from API (such as edit-in-excel), do not refresh 
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
+        Rec.SetUpNewLine(xRec);
     end;
 
     trigger OnOpenPage()
     var
+        ClientTypeManagement: Codeunit "Client Type Management";
+        ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        // if called from API (such as edit-in-excel), do not filter 
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
         if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             CurrentLocationCode := Rec."Location Code";
@@ -368,11 +418,12 @@ page 7324 "Whse. Item Journal"
         CurrentJnlBatchName: Code[10];
         CurrentLocationCode: Code[10];
         ItemDescription: Text[100];
+        IsSaaSExcelAddinEnabled: Boolean;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
         CurrPage.SaveRecord();
-        SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        Rec.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;
 }

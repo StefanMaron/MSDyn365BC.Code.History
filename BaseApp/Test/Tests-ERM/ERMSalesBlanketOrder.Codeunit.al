@@ -1182,6 +1182,52 @@ codeunit 134377 "ERM Sales Blanket Order"
     end;
 
     [Test]
+    procedure DoNotCheckForBlockedItemVariantWhenQtyToShipZero()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        BlockedItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrderToOrder: Codeunit "Blanket Sales Order to Order";
+    begin
+        // [FEATURE] [Blocked]
+        // [SCENARIO] Do not check if the item variant is blocked when "Qty. to Ship" = 0.
+        Initialize();
+
+        // [GIVEN] Item "X" and Item "Y" with blocked variant exist
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItemVariant(BlockedItemVariant, Item2."No.");
+
+        // [GIVEN] Blanket Order with line for item "X" and line for item variant for item "Y" with zero qty. to ship
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '',
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item2."No.", LibraryRandom.RandInt(10));
+        SalesLine."Variant Code" := BlockedItemVariant.Code;
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Item Variant for item "Y" is blocked
+        BlockedItemVariant.Validate(Blocked, true);
+        BlockedItemVariant.Modify(true);
+
+        // [WHEN] Order is created from blanket order
+        BlanketSalesOrderToOrder.SetHideValidationDialog(true);
+        BlanketSalesOrderToOrder.Run(SalesHeader);
+
+        // [THEN] Order is created and the line with blocked item variant and blank qty. to ship is not transfered.
+        SalesLine.SetRange("No.", Item."No.");
+        FindSalesLine(SalesLine, SalesLine."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+
+        SalesLine.SetRange("No.", Item2."No.");
+        SalesLine.SetRange("Variant Code", BlockedItemVariant.Code);
+        asserterror FindSalesLine(SalesLine, SalesLine."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SalesCreditMemoFrmBlnketOrdrReference()
     var
@@ -1251,6 +1297,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Blanket Order");
         LibrarySetupStorage.Restore();
@@ -1261,6 +1308,9 @@ codeunit 134377 "ERM Sales Blanket Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Blanket Order");
 
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();

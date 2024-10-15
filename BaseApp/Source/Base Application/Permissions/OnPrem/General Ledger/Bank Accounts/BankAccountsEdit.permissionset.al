@@ -1,10 +1,42 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Comment;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.HumanResources.Payables;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.CRM.Interaction;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Task;
+using Microsoft.Purchases.Payables;
+using Microsoft.CRM.Team;
+using Microsoft.Inventory.Intrastat;
+
 permissionset 7785 "Bank Accounts - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Edit bank accounts';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Bank Acc. Reconciliation" = r,
                   tabledata "Bank Acc. Reconciliation Line" = r,
@@ -33,9 +65,6 @@ permissionset 7785 "Bank Accounts - Edit"
                   tabledata "Gen. Journal Template" = r,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Maintenance Ledger Entry" = r,
-#if not CLEAN20
-                  tabledata "Native - Payment" = r,
-#endif
                   tabledata Opportunity = R,
                   tabledata "Payment Method" = rm,
                   tabledata "Payment Rec. Related Entry" = R,

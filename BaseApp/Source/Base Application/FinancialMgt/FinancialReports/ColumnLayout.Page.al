@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CostAccounting.Account;
+
 page 489 "Column Layout"
 {
     ApplicationArea = Basic, Suite;
@@ -71,7 +75,7 @@ page 489 "Column Layout"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which budget amounts will be totaled in this column.';
                 }
-                field(Formula; Formula)
+                field(Formula; Rec.Formula)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula. The result of the formula will appear in the column when the financial report is printed.';
@@ -92,7 +96,7 @@ page 489 "Column Layout"
                     ToolTip = 'Specifies a period formula that specifies the accounting periods you want to use to calculate the amount in this column.';
                     Visible = false;
                 }
-                field(Show; Show)
+                field(Show; Rec.Show)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when you want the amounts in the column to be shown in reports.';
@@ -122,7 +126,7 @@ page 489 "Column Layout"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(1, Text));
+                        exit(Rec.LookUpDimFilter(1, Text));
                     end;
                 }
                 field("Dimension 2 Totaling"; Rec."Dimension 2 Totaling")
@@ -133,7 +137,7 @@ page 489 "Column Layout"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(2, Text));
+                        exit(Rec.LookUpDimFilter(2, Text));
                     end;
                 }
                 field("Dimension 3 Totaling"; Rec."Dimension 3 Totaling")
@@ -144,7 +148,7 @@ page 489 "Column Layout"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(3, Text));
+                        exit(Rec.LookUpDimFilter(3, Text));
                     end;
                 }
                 field("Dimension 4 Totaling"; Rec."Dimension 4 Totaling")
@@ -155,7 +159,7 @@ page 489 "Column Layout"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        exit(LookUpDimFilter(4, Text));
+                        exit(Rec.LookUpDimFilter(4, Text));
                     end;
                 }
                 field("Cost Center Totaling"; Rec."Cost Center Totaling")
@@ -184,7 +188,7 @@ page 489 "Column Layout"
                         exit(CostObject.LookupCostObjectFilter(Text));
                     end;
                 }
-                field(HideCurrencySymbol; "Hide Currency Symbol")
+                field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';

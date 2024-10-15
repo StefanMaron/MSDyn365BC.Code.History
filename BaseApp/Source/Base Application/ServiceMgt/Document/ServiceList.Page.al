@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Utilities;
+
 page 5901 "Service List"
 {
     Caption = 'Service List';
@@ -70,7 +74,7 @@ page 5901 "Service List"
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
                     Visible = ResponseTimeVisible;
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
@@ -162,7 +166,7 @@ page 5901 "Service List"
 
     trigger OnOpenPage()
     begin
-        if "Document Type" = "Document Type"::Order then begin
+        if Rec."Document Type" = Rec."Document Type"::Order then begin
             ResponseDateVisible := true;
             ResponseTimeVisible := true;
         end else begin
@@ -170,13 +174,11 @@ page 5901 "Service List"
             ResponseTimeVisible := false;
         end;
 
-        CopyCustomerFilter();
+        Rec.CopyCustomerFilter();
     end;
 
     var
-        [InDataSet]
         ResponseDateVisible: Boolean;
-        [InDataSet]
         ResponseTimeVisible: Boolean;
 }
 

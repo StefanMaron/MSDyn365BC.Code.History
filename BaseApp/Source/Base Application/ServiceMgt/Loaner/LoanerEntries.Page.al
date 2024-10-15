@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Loaner;
+
 page 5924 "Loaner Entries"
 {
     ApplicationArea = Service;
@@ -75,7 +77,7 @@ page 5924 "Loaner Entries"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when you received the loaner.';
                 }
-                field(Lent; Lent)
+                field(Lent; Rec.Lent)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner is lent.';

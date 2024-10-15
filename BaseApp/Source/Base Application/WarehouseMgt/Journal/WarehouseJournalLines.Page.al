@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Journal;
+
+using System.Security.User;
+
 page 7319 "Warehouse Journal Lines"
 {
     Caption = 'Warehouse Journal Lines';
@@ -81,13 +85,13 @@ page 7319 "Warehouse Journal Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field(Cubage; Cubage)
+                field(Cubage; Rec.Cubage)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the total cubage of the items on the warehouse journal line.';
                     Visible = false;
                 }
-                field(Weight; Weight)
+                field(Weight; Rec.Weight)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
@@ -103,7 +107,7 @@ page 7319 "Warehouse Journal Lines"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")

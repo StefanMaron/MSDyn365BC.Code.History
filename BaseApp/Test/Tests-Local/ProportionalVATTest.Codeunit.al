@@ -66,6 +66,7 @@ codeunit 144000 "Proportional VAT Test"
         VerifyGLEntryWithReverseChrgVAT(PurchHeader, PurchLine, VATPostingSetup, DocNo);
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('VATReconciliationHandler')]
     [Scope('OnPrem')]
@@ -205,6 +206,7 @@ codeunit 144000 "Proportional VAT Test"
         UpdateGLSetupAdjustPmtDiscount(OldGLSetupAdjustPmtDiscount);
         UpdateVATPostingSetupAdjPmtDisc(VATPostingSetup, OldVATPostingSetupAdjPmtDisc);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -585,6 +587,7 @@ codeunit 144000 "Proportional VAT Test"
           PropDedVATAmount2, RevChargeVATAmount2, RevChargeVATAmount - PropDedVATAmount + RevChargeVATAmount2 - PropDedVATAmount2);
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('VATReconciliationHandler')]
     [Scope('OnPrem')]
@@ -658,6 +661,7 @@ codeunit 144000 "Proportional VAT Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('BaseAmountSalesVAT', -EntryAmount);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('CalcPostVATSettlementReqPageHandler,ConfirmHandler')]
@@ -1300,6 +1304,7 @@ codeunit 144000 "Proportional VAT Test"
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', SettledVATAmount);
     end;
 
+#if not CLEAN22
     local procedure ExecuteVATReconciliationReport(ShowDetails: Boolean; ShowTransactionsWithVAT: Boolean; JournalBatchName: Code[10])
     begin
         LibraryVariableStorage.Enqueue(ShowDetails);
@@ -1307,7 +1312,9 @@ codeunit 144000 "Proportional VAT Test"
         LibraryVariableStorage.Enqueue(JournalBatchName);
         REPORT.Run(REPORT::"VAT Reconciliation");
     end;
+#endif
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VATReconciliationHandler(var VATReconciliation: TestRequestPage "VAT Reconciliation")
@@ -1326,6 +1333,7 @@ codeunit 144000 "Proportional VAT Test"
         VATReconciliation."G/L Entry".SetFilter("Journal Batch Name", JournalBatchName);
         VATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

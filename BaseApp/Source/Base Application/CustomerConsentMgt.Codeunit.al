@@ -1,3 +1,5 @@
+namespace System.Privacy;
+
 codeunit 1820 "Customer Consent Mgt."
 {
     procedure ConfirmUserConsent(): Boolean

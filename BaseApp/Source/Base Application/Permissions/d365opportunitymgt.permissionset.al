@@ -1,3 +1,31 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Task;
+using System.Automation;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Campaign;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Profiling;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Setup;
+using System.Threading;
+using System.Environment.Configuration;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.History;
+using Microsoft.CRM.Comment;
+using Microsoft.CRM.Analysis;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Segment;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.Task;
+using Microsoft.Finance.VAT.Registration;
+
 permissionset 3100 "D365 OPPORTUNITY MGT"
 {
     Assignable = true;

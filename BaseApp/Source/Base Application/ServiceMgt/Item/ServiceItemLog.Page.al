@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Service.Document;
+using System.Security.User;
+
 page 5989 "Service Item Log"
 {
     ApplicationArea = Service;
@@ -6,7 +11,7 @@ page 5989 "Service Item Log"
     Editable = false;
     PageType = List;
     SourceTable = "Service Item Log";
-    SourceTableView = ORDER(Descending);
+    SourceTableView = order(Descending);
     UsageCategory = Lists;
 
     layout
@@ -29,19 +34,19 @@ page 5989 "Service Item Log"
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
-                field("ServLogMgt.ServItemEventDescription(""Event No."")"; ServLogMgt.ServItemEventDescription("Event No."))
+                field("ServLogMgt.ServItemEventDescription(""Event No."")"; ServLogMgt.ServItemEventDescription(Rec."Event No."))
                 {
                     ApplicationArea = Service;
                     Caption = 'Description';
                     Editable = false;
                     ToolTip = 'Specifies the description of the event regarding service item that has taken place.';
                 }
-                field(After; After)
+                field(After; Rec.After)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the value of the field modified after the event takes place.';
                 }
-                field(Before; Before)
+                field(Before; Rec.Before)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the previous value of the field, modified after the event takes place.';
@@ -75,7 +80,7 @@ page 5989 "Service Item Log"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
             }
@@ -128,19 +133,18 @@ page 5989 "Service Item Log"
 
     var
         ServLogMgt: Codeunit ServLogManagement;
-        [InDataSet]
         ServiceItemNoVisible: Boolean;
 
     local procedure GetCaptionHeader(): Text[250]
     var
         ServItem: Record "Service Item";
     begin
-        if GetFilter("Service Item No.") <> '' then begin
+        if Rec.GetFilter("Service Item No.") <> '' then begin
             ServiceItemNoVisible := false;
-            if ServItem.Get("Service Item No.") then
-                exit("Service Item No." + ' ' + ServItem.Description);
+            if ServItem.Get(Rec."Service Item No.") then
+                exit(Rec."Service Item No." + ' ' + ServItem.Description);
 
-            exit("Service Item No.");
+            exit(Rec."Service Item No.");
         end;
 
         ServiceItemNoVisible := true;

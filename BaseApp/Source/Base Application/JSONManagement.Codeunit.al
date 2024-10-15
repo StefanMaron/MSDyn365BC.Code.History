@@ -1,3 +1,10 @@
+﻿namespace System.Text;
+
+using Microsoft.CRM.Outlook;
+using System;
+using System.Utilities;
+using System.Xml;
+
 codeunit 5459 "JSON Management"
 {
 
@@ -416,10 +423,10 @@ codeunit 5459 "JSON Management"
                     JObject.Add(JProperty);
                 end;
             else begin
-                    ValueText := Format(value, 0, 9);
-                    JProperty := JProperty.JProperty(propertyName, ValueText);
-                    JObject.Add(JProperty);
-                end;
+                ValueText := Format(value, 0, 9);
+                JProperty := JProperty.JProperty(propertyName, ValueText);
+                JObject.Add(JProperty);
+            end;
         end;
     end;
 

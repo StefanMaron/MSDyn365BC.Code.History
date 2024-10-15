@@ -2073,7 +2073,7 @@ codeunit 134421 "Report Selections Tests"
             Validate("Use for Email Body", UseForEmailBody);
             Validate("Email Body Layout Code", EmailBodyLayoutCode);
             Validate("Send To Email", SendToAddress);
-            Insert(true);
+            Insert();
         end;
     end;
 
@@ -2088,7 +2088,7 @@ codeunit 134421 "Report Selections Tests"
             Validate("Use for Email Attachment", UseForEmailAttachment);
             Validate("Use for Email Body", UseForEmailBody);
             Validate("Send To Email", SendToAddress);
-            Insert(true);
+            Insert();
         end;
     end;
 
@@ -2272,10 +2272,35 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     local procedure GetCustomBodyLayout(var CustomReportLayout: Record "Custom Report Layout")
+    var
+        ReportLayoutList: Record "Report Layout List";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+        OutStr: OutStream;
     begin
-        CustomReportLayout.SetRange("Report ID", GetStandardSalesInvoiceReportID);
+        CustomReportLayout.SetRange("Report ID", GetStandardSalesInvoiceReportID());
         CustomReportLayout.SetRange(Type, CustomReportLayout.Type::Word);
-        CustomReportLayout.FindLast();
+        if not CustomReportLayout.FindLast() then begin
+            ReportLayoutList.SetRange("Report ID", GetStandardSalesInvoiceReportID());
+            ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+            ReportLayoutList.FindFirst();
+
+            TempBlob.CreateOutStream(OutStr);
+            ReportLayoutList.Layout.ExportStream(OutStr);
+            TempBlob.CreateInStream(InStr);
+
+            CustomReportLayout.Init();
+            CustomReportLayout."Report ID" := GetStandardSalesInvoiceReportID();
+            CustomReportLayout.Code := CopyStr(StrSubstNo('MS-X%1', Random(9999)), 1, 10);
+            CustomReportLayout."File Extension" := 'docx';
+            CustomReportLayout.Description := 'Test report layout';
+            CustomReportLayout.Type := CustomReportLayout.Type::Word;
+            CustomReportLayout.Layout.CreateOutStream(OutStr);
+
+            CopyStream(OutStr, InStr);
+
+            CustomReportLayout.Insert();
+        end;
     end;
 
     local procedure GetEmailItem(var EmailItem: Record "Email Item"; MessageType: Integer; BodyFilePath: Text[250]; Plaintext: Boolean)

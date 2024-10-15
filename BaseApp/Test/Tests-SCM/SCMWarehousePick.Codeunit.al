@@ -1889,6 +1889,8 @@ codeunit 137055 "SCM Warehouse Pick"
         Location.Validate("Require Receive", true);
         Location.Validate("Require Shipment", true);
         Location.Validate("Require Pick", false);
+        Location.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         Location.Modify(true);
 
         Location.Validate("Open Shop Floor Bin Code", CreateBinCode(Location.Code));
@@ -1909,6 +1911,8 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Pick", RequirePick);
         Location.Validate("Require Put-away", RequirePutAway);
+        if RequirePutAway then
+            Location.Validate("Always Create Put-away Line", true);
         Location.Modify(true);
         exit(Location.Code);
     end;

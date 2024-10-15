@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Utilities;
+
 page 976 "Time Sheet Archive Subform"
 {
     AutoSplitKey = true;
@@ -39,7 +47,7 @@ page 976 "Time Sheet Archive Subform"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the codes that you can use to describe the type of absence from work.';
                 }
-                field(Chargeable; Chargeable)
+                field(Chargeable; Rec.Chargeable)
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether the time associated with an archived time sheet is chargeable.';
@@ -174,8 +182,8 @@ page 976 "Time Sheet Archive Subform"
                     Image = ViewComments;
                     Promoted = true;
                     RunObject = Page "Time Sheet Arc. Comment Sheet";
-                    RunPageLink = "No." = FIELD("Time Sheet No."),
-                                  "Time Sheet Line No." = FIELD("Line No.");
+                    RunPageLink = "No." = field("Time Sheet No."),
+                                  "Time Sheet Line No." = field("Line No.");
                     Scope = Repeater;
                     ToolTip = 'View or create comments.';
                 }
@@ -233,9 +241,9 @@ page 976 "Time Sheet Archive Subform"
         i := 0;
         while i < NoOfColumns do begin
             i := i + 1;
-            if ("Line No." <> 0) and TimeSheetDetailArchive.Get(
-                 "Time Sheet No.",
-                 "Line No.",
+            if (Rec."Line No." <> 0) and TimeSheetDetailArchive.Get(
+                 Rec."Time Sheet No.",
+                 Rec."Line No.",
                  ColumnRecords[i]."Period Start")
             then
                 CellData[i] := TimeSheetDetailArchive.Quantity
@@ -246,7 +254,7 @@ page 976 "Time Sheet Archive Subform"
 
     local procedure GetTimeSheetTotalQuantity(): Decimal
     begin
-        TimeSheetHeaderArchive.Get("Time Sheet No.");
+        TimeSheetHeaderArchive.Get(Rec."Time Sheet No.");
         TimeSheetHeaderArchive.CalcFields(Quantity);
         exit(TimeSheetHeaderArchive.Quantity);
     end;

@@ -1,3 +1,12 @@
+namespace Microsoft.AccountantPortal;
+
+using System;
+using System.Text;
+using System.Azure.Identity;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Utilities;
+
 codeunit 9033 "Invite External Accountant"
 {
 
@@ -27,7 +36,7 @@ codeunit 9033 "Invite External Accountant"
         InviteExternalAccountantTelemetryStartTxt: Label 'Invite External Accountant process started.', Locked = true;
         InviteExternalAccountantTelemetryEndTxt: Label 'Invite External Accountant process ended with the following result:  %1:  License is %2.', Locked = true;
         InviteExternalAccountantTelemetryLicenseFailTxt: Label 'Invite External Accountant wizard failed to start due to there being no external accountant license available.', Locked = true;
-        InviteExternalAccountantTelemetryAADPermissionFailTxt: Label 'Invite External Accountant wizard failed to start due to the user not having the necessary AAD permissions.', Locked = true;
+        InviteExternalAccountantTelemetryAADPermissionFailTxt: Label 'Invite External Accountant wizard failed to start due to the user not having the necessary Microsoft Entra permissions.', Locked = true;
         InviteExternalAccountantTelemetryUserTablePermissionFailTxt: Label 'Invite External Accountant wizard failed to start due to the session not being admin or the user being Super in all companies.', Locked = true;
         InviteExternalAccountantTelemetryCreateNewUserSuccessTxt: Label 'Invite External Accountant wizard successfully created a new user.', Locked = true;
         InviteExternalAccountantTelemetryCreateNewUserFailedTxt: Label 'Invite External Accountant wizard was unable to create a new user.', Locked = true;

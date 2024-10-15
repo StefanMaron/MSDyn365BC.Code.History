@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AuditFileExport;
+
+using System.Utilities;
+
 codeunit 5266 "Audit File Data Handling" implements "Audit File Export Data Handling"
 {
     Access = Internal;

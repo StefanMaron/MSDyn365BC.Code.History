@@ -1,4 +1,4 @@
-﻿codeunit 134045 "ERM VAT Sales/Purchase"
+codeunit 134045 "ERM VAT Sales/Purchase"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5172,6 +5172,8 @@
     var
         PurchaseHeader: Record "Purchase Header";
         GLSetup: Record "General Ledger Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
@@ -5179,6 +5181,13 @@
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Enabled;

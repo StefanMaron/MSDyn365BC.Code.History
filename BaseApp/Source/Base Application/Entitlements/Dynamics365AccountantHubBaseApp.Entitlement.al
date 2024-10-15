@@ -1,9 +1,10 @@
+namespace System.Security.AccessControl;
+
 entitlement "Dynamics 365 - Accountant Hub BaseApp"
 {
     Type = PerUserServicePlan;
     Id = '5d60ea51-0053-458f-80a8-b6f426a1a0c1';
-    ObjectEntitlements = "BaseApp Login",
-                         "BaseApp Objects - Exec",
+    ObjectEntitlements = "BaseApp Objects - Exec",
                          "D365 ACCOUNTANTS",
                          "D365 BASIC",
                          "D365 DIM CORRECTION",

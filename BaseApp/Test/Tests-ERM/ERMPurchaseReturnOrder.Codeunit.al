@@ -258,6 +258,60 @@ codeunit 134329 "ERM Purchase Return Order"
         Location.Modify(true);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedPurchaseDocumentLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseReturnOrderForNonInvItem()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeaderRet: Record "Purchase Header";
+        PurchaseLineRet: Record "Purchase Line";
+        Item: Record Item;
+        Location: Record Location;
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        VendorNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // Setup. Create Full WS Location and set Default Qty. to Receive as Blank in Purchases & Payables Setup.
+        Initialize();
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Qty. to Receive", PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
+        PurchasesPayablesSetup.Modify(true);
+
+        //Setup. Create Non Inventory Item and Vendor.
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        VendorNo := CreateVendor();
+
+        // Exercise: Create Purchase Order and Post it for the item created above.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", VendorNo);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryVariableStorage.Enqueue(DocumentNo);
+
+        // Exercise: Create Purchase Return Order and Post it for posted Purchase Order above.
+        CreatePurchRetOrderGetPstdDocLineToRev(PurchaseHeaderRet, VendorNo);
+        FindPurchaseLine(PurchaseLineRet, PurchaseHeaderRet);
+
+        // Verify: Verify the Return Qty. to Ship on Purchase Return Order is 0.
+        Assert.AreEqual(PurchaseLineRet."Return Qty. to Ship", 0, '');
+
+        // Exercise: Set Return Qty. to Ship on Purchase Return Order.
+        PurchaseLineRet.Validate("Return Qty. to Ship", PurchaseLine.Quantity);
+        PurchaseLineRet.Modify(true);
+        // Verify: Verify the Return Qty. to Ship on Purchase Return Order is equal to Purchase Line Quantity.
+        Assert.AreEqual(PurchaseLineRet."Return Qty. to Ship", PurchaseLine.Quantity, '');
+
+        // Exercise: Post Purchase Return Order with Ship and Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderRet, true, true);
+    end;
+
 #if not CLEAN21
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1122,6 +1176,17 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseDocumentLinesPageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
+    var
+        DocumentNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        PostedPurchaseDocumentLines.PostedInvoices.FILTER.SetFilter("Document No.", DocumentNo);
+        PostedPurchaseDocumentLines.OK.Invoke();
+    end;
+
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesModalPageHandlerWithPostedReceipts,MessageHandlerWithEnqueue,ItemTrackingLinesModalPageHandler')]
     [Scope('OnPrem')]
@@ -1525,6 +1590,23 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, CreateVendor, '', LibraryRandom.RandInt(100));
         VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         VendorInvoiceDisc.Modify(true);
+    end;
+
+    local procedure CreatePurchRetOrderGetPstdDocLineToRev(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", BuyFromVendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        GetPostedDocToReverseOnPurchReturnOrder(PurchaseHeader."No.");
+    end;
+
+    local procedure GetPostedDocToReverseOnPurchReturnOrder(No: Code[20])
+    var
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.FILTER.SetFilter("No.", No);
+        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetPostedLinesFromPurchRetOrdPage(No: Code[20])

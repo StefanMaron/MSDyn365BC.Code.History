@@ -1,3 +1,146 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Location;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Bank.Payment;
+using Microsoft.EServices.EDocument;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.eServices.OnlineMap;
+using Microsoft.Inventory.Reconciliation;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.Task;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.RateChange;
+using System.Privacy;
+using System.Apps;
+using System.Environment.Configuration;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Integration.Entity;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.CRM.Task;
+using Microsoft.Sales.Customer;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.Reconciliation;
+using System.Automation;
+using Microsoft.Assembly.Setup;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Availability;
+using System.Azure.Identity;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Inventory.BOM;
+using Microsoft.Finance.Consolidation;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Campaign;
+using Microsoft.CashFlow.Setup;
+using System.Diagnostics;
+using Microsoft.Bank.Check;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Contact;
+using Microsoft.Foundation.Company;
+using System.IO;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Profiling;
+using Microsoft.Service.Contract;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Receivables;
+using System.Integration;
+using Microsoft.Finance.Deferral;
+using Microsoft.Finance.Dimension;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Employee;
+using Microsoft.CRM.Outlook;
+using Microsoft.Inventory.Counting.Tracking;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.HumanResources.Setup;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Comment;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using System.Threading;
+using Microsoft.CRM.Segment;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.CRM.Setup;
+using Microsoft.Inventory.BOM.Tree;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Payables;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Counting.Comment;
+using Microsoft.Inventory.Counting.Document;
+using Microsoft.Inventory.Counting.Recording;
+using Microsoft.Inventory.Planning;
+using Microsoft.Bank.PositivePay;
+using Microsoft.Foundation.Address;
+using Microsoft.Warehouse.History;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Inventory.Counting.History;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Setup;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Projects.Resources.Journal;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Setup;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Document;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.CRM.Team;
+using System.Security.User;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Document;
+using Microsoft.Service.Ledger;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Utilities;
+using Microsoft;
+
 permissionset 191 "D365 SETUP"
 {
     Access = Public;
@@ -22,6 +165,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Line Entity" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
+                  tabledata "Alloc. Acc. Manual Override" = RIMD,
+                  tabledata "Alloc. Account Distribution" = RIMD,
+                  tabledata "Allocation Account" = RIMD,
+                  tabledata "Allocation Line" = RIMD,
                   tabledata "Financial Report" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Accounting Period" = IMD,
@@ -70,6 +217,7 @@ permissionset 191 "D365 SETUP"
                   tabledata Bin = IMD,
                   tabledata "Bin Content" = IMD,
                   tabledata "BOM Component" = RIMD,
+                  tabledata "Bus. Unit In Cons. Process" = D,
                   tabledata "Business Relation" = D,
                   tabledata "Business Unit" = D,
                   tabledata "Business Unit Information" = D,
@@ -109,6 +257,8 @@ permissionset 191 "D365 SETUP"
                   tabledata "Config. Template Line" = RIMD,
                   tabledata "Config. Tmpl. Selection Rules" = RIMD,
                   tabledata "Consolidation Account" = D,
+                  tabledata "Consolidation Process" = D,
+                  tabledata "Consolidation Setup" = D,
                   tabledata "Contact Duplicate" = D,
                   tabledata "Contact Industry Group" = D,
                   tabledata "Contact Job Responsibility" = D,
@@ -141,9 +291,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN20
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "Data Exch." = RIMD,
@@ -288,9 +435,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
                   tabledata "Phys. Invt. Tracking" = RIMD,
-#if not CLEAN20
-                  tabledata "Plan Permission Set" = d,
-#endif
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
                   tabledata "Positive Pay Entry" = D,
