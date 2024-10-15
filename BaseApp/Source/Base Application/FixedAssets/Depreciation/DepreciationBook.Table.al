@@ -263,11 +263,27 @@ table 5611 "Depreciation Book"
         field(10900; "Revalue in Year Purch."; Boolean)
         {
             Caption = 'Revalue in Year Purch.';
+            ObsoleteReason = 'The field has been moved to the IS Core App.';
+#if CLEAN24
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#endif
         }
         field(10901; "Residual Value %"; Decimal)
         {
             Caption = 'Residual Value %';
             DecimalPlaces = 0 : 0;
+            ObsoleteReason = 'The field has been moved to the IS Core App.';
+#if CLEAN24
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#endif
         }
     }
 

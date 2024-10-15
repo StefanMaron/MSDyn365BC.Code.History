@@ -7,7 +7,15 @@ namespace Microsoft.Finance.VAT.Setup;
 table 10900 "IRS Numbers"
 {
     Caption = 'IRS Numbers';
+    ObsoleteReason = 'Moved to the IS Core App.';
+#if CLEAN24
+    ObsoleteState = Removed;
+    ObsoleteTag = '27.0';
+#else
     LookupPageID = "IRS Number";
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
+#endif
 
     fields
     {
@@ -40,4 +48,3 @@ table 10900 "IRS Numbers"
         }
     }
 }
-

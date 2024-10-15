@@ -224,22 +224,32 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Report "G/L - VAT Reconciliation";
                 ToolTip = 'Verify that the VAT amounts on the VAT statements match the amounts from the G/L entries.';
             }
+#if not CLEAN24
             action("VAT Balancing A")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'VAT Balancing A';
                 Image = "Report";
+                Visible = false;
                 RunObject = Report "VAT Reconciliation A";
                 ToolTip = 'View a VAT reconciliation report for sales and purchases for a specified period. The report lists entries by general ledger account and posting group.';
+                ObsoleteReason = 'Moved to the Iceland-Core App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
             }
             action("VAT Balancing Report")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'VAT Balancing Report';
                 Image = "Report";
+                Visible = false;
                 RunObject = Report "VAT Balancing Report";
                 ToolTip = 'Get an overview of VAT for sales and purchases and payments due for a specified period.';
+                ObsoleteReason = 'Moved to the Iceland-Core App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
             }
+#endif
             action("VAT - VI&ES Declaration Tax Auth")
             {
                 ApplicationArea = BasicEU;

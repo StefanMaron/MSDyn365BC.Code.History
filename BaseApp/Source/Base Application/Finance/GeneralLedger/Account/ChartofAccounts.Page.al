@@ -1,6 +1,9 @@
 namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.EServices.EDocument;
+#if not CLEAN24
+using Microsoft.Finance;
+#endif
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -126,11 +129,18 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
+#if not CLEAN24
                 field("IRS Number"; Rec."IRS Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Internal Revenue Service (IRS) tax numbers for the account.';
+                    ObsoleteReason = 'The field has been moved to the IS Core App.';
+                    Visible = not IsISCoreAppEnabled;
+                    Enabled = not IsISCoreAppEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -643,6 +653,11 @@ page 16 "Chart of Accounts"
         }
     }
 
+    protected var
+#if not CLEAN24     
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
+        IsISCoreAppEnabled: Boolean;
+#endif 
     trigger OnAfterGetRecord()
     begin
         NoEmphasize := Rec."Account Type" <> Rec."Account Type"::Posting;
@@ -676,10 +691,16 @@ page 16 "Chart of Accounts"
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN24
+        ISCoreAppSetup: Record "IS Core App Setup";
+#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
+#if not CLEAN24
+        IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
+#endif
     end;
 }
 

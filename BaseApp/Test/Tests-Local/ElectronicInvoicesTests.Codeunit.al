@@ -1,7 +1,11 @@
+#if not CLEAN24
 codeunit 141001 "Electronic Invoices - Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IS Core App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     trigger OnRun()
     begin
@@ -137,4 +141,4 @@ codeunit 141001 "Electronic Invoices - Tests"
         Reply := false;
     end;
 }
-
+#endif

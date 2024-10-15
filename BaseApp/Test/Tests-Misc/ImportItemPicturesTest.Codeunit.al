@@ -26,7 +26,7 @@ codeunit 139320 "Import Item Pictures Test"
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
         Initialize();
-        ArchiveFileName := CreateZIPArchiveWithPictures;
+        ArchiveFileName := CreateZIPArchiveWithPictures();
 
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive
         LibraryInventory.CreateItem(Item);
@@ -40,14 +40,14 @@ codeunit 139320 "Import Item Pictures Test"
 
         // [THEN] Verify returned count of pictures in the buffer
         Assert.AreEqual(2, TotalCount, 'Total count should be 2.');
-        Assert.AreEqual(2, TempItemPictureBuffer.GetAddCount, 'Add count should be 2.');
-        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount, 'Replace count should be 0.');
+        Assert.AreEqual(2, TempItemPictureBuffer.GetAddCount(), 'Add count should be 2.');
+        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount(), 'Replace count should be 0.');
 
         // [WHEN] Import pictures from buffer to Item records
         TempItemPictureBuffer.ImportPictures(false);
 
         // [THEN] Verify that imported pictures in Item records equal to original pictures from archive
-        Assert.AreEqual(2, TempItemPictureBuffer.GetAddedCount, 'Add count should be 2.');
+        Assert.AreEqual(2, TempItemPictureBuffer.GetAddedCount(), 'Add count should be 2.');
         Item.Get('AllowedImage');
         Assert.AreEqual(IsNullGuid(Item.Picture.MediaId), false, 'Picture AllowedImage is not imported');
         Item.Get('Debra Core');
@@ -70,7 +70,7 @@ codeunit 139320 "Import Item Pictures Test"
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
         Initialize();
-        ArchiveFileName := CreateZIPArchiveWithPictures;
+        ArchiveFileName := CreateZIPArchiveWithPictures();
 
         // [GIVEN] Create one item with No. corresponding to first picture file name from archive
         // [GIVEN] Item  with No. corresponding to second picture from archive does not exist
@@ -82,15 +82,15 @@ codeunit 139320 "Import Item Pictures Test"
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, false);
 
         // [THEN] Verify returned count of pictures in the buffer
-        Assert.AreEqual(2, TotalCount, 'Total count should be 2.');
-        Assert.AreEqual(1, TempItemPictureBuffer.GetAddCount, 'Add count should be 1.');
-        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount, 'Replace count should be 0.');
+        Assert.AreEqual(1, TotalCount, 'Total count should be 1.');
+        Assert.AreEqual(1, TempItemPictureBuffer.GetAddCount(), 'Add count should be 1.');
+        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount(), 'Replace count should be 0.');
 
         // [WHEN] Import pictures from buffer to Item records
         TempItemPictureBuffer.ImportPictures(false);
 
         // [THEN] Verify that imported pictures in Item records equal to original pictures from archive
-        Assert.AreEqual(1, TempItemPictureBuffer.GetAddedCount, 'Add count should be 1.');
+        Assert.AreEqual(1, TempItemPictureBuffer.GetAddedCount(), 'Add count should be 1.');
         Item.Get('AllowedImage');
         Assert.AreEqual(IsNullGuid(Item.Picture.MediaId), false, 'Picture AllowedImage is not imported');
 
@@ -108,7 +108,7 @@ codeunit 139320 "Import Item Pictures Test"
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
         Initialize();
-        ArchiveFileName := CreateZIPArchiveWithPictures;
+        ArchiveFileName := CreateZIPArchiveWithPictures();
 
         // [GIVEN] No items with No. corresponding to picture file name from archive exists
 
@@ -116,9 +116,9 @@ codeunit 139320 "Import Item Pictures Test"
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, false);
 
         // [THEN] Verify returned count of pictures in the buffer
-        Assert.AreEqual(2, TotalCount, 'Total count should be 2.');
-        Assert.AreEqual(0, TempItemPictureBuffer.GetAddCount, 'Add count should be 0.');
-        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount, 'Replace count should be 0.');
+        Assert.AreEqual(0, TotalCount, 'Total count should be 0.');
+        Assert.AreEqual(0, TempItemPictureBuffer.GetAddCount(), 'Add count should be 0.');
+        Assert.AreEqual(0, TempItemPictureBuffer.GetReplaceCount(), 'Replace count should be 0.');
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 139320 "Import Item Pictures Test"
     begin
         // [GIVEN] Create a ZIP archive add some pictures to the archive
         Initialize();
-        ArchiveFileName := CreateZIPArchiveWithPictures;
+        ArchiveFileName := CreateZIPArchiveWithPictures();
 
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive
         LibraryInventory.CreateItem(Item);
@@ -149,13 +149,13 @@ codeunit 139320 "Import Item Pictures Test"
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, true);
 
         // [THEN] Verify count of pictures to replace
-        Assert.AreEqual(2, TempItemPictureBuffer.GetReplaceCount, 'Replace count should be 2.');
+        Assert.AreEqual(2, TempItemPictureBuffer.GetReplaceCount(), 'Replace count should be 2.');
 
         // [WHEN] Import pictures from archive to item picture buffer
         TempItemPictureBuffer.ImportPictures(true);
 
         // [THEN] Verify count of replaced pictures
-        Assert.AreEqual(2, TempItemPictureBuffer.GetReplacedCount, 'Replaced count should be 2.');
+        Assert.AreEqual(2, TempItemPictureBuffer.GetReplacedCount(), 'Replaced count should be 2.');
 
         // Clean up items
         Item.Get('AllowedImage');
@@ -192,15 +192,15 @@ codeunit 139320 "Import Item Pictures Test"
         if ArchiveFileName = '' then
             Error(CannotCreateZIPErr);
 
-        FilePath := LibraryUtility.GetInetRoot + '\App\Test\Files\ImageAnalysis\';
+        FilePath := LibraryUtility.GetInetRoot() + '\App\Test\Files\ImageAnalysis\';
         FileName[1] := 'AllowedImage.jpg';
         FileName[2] := 'Debra Core.jpg';
 
         for Index := 1 to ArrayLen(FileName) do begin
             EntryFile.Open(FilePath + FileName[Index]);
-			EntryFile.CreateInStream(EntryFileInStream);
+            EntryFile.CreateInStream(EntryFileInStream);
             DataCompression.AddEntry(EntryFileInStream, FileName[Index]);
-			EntryFile.Close();
+            EntryFile.Close();
         end;
 
         DataCompression.SaveZipArchive(ArchiveFileOutStream);

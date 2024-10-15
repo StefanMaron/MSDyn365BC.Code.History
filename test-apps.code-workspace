@@ -60,6 +60,9 @@
       "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
     },
     {
+      "path": "./ISCore/Test/IS Core Tests"
+    },
+    {
       "path": "./testframework/TestLibraries"
     },
     {
@@ -82,9 +85,6 @@
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
-    },
-    {
-      "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
       "path": "./ReportLayouts/test/Report Layouts Tests"

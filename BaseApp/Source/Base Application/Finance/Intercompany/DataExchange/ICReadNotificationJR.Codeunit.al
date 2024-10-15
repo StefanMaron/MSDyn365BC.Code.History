@@ -6,6 +6,7 @@ namespace Microsoft.Intercompany.DataExchange;
 
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Inbox;
+using System.Globalization;
 
 codeunit 534 "IC Read Notification JR"
 {
@@ -44,8 +45,10 @@ codeunit 534 "IC Read Notification JR"
         ICInboxTransaction: Record "IC Inbox Transaction";
         ICDataExchangeAPI: Codeunit "IC Data Exchange API";
         CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
+        Language: Codeunit Language;
         JsonResponse: JsonObject;
         Success: Boolean;
+        CurrentGlobalLanguage: Integer;
     begin
         ICPartner.Get(ICIncomingNotification."Source IC Partner Code");
         if not CrossIntercompanyConnector.RequestICPartnerICOutgoingNotification(ICPartner, ICIncomingNotification."Operation ID", JsonResponse) then begin
@@ -53,7 +56,10 @@ codeunit 534 "IC Read Notification JR"
             exit;
         end;
 
+        CurrentGlobalLanguage := GlobalLanguage();
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
         ICDataExchangeAPI.OnPopulateTransactionDataFromICOutgoingNotification(JsonResponse, Success);
+        GlobalLanguage(CurrentGlobalLanguage);
         if not Success then begin
             LogError(ICIncomingNotification);
             exit;

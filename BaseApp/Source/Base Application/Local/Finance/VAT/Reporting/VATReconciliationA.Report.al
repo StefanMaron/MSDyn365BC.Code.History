@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+#if not CLEAN24
+using Microsoft.Finance;
+#endif
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Setup;
@@ -313,6 +316,18 @@ report 10940 "VAT Reconciliation A"
         CarriedOverToNextPageCaptionLbl: Label 'Carried over to next page';
         VatReceivableVarTxt: Label 'Attention! Variance in VAT receivable. Calculated VAT receivable. %1 %. Variance %2 kr.';
         VatPayableVarTxt: Label 'Attention! Variance in VAT payable. Calculated VAT payable. %1 %. Variance %2 kr.';
+
+#if not CLEAN24
+    trigger OnInitReport()
+    var
+        ISCoreAppSetup: Record "IS Core App Setup";
+    begin
+        if ISCoreAppSetup.IsEnabled() then begin
+            Report.Run(14601); // "IS VAT Reconciliation A"
+            Error('');
+        end;
+    end;
+#endif
 
     [Scope('OnPrem')]
     procedure FindPeriod()

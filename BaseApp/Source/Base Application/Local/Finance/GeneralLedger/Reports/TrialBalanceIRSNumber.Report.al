@@ -1,9 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN24
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
+using Microsoft.Finance;
 using Microsoft.Finance.GeneralLedger.Account;
 using System.Utilities;
 
@@ -14,6 +16,9 @@ report 10912 "Trial Balance - IRS Number"
     ApplicationArea = Basic, Suite;
     Caption = 'Trial Balance - IRS Number';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'The field has been moved to the IS Core App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     dataset
     {
@@ -127,6 +132,16 @@ report 10912 "Trial Balance - IRS Number"
         PeriodText := "G/L Account".GetFilter("Date Filter");
     end;
 
+#if not CLEAN24
+    trigger OnInitReport()
+    var
+        ISCoreAppSetup: Record "IS Core App Setup";
+    begin
+        if ISCoreAppSetup.IsEnabled() then
+            Report.Run(14605); // Report - "IS Trial Balance - IRS Number"
+    end;
+#endif
+
     var
         GLFilter: Text[250];
         PeriodText: Text[30];
@@ -139,4 +154,4 @@ report 10912 "Trial Balance - IRS Number"
         CreditCaptionLbl: Label 'Credit';
         IRSNumberCaptionLbl: Label 'IRS Number';
 }
-
+#endif

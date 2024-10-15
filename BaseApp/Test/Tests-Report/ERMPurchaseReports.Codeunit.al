@@ -1805,7 +1805,11 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
+#if not CLEAN24
         PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction, AlwShowVATSum);  // Using 0 for No. of Copies.
+#else
+        PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Using 0 for No. of Copies.
+#endif
         Commit();
         PurchaseCreditMemo.Run();
     end;
@@ -2157,7 +2161,9 @@ codeunit 134983 "ERM Purchase Reports"
         Order.ShowInternalInformation.SetValue(ShowInternalInfo);
         Order.ArchiveDocument.SetValue(ArchiveDocument);
         Order.LogInteraction.SetValue(LogInteraction);
+#if not CLEAN24
         Order.AlwShowVATSum.SetValue(AlwShowVATSum);
+#endif
         Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

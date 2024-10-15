@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.Sales.Setup;
 
+#if not CLEAN24
+using Microsoft.Finance;
+#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -715,13 +718,25 @@ table 311 "Sales & Receivables Setup"
         field(10901; "Electronic Invoicing"; Boolean)
         {
             Caption = 'Electronic Invoicing';
+            ObsoleteReason = 'The field has been moved to the IS Core App.';
+#if CLEAN24
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#endif
 
+#if not CLEAN24
             trigger OnValidate()
             begin
-                if "Electronic Invoicing" then
-                    Message(Reminder);
-                Modify();
+                if not ISCoreAppSetup.IsEnabled() then begin
+                    if "Electronic Invoicing" then
+                        Message(Reminder);
+                    Modify();
+                end;
             end;
+#endif
         }
     }
 
@@ -739,11 +754,21 @@ table 311 "Sales & Receivables Setup"
 
     var
         JobQueuePriorityErr: Label 'Job Queue Priority must be zero or positive.';
+#if not CLEAN24
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
         Reminder: Label 'Reminder to read legal restrictions on form and print/send statement';
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
         LocalLegalStatementCaptionLbl: Label 'This invoice originates in a ERP system that conforms with regulation no. 505/2013';
+#endif
         ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
         RecordHasBeenRead: Boolean;
         CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
+
+    protected var
+#if not CLEAN24     
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
+        ISCoreAppSetup: Record "IS Core App Setup";
+#endif 
 
     procedure GetRecordOnce()
     begin
@@ -753,12 +778,20 @@ table 311 "Sales & Receivables Setup"
         RecordHasBeenRead := true;
     end;
 
+#if not CLEAN24
+    [Obsolete('The procedure will be replaced by W1 version, the functionality is moved to IS Core extension and renamed to GetLegalStatementLabel', '24.0')]
     procedure GetLegalStatement(): Text
     begin
-        if "Electronic Invoicing" then
-            exit(LocalLegalStatementCaptionLbl);
+        if not ISCoreAppSetup.IsEnabled() then
+            if "Electronic Invoicing" then
+                exit(LocalLegalStatementCaptionLbl);
+    end;
+#else
+    procedure GetLegalStatement(): Text
+    begin
         exit('');
     end;
+#endif
 
     procedure JobQueueActive(): Boolean
     begin

@@ -4,6 +4,9 @@ using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Journal;
 using Microsoft.FixedAssets.Ledger;
 using Microsoft.FixedAssets.Posting;
+#if not CLEAN24
+using Microsoft.Finance;
+#endif
 
 page 5610 "Depreciation Book Card"
 {
@@ -59,16 +62,28 @@ page 5610 "Depreciation Book Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether to allow the depreciation fields to be modified.';
                 }
+#if not CLEAN24
                 field("Revalue in Year Purch."; Rec."Revalue in Year Purch.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if depreciation and appreciation are possible. The default value is No.';
+                    Visible = not IsISCoreAppEnabled;
+                    Enabled = not IsISCoreAppEnabled;
+                    ObsoleteReason = 'Moved to the Iceland-Core App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 field("Residual Value %"; Rec."Residual Value %")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage of the appreciated acquisition price to use when revaluing fixed assets.';
+                    Visible = not IsISCoreAppEnabled;
+                    Enabled = not IsISCoreAppEnabled;
+                    ObsoleteReason = 'Moved to the Iceland-Core App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 field("VAT on Net Disposal Entries"; Rec."VAT on Net Disposal Entries")
                 {
                     ApplicationArea = FixedAssets;
@@ -335,5 +350,19 @@ page 5610 "Depreciation Book Card"
             }
         }
     }
+    protected var
+#if not CLEAN24
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
+        ISCoreAppSetup: Record "IS Core App Setup";
+        [Obsolete('The code has been moved to the Iceland Core App.', '24.0')]
+        IsISCoreAppEnabled: Boolean;
+#endif
+
+#if not CLEAN24
+    trigger OnOpenPage()
+    begin
+        IsISCoreAppEnabled := ISCoreAppSetup.IsEnabled();
+    end;
+#endif
 }
 

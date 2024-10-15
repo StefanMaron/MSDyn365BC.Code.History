@@ -1,7 +1,11 @@
+#if not CLEAN24
 codeunit 141002 "VAT Reporting - Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IS Core App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     trigger OnRun()
     begin
@@ -826,4 +830,4 @@ codeunit 141002 "VAT Reporting - Tests"
         exit(PeriodInt);
     end;
 }
-
+#endif

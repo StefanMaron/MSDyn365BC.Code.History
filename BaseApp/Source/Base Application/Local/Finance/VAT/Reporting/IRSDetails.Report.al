@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN24
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance;
 
 report 10911 "IRS Details"
 {
@@ -14,6 +16,9 @@ report 10911 "IRS Details"
     ApplicationArea = Basic, Suite;
     Caption = 'IRS Details';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'The report has been moved into IS Core App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     dataset
     {
@@ -114,6 +119,16 @@ report 10911 "IRS Details"
     {
     }
 
+    trigger OnInitReport()
+    var
+        ISCoreAppSetup: Record "IS Core App Setup";
+    begin
+        if ISCoreAppSetup.IsEnabled() then begin
+            Report.Run(14603); // Report - "IS IRS Details"
+            Error('');
+        end;
+    end;
+
     trigger OnPreReport()
     begin
         DateFil := "G/L Account".GetFilter("Date Filter");
@@ -128,4 +143,4 @@ report 10911 "IRS Details"
         ValueinIRSnumberlistCaptionLbl: Label 'Value in IRS number list';
         EmptyStringCaption1Lbl: Label '------------------------------';
 }
-
+#endif

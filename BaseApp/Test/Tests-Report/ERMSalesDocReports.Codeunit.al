@@ -1083,7 +1083,12 @@ codeunit 134390 "ERM Sales Doc. Reports"
         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", VendorCrMemoNo);
         PurchCrMemoHdr.FindFirst();
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
+#if not CLEAN24
         PurchaseCreditMemo.InitializeRequest(1, false, false, true);
+#else
+        PurchaseCreditMemo.InitializeRequest(1, false, false);
+#endif
+
         PurchaseCreditMemo.Run();
     end;
 

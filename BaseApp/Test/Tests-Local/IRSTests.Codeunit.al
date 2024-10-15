@@ -1,7 +1,11 @@
+#if not CLEAN24
 codeunit 141003 "IRS - Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IS Core App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     trigger OnRun()
     begin
@@ -51,6 +55,7 @@ codeunit 141003 "IRS - Tests"
 
         CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
         GetSalesInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, SalesInvoiceHeader);
+        Commit();
 
         // Exercise
         IRSNumbers.SetFilter("IRS Number", GetGLAccFilter(TempIRS_GLAcc, TempIRS_GLAcc."IRS Number"));
@@ -73,6 +78,7 @@ codeunit 141003 "IRS - Tests"
 
         CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, PurchInvHeader);
+        Commit();
 
         // Exercise
         IRSNumbers.SetFilter("IRS Number", GetGLAccFilter(TempIRS_GLAcc, TempIRS_GLAcc."IRS Number"));
@@ -95,6 +101,7 @@ codeunit 141003 "IRS - Tests"
 
         CreateSalesInvWithMultipleVATAndPost(SalesInvoiceHeader);
         GetSalesInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, SalesInvoiceHeader);
+        Commit();
 
         // Exercise
         IRS_GLAcc.SetFilter("No.", GetGLAccFilter(TempIRS_GLAcc, TempIRS_GLAcc."No."));
@@ -117,6 +124,7 @@ codeunit 141003 "IRS - Tests"
 
         CreatePurchInvWithMultipleVATAndPost(PurchInvHeader);
         GetPurchInvoiceHeaderIRS_VATAmt(TempIRS_GLAcc, PurchInvHeader);
+        Commit();
 
         // Exercise
         IRS_GLAcc.SetFilter("No.", GetGLAccFilter(TempIRS_GLAcc, TempIRS_GLAcc."No."));
@@ -362,4 +370,4 @@ codeunit 141003 "IRS - Tests"
         IRSNotification.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif
