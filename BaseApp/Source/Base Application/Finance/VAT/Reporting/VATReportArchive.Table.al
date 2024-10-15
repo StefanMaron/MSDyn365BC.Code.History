@@ -72,6 +72,13 @@ table 747 "VAT Report Archive"
         NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
         NoResponseMessageAvailableErr: Label 'The response message of the report is not available.';
 
+    procedure ArchiveSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20]; TempBlobSubmissionMessage: Codeunit "Temp Blob"): Boolean
+    var
+        BlankGuid: Guid;
+    begin
+        exit(ArchiveSubmissionMessage(VATReportTypeValue, VATReportNoValue, TempBlobSubmissionMessage, BlankGuid));
+    end;
+
     procedure ArchiveSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20]; TempBlobSubmissionMessage: Codeunit "Temp Blob"; XMLPartID: Guid): Boolean
     var
         VATReportArchive: Record "VAT Report Archive";

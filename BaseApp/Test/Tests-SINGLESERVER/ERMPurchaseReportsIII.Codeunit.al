@@ -1935,6 +1935,40 @@ codeunit 134988 "ERM Purchase Reports III"
         Assert.AreEqual(RecordExist, false, ReportDatasetEmptyErr);
     end;
 
+    [Test]
+    [HandlerFunctions('RHAgedAccountsPayable')]
+    [Scope('OnPrem')]
+    procedure AmountInAgedAccountsPayablesReportHasDecimalPlacesDefinedInCurrency()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        PeriodLength: DateFormula;
+    begin
+        // [SCENARIO 543167] Amount in Aged Accounts Payable report is displayed with 
+        // Decimal places defined in the Currency of that Vendor Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Create a Currency with Exchange Rates.
+        CreateCurrencyWithExchangeRates(Currency);
+
+        // [GIVEN] Create a Vendor and Validate Currency Code.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create and Post Gen Journal Line.
+        CreateAndPostGenJnlLine(Vendor, Currency.Code, 1.234);
+
+        // [WHEN] Run Aged Accounts Payable report.
+        Evaluate(PeriodLength, '<1M>');
+        SaveAgedAccPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false, WorkDate());
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('TempCurrency2Code', Currency.Code);
+
+        // [THEN] AgedVendLedgEnt6RemAmtLCY5 have value 1.234 in Aged Accounts Payable report.
+        LibraryReportDataset.AssertElementWithValueExists('AgedVendLedgEnt6RemAmtLCY5', 1.234);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3414,6 +3448,34 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         REPORT.Run(REPORT::"Purchase - Credit Memo", true, false, PurchCrMemoHdr);
+    end;
+
+    local procedure CreateCurrencyWithExchangeRates(var Currency: Record Currency)
+    var
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Amount Rounding Precision", 0.001);
+        Currency.Validate("Amount Decimal Places", '3:3');
+        Currency.Modify(true);
+    end;
+
+    local procedure CreateAndPostGenJnlLine(Vendor: Record Vendor; CurrencyCode: Code[10]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            Vendor."No.",
+            Amount);
+
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [RequestPageHandler]

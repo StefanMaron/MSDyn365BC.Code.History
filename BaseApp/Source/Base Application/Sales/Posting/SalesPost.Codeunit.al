@@ -286,6 +286,8 @@ codeunit 80 "Sales-Post"
 #if not CLEAN25        
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 #endif        
+        SuppressCommitErr: Label 'Commit is blocked when %1 %2 is used.', Comment = '%1 = Date Order, %2 = Number Series';
+        DateOrderSeriesUsed: Boolean;
 
     internal procedure RunWithCheck(var SalesHeader2: Record "Sales Header")
     var
@@ -661,6 +663,7 @@ codeunit 80 "Sales-Post"
 
     local procedure CheckAndUpdate(var SalesHeader: Record "Sales Header")
     var
+        DummyNoSeries: Record "No. Series";
         ModifyHeader: Boolean;
         RefreshTempLinesNeeded: Boolean;
     begin
@@ -671,7 +674,7 @@ codeunit 80 "Sales-Post"
         if SalesHeader.Ship then
             InitPostATOs(SalesHeader);
 
-        if not HideProgressWindow then
+        if GuiAllowed() and not HideProgressWindow then
             InitProgressWindow(SalesHeader);
 
         // Update
@@ -680,11 +683,17 @@ codeunit 80 "Sales-Post"
             CreatePrepaymentLineForCreditMemo(SalesHeader);
         end;
 
+        DateOrderSeriesUsed := false;
         ModifyHeader := UpdatePostingNos(SalesHeader);
+        if DateOrderSeriesUsed then
+            SuppressCommit := true;
 
         DropShipOrder := UpdateAssosOrderPostingNos(SalesHeader);
 
         OnBeforePostCommitSalesDoc(SalesHeader, GenJnlPostLine, PreviewMode, ModifyHeader, SuppressCommit, TempSalesLineGlobal);
+        if DateOrderSeriesUsed and (not SuppressCommit) then
+            Error(SuppressCommitErr, DummyNoSeries.FieldCaption("Date Order"), DummyNoSeries.TableCaption());
+
         if not PreviewMode and ModifyHeader then begin
             SalesHeader.Modify();
             if not SuppressCommit then
@@ -2491,7 +2500,8 @@ codeunit 80 "Sales-Post"
                     SalesHeader.TestField("Shipping No. Series");
                     SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
                     ModifyHeader := true;
-
+                    if NoSeries.IsNoSeriesInDateOrder(SalesHeader."Shipping No. Series") then
+                        DateOrderSeriesUsed := true;
                     // Check for posting conflicts.
                     if SalesShptHeader.Get(SalesHeader."Shipping No.") then
                         Error(SalesShptHeaderConflictErr, SalesHeader."Shipping No.");
@@ -2570,6 +2580,8 @@ codeunit 80 "Sales-Post"
             then
                 if not PreviewMode then begin
                     SalesHeader."Posting No." := NoSeries.GetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date");
+                    if NoSeries.IsNoSeriesInDateOrder(SalesHeader."Posting No. Series") then
+                        DateOrderSeriesUsed := true;
                     ModifyHeader := true;
                 end;
             if PreviewMode then begin
@@ -2607,6 +2619,8 @@ codeunit 80 "Sales-Post"
                     SalesHeader.TestField("Return Receipt No. Series");
                     SalesHeader."Return Receipt No." := NoSeries.GetNextNo(SalesHeader."Return Receipt No. Series", SalesHeader."Posting Date");
                     ModifyHeader := true;
+                    if NoSeries.IsNoSeriesInDateOrder(SalesHeader."Return Receipt No. Series") then
+                        DateOrderSeriesUsed := true;
                     // Check for posting conflicts.
                     if ReturnRcptHeader.Get(SalesHeader."Return Receipt No.") then
                         Error(SalesReturnRcptHeaderConflictErr, SalesHeader."Return Receipt No.")
@@ -5833,7 +5847,6 @@ codeunit 80 "Sales-Post"
 
     local procedure GetInvoicePostingParameters()
     begin
-        Clear(InvoicePostingParameters);
         InvoicePostingParameters."Document Type" := GenJnlLineDocType;
         InvoicePostingParameters."Document No." := GenJnlLineDocNo;
         InvoicePostingParameters."External Document No." := GenJnlLineExtDocNo;

@@ -683,7 +683,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderLinesErr: Label 'Reminder Lines haven''t been created correctly.';
     begin
         // [REMINDER] [SUGGEST REMINDER LINES]
-        // [SCENARIO] Make reminder lines from customer ledger entries with applied due date filter
+        // [SCENARIO 543492] Make reminder lines from customer ledger entries with applied due date filter
         Initialize();
 
         // [GIVEN] Create customer X, reminder term = X, payment term = X
@@ -1226,15 +1226,15 @@ codeunit 134907 "ERM Invoice and Reminder"
     local procedure CreateDetailedCustomerLedgerEntry(CustLedgerEntryNo: Integer)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
+        RecRef: RecordRef;
     begin
-        if DetailedCustLedgEntry2.FindLast() then;
+        RecRef.GetTable(DetailedCustLedgEntry);
         DetailedCustLedgEntry.Init();
-        DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DetailedCustLedgEntry.FieldNo("Entry No."));
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
         DetailedCustLedgEntry."Posting Date" := WorkDate();
-        DetailedCustLedgEntry.Insert(true);
+        DetailedCustLedgEntry.Insert();
     end;
 
     [ConfirmHandler]
