@@ -83,3 +83,4 @@ table 6300 "Azure AD App Setup"
         Rec."Isolated Storage Secret Key" := NewSecretGuid;
     end;
 }
+

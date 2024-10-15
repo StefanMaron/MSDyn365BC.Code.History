@@ -29,6 +29,7 @@ codeunit 103 "Cust. Entry-Edit"
             CustLedgEntry.Validate("Applying Entry", "Applying Entry");
             CustLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             CustLedgEntry.Validate("Message to Recipient", "Message to Recipient");
+            CustLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
             CustLedgEntry."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
         end;
         CustLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");

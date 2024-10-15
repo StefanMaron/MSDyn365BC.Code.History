@@ -1,4 +1,4 @@
-report 10710 "Make 349 Declaration"
+﻿report 10710 "Make 349 Declaration"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Make 349 Declaration Disk';
@@ -1241,16 +1241,16 @@ report 10710 "Make 349 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure IncludeIn349(VATEntry: Record "VAT Entry"; var AmountIn349: Decimal; var LocationDifferentCountryCode: Boolean): Boolean
+    procedure IncludeIn349(VATEntry: Record "VAT Entry"; var AmountIn349: Decimal; var LocationDifferentCountryCode: Boolean) Result: Boolean
     var
         EUCountryInLocCodeHeader: Boolean;
         EUCountryInLocCodeLines: Boolean;
         VATEntryEUCountryRegCode: Boolean;
         SkipEntry: Boolean;
     begin
-        OnBeforeIncludeIn349(VATEntry, SkipEntry);
+        OnBeforeIncludeIn349(VATEntry, SkipEntry, AmountIn349, LocationDifferentCountryCode, Result);
         if SkipEntry then
-            exit(false);
+            exit(Result);
 
         AmountIn349 := 0;
         VATEntryEUCountryRegCode := FindEUCountryRegionCode(VATEntry."Country/Region Code");
@@ -2001,7 +2001,7 @@ report 10710 "Make 349 Declaration"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIncludeIn349(VATEntry: Record "VAT Entry"; var SkipEntry: Boolean)
+    local procedure OnBeforeIncludeIn349(VATEntry: Record "VAT Entry"; var SkipEntry: Boolean; var AmountIn349: Decimal; var LocationDifferentCountryCode: Boolean; var Result: Boolean)
     begin
     end;
 }

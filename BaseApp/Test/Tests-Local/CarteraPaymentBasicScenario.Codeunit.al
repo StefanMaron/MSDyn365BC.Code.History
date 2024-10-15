@@ -27,6 +27,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         SuccessfulBillRedrawMsg: Label '%1 bills have been redrawn.';
         LocalCurrencyCode: Code[10];
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
+        CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';
+        CheckBillSituationPostedOrderErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
 
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandlerYes,MessageVerifyHandler')]
@@ -131,7 +133,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         PaymentMethod: Record "Payment Method";
         DocumentNo: Code[20];
-        BillNo: Code[20];
     begin
         Initialize;
 
@@ -143,10 +144,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
-        BillNo := UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
+        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
 
         // Verify
-        VerifyCarteraDocPaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code, BillNo);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -156,6 +157,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         PaymentMethod: Record "Payment Method";
         DocumentNo: Code[20];
+        BillNo: Code[20];
     begin
         Initialize;
 
@@ -167,10 +169,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
+        BillNo := UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
 
         // Verify.
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocPaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code, BillNo);
     end;
 
     [Test]
@@ -185,7 +187,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize;
 
         // Setup
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
         LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
 
         // Exercise
@@ -194,10 +196,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
+        UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
 
         // Verify.
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocInvoicePaymentMethod(DocumentNo,Vendor."No.",PaymentMethod.Code);
     end;
 
     [Test]
@@ -213,7 +215,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize;
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
         LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
 
         // [GIVEN] Cartera Document is posted for the Vendor
@@ -224,10 +226,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
 
         // [WHEN] Modify Payment Method Code to "P2"
-        UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
+        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
 
         // [THEN] Cartera Document has Payment Method = "P2"
-        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -1214,6 +1216,100 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.IsTrue(File.Exists(PDFFileName), 'PDF file does not exist');
     end;
 
+    [Test]
+    procedure CheckBillSituation_UT_OpenPaymentOrder()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363341] TAB 25 "Vendor Ledger Entry".CheckBillSituation() throws an error in case of
+        // [SCENARIO 363341] existing open cartera document (payment order) related to current ledger entry
+        MockVendLedgEntry(VendorLedgerEntry);
+        MockCarteraDoc(CarteraDoc.Type::Payable, VendorLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
+
+        asserterror VendorLedgerEntry.CheckBillSituation();
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationOrderErr, VendorLedgerEntry.Description));
+    end;
+
+    [Test]
+    procedure CheckBillSituation_UT_PostedPaymentOrder()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363341] TAB 25 "Vendor Ledger Entry".CheckBillSituation() throws an error in case of
+        // [SCENARIO 363341] existing posted cartera document (posted payment order) related to current ledger entry
+        MockVendLedgEntry(VendorLedgerEntry);
+        MockPostedCarteraDoc(PostedCarteraDoc.Type::Payable, VendorLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
+
+        asserterror VendorLedgerEntry.CheckBillSituation();
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedOrderErr, VendorLedgerEntry.Description));
+    end;
+
+    [Test]
+    procedure CrMemoTryApplyInvoiceAlreadyIncludedIntoPaymentOrder()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PaymentOrder: Record "Payment Order";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 363341] An error occurs trying apply the invoice already included into payment order
+        Initialize();
+
+        // [GIVEN] Posted purchase invocie "X" with automatically created bill
+        PrepareVendorRelatedRecords(Vendor, '');
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+        // [GIVEN] Payment order with added document "X"
+        CreatePaymentOrderAndAddToCarteraDocument(PaymentOrder, CarteraDoc, Vendor."No.", DocumentNo);
+        // [GIVEN] Purchase credit memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+
+        // [WHEN] Try validate purchase credit memo "Applies-to Doc. No." = "X"
+        asserterror PurchaseHeader.Validate("Applies-to Doc. No.", DocumentNo);
+
+        // [THEN] An error occurs: "Bill X cannot be applied, since it is included in a payment order. Remove it from its payment order and try again."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationOrderErr, CarteraDoc.Description));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure CrMemoTryApplyInvoiceAlreadyIncludedIntoPostedPaymentOrder()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PaymentOrder: Record "Payment Order";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 363341] An error occurs trying apply the invoice already included into posted payment order
+        Initialize();
+
+        // [GIVEN] Posted purchase invocie "X" with automatically created bill
+        PrepareVendorRelatedRecords(Vendor, '');
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+        // [GIVEN] Posted payment order with added document "X"
+        CreatePaymentOrderAndAddToCarteraDocument(PaymentOrder, CarteraDoc, Vendor."No.", DocumentNo);
+        PostPaymentOrderLCY(PaymentOrder);
+        // [GIVEN] Purchase credit memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+
+        // [WHEN] Try validate purchase credit memo "Applies-to Doc. No." = "X"
+        asserterror PurchaseHeader.Validate("Applies-to Doc. No.", DocumentNo);
+
+        // [THEN] An error occurs: "Bill X cannot be applied since it is included in a posted payment order."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedOrderErr, CarteraDoc.Description));
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -1635,6 +1731,44 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder.Modify(true);
         AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", DocumentNo);
         LibraryCarteraPayables.PostCarteraPaymentOrder(PaymentOrder);
+    end;
+
+    local procedure CreatePaymentOrderAndAddToCarteraDocument(var PaymentOrder: Record "Payment Order"; var CarteraDoc: Record "Cartera Doc."; VendorNo: Code[20]; DocumentNo: Code[20])
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryCarteraPayables.CreateCarteraPaymentOrder(BankAccount, PaymentOrder, '');
+        LibraryCarteraPayables.AddPaymentOrderToCarteraDocument(CarteraDoc, DocumentNo, VendorNo, PaymentOrder."No.");
+    end;
+
+    local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FIELDNO("Entry No."));
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry.Description := LibraryUtility.GenerateGUID();
+        VendorLedgerEntry.Insert();
+    end;
+
+    local procedure MockCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    var
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        CarteraDoc.Type := Type;
+        CarteraDoc."Entry No." := EntryNo;
+        CarteraDoc."Bill Gr./Pmt. Order No." := BGPONo;
+        CarteraDoc.Insert();
+    end;
+
+    local procedure MockPostedCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    var
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+    begin
+        PostedCarteraDoc.Type := Type;
+        PostedCarteraDoc."Entry No." := EntryNo;
+        PostedCarteraDoc."Bill Gr./Pmt. Order No." := BGPONo;
+        PostedCarteraDoc.Insert();
     end;
 
     local procedure AdjustDueDate(DocumentNo: Code[20]; PaymentOrderNo: Code[20])

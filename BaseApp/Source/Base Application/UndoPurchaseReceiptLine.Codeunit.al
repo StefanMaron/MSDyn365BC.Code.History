@@ -1,4 +1,4 @@
-codeunit 5813 "Undo Purchase Receipt Line"
+﻿codeunit 5813 "Undo Purchase Receipt Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Purch. Rcpt. Line" = imd,
@@ -305,16 +305,28 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 exit(0); // "Item Shpt. Entry No."
 
             if "Job No." <> '' then
-                if TempApplyToEntryList.FindSet then
-                    repeat
-                        UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
-                    until TempApplyToEntryList.Next = 0;
+                ReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader, PurchRcptLine, ItemJnlLine, TempApplyToEntryList);
 
             UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
               Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Rcd. Not Invoiced" <> Quantity);
 
             exit(0); // "Item Shpt. Entry No."
         end;
+    end;
+
+    local procedure ReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; ItemJnlLine: Record "Item Journal Line"; var TempApplyToEntryList: Record "Item Ledger Entry" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader, PurchRcptLine, ItemJnlLine, TempApplyToEntryList, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TempApplyToEntryList.FindSet then
+            repeat
+                UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
+            until TempApplyToEntryList.Next = 0;
     end;
 
     local procedure InsertNewReceiptLine(OldPurchRcptLine: Record "Purch. Rcpt. Line"; ItemRcptEntryNo: Integer; DocLineNo: Integer)
@@ -516,6 +528,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchRcptLineModify(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; ItemJnlLine: Record "Item Journal Line"; var TempApplyToEntryList: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-page 10765 "Posted Sales Invoice - Update"
+﻿page 10765 "Posted Sales Invoice - Update"
 {
     Caption = 'Posted Sales Invoice - Update';
     DeleteAllowed = false;
@@ -92,14 +92,16 @@ page 10765 "Posted Sales Invoice - Update"
     var
         xSalesInvoiceHeader: Record "Sales Invoice Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() RecordIsChanged: Boolean
     begin
-        exit(
+        RecordIsChanged :=
           ("Special Scheme Code" <> xSalesInvoiceHeader."Special Scheme Code") or
           ("Invoice Type" <> xSalesInvoiceHeader."Invoice Type") or
           ("ID Type" <> xSalesInvoiceHeader."ID Type") or
           ("Succeeded Company Name" <> xSalesInvoiceHeader."Succeeded Company Name") or
-          ("Succeeded VAT Registration No." <> xSalesInvoiceHeader."Succeeded VAT Registration No."));
+          ("Succeeded VAT Registration No." <> xSalesInvoiceHeader."Succeeded VAT Registration No.");
+
+        OnAfterRecordIsChanged(Rec, xSalesInvoiceHeader, RecordIsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -107,6 +109,11 @@ page 10765 "Posted Sales Invoice - Update"
     begin
         Rec := SalesInvoiceHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordIsChanged(var SalesInvoiceHeader: Record "Sales Invoice Header"; xSalesInvoiceHeader: Record "Sales Invoice Header"; var RecordIsChanged: Boolean)
+    begin
     end;
 }
 

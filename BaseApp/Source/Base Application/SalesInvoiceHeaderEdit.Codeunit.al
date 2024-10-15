@@ -1,4 +1,4 @@
-codeunit 10765 "Sales Invoice Header - Edit"
+﻿codeunit 10765 "Sales Invoice Header - Edit"
 {
     Permissions = TableData "Sales Invoice Header" = rm;
     TableNo = "Sales Invoice Header";
@@ -15,6 +15,7 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SalesInvoiceHeader."ID Type" := "ID Type";
         SalesInvoiceHeader."Succeeded Company Name" := "Succeeded Company Name";
         SalesInvoiceHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
+        OnRunOnBeforeSalesInvoiceHeaderModify(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", "No.");
         SalesInvoiceHeader.Modify();
         Rec := SalesInvoiceHeader;
@@ -43,6 +44,11 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SIIDocUploadState."Succeeded Company Name" := SalesInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesInvoiceHeader."Succeeded VAT Registration No.";
         SIIDocUploadState.Modify();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeSalesInvoiceHeaderModify(var SalesInvoiceHeader: Record "Sales Invoice Header"; FromSalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
     end;
 }
 

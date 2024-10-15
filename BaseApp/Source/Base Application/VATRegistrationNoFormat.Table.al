@@ -1,4 +1,4 @@
-table 381 "VAT Registration No. Format"
+﻿table 381 "VAT Registration No. Format"
 {
     Caption = 'VAT Registration No. Format';
 
@@ -255,6 +255,22 @@ table 381 "VAT Registration No. Format"
         end;
     end;
 
+    local procedure CheckConfirmVATRegNo(VATRegNo: Text[20])
+    var
+        ErrorText: Text[120];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckConfirmVATRegNo(VATRegNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        ErrorText := '';
+        if not ValidateVATRegNo(VATRegNo, ErrorText) then
+            if not Confirm(Text1100000 + '\' + ErrorText + '\\' + Text1100001, false) then
+                Error(Text1100002);
+    end;
+
     [Scope('OnPrem')]
     procedure ValidateVATRegNo(VATRegNo: Text[20]; var ErrorText: Text[120]): Boolean
     var
@@ -427,6 +443,11 @@ table 381 "VAT Registration No. Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContact(VATRegNo: Text[20]; Number: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckConfirmVATRegNo(VATRegNo: Text[20]; var IsHandled: Boolean)
     begin
     end;
 

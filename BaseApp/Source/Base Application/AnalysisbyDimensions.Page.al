@@ -488,11 +488,9 @@ page 554 "Analysis by Dimensions"
         GLAcc: Record "G/L Account";
         "Field": Record "Field";
         CashFlowAccount: Record "Cash Flow Account";
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
     begin
         if (NewAnalysisViewCode <> '') and (NewAnalysisViewCode <> "Analysis View Code") then
             "Analysis View Code" := NewAnalysisViewCode;
-        AnalysisByDimUserParam.Load(Rec, Page::"Analysis by Dimensions");
         ValidateAnalysisViewCode;
 
         GLSetup.Get();
@@ -517,13 +515,6 @@ page 554 "Analysis by Dimensions"
         FindPeriod('');
 
         CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-    begin
-        AnalysisByDimUserParam.Save(Rec, Page::"Analysis by Dimensions");
     end;
 
     var

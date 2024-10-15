@@ -1,4 +1,4 @@
-table 270 "Bank Account"
+﻿table 270 "Bank Account"
 {
     Caption = 'Bank Account';
     DataCaptionFields = "No.", Name;
@@ -1227,7 +1227,7 @@ table 270 "Bank Account"
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1253,7 +1253,7 @@ table 270 "Bank Account"
         Cont.FilterGroup(2);
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
         Cont.SetRange("Company No.", ContBusRel."Contact No.");
-        PAGE.Run(PAGE::"Contact List", Cont);
+        RunContactListPage(Cont);
     end;
 
     procedure SetInsertFromContact(FromContact: Boolean)
@@ -1828,6 +1828,18 @@ table 270 "Bank Account"
         exit(UpdateNeeded);
     end;
 
+    local procedure RunContactListPage(var Contact: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunContactListPage(Contact, IsHandled);
+        if IsHandled then
+            exit;
+
+        Page.Run(Page::"Contact List", Contact);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsUpdateNeeded(BankAccount: Record "Bank Account"; xBankAccount: Record "Bank Account"; var UpdateNeeded: Boolean)
     begin
@@ -1915,6 +1927,9 @@ table 270 "Bank Account"
         // The subscriber of this event should provide the UI for renewing access consent to the linked open banking bank account
     end;
 
-
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunContactListPage(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
 }
 

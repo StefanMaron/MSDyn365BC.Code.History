@@ -1,4 +1,4 @@
-codeunit 63 "Sales-Explode BOM"
+﻿codeunit 63 "Sales-Explode BOM"
 {
     TableNo = "Sales Line";
 
@@ -33,6 +33,7 @@ codeunit 63 "Sales-Explode BOM"
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
 
         FromBOMComp.SetRange("Parent Item No.", "No.");
+        OnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
         NoOfBOMComp := FromBOMComp.Count();
 
         OnBeforeConfirmExplosion(Rec, Selection, HideDialog);
@@ -146,6 +147,7 @@ codeunit 63 "Sales-Explode BOM"
 
             FromBOMComp.Reset();
             FromBOMComp.SetRange("Parent Item No.", "No.");
+            OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine);
             FromBOMComp.FindSet;
             repeat
                 ToSalesLine.Init();
@@ -262,6 +264,11 @@ codeunit 63 "Sales-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromBOMToSalesLine(var SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
     begin
     end;
 

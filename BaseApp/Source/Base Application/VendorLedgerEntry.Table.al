@@ -740,6 +740,8 @@ table 25 "Vendor Ledger Entry"
         Text1100001: Label 'Payment Discount (VAT Adjustment)';
         DocMisc: Codeunit "Document-Misc";
         CannotChangePmtMethodErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
+        CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';
+        CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -857,16 +859,17 @@ table 25 "Vendor Ledger Entry"
     [Scope('OnPrem')]
     procedure CheckBillSituation()
     var
-        Doc: Record "Cartera Doc.";
-        Text1100100: Label '%1 cannot be applied, since it is included in a payment order.';
-        Text1100101: Label ' Remove it from its payment order and try again.';
+        CarteraDoc: Record "Cartera Doc.";
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
-        if Doc.Get(Doc.Type::Payable, Rec."Entry No.") then
-            if Doc."Bill Gr./Pmt. Order No." <> '' then
-                Error(
-                  Text1100100 +
-                  Text1100101,
-                  Rec.Description);
+        case true of
+            CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No."):
+                if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                    Error(CheckBillSituationOrderErr, Description);
+            PostedCarteraDoc.Get(PostedCarteraDoc.Type::Payable, "Entry No."):
+                if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                    Error(CheckBillSituationPostedErr, Description);
+        end;
     end;
 
     procedure GetAdjustedCurrencyFactor(): Decimal
@@ -883,8 +886,15 @@ table 25 "Vendor Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
     end;
 
-    procedure SetStyle(): Text
+    procedure SetStyle() Result: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetStyle(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Open then begin
             if WorkDate > "Due Date" then
                 exit('Unfavorable')
@@ -1045,8 +1055,8 @@ table 25 "Vendor Ledger Entry"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.Get("Payment Method Code");
-        if (("Document Type" = "Document Type"::Bill) and (not PaymentMethod."Create Bills")) or
-           (("Document Type" = "Document Type"::Invoice) and (not PaymentMethod."Invoices to Cartera")) then
+        if (("Document Type" = "Document Type"::Bill) and PaymentMethod."Create Bills") or
+           (("Document Type" = "Document Type"::Invoice) and PaymentMethod."Invoices to Cartera") then
             Error(CannotChangePmtMethodErr);
     end;
 
@@ -1077,6 +1087,11 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetStyle(var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }
