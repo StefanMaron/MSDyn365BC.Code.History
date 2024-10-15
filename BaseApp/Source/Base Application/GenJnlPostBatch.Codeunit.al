@@ -349,11 +349,7 @@
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
             if GenJnlTemplate."Force Doc. Balance" then
-                if ((GenJnlBatch."No. Series" = '') and (GenJnlBatch."Posting No. Series" = '')) or
-                   GenJnlTemplate.Recurring
-                then
-                    GenJnlLine.SetCurrentKey("Document No.");
-
+                GenJnlLine.SetCurrentKey("Document No.", "Posting Date");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";

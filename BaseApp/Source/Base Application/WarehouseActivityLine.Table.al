@@ -2094,6 +2094,9 @@
         AsmHeader.CalcFields("Assemble to Order");
         "Assemble to Order" := AsmHeader."Assemble to Order";
         "ATO Component" := true;
+        Item."No." := "Item No.";
+        Item.ItemSKUGet(Item, "Location Code", "Variant Code");
+        "Shelf No." := Item."Shelf No.";
 
         OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(Rec, AssemblyLine);
     end;
