@@ -395,6 +395,163 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATEntry.TestField(Base, 22806.20);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesAmtLCYonCLEwhenEntryPostedInMultiLineFromRecJou()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 431617] In the given scenario we show the amount incl. VAT in field "Sales (LCY)" where this field supposed to hold the amount excl. VAT
+        Initialize();
+
+        // [GIVEN] Create Customer with "VAT Registration No.".
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] Create Recurring Journal Batch
+        CreateRecurringGenJournalBatchWithForceBalance(GenJournalBatch);
+
+        // [GIVEN] Create Recurring Journal Line With Gl
+        Amount := LibraryRandom.RandDec(1000, 0);
+        CreateRecurringGenJournalLine(GenJournalLine,
+                                      GenJournalBatch,
+                                      GenJournalLine."Document Type"::Invoice,
+                                      GenJournalLine."Account Type"::"G/L Account",
+                                      LibraryERM.CreateGLAccountWithPurchSetup,
+                                      -1 * Amount);
+        DocumentNo := GenJournalLine."Document No.";
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
+        GenJournalLine.Modify();
+
+        // [GIVEN] 2nd Journal Line with Customer,with same document no.
+        CreateRecurringGenJournalLine(GenJournalLine,
+                                      GenJournalBatch,
+                                      GenJournalLine."Document Type"::Invoice,
+                                      GenJournalLine."Account Type"::Customer,
+                                      Customer."No.",
+                                      Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify();
+
+        // [WHEN] Post Gen. Journal lines
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] Verify VAT Entry exist
+        VerifyVATEntryExists(Customer."Country/Region Code", Customer."VAT Registration No.");
+
+        // [VERIFY] Verify Sales (LCY) on Customer ledger entry. 
+        FindVATEntry(VATEntry, DocumentType::Invoice, DocumentNo);
+        VerifyCustomerLedgerEntrySalesLCY(Customer."No.", -1 * VATEntry.Base);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesAmtLCYonCLEwhenEntryPostedInMultiLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 431617] In the given scenario we show the amount incl. VAT in field "Sales (LCY)" where this field supposed to hold the amount excl. VAT
+        Initialize();
+
+        // [GIVEN] Create Customer with "VAT Registration No.".
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] Create Recurring Journal Batch
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+
+        // [GIVEN] Create Journal Line With Gl
+        Amount := LibraryRandom.RandDec(1000, 0);
+
+        // [GIVEN] Find Gen Journal Batch and Update BalAccount No to blank.
+        FindAndClearGenJnlBatch(GenJournalBatch);
+        GenJournalBatch."Bal. Account No." := '';
+        GenJournalBatch.Modify();
+
+        // [GIVEN] Create Journal Line with GL
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine,
+                                        GenJournalBatch."Journal Template Name",
+                                        GenJournalBatch.Name,
+                                        GenJournalLine."Document Type"::Invoice,
+                                        GenJournalLine."Account Type"::"G/L Account",
+                                        GLAccountNo,
+                                        -1 * Amount);
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Create 2nd Journal Line with Customer
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine,
+                                        GenJournalBatch."Journal Template Name",
+                                        GenJournalBatch.Name,
+                                        GenJournalLine."Document Type"::Invoice,
+                                        GenJournalLine."Account Type"::Customer,
+                                        Customer."No.",
+                                        0);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate(Amount, Amount);
+        GenJournalLine.Modify();
+
+        // [WHEN] Post Gen. Journal lines
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] Verify VAT Entry Exist.
+        VerifyVATEntryExists(Customer."Country/Region Code", Customer."VAT Registration No.");
+
+        // [VERIFY] Verify Sales (LCY) on Customer ledger entry. 
+        FindVATEntry(VATEntry, DocumentType::Invoice, DocumentNo);
+        VerifyCustomerLedgerEntrySalesLCY(Customer."No.", -1 * VATEntry.Base);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesAmtLCYonCLEwhenEntryPostedInMultiLineFromRecJouwithAlloc()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 431617] In the given scenario we show the amount incl. VAT in field "Sales (LCY)" where this field supposed to hold the amount excl. VAT
+        Initialize();
+        Amount := LibraryRandom.RandDec(1000, 0);
+        // [GIVEN] Create Customer with "VAT Registration No.".
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] Create Recurring Journal Batch
+        CreateRecurringGenJournalBatchWithForceBalance(GenJournalBatch);
+
+        // [GIVEN] 2nd Journal Line with Customer,with same document no.
+        CreateRecurringGenJournalLine(GenJournalLine,
+                                      GenJournalBatch,
+                                      GenJournalLine."Document Type"::Invoice,
+                                      GenJournalLine."Account Type"::Customer,
+                                      Customer."No.",
+                                      Amount);
+        DocumentNo := GenJournalLine."Document No.";
+        CreateAllocationLine(GenJournalLine);
+        GenJournalLine.Validate(Amount);
+        // [WHEN] Post Gen. Journal lines
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] Verify VAT Entry exist
+        VerifyVATEntryExists(Customer."Country/Region Code", Customer."VAT Registration No.");
+
+        // [VERIFY] Verify Sales (LCY) on Customer ledger entry. 
+        FindVATEntry(VATEntry, DocumentType::Invoice, DocumentNo);
+        VerifyCustomerLedgerEntrySalesLCY(Customer."No.", -1 * VATEntry.Base);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -762,6 +919,42 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
         GenJournalTemplate.Modify(true);
+    end;
+
+    local procedure CreateAllocationLine(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GLAccount: Code[20];
+    begin
+        GLAccount := LibraryERM.CreateGLAccountWithSalesSetup;
+        FindGeneralJournalLine(GenJournalLine);
+
+        repeat
+            LibraryERM.CreateGenJnlAllocation(
+              GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+            GenJnlAllocation.Validate("Account No.", GLAccount);
+            GenJnlAllocation.Validate("Gen. Posting Type", GenJnlAllocation."Gen. Posting Type"::Sale);
+            GenJnlAllocation.Validate("Allocation %", 100);
+            GenJnlAllocation.Modify(true);
+        until GenJournalLine.Next() = 0;
+    end;
+
+    local procedure FindGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindSet();
+    end;
+
+    local procedure VerifyCustomerLedgerEntrySalesLCY(CustomerNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        with CustLedgerEntry do begin
+            SetRange("Customer No.", CustomerNo);
+            FindFirst();
+            TestField("Sales (LCY)", ExpectedAmount);
+        end;
     end;
 
     [ConfirmHandler]
