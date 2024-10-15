@@ -108,9 +108,21 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     var
         BankRecHeader: Record "Bank Rec. Header";
         DepositHeader: Record "Deposit Header";
+        Company: Record Company;
     begin
         if FeatureKey.ID <> GetFeatureKeyId() then
             exit;
+
+        if Company.FindSet() then
+        repeat
+            BankRecHeader.ChangeCompany(Company.Name);
+            BankRecHeader.Reset();
+            DepositHeader.ChangeCompany(Company.Name);
+            DepositHeader.Reset();
+            if (not DepositHeader.IsEmpty()) or (not BankRecHeader.IsEmpty()) then
+                Error(EnableFeatureErr, Company.Name);
+        until Company.Next() = 0;
+
         if BankRecHeader.IsEmpty() and DepositHeader.IsEmpty() then
             exit;
         Error(EnableFeatureErr);
@@ -118,7 +130,7 @@ codeunit 1514 "Bank Deposit Feature Mgt."
 
     var
         DepositsPageMgt: Codeunit "Deposits Page Mgt.";
-        EnableFeatureErr: Label 'You must either post or delete all deposits and bank reconcililation worksheets before enabling Bank Deposits feature.';
+        EnableFeatureErr: Label 'You must either post or delete all deposits and bank reconciliation worksheets for company %1 and every company on this environment before enabling Bank Deposits feature.', Comment = '%1 - The name of the company';
         FeatureKeyIdTok: Label 'StandardizedBankReconciliationAndDeposits', Locked = true;
 }
 #endif

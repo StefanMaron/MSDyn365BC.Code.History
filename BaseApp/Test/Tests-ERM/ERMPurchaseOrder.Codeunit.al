@@ -83,6 +83,7 @@
         DisposedErr: Label '%1 is disposed.';
         RoundingTo0Err: Label 'Rounding of the field';
         ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
+        PrePaymentPerErr: Label 'Prepayment% are not equal on Purchase Header and Purchase Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -6817,6 +6818,44 @@
 
         // [VERIFY] Item reference No will remains unchanged, on updating the Location Code.
         Assert.AreEqual(ItemRefNoBefore, ItemReferenceNoAfter, StrSubstNo(ItemRefrenceNoErr, ItemRefNoBefore));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyGLPurchaseLineInsertedWhenPreaymentOnVendor()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        GLSetup: Record "General Ledger Setup";
+        GLAcc: Record "G/L Account";
+        PrepPayPer: Decimal;
+    begin
+        // [SCENARIO 436714] Gen. Prod. Posting Group validation error when G/L account is inserted using prepayments in Purchase Orders.
+        Initialize();
+
+        // [GIVEN] Create Vendor and update Prepayment %
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Prepayment %", LibraryRandom.RandDecInRange(1, 100, 2));
+        Vendor.Modify();
+
+        // [GIVEN] Get General Ledger Setup and update Vat In Use to false.
+        GLSetup.Get();
+        GLSetup.Validate("VAT in Use", false);
+        GLSetup.Modify();
+
+        // [GIVEN] Create G/l Account and blank Gen. Prod. Posting Group
+        GlAcc.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAcc."Gen. Prod. Posting Group" := '';
+        GLAcc.Modify();
+
+        // [THEN] Create Purchase Order with G/l account in purchase line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchaseHeader, PurchLine.Type::"G/L Account", GLAcc."No.", 2);
+
+        // [VERIFY] Without any error Prepayment % update on purchase line.
+        Assert.AreEqual(PurchaseHeader."Prepayment %", PurchLine."Prepayment %", PrePaymentPerErr);
     end;
 
     local procedure Initialize()

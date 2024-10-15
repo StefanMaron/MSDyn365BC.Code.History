@@ -1302,6 +1302,7 @@ codeunit 141041 "Test Partner Integration NA"
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN20
     [Test]
     [Scope('OnPrem')]
     procedure TestServAmountsMgtOnFillInvPostingBuffer()
@@ -1330,6 +1331,7 @@ codeunit 141041 "Test Partner Integration NA"
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ServiceQuoteRequestPageHandler')]

@@ -223,7 +223,7 @@
                 IsHandled := false;
                 OnBeforeValidateVATProdPostingGroup(Rec, xRec, IsHandled);
                 if not IsHandled then
-                    if HasTypeToFillMandatoryFields() and not (Type = Type::"Fixed Asset") then
+                    if HasTypeToFillMandatoryFields() and not (Type = Type::"Fixed Asset") and HasVatInUse() then
                         Validate("VAT Prod. Posting Group");
 
                 UpdatePrepmtSetupFields();
@@ -5206,13 +5206,16 @@
         if ("Prepayment %" <> 0) and HasTypeToFillMandatoryFields() then begin
             TestField("Document Type", "Document Type"::Order);
             TestField("No.");
-            GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            if GenPostingSetup."Purch. Prepayments Account" <> '' then begin
-                GLAcc.Get(GenPostingSetup."Purch. Prepayments Account");
-                VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
-                VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
-            end else
-                Clear(VATPostingSetup);
+
+            if HasVatInUse then begin
+                GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                if GenPostingSetup."Purch. Prepayments Account" <> '' then begin
+                    GLAcc.Get(GenPostingSetup."Purch. Prepayments Account");
+                    VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
+                    VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
+                end else
+                    Clear(VATPostingSetup);
+            end;
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
@@ -8560,6 +8563,20 @@
             end;
             LookupStateMgr.ClearSavedRecord();
         end;
+    end;
+
+    local procedure HasVatInUse(): Boolean
+    begin
+        GLSetup.Get();
+        if not (GLSetup."VAT in Use") and
+               (Type = Type::"G/L Account") and
+               ("Document Type" = "Document Type"::Order) and
+               ("Gen. Prod. Posting Group" = '') and
+               ("Prepayment %" <> 0) and
+               (Amount = 0) then
+            exit(false);
+
+        exit(true);
     end;
 
 #if not CLEAN20
