@@ -3468,6 +3468,8 @@
             Validate("No.", "No.");
             Validate("Unit Price", NonstockItem."Unit Price");
         end;
+
+        OnAfterShowNonstock(Rec);
     end;
 
     local procedure TestConfigTemplateLineField(ItemTemplateCode: Code[10]; FieldNo: Integer)
@@ -5585,6 +5587,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowNonstock(var ServiceLine: Record "Service Line")
     begin
     end;
 

@@ -3948,7 +3948,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableMetadata: Record "Table Metadata";
     begin
         if TableMetadata.Get(TableID) then
-            exit(TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::No);
+            exit(TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed);
     end;
 
     local procedure MockActiveSessions(NoOfSessions: Integer) LastSessionID: Integer

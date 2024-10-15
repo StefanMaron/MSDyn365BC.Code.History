@@ -111,7 +111,7 @@ report 11308 "VAT Annual Listing"
             }
             dataitem(Customer2; Customer)
             {
-                DataItemTableView = SORTING("Country/Region Code");
+                DataItemTableView = SORTING("Country/Region Code") where("VAT Liable" = const(true));
                 dataitem(VATloop; "Integer")
                 {
                     DataItemTableView = SORTING(Number);

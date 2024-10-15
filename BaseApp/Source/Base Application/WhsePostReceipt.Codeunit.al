@@ -65,8 +65,7 @@
                     CheckUnitOfMeasureCode(WhseRcptLine);
                     WhseRqst.Get(
                       WhseRqst.Type::Inbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
-                    if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then
-                        Error(Text000, "Source Document", "Source No.");
+                    CheckWhseRqstDocumentStatus();
                     OnAfterCheckWhseRcptLine(WhseRcptLine);
                 until Next = 0
             else
@@ -147,6 +146,19 @@
             exit;
 
         WarehouseReceiptLine.TestField("Unit of Measure Code");
+    end;
+
+    local procedure CheckWhseRqstDocumentStatus()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseRqstDocumentStatus(WhseRqst, WhseRcptLine, SalesHeader, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then
+            Error(Text000, WhseRcptLine."Source Document", WhseRcptLine."Source No.");
     end;
 
     local procedure GetSourceDocument()
@@ -420,10 +432,7 @@
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
                                 PostPurchErrorsNotProcessed(PurchPost);
                             WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    PurchPost.Run(PurchHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourcePurchDocument(PurchPost);
                         end;
                         OnPostSourceDocumentOnAfterPostPurchaseHeader(PurchHeader);
                         Clear(PurchPost);
@@ -439,15 +448,9 @@
                         SalesPost.SetWhseRcptHeader(WhseRcptHeader);
                         case WhseSetup."Receipt Posting Policy" of
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
-                                begin
-                                    if SalesPost.Run(SalesHeader) then
-                                        CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSalesErrorsNotProcessed(SalesPost);
                             WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    SalesPost.Run(SalesHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourceSalesDocument(SalesPost);
                         end;
                         Clear(SalesPost);
                     end;
@@ -458,15 +461,9 @@
                         TransferPostReceipt.SetWhseRcptHeader(WhseRcptHeader);
                         case WhseSetup."Receipt Posting Policy" of
                             WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
-                                begin
-                                    if TransferPostReceipt.Run(TransHeader) then
-                                        CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostTransferErrorsNotProcessed(TransferPostReceipt);
                             WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    TransferPostReceipt.Run(TransHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourceTransferDocument(TransferPostReceipt);
                         end;
                         Clear(TransferPostReceipt);
                     end;
@@ -487,6 +484,71 @@
 
         if PurchPost.Run(PurchHeader) then
             CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostSourcePurchDocument(PurchPost, PurchHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchPost.Run(PurchHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSalesErrorsNotProcessed(var SalesPost: Codeunit "Sales-Post")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostSalesErrorsNotProcessed(SalesPost, SalesHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesPost.Run(SalesHeader) then
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostSourceSalesDocument(SalesPost, SalesHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesPost.Run(SalesHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostTransferErrorsNotProcessed(var TransferPostReceipt: Codeunit "TransferOrder-Post Receipt")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostTransferErrorsNotProcessed(TransferPostReceipt, TransHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferPostReceipt.Run(TransHeader) then
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSourceTransferDocument(var TransferPostReceipt: Codeunit "TransferOrder-Post Receipt")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostSourceTransferDocument(TransferPostReceipt, TransHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferPostReceipt.Run(TransHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
     end;
 
     procedure GetResultMessage()
@@ -534,8 +596,10 @@
         end else begin
             WhseRcptHeader.DeleteRelatedLines(false);
             WhseRcptHeader.Delete();
+            OnPostUpdateWhseDocumentsOnAfterWhseRcptHeaderDelete(WhseRcptHeader);
         end;
 
+        OnPostUpdateWhseDocumentsOnBeforeGetLocation(WhseRcptHeader);
         GetLocation(WhseRcptHeader."Location Code");
         if Location."Require Put-away" then begin
             WhsePutAwayRequest."Document Type" := WhsePutAwayRequest."Document Type"::Receipt;
@@ -849,7 +913,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWhseJnlLine(TempWhseJnlLine, IsHandled);
+        OnBeforeCheckWhseJnlLine(TempWhseJnlLine, IsHandled, WMSMgt);
         if IsHandled then
             exit;
 
@@ -880,6 +944,7 @@
                 CreatePutAway.SetValues('', "Whse. Activity Sorting Method"::None, false, false);
                 CreatePutAway.SetCrossDockValues(true);
 
+                OnCreatePutAwayDocOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(ItemTrackingMgt);
                 if ItemTrackingMgt.GetWhseItemTrkgSetup(PostedWhseRcptLine."Item No.") then
                     ItemTrackingMgt.InitItemTrkgForTempWkshLine(
                       WhseWkshLine."Whse. Document Type"::Receipt,
@@ -1031,6 +1096,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseRqstDocumentStatus(WhseRqst: Record "Warehouse Request"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SalesHeader: Record "Sales Header"; PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUnitOfMeasureCode(WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1096,7 +1166,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCheckWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var IsHandled: Boolean; var WMSMgt: Codeunit "WMS Management")
     begin
     end;
 
@@ -1151,6 +1221,31 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSalesErrorsNotProcessed(var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostTransferErrorsNotProcessed(var TransferPostReceipt: Codeunit "TransferOrder-Post Receipt"; var TransHeader: Record "Transfer Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceTransferDocument(var TransferPostReceipt: Codeunit "TransferOrder-Post Receipt"; var TransHeader: Record "Transfer Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostSourceDocument(var WhseRcptLine: Record "Warehouse Receipt Line"; PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; TransferHeader: Record "Transfer Header"; var CounterSourceDocOK: Integer; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1187,6 +1282,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var CreatePutAway: Codeunit "Create Put-away")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutAwayDocOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(var ItemTrackingMgt: Codeunit "Item Tracking Management")
     begin
     end;
 
@@ -1246,12 +1346,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnBeforeGetLocation(var WhseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnBeforeDeleteAll(var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnAfterWhseRcptHeaderDelete(var WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

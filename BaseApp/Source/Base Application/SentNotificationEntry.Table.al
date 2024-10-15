@@ -107,11 +107,15 @@ table 1514 "Sent Notification Entry"
         FileMgt: Codeunit "File Management";
     begin
         TempBlob.FromRecord(Rec, FieldNo("Notification Content"));
-        if TempBlob.HasValue then begin
-            if "Notification Method" = "Notification Method"::Note then
-                exit(FileMgt.BLOBExport(TempBlob, '*.txt', UseDialog));
-            exit(FileMgt.BLOBExport(TempBlob, '*.htm', UseDialog))
+
+        if not TempBlob.HasValue() then begin
+            Message(NotContentMsg);
+            exit;
         end;
+
+        if "Notification Method" = "Notification Method"::Note then
+            exit(FileMgt.BLOBExport(TempBlob, '*.txt', UseDialog));
+        exit(FileMgt.BLOBExport(TempBlob, '*.htm', UseDialog))
     end;
 
     [IntegrationEvent(false, false)]
@@ -123,5 +127,8 @@ table 1514 "Sent Notification Entry"
     local procedure OnNewRecordOnBeforeTransferFields(var NotificationEntry: Record "Notification Entry")
     begin
     end;
+
+    var
+        NotContentMsg: Label 'There is no content to export.';
 }
 

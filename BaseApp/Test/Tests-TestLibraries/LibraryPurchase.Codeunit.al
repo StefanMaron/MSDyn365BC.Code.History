@@ -229,10 +229,15 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header")
+    begin
+        CreatePurchaseCreditMemoForVendorNo(PurchaseHeader, CreateVendorNo());
+    end;
+
+    procedure CreatePurchaseCreditMemoForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorNo());
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);

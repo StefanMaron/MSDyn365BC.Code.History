@@ -155,6 +155,7 @@
             until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (TempMatrixLocation.Next <> 1);
         end;
 
+        OnSetColumnsOnBeforeUpdateMatrixSubform(MATRIX_CaptionSet, MatrixRecords, TempMatrixLocation, MATRIX_CurrSetLength);
         UpdateMatrixSubform;
     end;
 
@@ -184,6 +185,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetTempMatrixLocationFilters(var TempMatrixLocation: Record Location temporary);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSetColumnsOnBeforeUpdateMatrixSubform(MATRIXCaptionSet: array[32] of Text[80]; var Matrix_Records: array[32] of Record Location; TempMatrixLocation: Record Location temporary; CurrSetLength: Integer);
     begin
     end;
 

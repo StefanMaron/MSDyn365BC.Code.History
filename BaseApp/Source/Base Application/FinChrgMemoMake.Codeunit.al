@@ -203,6 +203,8 @@ codeunit 394 "FinChrgMemo-Make"
                        (FinChrgMemoHeader."Document Date" > CalcDate(FinChrgTerms."Grace Period", FinChrgMemoLine."Due Date"))
                     then
                         OverDue := true;
+
+                    OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(FinChrgMemoLine, Checking);
                     if FinChrgMemoLine.Amount <> 0 then
                         if not Checking then
                             FinChrgMemoLine.Insert
@@ -250,6 +252,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeLinesOnBeforeMakeLinesOpenEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
     begin
     end;
 }

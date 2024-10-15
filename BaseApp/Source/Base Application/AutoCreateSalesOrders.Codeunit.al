@@ -21,6 +21,7 @@ codeunit 5349 "Auto Create Sales Orders"
     begin
         CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
         CRMSalesorder.SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
+        OnCreateNAVSalesOrdersFromSubmittedCRMSalesordersOnAfterCRMSalesorderSetFilters(CRMSalesorder);
         if CRMSalesorder.FindSet(true) then
             repeat
                 Session.LogMessage('0000DET', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
@@ -29,6 +30,11 @@ codeunit 5349 "Auto Create Sales Orders"
                     Commit();
                 end;
             until CRMSalesorder.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNAVSalesOrdersFromSubmittedCRMSalesordersOnAfterCRMSalesorderSetFilters(var CRMSalesorder: Record "CRM Salesorder")
+    begin
     end;
 }
 

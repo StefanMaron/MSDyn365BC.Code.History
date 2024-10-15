@@ -56,6 +56,7 @@
         UpgradeUserTaskDescriptionToUTF8();
 
         UpdateWorkflowTableRelations();
+        UpgradeCustomerVATLiable();
     end;
 
     local procedure UpdateWorkflowTableRelations()
@@ -1791,6 +1792,20 @@
     local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
     begin
         exit(300000);
+    end;
+
+    local procedure UpgradeCustomerVATLiable()
+    var
+        Customer: Record Customer;
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag()) THEN
+            exit;
+
+        Customer.ModifyAll("VAT Liable", true, false);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag());
     end;
 }
 

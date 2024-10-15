@@ -819,6 +819,8 @@
                 OldGLAcc.Init();
         end;
         "Income/Balance" := OldGLAcc."Income/Balance";
+
+        OnAfterSetupNewGLAcc(Rec);
     end;
 
     procedure CheckGLAcc()
@@ -956,6 +958,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGLAcc(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewGLAcc(var GLAccount: Record "G/L Account")
     begin
     end;
 

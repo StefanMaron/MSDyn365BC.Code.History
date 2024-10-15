@@ -476,7 +476,14 @@ table 49 "Invoice Post. Buffer"
     end;
 
     procedure CalcDiscountNoVAT(DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    var
+        IsHandled: boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcDiscountNoVAT(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "VAT Base Amount" := DiscountAmount;
         "VAT Base Amount (ACY)" := DiscountAmountACY;
         Amount := "VAT Base Amount";
@@ -644,10 +651,10 @@ table 49 "Invoice Post. Buffer"
         PurchSetup.Get();
         PurchaseHeader.get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         UpdateEntryDescription(
-            PurchSetup."Copy Line Descr. to G/L Entry" or (PurchaseLine.Type = PurchaseLine.Type::"Fixed Asset"),
+            PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description");
+            PurchaseHeader."Posting Description", true);
     end;
 
     local procedure UpdateEntryDescriptionFromSalesLine(SalesLine: Record "Sales Line")
@@ -661,7 +668,7 @@ table 49 "Invoice Post. Buffer"
             SalesSetup."Copy Line Descr. to G/L Entry",
             SalesLine."Line No.",
             SalesLine.Description,
-            SalesHeader."Posting Description");
+            SalesHeader."Posting Description", false);
     end;
 
     local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line")
@@ -675,16 +682,18 @@ table 49 "Invoice Post. Buffer"
             ServiceSetup."Copy Line Descr. to G/L Entry",
             ServiceLine."Line No.",
             ServiceLine.Description,
-            ServiceHeader."Posting Description");
+            ServiceHeader."Posting Description", false);
     end;
 
-    local procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100])
+    local procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100]; IsPurchase: Boolean)
     begin
-        if CopyLineDescrToGLEntry and (Type = type::"G/L Account") then begin
-            "Entry Description" := LineDescription;
-            "Fixed Asset Line No." := LineNo;
-        end else
-            "Entry Description" := HeaderDescription;
+        "Entry Description" := HeaderDescription;
+        if Type in [Type::"G/L Account", Type::"Fixed Asset"] then begin
+            if CopyLineDescrToGLEntry then
+                "Entry Description" := LineDescription;
+            if IsPurchase then
+                "Fixed Asset Line No." := LineNo;
+        end;
     end;
 
     local procedure AdjustRoundingForUpdate()
@@ -772,6 +781,11 @@ table 49 "Invoice Post. Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDiscount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDiscountNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 

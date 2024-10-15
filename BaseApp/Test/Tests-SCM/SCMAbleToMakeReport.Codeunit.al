@@ -241,8 +241,8 @@ codeunit 137392 "SCM - Able To Make Report"
         ProdItem.Modify(true);
 
         // [WHEN] Open Item Availability by BOM level page for item "A".
-        ItemAvailabilitybyBOMLevel.OpenEdit;
-        ItemAvailabilitybyBOMLevel.ItemFilter.SetValue(ProdItem."No.");
+        ItemAvailabilitybyBOMLevel.Trap();
+        RunItemAvailByBOMLevelPage(ProdItem, '', '');
 
         // [THEN] "Able to Make Parent" and "Able to Make Top Item" for production item "A" = 1000 / 20 = 50 pcs.
         ItemAvailabilitybyBOMLevel.Expand(true);

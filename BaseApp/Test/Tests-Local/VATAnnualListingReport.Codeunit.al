@@ -54,7 +54,8 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
 
         // Exercise.
-        OpenAnnualListingRep(false, true, Date2DMY(StartDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, true, Date2DMY(StartDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // Verify report datasaet against VATEntry table.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -79,7 +80,8 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
 
         // Exercise.
-        OpenAnnualListingRep(false, false, Date2DMY(StartDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, false, Date2DMY(StartDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // Verify report datasaet against VATEntry table.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -100,7 +102,7 @@ codeunit 144013 "VAT Annual Listing Report"
         Initialize;
 
         // Exercise.
-        asserterror OpenAnnualListingRep(true, true, 1899, 0, IncludeCountry::All, '');
+        asserterror OpenAnnualListingRep(true, true, 1899, 0, IncludeCountry::All, '', '');
     end;
 
     [Test]
@@ -120,7 +122,8 @@ codeunit 144013 "VAT Annual Listing Report"
         CreateAndPostSalesDocument(SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // Exercise: Run Report Annual Listing.
-        OpenAnnualListingRep(false, true, Date2DMY(WorkDate, 3), 0, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, true, Date2DMY(WorkDate(), 3), 0, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // Verify: Verify VAT Base Amount and VAT Amount on report.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -146,7 +149,8 @@ codeunit 144013 "VAT Annual Listing Report"
         InvoiceAmount := FindLastInvoiceAmount(Customer."No.");
 
         // [WHEN] Report VAT Annual Listing is being printed with Minimum Amount = 2X
-        OpenAnnualListingRep(false, true, Date2DMY(StartDate, 3), InvoiceAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, true, Date2DMY(StartDate, 3), InvoiceAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // [THEN] Invoice is not printed
         LibraryReportDataset.LoadDataSetFile;
@@ -173,7 +177,8 @@ codeunit 144013 "VAT Annual Listing Report"
         CrMemoAmount := FindLastCrMemoAmount(Customer."No.");
 
         // [WHEN] Report VAT Annual Listing is being printed with Minimum Amount = 2X
-        OpenAnnualListingRep(false, true, Date2DMY(WorkDate, 3), CrMemoAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, true, Date2DMY(WorkDate(), 3), CrMemoAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // [THEN] Credit memo is printed
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -206,7 +211,8 @@ codeunit 144013 "VAT Annual Listing Report"
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 600
         OpenAnnualListingRep(
-          false, true, Date2DMY(WorkDate, 3), InvoiceAmount + CrMemoAmount, IncludeCountry::Specific, Customer."Country/Region Code");
+          false, true, Date2DMY(WorkDate(), 3), InvoiceAmount + CrMemoAmount,
+          IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // [THEN] Entry for the customer is printed with <TurnOver> = 400 and <VATAmount> = 40
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
@@ -233,12 +239,69 @@ codeunit 144013 "VAT Annual Listing Report"
         InvoiceAmount := FindLastInvoiceAmount(Customer."No.");
 
         // [WHEN] Report VAT Annual Listing is being printed with Minimum Amount = 50
-        OpenAnnualListingRep(false, true, Date2DMY(WorkDate, 3), InvoiceAmount / 2, IncludeCountry::Specific, Customer."Country/Region Code");
+        OpenAnnualListingRep(
+            false, true, Date2DMY(WorkDate(), 3), InvoiceAmount / 2,
+            IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // [THEN] Entry for the customer is printed with <TurnOver> = 100 and <VATAmount> = 10
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst;
         VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure VATLiableIsPrinted()
+    var
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [VAT Liable]
+        // [SCENARIO 388486] Customer with "VAT Liable" = True is printed by the "VAT Annual Listing" report
+        Initialize();
+
+        // [GIVEN] Customer with "VAT Liable" = True
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.TestField("VAT Liable", true);
+
+        // [WHEN] Print "VAT Annual Listing" report
+        OpenAnnualListingRep(
+          false, true, Date2DMY(WorkDate(), 3), 0, IncludeCountry::All, Customer."Country/Region Code", Customer."No.");
+
+        // [THEN] The customer is printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(
+          'BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRepRequestPageHandler')]
+    procedure NonVATLiableIsNotPrinted()
+    var
+        Customer: array[2] of Record Customer;
+    begin
+        // [FEATURE] [VAT Liable]
+        // [SCENARIO 388486] Customer with "VAT Liable" = False is not printed by the "VAT Annual Listing" report
+        Initialize();
+
+        // [GIVEN] Customer "A" with "VAT Liable" = True and customer "B" with "VAT Liable" = False
+        LibraryBEHelper.CreateDomesticCustomer(Customer[1]);
+        Customer[1].TestField("VAT Liable", true);
+
+        LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
+        Customer[2].Validate("VAT Liable", false);
+        Customer[2].Modify(true);
+
+        // [WHEN] Print "VAT Annual Listing" report
+        OpenAnnualListingRep(
+          false, true, Date2DMY(WorkDate(), 3), 0, IncludeCountry::All, Customer[1]."Country/Region Code",
+          StrSubstNo('%1|%2', Customer[1]."No.", Customer[2]."No."));
+
+        // [THEN] The customer "A" is printed and customer "B" is not printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(
+          'BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer[1]."Enterprise No."));
+        LibraryReportDataset.AssertElementWithValueNotExist(
+          'BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer[2]."Enterprise No."));
     end;
 
     local procedure Initialize()
@@ -306,15 +369,23 @@ codeunit 144013 "VAT Annual Listing Report"
         exit(StrSubstNo('%1 %2', 'BE', DelChr(EtnerpriseNo, '=', DelChr(EtnerpriseNo, '=', '0123456789'))));
     end;
 
-    local procedure OpenAnnualListingRep(WrongEnterpriseNo: Boolean; VATAnnualListing: Boolean; Year: Integer; MinimumAmount: Decimal; IncludeCountry: Option All,Specific; CountryCode: Code[10])
+    local procedure OpenAnnualListingRep(WrongEnterpriseNo: Boolean; IsVATAnnualListing: Boolean; Year: Integer; MinimumAmount: Decimal; IncludeCountry: Option All,Specific; CountryCode: Code[10]; CustomerNoFilter: Text)
+    var
+        Customer: Record Customer;
+        VATAnnualListing: Report "VAT Annual Listing";
     begin
         LibraryVariableStorage.Enqueue(WrongEnterpriseNo);
-        LibraryVariableStorage.Enqueue(VATAnnualListing);
+        LibraryVariableStorage.Enqueue(IsVATAnnualListing);
         LibraryVariableStorage.Enqueue(Year);
         LibraryVariableStorage.Enqueue(MinimumAmount);
         LibraryVariableStorage.Enqueue(IncludeCountry);
         LibraryVariableStorage.Enqueue(CountryCode);
-        REPORT.Run(REPORT::"VAT Annual Listing", true);
+
+        IF CustomerNoFilter <> '' THEN
+            Customer.SetFilter("No.", CustomerNoFilter);
+        VATAnnualListing.SetTableView(Customer);
+        Commit();
+        VATAnnualListing.Run();
     end;
 
     [RequestPageHandler]

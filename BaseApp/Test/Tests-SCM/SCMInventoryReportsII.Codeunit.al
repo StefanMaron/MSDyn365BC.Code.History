@@ -1654,6 +1654,45 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.SetRange('LineDisc_SalesLineDisc', LineDiscount);
         Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
     end;
+    
+    [HandlerFunctions('PriceListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PriceListReportForCustomerAndAllCustomerPrice()
+    var
+        Item: Record Item;
+        SalesPrice: Record "Sales Price";
+        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
+        CustomerNo: Code[20];
+        UnitPrice: array[2] of Decimal;
+    begin
+        // [SCENARIO 387837] Created two price of Item: one for Customer, another for All Customer. Then run report "Price List" for Customer
+        // [GIVEN] Created Customer and Item
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
+        UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Generated 2 Unit prices
+        UnitPrice[1] := LibraryRandom.RandDec(100, 2);
+        UnitPrice[2] := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Created Sales Price Line with first Unit Price for Customer
+        CreateSalesPriceForItem(
+          Item, SalesPrice."Sales Type"::Customer, CustomerNo, '', 0, UnitPrice[1]);
+
+        // [GIVEN] Created Sales Price Line with second Unit Price for All Customers
+        CreateSalesPriceForItem(
+          Item, SalesPrice."Sales Type"::"All Customers", '', '', 0, UnitPrice[2]);
+
+        // [WHEN] Run report 715 "Price List"
+        Commit();
+        RunPriceListReport(Item."No.", SalesType::Customer, CustomerNo, '');
+
+        // [THEN] Both "Unit Price" are shown
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[1]);
+        LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[2]);
+    end;
 
     local procedure Initialize()
     var

@@ -757,7 +757,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // Verify Whse. Phys. Inventory List report when "Show Serial/Lot No" option is not checked, if warehouse tracking is defined for a specific Item Tracking Code.
         LotNo := WhsePhysInventoryListReport(true, false, true);  // Booleans value are respective to ShowQuantity, ShowTracking, LotWarehouseTracking.
-        asserterror LibraryReportDataset.AssertElementWithValueExists('LotNo_WarehuseJournalLine', LotNo);
+        LibraryReportDataset.AssertElementWithValueExists('LotNo_WarehuseJournalLine', LotNo);
     end;
 
     [Test]
@@ -769,7 +769,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // Verify Whse. Phys. Inventory List report when "Show Serial/Lot No" option is checked, if warehouse tracking is not defined for a specific Item Tracking Code.
         LotNo := WhsePhysInventoryListReport(true, true, false);  // Booleans value are respective to ShowQuantity, ShowTracking, LotWarehouseTracking.
-        asserterror LibraryReportDataset.AssertElementWithValueExists('LotNo_WarehuseJournalLine', LotNo);
+        LibraryReportDataset.AssertElementWithValueExists('LotNo_WarehuseJournalLine', LotNo);
     end;
 
     local procedure WhsePhysInventoryListReport(ShowQuantity: Boolean; ShowTracking: Boolean; LotWarehouseTracking: Boolean): Code[20]

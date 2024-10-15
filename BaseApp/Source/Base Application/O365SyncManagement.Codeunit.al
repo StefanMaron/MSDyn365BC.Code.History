@@ -1,8 +1,14 @@
-codeunit 6700 "O365 Sync. Management"
+﻿codeunit 6700 "O365 Sync. Management"
 {
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnRun(IsHandled);
+        if IsHandled then
+            exit;
+
         CODEUNIT.Run(CODEUNIT::"Exchange Contact Sync.");
         CODEUNIT.Run(CODEUNIT::"Booking Customer Sync.");
         CODEUNIT.Run(CODEUNIT::"Booking Service Sync.");
@@ -421,6 +427,11 @@ codeunit 6700 "O365 Sync. Management"
 
         if not ExchangeService.CanAccessBookingMailbox(BookingSync."Booking Mailbox Address") then
             Error(NoUserAccessErr, BookingSync."Booking Mailbox Name", BookingSync."User ID");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -303,7 +303,13 @@
     var
         EmailParameter: Record "Email Parameter";
         CompanyInformation: Record "Company Information";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetEmailSubject(PostedDocNo, EmailDocumentName, ReportUsage, Subject, IsHandled);
+        if IsHandled then
+            exit(Subject);
+
         if EmailParameter.GetParameterWithReportUsage(PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Subject) then
             exit(CopyStr(EmailParameter.GetParameterValue(), 1, 250));
         CompanyInformation.Get();
@@ -557,6 +563,11 @@
     
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetEmailSubject(PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer; var EmailSubject: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
