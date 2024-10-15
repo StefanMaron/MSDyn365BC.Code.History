@@ -16,7 +16,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTemplates: Codeunit "Library - Templates";
-        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
@@ -25,7 +24,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsBusinessManager()
     var
-        TempCustomerDetails: Record Customer temporary;
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -37,11 +35,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
 
         // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
@@ -57,7 +54,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsExternalAccountant()
     var
-        TempCustomerDetails: Record Customer temporary;
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -69,11 +65,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] A user with External Accountant Plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
 
         // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
@@ -89,7 +84,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsTeamMember()
     var
-        TempCustomerDetails: Record Customer temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
@@ -100,11 +94,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
         Initialize();
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
@@ -139,7 +132,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsEssentialISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -151,11 +143,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] A user with Essential ISV Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
 
         // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
@@ -171,7 +162,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsTeamMemberISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
@@ -182,11 +172,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Team Member ISV Emb
 
         Initialize();
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
         Commit();
 
         // [GIVEN] A user with Team Member ISV Emb Plan
@@ -222,7 +211,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsDeviceISVEmbUser()
     var
-        TempCustomerDetails: Record Customer temporary;
         PrepaymentPercent: Decimal;
         CustomerNo: Code[20];
         ItemNo: Code[20];
@@ -234,11 +222,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] A user with Device ISV Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
         // [GIVEN] A customer with a Prepayment Setup
-        CustomerNo := CreateCustomer(PrepaymentPercent, TempCustomerDetails);
+        CustomerNo := CreateCustomer(PrepaymentPercent);
 
         // [WHEN] A sales order is created, the lines are automatically filled with a prepayment amount
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
@@ -254,7 +241,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsBusinessManager()
     var
-        TempVendorDetails: Record Vendor temporary;
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -264,13 +250,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
 
         // [WHEN] A purchase order is created, the lines are automatically filled with a prepayment amount
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
@@ -286,7 +271,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsExternalAccountant()
     var
-        TempVendorDetails: Record Vendor temporary;
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -296,13 +280,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with External Accountant Plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
 
         // [WHEN] A purchase order is created, the lines are automatically filled with a prepayment amount
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
@@ -318,7 +301,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsTeamMember()
     var
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
@@ -329,11 +311,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
@@ -366,7 +347,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsEssentialISVEmbUser()
     var
-        TempVendorDetails: Record Vendor temporary;
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -376,13 +356,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Essential ISV Emb
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Essential ISV Emb Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
 
         // [WHEN] A purchase order is created, the lines are automatically filled with a prepayment amount
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
@@ -398,7 +377,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsTeamMemberISVEmb()
     var
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
@@ -407,12 +385,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PostedPurchaseInvoiceNo: Code[20];
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Team Member ISV Emb
+
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
         Commit();
 
         // [GIVEN] A user with Team Member ISV Emb Plan
@@ -447,7 +425,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsDeviceISVEmbUser()
     var
-        TempVendorDetails: Record Vendor temporary;
         PrepaymentPercent: Decimal;
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -457,13 +434,12 @@ codeunit 135407 "Prepayments Plan-based E2E"
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Device ISV Emb
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Device ISV Emb Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
         // [GIVEN] A vendor with a Prepayment Setup
-        VendorNo := CreateVendor(PrepaymentPercent, TempVendorDetails);
+        VendorNo := CreateVendor(PrepaymentPercent);
 
         // [WHEN] A purchase order is created, the lines are automatically filled with a prepayment amount
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
@@ -605,7 +581,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Commit();
     end;
 
-    local procedure CreateVendor(var PrepaymentPercentage: Decimal; TempVendorDetails: Record Vendor temporary) VendorNo: Code[20]
+    local procedure CreateVendor(var PrepaymentPercentage: Decimal) VendorNo: Code[20]
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
@@ -613,16 +589,13 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
-        VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
-        VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
-        VendorCard."Vendor Posting Group".SetValue(TempVendorDetails."Vendor Posting Group");
         VendorCard."Prepayment %".SetValue(PrepaymentPercentage);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
         Commit();
     end;
 
-    local procedure CreateCustomer(var PrepaymentPercentage: Decimal; TempCustomerDetails: Record Customer temporary) CustomerNo: Code[20]
+    local procedure CreateCustomer(var PrepaymentPercentage: Decimal) CustomerNo: Code[20]
     var
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
@@ -630,39 +603,10 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
-        CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
-        CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
-        CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
         CustomerCard."Prepayment %".SetValue(PrepaymentPercentage);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
         Commit();
-    end;
-
-    local procedure FindVendorPostingAndVATSetup(var TempVendorDetails: Record Vendor temporary)
-    begin
-        TempVendorDetails.Init();
-        FindBusPostingGroups(TempVendorDetails."Gen. Bus. Posting Group", TempVendorDetails."VAT Bus. Posting Group");
-        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup;
-    end;
-
-    local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
-    begin
-        TempCustomerDetails.Init();
-        FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
-        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
-    end;
-
-    local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        GenBusPostingGroup := GeneralPostingSetup."Gen. Bus. Posting Group";
-
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        VATBusPostingGroup := VATPostingSetup."VAT Bus. Posting Group";
     end;
 
     local procedure VerifyPostedSalesInvoicePrepayment(PostedSalesInvoiceNo: Code[20]; ExpectedPrepaymentPercentage: Decimal)

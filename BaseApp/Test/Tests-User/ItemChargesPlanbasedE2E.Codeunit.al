@@ -11,7 +11,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Assert: Codeunit Assert;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -26,7 +25,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsBusinessManager()
     var
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         ItemNo: Code[20];
         ItemChargeNo: Code[20];
@@ -35,10 +33,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
@@ -57,7 +53,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsEsternalAccountant()
     var
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         ItemNo: Code[20];
         ItemChargeNo: Code[20];
@@ -66,10 +61,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with External Accountant Plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
@@ -88,7 +81,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsTeamMember()
     var
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -100,10 +92,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
         Commit();
@@ -152,7 +142,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsEssentialISVEmbUser()
     var
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         ItemNo: Code[20];
         ItemChargeNo: Code[20];
@@ -161,11 +150,9 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
-        // [GIVEN] A user with Essential ISV Emb Plan
+        ItemNo := CreateItemFromVendor(VendorNo);
+        // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         // [WHEN] An Item Charge is created
@@ -183,7 +170,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsTeamMemberISVEmb()
     var
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -195,10 +181,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
         Commit();
@@ -249,7 +233,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsDeviceISVEmbUser()
     var
-        TempVendorDetails: Record Vendor temporary;
         VendorNo: Code[20];
         ItemNo: Code[20];
         ItemChargeNo: Code[20];
@@ -258,11 +241,9 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
-        // [GIVEN] A user with Device ISV Emb Plan
+        ItemNo := CreateItemFromVendor(VendorNo);
+        // [GIVEN] A user with Device ISV Embedded Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
         // [WHEN] An Item Charge is created
@@ -280,8 +261,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsBusinessManager()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -291,13 +270,10 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
+        CustomerNo := CreateCustomer;
         // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
@@ -316,8 +292,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsExternalAccountant()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -327,13 +301,10 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
+        CustomerNo := CreateCustomer;
         // [GIVEN] A user with External Accountant Plan
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
@@ -352,8 +323,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsTeamMember()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         CustomerNo: Code[20];
         VendorNo: Code[20];
@@ -366,13 +335,10 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
+        CustomerNo := CreateCustomer;
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
         Commit();
@@ -421,8 +387,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsEssentialISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -432,14 +396,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
-        // [GIVEN] A user with Essential ISV Emb Plan
+        CustomerNo := CreateCustomer;
+        // [GIVEN] A user with Business Manager Plan
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         // [WHEN] An Item Charge is created
@@ -457,8 +418,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsTeamMemberISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         ErrorMessagesPage: TestPage "Error Messages";
         CustomerNo: Code[20];
         VendorNo: Code[20];
@@ -471,13 +430,10 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
+        CustomerNo := CreateCustomer;
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
         Commit();
@@ -528,8 +484,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsDeviceISVEmb()
     var
-        TempCustomerDetails: Record Customer temporary;
-        TempVendorDetails: Record Vendor temporary;
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ItemNo: Code[20];
@@ -539,14 +493,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
         Initialize();
-        FindVendorPostingAndVATSetup(TempVendorDetails);
-        FindCustomerPostingAndVATSetup(TempCustomerDetails);
-
         // [GIVEN] An item
-        ItemNo := CreateItemFromVendor(VendorNo, TempVendorDetails);
+        ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer(TempCustomerDetails);
-        // [GIVEN] A user with Device ISV Emb Plan
+        CustomerNo := CreateCustomer;
+        // [GIVEN] A user with Device ISV Embedded Plan
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
         // [WHEN] An Item Charge is created
@@ -818,13 +769,13 @@ codeunit 135406 "Item Charges Plan-based E2E"
         PostedSalesCreditMemo.Close();
     end;
 
-    local procedure CreateItemFromVendor(var VendorNo: Code[20]; TempVendor: Record Vendor temporary) ItemNo: Code[20]
+    local procedure CreateItemFromVendor(var VendorNo: Code[20]) ItemNo: Code[20]
     begin
-        VendorNo := CreateVendor(TempVendor);
+        VendorNo := CreateVendor;
         ItemNo := CreateItem(VendorNo);
     end;
 
-    local procedure CreateVendor(TempVendorDetails: Record Vendor temporary) VendorNo: Code[20]
+    local procedure CreateVendor() VendorNo: Code[20]
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
@@ -833,14 +784,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(VendorName);
-        VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
-        VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
-        VendorCard."Vendor Posting Group".SetValue(TempVendorDetails."Vendor Posting Group");
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
     end;
 
-    local procedure CreateCustomer(TempCustomerDetails: Record Customer temporary) CustomerNo: Code[20]
+    local procedure CreateCustomer() CustomerNo: Code[20]
     var
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
@@ -849,9 +797,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
-        CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
-        CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
-        CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
     end;
@@ -904,32 +849,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         if ApplicationAreaMgmtFacade.IsVATEnabled then
             ItemCharges."VAT Prod. Posting Group".SetValue(VATPostingSetup."VAT Prod. Posting Group");
         ItemCharges.OK.Invoke;
-    end;
-
-    local procedure FindVendorPostingAndVATSetup(var TempVendorDetails: Record Vendor temporary)
-    begin
-        TempVendorDetails.Init();
-        FindBusPostingGroups(TempVendorDetails."Gen. Bus. Posting Group", TempVendorDetails."VAT Bus. Posting Group");
-        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup;
-    end;
-
-    local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
-    begin
-        TempCustomerDetails.Init();
-        FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
-        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
-    end;
-
-    local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        GenBusPostingGroup := GeneralPostingSetup."Gen. Bus. Posting Group";
-
-        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        VATBusPostingGroup := VATPostingSetup."VAT Bus. Posting Group";
     end;
 
     [ModalPageHandler]

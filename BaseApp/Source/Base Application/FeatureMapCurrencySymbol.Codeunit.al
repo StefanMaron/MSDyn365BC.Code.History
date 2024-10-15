@@ -1,5 +1,10 @@
+#if not CLEAN22
 codeunit 5405 "Feature Map Currency Symbol" implements "Feature Data Update"
 {
+    ObsoleteReason = 'Feature CurrencySymbolMapping will be enabled by default in version 22.0.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+
     procedure IsDataUpdateRequired(): Boolean;
     begin
         CountRecords();
@@ -98,3 +103,4 @@ codeunit 5405 "Feature Map Currency Symbol" implements "Feature Data Update"
         TempDocumentEntry.Insert();
     end;
 }
+#endif

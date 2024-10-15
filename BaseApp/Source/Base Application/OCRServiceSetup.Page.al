@@ -282,22 +282,18 @@ page 1270 "OCR Service Setup"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref(SetURLsToDefault_Promoted; SetURLsToDefault)
-                {
-                }
                 actionref(TestConnection_Promoted; TestConnection)
                 {
                 }
                 actionref(UpdateOCRDocTemplateList_Promoted; UpdateOCRDocTemplateList)
                 {
                 }
+                actionref(SetURLsToDefault_Promoted; SetURLsToDefault)
+                {
+                }
                 actionref(ResyncMasterData_Promoted; ResyncMasterData)
                 {
                 }
-            }
-            group(Category_Report)
-            {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
             group(Category_Category4)
             {
@@ -317,6 +313,10 @@ page 1270 "OCR Service Setup"
                 actionref(ActivityLog_Promoted; ActivityLog)
                 {
                 }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

@@ -188,44 +188,6 @@ codeunit 134912 "ERM User Personalization"
         DeleteProfile(AllObjWithCaption);
     end;
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('UserPersonalizationSetRole,AvailableProfileHandler,RestartHandler')]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationProfileID()
-    var
-        UserPersonalization: Record "User Personalization";
-        AllObjWithCaption: Record AllObjWithCaption;
-        UserPersonalizationCard: Page "User Personalization Card";
-    begin
-        // Check Profile ID on User Personalization page.
-
-        // Setup.
-        Initialize();
-        FindAnyRoleCenter(AllObjWithCaption);
-        CreateProfile(AllObjWithCaption);
-
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalizationCard.SetRecord(UserPersonalization);
-        UserPersonalizationCard.RunModal();
-
-        // force session restart to make the test pass in all cases
-        RestartSession();
-
-        // Verify: Verify created Profile ID.
-        UserPersonalization.Get(UserSecurityId());
-        Assert.AreEqual(UserPersonalization."Profile ID", Format(AllObjWithCaption."Object ID"), 'Profile not set on User Personalization');
-
-        // Tear Down: Setup default values.
-        UserPersonalization.Validate("Profile ID", '');
-        Clear(UserPersonalization."App ID");
-        Clear(UserPersonalization.Scope);
-        UserPersonalization.Modify(true);
-
-        DeleteProfile(AllObjWithCaption);
-    end;
-#endif
-
     internal procedure RestartSession()
     var
         UserPersonalization: Record "User Personalization";
@@ -315,6 +277,7 @@ codeunit 134912 "ERM User Personalization"
         DeleteProfile(AllObjWithCaption);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure UserGroupAssignedToUserUpdateProfileID()
@@ -528,122 +491,6 @@ codeunit 134912 "ERM User Personalization"
         DeleteUser(UserCassieTxt);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(PreviousSaaSTestability);
     end;
-
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('UserPersonalizationSetTimeZone,TimeZoneModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestTimeZoneLookup()
-    var
-        UserPersonalization: Record "User Personalization";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        UserPersonalizationCard: Page "User Personalization Card";
-        OldTimeZone: Text[180];
-    begin
-        // Setup
-        Initialize();
-
-        OldTimeZone := GetCurrentTimeZone();
-        CreateNewProfile(OrderProcessorTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
-        LibraryVariableStorage.AssertEmpty();
-        LibraryVariableStorage.Enqueue('Mountain Standard Time');
-
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalizationCard.SetRecord(UserPersonalization);
-        UserPersonalizationCard.RunModal();
-
-        // Exercise
-        // See Handlers
-
-        // Verify
-        UserPersonalization.Get(UserSecurityId());
-        Assert.AreEqual('Mountain Standard Time', UserPersonalization."Time Zone", 'Wrong Time Zone in User Personalization record');
-
-        // Cleanup
-        DeleteProfileById(OrderProcessorTxt);
-        SetTimeZone(OldTimeZone);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('UserPersonalizationSetPartialTimeZone')]
-    procedure TestTimeZoneValidatePartialNext()
-    var
-        UserPersonalization: Record "User Personalization";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        UserPersonalizationCard: Page "User Personalization Card";
-        OldTimeZone: Text[180];
-    begin
-        // Setup
-        Initialize();
-        CreateNewProfile(OrderProcessorTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
-        OldTimeZone := GetCurrentTimeZone();
-
-        // Exercise
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalizationCard.SetRecord(UserPersonalization);
-        UserPersonalizationCard.RunModal();
-
-        // Verify
-        // See handlers
-
-        // Cleanup
-        DeleteProfileById(OrderProcessorTxt);
-        SetTimeZone(OldTimeZone);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('UserPersonalizationSetPartialTimeZonePrev')]
-    procedure TestTimeZoneValidatePartialPrev()
-    var
-        UserPersonalization: Record "User Personalization";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        UserPersonalizationCard: Page "User Personalization Card";
-
-        OldTimeZone: Text[180];
-    begin
-        // Setup
-        Initialize();
-        CreateNewProfile(OrderProcessorTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
-
-        // Exercise
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalizationCard.SetRecord(UserPersonalization);
-        UserPersonalizationCard.RunModal();
-
-        // Verify
-        // See handlers
-
-        // Cleanup
-        DeleteProfileById(OrderProcessorTxt);
-        SetTimeZone(OldTimeZone);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('UserPersonalizationSetTimeZoneFail')]
-    procedure TestTimeZoneValidateFail()
-    var
-        UserPersonalization: Record "User Personalization";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        UserPersonalizationCard: Page "User Personalization Card";
-    begin
-        // Setup
-        Initialize();
-        CreateNewProfile(OrderProcessorTxt, ConfPersonalizationMgt.DefaultRoleCenterID, true);
-
-        // Exercise
-        UserPersonalization.Get(UserSecurityId());
-        UserPersonalizationCard.SetRecord(UserPersonalization);
-        UserPersonalizationCard.RunModal();
-
-        // Verify
-        // See handlers
-
-        // Cleanup
-        DeleteProfileById(OrderProcessorTxt);
-    end;
 #endif
 
     [Test]
@@ -697,6 +544,7 @@ codeunit 134912 "ERM User Personalization"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure RenameUserGroupMemberCompanyName()
@@ -1178,6 +1026,7 @@ codeunit 134912 "ERM User Personalization"
         DeleteProfileById(PersonalizationProfileID);
         DeleteProfileById(OtherProfileID);
     end;
+#endif
 
     // Helper functions
 
@@ -1425,6 +1274,7 @@ codeunit 134912 "ERM User Personalization"
         UserPersonalization.TestField("Profile ID", ProfileID);
     end;
 
+#if not CLEAN22
     local procedure AddProfileIDToUserGroup(ProfileID: Code[30]; UserGroupCode: Code[20])
     var
         UserGroup: Record "User Group";
@@ -1436,6 +1286,7 @@ codeunit 134912 "ERM User Personalization"
         UserGroup."Default Profile App ID" := EmptyGuid;
         UserGroup.Modify(true);
     end;
+#endif
 
     local procedure GetProfileIDForUser(UserID: Guid): Code[30]
     var
@@ -1445,12 +1296,14 @@ codeunit 134912 "ERM User Personalization"
         exit(UserPersonalization."Profile ID");
     end;
 
+#if not CLEAN22
     local procedure AssignUserGroupAndProfileToUser(UserGroupCode: Code[20]; ProfileID: Code[30]; User: Guid)
     begin
         LibraryPermissions.CreateUserGroupWithCode(UserGroupCode);
         AddProfileIDToUserGroup(ProfileID, UserGroupCode);
         LibraryPermissions.AddUserToUserGroupByCode(User, UserGroupCode);
     end;
+#endif
 
     local procedure DeleteUser(UserName: Code[50])
     var
@@ -1526,89 +1379,6 @@ codeunit 134912 "ERM User Personalization"
         Roles.GoToRecord(AllProfile);
         Roles.OK().Invoke();
     end;
-
-#if not CLEAN19
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure TimeZoneModalPageHandler(var TimeZonesLookup: TestPage "Time Zones Lookup")
-    var
-        TimeZone: Record "Time Zone";
-        TimeZoneText: Text;
-    begin
-        TimeZoneText := LibraryVariableStorage.DequeueText;
-        TimeZone.SetRange(ID, TimeZoneText);
-        TimeZone.FindFirst();
-        TimeZonesLookup.GotoRecord(TimeZone);
-        TimeZonesLookup.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailableProfileHandler(var AvailableRoles: TestPage "Available Roles")
-    var
-        AllProfile: Record "All Profile";
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        FindAnyRoleCenter(AllObjWithCaption);
-        AllProfile.SetRange("Role Center ID", AllObjWithCaption."Object ID");
-        AllProfile.FindFirst();
-        AvailableRoles.GotoRecord(AllProfile);
-        AvailableRoles.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationSetRole(var UserPersonalizationCard: TestPage "User Personalization Card")
-    begin
-        UserPersonalizationCard.Role.AssistEdit();
-        UserPersonalizationCard.OK.Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationSetTimeZone(var UserPersonalizationCard: TestPage "User Personalization Card")
-    begin
-        UserPersonalizationCard."Time Zone".Lookup();
-
-        Assert.AreEqual('Mountain Standard Time', UserPersonalizationCard."Time Zone".Value(), 'Wrong Time Zone returned from Lookup');
-
-        UserPersonalizationCard.OK.Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationSetPartialTimeZone(var UserPersonalizationCard: TestPage "User Personalization Card")
-    begin
-        UserPersonalizationCard."Time Zone".Value('Mountain Standard Time (');
-
-        // Verify
-        Assert.AreEqual('Mountain Standard Time (Mexico)', UserPersonalizationCard."Time Zone".Value,
-          'Wrong Time Zone returned from Validate');
-
-        UserPersonalizationCard.OK.Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationSetPartialTimeZonePrev(var UserPersonalizationCard: TestPage "User Personalization Card")
-    begin
-        UserPersonalizationCard."Time Zone".Value('Mountain Standard');
-
-        // Verify
-        Assert.AreEqual('US Mountain Standard Time', UserPersonalizationCard."Time Zone".Value,
-          'Wrong Time Zone returned from Validate');
-
-        UserPersonalizationCard.OK.Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserPersonalizationSetTimeZoneFail(var UserPersonalizationCard: TestPage "User Personalization Card")
-    begin
-        asserterror UserPersonalizationCard."Time Zone".Value('dummyvalue');
-        Assert.ExpectedError('The Time Zone does not exist');
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

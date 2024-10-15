@@ -3364,11 +3364,13 @@ codeunit 134202 "Document Approval - Users"
     var
         UserSetup: Record "User Setup";
         AccessControl: Record "Access Control";
+#if not CLEAN22
         UserGroup: Record "User Group";
         UserGroupMember: Record "User Group Member";
         UserGroupAccessControl: Record "User Group Access Control";
         UserGroupPermissionSet: Record "User Group Permission Set";
         UserGroupPlan: Record "User Group Plan";
+#endif
     begin
         // When we add any user into User table Server switches authentication mode
         // and further tests fail with permission error until Server is restarted.
@@ -3379,11 +3381,13 @@ codeunit 134202 "Document Approval - Users"
         DeleteAllUsers;
         UserSetup.DeleteAll(true);
         AccessControl.DeleteAll(true);
+#if not CLEAN22
         UserGroupMember.DeleteAll(true);
         UserGroupAccessControl.DeleteAll(true);
         UserGroupPermissionSet.DeleteAll(true);
         UserGroupPlan.DeleteAll(true);
         UserGroup.DeleteAll(true);
+#endif
     end;
 
     local procedure DeleteAllUsers()

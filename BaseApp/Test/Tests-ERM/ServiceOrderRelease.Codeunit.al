@@ -3010,7 +3010,6 @@ codeunit 136140 "Service Order Release"
 
         // [GIVEN] Service Order with Item, Resource ("A" qty.), G/L Account ("B" qty.), Cost ("C" qty.)
         ServiceItemLineNo := CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", ItemQty, LocationCode);
-        ServiceHeader.Modify();
         AddResourceGLServiceLinesToOrder(ServiceHeader, ServiceItemLineNo);
 
         // [GIVEN] Create warehouse shipment from Service Order, register Pick for item
@@ -3038,7 +3037,7 @@ codeunit 136140 "Service Order Release"
         AmountIncludingVAT: Decimal;
     begin
         // [FEATURE] [Reopen]
-        // [SCENATIO 378451] VAT Amount remains after reopen Service Order
+        // [SCENARIO 378451] VAT Amount remains after reopen Service Order
         Initialize();
 
         // [GIVEN] Released service order with service lines

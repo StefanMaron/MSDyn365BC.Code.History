@@ -1367,6 +1367,8 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Custom));
         Assert.ExpectedError('The row does not exist on the TestPage.');
+        asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Advanced));
+        Assert.ExpectedError('The row does not exist on the TestPage.');
         asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Basic));
         Assert.ExpectedError('The row does not exist on the TestPage.');
         ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Essential));

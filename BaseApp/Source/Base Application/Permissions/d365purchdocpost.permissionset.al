@@ -23,10 +23,8 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "G/L Register" = Rimd,
                   tabledata "Interaction Template" = R,
                   tabledata "Interaction Tmpl. Language" = R,
+                  tabledata "Interaction Log Entry" = Rimd,
                   tabledata "Item Charge" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Item Register" = Rimd,

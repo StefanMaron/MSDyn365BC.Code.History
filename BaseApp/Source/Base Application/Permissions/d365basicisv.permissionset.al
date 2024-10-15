@@ -18,8 +18,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Object Options" = IMD,
                   tabledata Permission = imd,
                   tabledata "Permission Set" = imd,
-                  tabledata "Profile Metadata" = IMD,
-                  tabledata "Profile Page Metadata" = IMD,
                   tabledata "Tenant Web Service" = R,
                   tabledata "Upgrade Blob Storage" = Rimd,
                   tabledata User = RMD,
@@ -45,6 +43,8 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Administration Cue" = RIMD,
                   tabledata "Aged Report Entity" = RIMD,
                   tabledata "Aging Band Buffer" = RIMD,
+                  tabledata "Alt. Customer Posting Group" = RIMD,
+                  tabledata "Alt. Vendor Posting Group" = RIMD,
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
                   tabledata "Analysis Report Chart Setup" = R,
@@ -183,7 +183,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
+#if not CLEAN22
                   tabledata "Coupling Field Buffer" = RIMD,
+#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Credit Trans Re-export History" = RIMD,
                   tabledata "Credit Transfer Entry" = RIMD,
@@ -212,9 +214,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN19
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "CV Ledger Entry Buffer" = RIMD,
                   tabledata "Data Exch." = RIMD,
                   tabledata "Data Exch. Column Def" = RIMD,
@@ -227,7 +226,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Data Exch. Field Grouping" = RIMD,
                   tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Data Exchange Type" = RIMD,
-				  tabledata "Data Exch. Table Filter" = RIMD,
+                  tabledata "Data Exch. Table Filter" = RIMD,
                   tabledata "Data Migration Entity" = RIMD,
                   tabledata "Data Migration Error" = RIMD,
                   tabledata "Data Migration Parameters" = RIMD,
@@ -314,7 +313,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Exchange Sync" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
-                  tabledata "Ext Txt ID Integration Record" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
                   tabledata "FA Allocation" = RIMD,
@@ -400,6 +398,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Hybrid Deployment Setup" = Rimd,
                   tabledata "IC Setup" = RIMD,
                   tabledata "Image Analysis Setup" = RIMD,
+                  tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = RIMD,
                   tabledata "Inc. Doc. Attachment Overview" = RIMD,
                   tabledata "Incoming Document" = RIMD,
@@ -416,9 +415,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Insurance Type" = RIMD,
                   tabledata Integer = RIMD,
                   tabledata "Integration Field Mapping" = RIMD,
-                  tabledata "Integration Management Setup" = RIMD,
-                  tabledata "Integration Record" = RIMD,
-                  tabledata "Integration Record Archive" = RIMD,
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
@@ -428,10 +424,12 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Interaction Template Setup" = i,
                   tabledata "Interaction Tmpl. Language" = RIMD,
                   tabledata "Intermediate Data Import" = RIMD,
+#if not CLEAN22
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,
                   tabledata "Intrastat Jnl. Template" = RIMD,
                   tabledata "Intrastat Setup" = RIMD,
+#endif
                   tabledata "Inventory Adjmt. Entry (Order)" = Rimd,
                   tabledata "Inventory Adjustment Buffer" = Rimd,
                   tabledata "Inventory Buffer" = RIMD,
@@ -475,9 +473,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Item Availability by Date" = RIMD,
                   tabledata "Item Availability Line" = RIMD,
                   tabledata "Item Category" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Reference" = RIMD,
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
@@ -684,7 +679,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = R,
                   tabledata "Power BI Report Uploads" = RIMD,
+#if not CLEAN22
                   tabledata "Power BI Service Status Setup" = RIMD,
+#endif
                   tabledata "Power BI User Configuration" = RIMD,
 #if not CLEAN21
                   tabledata "Power BI User License" = RIMD,
@@ -914,14 +911,13 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Unplanned Demand" = RIMD,
                   tabledata "Untracked Planning Element" = RIMD,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = Rimd,
                   tabledata "User Group Permission Set" = R,
                   tabledata "User Group Plan" = Rimd,
+#endif
                   tabledata "User Preference" = RIMD,
                   tabledata "User Security Status" = RIMD,
                   tabledata "User Setup" = RIMD,

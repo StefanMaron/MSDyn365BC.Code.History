@@ -43,7 +43,7 @@
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         PriceCalculationV15Err: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -872,7 +872,7 @@
         VerifyQtyToReceiveInPurchLine(PurchHeader[3]);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1572,7 +1572,7 @@
           'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1691,7 +1691,7 @@
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-#if not CLEAN19
+#if not CLEAN21
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
@@ -1830,7 +1830,7 @@
         ProductionBOMVersion.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure RunPriceListReport(NoFilter: Text; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
@@ -1907,7 +1907,7 @@
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CampaignNo: Code[20])
     begin
         // Create Sales Price with random unit price.
@@ -2715,7 +2715,7 @@
         // Dummy message Handler.
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")

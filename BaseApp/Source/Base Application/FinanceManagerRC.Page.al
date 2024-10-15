@@ -48,18 +48,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Returns';
                         RunObject = page "VAT Report List";
                     }
-#if not CLEAN19
-                    action("ECSL Report")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'EC Sales List Reports';
-                        RunObject = page "EC Sales List Reports";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Remove Denmark Specific Actions for DK Delocalization.';
-                        ObsoleteTag = '19.0';
-                        Visible = false;
-                    }
-#endif
+                    // action("ECSL Report")
+                    // {
+                    //     ApplicationArea = Basic, Suite;
+                    //     Caption = 'EC Sales List Reports';
+                    //     RunObject = page "EC Sales List Reports"
+                    // }
                     group("Group2")
                     {
                         Caption = 'Reports';
@@ -69,18 +63,6 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT Exceptions';
                             RunObject = report "VAT Exceptions";
                         }
-#if not CLEAN19
-                        action("VAT Reconciliation")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'VAT Reconciliation';
-                            RunObject = report "VAT Reconciliation";
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Remove Denmark Specific Actions for DK Delocalization.';
-                            ObsoleteTag = '19.0';
-                            Visible = false;
-                        }
-#endif
                         action("VAT Register")
                         {
                             ApplicationArea = Basic, Suite;
@@ -208,12 +190,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Recurring General Journals';
                         RunObject = page "Recurring General Journal";
                     }
+#if not CLEAN22
                     action("Intrastat Journals")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Journals';
                         RunObject = page "Intrastat Journal";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("General Journals2")
                     {
                         ApplicationArea = Intercompany;
@@ -413,18 +400,26 @@ page 8901 "Finance Manager Role Center"
                     group("Group10")
                     {
                         Caption = 'Miscellaneous';
+#if not CLEAN22
                         action("Intrastat - Checklist")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
                         action("Intrastat - Form")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
+#endif
                         action("Foreign Currency Balance")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1318,18 +1313,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Employee Ledger Entries';
                         RunObject = page "Employee Ledger Entries";
                     }
-#if not CLEAN19
-                    action("Detailed Employee Ledger Entries")
-                    {
-                        ApplicationArea = BasicHR;
-                        Caption = 'Detailed Employee Ledger Entries';
-                        RunObject = page "Detailed Empl. Ledger Entries";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Remove Denmark Specific Actions for DK Delocalization.';
-                        ObsoleteTag = '19.0';
-                        Visible = false;
-                    }
-#endif
+                    // action("Detailed Employee Ledger Entries")
+                    // {
+                    //     ApplicationArea = BasicHR;
+                    //     Caption = 'Detailed Employee Ledger Entries';
+                    //     RunObject = page "Detailed Empl. Ledger Entries";
+                    // }
                 }
                 group("Group40")
                 {
@@ -2051,12 +2040,17 @@ page 8901 "Finance Manager Role Center"
                 group("Group57")
                 {
                     Caption = 'Intrastat';
+#if not CLEAN22
                     action("Intrastat Setup")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = page "Intrastat Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("Tariff Numbers")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2069,12 +2063,41 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Transaction Types';
                         RunObject = page "Transaction Types";
                     }
+                    action("Transaction Specifications")
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Transaction Specifications';
+                        RunObject = page "Transaction Specifications";
+                    }
+                    action("Transport Methods")
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Transport Methods';
+                        RunObject = page "Transport Methods";
+                    }
+                    action("Entry/Exit Points")
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Entry/Exit Points';
+                        RunObject = page "Entry/Exit Points";
+                    }
+                    action("Areas")
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Areas';
+                        RunObject = page "Areas";
+                    }
+#if not CLEAN22
                     action("Intrastat Journal Templates")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                 }
                 group("Group58")
                 {

@@ -313,7 +313,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
         VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
 
@@ -2695,7 +2695,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -2772,7 +2772,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -5394,7 +5394,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -5471,7 +5471,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -5858,7 +5858,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
 
         LibraryApplicationArea.EnableFoundationSetup();
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -6342,7 +6342,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankAccount: Record "Bank Account";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
     begin
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
 

@@ -2403,7 +2403,7 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,SalesQuoteReportRequestPageHandler')]
+    [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,StandardQuoteReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteForContactCustomerTemplate()
     var
@@ -2447,7 +2447,7 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,SalesQuoteReportRequestPageHandler')]
+    [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,StandardQuoteReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteForContactPersonCustomerTemplate()
     var
@@ -6248,7 +6248,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.TestField("Phone No.", ContactPhoneNo);
     end;
 
-    local procedure VerifyCustomerCreatedByContact(CustomerTemplate: Record "Customer Templ."; ContactNo: Code[20]; CustomerPriceGroupCode: Code[20])
+    local procedure VerifyCustomerCreatedByContact(CustomerTemplate: Record "Customer Templ."; ContactNo: Code[20]; CustomerPriceGroupCode: Code[10])
     var
         Customer: Record Customer;
     begin
@@ -6610,10 +6610,7 @@ codeunit 136201 "Marketing Contacts"
     [ConfirmHandler]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
-        if Question = 'Do you want to create a follow-up task?' then
-            Reply := false
-        else
-            Reply := true;
+        Reply := true;
     end;
 
     [ConfirmHandler]
@@ -6691,7 +6688,7 @@ codeunit 136201 "Marketing Contacts"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesQuoteReportRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
+    procedure StandardQuoteReportRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         StandardSalesQuote.Cancel.Invoke;
     end;

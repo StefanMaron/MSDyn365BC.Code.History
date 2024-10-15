@@ -34,30 +34,6 @@ codeunit 130618 "Library - Graph Mgt"
         Commit();
     end;
 
-    procedure EnableIntegrationManagement()
-    var
-        FeatureKey: Record "Feature Key";
-        IntegrationManagement: Codeunit "Integration Management";
-        FeatureKeyExists: Boolean;
-    begin
-        FeatureKeyExists := FeatureKey.Get(IntegrationManagement.GetIntegrationManagementDisabledFeatureKey());
-        FeatureKey.ID := IntegrationManagement.GetIntegrationManagementDisabledFeatureKey();
-        FeatureKey.Enabled := FeatureKey.Enabled::None;
-        if FeatureKeyExists then
-            FeatureKey.Modify()
-        else
-            FeatureKey.Insert();
-    end;
-
-    procedure DisableIntegrationManagement()
-    var
-        FeatureKey: Record "Feature Key";
-        IntegrationManagement: Codeunit "Integration Management";
-    begin
-        if FeatureKey.Get(IntegrationManagement.GetIntegrationManagementDisabledFeatureKey()) then
-            FeatureKey.Delete();
-    end;
-
     procedure UnpublishWebService(ServiceNameTxt: Text; PageNumber: Integer)
     var
         WebService: Record "Web Service";

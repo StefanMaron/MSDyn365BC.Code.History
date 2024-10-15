@@ -62,13 +62,24 @@ page 1340 "Config Templates"
         }
         area(Promoted)
         {
-            group(Category_Report)
+            group(Category_Process)
             {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+                Caption = 'Process';
+
+                actionref(NewConfigTemplate_Promoted; NewConfigTemplate)
+                {
+                }
+                actionref(Delete_Promoted; Delete)
+                {
+                }
             }
             group(Category_Category4)
             {
                 Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

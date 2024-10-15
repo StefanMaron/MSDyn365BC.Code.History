@@ -24,34 +24,6 @@ codeunit 139006 "Test My Settings"
         FilterFormOpened: Boolean;
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('AvailableRoleCentersHandler,StandardSessionSettingsHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestChangeRoleCenterFromMySettings()
-    var
-        UserPersonalization: Record "User Personalization";
-        AllProfile: Record "All Profile";
-        MySettings: TestPage "My Settings";
-        ProfileVar: Variant;
-    begin
-        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
-        Initialize();
-
-        MySettings.OpenEdit;
-        MySettings.UserRoleCenter.AssistEdit;
-        Message(''); // This dummy message is needed in some configurtions as the card function can show a message box under certain conditions, but not in all contries
-        LibraryVariableStorage.Dequeue(ProfileVar);
-        AllProfile := ProfileVar;
-        MySettings.UserRoleCenter.AssertEquals(AllProfile.Caption);
-        MySettings.OK.Invoke;
-
-        // [THEN] The chosen Role Center is set as the starting role center for the current user
-        UserPersonalization.Get(UserSecurityId);
-        Assert.AreEqual(AllProfile."Profile ID", UserPersonalization."Profile ID", 'Profile ID not set in User Personalization.');
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('AvailableRoleCentersHandlerBlankProfileIsHidden')]
     [Scope('OnPrem')]
@@ -477,21 +449,6 @@ codeunit 139006 "Test My Settings"
         MyNotifications.Modify();
     end;
 
-#if not CLEAN19
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailableRoleCentersHandler(var AvailableRoleCenters: TestPage "Available Roles")
-    var
-        AllProfile: Record "All Profile";
-    begin
-        AllProfile.SetRange("Default Role Center", false);
-        AllProfile.SetRange(Enabled, true);
-        AllProfile.FindFirst();
-        AvailableRoleCenters.GotoRecord(AllProfile);
-        LibraryVariableStorage.Enqueue(AllProfile);
-        AvailableRoleCenters.OK().Invoke();
-    end;
-#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var Roles: TestPage Roles)

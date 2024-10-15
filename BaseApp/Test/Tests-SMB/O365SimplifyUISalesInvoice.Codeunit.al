@@ -1645,10 +1645,9 @@
     var
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
-        OldCustBusRelCode: Code[10];
     begin
         Initialize();
-        OldCustBusRelCode := UpdateCustBusRelCode('');
+
         CreateCustomer(Customer);
 
         // Exercise: Select existing customer.
@@ -1658,7 +1657,6 @@
         // Verify.
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer);
         VerifySalesQuoteAgainstBillToCustomer(SalesQuote, Customer);
-        UpdateCustBusRelCode(OldCustBusRelCode);
     end;
 
     [Test]
@@ -1869,10 +1867,8 @@
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
-        OldCustBusRelCode: Code[10];
     begin
         Initialize();
-        OldCustBusRelCode := UpdateCustBusRelCode('');
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         CreateCustomer(Customer);
@@ -1886,7 +1882,6 @@
 
         // Verify.
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer1);
-        UpdateCustBusRelCode(OldCustBusRelCode);
     end;
 
     [Test]
@@ -2504,10 +2499,9 @@
     var
         Customer: Record Customer;
         SalesQuote: TestPage "Sales Quote";
-        OldCustBusRelCode: Code[10];
     begin
         Initialize();
-        OldCustBusRelCode := UpdateCustBusRelCode('');
+
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
@@ -2517,7 +2511,6 @@
 
         // Verify.
         VerifySalesQuoteAgainstCustomer(SalesQuote, Customer);
-        UpdateCustBusRelCode(OldCustBusRelCode);
     end;
 
     [Test]
@@ -4560,7 +4553,6 @@
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Date"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
-        FieldListToExclude.Add(PurchaseHeaderRef.FieldName(Id));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
 
         OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);
@@ -5012,16 +5004,6 @@
         LibrarySales.DisableConfirmOnPostingDoc;
 
         PurchaseInvoice.Post.Invoke;
-    end;
-
-    local procedure UpdateCustBusRelCode(CustBusRelCode: Code[10]) OldCustBusRelCode: Code[10]
-    var
-        MarketingSetup: Record "Marketing Setup";
-    begin
-        MarketingSetup.Get();
-        OldCustBusRelCode := MarketingSetup."Bus. Rel. Code for Customers";
-        MarketingSetup.Validate("Bus. Rel. Code for Customers", CustBusRelCode);
-        MarketingSetup.Modify();
     end;
 
     [ModalPageHandler]

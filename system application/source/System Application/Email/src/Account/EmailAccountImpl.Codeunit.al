@@ -6,6 +6,8 @@
 codeunit 8889 "Email Account Impl."
 {
     Access = Internal;
+    InherentPermissions = X;
+    InherentEntitlements = X;
     Permissions = tabledata "Email Connector Logo" = rimd,
                   tabledata "Email Scenario" = imd,
                   tabledata "Email Rate Limit" = rd;
