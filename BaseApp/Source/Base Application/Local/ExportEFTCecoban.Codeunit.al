@@ -250,6 +250,22 @@ codeunit 10096 "Export EFT (Cecoban)"
         EFTValues.SetFileEntryAddendaCount(EFTValues.GetFileEntryAddendaCount() + EFTValues.GetEntryAddendaCount());
     end;
 
+    internal procedure PopulateACHCecobanHeaderWithEFTExportWorkset(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; DataExchEntryNo: Integer)
+    var
+        ACHCecobanHeader: Record "ACH Cecoban Header";
+    begin
+        if not ACHCecobanHeader.Get(DataExchEntryNo) then
+            exit;
+
+        if ACHCecobanHeader."Settlement Date" = 0D then
+            ACHCecobanHeader."Settlement Date" := TempEFTExportWorkset.UserSettleDate;
+
+        if ACHCecobanHeader."Currency Code" = '' then
+            ACHCecobanHeader."Currency Code" := TempEFTExportWorkset."Currency Code";
+
+        ACHCecobanHeader.Modify();
+    end;
+
     local procedure GenerateFullTraceNoCode(TraceNo: Integer): Code[30]
     var
         TraceCode: Text;

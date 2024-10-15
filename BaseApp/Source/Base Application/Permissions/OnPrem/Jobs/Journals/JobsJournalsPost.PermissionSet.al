@@ -25,5 +25,6 @@ permissionset 3414 "Jobs Journals - Post"
                   tabledata "Time Sheet Header" = R,
                   tabledata "Time Sheet Line" = Rm,
                   tabledata "Time Sheet Posting Entry" = R,
-                  tabledata "VAT Rate Change Log Entry" = Ri;
+                  tabledata "VAT Rate Change Log Entry" = Ri,
+                  tabledata "VAT Setup" = R;
 }

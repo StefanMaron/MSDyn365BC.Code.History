@@ -773,6 +773,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "VAT Statement Name" = R,
                   tabledata "VAT Statement Report Line" = RIMD,
                   tabledata "VAT Statement Template" = R,
+                  tabledata "VAT Setup" = RIMD,
                   tabledata Vendor = Rim,
                   tabledata "Vendor Amount" = RIMD,
                   tabledata "Vendor Posting Group" = R,
