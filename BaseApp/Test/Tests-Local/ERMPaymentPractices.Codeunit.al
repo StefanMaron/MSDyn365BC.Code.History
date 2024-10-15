@@ -1,8 +1,13 @@
+#if not CLEAN23
 codeunit 144566 "ERM Payment Practices"
 {
     Permissions = TableData "Cust. Ledger Entry" = id,
                   TableData "Detailed Cust. Ledg. Entry" = i;
     Subtype = Test;
+
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. The tests will be moved to W1 App "Payment Practice"';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -122,4 +127,4 @@ codeunit 144566 "ERM Payment Practices"
         Assert.RecordCount(PaymentPeriodSetup, 1);
     end;
 }
-
+#endif

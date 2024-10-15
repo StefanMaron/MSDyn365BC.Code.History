@@ -1334,12 +1334,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'EC Sales List';
                         RunObject = report "EC Sales List";
                     }
+#if not CLEAN23
                     action("Payment Reporting Test")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Practices Reporting';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
+                        ObsoleteTag = '23.0';
                         RunObject = report "Payment Practices Reporting";
                     }
+#endif
                 }
                 group("Group35")
                 {
@@ -1374,12 +1379,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Finance Charge Terms';
                         RunObject = page "Finance Charge Terms";
                     }
+#if not CLEAN23
                     action("Payment Period Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Period Setup';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
+                        ObsoleteTag = '23.0';
                         RunObject = page "Payment Period Setup";
                     }
+#endif
                 }
             }
             group("Group36")
@@ -1604,12 +1614,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor/Item Purchases';
                         RunObject = report "Vendor/Item Purchases";
                     }
+#if not CLEAN23
                     action("Payment Reporting Test1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Practices Reporting';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
+                        ObsoleteTag = '23.0';
                         RunObject = report "Payment Practices Reporting";
                     }
+#endif
                 }
                 group("Group41")
                 {
@@ -1620,12 +1635,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Purchases & Payables Setup';
                         RunObject = page "Purchases & Payables Setup";
                     }
+#if not CLEAN23
                     action("Payment Period Setup1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Period Setup';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
+                        ObsoleteTag = '23.0';     
                         RunObject = page "Payment Period Setup";
                     }
+#endif
                 }
             }
             group("Group42")

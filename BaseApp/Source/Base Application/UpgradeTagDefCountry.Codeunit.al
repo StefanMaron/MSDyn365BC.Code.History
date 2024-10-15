@@ -16,5 +16,9 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-294190-FR-UpgradeDetailedCVLedgerEntries-20190122');
     end;
 
+    procedure GetUpgradePaymentPracticesTag(): Code[250]
+    begin
+        exit('MS-473083-FR-GetUpgradePaymentPracticesTag-20230713');
+    end;
 }
 

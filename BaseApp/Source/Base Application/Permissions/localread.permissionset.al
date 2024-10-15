@@ -8,13 +8,17 @@ permissionset 1002 "LOCAL READ"
                   tabledata "FR Acc. Schedule Line" = R,
                   tabledata "FR Acc. Schedule Name" = R,
                   tabledata "Payment Address" = R,
+#if not CLEAN23
                   tabledata "Payment Application Buffer" = R,
+#endif
                   tabledata "Payment Class" = R,
                   tabledata "Payment Header" = R,
                   tabledata "Payment Header Archive" = R,
                   tabledata "Payment Line" = R,
                   tabledata "Payment Line Archive" = R,
+#if not CLEAN23
                   tabledata "Payment Period Setup" = R,
+#endif
                   tabledata "Payment Post. Buffer" = R,
                   tabledata "Payment Status" = R,
                   tabledata "Payment Step" = R,
