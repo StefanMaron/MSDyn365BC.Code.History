@@ -186,6 +186,16 @@ table 31020 "Purch. Advance Letter Header"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(120; Status; Option)
+        {
+            CalcFormula = min("Purch. Advance Letter Line".Status where("Letter No." = field("No."),
+                                                                         "Amount Including VAT" = filter(<> 0)));
+            Caption = 'Status';
+            Editable = false;
+            FieldClass = FlowField;
+            OptionCaption = 'Open,Pending Payment,Pending Invoice,Pending Final Invoice,Closed,Pending Approval';
+            OptionMembers = Open,"Pending Payment","Pending Invoice","Pending Final Invoice",Closed,"Pending Approval";
+        }
         field(137; "Advance Due Date"; Date)
         {
             Caption = 'Advance Due Date';
