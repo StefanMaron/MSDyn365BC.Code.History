@@ -79,5 +79,8 @@ codeunit 13611 "Elec. VAT Decl. Install"
     begin
         if not ElecVATDeclSetup.Get() then
             ElecVATDeclSetup.Insert(true);
+
+        ElecVATDeclSetup."Use Azure Key Vault" := true;
+        if ElecVATDeclSetup.Modify(true) then;
     end;
 }

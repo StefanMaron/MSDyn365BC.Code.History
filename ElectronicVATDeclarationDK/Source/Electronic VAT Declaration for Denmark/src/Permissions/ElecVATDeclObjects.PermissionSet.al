@@ -17,6 +17,7 @@ permissionset 13610 "Elec. VAT Decl. Objects"
                   codeunit "Elec. VAT Decl. Validate" = X,
                   codeunit "Elec. VAT Decl. Xml" = X,
                   codeunit "Elec. VAT Decl. Archiving" = X,
+                  codeunit "Elec. VAT Decl. Az. Key Vault" = X,
                   page "Elec. VAT Decl. Setup" = X,
                   page "Elec. VAT Decl. Comm. Logs" = X,
                   table "Elec. VAT Decl. Parameters" = X,

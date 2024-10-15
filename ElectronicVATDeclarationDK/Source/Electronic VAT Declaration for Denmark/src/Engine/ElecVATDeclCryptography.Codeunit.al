@@ -5,6 +5,9 @@ codeunit 13607 "Elec. VAT Decl. Cryptography"
     var
         XMLDomManagement: Codeunit "XML DOM Management";
         ElecVATDeclXml: Codeunit "Elec. VAT Decl. Xml";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FeatureNameTxt: Label 'Electronic VAT Declaration DK', Locked = true;
+        CertificatesInitiatedFromAKVTxt: Label 'Certificates initiated. Value of "Use Azure Key Vault" is %1', Locked = true;
         UploadClientCertificateErr: Label 'Upload client certificate on Certificates page and select code in the Electronic VAT Declaration Setup page';
         UploadServerCertificateErr: Label 'Upload server certificate on Certificates page and select code in the Electronic VAT Declaration Setup page';
         C14CanonicalizationTok: Label 'http://www.w3.org/2001/10/xml-exc-c14n#', Locked = true;
@@ -42,6 +45,18 @@ codeunit 13607 "Elec. VAT Decl. Cryptography"
 
     procedure InitClientCertificate(var ClientCertificateBase64: Text; var SignatureKey: Codeunit "Signature Key")
     var
+        ElecVATDeclSetup: Record "Elec. VAT Decl. Setup";
+    begin
+        ElecVATDeclSetup.Get();
+        if ElecVATDeclSetup."Use Azure Key Vault" then
+            InitClientCertificateFromAKV(ClientCertificateBase64, SignatureKey)
+        else
+            InitClientCertificateLocally(ClientCertificateBase64, SignatureKey);
+        FeatureTelemetry.LogUsage('0000M89', FeatureNameTxt, CertificatesInitiatedFromAKVTxt);
+    end;
+
+    local procedure InitClientCertificateLocally(var ClientCertificateBase64: Text; var SignatureKey: Codeunit "Signature Key")
+    var
         IsolatedCertificate: Record "Isolated Certificate";
         VATReturnESubmissionSetup: Record "Elec. VAT Decl. Setup";
         CertificateManagement: Codeunit "Certificate Management";
@@ -53,6 +68,19 @@ codeunit 13607 "Elec. VAT Decl. Cryptography"
         ClientCertificateBase64 := CertificateManagement.GetRawCertDataAsBase64String(IsolatedCertificate);
         CertificateManagement.GetCertPrivateKey(IsolatedCertificate, SignatureKey);
     end;
+
+    [NonDebuggable]
+    local procedure InitClientCertificateFromAKV(var ClientPublicKeyBase64: Text; var SignatureKey: Codeunit "Signature Key")
+    var
+        ElecVATDeclAzKeyVault: Codeunit "Elec. VAT Decl. Az. Key Vault";
+        CertificateManagement: Codeunit "Certificate Management";
+        FullCertificateBase64: Text;
+    begin
+        FullCertificateBase64 := ElecVATDeclAzKeyVault.GetClientCertificateBase64FromAKV();
+        SignatureKey.FromBase64String(FullCertificateBase64, '', true);
+        ClientPublicKeyBase64 := CertificateManagement.GetPublicKeyAsBase64String(FullCertificateBase64, '');
+    end;
+
 
     procedure InitServerSertificate(var ServerCertificateBase64: Text)
     var

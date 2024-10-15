@@ -32,7 +32,6 @@ table 13605 "Elec. VAT Decl. Setup"
 
             trigger OnValidate()
             begin
-                EnsureConsent();
                 CheckUrl(Rec."Get Periods Enpdoint");
             end;
         }
@@ -40,7 +39,6 @@ table 13605 "Elec. VAT Decl. Setup"
         {
             trigger OnValidate()
             begin
-                EnsureConsent();
                 CheckUrl(Rec."Submit VAT Return Endpoint");
             end;
         }
@@ -50,13 +48,15 @@ table 13605 "Elec. VAT Decl. Setup"
 
             trigger OnValidate()
             begin
-                EnsureConsent();
                 CheckUrl(Rec."Check Status Endpoint");
             end;
         }
         field(7; "ERP See Number"; Text[250])
         {
-
+            trigger OnValidate()
+            begin
+                EnsureConsent();
+            end;
         }
         field(8; "Consent Given"; Boolean)
         {
@@ -65,6 +65,10 @@ table 13605 "Elec. VAT Decl. Setup"
         field(9; "Consent User ID"; Text[250])
         {
 
+        }
+        field(10; "Use Azure Key Vault"; Boolean)
+        {
+            InitValue = true;
         }
     }
     keys
@@ -86,9 +90,14 @@ table 13605 "Elec. VAT Decl. Setup"
         exit(Rec."ERP See Number");
     end;
 
-    internal procedure GetEndpointForType(RequestType: enum "Elec. VAT Decl. Request Type"): Text[250]
+    internal procedure GetEndpointForType(RequestType: enum "Elec. VAT Decl. Request Type"): Text
+    var
+        ElecVATDeclAzKeyVault: Codeunit "Elec. VAT Decl. Az. Key Vault";
     begin
         Rec.Get();
+        if Rec."Use Azure Key Vault" then
+            exit(ElecVATDeclAzKeyVault.GetEndpointURLForRequestType(RequestType));
+
         case RequestType of
             RequestType::"Get VAT Return Periods":
                 begin
