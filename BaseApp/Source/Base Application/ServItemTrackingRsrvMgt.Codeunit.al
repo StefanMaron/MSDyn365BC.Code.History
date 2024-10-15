@@ -242,7 +242,14 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     end;
 
     procedure TransferReservToItemJnlLine(var ServiceLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeShippedBase: Decimal; var CheckApplFromItemEntry: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferReservToItemJnlLine(ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if QtyToBeShippedBase = 0 then
             exit;
         Clear(ReserveServLine);
@@ -260,6 +267,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ItemTrackingMgt.AdjustQuantityRounding(
           RemQtyToBeInvoiced, QtyToBeInvoiced,
           RemQtyToBeInvoicedBase, QtyToBeInvoicedBase);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferReservToItemJnlLine(var ServiceLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; var QtyToBeShippedBase: Decimal; var CheckApplFromItemEntry: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

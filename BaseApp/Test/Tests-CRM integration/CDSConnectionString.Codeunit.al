@@ -463,25 +463,6 @@ codeunit 139193 "CDS Connection String"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ModifiedConnectionStringMustIncludePwdPlaceholder()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-    begin
-        // [FEATURE] [Connection String] [Password]
-        // [SCENARIO] Modified "Connection String" must contain '{PASSWORD}' placeholder
-        // [GIVEN] "Auth Type" is 'O365' and "Connection String" contains '<PASSWORD>'
-        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
-        CDSConnectionSetup.Validate("User Name", 'admin@domain.com');
-        // [WHEN] Modified "Connection String" does not contain '<PASSWORD>'
-        asserterror CDSIntegrationImpl.SetConnectionString(CDSConnectionSetup, 'modified line without the placeholder');
-        // [THEN] Error: "Connection String must contain {PASSWORD} as password placeholder."
-        Assert.ExpectedError(ConnStringMustInclPasswordErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure ConnectionStringForO365MatchesTemplate()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";

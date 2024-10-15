@@ -240,7 +240,7 @@ page 1347 "Sales Pr. & Line Disc. Part"
             exit;
         end;
 
-        SalesCode := GetFilter("Sales Code");
+        SalesCode := GetRangeMax("Sales Code");
         SalesTypeAsText := GetFilter("Sales Type");
 
         if Evaluate(DummySalesPriceAndLineDiscBuff."Sales Type", SalesTypeAsText) then

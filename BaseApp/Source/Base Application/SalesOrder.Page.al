@@ -1,4 +1,4 @@
-page 42 "Sales Order"
+﻿page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -282,7 +282,8 @@ page 42 "Sales Order"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
@@ -2068,6 +2069,7 @@ page 42 "Sales Order"
             CheckItemAvailabilityInLines;
             CallNotificationCheck := false;
         end;
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -2192,6 +2194,8 @@ page 42 "Sales Order"
         CanCancelApprovalForFlow: Boolean;
         IsCustomerOrContactNotEmpty: Boolean;
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         IsSaas: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;

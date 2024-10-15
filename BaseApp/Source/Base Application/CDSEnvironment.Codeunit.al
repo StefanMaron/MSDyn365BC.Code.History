@@ -7,36 +7,39 @@ codeunit 7203 "CDS Environment"
     end;
 
     var
+        OAuthAuthorityUrlAuthCodeTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+        ResourceUrlTxt: Label 'https://globaldisco.crm.dynamics.com', Locked = true;
+        ConsumerKeyLbl: Label 'globaldisco-clientid', Locked = true;
+        ConsumerSecretLbl: Label 'globaldisco-clientsecret', Locked = true;
+        GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
+        MissingKeyErr: Label 'The consumer key has not been initialized and are missing from the Azure Key Vault.';
+        MissingSecretErr: Label 'The consumer secret has not been initialized and are missing from the Azure Key Vault.';
+        ReceivedEmptyOnBehalfOfTokenErr: Label 'The On-Behalf-Of authorization for the current user to the Global Discoverability service has failed - the token returned is empty.', Locked = true;
         CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
         SelectedDefaultEnvironmentTxt: Label 'Selected the default environment: %1', Locked = true, Comment = '%1 = The URL of the by default selected environment';
         SelectedEnvironmentTxt: Label 'Selected environment: %1', Locked = true, Comment = '%1 = The URL of the selected environment';
-        CannotGetAuthorizationTokenTxt: Label 'Cannot get authorization token.', Locked = true;
+        ReceivedEmptyAuthCodeTokenErr: Label 'The auth code authorization for the current user to the Global Discoverability service has failed - the token returned is empty.', Locked = true;
         RequestFailedTxt: Label 'Request failed', Locked = true;
         CannotReadResponseTxt: Label 'Cannot read response.', Locked = true;
         CannotParseResponseTxt: Label 'Cannot parse response.', Locked = true;
         CannotInsertEnvironmentTxt: Label 'Cannot insert environment.', Locked = true;
-        DiscoveredEnvironmentsCountTxt: Label 'Discovered environments count: %1.', Locked = true, Comment = '%1 = The number of environments discovered';
         EnvironmentUrlEmptyTxt: Label 'Environment URL is empty.', Locked = true;
-        GlobalDiscoOnlyAvailableInSaaSMsg: Label 'Retreiving environment URL is only available in SaaS.';
         NoEnvironmentsWhenUrlNotEmptyMsg: Label 'No Common Data Service environments were discovered.';
         NoEnvironmentsWhenUrlEmptyMsg: Label 'No Common Data Service environments were discovered. Please enter the URL of the Common Data Service environment to connect to.';
-
+        GlobalDiscoApiUrlTok: Label 'https://globaldisco.crm.dynamics.com/api/discovery/v1.0/Instances', Locked = true;
+        RequestFailedWithStatusCodeTxt: Label 'Request failed with status code %1.', Locked = true;
 
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure SelectTenantEnvironment(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: Text; GuiAllowed: Boolean): Boolean
     var
         TempCDSEnvironment: Record "CDS Environment" temporary;
-        EnvironmentInfo: Codeunit "Environment Information";
         EnvironmentCount: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS() then begin
-            if GuiAllowed then
-                Message(GlobalDiscoOnlyAvailableInSaaSMsg);
+        if Token = '' then
             exit(false);
-        end;
+
         EnvironmentCount := GetCDSEnvironments(TempCDSEnvironment, Token);
-        SendTraceTag('0000AVA', CategoryTok, VERBOSITY::Normal, StrSubstNo(DiscoveredEnvironmentsCountTxt, EnvironmentCount), DataClassification::SystemMetadata);
 
         if EnvironmentCount = 0 then begin
             if GuiAllowed then
@@ -64,28 +67,40 @@ codeunit 7203 "CDS Environment"
         exit(false);
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
-    procedure GetOnBehalfAuthorizationToken(): Text
+    [NonDebuggable]
+    procedure GetGlobalDiscoverabilityToken(): Text
     var
+        OAuth2: Codeunit OAuth2;
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        PromptInteraction: Enum "Prompt Interaction";
+        ConsumerKey: Text;
+        ConsumerSecret: Text;
         Token: Text;
+        Err: Text;
     begin
-        if not TryGetOnBehalfAuthorizationToken(Token) then
-            Token := '';
-        if Token = '' then
-            SendTraceTag('0000AVD', CategoryTok, VERBOSITY::Normal, CannotGetAuthorizationTokenTxt, DataClassification::SystemMetadata);
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), '', Token);
+
+        if Token = '' then begin
+            SendTraceTag('0000BRA', GlobalDiscoOauthCategoryLbl, Verbosity::Error, ReceivedEmptyOnBehalfOfTokenErr, DataClassification::SystemMetadata);
+
+            if ConsumerKey = '' then
+                if not AzureKeyVault.GetAzureKeyVaultSecret(ConsumerKeyLbl, ConsumerKey) then
+                    SendTraceTag('0000BRB', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, MissingKeyErr, DataClassification::SystemMetadata);
+
+            if ConsumerSecret = '' then
+                if not AzureKeyVault.GetAzureKeyVaultSecret(ConsumerSecretLbl, ConsumerSecret) then
+                    SendTraceTag('0000BRC', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, MissingSecretErr, DataClassification::SystemMetadata);
+
+            if (ConsumerKey <> '') AND (ConsumerSecret <> '') then
+                OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, CDSIntegrationImpl.GetRedirectURL(), ResourceUrlTxt, PromptInteraction::Login, Token, Err);
+
+            if Token = '' then
+                SendTraceTag('0000C6I', GlobalDiscoOauthCategoryLbl, Verbosity::Error, ReceivedEmptyAuthCodeTokenErr, DataClassification::SystemMetadata);
+        end;
 
         exit(Token);
-    end;
-
-    [TryFunction]
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    local procedure TryGetOnBehalfAuthorizationToken(var Token: Text)
-    var
-        AzureADMgt: Codeunit "Azure AD Mgt.";
-    begin
-        Token := AzureADMgt.GetOnBehalfAccessToken(GlobalDiscoUrlTok);
     end;
 
     [NonDebuggable]
@@ -192,10 +207,4 @@ codeunit 7203 "CDS Environment"
 
         exit(EnvironmentCount);
     end;
-
-    var
-        GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
-        GlobalDiscoApiUrlTok: Label 'https://globaldisco.crm.dynamics.com/api/discovery/v1.0/Instances', Locked = true;
-        RequestFailedWithStatusCodeTxt: Label 'Request failed with status code %1.', Locked = true;
-
 }

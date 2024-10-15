@@ -509,55 +509,6 @@ codeunit 139178 "CRM Connection String"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure t257_BlankConnectionStringIsCalculatedOnConnect()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        ConnectionString: Text;
-    begin
-        // [FEATURE] [Connection String] [UT]
-        // [SCENARIO] Blank "Connection String" is getting filled on attempt to connect
-        // [GIVEN] Connection is set, but "Connection String" is blank
-        LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-        CRMConnectionSetup.Get();
-        Clear(CRMConnectionSetup."Server Connection String");
-        CRMConnectionSetup.Modify();
-        // [WHEN] Connect
-        CRMConnectionSetup.UnregisterConnection;
-        CRMConnectionSetup.RegisterConnection;
-        // [THEN] "Connection String" is filled in the variable
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
-        Assert.ExpectedMessage('AuthType=Office365;', ConnectionString);
-        Assert.ExpectedMessage('Password={PASSWORD}', ConnectionString);
-        // [THEN] "Connection String" is saved to the record
-        CRMConnectionSetup.Get();
-        Assert.ExpectedMessage(ConnectionString, CRMConnectionSetup.GetConnectionString);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure t258_BlankConnectionStringIsCalculatedNotSavedOnTempConnect()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        ConnectionString: Text;
-    begin
-        // [FEATURE] [Connection String] [UT]
-        // [SCENARIO] Blank "Connection String" is getting filled on attempt to connect on the temp rec
-        // [GIVEN] Temp Connection is set, but "Connection String" is blank
-        LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-        CRMConnectionSetup.Get();
-        Clear(CRMConnectionSetup."Server Connection String");
-        CRMConnectionSetup.Delete();
-        // [WHEN] Connect
-        CRMConnectionSetup.UnregisterConnection;
-        CRMConnectionSetup.RegisterConnection;
-        // [THEN] "Connection String" is filled
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
-        Assert.ExpectedMessage('AuthType=Office365;', ConnectionString);
-        Assert.ExpectedMessage('Password={PASSWORD}', ConnectionString);
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure t260_DefaultConnectionStringIncludesPwdPlaceholder()
@@ -567,58 +518,12 @@ codeunit 139178 "CRM Connection String"
         // [FEATURE] [Connection String] [Password]
         // [SCENARIO] Default "Connection String" shows '{PASSWORD}' as a placeholder for real password
         // [GIVEN] "Auth Type" is 'O365'
+        Initialize();
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
         // [WHEN] "User Name" is validated
         CRMConnectionSetup.Validate("User Name", 'admin@domain.com');
         // [THEN] "Connection String" generated and contains '{PASSWORD}'
-        Assert.ExpectedMessage('{PASSWORD}', CRMConnectionSetup.GetConnectionString);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure t261_ModifiedConnectionStringMustIncludePwdPlaceholder()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [FEATURE] [Connection String] [Password]
-        // [SCENARIO] Modified "Connection String" must contain '{PASSWORD}' placeholder
-        // [GIVEN] "Auth Type" is 'O365' and "Connection String" contains '<PASSWORD>'
-        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
-        CRMConnectionSetup.Validate("User Name", 'admin@domain.com');
-        // [WHEN] Modified "Connection String" does not contain '<PASSWORD>'
-        asserterror CRMConnectionSetup.SetConnectionString('modified line without the placeholder');
-        // [THEN] Error: "Connection String must contain {PASSWORD} as password placeholder."
-        Assert.ExpectedError(ConnStringMustInclPasswordErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure t270_ConnectionStringForO365MatchesTemplate()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        ConnectionString: Text;
-    begin
-        // [FEATURE] [Connection String]
-        // [SCENARIO] Default "Connection String" for 'O365' should match the O365 string template
-        Initialize;
-        // [GIVEN] "Server Address" is set, "Auth Type" is 'O365'
-        CRMConnectionSetup.Validate("Server Address", 'https://somedomain.com');
-        CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::Office365);
-        // [WHEN] Validate "User Name"
-        CRMConnectionSetup.Validate("User Name", 'admin@somedomain.com');
-
-        // [THEN] "Connection String" contains parameters: AuthType=O365, Url, Username, Password.
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
-        Assert.ExpectedMessage('AuthType=Office365', ConnectionString);
-        Assert.ExpectedMessage(
-          'Url=' + CRMConnectionSetup."Server Address", ConnectionString);
-        Assert.ExpectedMessage(
-          'UserName=' + CRMConnectionSetup."User Name", ConnectionString);
-        Assert.ExpectedMessage('Password={PASSWORD}', ConnectionString);
-        // [THEN] "Connection String" does not contain parameter: Domain.
-        asserterror Assert.ExpectedMessage('Domain=', ConnectionString);
+        Assert.ExpectedMessage('{CLIENTSECRET}', CRMConnectionSetup.GetConnectionString);
     end;
 
     [Test]
@@ -825,7 +730,8 @@ codeunit 139178 "CRM Connection String"
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         CRMConnectionSetup.DeleteAll();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        InitializeCDSConnectionSetup();
     end;
 
     local procedure InitializeCDSConnectionSetup()
@@ -837,6 +743,10 @@ codeunit 139178 "CRM Connection String"
         CDSConnectionSetup."User Name" := 'user@test.net';
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
         CDSConnectionSetup.Insert();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
     end;
 
     [ConfirmHandler]

@@ -28,6 +28,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -1361,6 +1363,178 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VerifyPaymentJnlExportErr(GenJnlLine, StrSubstNo(EuroCurrErr, BankAccount."No.", BankAccount."Payment Export Format"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetExportFlagOnGenJnlLine_Vendor()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 351202] Codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetExportFlagOnGenJnlLine() method
+        // [SCENARIO 351202] sets "Exported to Payment File" on journal line and applied vendor entries
+        Init();
+
+        // [GIVEN] Journal line with applied vendor invoice
+        CreateVendorPmtJournalLineWithAppliedEntry(GenJournalLine, VendorLedgerEntry);
+
+        // [GIVEN] Journal and vendor ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetExportFlagOnGenJnlLine()
+        ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(GenJournalLine);
+
+        // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetExportFlagOnGenJnlLine_Customer()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Customer]
+        // [SCENARIO 351202] Codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetExportFlagOnGenJnlLine() method
+        // [SCENARIO 351202] sets "Exported to Payment File" on journal line and applied customer entries
+        Init();
+
+        // [GIVEN] Journal line with applied customer invoice
+        CreateCustomerPmtJournalLineWithAppliedEntry(GenJournalLine, CustLedgerEntry);
+
+        // [GIVEN] Journal and customer ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetExportFlagOnGenJnlLine()
+        ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(GenJournalLine);
+
+        // [THEN] Journal and customer ledger entry have "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetGivenExportFlagOnGenJnlLine_Vendor()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 351202] Codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() method
+        // [SCENARIO 351202] sets\clears "Exported to Payment File" on journal line and applied vendor entries
+        Init();
+
+        // [GIVEN] Journal line with applied vendor invoice
+        CreateVendorPmtJournalLineWithAppliedEntry(GenJournalLine, VendorLedgerEntry);
+
+        // [GIVEN] Journal and vendor ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() using True(False) flag
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = True(False)
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, true);
+
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, false);
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetGivenExportFlagOnGenJnlLine_Customer()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Customer]
+        // [SCENARIO 351202] Codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() method
+        // [SCENARIO 351202] sets\clears "Exported to Payment File" on journal line and applied customer entries
+        Init();
+
+        // [GIVEN] Journal line with applied customer invoice
+        CreateCustomerPmtJournalLineWithAppliedEntry(GenJournalLine, CustLedgerEntry);
+
+        // [GIVEN] Journal and customer ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() using True(False) flag
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [THEN] Journal and customer ledger entry have "Exported to Payment File" = True(False)
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, true);
+
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, false);
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VoidElecPmtRequestPageHandler,ConfirmHandler')]
+    procedure VoidPaymentFile_Vendor()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
+        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied vendor entries
+        Init();
+
+        // [GIVEN] Journal line with applied vendor invoice
+        CreateVendorPmtJournalLineWithAppliedEntry(GenJournalLine, VendorLedgerEntry);
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [GIVEN] Journal and vendor ledger entry have "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, true);
+
+        // [WHEN] Run "Gen. Journal Line".VoidPaymentFile()
+        Commit();
+        LibraryVariableStorage.Enqueue(true); // confirm "void"
+        GenJournalLine.VoidPaymentFile();
+
+        // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VoidElecPmtRequestPageHandler,ConfirmHandler')]
+    procedure VoidPaymentFile_Customer()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Customer]
+        // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
+        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied customer entries
+        Init();
+
+        // [GIVEN] Journal line with applied customer invoice
+        CreateCustomerPmtJournalLineWithAppliedEntry(GenJournalLine, CustLedgerEntry);
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [GIVEN] Journal and customer ledger entry have "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, true);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() using True(False) flag
+        Commit();
+        LibraryVariableStorage.Enqueue(true); // confirm "void"
+        GenJournalLine.VoidPaymentFile();
+
+        // [THEN] Journal and customer ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -1368,6 +1542,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentMethod: Record "Payment Method";
         GenJournalLine: Record "Gen. Journal Line";
     begin
+        LibraryVariableStorage.Clear();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
         LibrarySetupStorage.Restore;
 
@@ -1445,7 +1620,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
           GenJnlLine, GenJournalBatch, GenJnlLine."Account Type"::Employee, Employee."No.", Employee."No.", '');
     end;
 
-    local procedure CreateGenJnlLineForAccType(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; RecipientBankAcc: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateGenJnlLineForAccType(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: enum "Gen. Journal Account Type"; AccountNo: Code[20]; RecipientBankAcc: Code[20]; CurrencyCode: Code[10])
     begin
         with GenJnlLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -1522,7 +1697,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         end;
     end;
 
-    [Normal]
     local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DateOffset: Integer)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -1544,6 +1718,71 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendLedgerEntry.Validate("Posting Date", CalcDate('<-30D>', GetTodayDate()));
         VendLedgerEntry.Validate("Due Date", CalcDate('<' + Format(DateOffset) + 'D>', GetTodayDate()));
         VendLedgerEntry.Modify();
+    end;
+
+    local procedure CreateVendorPmtJournalLineWithAppliedEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, VendorNo, 1);
+        MockAppliedVendorLedgerEntry(GenJournalLine, VendorLedgerEntry);
+    end;
+
+    local procedure CreateCustomerPmtJournalLineWithAppliedEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CustomerNo: Code[20];
+    begin
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer, CustomerNo, 1);
+        MockAppliedCustLedgerEntry(GenJournalLine, CustLedgerEntry);
+    end;
+
+    local procedure MockAppliedVendorLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := GenJournalLine."Account No.";
+        VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendorLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
+        VendorLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        VendorLedgerEntry.Insert();
+
+        UpdateGenJournalLine(GenJournalLine, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+    end;
+
+    local procedure MockAppliedCustLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := GenJournalLine."Account No.";
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
+        CustLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        CustLedgerEntry.Insert();
+
+        UpdateGenJournalLine(GenJournalLine, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
+    end;
+
+    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesDocType: Enum "Gen. Journal Document Type"; AppliesDocNo: Code[20])
+    begin
+        GenJournalLine."Applies-to Doc. Type" := AppliesDocType;
+        GenJournalLine."Applies-to Doc. No." := AppliesDocNo;
+        GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Electronic Payment";
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJournalLine.Modify();
+        GenJournalLine.SetRecFilter();
     end;
 
     local procedure AddCharToText(Text: Text; c: Char): Text
@@ -1722,6 +1961,36 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             FindFirst;
             TestField("Error Text", ErrText);
         end;
+    end;
+
+    local procedure VerifyExportedToPaymentFileFlagVendor(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExpectedFlag: Boolean)
+    begin
+        GenJournalLine.Find();
+        VendorLedgerEntry.Find();
+        GenJournalLine.TestField("Check Exported", ExpectedFlag);
+        GenJournalLine.TestField("Exported to Payment File", ExpectedFlag);
+        VendorLedgerEntry.TestField("Exported to Payment File", ExpectedFlag);
+    end;
+
+    local procedure VerifyExportedToPaymentFileFlagCustomer(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; ExpectedFlag: Boolean)
+    begin
+        GenJournalLine.Find();
+        CustLedgerEntry.Find();
+        GenJournalLine.TestField("Check Exported", ExpectedFlag);
+        GenJournalLine.TestField("Exported to Payment File", ExpectedFlag);
+        CustLedgerEntry.TestField("Exported to Payment File", ExpectedFlag);
+    end;
+
+    [RequestPageHandler]
+    procedure VoidElecPmtRequestPageHandler(var VoidTransmitElecPmnts: TestRequestPage "Void/Transmit Elec. Pmnts")
+    begin
+        VoidTransmitElecPmnts.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

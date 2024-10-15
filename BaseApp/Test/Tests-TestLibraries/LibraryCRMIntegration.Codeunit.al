@@ -1834,5 +1834,19 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CRMIntegrationManagement.InitializeCRMSynchStatus();
     end;
+
+    [Scope('OnPrem')]
+    procedure GetLastestSDKVersion(): Integer
+    var
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+        CurrentVersion: DotNet Version;
+        MinVersion: DotNet Version;
+    begin
+        MinVersion := MinVersion.Parse('16.0.11346.0');
+        CurrentVersion := NavTenantSettingsHelper.GetPlatformVersion();
+        if CurrentVersion.CompareTo(MinVersion) >= 0 then
+            exit(91);
+        exit(9);
+    end;
 }
 

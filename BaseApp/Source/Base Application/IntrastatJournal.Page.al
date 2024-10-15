@@ -49,6 +49,7 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the document number on the entry.';
+                    ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {

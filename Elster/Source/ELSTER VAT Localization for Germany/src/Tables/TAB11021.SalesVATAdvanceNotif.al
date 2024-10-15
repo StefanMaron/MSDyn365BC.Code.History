@@ -266,6 +266,9 @@ table 11021 "Sales VAT Advance Notif."
         CreateXMLBeforeShowErr: Label 'You must create the XML-File before it can be shown.';
         CannotChangeXMLFileErr: Label 'You cannot change the value of this field anymore after the XML-File for the %1 has been created.';
         XmlFilterTxt: Label 'XML File(*.xml)|*.xml', Locked = true;
+        ElsterTok: Label 'ElsterTelemetryCategoryTok', Locked = true;
+        DeleteXMLFileMsg: Label 'Deleting XML file', Locked = true;
+        DeleteXMLFileSuccessMsg: Label 'XML file deleted successfully', Locked = true;
         TotalAmount: Decimal;
         TotalBase: Decimal;
         TotalUnrealizedAmount: Decimal;
@@ -403,11 +406,16 @@ table 11021 "Sales VAT Advance Notif."
     begin
         if not Confirm(DeleteXMLFileQst, false, TableCaption()) then
             exit;
+
+        SendTraceTag('0000C9U', ElsterTok, VERBOSITY::Normal, DeleteXMLFileMsg, DATACLASSIFICATION::SystemMetadata);
+
         Clear("XML Submission Document");
         "XML-File Creation Date" := 0D;
         "Statement Template Name" := '';
         "Statement Name" := '';
         Modify();
+
+        SendTraceTag('0000C9V', ElsterTok, VERBOSITY::Normal, DeleteXMLFileSuccessMsg, DATACLASSIFICATION::SystemMetadata);
     end;
 
     procedure CheckVATNo(var PosTaxoffice: Integer; var NumberTaxOffice: Integer; var PosArea: Integer; var NumberArea: Integer; var PosDistinction: Integer; var NumberDistinction: Integer) VATNo: Text[30]

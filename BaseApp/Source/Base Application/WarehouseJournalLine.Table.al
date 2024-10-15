@@ -1069,6 +1069,7 @@ table 7311 "Warehouse Journal Line"
         WhseWkshLine."Variant Code" := "Variant Code";
         WhseWkshLine."Qty. (Base)" := "Qty. (Base)";
         WhseWkshLine."Qty. to Handle (Base)" := "Qty. (Base)";
+        WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
         OnOpenItemTrackingLinesOnBeforeSetSource(WhseWkshLine, Rec);
 
         WhseItemTrackingLines.SetSource(WhseWkshLine, DATABASE::"Warehouse Journal Line");

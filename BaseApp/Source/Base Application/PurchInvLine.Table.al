@@ -594,6 +594,10 @@ table 123 "Purch. Inv. Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(5005396; "Order No. (Old)"; Code[20])
         {
             Caption = 'Order No. (Old)';

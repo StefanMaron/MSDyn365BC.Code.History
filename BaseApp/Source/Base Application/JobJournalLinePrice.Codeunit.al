@@ -138,6 +138,8 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
         Item: Record Item;
         Resource: Record Resource;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := JobJournalLine."Price Calculation Method";
+        PriceCalculationBuffer."Cost Calculation Method" := JobJournalLine."Cost Calculation Method";
         PriceCalculationBuffer."Location Code" := JobJournalLine."Location Code";
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:

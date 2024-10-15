@@ -174,6 +174,27 @@ codeunit 5320 "Exchange Web Services Client"
     end;
 
     [Scope('OnPrem')]
+    procedure InitializeOnServerWithImpersonation(AutodiscoveryEmail: Text[250]; ServiceUri: Text; Credentials: DotNet OAuthCredentials): Boolean
+    var
+        ServiceFactoryOnServer: DotNet ServiceWrapperFactory;
+    begin
+        if IsNull(ServiceOnServer) then begin
+            InvalidateService();
+            ServiceOnServer := ServiceFactoryOnServer.CreateServiceWrapper();
+        end;
+
+        ServiceOnServer.SetNetworkCredential(Credentials);
+        ServiceOnServer.SetImpersonatedIdentity(AutodiscoveryEmail);
+
+        if ServiceUri <> '' then
+            ServiceOnServer.ExchangeServiceUrl := ServiceUri;
+
+        if ServiceOnServer.ExchangeServiceUrl = '' then
+            exit(ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail));
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure FolderExists(UniqueID: Text): Boolean
     begin
         if not IsServiceValid then

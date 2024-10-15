@@ -76,7 +76,7 @@ table 9650 "Custom Report Layout"
         }
         field(15; "Layout Last Updated"; DateTime)
         {
-            Caption = 'Last Modified';
+            Caption = 'Layout Last Modified';
             Editable = false;
         }
     }
