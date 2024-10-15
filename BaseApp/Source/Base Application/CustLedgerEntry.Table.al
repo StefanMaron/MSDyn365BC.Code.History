@@ -1,4 +1,4 @@
-table 21 "Cust. Ledger Entry"
+﻿table 21 "Cust. Ledger Entry"
 {
     Caption = 'Cust. Ledger Entry';
     DrillDownPageID = "Customer Ledger Entries";
@@ -645,8 +645,8 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Electronic Document Status';
             Editable = false;
-            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error';
-            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
+            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error,Cancel In Progress';
+            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
         }
         field(10031; "Date/Time Stamped"; Text[50])
         {
@@ -702,6 +702,14 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Substitution Entry No.';
             TableRelation = "Cust. Ledger Entry" WHERE ("Document Type" = FILTER (Payment),
                                                         "Electronic Document Status" = FILTER ("Stamp Received"));
+        }
+        field(27007; "CFDI Cancellation ID"; Text[50])
+        {
+            Caption = 'CFDI Cancellation ID';
+        }
+        field(27008; "Marked as Canceled"; Boolean)
+        {
+            Caption = 'Marked as Canceled';
         }
     }
 

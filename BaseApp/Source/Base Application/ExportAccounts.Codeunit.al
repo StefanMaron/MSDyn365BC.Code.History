@@ -260,7 +260,7 @@ codeunit 27000 "Export Accounts"
     begin
         CompanyInformation.Get();
 
-        TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
+        TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
         if (Month < 1) or (Month > 13) then
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, InvalidMonthErr);
         if (Year < 2000) or (Month > 2999) then
@@ -271,7 +271,7 @@ codeunit 27000 "Export Accounts"
         TempXMLBuffer.AddNamespace('', FullNameSpace);
 
         TempXMLBuffer.AddAttribute('Version', Version);
-        TempXMLBuffer.AddAttribute('RFC', CompanyInformation."RFC No.");
+        TempXMLBuffer.AddAttribute('RFC', CompanyInformation."RFC Number");
         TempXMLBuffer.AddAttribute('Mes', Format(Month, 2, '<Integer,2><Filler Character,0>'));
         TempXMLBuffer.AddAttribute('Anio', Format(Year));
         TempXMLBuffer.AddAttribute('xsi:schemaLocation',
@@ -613,7 +613,7 @@ codeunit 27000 "Export Accounts"
         RecipientBankAccount: Record "Bank Account";
         CompanyInformation: Record "Company Information";
         Benef: Text[300];
-        RFC: Code[13];
+        RFC: Text[30];
         ExchangeRate: Decimal;
     begin
         BankAccountLedgerEntry.Get(CheckLedgerEntry."Bank Account Ledger Entry No.");
@@ -649,9 +649,9 @@ codeunit 27000 "Export Accounts"
                     TempErrorMessage.LogIfEmpty(
                       RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(
-                      CompanyInformation, CompanyInformation.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
+                      CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
                     Benef := RecipientBankAccount.Name;
-                    RFC := CompanyInformation."RFC No.";
+                    RFC := CompanyInformation."RFC Number";
                 end;
         end;
 
@@ -690,7 +690,7 @@ codeunit 27000 "Export Accounts"
         BancoDestNal: Code[3];
         BancoDestExt: Text;
         Benef: Text[300];
-        RFC: Code[13];
+        RFC: Text[30];
         ExchangeRate: Decimal;
     begin
         case BankAccountLedgerEntry."Bal. Account Type" of
@@ -756,13 +756,13 @@ codeunit 27000 "Export Accounts"
                       RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(
-                      CompanyInformation, CompanyInformation.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
+                      CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
 
                     CtaDest := RecipientBankAccount."Bank Account No.";
                     BancoDestNal := RecipientBankAccount."Bank Code";
                     BancoDestExt := RecipientBankAccount.Name;
                     Benef := CompanyInformation.Name;
-                    RFC := CompanyInformation."RFC No.";
+                    RFC := CompanyInformation."RFC Number";
                 end;
             else
                 exit(false);
@@ -947,7 +947,7 @@ codeunit 27000 "Export Accounts"
             TempXMLBuffer.Save(TestFileName)
         else begin
             CompanyInformation.Get();
-            ClientFileName := CompanyInformation."RFC No." + Format(Year) +
+            ClientFileName := CompanyInformation."RFC Number" + Format(Year) +
               Format(Month, 2, '<Integer,2><Filler Character,0>') + Type;
             XMLBufferReader.SaveToTempBlob(XMLTempBlob, TempXMLBuffer);
             XMLTempBlob.CreateInStream(ServerTempFileInStream);

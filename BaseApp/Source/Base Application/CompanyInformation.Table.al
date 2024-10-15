@@ -543,12 +543,23 @@
         field(10023; "RFC No."; Code[12])
         {
             Caption = 'RFC No.';
+            ObsoleteReason = 'Replaced with RFC Number';
+
+#if CLEAN22
+            ObsoleteTag = '25.0';
+            ObsoleteState = Removed;
+#else
+            ObsoleteTag = '22.0';
+            ObsoleteState = Pending;
 
             trigger OnValidate()
             begin
                 if StrLen("RFC No.") <> 12 then
                     Error(Text10000, "RFC No.");
+
+                "RFC Number" := "RFC No.";
             end;
+#endif            
         }
         field(10024; "CURP No."; Code[18])
         {
@@ -567,6 +578,20 @@
         field(10026; "Tax Scheme"; Text[250])
         {
             Caption = 'Tax Scheme';
+        }
+        field(14021; "RFC Number"; Text[30])
+        {
+            Caption = 'RFC Number';
+
+            trigger OnValidate()
+            begin
+                if not (StrLen("RFC Number") in [0, 12, 13]) then
+                    Error(Text10000, "RFC Number");
+#if not CLEAN22
+                if StrLen("RFC Number") = 12 then
+                    "RFC No." := "RFC Number";
+#endif
+            end;
         }
         field(27000; "SAT Tax Regime Classification"; Code[10])
         {
@@ -974,7 +999,7 @@
     begin
         Get;
         exit(("CURP No." = '') and ("State Inscription" = '') and
-          ("Tax Scheme" = '') and ("Post Code" = '') and ("RFC No." = ''));
+          ("Tax Scheme" = '') and ("Post Code" = '') and ("RFC Number" = ''));
     end;
 
     [IntegrationEvent(true, false)]
