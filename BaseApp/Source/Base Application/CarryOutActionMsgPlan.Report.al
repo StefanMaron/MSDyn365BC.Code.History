@@ -58,7 +58,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     if PurchaseSuggestionExists("Requisition Line") then begin
                         PurchOrderHeader."Order Date" := WorkDate;
                         PurchOrderHeader."Posting Date" := WorkDate;
-                        PurchOrderHeader."Expected Receipt Date" := WorkDate;
 
                         EndOrderDate := WorkDate;
 
