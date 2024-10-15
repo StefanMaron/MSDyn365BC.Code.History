@@ -4228,7 +4228,7 @@ codeunit 6620 "Copy Document Mgt."
         TempPurchLineBuf."Receipt Line No." := FromPurchLine2."Receipt Line No.";
         if (ToPurchHeader."Prepmt. Diff. Appln. Entry No." = 0) and (not ToPurchHeader."Prepmt. Diff.") then
             TempPurchLineBuf."Line No." := NextLineNo;
-        OnAfterCopyPurchLinesToBufferFields(TempPurchLineBuf, FromPurchLine2);
+        OnAfterCopyPurchLinesToBufferFields(TempPurchLineBuf, FromPurchLine2, FromPurchLine);
 
         NextLineNo := NextLineNo + 10000;
         if not IsRecalculateAmount(
@@ -5138,6 +5138,8 @@ codeunit 6620 "Copy Document Mgt."
         CalcVAT(
           Amount, PurchLine."VAT %", FromPricesInclVAT, ToPricesInclVAT, Currency."Amount Rounding Precision");
         PurchLine."Inv. Discount Amount" := Amount;
+
+        OnAfterUpdateRevPurchLineAmount(PurchLine, OrgQtyBase, FromPricesInclVAT, ToPricesInclVAT);
     end;
 
     procedure CalculateRevPurchLineAmount(var PurchLine: Record "Purchase Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
@@ -7985,7 +7987,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyPurchLinesToBufferFields(var TempPurchaseLine: Record "Purchase Line" temporary; FromPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyPurchLinesToBufferFields(var TempPurchaseLine: Record "Purchase Line" temporary; FromPurchaseLine: Record "Purchase Line"; FromPurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -8301,6 +8303,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesToPurchDoc(FromSalesHeader: Record "Sales Header"; var ToPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateRevPurchLineAmount(var PurchaseLine: Record "Purchase Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
     begin
     end;
 

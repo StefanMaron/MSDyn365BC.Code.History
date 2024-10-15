@@ -334,6 +334,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         PurchaseLine.SetRange("Document Type", SourceSubType);
         PurchaseLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingPurchaseOnAfterSetFilters(PurchaseLine, SourceID, SourceSubType);
         if not PurchaseLine.IsEmpty() then begin
             PurchaseLine.FindSet();
             repeat
@@ -360,6 +361,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         PurchRcptLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingPurchaseReceiptOnAfterSetFilters(PurchRcptLine, SourceID);
         if PurchRcptLine.FindSet() then begin
             repeat
                 if (PurchRcptLine.Type = PurchRcptLine.Type::Item) and
@@ -384,6 +386,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         SalesLine.SetRange("Document Type", SourceSubType);
         SalesLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingSalesOnAfterSetFilters(SalesLine, SourceID, SourceSubType);
         if not SalesLine.IsEmpty() then begin
             SalesLine.FindSet();
             repeat
@@ -441,6 +444,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         SalesShipmentLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingSalesShipmentOnAfterSetFilters(SalesShipmentLine, SourceID);
         if not SalesShipmentLine.IsEmpty() then begin
             SalesShipmentLine.FindSet();
             repeat
@@ -474,6 +478,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         SalesInvoiceLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingSalesInvoiceOnAfterSetFilters(SalesInvoiceLine, SourceID);
         if not SalesInvoiceLine.IsEmpty() then begin
             SalesInvoiceLine.FindSet();
             repeat
@@ -497,6 +502,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         SalesCrMLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingSalesCrMemoHeaderOnAfterSetFilters(SalesCrMLine, SourceID);
         if not SalesCrMLine.IsEmpty() then begin
             SalesCrMLine.FindSet();
             repeat
@@ -520,6 +526,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         PurchInvLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingPurhInvHeaderOnAfterSetFilters(PurchInvLine, SourceID);
         if not PurchInvLine.IsEmpty() then begin
             PurchInvLine.FindSet();
             repeat
@@ -543,6 +550,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         PurchCrMLine.SetRange("Document No.", SourceID);
+        OnRetrieveTrackingPurchCrMemoHeaderOnAfterSetFilters(PurchCrMLine, SourceID);
         if not PurchCrMLine.IsEmpty() then begin
             PurchCrMLine.FindSet();
             repeat
@@ -669,6 +677,7 @@ codeunit 6503 "Item Tracking Doc. Management"
             repeat
                 if ItemLedgEntry.TrackingExists() then begin
                     TempItemLedgEntry := ItemLedgEntry;
+                    OnShowItemTrackingForEntityOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, Item);
                     TempItemLedgEntry.Insert();
                 end
             until ItemLedgEntry.Next() = 0;
@@ -928,6 +937,46 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingPurchaseOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; SourceID: Code[20]; SourceSubType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingPurchaseReceiptOnAfterSetFilters(var PurchRcptLine: Record "Purch. Rcpt. Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingPurchCrMemoHeaderOnAfterSetFilters(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingPurhInvHeaderOnAfterSetFilters(var PurchInvLine: Record "Purch. Inv. Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingSalesOnAfterSetFilters(var SalesLine: Record "Sales Line"; SourceID: Code[20]; SourceSubType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingSalesCrMemoHeaderOnAfterSetFilters(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingSalesInvoiceOnAfterSetFilters(var SalesInvoiceLine: Record "Sales Invoice Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveTrackingSalesShipmentOnAfterSetFilters(var SalesShipmentLine: Record "Sales Shipment Line"; SourceID: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; FromPurchase: Boolean)
     begin
     end;
@@ -939,6 +988,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemTrackingExistsInBufferOnAfterTempTrackingSpecBufferSetFilters(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemTrackingForEntityOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; Item: Record Item)
     begin
     end;
 }

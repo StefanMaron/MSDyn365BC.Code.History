@@ -78,8 +78,8 @@ codeunit 7314 "Warehouse Availability Mgt."
     procedure CalcReservQtyOnPicksShipsWithItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]) Result: Decimal
     var
         ReservEntry: Record "Reservation Entry";
+        PositiveReservationEntry: Record "Reservation Entry";
         TempReservEntryBuffer: Record "Reservation Entry Buffer" temporary;
-        ReservMgt: Codeunit "Reservation Management";
         ResPickShipQty: Decimal;
         QtyPicked: Decimal;
         QtyToPick: Decimal;
@@ -98,13 +98,16 @@ codeunit 7314 "Warehouse Availability Mgt."
         ReservEntry.SetRange("Location Code", LocationCode);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.SetRange(Positive, false);
-        ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
         if not ReservEntry.FindSet() then
             exit(0);
 
         with TempReservEntryBuffer do begin
             repeat
-                if ReservMgt.ReservEntryPositiveTypeIsItemLedgerEntry(ReservEntry."Entry No.") then begin
+                PositiveReservationEntry.SetRange("Entry No.", ReservEntry."Entry No.");
+                PositiveReservationEntry.SetRange(Positive, true);
+                PositiveReservationEntry.SetRange("Source Type", DATABASE::"Item Ledger Entry");
+                ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
+                if not PositiveReservationEntry.IsEmpty() then begin
                     TransferFields(ReservEntry);
                     if Find then begin
                         "Quantity (Base)" += ReservEntry."Quantity (Base)";
@@ -611,10 +614,14 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         SerialNoInformation: Record "Serial No. Information";
         LotNoInformation: Record "Lot No. Information";
+        PackageNoInformation: Record "Package No. Information";
         ItemLedgerEntry: Record "Item Ledger Entry";
         SNQtyBlocked: Decimal;
         LotQtyBlocked: Decimal;
+        PackageQtyBlocked: Decimal;
         SNLotQtyBlocked: Decimal;
+        SNPackageQtyBlocked: Decimal;
+        LotPackageQtyBlocked: Decimal;
         QtyBlocked: Decimal;
         IsHandled: Boolean;
     begin
@@ -622,7 +629,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         if IsHandled then
             exit(QtyBlocked);
 
-        ItemLedgerEntry.SetRange("Item No.");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Variant Code", VariantCode);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
 
@@ -649,6 +656,17 @@ codeunit 7314 "Warehouse Availability Mgt."
             until LotNoInformation.Next() = 0;
 
         ItemLedgerEntry.ClearTrackingFilter();
+        PackageNoInformation.SetRange("Item No.", ItemNo);
+        PackageNoInformation.SetRange("Variant Code", VariantCode);
+        PackageNoInformation.SetRange(Blocked, true);
+        if PackageNoInformation.FindSet() then
+            repeat
+                ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
+                ItemLedgerEntry.CalcSums(Quantity);
+                PackageQtyBlocked += ItemLedgerEntry.Quantity;
+            until PackageNoInformation.Next() = 0;
+
+        ItemLedgerEntry.ClearTrackingFilter();
         if SerialNoInformation.FindSet() and not LotNoInformation.IsEmpty() then
             repeat
                 LotNoInformation.FindSet();
@@ -660,7 +678,31 @@ codeunit 7314 "Warehouse Availability Mgt."
                 until LotNoInformation.Next() = 0;
             until SerialNoInformation.Next() = 0;
 
-        QtyBlocked := SNQtyBlocked + LotQtyBlocked - SNLotQtyBlocked;
+        ItemLedgerEntry.ClearTrackingFilter();
+        if SerialNoInformation.FindSet() and not PackageNoInformation.IsEmpty() then
+            repeat
+                PackageNoInformation.FindSet();
+                repeat
+                    ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
+                    ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
+                    ItemLedgerEntry.CalcSums(Quantity);
+                    SNPackageQtyBlocked += ItemLedgerEntry.Quantity;
+                until PackageNoInformation.Next() = 0;
+            until SerialNoInformation.Next() = 0;
+
+        ItemLedgerEntry.ClearTrackingFilter();
+        if LotNoInformation.FindSet() and not PackageNoInformation.IsEmpty() then
+            repeat
+                PackageNoInformation.FindSet();
+                repeat
+                    ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
+                    ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
+                    ItemLedgerEntry.CalcSums(Quantity);
+                    LotPackageQtyBlocked += ItemLedgerEntry.Quantity;
+                until PackageNoInformation.Next() = 0;
+            until LotNoInformation.Next() = 0;
+
+        QtyBlocked := SNQtyBlocked + LotQtyBlocked + PackageQtyBlocked - SNLotQtyBlocked - SNPackageQtyBlocked - LotPackageQtyBlocked;
 
         exit(QtyBlocked);
     end;

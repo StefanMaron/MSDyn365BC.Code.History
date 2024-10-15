@@ -363,7 +363,8 @@ table 5740 "Transfer Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -374,7 +375,8 @@ table 5740 "Transfer Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -777,7 +779,15 @@ table 5740 "Transfer Header"
     end;
 
     local procedure TestNoSeries()
+    var
+        IsHandled: Boolean;
     begin
+        GetInventorySetup();
+        IsHandled := false;
+        OnBeforeTestNoSeries(Rec, InvtSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         InvtSetup.TestField("Transfer Order Nos.");
     end;
 
@@ -786,7 +796,7 @@ table 5740 "Transfer Header"
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
-        InvtSetup.Get();
+        GetInventorySetup();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, InvtSetup, NoSeriesCode, IsHandled);
         if IsHandled then
@@ -1353,6 +1363,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShouldDeleteOneTransferOrder(var TransferLine: record "Transfer Line"; var ShouldDelete: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoSeries(TransferHeader: Record "Transfer Header"; InvtSetup: Record "Inventory Setup"; var IsHandled: Boolean)
     begin
     end;
 

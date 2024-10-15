@@ -109,7 +109,8 @@ table 1384 "Employee Templ."
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -120,7 +121,8 @@ table 1384 "Employee Templ."
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin

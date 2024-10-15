@@ -285,6 +285,7 @@ table 232 "Gen. Journal Batch"
         "Reason Code" := GenJnlTemplate."Reason Code";
         "Copy VAT Setup to Jnl. Lines" := GenJnlTemplate."Copy VAT Setup to Jnl. Lines";
         "Allow VAT Difference" := GenJnlTemplate."Allow VAT Difference";
+        "Copy to Posted Jnl. Lines" := GenJnlTemplate."Copy to Posted Jnl. Lines";
     end;
 
     local procedure CheckGLAcc(AccNo: Code[20])

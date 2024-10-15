@@ -1,4 +1,4 @@
-codeunit 99000837 "Prod. Order Line-Reserve"
+﻿codeunit 99000837 "Prod. Order Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -253,7 +253,10 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                     ItemTrackingFilterIsSet := true;
             end;
 
-        NewItemJnlLine.TestItemFields(OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code");
+        IsHandled := false;
+        OnTransferPOLineToItemJnlLineOnBeforeTestItemJnlLineFields(NewItemJnlLine, OldProdOrderLine, IsHandled);
+        if not IsHandled then
+            NewItemJnlLine.TestItemFields(OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code");
 
         if TransferQty = 0 then
             exit;
@@ -264,9 +267,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                     CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
                 OldReservEntry.TestItemFields(OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code");
 
-                TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
-                    NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                TransferPOLineToItemJnlLineReservEntry(OldProdOrderLine, NewItemJnlLine, OldReservEntry, TransferQty);
 
                 if ReservEngineMgt.NEXTRecord(OldReservEntry) = 0 then
                     if ItemTrackingFilterIsSet then begin
@@ -277,6 +278,22 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                         EndLoop := true;
 
             until EndLoop or (TransferQty = 0);
+    end;
+
+    local procedure TransferPOLineToItemJnlLineReservEntry(ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry"; var TransferQty: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTransferPOLineToItemJnlLineReservEntry(OldReservEntry, ProdOrderLine, ItemJnlLine, TransferQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferQty :=
+            CreateReservEntry.TransferReservEntry(
+                DATABASE::"Item Journal Line",
+                ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", 0,
+                ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
     end;
 
     procedure DeleteLineConfirm(var ProdOrderLine: Record "Prod. Order Line"): Boolean
@@ -323,6 +340,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                     ReservEntry2 := ReservEntry;
                     ReservEntry2.ClearItemTrackingFields;
                     ReservEntry2.Modify();
+                    OnDeleteLineConfirmOnAfterReservEntry2Modify(ReservEntry);
                 until Next() = 0;
         end;
 
@@ -619,6 +637,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferPOLineToItemJnlLineReservEntry(OldReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line"; var TransferQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteLineOnAfterDeleteReservEntries(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -629,12 +652,22 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTransferPOLineToItemJnlLineOnBeforeTestItemJnlLineFields(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewProdOrderLine: Record "Prod. Order Line"; OldProdOrderLine: Record "Prod. Order Line"; var HasError: Boolean; var ShowError: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ProdOrderLine: Record "Prod. Order Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteLineConfirmOnAfterReservEntry2Modify(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

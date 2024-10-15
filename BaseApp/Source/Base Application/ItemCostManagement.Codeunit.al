@@ -1,4 +1,4 @@
-codeunit 5804 ItemCostManagement
+﻿codeunit 5804 ItemCostManagement
 {
     Permissions = TableData Item = rm,
                   TableData "Stockkeeping Unit" = rm,
@@ -128,7 +128,13 @@ codeunit 5804 ItemCostManagement
     procedure UpdateStdCostShares(FromItem: Record Item)
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateStdCostShares(FromItem, IsHandled);
+        if IsHandled then
+            exit;
+
         with FromItem do begin
             Item.Get("No.");
             Item.Validate("Standard Cost", "Standard Cost");
@@ -471,6 +477,7 @@ codeunit 5804 ItemCostManagement
             OpenItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
             OpenItemLedgEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
             SetCurrentKey("Item Ledger Entry No.");
+            OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(OpenItemLedgEntry, Item);
             if OpenItemLedgEntry.Find('-') then
                 repeat
                     SetRange("Item Ledger Entry No.", OpenItemLedgEntry."Entry No.");
@@ -625,12 +632,22 @@ codeunit 5804 ItemCostManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateStdCostShares(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitCostFromLastDirectCost(var Item: Record Item; LastDirectCost: Decimal; InvoicedQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLastAdjEntryAvgCostOnAfterCalcAverageCost(ItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(var OpenItemLedgEntry: Record "Item Ledger Entry"; var Item: Record Item)
     begin
     end;
 

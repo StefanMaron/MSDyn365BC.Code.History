@@ -310,8 +310,12 @@ table 330 "Currency Exchange Rate"
     end;
 
     procedure FindCurrency(Date: Date; CurrencyCode: Code[10]; CacheNo: Integer)
+    var
+        ShouldUseCache: Boolean;
     begin
-        if (CurrencyCode2[CacheNo] = CurrencyCode) and (Date2[CacheNo] = Date) then
+        ShouldUseCache := (CurrencyCode2[CacheNo] = CurrencyCode) and (Date2[CacheNo] = Date);
+        OnFindCurrencyOnAfterCalcShouldUseCache(Rec, CacheNo, ShouldUseCache);
+        if ShouldUseCache then
             Rec := CurrencyExchRate2[CacheNo]
         else begin
             if Date = 0D then
@@ -328,7 +332,7 @@ table 330 "Currency Exchange Rate"
             CurrencyCode2[CacheNo] := CurrencyCode;
             Date2[CacheNo] := Date;
         end;
-        OnAfterFindCurrency(Rec, CurrencyExchRate2);
+        OnAfterFindCurrency(Rec, CurrencyExchRate2, Date, CurrencyCode, CacheNo);
     end;
 
     procedure ExchangeAmtFCYToFCY(Date: Date; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; Amount: Decimal): Decimal
@@ -604,12 +608,17 @@ table 330 "Currency Exchange Rate"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindCurrency(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var CurrencyExchangeRateArray: array[2] of Record "Currency Exchange Rate")
+    local procedure OnAfterFindCurrency(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var CurrencyExchangeRateArray: array[2] of Record "Currency Exchange Rate"; Date: Date; CurrencyCode: Code[10]; CacheNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnExchangeAmtFCYToLCYOnAfterSetRelationalExchRateAmount(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCurrencyOnAfterCalcShouldUseCache(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CacheNo: Integer; var ShouldUseCache: Boolean)
     begin
     end;
 

@@ -275,10 +275,6 @@ table 5767 "Warehouse Activity Line"
                    ("Action Type" <> "Action Type"::Place) and ("Lot No." <> '') and (CurrFieldNo <> 0)
                 then
                     CheckReservedItemTrkg(ItemTrackingType::"Lot No.", "Lot No.");
-
-                if ("Qty. to Handle" = 0) and RegisteredWhseActLineIsEmpty then
-                    if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                        UpdateReservation(Rec, false);
             end;
         }
         field(27; "Qty. to Handle (Base)"; Decimal)
@@ -386,7 +382,12 @@ table 5767 "Warehouse Activity Line"
             trigger OnValidate()
             var
                 WhseItemTrackingSetup: Record "Item Tracking Setup";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSerialNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
                 if "Serial No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
                     TestField("Qty. per Unit of Measure", 1);
@@ -419,6 +420,7 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateLotNo(Rec);
                 if "Lot No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
 
@@ -981,6 +983,7 @@ table 5767 "Warehouse Activity Line"
             OnDeleteRelatedWhseActivLinesOnBeforeWhseActivLine2Find(WhseActivLine, WhseActivLine2);
             if WhseActivLine2.Find('-') then
                 repeat
+                    OnDeleteRelatedWhseActivLinesOnBeforeDeleteWhseActivLine2(WhseActivLine, WhseActivLine2, CalledFromHeader);
                     DeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
                     WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
                     UpdateRelatedItemTrkg(WhseActivLine2);
@@ -1155,7 +1158,7 @@ table 5767 "Warehouse Activity Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetUOMCode(Rec, UOMCode, IsHandled);
+        OnBeforeGetUOMCode(Rec, UOMCode, IsHandled, Location);
         if IsHandled then
             exit(UOMCode);
 
@@ -1300,6 +1303,7 @@ table 5767 "Warehouse Activity Line"
         NewWhseActivLine."Qty. to Handle (Base)" := NewWhseActivLine."Qty. (Base)";
         NewWhseActivLine."Qty. Handled" := 0;
         NewWhseActivLine."Qty. Handled (Base)" := 0;
+        OnSplitLineOnAfterInitNewWhseActivLine(NewWhseActivLine);
         GetLocation("Location Code");
         if Location."Directed Put-away and Pick" then begin
             WMSMgt.CalcCubageAndWeight(
@@ -1405,12 +1409,7 @@ table 5767 "Warehouse Activity Line"
             WhseActivLine.SetRange("Breakbulk No.", "Breakbulk No.");
         WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
         if WhseActivLine.FindFirst then begin
-            WhseActivLine."Qty. to Handle (Base)" := "Qty. to Handle (Base)";
-            WhseActivLine."Qty. to Handle" := WhseActivLine.CalcQty("Qty. to Handle (Base)");
-            WMSMgt.CalcCubageAndWeight(
-              WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
-              WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
-            WhseActivLine.Modify();
+            UpdateQtyToHandle(WhseActivLine);
 
             WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
             if "Original Breakbulk" then begin
@@ -1420,15 +1419,20 @@ table 5767 "Warehouse Activity Line"
                 WhseActivLine.SetRange("Breakbulk No.");
                 WhseActivLine.SetRange("Original Breakbulk", true);
             end;
-            if WhseActivLine.FindFirst then begin
-                WhseActivLine."Qty. to Handle (Base)" := "Qty. to Handle (Base)";
-                WhseActivLine."Qty. to Handle" := WhseActivLine.CalcQty("Qty. to Handle (Base)");
-                WMSMgt.CalcCubageAndWeight(
-                  WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
-                  WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
-                WhseActivLine.Modify();
-            end;
+            if WhseActivLine.FindFirst then
+                UpdateQtyToHandle(WhseActivLine);
         end;
+    end;
+
+    local procedure UpdateQtyToHandle(var WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        WhseActivLine."Qty. to Handle (Base)" := "Qty. to Handle (Base)";
+        WhseActivLine."Qty. to Handle" := WhseActivLine.CalcQty("Qty. to Handle (Base)");
+        WMSMgt.CalcCubageAndWeight(
+            WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
+            WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
+        OnUpdateQtyToHandleOnBeforeWhseActivLineModify(WhseActivLine);
+        WhseActivLine.Modify();
     end;
 
     procedure ShowWhseDoc()
@@ -1550,6 +1554,7 @@ table 5767 "Warehouse Activity Line"
                 if Location."Directed Put-away and Pick" then
                     WMSMgt.CalcCubageAndWeight(
                       "Item No.", "Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
+                OnChangeUOMCodeOnBeforeRecModify(Rec);
                 Modify;
             end;
     end;
@@ -2664,6 +2669,19 @@ table 5767 "Warehouse Activity Line"
         WhsePickCard.RunModal;
     end;
 
+    procedure Lock()
+    begin
+        LockTable();
+        if FindLast() then;
+    end;
+
+    procedure ResetQtyToHandleOnReservation()
+    begin
+        if ("Qty. to Handle" = 0) and TrackingExists() and RegisteredWhseActLineIsEmpty() then
+            if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
+                UpdateReservation(Rec, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -2952,7 +2970,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetUOMCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var UOMCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeGetUOMCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var UOMCode: Code[10]; var IsHandled: Boolean; Location: Record Location)
     begin
     end;
 
@@ -2992,12 +3010,27 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSerialNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLotNo(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQtyOutstanding(var WarehouseActivityLine: Record "Warehouse Activity Line"; xWarehouseActivityLine: Record "Warehouse Activity Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVariantCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeUOMCodeOnBeforeRecModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -3093,6 +3126,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelatedWhseActivLinesOnBeforeDeleteWhseActivLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine2: Record "Warehouse Activity Line"; var CalledFromHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckIncreaseCapacityOnBeforeCheckIncreaseBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Bin: Record Bin; DeductCubage: Decimal; DeductWeight: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -3120,6 +3158,16 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitLineOnBeforeRenumberAllLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; var LineSpacing: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitLineOnAfterInitNewWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyToHandleOnBeforeWhseActivLineModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

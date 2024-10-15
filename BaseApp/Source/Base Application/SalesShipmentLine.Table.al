@@ -697,6 +697,7 @@ table 111 "Sales Shipment Line"
         TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         TranslationHelper: Codeunit "Translation Helper";
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         ExtTextLine: Boolean;
         NextLineNo: Integer;
         IsHandled: Boolean;
@@ -750,6 +751,7 @@ table 111 "Sales Shipment Line"
                 then
                     SalesOrderHeader.Get(SalesOrderLine."Document Type"::Order, "Order No.");
 
+                PrepaymentMgt.TestSalesOrderLineForGetShptLines(SalesOrderLine);
                 InitCurrency("Currency Code");
 
                 if SalesInvHeader."Prices Including VAT" then begin

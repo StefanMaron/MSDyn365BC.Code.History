@@ -321,7 +321,8 @@ table 210 "Job Journal Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -332,7 +333,8 @@ table 210 "Job Journal Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1330,6 +1332,7 @@ table 210 "Job Journal Line"
                 CurrencyDate := WorkDate
             else
                 CurrencyDate := "Posting Date";
+            OnUpdateCurrencyFactorOnBeforeGetExchangeRate(Rec, CurrExchRate);
             "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
         end else
             "Currency Factor" := 0;
@@ -1624,13 +1627,14 @@ table 210 "Job Journal Line"
         TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
     end;
 
-    local procedure RetrieveCostPrice(): Boolean
+    local procedure RetrieveCostPrice() Result: Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
     begin
-        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice);
+        Result := true;
+        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, Result);
         if ShouldRetrieveCostPrice then
-            exit(true);
+            exit(Result);
 
         case Type of
             Type::Item:
@@ -2047,7 +2051,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveCostPrice(JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean)
+    local procedure OnBeforeRetrieveCostPrice(JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2118,6 +2122,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer; var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCurrencyFactorOnBeforeGetExchangeRate(JobJournalLine: Record "Job Journal Line"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 

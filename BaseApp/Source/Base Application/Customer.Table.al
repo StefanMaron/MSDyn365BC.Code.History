@@ -1,4 +1,4 @@
-table 18 Customer
+﻿table 18 Customer
 {
     Caption = 'Customer';
     DataCaptionFields = "No.", Name;
@@ -159,7 +159,8 @@ table 18 Customer
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -170,7 +171,8 @@ table 18 Customer
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1903,6 +1905,7 @@ table 18 Customer
         CustomReportSelection: Record "Custom Report Selection";
         MyCustomer: Record "My Customer";
         ServHeader: Record "Service Header";
+        ItemReference: Record "Item Reference";
         CampaignTargetGrMgmt: Codeunit "Campaign Target Group Mgt";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -1991,6 +1994,11 @@ table 18 Customer
         if ServHeader.FindFirst() then
             Error(ServiceDocumentExistErr, "No.", ServHeader."Document Type");
 
+        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
+        ItemReference.SetRange("Reference Type No.", Rec."No.");
+        ItemReference.DeleteAll();
+
         UpdateContFromCust.OnDelete(Rec);
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
@@ -2037,6 +2045,8 @@ table 18 Customer
 
         UpdateReferencedIds;
         SetLastModifiedDateTime;
+
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
@@ -3534,6 +3544,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var Customer: Record Customer; xCustomer: Record Customer)
     begin
     end;
 

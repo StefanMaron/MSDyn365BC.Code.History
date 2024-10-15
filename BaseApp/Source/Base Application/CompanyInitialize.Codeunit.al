@@ -26,6 +26,7 @@
                   tabledata "Trial Balance Setup" = i,
                   TableData "Config. Setup" = i,
                   TableData "Tax Register Setup" = i,
+                  TableData "User Group Member" = d,
                   TableData "Statutory Report Setup" = i;
 
     trigger OnRun()

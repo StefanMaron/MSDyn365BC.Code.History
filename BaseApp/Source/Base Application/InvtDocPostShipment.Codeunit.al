@@ -18,24 +18,24 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         InvtAdjmt: Codeunit "Inventory Adjustment";
         Window: Dialog;
         LineCount: Integer;
+        HideProgressWindow: Boolean;
+        SuppressCommit: Boolean;
     begin
+        OnBeforeOnRun(Rec, SuppressCommit, HideProgressWindow);
+
         Rec.TestField("Document Type", "Document Type"::Shipment);
 
         InvtDocHeader := Rec;
         InvtDocHeader.SetHideValidationDialog(HideValidationDialog);
 
         with InvtDocHeader do begin
-            InvtDocHeader.TestField("No.");
-            InvtDocHeader.TestField("Posting Date");
+            CheckInvtDocumentHeaderMandatoryFields(InvtDocHeader);
 
             CheckDim();
 
             DocSignMgt.CheckDocSignatures(DATABASE::"Invt. Document Header", "Document Type".AsInteger(), "No.");
 
-            InvtDocLine.Reset();
-            InvtDocLine.SetRange("Document Type", "Document Type");
-            InvtDocLine.SetRange("Document No.", "No.");
-            InvtDocLine.SetFilter(Quantity, '>0');
+            SetInvtDocumentLineFiltersFromDocument(InvtDocLine, InvtDocHeader);
             if not InvtDocLine.Find('-') then
                 Error(NothingToPostErr);
 
@@ -43,9 +43,11 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             if Location."Require Pick" or Location."Require Shipment" then
                 Error(WarehouseHandlingRequiredErr, "Location Code");
 
-            Window.Open('#1#################################\\' + PostingLinesMsg);
+            if not HideProgressWindow then begin
+                Window.Open('#1#################################\\' + PostingLinesMsg);
 
-            Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+                Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+            end;
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Invt. Shipment";
@@ -59,8 +61,10 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                 CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocHeader);
                 Status := Status::Open;
                 Modify();
-                Commit();
+                if not SuppressCommit then
+                    Commit();
                 Status := Status::Released;
+                OnRunOnAfterSetStatusReleased(InvtDocHeader, InvtDocLine, SuppressCommit);
             end;
 
             TestField(Status, Status::Released);
@@ -75,6 +79,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             // Insert shipment header
             InvtShptHeader.LockTable();
             InvtShptHeader.Init();
+            OnRunOnAfterInvtShptHeaderInit(InvtShptHeader, InvtDocHeader);
             InvtShptHeader."Location Code" := "Location Code";
             InvtShptHeader."Posting Date" := "Posting Date";
             InvtShptHeader."Document Date" := "Document Date";
@@ -94,6 +99,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             InvtShptHeader."Dimension Set ID" := "Dimension Set ID";
             OnRunOnBeforeInvtShptHeaderInsert(InvtShptHeader, InvtDocHeader);
             InvtShptHeader.Insert();
+            OnRunOnAfterInvtShptHeaderInsert(InvtShptHeader, InvtDocHeader);
 
             DocSignMgt.MoveDocSignToPostedDocSign(
               DocSign, DATABASE::"Invt. Document Header", "Document Type".AsInteger(), "No.",
@@ -109,10 +115,12 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             LineCount := 0;
             InvtShptLine.LockTable();
             InvtDocLine.SetRange(Quantity);
+            OnRunOnBeforeInvtDocLineFind(InvtDocLine, InvtDocHeader);
             if InvtDocLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
 
                     if InvtDocLine."Item No." <> '' then begin
                         Item.Get(InvtDocLine."Item No.");
@@ -120,6 +128,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     end;
 
                     InvtShptLine.Init();
+                    OnRunOnAfterInvtShptLineInit(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);
                     InvtShptLine."Document No." := InvtShptHeader."No.";
                     InvtShptLine."Posting Date" := InvtShptHeader."Posting Date";
                     InvtShptLine."Document Date" := InvtShptHeader."Document Date";
@@ -154,8 +163,9 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     InvtShptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
                     InvtShptLine."Reason Code" := InvtDocLine."Reason Code";
                     InvtShptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
-                    OnRunOnBeforeInvtShptLineInsert(InvtShptLine, InvtDocLine);
+                    OnRunOnBeforeInvtShptLineInsert(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);
                     InvtShptLine.Insert();
+                    OnRunOnAfterInvtShptLineInsert(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);
 
                     PostItemJnlLine(InvtShptHeader, InvtShptLine);
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, InvtShptLine.RowID1());
@@ -173,13 +183,19 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             Delete(true);
 
             InsertValueEntryRelation();
-            Commit();
-            Window.Close();
+            OnRunOnBeforeCommitPostInvtShptDoc(InvtDocHeader, InvtDocLine, InvtShptHeader, InvtShptLine, ItemJnlLine, SuppressCommit);
+            if not SuppressCommit then
+                Commit();
+            OnRunOnAfterCommitPostInvtShptDoc(InvtDocHeader, InvtDocLine, InvtShptHeader, InvtShptLine, ItemJnlLine, SuppressCommit);
+            if not HideProgressWindow then
+                Window.Close();
         end;
 
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
         Rec := InvtDocHeader;
+
+        OnAfterOnRun(Rec, InvtDocHeader, InvtDocLine, InvtShptHeader, InvtShptLine);
     end;
 
     var
@@ -210,13 +226,40 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         DimInvalidErr: Label 'The dimensions used in item shipment %1, line no. %2 are invalid. %3', Comment = '%1 - document number, %2 = line number, %3 - error message';
         InventoryPostingSetupMissingErr: Label 'Inventory posting setup missing for location code %1.', Comment = '%1 - location code';
 
+    local procedure CheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+        OnBeforeCheckInvtDocumentHeaderMandatoryFields(InvtDocumentHeader);
+
+        InvtDocumentHeader.TestField("No.");
+        InvtDocumentHeader.TestField("Posting Date");
+
+        OnAfterCheckInvtDocumentHeaderMandatoryFields(InvtDocumentHeader);
+    end;
+
+    local procedure SetInvtDocumentLineFiltersFromDocument(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+        InvtDocumentLine.Reset();
+        InvtDocumentLine.SetRange("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.SetRange("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.SetFilter(Quantity, '>0');
+
+        OnAfterSetInvtDocumentLineFiltersFromDocument(InvtDocumentLine, InvtDocumentHeader);
+    end;
+
     local procedure PostItemJnlLine(InvtShptHeader2: Record "Invt. Shipment Header"; InvtShptLine2: Record "Invt. Shipment Line")
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(InvtShptHeader2, InvtShptLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine.Init();
+        OnPostItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, InvtShptHeader2, InvtShptLine2);
         ItemJnlLine."Posting Date" := InvtShptHeader2."Posting Date";
         ItemJnlLine."Document Date" := InvtShptHeader2."Document Date";
         ItemJnlLine."Document No." := InvtShptHeader2."No.";
@@ -230,21 +273,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         ItemJnlLine."Shortcut Dimension 2 Code" := InvtShptLine2."Shortcut Dimension 2 Code";
         ItemJnlLine."Location Code" := InvtShptHeader2."Location Code";
 
-        if InvtShptHeader2.Correction then begin
-            ItemJnlLine."Red Storno" := true;
-            ItemJnlLine.Quantity := -InvtShptLine2.Quantity;
-            ItemJnlLine."Invoiced Quantity" := -InvtShptLine2.Quantity;
-            ItemJnlLine."Quantity (Base)" := -InvtShptLine2."Quantity (Base)";
-            ItemJnlLine."Invoiced Qty. (Base)" := -InvtShptLine2."Quantity (Base)";
-            ItemJnlLine.Amount := -InvtShptLine2.Amount;
-        end
-        else begin
-            ItemJnlLine.Quantity := InvtShptLine2.Quantity;
-            ItemJnlLine."Invoiced Quantity" := InvtShptLine2.Quantity;
-            ItemJnlLine."Quantity (Base)" := InvtShptLine2."Quantity (Base)";
-            ItemJnlLine."Invoiced Qty. (Base)" := InvtShptLine2."Quantity (Base)";
-            ItemJnlLine.Amount := InvtShptLine2.Amount;
-        end;
+        FillItemJournalLineQtyFromInvtShipmentLine(ItemJnlLine, InvtShptLine2, InvtShptHeader2);
+
         ItemJnlLine."Unit Amount" := InvtShptLine2."Unit Amount";
         ItemJnlLine."Unit Cost" := InvtShptLine2."Unit Cost";
         ItemJnlLine."Indirect Cost %" := InvtShptLine2."Indirect Cost %";
@@ -264,15 +294,37 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         ItemJnlLine."Bin Code" := InvtShptLine2."Bin Code";
         ItemJnlLine."Dimension Set ID" := InvtShptLine2."Dimension Set ID";
 
+        OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, InvtShptHeader2, InvtShptLine2);
         ReserveInvtDocLine.TransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, ItemJnlLine.Quantity);
 
         OriginalQuantity := ItemJnlLine.Quantity;
         OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
-        OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, InvtShptHeader2, InvtShptLine2);
+        OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, InvtShptHeader2, InvtShptLine2, OriginalQuantity, OriginalQuantityBase);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
         ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification);
         PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification);
+
+        OnAfterPostItemJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, InvtShptHeader2, InvtShptLine2);
+    end;
+
+    local procedure FillItemJournalLineQtyFromInvtShipmentLine(var ItemJournalLine: Record "Item Journal Line"; InvtShipmentLine: Record "Invt. Shipment Line"; InvtShipmentHeader: Record "Invt. Shipment Header")
+    var
+        Sign: Integer;
+    begin
+        if InvtShipmentHeader.Correction then begin
+            Sign := -1;
+            ItemJournalLine."Red Storno" := true;
+        end else
+            Sign := 1;
+
+        ItemJournalLine.Quantity := Sign * InvtShipmentLine.Quantity;
+        ItemJournalLine."Invoiced Quantity" := Sign * InvtShipmentLine.Quantity;
+        ItemJournalLine."Quantity (Base)" := Sign * InvtShipmentLine."Quantity (Base)";
+        ItemJournalLine."Invoiced Qty. (Base)" := Sign * InvtShipmentLine."Quantity (Base)";
+        ItemJournalLine.Amount := Sign * InvtShipmentLine.Amount;
+
+        OnAfterFillItemJournalLineQtyFromInvtShipmentLine(ItemJournalLine, InvtShipmentLine, InvtShipmentHeader);
     end;
 
     local procedure CopyCommentLines(FromDocumentType: Enum "Inventory Comment Document Type"; ToDocumentType: Enum "Inventory Comment Document Type"; FromNumber: Code[20]; ToNumber: Code[20])
@@ -365,6 +417,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
+        OnBeforePostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification);
         ItemJnlLine.Quantity := OriginalQuantity;
         ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
         GetLocation(ItemJnlLine."Location Code");
@@ -381,7 +434,102 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; InvtShptHeader2: Record "Invt. Shipment Header"; InvtShptLine2: Record "Invt. Shipment Line")
+    local procedure OnAfterCheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetInvtDocumentLineFiltersFromDocument(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(ItemJournalLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; TrackingSpecification: Record "Tracking Specification"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var InvtDocumentHeader: Record "Invt. Document Header"; InvtDocumentHeader2: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillItemJournalLineQtyFromInvtShipmentLine(var ItemJournalLine: Record "Item Journal Line"; InvtShipmentLine: Record "Invt. Shipment Line"; InvtShipmentHeader: Record "Invt. Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var InvtDocumentHeader: Record "Invt. Document Header"; var SuppressCommit: Boolean; var HideProgressWindow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(ItemJournalLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvtDocumentHeaderMandatoryFields(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(InvtShipmenttHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSetStatusReleased(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(var InvtDocumentLine: Record "Invt. Document Line"; var ItemJournalLine: Record "Item Journal Line"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtShptHeaderInit(var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtShptHeaderInsert(var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtShptLineInit(var InvtShipmentLine: Record "Invt. Shipment Line"; InvtDocumentLine: Record "Invt. Document Line"; var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCommitPostInvtShptDoc(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line"; ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInvtShptLineInsert(var InvtShipmentLine: Record "Invt. Shipment Line"; InvtDocumentLine: Record "Invt. Document Line"; var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInvtDocLineFind(var InvtDocumentLine: Record "Invt. Document Line"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCommitPostInvtShptDoc(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; InvtShipmentHeader: Record "Invt. Shipment Header"; InvtShipmentLine: Record "Invt. Shipment Line"; ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; InvtShptHeader2: Record "Invt. Shipment Header"; InvtShptLine2: Record "Invt. Shipment Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal)
     begin
     end;
 
@@ -391,7 +539,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeInvtShptLineInsert(var InvtShptLine: Record "Invt. Shipment Line"; InvtDocLine: Record "Invt. Document Line")
+    local procedure OnRunOnBeforeInvtShptLineInsert(var InvtShptLine: Record "Invt. Shipment Line"; InvtDocLine: Record "Invt. Document Line"; var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
     begin
     end;
 }

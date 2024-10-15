@@ -737,7 +737,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Permission Set" = R,
-                  tabledata "User Group Plan" = RIMD,
+                  tabledata "User Group Plan" = Rimd,
                   tabledata "User Preference" = RIMD,
                   tabledata "User Security Status" = RIM,
                   tabledata "User Task" = RIMD,

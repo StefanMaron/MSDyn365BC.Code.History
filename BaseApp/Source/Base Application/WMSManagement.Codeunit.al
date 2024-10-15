@@ -194,12 +194,7 @@
                     end;
             if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
                 if SourceJnl = SourceJnl::" " then begin
-                    if Location."Directed Put-away and Pick" and ("From Zone Code" = '') then
-                        Error(
-                          Text006,
-                          FieldCaption("Zone Code"), "Whse. Document Type",
-                          FieldCaption("Whse. Document No."), "Whse. Document No.",
-                          FieldCaption("Line No."), "Whse. Document Line No.");
+                    CheckWhseDocumentFromZoneCode(WhseJnlLine);
                     if "From Bin Code" = '' then
                         Error(
                           Text006,
@@ -321,6 +316,24 @@
 
         with WhseJnlLine do
             if Location."Directed Put-away and Pick" and ("To Zone Code" = '') then
+                Error(
+                  Text006,
+                  FieldCaption("Zone Code"), "Whse. Document Type",
+                  FieldCaption("Whse. Document No."), "Whse. Document No.",
+                  FieldCaption("Line No."), "Whse. Document Line No.");
+    end;
+
+    local procedure CheckWhseDocumentFromZoneCode(WhseJnlLine: Record "Warehouse Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseDocumentFromZoneCode(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseJnlLine do
+            if Location."Directed Put-away and Pick" and ("From Zone Code" = '') then
                 Error(
                   Text006,
                   FieldCaption("Zone Code"), "Whse. Document Type",
@@ -2119,6 +2132,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemJnlLineFieldChange(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line"; CurrentFieldCaption: Text[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseDocumentFromZoneCode(WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

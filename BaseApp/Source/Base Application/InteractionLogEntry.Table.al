@@ -585,7 +585,13 @@ table 5065 "Interaction Log Entry"
         ReturnReceiptHeader: Record "Return Receipt Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         ServiceContractHeader: Record "Service Contract Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDocument(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Document Type" of
             "Document Type"::"Sales Qte.":
                 if "Version No." <> 0 then begin
@@ -835,6 +841,11 @@ table 5065 "Interaction Log Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; var IsHandled: Boolean; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocument(var InteractionLogEntry: Record "Interaction Log Entry"; var IsHandled: Boolean)
     begin
     end;
 

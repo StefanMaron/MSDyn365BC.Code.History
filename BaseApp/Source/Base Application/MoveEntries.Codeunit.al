@@ -1,4 +1,4 @@
-codeunit 361 MoveEntries
+﻿codeunit 361 MoveEntries
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "Cust. Ledger Entry" = rm,
@@ -69,7 +69,7 @@ codeunit 361 MoveEntries
         CalcGLAccWhereUsed: Codeunit "Calc. G/L Acc. Where-Used";
         NewGLAccNo: Code[20];
     begin
-        OnBeforeMoveGLEntries(GLAcc, NewGLAccNo);
+        OnBeforeMoveGLEntries(GLAcc, NewGLAccNo, GLEntry);
 
         GLSetup.Get();
 
@@ -103,6 +103,7 @@ codeunit 361 MoveEntries
                   CannotDeleteBecauseInInvErr,
                   Cust.TableCaption);
 
+            OnMoveCustEntriesOnBeforeError(Cust);
             Error(
               Text000,
               Cust.TableCaption, Cust."No.");
@@ -798,13 +799,19 @@ codeunit 361 MoveEntries
         exit('');
     end;
 
-    local procedure CheckGLAccountEntries(GLAccount: Record "G/L Account"; GeneralLedgerSetup: Record "General Ledger Setup")
+    local procedure CheckGLAccountEntries(GLAccount: Record "G/L Account"; var GeneralLedgerSetup: Record "General Ledger Setup")
     var
         GLBudgetEntry: Record "G/L Budget Entry";
         ConfirmManagement: Codeunit "Confirm Management";
         HasGLEntries: Boolean;
         HasGLBudgetEntries: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckGLAccountEntries(GLEntry, GeneralLedgerSetup, GLAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         if GLAccount."Account Type" = GLAccount."Account Type"::Posting then begin
             GLAccount.CalcFields(Balance);
             GLAccount.TestField(Balance, 0);
@@ -909,6 +916,11 @@ codeunit 361 MoveEntries
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccountEntries(var GLEntry: Record "G/L Entry"; var GLSetup: Record "General Ledger Setup"; var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetCustLedgEntryFilterByAccPeriod(var CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -919,7 +931,7 @@ codeunit 361 MoveEntries
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMoveGLEntries(GLAccount: Record "G/L Account"; var GLAccNo: Code[20])
+    local procedure OnBeforeMoveGLEntries(GLAccount: Record "G/L Account"; var GLAccNo: Code[20]; var GLEntry: Record "G/L Entry")
     begin
     end;
 
@@ -975,6 +987,11 @@ codeunit 361 MoveEntries
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMoveDocRelatedEntries(TableNo: Integer; DocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveCustEntriesOnBeforeError(var Cust: Record Customer)
     begin
     end;
 }

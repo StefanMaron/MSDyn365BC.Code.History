@@ -320,6 +320,7 @@ codeunit 134395 "ERM Document Totals UT"
         NumberOfLines: Integer;
     begin
         // Setup
+        Initialize();
         NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
         CreatePurchaseDocument(PurchaseHeader, NumberOfLines);
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);

@@ -441,6 +441,8 @@
             ReservEntry2."Changed By" := UserId;
             ReservEntry2.Modify();
         end;
+
+        OnAfterModifyExpectedReceiptDate(ReservEntry2, ReservEntry);
     end;
 
     procedure InitFilterAndSortingFor(var FilterReservEntry: Record "Reservation Entry"; SetFilters: Boolean)
@@ -1333,6 +1335,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyExpectedReceiptDate(var ReservationEntry2: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterModifyReservEntry(var ReservEntry: Record "Reservation Entry")
     begin
     end;
@@ -1392,7 +1399,7 @@
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
     begin
     end;

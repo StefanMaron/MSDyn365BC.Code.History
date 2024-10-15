@@ -614,7 +614,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -625,8 +626,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
-
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -741,7 +742,8 @@
         {
             CaptionClass = '1,2,1,' + Text007;
             Caption = 'New Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -753,7 +755,8 @@
         {
             CaptionClass = '1,2,2,' + Text007;
             Caption = 'New Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1005,6 +1008,7 @@
                                         "Location Code" := ProdOrderLine."Location Code";
                                         "Bin Code" := ProdOrderLine."Bin Code";
                                     end;
+                                    OnOrderLineNoOnValidateOnAfterAssignProdOrderLineValues(Rec, ProdOrderLine);
                                 end;
                             end;
 
@@ -3780,6 +3784,14 @@
         OnAfterCopyNewTrackingFromNewSpec(Rec, TrackingSpecification);
     end;
 
+    procedure SetTrackingFilterFromItemLedgerEntry(ItemledgerEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgerEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgerEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemLedgerEntry(Rec, ItemLedgerEntry);
+    end;
+
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
@@ -4661,6 +4673,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemLedgerEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer; TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
@@ -4692,6 +4709,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOrderLineNoOnValidateOnAfterAssignProdOrderLineValues(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

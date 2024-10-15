@@ -1527,6 +1527,8 @@
             DeferralPosting("Deferral Code", "Source Code", BankAccPostingGr."G/L Account No.", GenJnlLine, Balancing);
         end;
         OnMoveGenJournalLine(GenJnlLine, BankAccLedgEntry.RecordId);
+
+        OnAfterPostBankAcc(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
     end;
 
     local procedure PostFixedAsset(GenJnlLine: Record "Gen. Journal Line")
@@ -5833,6 +5835,7 @@
             Closed := false;
             CopyAmountsFromVATEntry(VATEntry, true);
             "Posting Date" := GenJnlLine."Posting Date";
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
@@ -8395,6 +8398,11 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterPostBankAcc(var GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterRunWithCheck(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
@@ -8644,7 +8652,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; TaxDetail: Record "Tax Detail"; var NextConnectionNo: Integer; var AddCurrGLEntryVATAmt: Decimal; AddCurrencyCode: Code[10]; UseCurrFactorOnly: Boolean)
     begin
     end;
@@ -9106,7 +9114,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostBankAccOnAfterBankAccLedgEntryInsert(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account")
     begin
     end;
@@ -9187,7 +9195,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 
@@ -9197,7 +9205,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var VendPostingGr: Record "Vendor Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 

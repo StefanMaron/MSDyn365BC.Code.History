@@ -775,6 +775,14 @@ table 337 "Reservation Entry"
         OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
     end;
 
+    procedure SetNewTrackingFilterFromNewReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        SetRange("New Serial No.", ReservEntry."New Serial No.");
+        SetRange("New Lot No.", ReservEntry."New Lot No.");
+
+        OnAfterSetNewTrackingFilterFromNewReservEntry(Rec, ReservEntry);
+    end;
+
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
@@ -1279,6 +1287,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFilterFromNewReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
     begin
     end;
 

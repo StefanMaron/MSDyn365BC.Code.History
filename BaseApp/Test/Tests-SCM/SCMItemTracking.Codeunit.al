@@ -2700,7 +2700,7 @@ codeunit 137405 "SCM Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesLotAndSerialHanlder,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     procedure BlockedLotNoExcludedFromPickAtLocationWithoutBins()
     var
         Location: Record Location;
@@ -2725,8 +2725,8 @@ codeunit 137405 "SCM Item Tracking"
         LibraryItemTracking.CreateLotItem(Item);
 
         // [GIVEN] Post 1 pc of lots "L1" and "L2" to inventory.
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[1], '');
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[2], '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[1], '', '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[2], '', '');
 
         // [GIVEN] Create lot no. information. Lot "L2" is blocked.
         CreateLotNoInformation(Item."No.", LotNos[1], false);
@@ -2744,12 +2744,10 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
           WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, 1);
-
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesLotAndSerialHanlder,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     procedure BlockedSerialNoExcludedFromPickAtLocationWithoutBins()
     var
         Location: Record Location;
@@ -2774,8 +2772,8 @@ codeunit 137405 "SCM Item Tracking"
         LibraryItemTracking.CreateSerialItem(Item);
 
         // [GIVEN] Post 1 pc of serial nos. "S1" and "S2" to inventory.
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[1]);
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[2]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[1], '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[2], '');
 
         // [GIVEN] Create serial no. information. Serial no. "S2" is blocked.
         CreateSerialNoInformation(Item."No.", SerialNos[1], false);
@@ -2793,12 +2791,10 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
           WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, 1);
-
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesLotAndSerialHanlder,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     procedure BlockedLotAndSerialNoExcludedFromPickAtLocationWithoutBins()
     var
         Location: Record Location;
@@ -2830,10 +2826,10 @@ codeunit 137405 "SCM Item Tracking"
         // [GIVEN] Post 1 pc of lot "L2" and serial no. "S2" to inventory.
         // [GIVEN] Post 1 pc of lot "L3" and serial no. "S3" to inventory.
         // [GIVEN] Post 1 pc of lot "L3" and serial no. "S4" to inventory.
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[1], SerialNos[1]);
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[2], SerialNos[2]);
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[3], SerialNos[3]);
-        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[3], SerialNos[4]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[1], SerialNos[1], '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[2], SerialNos[2], '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[3], SerialNos[3], '');
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[3], SerialNos[4], '');
 
         // [GIVEN] Create lot no. information. Lot "L2" is blocked.
         CreateLotNoInformation(Item."No.", LotNos[1], false);
@@ -2858,8 +2854,192 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
           WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, 1);
+    end;
 
-        LibraryVariableStorage.AssertEmpty();
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BlockedPackageNoExcludedFromPickAtLocationWithoutBins()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        PackageNoInformation: Record "Package No. Information";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PackageNos: array[2] of Code[20];
+    begin
+        // [FEATURE] [Warehouse] [Pick] [Blocked]
+        // [SCENARIO 401329] Blocked package no. is excluded from inventory pick at location without bins.
+        Initialize();
+        PackageNos[1] := LibraryUtility.GenerateGUID();
+        PackageNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with required pick and no bins.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Package-tracked item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[1]);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[2]);
+
+        // [GIVEN] Post per 1 pc of packages "P1" and "P2" to inventory.
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', '', PackageNos[1]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', '', PackageNos[2]);
+
+        // [GIVEN] Block package "P2".
+        UpdatePackageNoInformation(Item."No.", PackageNos[2], true);
+
+        // [GIVEN] Sales order for 2 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create inventory pick.
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [THEN] 1 pc has been suggested for picking.
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
+          SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BlockedPackageAndSerialNoExcludedFromPickAtLocationWithoutBins()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        PackageNoInformation: Record "Package No. Information";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PackageNos: array[3] of Code[20];
+        SerialNos: array[4] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse] [Pick] [Blocked]
+        // [SCENARIO 401329] Blocked package and serial no. are excluded from inventory pick at location without bins.
+        Initialize();
+        for i := 1 to ArrayLen(PackageNos) do
+            PackageNos[i] := LibraryUtility.GenerateGUID();
+        for i := 1 to ArrayLen(SerialNos) do
+            SerialNos[i] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with required pick and no bins.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Both package and serial no.-tracked item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false, true);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[1]);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[2]);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[3]);
+
+        // [GIVEN] Post 1 pc of package "P1" and serial no. "S1" to inventory.
+        // [GIVEN] Post 1 pc of package "P2" and serial no. "S2" to inventory.
+        // [GIVEN] Post 1 pc of package "P3" and serial no. "S3" to inventory.
+        // [GIVEN] Post 1 pc of package "P3" and serial no. "S4" to inventory.
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[1], PackageNos[1]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[2], PackageNos[2]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[3], PackageNos[3]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNos[4], PackageNos[3]);
+
+        // [GIVEN] Block package "P2".
+        UpdatePackageNoInformation(Item."No.", PackageNos[2], true);
+
+        // [GIVEN] Create serial no. information. Serial nos. "S1", "S2" and "S3" are blocked.
+        CreateSerialNoInformation(Item."No.", SerialNos[1], true);
+        CreateSerialNoInformation(Item."No.", SerialNos[2], true);
+        CreateSerialNoInformation(Item."No.", SerialNos[3], true);
+        CreateSerialNoInformation(Item."No.", SerialNos[4], false);
+
+        // [GIVEN] Sales order for 4 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 4, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create inventory pick.
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [THEN] 1 pc has been suggested for picking (the only combination of "P3" and "S4" is not blocked).
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BlockedPackageAndLotNoExcludedFromPickAtLocationWithoutBins()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        PackageNoInformation: Record "Package No. Information";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PackageNos: array[3] of Code[20];
+        LotNos: array[4] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse] [Pick] [Blocked]
+        // [SCENARIO 401329] Blocked package and lot no. are excluded from inventory pick at location without bins.
+        Initialize();
+        for i := 1 to ArrayLen(PackageNos) do
+            PackageNos[i] := LibraryUtility.GenerateGUID();
+        for i := 1 to ArrayLen(LotNos) do
+            LotNos[i] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with required pick and no bins.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Both package and lot no.-tracked item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[1]);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[2]);
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[3]);
+
+        // [GIVEN] Post 1 pc of package "P1" and lot no. "L1" to inventory.
+        // [GIVEN] Post 1 pc of package "P2" and lot no. "L2" to inventory.
+        // [GIVEN] Post 1 pc of package "P3" and lot no. "L3" to inventory.
+        // [GIVEN] Post 1 pc of package "P3" and lot no. "L4" to inventory.
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[1], '', PackageNos[1]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[2], '', PackageNos[2]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[3], '', PackageNos[3]);
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, LotNos[4], '', PackageNos[3]);
+
+        // [GIVEN] Block package "P2".
+        UpdatePackageNoInformation(Item."No.", PackageNos[2], true);
+
+        // [GIVEN] Create lot no. information. Lot nos. "L1", "L2" and "L3" are blocked.
+        CreateLotNoInformation(Item."No.", LotNos[1], true);
+        CreateLotNoInformation(Item."No.", LotNos[2], true);
+        CreateLotNoInformation(Item."No.", LotNos[3], true);
+        CreateLotNoInformation(Item."No.", LotNos[4], false);
+
+        // [GIVEN] Sales order for 4 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 4, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create inventory pick.
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [THEN] 1 pc has been suggested for picking (the only combination of "P3" and "L4" is not blocked).
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, 1);
     end;
 
     local procedure Initialize()
@@ -3217,6 +3397,15 @@ codeunit 137405 "SCM Item Tracking"
         LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, ItemNo, '', SerialNo);
         SerialNoInformation.Validate(Blocked, IsBlocked);
         SerialNoInformation.Modify(true);
+    end;
+
+    local procedure UpdatePackageNoInformation(ItemNo: Code[20]; PackageNo: Code[20]; IsBlocked: Boolean)
+    var
+        PackageNoInformation: Record "Package No. Information";
+    begin
+        PackageNoInformation.Get(ItemNo, '', PackageNo);
+        PackageNoInformation.Validate(Blocked, IsBlocked);
+        PackageNoInformation.Modify(true);
     end;
 
     local procedure CreateItemJournalLine(var ItemJnlLine: Record "Item Journal Line"; Item: Record Item; EntryType: Enum "Item Ledger Document Type"; Qty: Decimal; UnitAmount: Decimal)
@@ -3620,11 +3809,12 @@ codeunit 137405 "SCM Item Tracking"
         LibraryInventory.PostItemJournalLine(ItemJnlBatch."Journal Template Name", ItemJnlBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJournalLineWithItemTracking(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; SerialNo: Code[20])
+    local procedure CreateAndPostItemJournalLineWithItemTracking(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; SerialNo: Code[20]; PackageNo: Code[20])
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
@@ -3633,9 +3823,8 @@ codeunit 137405 "SCM Item Tracking"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
 
-        LibraryVariableStorage.Enqueue(LotNo);
-        LibraryVariableStorage.Enqueue(SerialNo);
-        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, SerialNo, LotNo, PackageNo, ItemJournalLine.Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 

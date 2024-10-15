@@ -65,6 +65,121 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestEmailFileWithBodyStreamAndPostedDocNo()
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        DocumentMailing: Codeunit "Document-Mailing";
+        DocumentMailingTests: Codeunit "Document Mailing Tests";
+        FileManagement: Codeunit "File Management";
+        RelatedRecord: RecordRef;
+        SourceTables, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
+        InStream: InStream;
+        VariableVariant: Variant;
+        Content, BodyContent : Text;
+        Name: Text;
+    begin
+        // [SCENARIO] An email can be sent where the email body is given as a stream
+        BindSubscription(DocumentMailingTests);
+        Clear(LibraryVariableStorage);
+
+        // [GIVEN] A Stream with some content
+        InitializeStream('Some content', TempBlob);
+        TempBlob.CreateInStream(InStream);
+
+        // [AND] A Related record and a receiver record
+        RelatedRecord.Open(Database::"Sales Invoice Header");
+        RelatedRecord.FindLast();
+        SourceTables.Add(Database::"Sales Invoice Header");
+        SourceIDs.Add(RelatedRecord.Field(RelatedRecord.SystemIdNo).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        // [WHEN] The EmailFile is called with an Instream as the body of the email
+        Clear(DocumentMailing);
+        DocumentMailing.EmailFile(Instream, 'new file.pdf', InStream, '', 'someone@somewhere.com', 'EmailDocName', true, -1, SourceTables, SourceIDs, SourceRelationTypes);
+
+        // [THEN] A temp file with the content is created
+        DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
+        LibraryVariableStorage.Dequeue(VariableVariant);
+        TempEmailItem := VariableVariant;
+        Content := LibraryVariableStorage.DequeueText();
+        Name := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual('new file.pdf', Name, 'Attachment Name was expected to be new file.pdf');
+
+        // [THEN] A Body File exists
+        Assert.IsTrue(FileManagement.ServerFileExists(TempEmailItem."Body File Path"), 'Body file does not exist.');
+
+        // [And] The other values are set correctly
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'IsFromPostedDoc was expected to be false');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'PostedDocNo was expected to be empty');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'HideDialog was expected to be true');
+        Assert.AreEqual(-1, LibraryVariableStorage.DequeueInteger(), 'ReportUsage was expected to be -1');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestEmailFileWithBodyStream()
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        DocumentMailing: Codeunit "Document-Mailing";
+        DocumentMailingTests: Codeunit "Document Mailing Tests";
+        FileManagement: Codeunit "File Management";
+        RelatedRecord: RecordRef;
+        SourceTables, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
+        InStream: InStream;
+        VariableVariant: Variant;
+        Content, BodyContent : Text;
+        Name: Text;
+    begin
+        // [SCENARIO] An email can be sent where the email body is given as a stream
+        BindSubscription(DocumentMailingTests);
+        Clear(LibraryVariableStorage);
+
+        // [GIVEN] A Stream with some content
+        InitializeStream('Some content', TempBlob);
+        TempBlob.CreateInStream(InStream);
+
+        // [AND] A Related record and a receiver record
+        RelatedRecord.Open(Database::"Sales Invoice Header");
+        RelatedRecord.FindLast();
+        SourceTables.Add(Database::"Sales Invoice Header");
+        SourceIDs.Add(RelatedRecord.Field(RelatedRecord.SystemIdNo).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        // [WHEN] The EmailFile is called with an Instream as the body of the email
+        Clear(DocumentMailing);
+        DocumentMailing.EmailFile(InStream, 'new file.pdf', InStream, 'subject', 'someone@somewhere.com', true, Enum::"Email Scenario"::Default, SourceTables, SourceIDs, SourceRelationTypes);
+
+        // [THEN] A temp file with the content is created
+        DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
+        LibraryVariableStorage.Dequeue(VariableVariant);
+        TempEmailItem := VariableVariant;
+        Content := LibraryVariableStorage.DequeueText();
+        Name := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual('new file.pdf', Name, 'Attachment Name was expected to be new file.pdf');
+
+        // [THEN] A Body File exists
+        Assert.IsTrue(FileManagement.ServerFileExists(TempEmailItem."Body File Path"), 'Body file does not exist.');
+
+        // [And] The other values are set correctly
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'IsFromPostedDoc was expected to be false');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'PostedDocNo was expected to be empty');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'HideDialog was expected to be true');
+        Assert.AreEqual(-1, LibraryVariableStorage.DequeueInteger(), 'ReportUsage was expected to be -1');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailHtmlFromStream()
@@ -88,7 +203,7 @@ codeunit 135060 "Document Mailing Tests"
         // [WHEN] The function EmailFileFromStream is called
         Clear(DocumentMailing);
         asserterror DocumentMailing.EmailHtmlFromStream(InStream, 'someone@somewhere.com', 'a nice subject', true, 0);
-        Assert.AreEqual(GetLastErrorText, CannotSendEmailErr, 'Error was expected.');
+        Assert.AreEqual(CannotSendEmailErr, GetLastErrorText(), 'Error was expected.');
 
         // [THEN] A temp file with the stream content is created
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);

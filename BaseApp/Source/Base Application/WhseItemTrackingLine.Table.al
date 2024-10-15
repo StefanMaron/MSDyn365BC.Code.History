@@ -1,4 +1,4 @@
-table 6550 "Whse. Item Tracking Line"
+﻿table 6550 "Whse. Item Tracking Line"
 {
     Caption = 'Whse. Item Tracking Line';
 
@@ -630,6 +630,14 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
     end;
 
+    procedure SetTrackingFilterFromItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        SetFilter("Lot No.", ItemLedgerEntry."Lot No.");
+        SetFilter("Serial No.", ItemLedgerEntry."Serial No.");
+
+        OnAfterSetTrackingFilterFromItemLedgerEntry(Rec, ItemLedgerEntry);
+    end;
+
     procedure SetTrackingFilterFromPostedWhseReceiptLine(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
         SetRange("Serial No.", PostedWhseReceiptLine."Serial No.");
@@ -789,6 +797,11 @@ table 6550 "Whse. Item Tracking Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromBinContent(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemLedgerEntry(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 

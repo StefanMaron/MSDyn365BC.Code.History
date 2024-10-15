@@ -91,12 +91,16 @@ codeunit 448 "Job Queue Dispatcher"
         OnAfterHandleRequest(JobQueueEntry, WasSuccess, JobQueueExecutionTimeInMs);
     end;
 
-    local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry"): Boolean
+    local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
+        IsHandled: Boolean;
     begin
-        OnBeforeWaitForOthersWithSameCategory(CurrJobQueueEntry, JobQueueEntry);
+        IsHandled := false;
+        OnBeforeWaitForOthersWithSameCategory(CurrJobQueueEntry, JobQueueEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if CurrJobQueueEntry."Job Queue Category Code" = '' then
             exit(false);
@@ -305,7 +309,7 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry")
+    local procedure OnBeforeWaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

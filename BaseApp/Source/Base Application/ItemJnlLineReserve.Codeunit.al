@@ -1,4 +1,4 @@
-codeunit 99000835 "Item Jnl. Line-Reserve"
+﻿codeunit 99000835 "Item Jnl. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -384,7 +384,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
         ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCallItemTracking(ItemJnlLine, IsReclass, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine.TestField("Item No.");
         if not ItemJnlLine.ItemPosting then begin
             ReservEntry.InitSortingAndFilters(false);
@@ -532,6 +538,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
         if MatchThisTable(ReservEntry."Source Type") then
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

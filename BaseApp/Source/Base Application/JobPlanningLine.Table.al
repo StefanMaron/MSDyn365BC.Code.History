@@ -123,7 +123,7 @@
                         CopyFromStandardText();
                 end;
 
-                OnValidateNoOnAfterCopyFromAccount(Rec, xRec);
+                OnValidateNoOnAfterCopyFromAccount(Rec, xRec, Job);
 
                 if Type <> Type::Text then
                     Validate(Quantity);
@@ -144,8 +144,6 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
-            var
-                Delta: Decimal;
             begin
                 CheckQuantityPosted();
 
@@ -169,11 +167,7 @@
 
                 CalcQuantityBase();
 
-                if "Usage Link" and (xRec."No." = "No.") then begin
-                    Delta := Quantity - xRec.Quantity;
-                    Validate("Remaining Qty.", "Remaining Qty." + Delta);
-                    Validate("Qty. to Transfer to Journal", "Qty. to Transfer to Journal" + Delta);
-                end;
+                UpdateRemainingQuantity();
 
                 UpdateQtyToTransfer;
                 UpdateQtyToInvoice;
@@ -1308,6 +1302,8 @@
         "Direct Unit Cost (LCY)" := 0;
         "Unit Cost (LCY)" := 0;
         "Unit Price" := 0;
+
+        OnAfterCopyFromGLAccount(Rec, Job, GLAcc);
     end;
 
     local procedure CopyFromStandardText()
@@ -1351,6 +1347,7 @@
                 CurrencyDate := WorkDate
             else
                 CurrencyDate := "Currency Date";
+            OnUpdateCurrencyFactorOnBeforeGetExchangeRate(Rec, CurrExchRate);
             "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
         end else
             "Currency Factor" := 0;
@@ -1744,7 +1741,10 @@
         if IsHandled then
             exit;
 
-        if ("Cost Factor" <> 0) and (("Unit Cost" <> xRec."Unit Cost") or ("Cost Factor" <> xRec."Cost Factor")) then
+        if ("Cost Factor" <> 0) and
+           ((("Unit Cost" <> xRec."Unit Cost") or ("Cost Factor" <> xRec."Cost Factor")) or
+            ((Quantity <> xRec.Quantity) or ("Location Code" <> xRec."Location Code")))
+        then
             "Unit Price" := Round("Unit Cost" * "Cost Factor", UnitAmountRoundingPrecisionFCY)
         else
             if (Item."Price/Profit Calculation" = Item."Price/Profit Calculation"::"Price=Cost+Profit") and
@@ -1896,6 +1896,23 @@
                     PostingDate, "Remaining Line Amount", CurrencyFactor, AmountRoundingPrecision);
         end else
             ClearValues;
+    end;
+
+    local procedure UpdateRemainingQuantity()
+    var
+        Delta: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateRemainingQuantity(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Usage Link" and (xRec."No." = "No.") then begin
+            Delta := Quantity - xRec.Quantity;
+            Validate("Remaining Qty.", "Remaining Qty." + Delta);
+            Validate("Qty. to Transfer to Journal", "Qty. to Transfer to Journal" + Delta);
+        end;
     end;
 
     procedure UpdateQtyToTransfer()
@@ -2170,6 +2187,8 @@
             SetFilter("Quantity (Base)", '<0')
         else
             SetFilter("Quantity (Base)", '>0');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, NewStatus, AvailabilityFilter, Positive);
     end;
 
     procedure DrillDownJobInvoices()
@@ -2308,6 +2327,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromGLAccount(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromJobJnlLine(var JobPlanningLine: Record "Job Planning Line"; JobJnlLine: Record "Job Journal Line")
     begin
     end;
@@ -2334,6 +2358,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var JobPlanningLine: Record "Job Planning Line"; var Item: Record Item);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFilterLinesForReservation(var JobPlaningLine: Record "Job Planning Line"; ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
 
@@ -2439,6 +2468,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRemainingQuantity(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2459,12 +2493,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateCurrencyFactorOnBeforeGetExchangeRate(JobPlanningLine: Record "Job Planning Line"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnAfterCopyFromAccount(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line")
+    local procedure OnValidateNoOnAfterCopyFromAccount(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var Job: Record Job)
     begin
     end;
 }

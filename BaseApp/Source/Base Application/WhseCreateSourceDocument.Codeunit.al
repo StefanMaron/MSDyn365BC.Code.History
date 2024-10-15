@@ -145,6 +145,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if "Bin Code" = '' then
                 "Bin Code" := ServiceLine."Bin Code";
             UpdateShptLine(WhseShptLine, WhseShptHeader);
+            OnFromServiceLine2ShptLineOnBeforeCreateShptLine(WhseShptLine, WhseShptHeader, ServiceHeader, ServiceLine);
             CreateShptLine(WhseShptLine);
             OnAfterCreateShptLineFromServiceLine(WhseShptLine, WhseShptHeader, ServiceLine);
             exit(not HasErrorOccured);
@@ -231,7 +232,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if "Bin Code" = '' then
                 "Bin Code" := PurchLine."Bin Code";
             UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
-            OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
+            OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
             CreateReceiptLine(WhseReceiptLine);
             OnAfterCreateRcptLineFromPurchLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
             exit(not HasErrorOccured);
@@ -342,6 +343,8 @@ codeunit 5750 "Whse.-Create Source Document"
             OnAfterWhseShptLineInsert(WhseShptLine);
             CreateWhseItemTrackingLines;
         end;
+
+        OnAfterCreateShptLine(WhseShptLine);
     end;
 
     local procedure SetQtysOnShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; Qty: Decimal; QtyBase: Decimal)
@@ -565,6 +568,11 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateShptLineFromSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
@@ -740,6 +748,11 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFromServiceLine2ShptLineOnBeforeCreateShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFromPurchLine2ShptLineOnAfterInitNewLine(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; PurchLine: Record "Purchase Line")
     begin
     end;
@@ -760,7 +773,7 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
