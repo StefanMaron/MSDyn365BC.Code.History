@@ -4477,6 +4477,7 @@
         TotalingServiceLine."Gen. Bus. Posting Group" := SplitServiceLine."Gen. Bus. Posting Group";
         TotalingServiceLine."Gen. Prod. Posting Group" := SplitServiceLine."Gen. Prod. Posting Group";
         TotalingServiceLine."VAT Identifier" := SplitServiceLine."VAT Identifier";
+        TotalingServiceLine."Posting Date" := "Posting Date";
         TotalingServiceLine.CreateDim(
           DimMgt.TypeToTableID5(TotalingServiceLine.Type), TotalingServiceLine."No.",
           DATABASE::Job, TotalingServiceLine."Job No.",

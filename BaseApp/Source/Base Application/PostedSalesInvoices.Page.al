@@ -641,6 +641,26 @@ page 143 "Posted Sales Invoices"
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
             }
+            action("Update Document")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedSalesInvoiceUpdate: Page "Posted Sales Invoice - Update";
+                begin
+                    PostedSalesInvoiceUpdate.LookupMode := true;
+                    PostedSalesInvoiceUpdate.SetRec(Rec);
+                    PostedSalesInvoiceUpdate.RunModal();
+                end;
+            }
         }
     }
 

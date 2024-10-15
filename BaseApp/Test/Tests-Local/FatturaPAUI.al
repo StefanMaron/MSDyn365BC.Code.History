@@ -51,6 +51,108 @@ codeunit 144211 "FatturaPA UI"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInPostedSalesInvoicePage()
+    var
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Sales Invoice page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        PostedSalesInvoice.OpenEdit();
+        Assert.IsTrue(PostedSalesInvoice."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        PostedSalesInvoice.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInPostedSalesCrMemoPage()
+    var
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Sales Credit Memo page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        PostedSalesCreditMemo.OpenEdit();
+        Assert.IsTrue(PostedSalesCreditMemo."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        PostedSalesCreditMemo.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInVATPostingSetupPage()
+    var
+        VATPostingSetup: TestPage "VAT Posting Setup";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the VAT Posting Setup page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        VATPostingSetup.OpenEdit();
+        Assert.IsTrue(VATPostingSetup."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        VATPostingSetup.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInVATPostingSetupCardPage()
+    var
+        VATPostingSetupCard: TestPage "VAT Posting Setup Card";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the VAT Posting Setup Card page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        VATPostingSetupCard.OpenEdit();
+        Assert.IsTrue(VATPostingSetupCard."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        VATPostingSetupCard.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInPostedServiceInvoicePage()
+    var
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Service Invoice page
+
+        Initialize();
+        LibraryApplicationArea.EnableServiceManagementSetup;
+        PostedServiceInvoice.OpenEdit();
+        Assert.IsTrue(PostedServiceInvoice."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        PostedServiceInvoice.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaDocTypeExistsInPostedServiceCrMemoPage()
+    var
+        PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Service Credit Memo page
+
+        Initialize();
+        LibraryApplicationArea.EnableServiceManagementSetup;
+        PostedServiceCreditMemo.OpenEdit();
+        Assert.IsTrue(PostedServiceCreditMemo."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
+        PostedServiceCreditMemo.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"FatturaPA UI");

@@ -373,6 +373,13 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the customer bill entry is included in a cumulative bank receipt.';
                 }
+                field("Reason Code"; "Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
+                }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;

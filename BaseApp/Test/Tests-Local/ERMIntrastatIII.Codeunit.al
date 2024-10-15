@@ -1788,7 +1788,7 @@ codeunit 144064 "ERM Intrastat - III"
             "Document No." := ItemLedgerEntry."Document No.";
             "Item No." := ItemLedgerEntry."Item No.";
             "Total Weight" := LibraryRandom.RandDecInRange(1, 10, 2);
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            "Partner VAT ID" := LibraryUtility.GenerateGUID;
             Area := LibraryUtility.GenerateRandomCode(FieldNo(Area), DATABASE::"Intrastat Jnl. Line");
             "Transaction Specification" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Transaction Specification"), DATABASE::"Intrastat Jnl. Line");

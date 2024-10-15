@@ -324,6 +324,14 @@ codeunit 143000 "Library - IT Localization"
         end;
     end;
 
+    procedure FilterFatturaDocumentTypeNoDefaultValues(var FatturaDocumentType: Record "Fattura Document Type")
+    begin
+        FatturaDocumentType.SetRange(Invoice, false);
+        FatturaDocumentType.SetRange("Credit Memo", false);
+        FatturaDocumentType.SetRange("Self-Billing", false);
+        FatturaDocumentType.SetRange(Prepayment, false);
+    end;
+
     [Scope('OnPrem')]
     procedure GetVATCode(): Code[20]
     begin
@@ -352,6 +360,19 @@ codeunit 143000 "Library - IT Localization"
     begin
         CompanyTypes.Next(LibraryRandom.RandInt(CompanyTypes.Count));
         exit(CompanyTypes.Code);
+    end;
+
+    procedure GetRandomFatturaDocType(ExcludeFatturaDocType: Code[20]): Code[20]
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        FatturaDocHelper.InsertFatturaDocumentTypeList();
+        FilterFatturaDocumentTypeNoDefaultValues(FatturaDocumentType);
+        FatturaDocumentType.SetFilter("No.", '<>%1', ExcludeFatturaDocType);
+        FatturaDocumentType.FindSet();
+        FatturaDocumentType.Next(LibraryRandom.RandIntInRange(1, FatturaDocumentType.Count - 1));
+        exit(FatturaDocumentType."No.");
     end;
 
     [Scope('OnPrem')]

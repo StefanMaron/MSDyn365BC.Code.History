@@ -2350,7 +2350,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            Caption = 'Check Total';
+            Caption = 'Total Amount';
         }
         field(12104; "Reverse Sales VAT No. Series"; Code[20])
         {

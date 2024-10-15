@@ -572,6 +572,11 @@ table 254 "VAT Entry"
             Caption = 'VAT Transaction Nature';
             TableRelation = "VAT Transaction Nature";
         }
+        field(12186; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys

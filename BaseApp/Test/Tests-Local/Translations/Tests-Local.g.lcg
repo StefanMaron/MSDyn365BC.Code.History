@@ -2597,6 +2597,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = field caption;%2 = code value.]D;]A;(LookupHint=Codeunit FatturaPA Document Type - NamedType OptionAlreadySpecifiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 646443825 - NamedType 2363789606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are one or more different values of Fattura document type coming from the VAT posting setup of lines. As it''s not possible to identify the value, %1 from the header will be used.\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the value of Fattura Document type from the header]D;]A;(LookupHint=Codeunit FatturaPA Document Type - NamedType FatturaDocTypeDiffQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 312613428 - NamedType 1449977514" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FatturaPA]]></Val>

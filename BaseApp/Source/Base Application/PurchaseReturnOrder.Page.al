@@ -217,7 +217,7 @@ page 6640 "Purchase Return Order"
                 field("Check Total"; "Check Total")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the total amount of the check that was received for the purchase.';
+                    ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {

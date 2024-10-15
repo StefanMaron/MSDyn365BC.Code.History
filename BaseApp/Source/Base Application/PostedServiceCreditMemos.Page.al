@@ -248,11 +248,12 @@ page 5971 "Posted Service Credit Memos"
             action("&Navigate")
             {
                 ApplicationArea = Service;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -271,6 +272,26 @@ page 5971 "Posted Service Credit Memos"
                     ActivityLog: Record "Activity Log";
                 begin
                     ActivityLog.ShowEntries(RecordId);
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
+                begin
+                    PostedServCrMemoUpdate.LookupMode := true;
+                    PostedServCrMemoUpdate.SetRec(Rec);
+                    PostedServCrMemoUpdate.RunModal();
                 end;
             }
         }

@@ -175,6 +175,12 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+                }
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
@@ -587,6 +593,26 @@ page 5978 "Posted Service Invoice"
                 trigger OnAction()
                 begin
                     ShowActivityLog;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                begin
+                    PostedServInvoiceUpdate.LookupMode := true;
+                    PostedServInvoiceUpdate.SetRec(Rec);
+                    PostedServInvoiceUpdate.RunModal();
                 end;
             }
         }

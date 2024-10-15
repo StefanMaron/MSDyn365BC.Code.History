@@ -275,6 +275,11 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Include in VAT Comm. Rep.';
         }
+        field(12149; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
+        }
     }
 
     keys

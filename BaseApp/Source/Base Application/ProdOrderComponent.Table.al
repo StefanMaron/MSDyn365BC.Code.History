@@ -1347,6 +1347,7 @@ table 5407 "Prod. Order Component"
         ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRtngLine.SetRange("Location Code", ProdOrderLine."Location Code");
         ProdOrderRtngLine.SetFilter("No.", '<>%1', ''); // empty No. implies blank bin codes - ignore these
         ProdOrderRtngLine.SetRange("Previous Operation No.", ''); // first operation
         if "Routing Link Code" <> '' then begin

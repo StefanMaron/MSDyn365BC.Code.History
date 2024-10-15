@@ -459,6 +459,11 @@ codeunit 396 NoSeriesManagement
         end;
     end;
 
+    procedure ClearNoSeriesLine()
+    begin
+        Clear(LastNoSeriesLine);
+    end;
+
     procedure SetNoSeriesLineFilter(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20]; StartDate: Date)
     begin
         if StartDate = 0D then

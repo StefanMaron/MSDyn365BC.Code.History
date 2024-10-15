@@ -237,7 +237,7 @@ page 51 "Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the total amount of the check that was received for the purchase.';
+                    ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
                 field(Status; Status)
                 {
@@ -325,6 +325,13 @@ page 51 "Purchase Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s bank account that is associated with the purchase invoice.';
+                }
+                field("Reason Code"; "Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

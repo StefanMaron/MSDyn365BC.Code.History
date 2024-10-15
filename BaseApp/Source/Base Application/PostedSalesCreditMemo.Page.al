@@ -303,6 +303,12 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the code for the transport method used for the item on this line.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+                }
             }
             group(Individual)
             {
@@ -732,6 +738,26 @@ page 134 "Posted Sales Credit Memo"
                 trigger OnAction()
                 begin
                     Navigate;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document, such as information from the shipping agent. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedSalesCrMemoUpdate: Page "Posted Sales Cr. Memo - Update";
+                begin
+                    PostedSalesCrMemoUpdate.LookupMode := true;
+                    PostedSalesCrMemoUpdate.SetRec(Rec);
+                    PostedSalesCrMemoUpdate.RunModal();
                 end;
             }
             action(ActivityLog)
