@@ -542,7 +542,7 @@ table 303 "Finance Charge Memo Line"
                 end;
         end;
 
-        OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(FinChrgMemoLine, FinChrgTerms, FinChrgMemoHeader);
+        OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(FinChrgMemoLine, FinChrgTerms, FinChrgMemoHeader, Rec);
 
         if InsertedLines then
             BuildMultiDescription(FinChrgTerms."Line Description", UseDueDate, NrOfDays);
@@ -966,7 +966,7 @@ table 303 "Finance Charge Memo Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeTerms: Record "Finance Charge Terms"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeTerms: Record "Finance Charge Terms"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeMemoLineSender: Record "Finance Charge Memo Line")
     begin
     end;
 

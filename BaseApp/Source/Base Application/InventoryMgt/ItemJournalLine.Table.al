@@ -2487,6 +2487,8 @@
             CheckItemAvailable(CurrentFieldNo);
             Rec := ItemJnlLine2;
         end;
+
+        OnAfterSelectItemEntry(Rec);
     end;
 
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
@@ -3036,7 +3038,13 @@
         ItemApplnEntry: Record "Item Application Entry";
         ValueEntry: Record "Value Entry";
         CostAmtActual: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitRevalJnlLine(Rec, ItemLedgEntry2, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Value Entry Type" <> "Value Entry Type"::Revaluation then
             exit;
 
@@ -4123,6 +4131,7 @@
             "Entry Type"::Purchase:
                 if Item."Purchasing Blocked" and
                    not ("Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Credit Memo"])
+                   and ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     Error(PurchasingBlockedErr);
             "Entry Type"::Sale:
@@ -4545,7 +4554,12 @@
     local procedure CheckItemTracking(CalledByFieldNo: Integer)
     var
         FieldCap: Text;
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckItemTracking(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsItemTrackingEnabledInBatch() then begin
             ClearTracking();
             ClearDates();
@@ -5383,6 +5397,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectItemEntry(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRevalJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -223,7 +223,9 @@
                   tabledata "Document Entry" = RIMD,
                   tabledata "Document Search Result" = RIMD,
                   tabledata "Document Sending Profile" = RIMD,
+#if not CLEAN23
                   tabledata "Document Service Cache" = Rimd,
+#endif
                   tabledata "Drop Shpt. Post. Buffer" = RIMD,
                   tabledata "ECSL VAT Report Line" = RIMD,
                   tabledata "ECSL VAT Report Line Relation" = RIMD,

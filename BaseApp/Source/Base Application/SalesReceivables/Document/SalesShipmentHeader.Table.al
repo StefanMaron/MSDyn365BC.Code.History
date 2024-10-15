@@ -765,7 +765,7 @@ table 110 "Sales Shipment Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEmailRecords(var SalesShipmentHeader: Record "Sales Shipment Header"; SendDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeEmailRecords(var SalesShipmentHeader: Record "Sales Shipment Header"; var SendDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

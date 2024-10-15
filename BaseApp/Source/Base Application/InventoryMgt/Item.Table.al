@@ -16,7 +16,13 @@
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(IsHandled, Rec, xRec, InventorySetup, NoSeriesMgt);
+                if IsHandled then
+                    exit;
                 if "No." <> xRec."No." then begin
                     GetInvtSetup();
                     NoSeriesMgt.TestManual(InventorySetup."Item Nos.");
@@ -2190,6 +2196,7 @@
                                 CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
                                 OnValidateProductionBOMNoOnAfterCodeunitRun(ProdBOMHeader, Rec);
                             end;
+                            OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProdBOMHeader, Rec);
                         end;
                     end;
                 end;
@@ -3147,198 +3154,265 @@
         CheckReqLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
     end;
 
-    local procedure CheckItemJnlLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    local procedure CheckItemJnlLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
         if "No." = '' then
             exit;
 
+        IsHandled := false;
+        OnBeforeCheckItemJnlLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine.SetRange("Item No.", "No.");
         if not ItemJnlLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", ItemJnlLine.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ItemJnlLine.TableCaption());
         end;
     end;
 
-    local procedure CheckStdCostWksh(CurrFieldNo: Integer)
+    local procedure CheckStdCostWksh(CurrentFieldNo: Integer)
     var
-        StdCostWksh: Record "Standard Cost Worksheet";
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
     begin
-        StdCostWksh.Reset();
-        StdCostWksh.SetRange(Type, StdCostWksh.Type::Item);
-        StdCostWksh.SetRange("No.", "No.");
-        if not StdCostWksh.IsEmpty() then
-            if CurrFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", StdCostWksh.TableCaption());
+        StandardCostWorksheet.Reset();
+        StandardCostWorksheet.SetRange(Type, StandardCostWorksheet.Type::Item);
+        StandardCostWorksheet.SetRange("No.", "No.");
+        if not StandardCostWorksheet.IsEmpty() then
+            if CurrentFieldNo = 0 then
+                Error(Text023, TableCaption(), "No.", StandardCostWorksheet.TableCaption());
     end;
 
-    local procedure CheckReqLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    local procedure CheckReqLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
         if "No." = '' then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCheckReqLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
             exit;
 
         RequisitionLine.SetCurrentKey(Type, "No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", "No.");
         if not RequisitionLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", RequisitionLine.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", RequisitionLine.TableCaption());
         end;
     end;
 
-    procedure CheckDocuments(CurrFieldNo: Integer)
+    procedure CheckDocuments(CurrentFieldNo: Integer)
     begin
         if "No." = '' then
             exit;
 
-        CheckBOM(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckPurchLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckSalesLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdOrderLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdOrderCompLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckPlanningCompLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckTransLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckServLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdBOMLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckServContractLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckAsmHeader(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckAsmLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckJobPlanningLine(CurrFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckBOM(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckPurchLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckSalesLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckProdOrderLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckProdOrderCompLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckPlanningCompLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckTransLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckServLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckProdBOMLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckServContractLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckAsmHeader(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckAsmLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        CheckJobPlanningLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
 
-        OnAfterCheckDocuments(Rec, xRec, CurrFieldNo);
+        OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo);
     end;
 
-    procedure CheckBOM(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckBOM(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBOM(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         BOMComp.Reset();
         BOMComp.SetCurrentKey(Type, "No.");
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetRange("No.", "No.");
         if not BOMComp.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", BOMComp.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", BOMComp.TableCaption());
         end;
     end;
 
-    procedure CheckPurchLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckPurchLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         PurchaseLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPurchLine(Rec, CurrFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        OnBeforeCheckPurchLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
         if IsHandled then
             exit;
 
         PurchaseLine.SetCurrentKey(Type, "No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", "No.");
-        OnCheckPurchLineOnAfterPurchLineSetFilters(Rec, PurchaseLine, CurrFieldNo, CheckFieldNo, CheckFieldCaption);
+        OnCheckPurchLineOnAfterPurchLineSetFilters(Rec, PurchaseLine, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
         PurchaseLine.SetLoadFields("Document Type");
         if PurchaseLine.FindFirst() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text000, TableCaption(), "No.", PurchaseLine."Document Type");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", PurchaseLine.TableCaption());
         end;
     end;
 
-    procedure CheckSalesLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckSalesLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetCurrentKey(Type, "No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", "No.");
         SalesLine.SetLoadFields("Document Type");
         if SalesLine.FindFirst() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(CannotDeleteItemIfSalesDocExistErr, TableCaption(), "No.", SalesLine."Document Type");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", SalesLine.TableCaption());
         end;
     end;
 
-    procedure CheckProdOrderLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckProdOrderLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         if ProdOrderExist() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text002, TableCaption(), "No.");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdOrderLine.TableCaption());
         end;
     end;
 
-    procedure CheckProdOrderCompLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckProdOrderCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckProdOrderCompLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderComp.SetCurrentKey(Status, "Item No.");
         ProdOrderComp.SetFilter(Status, '..%1', ProdOrderComp.Status::Released);
         ProdOrderComp.SetRange("Item No.", "No.");
         if not ProdOrderComp.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text014, TableCaption(), "No.");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdOrderComp.TableCaption());
         end;
     end;
 
-    procedure CheckPlanningCompLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckPlanningCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         PlanningComponent: Record "Planning Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPlanningCompLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         PlanningComponent.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date", "Planning Line Origin");
         PlanningComponent.SetRange("Item No.", "No.");
         if not PlanningComponent.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", PlanningComponent.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", PlanningComponent.TableCaption());
         end;
     end;
 
-    procedure CheckTransLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckTransLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTransLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         TransLine.SetCurrentKey("Item No.");
         TransLine.SetRange("Item No.", "No.");
         if not TransLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text016, TableCaption(), "No.");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", TransLine.TableCaption());
         end;
     end;
 
-    procedure CheckServLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckServLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckServLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ServInvLine.Reset();
         ServInvLine.SetCurrentKey(Type, "No.");
         ServInvLine.SetRange(Type, ServInvLine.Type::Item);
         ServInvLine.SetRange("No.", "No.");
         if not ServInvLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text017, TableCaption(), "No.", ServInvLine."Document Type");
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ServInvLine.TableCaption());
         end;
     end;
 
-    procedure CheckProdBOMLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckProdBOMLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         ProductionBOMVersion: Record "Production BOM Version";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckProdBOMLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdBOMLine.Reset();
         ProdBOMLine.SetCurrentKey(Type, "No.");
         ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
         ProdBOMLine.SetRange("No.", "No.");
         if ProdBOMLine.Find('-') then begin
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdBOMLine.TableCaption());
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 repeat
                     if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") and
                        (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
@@ -3352,44 +3426,64 @@
         end;
     end;
 
-    procedure CheckServContractLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckServContractLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckServContractLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceContractLine.Reset();
         ServiceContractLine.SetRange("Item No.", "No.");
         if not ServiceContractLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", ServiceContractLine.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ServiceContractLine.TableCaption());
         end;
     end;
 
-    procedure CheckAsmHeader(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckAsmHeader(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        AsmHeader: Record "Assembly Header";
+        AssemblyHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
-        AsmHeader.SetCurrentKey("Document Type", "Item No.");
-        AsmHeader.SetRange("Item No.", "No.");
-        if not AsmHeader.IsEmpty() then begin
-            if CurrFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", AsmHeader.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AsmHeader.TableCaption());
+        IsHandled := false;
+        OnBeforeCheckAsmHeader(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
+        AssemblyHeader.SetCurrentKey("Document Type", "Item No.");
+        AssemblyHeader.SetRange("Item No.", "No.");
+        if not AssemblyHeader.IsEmpty() then begin
+            if CurrentFieldNo = 0 then
+                Error(Text023, TableCaption(), "No.", AssemblyHeader.TableCaption());
+            if CurrentFieldNo = CheckFieldNo then
+                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AssemblyHeader.TableCaption());
         end;
     end;
 
-    procedure CheckAsmLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckAsmLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        AsmLine: Record "Assembly Line";
+        AssemblyLine: Record "Assembly Line";
+        IsHandled: Boolean;
     begin
-        AsmLine.SetCurrentKey(Type, "No.");
-        AsmLine.SetRange(Type, AsmLine.Type::Item);
-        AsmLine.SetRange("No.", "No.");
-        if not AsmLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", AsmLine.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AsmLine.TableCaption());
+        IsHandled := false;
+        OnBeforeCheckAsmLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
+
+        AssemblyLine.SetCurrentKey(Type, "No.");
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange("No.", "No.");
+        if not AssemblyLine.IsEmpty() then begin
+            if CurrentFieldNo = 0 then
+                Error(Text023, TableCaption(), "No.", AssemblyLine.TableCaption());
+            if CurrentFieldNo = CheckFieldNo then
+                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AssemblyLine.TableCaption());
         end;
     end;
 
@@ -3439,17 +3533,24 @@
         end;
     end;
 
-    procedure CheckJobPlanningLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    procedure CheckJobPlanningLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         JobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
+
     begin
+        IsHandled := false;
+        OnBeforeCheckJobPlanningLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         JobPlanningLine.SetCurrentKey(Type, "No.");
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.SetRange("No.", "No.");
         if not JobPlanningLine.IsEmpty() then begin
-            if CurrFieldNo = 0 then
+            if CurrentFieldNo = 0 then
                 Error(Text023, TableCaption(), "No.", JobPlanningLine.TableCaption());
-            if CurrFieldNo = CheckFieldNo then
+            if CurrentFieldNo = CheckFieldNo then
                 Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", JobPlanningLine.TableCaption());
         end;
     end;
@@ -3857,8 +3958,15 @@
         exit(IsVariantMandatory(Rec."No."));
     end;
 
-    local procedure IsVariantMandatory(ItemNo: Code[20]): Boolean
+    local procedure IsVariantMandatory(ItemNo: Code[20]) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsVariantMandatory(ItemNo, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if ItemNo <> Rec."No." then begin
             Rec.SetLoadFields("No.", "Variant Mandatory if Exists");
             if Rec.Get(ItemNo) then;
@@ -4170,7 +4278,92 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContractLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdOrderCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBOM(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdBOMLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPlanningCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobPlanningLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAsmHeader(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAsmLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReqLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemJnlLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckPurchLineOnAfterPurchLineSetFilters(Item: Record Item; var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVariantMandatory(ItemNo: Code[20]; var IsHandled: Boolean; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(var IsHandled: Boolean; var Item: Record Item; xItem: Record Item; InventorySetup: Record "Inventory Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
     begin
     end;
 }

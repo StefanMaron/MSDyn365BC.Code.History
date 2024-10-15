@@ -59,10 +59,6 @@ codeunit 5057 "VendCont-Update"
 
             OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
             Cont.Validate("E-Mail", Vend."E-Mail");
-            if (Cont."VAT Registration No." <> Vend."VAT Registration No.") and VendVATLogExist(Vend) then begin
-                Cont.Validate("Country/Region Code", Vend."Country/Region Code");
-                Cont.Validate("VAT Registration No.", Vend."VAT Registration No.");
-            end;
 
             Cont.TransferFields(Vend);
             OnAfterTransferFieldsFromVendToCont(Cont, Vend);
@@ -140,6 +136,7 @@ codeunit 5057 "VendCont-Update"
             SetSkipDefault();
             OnBeforeContactInsert(Cont, Vend);
             Insert(true);
+            OnInsertNewContactOnAfterContactInsert(Cont, Vend);
         end;
 
         with ContBusRel do begin
@@ -200,23 +197,6 @@ codeunit 5057 "VendCont-Update"
                 exit(true);
             exit(Contact.Name = '');
         end;
-    end;
-
-    local procedure VendVATLogExist(Vendor: Record Vendor): Boolean
-    var
-        VATRegistrationLog: Record "VAT Registration Log";
-        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
-    begin
-        if Vendor."VAT Registration No." = '' then
-            exit(false);
-        if not VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then
-            exit(false);
-
-        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Vendor);
-        VATRegistrationLog.SetRange("Account No.", Vendor."No.");
-        VATRegistrationLog.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
-        if not VATRegistrationLog.IsEmpty() then
-            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -281,6 +261,11 @@ codeunit 5057 "VendCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertNewContactOnAfterContactInsert(var Contact: Record "Contact"; var Vendor: Record "Vendor")
     begin
     end;
 }

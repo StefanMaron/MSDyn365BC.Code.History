@@ -22,6 +22,9 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
+    },
+    {
       "path": "./QuickbooksPayrollFileImport/Test/Quickbooks Payroll File Import Tests"
     },
     {
@@ -71,6 +74,9 @@
     },
     {
       "path": "./Email - Outlook REST API/Test"
+    },
+    {
+      "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
     },
     {
       "path": "./uksendremittanceadvice/Test/Send remittance advice by email Tests"

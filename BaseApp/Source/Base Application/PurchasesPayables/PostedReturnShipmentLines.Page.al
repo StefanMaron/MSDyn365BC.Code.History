@@ -43,6 +43,12 @@ page 6653 "Posted Return Shipment Lines"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies either the name of or the description of the item, general ledger account or item charge.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

@@ -39,7 +39,14 @@ page 30 "Item Card"
                     AboutText = 'This appears on the documents you create when buying or selling this item. You can create Extended Texts with additional item description available to insert in the document lines.';
                     Visible = DescriptionFieldVisible;
                 }
-                field(Blocked; Blocked)
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = Description2FieldVisible;
+                }
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
@@ -2773,9 +2780,11 @@ page 30 "Item Card"
     trigger OnAfterGetCurrRecord()
     begin
         EnableControls();
+        ItemReplenishmentSystem := Rec."Replenishment System";
         if GuiAllowed() then
             OnAfterGetCurrRecordFunc();
     end;
+
 
     Local procedure OnAfterGetCurrRecordFunc()
     var
@@ -2794,15 +2803,9 @@ page 30 "Item Card"
         if OpenApprovalEntriesExist then
             OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
 
-        ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-
-        WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
-
-        CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
-
-        ItemReplenishmentSystem := "Replenishment System";
-        ReplenishmentSystemEditable := CurrPage.Editable();
-
+        ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
+        WorkflowWebhookManagement.GetCanRequestAndCanCancel(Rec.RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData(Rec."No.");
         CurrPage.EntityTextFactBox.Page.SetContext(Database::Item, Rec.SystemId, Enum::"Entity Text Scenario"::"Marketing Text", MarketingTextPlaceholderTxt);
     end;
 
@@ -2853,6 +2856,7 @@ page 30 "Item Card"
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
         DescriptionFieldVisible := true;
+        Description2FieldVisible := true;
         SetOverReceiptControlsVisibility();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
@@ -2908,6 +2912,7 @@ page 30 "Item Card"
         EventFilter: Text;
         NoFieldVisible: Boolean;
         DescriptionFieldVisible: Boolean;
+        Description2FieldVisible: Boolean;
         NewMode: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -2959,9 +2964,10 @@ page 30 "Item Card"
 
     procedure EnableControls()
     begin
-        IsService := IsServiceType();
-        IsNonInventoriable := IsNonInventoriableType();
-        IsInventoriable := IsInventoriableType();
+        IsService := Rec.IsServiceType();
+        IsNonInventoriable := Rec.IsNonInventoriableType();
+        IsInventoriable := Rec.IsInventoriableType();
+        ReplenishmentSystemEditable := CurrPage.Editable();
 
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
