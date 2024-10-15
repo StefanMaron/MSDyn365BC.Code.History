@@ -656,7 +656,6 @@ page 344 Navigate
         SourceType: Text[30];
         SourceNo: Code[20];
         SourceName: Text[100];
-        DocExists: Boolean;
         ShowEnable: Boolean;
         PrintEnable: Boolean;
         DocTypeEnable: Boolean;
@@ -708,6 +707,7 @@ page 344 Navigate
         ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         SearchBasedOn: Enum "Navigate Search Type";
+        DocExists: Boolean;
         DocNoFilter: Text;
         PostingDateFilter: Text;
         ExtDocNo: Code[250];
@@ -1598,7 +1598,7 @@ page 344 Navigate
         end;
     end;
 
-    local procedure UpdateFormAfterFindRecords()
+    protected procedure UpdateFormAfterFindRecords()
     begin
         OnBeforeUpdateFormAfterFindRecords(PostingDateFilter);
 

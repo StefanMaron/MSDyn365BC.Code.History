@@ -386,8 +386,6 @@ page 7117 "Sales Analysis Report"
     var
         GLSetup: Record "General Ledger Setup";
         TempAnalysisColumn: Record "Analysis Column" temporary;
-        ItemAnalysisView: Record "Item Analysis View";
-        AnalysisLine: Record "Analysis Line";
         AnalysisReportMgt: Codeunit "Analysis Report Management";
         SalesAnalysisMatrix: Page "Sales Analysis Matrix";
         NewCurrentReportName: Code[10];
@@ -404,6 +402,8 @@ page 7117 "Sales Analysis Report"
         MatrixColumnCaptions: array[32] of Text[1024];
 
     protected var
+        ItemAnalysisView: Record "Item Analysis View";
+        AnalysisLine: Record "Analysis Line";
         CurrentReportName: Code[10];
         CurrentColumnTemplate: Code[10];
         CurrentLineTemplate: Code[10];

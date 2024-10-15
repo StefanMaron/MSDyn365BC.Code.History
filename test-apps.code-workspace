@@ -9,6 +9,9 @@
   },
   "folders": [
     {
+      "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
@@ -25,6 +28,9 @@
     },
     {
       "path": "./DataArchive/test/Data Archive Tests"
+    },
+    {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
     },
     {
       "path": "./servicedeclaration/test/Service Declaration Tests"
@@ -211,9 +217,6 @@
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
-    },
-    {
-      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     },
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"

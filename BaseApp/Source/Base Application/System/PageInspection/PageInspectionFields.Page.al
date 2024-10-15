@@ -66,7 +66,6 @@ page 9632 "Page Inspection Fields"
                 Caption = 'Visual Studio Code';
                 action(NavigateToSource)
                 {
-                    AccessByPermission = System "Tools, Zoom" = X;
                     ApplicationArea = All;
                     Caption = 'Explore field in VS Code';
                     Image = View;

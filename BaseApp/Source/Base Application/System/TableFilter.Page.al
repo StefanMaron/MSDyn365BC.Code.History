@@ -79,6 +79,8 @@ page 9805 "Table Filter"
 
     var
         Text000: Label 'The filters are too large to be copied to the type "TableFilter".';
+
+    protected var
         SourceTableNumber: Integer;
         SourceTableName: Text;
         SourceTableCaption: Text;
@@ -163,7 +165,13 @@ page 9805 "Table Filter"
         IsQuote: Boolean;
         IsDelimiter: Boolean;
         EvenQuote: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetQuotedValue(Rec, TextString, Delimiter, PartOfText, IsHandled);
+        if IsHandled then
+            exit(PartOfText);
+
         // Remove the first quote:
         TextString := CopyStr(TextString, 2, StrLen(TextString) - 1);
         Length := StrLen(TextString);
@@ -387,6 +395,11 @@ page 9805 "Table Filter"
                 TempTableFilter.TransferFields(Rec);
                 TempTableFilter.Insert();
             until Rec.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetQuotedValue(var TableFilter: Record "Table Filter"; var TextString: Text; Delimiter: Text; var PartOfText: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

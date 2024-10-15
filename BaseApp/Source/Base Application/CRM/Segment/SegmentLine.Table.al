@@ -189,7 +189,7 @@ table 5077 "Segment Line"
                     Rec."Campaign No." := '';
                 Modify();
 
-                if Rec."Segment No." <> '' then begin
+                if (Rec."Segment No." <> '') and (Rec.Description <> '') then begin
                     SegInteractLanguage.Reset();
                     SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
                     SegInteractLanguage.SetRange("Segment Line No.", Rec."Line No.");
@@ -629,7 +629,7 @@ table 5077 "Segment Line"
             exit;
 
         // Delete old attachment if changed
-        if Rec."Attachment No." <> 0 then begin
+        if (Rec."Attachment No." <> 0) and (Rec."Contact No." <> xRec."Contact No.") then begin
             Attachment.Get(Rec."Attachment No.");
             Attachment.Delete();
         end;
@@ -830,6 +830,7 @@ table 5077 "Segment Line"
             exit;
 
         ContactGlobal.Get("Contact No.");
+        TempSegmentLine."Segment No." := "Segment No.";
         TempSegmentLine."Contact No." := ContactGlobal."No.";
         TempSegmentLine."Contact Via" := ContactGlobal."Phone No.";
         TempSegmentLine."Contact Company No." := ContactGlobal."Company No.";
@@ -1450,6 +1451,7 @@ table 5077 "Segment Line"
         TempInteractionMergeData.Id := CreateGuid();
         TempInteractionMergeData."Contact No." := Rec."Contact No.";
         TempInteractionMergeData."Salesperson Code" := Rec."Salesperson Code";
+        OnCreateInteractionMergeDataOnBeforeTempInteractionMergeDataInsert(TempInteractionMergeData, Rec);
         TempInteractionMergeData.Insert();
     end;
 
@@ -1956,6 +1958,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetInteractionAttachment(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInteractionMergeDataOnBeforeTempInteractionMergeDataInsert(var TempInteractionMergeData: Record "Interaction Merge Data" temporary; var SegmentLine: Record "Segment Line")
     begin
     end;
 }

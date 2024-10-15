@@ -266,11 +266,12 @@ codeunit 1714 "Upgrade Bank Deposits"
         BankAccReconciliationLine.Validate("Applied Amount", 0);
         BankLedgerEntryNo := GetRecRefFieldFromFieldName(BankRecLineRecRef, 'Bank Ledger Entry No.').Value();
         if BankLedgerEntryNo <> 0 then
-            if BankAccountLedgerEntry.Get(BankLedgerEntryNo) then begin
-                BankAccountLedgerEntry.SetRecFilter();
-                BankAccReconciliationLine.SetRecFilter();
-                MatchBankRecLines.MatchManually(BankAccReconciliationLine, BankAccountLedgerEntry);
-            end;
+            if BankAccountLedgerEntry.Get(BankLedgerEntryNo) then
+                if BankAccountLedgerEntry.Open then begin
+                    BankAccountLedgerEntry.SetRecFilter();
+                    BankAccReconciliationLine.SetRecFilter();
+                    MatchBankRecLines.MatchManually(BankAccReconciliationLine, BankAccountLedgerEntry);
+                end;
     end;
 
 

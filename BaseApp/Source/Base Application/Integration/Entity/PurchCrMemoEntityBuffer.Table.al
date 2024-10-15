@@ -229,7 +229,7 @@ table 5508 "Purch. Cr. Memo Entity Buffer"
         }
         field(86; "Pay-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
             DataClassification = CustomerContent;
         }
@@ -250,7 +250,7 @@ table 5508 "Purch. Cr. Memo Entity Buffer"
         }
         field(89; "Buy-from County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Buy-from Country/Region Code";
+            CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
             DataClassification = CustomerContent;
         }

@@ -1264,7 +1264,7 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks.Load.Invoke;
 
         // [THEN] 9 records added
-        Assert.RecordCount(NamedForwardLink, 9);
+        Assert.RecordCount(NamedForwardLink, 10);
         // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions());
@@ -1273,6 +1273,7 @@ codeunit 132500 "Error Message Handling"
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr());
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForTroubleshootingDimensions());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedVATDate());
         // [THEN] 'Blocked Gen./VAT Posting Setup' links exist
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForFinancePostingGroups());
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForFinanceSetupVAT());

@@ -585,6 +585,7 @@ page 9807 "User Card"
 #if not CLEAN23
         MyNotification: Record "My Notifications";
 #endif
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
         EnvironmentInfo: Codeunit "Environment Information";
 #if not CLEAN23
         UserManagement: Codeunit "User Management";
@@ -605,7 +606,10 @@ page 9807 "User Card"
         HideExternalUsers();
 
         OnPremAskFirstUserToCreateSuper();
-        RefreshParts();
+
+        // Set "User Security Groups" to refresh as part of "Inherited Permission Sets" refresh (to avoid fetching security group memberships twice).
+        CurrPage."User Security Groups".Page.GetSourceRecord(SecurityGroupMemberBuffer);
+        CurrPage."Inherited Permission Sets".Page.SetRecordToRefresh(SecurityGroupMemberBuffer);
 #if not CLEAN23
         Usermanagement.BasicAuthDepricationNotificationDefault(false);
         if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
@@ -873,20 +877,10 @@ page 9807 "User Card"
                 Rec."Windows Security ID" := UserSID;
                 ValidateSid();
                 SetUserName();
-                RefreshParts();
+                CurrPage."Inherited Permission Sets".Page.Refresh(); // "User Security Groups" part is updated as part of this refresh as well
             end else
                 Error(Text001Err, WindowsUserName);
         end;
-    end;
-
-    local procedure RefreshParts()
-    var
-        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
-        SecurityGroup: Codeunit "Security Group";
-    begin
-        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
-        CurrPage."User Security Groups".Page.Refresh(SecurityGroupMemberBuffer);
-        CurrPage."Inherited Permission Sets".Page.Refresh(SecurityGroupMemberBuffer);
     end;
 
     local procedure OnPremAskFirstUserToCreateSuper()
