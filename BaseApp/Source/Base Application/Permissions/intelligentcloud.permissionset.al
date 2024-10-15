@@ -647,7 +647,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Intermediate Data Import" = R,
                   tabledata "Internal Movement Header" = R,
                   tabledata "Internal Movement Line" = R,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = R,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = R,
                   tabledata "Intrastat Jnl. Batch" = R,
                   tabledata "Intrastat Jnl. Line" = R,
                   tabledata "Intrastat Jnl. Template" = R,

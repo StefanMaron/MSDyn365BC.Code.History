@@ -616,6 +616,23 @@ table 5109 "Purchase Header Archive"
                 ShowDimensions();
             end;
         }
+        field(3998; "Source Doc. Exists"; Boolean)
+        {
+            FieldClass = Flowfield;
+            CalcFormula = Exist("Purchase Header" WHERE("Document Type" = FIELD("Document Type"),
+                                                            "No." = FIELD("No.")));
+            Caption = 'Source Doc. Exists';
+            Editable = false;
+        }
+        field(3999; "Last Archived Date"; DateTime)
+        {
+            Caption = 'Last Archived Date';
+            FieldClass = FlowField;
+            CalcFormula = Max("Purchase Header Archive".SystemCreatedAt where("Document Type" = FIELD("Document Type"),
+                                                            "No." = FIELD("No."),
+                                                            "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
+            Editable = false;
+        }
         field(5043; "Interaction Exist"; Boolean)
         {
             Caption = 'Interaction Exist';

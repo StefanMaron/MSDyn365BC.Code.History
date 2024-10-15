@@ -5390,6 +5390,150 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Assert.ExpectedError('The length of the string is 11');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FixDimSetEntryGlobalDimNoCodeunitUT()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimSetId: Integer;
+    begin
+        // [SCENARIO 396220] Fix "Global Dimension No." in Dimension Set Entry table
+        Initialize();
+
+        // [GIVEN] Corrupted "Global Dimension No." in Dimension Set Entry
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        DimSetId := CreateCorruptedDimSetEntry(DimensionValue);
+
+        // [WHEN] Run fix "Global Dimension No." procedure
+        Codeunit.Run(Codeunit::"Update Dim. Set Glbl. Dim. No.");
+
+        // [THEN] "Global Dimension No." corrected accordingly G/L setup
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 1 Code"
+        GeneralLedgerSetup.Get();
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 2 Code"
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 2 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('UpdateDimSetGlblDimNoReqPageHandler,MessageHandler')]
+    procedure FixDimSetEntryGlobalDimNoReportUT()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimSetId: Integer;
+    begin
+        // [SCENARIO 396220] Fix "Global Dimension No." in Dimension Set Entry table via running report
+        Initialize();
+
+        // [GIVEN] Corrupted "Global Dimension No." in Dimension Set Entry
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        DimSetId := CreateCorruptedDimSetEntry(DimensionValue);
+
+        // [WHEN] Run fix "Global Dimension No." procedure via report
+        Commit();
+        Report.Run(Report::"Update Dim. Set Glbl. Dim. No.");
+
+        // [THEN] "Global Dimension No." corrected accordingly G/L setup
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 1 Code"
+        GeneralLedgerSetup.Get();
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 2 Code"
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 2 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InsertDimSetEntryGlobalDimNoUT()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GlobalDimensionValue: Record "Dimension Value";
+        i: Integer;
+        DimSetId: Integer;
+    begin
+        // [SCENARIO 396220] Insert(true) dimension set entry
+        Initialize();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] General ledger setup with shopurtcut dimensions
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        DimSetId := GetDimSetId();
+
+        // [WHEN] Insert(true) dimension set entry
+        for i := 1 to 6 do begin
+            DimensionSetEntry."Dimension Set ID" := DimSetId;
+            DimensionSetEntry."Dimension Code" := DimensionValue[i]."Dimension Code";
+            DimensionSetEntry."Dimension Value Code" := DimensionValue[i].Code;
+            DimensionSetEntry."Global Dimension No." := i * 100; // wrong "Global Dimension No."
+            DimensionSetEntry.Insert(true);
+        end;
+
+        LibraryDimension.CreateDimensionValue(GlobalDimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry."Dimension Set ID" := DimSetId;
+        DimensionSetEntry."Dimension Code" := GlobalDimensionValue."Dimension Code";
+        DimensionSetEntry."Dimension Value Code" := GlobalDimensionValue.Code;
+        DimensionSetEntry."Global Dimension No." := 1; // wrong "Global Dimension No."
+        DimensionSetEntry.Insert(true);
+
+        // [THEN] "Global Dimension No." filled accordingly G/L setup
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 1 Code"
+        GeneralLedgerSetup.Get();
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ModifyDimSetEntryGlobalDimNoUT()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimSetId: Integer;
+    begin
+        // [SCENARIO 396220] Insert(true) dimension set entry
+        Initialize();
+
+        // [GIVEN] General ledger setup with shopurtcut dimensions
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] Corrupted dimension set entry
+        DimSetId := CreateCorruptedDimSetEntry(DimensionValue);
+
+        // [WHEN] Modify(true) dimension set entry
+        DimensionSetEntry.SetRange("Dimension Set ID", DimSetId);
+        DimensionSetEntry.FindSet();
+        repeat
+            DimensionSetEntry.Modify(true);
+        until DimensionSetEntry.Next() = 0;
+
+        // [THEN] "Global Dimension No." filled accordingly G/L setup
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 1 Code"
+        GeneralLedgerSetup.Get();
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+        // [THEN] "Global Dimension No." = 0 for "Global Dimension 2 Code"
+        DimensionSetEntry.Get(DimSetId, GeneralLedgerSetup."Global Dimension 2 Code");
+        DimensionSetEntry.TestField("Global Dimension No.", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Shortcuts");
@@ -5685,6 +5829,52 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GenJnlDimFilter.Insert();
     end;
 
+    local procedure CreateCorruptedDimSetEntry(var DimensionValue: array[6] of Record "Dimension Value"): Integer
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GlobalDimensionValue: array[2] of Record "Dimension Value";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimSetId: Integer;
+        i: Integer;
+    begin
+        GeneralLedgerSetup.Get();
+        DimSetId := GetDimSetId();
+
+        for i := 1 to 6 do begin
+            DimensionSetEntry."Dimension Set ID" := DimSetId;
+            DimensionSetEntry."Dimension Code" := DimensionValue[i]."Dimension Code";
+            DimensionSetEntry."Dimension Value Code" := DimensionValue[i].Code;
+            DimensionSetEntry."Global Dimension No." := 0;
+            DimensionSetEntry.Insert(false);
+        end;
+
+        LibraryDimension.CreateDimensionValue(GlobalDimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        DimensionSetEntry."Dimension Set ID" := DimSetId;
+        DimensionSetEntry."Dimension Code" := GlobalDimensionValue[1]."Dimension Code";
+        DimensionSetEntry."Dimension Value Code" := GlobalDimensionValue[1].Code;
+        DimensionSetEntry."Global Dimension No." := 1;
+        DimensionSetEntry.Insert(false);
+
+        LibraryDimension.CreateDimensionValue(GlobalDimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
+        DimensionSetEntry."Dimension Set ID" := DimSetId;
+        DimensionSetEntry."Dimension Code" := GlobalDimensionValue[2]."Dimension Code";
+        DimensionSetEntry."Dimension Value Code" := GlobalDimensionValue[2].Code;
+        DimensionSetEntry."Global Dimension No." := 2;
+        DimensionSetEntry.Insert(false);
+
+        exit(DimSetId);
+    end;
+
+    local procedure GetDimSetId(): Integer
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        if DimensionSetEntry.FindLast() then
+            exit(DimensionSetEntry."Dimension Set ID" + 1);
+
+        exit(1);
+    end;
+
     local procedure VerifyEntryShortcutDimensions(RecVar: Variant; DimensionValue: array[6] of Record "Dimension Value")
     var
         GLSetup: Record "General Ledger Setup";
@@ -5793,6 +5983,13 @@ codeunit 134485 "ERM Dimension Shortcuts"
             exit;
         if CopyStr(Rec.Name, 1, 7) = TempBatchNameTxt then
             Assert.AreEqual(StrSubstNo('#%1#%2#', ServiceInstanceId(), SessionId()), Rec.Description, 'Temp batch Description');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateDimSetGlblDimNoReqPageHandler(var UpdateDimSetGlblDimNo: TestRequestPage "Update Dim. Set Glbl. Dim. No.")
+    begin
+        UpdateDimSetGlblDimNo.OK().Invoke();
     end;
 }
 

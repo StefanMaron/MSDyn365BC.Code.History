@@ -347,7 +347,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Integration Record" = RIMD,
                   tabledata "Integration Record Archive" = RIMD,
                   tabledata "Interaction Template Setup" = RIMD,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = RIMD,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = Rim,
                   tabledata "Intrastat Jnl. Template" = RIMD,

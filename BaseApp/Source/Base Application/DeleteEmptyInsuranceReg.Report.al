@@ -28,9 +28,12 @@ report 5695 "Delete Empty Insurance Reg."
             end;
 
             trigger OnPreDataItem()
+            var
+                ConfirmManagement: Codeunit "Confirm Management";
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
+                if not SkipConfirm then
+                    if not ConfirmManagement.GetResponseOrDefault(DeleteRegistersQst, true) then
+                        CurrReport.Break();
 
                 Window.Open(
                   Text001 +
@@ -58,7 +61,7 @@ report 5695 "Delete Empty Insurance Reg."
     }
 
     var
-        Text000: Label 'Do you want to delete the registers?';
+        DeleteRegistersQst: Label 'Do you want to delete the registers?';
         Text001: Label 'Deleting empty insurance registers...\\';
         Text002: Label 'No.                      #1######\';
         Text003: Label 'Posted on                #2######\\';
@@ -67,5 +70,11 @@ report 5695 "Delete Empty Insurance Reg."
         Window: Dialog;
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
+        SkipConfirm: Boolean;
+
+    procedure SetSkipConfirm()
+    begin
+        SkipConfirm := true;
+    end;
 }
 

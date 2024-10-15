@@ -50,7 +50,14 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; EntryType)
+                field("Entry Type"; "Entry Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Entry Type';
+                    ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+                    Visible = false;
+                }
+                field(EntryType; EntryType)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Type';

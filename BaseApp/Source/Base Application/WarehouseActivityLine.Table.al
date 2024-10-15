@@ -196,7 +196,14 @@ table 5767 "Warehouse Activity Line"
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyOutstanding(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "Qty. Outstanding (Base)" :=
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
                 Validate("Qty. to Handle", "Qty. Outstanding");
@@ -868,6 +875,7 @@ table 5767 "Warehouse Activity Line"
 
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
+        OnBeforeCalcQty(Rec, QtyBase);
         TestField("Qty. per Unit of Measure");
         exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
     end;
@@ -2849,6 +2857,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinInSourceDoc(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2975,6 +2988,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyOutstanding(var WarehouseActivityLine: Record "Warehouse Activity Line"; xWarehouseActivityLine: Record "Warehouse Activity Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

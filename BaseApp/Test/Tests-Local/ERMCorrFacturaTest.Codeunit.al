@@ -262,6 +262,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryVariableStorage.Clear;
         Clear(LibraryVariableStorage);
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if isInitialized then
             exit;

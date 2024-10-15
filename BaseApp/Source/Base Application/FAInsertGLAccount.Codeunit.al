@@ -300,6 +300,7 @@
                     "FA Add.-Currency Factor" := TempGenJnlLine."FA Add.-Currency Factor";
                     OnGetBalAccAfterRestoreGenJnlLineFields(GenJnlLine, TempGenJnlLine, TempFAGLPostBuf);
                     InsertGenJnlLine(GenJnlLine);
+                    OnGetBalAccLocalOnAfterInsertGenJnlLine(GenJnlLine, TempFAGLPostBuf);
                 until TempFAGLPostBuf.Next() = 0;
         end;
         TempFAGLPostBuf.DeleteAll();
@@ -642,6 +643,8 @@
               FAGLPostBuf."Dimension Set ID",
               true, not FAGLPostBuf.Correction);
         end;
+
+        OnAfterCorrectBookValueEntry(FAGLPostBuf);
     end;
 
     local procedure IdenticalSign(A: Decimal; B: Decimal; C: Decimal): Boolean
@@ -712,6 +715,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCorrectBookValueEntry(var FAGLPostingBuffer: Record "FA G/L Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertBalAcc(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
@@ -758,6 +766,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBalAccAfterRestoreGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBalAccLocalOnAfterInsertGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 

@@ -71,6 +71,7 @@
 
             trigger OnValidate()
             var
+                TempItem: Record Item temporary;
                 UnitOfMeasure: Record "Unit of Measure";
                 IsHandled: Boolean;
             begin
@@ -78,6 +79,10 @@
                 OnBeforeValidateBaseUnitOfMeasure(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
+
+                if CurrentClientType() in [ClientType::ODataV4, ClientType::API] then
+                    if not TempItem.Get(Rec."No.") and IsNullGuid(Rec.SystemId) then
+                        Rec.Insert(true);
 
                 UpdateUnitOfMeasureId;
 
@@ -2452,7 +2457,14 @@
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ApprovalsMgmt.OnCancelItemApprovalRequest(Rec);
 
         CheckJournalsAndWorksheets(0);
@@ -3671,6 +3683,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; var ItemName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

@@ -561,7 +561,13 @@ table 370 "Excel Buffer"
     procedure WriteCellFormula(ExcelBuffer: Record "Excel Buffer")
     var
         Decorator: DotNet CellDecorator;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWriteCellFormula(Rec, ExcelBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         with ExcelBuffer do begin
             GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
 
@@ -725,7 +731,7 @@ table 370 "Excel Buffer"
                 exit; // No need to store anything in the blob
 
             "Cell Value as Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
-            OutStream.Write("Cell Value as Blob");
+            OutStream.Write(Value);
             exit;
         end;
 
@@ -1196,7 +1202,7 @@ table 370 "Excel Buffer"
     begin
         DotNetDateTime := DotNetDateTime.FromOADate(DateTimeAsOADate);
         if ReadDateTimeInUtcDate then
-            DateTimeResult := CreateDateTime(DMY2Date(DotNetDateTime.Day, DotNetDateTime.Month, DotNetDateTime.Year), 0T)
+            Evaluate(DateTimeResult, DotNetDateTime.ToString())
         else
             DateTimeResult := DotNetDateTime.DateTime(DotNetDateTime.Ticks, DotNetDateTimeKind.Local);
         exit(DateTimeResult);
@@ -1254,6 +1260,11 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeParseCellValue(var ExcelBuffer: Record "Excel Buffer"; var Value: Text; var FormatString: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteCellFormula(var Rec: Record "Excel Buffer"; var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
     begin
     end;
 

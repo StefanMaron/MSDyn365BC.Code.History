@@ -3642,8 +3642,9 @@ codeunit 134100 "ERM Prepayment"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if IsInitialized then
             exit;
@@ -3654,7 +3655,6 @@ codeunit 134100 "ERM Prepayment"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateFAPostingGroup;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 

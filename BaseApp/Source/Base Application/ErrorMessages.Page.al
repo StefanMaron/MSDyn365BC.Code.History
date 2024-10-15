@@ -1,4 +1,4 @@
-page 700 "Error Messages"
+﻿page 700 "Error Messages"
 {
     Caption = 'Error Messages';
     DeleteAllowed = false;

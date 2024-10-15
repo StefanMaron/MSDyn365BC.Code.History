@@ -1309,6 +1309,9 @@
         WhseItemTrackingLine.CopyTrackingFromReservEntry(SourceReservEntry);
         WhseItemTrackingLine."Quantity (Base)" := -SourceReservEntry."Quantity (Base)";
 
+        if Abs(WhseWkshLine."Qty. Handled (Base)") > Abs(WhseItemTrackingLine."Quantity (Base)") then
+            WhseWkshLine."Qty. Handled (Base)" := WhseItemTrackingLine."Quantity (Base)";
+
         if WhseWkshLine."Qty. Handled (Base)" <> 0 then begin
             WhseItemTrackingLine."Quantity Handled (Base)" := WhseWkshLine."Qty. Handled (Base)";
             WhseItemTrackingLine."Qty. Registered (Base)" := WhseWkshLine."Qty. Handled (Base)";
@@ -3381,7 +3384,7 @@
                 SerialNoInfo.Validate("Variant Code", TrackingSpecification."Variant Code");
                 SerialNoInfo.Validate("Serial No.", SerialNumber);
                 SerialNoInfo.Insert(true);
-                OnAfterCreateSNInformation(SerialNoInfo);
+                OnAfterCreateSNInformation(SerialNoInfo, TrackingSpecification);
             end;
         end;
     end;
@@ -3748,7 +3751,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateSNInformation(var SerialNoInfo: Record "Serial No. Information")
+    local procedure OnAfterCreateSNInformation(var SerialNoInfo: Record "Serial No. Information"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

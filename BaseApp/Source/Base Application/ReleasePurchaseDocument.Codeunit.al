@@ -154,7 +154,6 @@
     procedure PerformManualCheckAndRelease(var PurchHeader: Record "Purchase Header")
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -172,8 +171,7 @@
                 Error(Text005, "Document Type", "No.");
             end;
 
-        if ApprovalsMgmt.IsPurchaseHeaderPendingApproval(PurchHeader) then
-            Error(Text002);
+        CheckPurchaseHeaderPendingApproval(PurchHeader);
 
         IsHandled := false;
         OnBeforePerformManualRelease(PurchHeader, PreviewMode, IsHandled);
@@ -181,6 +179,20 @@
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Release Purchase Document", PurchHeader);
+    end;
+
+    local procedure CheckPurchaseHeaderPendingApproval(var PurchHeader: Record "Purchase Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPurchaseHeaderPendingApproval(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ApprovalsMgmt.IsPurchaseHeaderPendingApproval(PurchHeader) then
+            Error(Text002);
     end;
 
     procedure PerformManualReopen(var PurchHeader: Record "Purchase Header")
@@ -240,6 +252,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchaseHeaderPendingApproval(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -821,9 +821,7 @@
             Validate("Job Posting Group", JobsSetup."Default Job Posting Group");
         Validate("WIP Posting Method", JobsSetup."Default WIP Posting Method");
 
-        DimMgt.UpdateDefaultDim(
-          DATABASE::Job, "No.",
-          "Global Dimension 1 Code", "Global Dimension 2 Code");
+        InitGlobalDimFromDefalutDim();
         InitWIPFields();
 
         "Creation Date" := Today;
@@ -1160,6 +1158,20 @@
     begin
         "WIP Posting Date" := 0D;
         "WIP G/L Posting Date" := 0D;
+    end;
+
+    local procedure InitGlobalDimFromDefalutDim()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitGlobalDimFromDefalutDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        DimMgt.UpdateDefaultDim(
+            DATABASE::Job, "No.",
+            "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
     procedure TestBlocked()
@@ -1720,6 +1732,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitJobNo(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitGlobalDimFromDefalutDim(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 

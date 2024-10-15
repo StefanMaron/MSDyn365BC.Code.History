@@ -1,4 +1,4 @@
-﻿codeunit 134908 "ERM VAT Serv. Charge"
+codeunit 134908 "ERM VAT Serv. Charge"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -558,8 +558,8 @@
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;

@@ -82,9 +82,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetDefaultWordTemplateAllowedTablesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSalesCreditMemoReasonCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDimSetEntryGlobalDimNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupFixedUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSyncPriceListLineStatusUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -726,6 +728,16 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetClearTemporaryTablesUpgradeTag(): Code[250]
     begin
         exit('MS-396184-CleanTemporaryTables-20210427');
+    end;
+
+    procedure GetDimSetEntryGlobalDimNoUpgradeTag(): Code[250]
+    begin
+        exit('MS-396220-DimSetEntryGlobalDimNo-20210503');
+    end;
+
+    procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
+    begin
+        exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
     end;
 }
 

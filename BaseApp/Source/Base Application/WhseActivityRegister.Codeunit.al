@@ -573,6 +573,8 @@
             WhseShptLine."Qty. Picked" :=
               Round(WhseShptLine."Qty. Picked" + QtyToHandleBase / QtyPerUOM);
 
+        OnUpdateWhseShptLineOnAfterAssignQtyPicked(WhseShptLine, QtyPerUOM, QtyToHandleBase);
+
         WhseShptLine."Completely Picked" :=
           (WhseShptLine."Qty. Picked" = WhseShptLine.Quantity) or (WhseShptLine."Qty. Picked (Base)" = WhseShptLine."Qty. (Base)");
 
@@ -884,7 +886,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWhseActivLineIsEmpty(WhseActivLine, IsHandled);
+        OnBeforeCheckWhseActivLineIsEmpty(WhseActivLine, IsHandled, HideDialog);
         if not IsHandled then
             if WhseActivLine.IsEmpty() then
                 Error(Text003);
@@ -2277,6 +2279,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateWhseShptLineOnAfterAssignQtyPicked(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyPerUOM: Decimal; QtyToHandleBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2302,7 +2309,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseActivLineIsEmpty(var WhseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckWhseActivLineIsEmpty(var WhseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean; var HideDialog: Boolean)
     begin
     end;
 

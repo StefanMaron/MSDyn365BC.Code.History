@@ -994,8 +994,8 @@ codeunit 134763 "Test Sales Post Preview"
         IsInitialized := true;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);

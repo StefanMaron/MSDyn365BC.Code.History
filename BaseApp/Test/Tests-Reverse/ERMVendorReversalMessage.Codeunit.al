@@ -361,7 +361,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Setup: Create General Ledger Account and Vendor, Make Invoice and Post from General Journal and Close Fiscal Year.
         Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
           GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Vendor."No.");
@@ -383,7 +383,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Close Fiscal Year.
         Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
           GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, Vendor."No.");

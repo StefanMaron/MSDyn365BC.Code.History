@@ -82,6 +82,15 @@ page 9110 "Item Attributes Factbox"
         SetAutoCalcFields("Attribute Name");
         TranslatedValuesVisible := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
         IsVisible := true;
+        if ItemAttCode <> '' then begin
+            LoadItemAttributesData(ItemAttCode);
+            ItemAttCode := '';
+        end;
+
+        if CategoryAttCode <> '' then begin
+            LoadCategoryAttributesData(CategoryAttCode);
+            CategoryAttCode := '';
+        end;
     end;
 
     var
@@ -91,11 +100,15 @@ page 9110 "Item Attributes Factbox"
         ContextValue: Code[20];
         IsItem: Boolean;
         IsVisible: Boolean;
+        ItemAttCode: Code[20];
+        CategoryAttCode: Code[20];
 
     procedure LoadItemAttributesData(KeyValue: Code[20])
     begin
-        if not IsVisible then
+        if not IsVisible then begin
+            ItemAttCode := KeyValue;
             exit;
+        end;
         LoadItemAttributesFactBoxData(KeyValue);
         SetContext(ContextType::Item, KeyValue);
         CurrPage.Update(false);
@@ -103,8 +116,10 @@ page 9110 "Item Attributes Factbox"
 
     procedure LoadCategoryAttributesData(CategoryCode: Code[20])
     begin
-        if not IsVisible then
+        if not IsVisible then begin
+            CategoryAttCode := CategoryCode;
             exit;
+        end;
         LoadCategoryAttributesFactBoxData(CategoryCode);
         SetContext(ContextType::Category, CategoryCode);
         CurrPage.Update(false);

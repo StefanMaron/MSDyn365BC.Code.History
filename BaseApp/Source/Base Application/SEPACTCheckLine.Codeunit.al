@@ -72,7 +72,13 @@ codeunit 1223 "SEPA CT-Check Line"
     local procedure CheckBank(var GenJnlLine: Record "Gen. Journal Line")
     var
         BankAccount: Record "Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBank(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do
             if BankAccount.Get("Bal. Account No.") then begin
                 if BankAccount.IBAN = '' then
@@ -86,7 +92,13 @@ codeunit 1223 "SEPA CT-Check Line"
         CustomerBankAccount: Record "Customer Bank Account";
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCustVendEmpl(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             if "Account No." = '' then begin
                 InsertPaymentFileError(MustBeVendorOrCustomerErr);
@@ -134,6 +146,16 @@ codeunit 1223 "SEPA CT-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBank(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustVendEmpl(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
