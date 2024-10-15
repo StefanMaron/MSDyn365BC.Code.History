@@ -340,7 +340,13 @@ table 99000772 "Production BOM Line"
     procedure TestStatus()
     var
         ProdBOMVersion: Record "Production BOM Version";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestStatus(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsTemporary then
             exit;
 
@@ -418,6 +424,11 @@ table 99000772 "Production BOM Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateRoutingLinkCode(var ProductionBOMLine: Record "Production BOM Line"; xProductionBOMLine: Record "Production BOM Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestStatus(var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
     begin
     end;
 

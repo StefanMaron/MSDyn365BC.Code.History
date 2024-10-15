@@ -30,7 +30,7 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 
             WMSMgt.CheckBalanceQtyToHandle(WhseActivLine);
 
-            if not Confirm(Text001, false, "Activity Type") then
+            if not ConfirmRegister(WhseActivLine) then
                 exit;
 
             IsHandled := false;
@@ -41,6 +41,18 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
         end;
 
         OnAfterCode(WhseActivLine);
+    end;
+
+    local procedure ConfirmRegister(WarehouseActivityLine: Record "Warehouse Activity Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmRegister(WarehouseActivityLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := Confirm(Text001, false, WarehouseActivityLine."Activity Type");
     end;
 
     local procedure CheckSourceDocument()
@@ -73,6 +85,11 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSourceDocument(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmRegister(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
