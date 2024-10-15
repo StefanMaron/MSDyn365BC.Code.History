@@ -65,6 +65,7 @@ table 2000001 "Payment Journal Line"
                             "Salespers./Purch. Code" := Cust."Salesperson Code";
                             if "Applies-to Doc. Type" = "Applies-to Doc. Type"::" " then
                                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::"Credit Memo";
+                            Description := Cust.Name;
                         end;
                     "Account Type"::Vendor:
                         begin
@@ -77,6 +78,7 @@ table 2000001 "Payment Journal Line"
                             "Salespers./Purch. Code" := Vend."Purchaser Code";
                             if "Applies-to Doc. Type" = "Applies-to Doc. Type"::" " then
                                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
+                            Description := Vend.Name;
                         end;
                 end;
 
@@ -117,6 +119,10 @@ table 2000001 "Payment Journal Line"
         field(9; "Standard Format Message"; Boolean)
         {
             Caption = 'Standard Format Message';
+        }
+        field(10; Description; Text[100])
+        {
+            Caption = 'Description';
         }
         field(12; "Currency Code"; Code[10])
         {

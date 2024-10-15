@@ -458,6 +458,78 @@ codeunit 137009 "SCM Availability by Event"
         TempInvtPageData.TestField("Remaining Forecast", QtyAsm - QtyForecast);
     end;
 
+    [Test]
+    procedure AvailabilityByEventWithReversedDemandForecastAndSalesOrder()
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        TempInvtPageData: Record "Inventory Page Data" temporary;
+        Date: Record Date;
+        StartDate: Date;
+        ForecastQty: Decimal;
+        SalesQty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Demand Forecast] [Sales]
+        // [SCENARIO 441854] Item availability must display the same result when demand forecast does not exist and when it is reversed.
+        Initialize();
+        ForecastQty := LibraryRandom.RandIntInRange(100, 200);
+        SalesQty := LibraryRandom.RandInt(10);
+        StartDate := CalcDate('<-CM>', WorkDate());
+
+        // [GIVEN] Create demand forecast for 4 months period.
+        // [GIVEN] Month = Jan, Quantity = 100.
+        // [GIVEN] Month = Feb, Quantity = 100.
+        // [GIVEN] Month = Mar, Quantity = 100.
+        // [GIVEN] Month = Apr, Quantity = 100.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+
+        Date."Period Type" := Date."Period Type"::Month;
+        Date."Period Start" := StartDate;
+        Date.Find();
+        for i := 1 to 4 do begin
+            LibraryManufacturing.CreateProductionForecastEntry(
+              ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', Date."Period Start", false);
+            ProductionForecastEntry.Validate("Qty. per Unit of Measure", 1);
+            ProductionForecastEntry.Validate("Forecast Quantity", ForecastQty);
+            ProductionForecastEntry.Modify(true);
+            Date.Next();
+        end;
+
+        // [GIVEN] Create a reverse forecast entry in February, quantity = -100.
+        // [GIVEN] That makes it zero in February, so the system must behave the same as if there wasn't any forecast in Feb.
+        LibraryManufacturing.CreateProductionForecastEntry(
+          ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<1M>', StartDate), false);
+        ProductionForecastEntry.Validate("Qty. per Unit of Measure", 1);
+        ProductionForecastEntry.Validate("Forecast Quantity", -ForecastQty);
+        ProductionForecastEntry.Modify(true);
+
+        // [GIVEN] Sales order for 5 qty., shipment date = March 10.
+        CreateSalesOrder(SalesLine, Item."No.", SalesQty, LibraryRandom.RandDateFrom(CalcDate('<2M>', StartDate), 20));
+
+        // [WHEN] Calculate item availability by event.
+        CalculateAvailabilityByEvent(TempInvtPageData, Item, ProductionForecastName.Name);
+
+        // [THEN] The sales order does not affect remaining forecast values before March.
+        // [THEN] Remaining Forecast in Jan = -100.
+        TempInvtPageData.SetRange("Period Start", StartDate);
+        FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Forecast);
+        TempInvtPageData.TestField("Remaining Forecast", -ForecastQty);
+
+        // [THEN] Remaining Forecast in Feb = 0.
+        TempInvtPageData.SetRange("Period Start", CalcDate('<1M>', StartDate));
+        FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Forecast);
+        TempInvtPageData.TestField("Remaining Forecast", 0);
+
+        // [THEN] Remaining Forecast in Mar = -95.
+        TempInvtPageData.SetRange("Period Start", CalcDate('<2M>', StartDate));
+        FindInvtPageData(TempInvtPageData, TempInvtPageData.Type::Forecast);
+        TempInvtPageData.TestField("Remaining Forecast", -ForecastQty + SalesQty);
+    end;
+
     local procedure AutoReservePurchaseLine(PurchaseLine: Record "Purchase Line")
     var
         ReservMgt: Codeunit "Reservation Management";

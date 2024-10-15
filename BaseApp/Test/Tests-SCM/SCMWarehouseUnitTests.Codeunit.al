@@ -17,6 +17,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         UoMMgt: Codeunit "Unit of Measure Management";
@@ -728,6 +729,66 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityLine.Next();
         WarehouseActivityLine.TestField("Bin Code", BinCode[2]);
         WarehouseActivityLine.TestField("Shelf No.", ShelfNo[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure ShelfNoOnWhsePickLinesForATOComponents()
+    var
+        Location: Record Location;
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SKU: Record "Stockkeeping Unit";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Assemble-to-Order] [Warehouse Pick] [Shelf]
+        // [SCENARIO 442501] Shelf No. on warehouse pick lines for an assemble-to-order component is populated from the item or SKU card.
+        Initialize();
+
+        // [GIVEN] Location with required shipment and pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+
+        // [GIVEN] Assemble-to-order item "A", Shelf No. = "S1".
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Validate("Shelf No.", LibraryUtility.GenerateGUID());
+        AsmItem.Modify(true);
+
+        // [GIVEN] Component item "C", create a stockkeeping unit, set Shelf No. = "S2" on the new SKU.
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, CompItem."No.", '');
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID());
+        SKU.Modify(true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Post item "C" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", Location.Code, '', LibraryRandom.RandInt(100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for item "A" with a linked assembly-to-order, release the order, create warehouse shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', AsmItem."No.", 1, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create pick from the warehouse shipment.
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+            DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] "Shelf No." = "S2" on the pick line for component "C".
+        WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Shelf No.", SKU."Shelf No.");
     end;
 
     local procedure Initialize()
