@@ -196,6 +196,10 @@
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+        field(49; "Partner VAT ID"; Code[20])
+        {
+            Caption = 'Partner VAT ID';
+        }
         field(59; "Entry/Exit Point"; Code[10])
         {
             Caption = 'Entry/Exit Point';
@@ -343,6 +347,19 @@
             Caption = 'Trailer 2';
             TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
         }
+        field(10056; "Medical Insurer Name"; Text[50])
+        {
+            Caption = 'Medical Insurer Name';
+        }
+        field(10057; "Medical Ins. Policy Number"; Text[30])
+        {
+            Caption = 'Medical Ins. Policy Number';
+        }
+        field(10058; "SAT Weight Unit Of Measure"; Code[10])
+        {
+            Caption = 'SAT Weight Unit Of Measure';
+            TableRelation = "SAT Weight Unit of Measure";
+        }
     }
 
     keys
@@ -458,6 +475,7 @@
         "Shipment Method Code" := TransHeader."Shipment Method Code";
         "Transaction Type" := TransHeader."Transaction Type";
         "Transport Method" := TransHeader."Transport Method";
+        "Partner VAT ID" := TransHeader."Partner VAT ID";
         "Entry/Exit Point" := TransHeader."Entry/Exit Point";
         Area := TransHeader.Area;
         "Transaction Specification" := TransHeader."Transaction Specification";
@@ -472,6 +490,9 @@
         "Vehicle Code" := TransHeader."Vehicle Code";
         "Trailer 1" := TransHeader."Trailer 1";
         "Trailer 2" := TransHeader."Trailer 2";
+        "Medical Insurer Name" := TransHeader."Medical Insurer Name";
+        "Medical Ins. Policy Number" := TransHeader."Medical Ins. Policy Number";
+        "SAT Weight Unit Of Measure" := TransHeader."SAT Weight Unit Of Measure";
 
         OnAfterCopyFromTransferHeader(Rec, TransHeader);
     end;

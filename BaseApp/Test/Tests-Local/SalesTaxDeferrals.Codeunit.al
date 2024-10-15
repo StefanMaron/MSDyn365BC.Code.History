@@ -78,7 +78,7 @@ codeunit 142001 "Sales Tax Deferrals"
         DeferralNoOfPeriods: Integer;
     begin
         // [FEATURE] [Sales] [UT]
-        // [SCENARIO 201769] System involves only "Expense / Capitailize" tax details when calculating "Amount To Defer" for sales deferral schedule
+        // [SCENARIO 201769] System ignores tax details when calculating "Amount To Defer" for sales deferral schedule
         Initialize;
 
         // [GIVEN] Deferral Template "T" with 2 periods
@@ -98,8 +98,8 @@ codeunit 142001 "Sales Tax Deferrals"
         // [WHEN] Validate "Deferral Code" = "T"
         SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
 
-        // [THEN] 2 Deferral lines created with balance = 105 => 100 * (2% + 3%)
-        AmountWithTax := Round(SalesLine."Line Amount" * (100 + TaxRate) / 100);
+        // [THEN] 2 Deferral lines created with balance = 100 (not including Tax)
+        AmountWithTax := SalesLine."Line Amount";
 
         VerifyDeferralSchedule(
           DeferralHeader."Deferral Doc. Type"::Sales,
@@ -197,7 +197,7 @@ codeunit 142001 "Sales Tax Deferrals"
         // Deferral Line[2] for "A" = -102.5
         // Tax balancing line for "A" = 5
         // Tax Account = -5
-        VerifyGLEntryBalance(GLAccount."No.", -SalesLine."Line Amount", DeferralNoOfPeriods + 3);
+        VerifyGLEntryBalance(GLAccount."No.", -SalesLine."Line Amount", DeferralNoOfPeriods + 2);
 
         // [THEN] Balance for "D" = 0
         VerifyGLEntryBalance(DeferralTemplate."Deferral Account", 0, DeferralNoOfPeriods + 1);

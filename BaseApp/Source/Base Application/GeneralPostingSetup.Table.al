@@ -337,6 +337,8 @@ table 252 "General Posting Setup"
             trigger OnValidate()
             begin
                 CheckGLAcc("Sales Prepayments Account");
+                CheckPrepmtSalesLinesToDeduct(
+                    StrSubstNo(CannotChangePrepmtAccErr, '%1', FieldCaption("Sales Prepayments Account")));
             end;
         }
         field(37; "Purch. Prepayments Account"; Code[20])
@@ -347,6 +349,8 @@ table 252 "General Posting Setup"
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Prepayments Account");
+                CheckPrepmtPurchLinesToDeduct(
+                    StrSubstNo(CannotChangePrepmtAccErr, '%1', FieldCaption("Purch. Prepayments Account")));
             end;
         }
         field(50; Description; Text[100])
@@ -465,6 +469,7 @@ table 252 "General Posting Setup"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         AccountSubcategoryFilterTxt: Label '%1|%2', Comment = '%1 = Account Subcategory; %2 = Account Subcategory2', Locked = true;
+        CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 -recordId - "Sales Header: Order, 1001".';
         PostingSetupMgt: Codeunit PostingSetupManagement;
 
     procedure CheckGLAcc(AccNo: Code[20])
@@ -485,6 +490,42 @@ table 252 "General Posting Setup"
         GLEntry.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
         if not GLEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+    end;
+
+    internal procedure CheckOrdersPrepmtToDeduct(ErrorMsg: Text)
+    begin
+        CheckPrepmtPurchLinesToDeduct(ErrorMsg);
+        CheckPrepmtSalesLinesToDeduct(ErrorMsg);
+    end;
+
+    local procedure CheckPrepmtSalesLinesToDeduct(ErrorMsg: Text)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetLoadFields("Document No.");
+        SalesLine.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
+        SalesLine.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
+        SalesLine.SetFilter("Prepmt Amt to Deduct", '>0');
+        if SalesLine.FindFirst() then begin
+            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+            Error(ErrorMsg, SalesHeader.RecordId);
+        end;
+    end;
+
+    local procedure CheckPrepmtPurchLinesToDeduct(ErrorMsg: Text)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetLoadFields("Document No.");
+        PurchaseLine.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
+        PurchaseLine.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
+        PurchaseLine.SetFilter("Prepmt Amt to Deduct", '>0');
+        if PurchaseLine.FindFirst() then begin
+            PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+            Error(ErrorMsg, PurchaseHeader.RecordId);
+        end;
     end;
 
     local procedure FilterBlankSalesDiscountAccounts(DiscountPosting: Option; var FieldNumber: Integer) Found: Boolean

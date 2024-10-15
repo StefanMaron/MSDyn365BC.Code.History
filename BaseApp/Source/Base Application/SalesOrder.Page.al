@@ -1056,6 +1056,21 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
                 }
+                field("Medical Insurer Name"; "Medical Insurer Name")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the insurer that covers potential damage to the environment if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("Medical Ins. Policy Number"; "Medical Ins. Policy Number")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the insurance policy number if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("SAT Weight Unit Of Measure"; "SAT Weight Unit Of Measure")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the unit of measurement of the weight of the goods and / or merchandise that are moved in this transport.';
+                }
             }
         }
         area(factboxes)
@@ -1192,6 +1207,7 @@
                         PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         ShowDocumentStatisticsPage();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Customer)

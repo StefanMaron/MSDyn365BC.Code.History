@@ -54,6 +54,7 @@ permissionset 1001 "LOCAL"
                   tabledata "SAT Tax Scheme" = RIMD,
                   tabledata "SAT Unit of Measure" = RIMD,
                   tabledata "SAT Use Code" = RIMD,
+                  tabledata "SAT Weight Unit of Measure" = RIMD,
                   tabledata "SAT Federal Motor Transport" = RIMD,
                   tabledata "SAT Trailer Type" = RIMD,
                   tabledata "SAT Permission Type" = RIMD,

@@ -933,7 +933,7 @@
 
     local procedure ShiptoCodeOnAfterValidate()
     begin
-        CurrPage.Update(false);
+        CurrPage.Update();
     end;
 
     local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])

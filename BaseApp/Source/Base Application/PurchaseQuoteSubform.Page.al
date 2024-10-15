@@ -147,6 +147,7 @@
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                         NoOnAfterValidate();
                     end;
