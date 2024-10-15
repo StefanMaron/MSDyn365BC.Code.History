@@ -406,21 +406,17 @@ codeunit 147528 "SII Corrective Documents"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesInvoiceWithRType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; RType: Option)
-    var
-        SalesHeader: Record "Sales Header";
+    local procedure PostSalesInvoiceWithRType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; RType: Enum "SII Sales Invoice Type")
     begin
-        PostSalesDoc(CustLedgerEntry, SalesLine, SalesHeader."Document Type"::Invoice, 0, RType);
+        PostSalesDoc(CustLedgerEntry, SalesLine, "Sales Document Type"::Invoice, "SII Sales Credit Memo Type"::"R1 Corrected Invoice", RType);
     end;
 
-    local procedure PostSalesCrMemoWithFType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; FType: Option)
-    var
-        SalesHeader: Record "Sales Header";
+    local procedure PostSalesCrMemoWithFType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; FType: Enum "SII Sales Credit Memo Type")
     begin
-        PostSalesDoc(CustLedgerEntry, SalesLine, SalesHeader."Document Type"::"Credit Memo", FType, 0);
+        PostSalesDoc(CustLedgerEntry, SalesLine, "Sales Document Type"::"Credit Memo", FType, "SII Sales Invoice Type"::"F1 Invoice");
     end;
 
-    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; DocType: Integer; FType: Option; RType: Option)
+    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; FType: Enum "SII Sales Credit Memo Type"; RType: Enum "SII Sales Invoice Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -436,21 +432,17 @@ codeunit 147528 "SII Corrective Documents"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchInvWithRType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; RType: Option)
-    var
-        PurchaseHeader: Record "Purchase Header";
+    local procedure PostPurchInvWithRType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; RType: Enum "SII Purch. Invoice Type")
     begin
-        PostPurchDoc(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Document Type"::Invoice, 0, RType);
+        PostPurchDoc(VendorLedgerEntry, PurchaseLine, "Purchase Document Type"::Invoice, "SII Purch. Credit Memo Type"::"R1 Corrected Invoice", RType);
     end;
 
-    local procedure PostPurchCrMemoWithFType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; FType: Option)
-    var
-        PurchaseHeader: Record "Purchase Header";
+    local procedure PostPurchCrMemoWithFType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; FType: Enum "SII Purch. Credit Memo Type")
     begin
-        PostPurchDoc(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", FType, 0);
+        PostPurchDoc(VendorLedgerEntry, PurchaseLine, "Purchase Document Type"::"Credit Memo", FType, "SII Purch. Invoice Type"::"F1 Invoice");
     end;
 
-    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; DocType: Option; FType: Option; RType: Integer)
+    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; FType: Enum "SII Purch. Credit Memo Type"; RType: Enum "SII Purch. Invoice Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -486,7 +478,7 @@ codeunit 147528 "SII Corrective Documents"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServiceCrMemoWithFType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ServiceLine: Record "Service Line"; FType: Option)
+    local procedure PostServiceCrMemoWithFType(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ServiceLine: Record "Service Line"; FType: Enum "SII Sales Credit Memo Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";

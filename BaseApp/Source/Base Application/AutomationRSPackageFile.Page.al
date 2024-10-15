@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5433 "Automation - RS Package File"
 {
     Caption = 'Automation - RS Package File';
@@ -53,4 +54,4 @@ page 5433 "Automation - RS Package File"
         FilesLoaded: Boolean;
         CodeNotSpecifiedForLinesErr: Label 'You must specify a Configuration Package Code before uploading a Configuration Package File.', Locked = true;
 }
-
+#endif

@@ -554,11 +554,27 @@ table 112 "Sales Invoice Header"
         field(176; "Payment Instructions"; BLOB)
         {
             Caption = 'Payment Instructions';
+            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(177; "Payment Instructions Name"; Text[20])
         {
             Caption = 'Payment Instructions Name';
             DataClassification = CustomerContent;
+            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(180; "Payment Reference"; Code[50])
         {
@@ -598,6 +614,7 @@ table 112 "Sales Invoice Header"
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
@@ -709,15 +726,13 @@ table 112 "Sales Invoice Header"
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
         }
-        field(10706; "SII Status"; Option)
+        field(10706; "SII Status"; Enum "SII Document Status")
         {
-            CalcFormula = Lookup ("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Customer Ledger"),
+            CalcFormula = Lookup("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Customer Ledger"),
                                                                        "Document Type" = CONST(Invoice),
                                                                        "Document No." = FIELD("No.")));
             Caption = 'SII Status';
             FieldClass = FlowField;
-            OptionCaption = 'Pending,Incorrect,Accepted,"Accepted With Errors",Communication Error,Failed,Not Supported';
-            OptionMembers = Pending,Incorrect,Accepted,"Accepted With Errors","Communication Error",Failed,"Not Supported";
 
             trigger OnLookup()
             var
@@ -733,23 +748,17 @@ table 112 "Sales Invoice Header"
                 end;
             end;
         }
-        field(10707; "Invoice Type"; Option)
+        field(10707; "Invoice Type"; Enum "SII Sales Invoice Type")
         {
             Caption = 'Invoice Type';
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
         }
-        field(10708; "Cr. Memo Type"; Option)
+        field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
         {
             Caption = 'Cr. Memo Type';
-            OptionCaption = 'R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
-            OptionMembers = "R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
         }
-        field(10709; "Special Scheme Code"; Option)
+        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
         {
             Caption = 'Special Scheme Code';
-            OptionCaption = '01 General,02 Export,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Travel Agency Services,10 Third Party,11 Business Withholding,12 Business not Withholding,13 Business Withholding and not Withholding,14 Invoice Work Certification,15 Invoice of Consecutive Nature,16 First Half 2017';
-            OptionMembers = "01 General","02 Export","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Travel Agency Services","10 Third Party","11 Business Withholding","12 Business not Withholding","13 Business Withholding and not Withholding","14 Invoice Work Certification","15 Invoice of Consecutive Nature","16 First Half 2017";
         }
         field(10710; "Operation Description"; Text[250])
         {
@@ -767,17 +776,15 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Succeeded VAT Registration No.';
         }
-        field(10722; "ID Type"; Option)
+        field(10722; "ID Type"; Enum "SII ID Type")
         {
             Caption = 'ID Type';
-            OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
-            OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
         field(10723; "Sent to SII"; Boolean)
         {
-            CalcFormula = Exist ("SII Doc. Upload State" WHERE ("Document Source" = CONST ("Customer Ledger"),
-                                                               "Document Type" = CONST (Invoice),
-                                                               "Document No." = FIELD ("No.")));
+            CalcFormula = Exist("SII Doc. Upload State" WHERE("Document Source" = CONST("Customer Ledger"),
+                                                               "Document Type" = CONST(Invoice),
+                                                               "Document No." = FIELD("No.")));
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1110,10 +1117,17 @@ table 112 "Sales Invoice Header"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+		if IsHandled then
+			exit;
+
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1283,6 +1297,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCancelledCreditMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

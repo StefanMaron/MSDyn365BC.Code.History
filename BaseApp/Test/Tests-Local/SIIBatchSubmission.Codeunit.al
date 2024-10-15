@@ -245,7 +245,7 @@ codeunit 147553 "SII Batch Submission"
     procedure History_Retry_Negative()
     var
         SIIHistory: Record "SII History";
-        Status: Option;
+        Status: Enum "SII Document Status";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 232557] "Retry" action sends only not-"Accepted" record
@@ -619,7 +619,7 @@ codeunit 147553 "SII Batch Submission"
         exit(SIIHistory."Session Id");
     end;
 
-    local procedure VerifyLastHistoryRecord(var SIIHistory: Record "SII History"; ExpectedStatus: Option; ExpectedCount: Integer)
+    local procedure VerifyLastHistoryRecord(var SIIHistory: Record "SII History"; ExpectedStatus: Enum "SII Document Status"; ExpectedCount: Integer)
     begin
         Assert.RecordCount(SIIHistory, ExpectedCount);
         with SIIHistory do begin

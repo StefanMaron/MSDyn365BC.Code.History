@@ -433,7 +433,7 @@ page 9247 "Abs. Overview by Period Matrix"
 
     var
         MatrixRecords: array[32] of Record Date;
-        AbsenceAmountType: Option "Net Change","Balance at Date";
+        AbsenceAmountType: Enum "Analysis Amount Type";
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_ColumnCaption: array[32] of Text[1024];
         CauseOfAbsenceFilter: Code[10];
@@ -449,15 +449,23 @@ page 9247 "Abs. Overview by Period Matrix"
             SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; CauseOfAbsenceFilter1: Code[10]; AbsenceAmountType1: Option "Balance at Date","Net Change")
+    begin
+        LoadMatrix(MatrixColumns1, MatrixRecords1, CauseOfAbsenceFilter1, "Analysis Amount Type".FromInteger(AbsenceAmountType1));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewCauseOfAbsenceFilter: Code[10]; NewAmountType: Enum "Analysis Amount Type")
     var
         i: Integer;
     begin
-        CopyArray(MATRIX_ColumnCaption, MatrixColumns1, 1);
+        CopyArray(MATRIX_ColumnCaption, NewMatrixColumns, 1);
         for i := 1 to ArrayLen(MatrixRecords) do
-            MatrixRecords[i].Copy(MatrixRecords1[i]);
-        CauseOfAbsenceFilter := CauseOfAbsenceFilter1;
-        AbsenceAmountType := AbsenceAmountType1;
+            MatrixRecords[i].Copy(NewMatrixRecords[i]);
+        CauseOfAbsenceFilter := NewCauseOfAbsenceFilter;
+        AbsenceAmountType := NewAmountType;
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)

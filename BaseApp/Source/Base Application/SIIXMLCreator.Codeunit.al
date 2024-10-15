@@ -263,6 +263,7 @@
         TempVATEntryOut.SetRange("EC %", TempVATEntry."EC %");
         if SplitByEUService then
             TempVATEntryOut.SetRange("EU Service", TempVATEntry."EU Service");
+        OnCalculateNonExemptVATEntriesOnAfterTempVATEntryOutSetFilters(TempVATEntryOut, TempVATEntry, SplitByEUService, VATAmount);
         if TempVATEntryOut.FindFirst then begin
             TempVATEntryOut.Amount += VATAmount;
             TempVATEntryOut.Base += TempVATEntry.Base + TempVATEntry."Unrealized Base";
@@ -277,6 +278,8 @@
         TempVATEntryOut.SetRange("VAT %");
         TempVATEntryOut.SetRange("EC %");
         TempVATEntryOut.SetRange("EU Service");
+
+        OnAfterCalculateNonExemptVATEntries(TempVATEntryOut);
     end;
 
     local procedure CreateInvoicesIssuedLedgerXml(CustLedgerEntry: Record "Cust. Ledger Entry"; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean): Boolean
@@ -739,7 +742,7 @@
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; PostingDate: Date; IDType: Integer)
+    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; PostingDate: Date; IDType: Enum "SII ID Type")
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
@@ -770,7 +773,7 @@
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Integer; RegimeCodes: array[3] of Code[2]; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean)
+    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Enum "SII ID Type"; RegimeCodes: array[3] of Code[2]; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean)
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
@@ -789,7 +792,7 @@
           'sii', SiiTxt, TempXMLNode);
     end;
 
-    local procedure FillThirdPartyId(var XMLNode: DotNet XmlNode; CountryCode: Code[20]; Name: Text; VatNo: Code[20]; BackupVatId: Code[20]; NeedNombreRazon: Boolean; IsIntraCommunity: Boolean; IsNotInAEAT: Boolean; IDTypeInt: Integer)
+    local procedure FillThirdPartyId(var XMLNode: DotNet XmlNode; CountryCode: Code[20]; Name: Text; VatNo: Code[20]; BackupVatId: Code[20]; NeedNombreRazon: Boolean; IsIntraCommunity: Boolean; IsNotInAEAT: Boolean; IDTypeInt: Enum "SII ID Type")
     var
         TempXMLNode: DotNet XmlNode;
         IDType: Text[30];
@@ -1177,7 +1180,7 @@
           XMLNode, 'FechaExpedicionFacturaEmisor', FormatDate(CustLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaExpedida', '', 'siiLR', SiiLRTxt, XMLNode);
-        if SIIDocUploadState."Sales Cr. Memo Type" = 0 then
+        if SIIDocUploadState."Sales Cr. Memo Type" = SIIDocUploadState."Sales Cr. Memo Type"::" " then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoFactura', 'R1', 'sii', SiiTxt, TempXMLNode)
         else
             XMLDOMManagement.AddElementWithPrefix(
@@ -1369,7 +1372,7 @@
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaRecibida', '', 'siiLR', SiiLRTxt, XMLNode);
 
         UpdatePurchCrMemoTypeFromCorrInvType(SIIDocUploadState);
-        if SIIDocUploadState."Purch. Cr. Memo Type" = 0 then
+        if SIIDocUploadState."Purch. Cr. Memo Type" = SIIDocUploadState."Purch. Cr. Memo Type"::" " then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoFactura', 'R1', 'sii', SiiTxt, TempXMLNode)
         else
             XMLDOMManagement.AddElementWithPrefix(
@@ -1482,7 +1485,7 @@
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode); // exit ID factura node
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FacturaRecibida', '', 'siiLR', SiiLRTxt, XMLNode);
-        if SIIDocUploadState."Purch. Cr. Memo Type" = 0 then
+        if SIIDocUploadState."Purch. Cr. Memo Type" = SIIDocUploadState."Purch. Cr. Memo Type"::" " then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoFactura', 'R1', 'sii', SiiTxt, TempXMLNode)
         else
             XMLDOMManagement.AddElementWithPrefix(
@@ -1732,7 +1735,7 @@
             RegimeCodes[1] := '07';
             exit;
         end;
-        if SIIDocUploadState."Sales Special Scheme Code" <> 0 then begin
+        if SIIDocUploadState."Sales Special Scheme Code" <> "SII Sales Upload Scheme Code"::" " then begin
             SIIDocUploadState.GetSpecialSchemeCodes(RegimeCodes);
             exit;
         end;
@@ -1763,7 +1766,7 @@
             RegimeCodes[1] := '07';
             exit;
         end;
-        if SIIDocUploadState."Purch. Special Scheme Code" <> 0 then begin
+        if SIIDocUploadState."Purch. Special Scheme Code" <> "SII Purch. Upload Scheme Code"::" " then begin
             SIIDocUploadState.GetSpecialSchemeCodes(RegimeCodes);
             exit;
         end;
@@ -1958,7 +1961,7 @@
         SIISetupInitialized := true;
     end;
 
-    local procedure GetIDTypeToExport(IDType: Integer): Text[30]
+    local procedure GetIDTypeToExport(IDType: Enum "SII ID Type"): Text[30]
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -2161,7 +2164,7 @@
         exit(Amount);
     end;
 
-    local procedure CalcCuotaDeducible(PostingDate: Date; RegimeCodes: array[3] of Code[2]; IDType: Integer; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean; Amount: Decimal): Decimal
+    local procedure CalcCuotaDeducible(PostingDate: Date; RegimeCodes: array[3] of Code[2]; IDType: Enum "SII ID Type"; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean; Amount: Decimal): Decimal
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
@@ -2327,7 +2330,7 @@
         exit(IsInvoice);
     end;
 
-    local procedure IsPurchInvType(InvType: Option): Boolean
+    local procedure IsPurchInvType(InvType: Enum "SII Purch. Invoice Type"): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -2362,7 +2365,7 @@
         exit(IsInvoice);
     end;
 
-    local procedure IsSalesInvType(InvType: Integer): Boolean
+    local procedure IsSalesInvType(InvType: Enum "SII Sales Invoice Type"): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -2409,6 +2412,7 @@
     begin
         TempVATEntry.SetRange("VAT %", TempVATEntry."VAT %");
         TempVATEntry.SetRange("EC %", TempVATEntry."EC %");
+        OnFillDetalleIVANodeOnAfterTempVATEntrySetFilters(TempVATEntry);
         repeat
             if UseSign then begin
                 Base += TempVATEntry.Base * Sign;
@@ -2426,6 +2430,7 @@
 
         TempVATEntry.SetRange("VAT %");
         TempVATEntry.SetRange("EC %");
+        OnFillDetalleIVANodeOnAfterTempVATEntryClearFilters(TempVATEntry);
 
         VATPctText :=
           FormatNumber(CalcTipoImpositivo(NonExemptTransactionType, RegimeCodes, Base, TempVATEntry."VAT %"));
@@ -2546,7 +2551,7 @@
         exit(InvoiceType in ['F1', 'F3', 'F4']);
     end;
 
-    local procedure IncludeContraparteNodeByCrMemoType(CrMemoType: Option): Boolean
+    local procedure IncludeContraparteNodeByCrMemoType(CrMemoType: Enum "SII Sales Credit Memo Type"): Boolean
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -2669,6 +2674,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateNonExemptVATEntries(var TempVATEntryOut: Record "VAT Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAddLineAmountElement(var TempVATEntry: Record "VAT Entry" temporary; AmountNodeName: Text; var Amount: Decimal)
     begin
     end;
@@ -2707,7 +2717,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateNonExemptVATEntriesOnAfterTempVATEntryOutSetFilters(var TempVATEntryOut: Record "VAT Entry" temporary; TempVATEntry: Record "VAT Entry" temporary; SplitByEUService: Boolean; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFillFechaOperacionOnBeforeAddElementWithPrefix(var LastShptRcptDate: Date; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillDetalleIVANodeOnAfterTempVATEntryClearFilters(var TempVATEntry: Record "VAT Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillDetalleIVANodeOnAfterTempVATEntrySetFilters(var TempVATEntry: Record "VAT Entry" temporary)
     begin
     end;
 

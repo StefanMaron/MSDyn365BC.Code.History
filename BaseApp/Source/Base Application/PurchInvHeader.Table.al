@@ -593,15 +593,13 @@ table 122 "Purch. Inv. Header"
             Caption = 'Autoinvoice No.';
             Editable = false;
         }
-        field(10706; "SII Status"; Option)
+        field(10706; "SII Status"; Enum "SII Document Status")
         {
-            CalcFormula = Lookup ("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Vendor Ledger"),
+            CalcFormula = Lookup("SII Doc. Upload State".Status WHERE("Document Source" = CONST("Vendor Ledger"),
                                                                        "Document Type" = CONST(Invoice),
                                                                        "Document No." = FIELD("No.")));
             Caption = 'SII Status';
             FieldClass = FlowField;
-            OptionCaption = 'Pending,Incorrect,Accepted,Accepted With Errors,Communication Error,Failed,Not Supported';
-            OptionMembers = Pending,Incorrect,Accepted,"Accepted With Errors","Communication Error",Failed,"Not Supported";
 
             trigger OnLookup()
             var
@@ -617,23 +615,17 @@ table 122 "Purch. Inv. Header"
                 end;
             end;
         }
-        field(10707; "Invoice Type"; Option)
+        field(10707; "Invoice Type"; Enum "SII Purch. Invoice Type")
         {
             Caption = 'Invoice Type';
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation";
         }
-        field(10708; "Cr. Memo Type"; Option)
+        field(10708; "Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
         {
             Caption = 'Cr. Memo Type';
-            OptionCaption = 'R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
-            OptionMembers = "R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
         }
-        field(10709; "Special Scheme Code"; Option)
+        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
         {
             Caption = 'Special Scheme Code';
-            OptionCaption = '01 General,02 Special System Activities,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Intra-Community Acquisition,12 Business Premises Leasing Operations,13 Import (Without DUA),14 First Half 2017';
-            OptionMembers = "01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
         }
         field(10710; "Operation Description"; Text[250])
         {
@@ -651,17 +643,15 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Succeeded VAT Registration No.';
         }
-        field(10722; "ID Type"; Option)
+        field(10722; "ID Type"; Enum "SII ID Type")
         {
             Caption = 'ID Type';
-            OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
-            OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
         field(10723; "Sent to SII"; Boolean)
         {
-            CalcFormula = Exist ("SII Doc. Upload State" WHERE ("Document Source" = CONST ("Vendor Ledger"),
-                                                               "Document Type" = CONST (Invoice),
-                                                               "Document No." = FIELD ("No.")));
+            CalcFormula = Exist("SII Doc. Upload State" WHERE("Document Source" = CONST("Vendor Ledger"),
+                                                               "Document Type" = CONST(Invoice),
+                                                               "Document No." = FIELD("No.")));
             Editable = false;
             FieldClass = FlowField;
         }

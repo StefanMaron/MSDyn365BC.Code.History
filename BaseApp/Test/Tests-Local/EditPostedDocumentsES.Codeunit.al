@@ -877,9 +877,9 @@ codeunit 147330 "Edit Posted Documents ES"
     local procedure PrepareValuesForEditableFieldsPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        SalesInvoiceHeader."Invoice Type" := LibraryRandom.RandIntInRange(1, 3);
-        SalesInvoiceHeader."ID Type" := LibraryRandom.RandIntInRange(1, 5);
+        SalesInvoiceHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        SalesInvoiceHeader."Invoice Type" := "SII Sales Invoice Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
+        SalesInvoiceHeader."ID Type" := "SII ID Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         SalesInvoiceHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
     end;
@@ -887,16 +887,16 @@ codeunit 147330 "Edit Posted Documents ES"
     local procedure PrepareValuesForEditableFieldsPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         SalesCrMemoHeader.Init();
-        SalesCrMemoHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        SalesCrMemoHeader."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
+        SalesCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        SalesCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         SalesCrMemoHeader."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
         PurchCrMemoHdr.Init();
-        PurchCrMemoHdr."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        PurchCrMemoHdr."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
+        PurchCrMemoHdr."Special Scheme Code" := "SII Purch. Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        PurchCrMemoHdr."Cr. Memo Type" := "SII Purch. Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         PurchCrMemoHdr."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
     end;
 
@@ -915,9 +915,9 @@ codeunit 147330 "Edit Posted Documents ES"
         ServiceInvoiceHeader."Bill-to Country/Region Code" := BillToCountryRegion.Code;
         ServiceInvoiceHeader."Ship-to Country/Region Code" := ShipToCountryRegion.Code;
 
-        ServiceInvoiceHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        ServiceInvoiceHeader."Invoice Type" := LibraryRandom.RandIntInRange(1, 3);
-        ServiceInvoiceHeader."ID Type" := LibraryRandom.RandIntInRange(1, 5);
+        ServiceInvoiceHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        ServiceInvoiceHeader."Invoice Type" := "SII Sales Invoice Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
+        ServiceInvoiceHeader."ID Type" := "SII ID Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         ServiceInvoiceHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
     end;
@@ -925,8 +925,8 @@ codeunit 147330 "Edit Posted Documents ES"
     local procedure PrepareValuesForEditableFieldsPostedServiceCreditMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
         ServiceCrMemoHeader.Init();
-        ServiceCrMemoHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        ServiceCrMemoHeader."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 3);
+        ServiceCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        ServiceCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
     end;
 
     [ConfirmHandler]

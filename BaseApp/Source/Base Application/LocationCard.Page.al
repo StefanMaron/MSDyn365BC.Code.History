@@ -203,6 +203,7 @@
                     ApplicationArea = Warehouse;
                     Enabled = UseADCSEnable;
                     ToolTip = 'Specifies the automatic data capture system that warehouse employees must use to keep track of items within the warehouse.';
+                    Visible = false;
                 }
                 field("Default Bin Selection"; Rec."Default Bin Selection")
                 {

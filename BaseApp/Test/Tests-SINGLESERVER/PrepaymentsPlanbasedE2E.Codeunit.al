@@ -20,7 +20,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectCustomerTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsBusinessManager()
     var
@@ -50,7 +50,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectCustomerTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsExternalAccountant()
     var
@@ -80,7 +80,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectCustomerTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsEssentialISVEmbUser()
     var
@@ -110,7 +110,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectCustomerTemplListModalPageHandler,ConfirmHandlerYes,PostedSalesInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInSalesOrderAsDeviceISVEmbUser()
     var
@@ -140,7 +140,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsBusinessManager()
     var
@@ -170,7 +170,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsExternalAccountant()
     var
@@ -200,7 +200,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsTeamMember()
     var
@@ -246,7 +246,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsEssentialISVEmbUser()
     var
@@ -276,7 +276,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsTeamMemberISVEmb()
     var
@@ -324,7 +324,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchInvoicePageHandler,OrderPostActionHandler')]
     [Scope('OnPrem')]
     procedure TestPrepaymentsInPurchOrderAsDeviceISVEmbUser()
     var
@@ -373,7 +373,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Prepayments Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
@@ -384,6 +384,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SetupNewSalesPrepaymentAccount;
         CreatePurchPrepmtInvNosInSetup;
         SetupNewPurchPrepaymentAccount;
+        LibraryTemplates.UpdateTemplatesVATGroups();
 
         IsInitialized := true;
         Commit();
@@ -561,10 +562,26 @@ codeunit 135407 "Prepayments Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
+    begin
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -9014,10 +9014,9 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
+                                                    <Value />
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

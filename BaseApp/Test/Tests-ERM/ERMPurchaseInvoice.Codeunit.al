@@ -46,7 +46,7 @@ codeunit 134328 "ERM Purchase Invoice"
         WrongConfirmationMsgErr: Label 'Wrong confirmation message';
         TestFieldTok: Label 'TestField';
         VATBusPostingGroupErr: Label 'VAT Bus. Posting Group must be equal to';
-        NegativeAmountErr: Label 'Amount must be negative in Gen. Journal Line';
+        NegativeAmountErr: Label 'Amount must be negative';
         ContactShouldNotBeEditableErr: Label 'Contact should not be editable when vendor is not selected.';
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
@@ -309,6 +309,7 @@ codeunit 134328 "ERM Purchase Invoice"
         WarehouseEmployee.Delete();
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurchaseInvoice()
@@ -376,7 +377,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryLowerPermissions.SetPurchDocsPost;
         PostItemAndVerifyValueEntries(Item, PurchaseLineDiscount);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure InvDiscountOnPurchaseInvoice()
@@ -1216,6 +1217,7 @@ codeunit 134328 "ERM Purchase Invoice"
         VerifyGLEntry(DocumentNo, PurchInvHeader."Amount Including VAT");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithoutPriceInclVAT()
@@ -1269,6 +1271,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchInvHeader.CalcFields("Amount Including VAT");
         VerifyGLEntry(PostedDocumentNo, PurchInvHeader."Amount Including VAT" + PurchaseLine."Line Discount Amount");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1499,6 +1502,7 @@ codeunit 134328 "ERM Purchase Invoice"
         Assert.AreEqual(0, PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", 'should be zero');
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure UpdateUnitCostWithPurchPriceWhenChangeVendorNo()
@@ -1535,7 +1539,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchLine.Find;
         PurchLine.TestField("Direct Unit Cost", PurchPrice."Direct Unit Cost");
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure UnitCostNotUpdatedWithoutPurchPriceWhenChangeVendorNo()
@@ -2807,7 +2811,7 @@ codeunit 134328 "ERM Purchase Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Invoice");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -3001,6 +3005,7 @@ codeunit 134328 "ERM Purchase Invoice"
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
     end;
 
+#if not CLEAN19
     local procedure CreatePurchInvWithPricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; PurchaseLineDiscount: Record "Purchase Line Discount"; PricesIncludingVAT: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
@@ -3012,7 +3017,7 @@ codeunit 134328 "ERM Purchase Invoice"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLineDiscount."Item No.",
           PurchaseLineDiscount."Minimum Quantity" + LibraryRandom.RandInt(10));  // Take Quantity greater than Purchase Line Discount Minimum Quantity.
     end;
-
+#endif
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; InvDiscountAmount: Decimal)
     var
         QtyToReceive: Decimal;
@@ -3484,6 +3489,7 @@ codeunit 134328 "ERM Purchase Invoice"
         exit(VendorInvoiceDisc.Code);
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -3508,7 +3514,7 @@ codeunit 134328 "ERM Purchase Invoice"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"));
         GeneralPostingSetup.Modify(true);
     end;
-
+#endif
     local procedure VerifyAdditionalAmtOnGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; AdditionalCurrencyAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -3986,10 +3992,10 @@ codeunit 134328 "ERM Purchase Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TemplateSelectionPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure TemplateSelectionPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -4000,6 +4006,7 @@ codeunit 134328 "ERM Purchase Invoice"
         Reply := false;
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
     procedure PostItemAndVerifyValueEntries(Item: Record Item; PurchaseLineDiscount: Record "Purchase Line Discount")
     var
@@ -4014,7 +4021,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify: Verify Purchase Line and Posted G/L Entry have no cost for the service item.
         VerifyValueEntryAreNonInventoriable(PostedDocumentNo);
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorLookupHandler(var VendorLookup: TestPage "Vendor Lookup")

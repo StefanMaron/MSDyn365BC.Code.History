@@ -6,11 +6,9 @@ table 7000003 "Posted Cartera Doc."
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Cartera Document Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Receivable,Payable';
-            OptionMembers = Receivable,Payable;
         }
         field(2; "Entry No."; Integer)
         {

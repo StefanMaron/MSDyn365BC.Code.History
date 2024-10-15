@@ -567,7 +567,7 @@ page 144 "Posted Sales Credit Memos"
     begin
         if DocExchStatusVisible then
             DocExchStatusStyle := GetDocExchStatusStyle;
-        StyleText := SIIManagement.GetSIIStyle("SII Status");
+        StyleText := SIIManagement.GetSIIStyle("SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()

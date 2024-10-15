@@ -189,163 +189,11 @@ codeunit 137207 "SCM Archive Orders"
     end;
 
     [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmationWithoutArchiveAndDisabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Order Confirmation" report in case of "Archive Document" = FALSE and "Sales & Receivables Setup"."Archive Orders" = FALSE
-        // this test also refers to tfs id 255792
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = FALSE
-        LibrarySales.SetArchiveOrders(false);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Order Confirmation" report with "Archive Document" = FALSE
-        RunOrderConfirmationReport(SalesHeader."No.", false, true);
-
-        // [THEN] Sales Order has not been archved
-        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmationWithoutArchiveAndEnabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Order Confirmation" report in case of "Archive Document" = FALSE and "Sales & Receivables Setup"."Archive Orders" = TRUE
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
-        LibrarySales.SetArchiveOrders(true);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Order Confirmation" report with "Archive Document" = FALSE
-        RunOrderConfirmationReport(SalesHeader."No.", false, true);
-
-        // [THEN] Sales Order has not been archived
-        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmationWithArchiveAndDisabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Order Confirmation" report in case of "Archive Document" = TRUE and "Sales & Receivables Setup"."Archive Orders" = FALSE
-        // this test also refers to tfs id 255792
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = FALSE
-        LibrarySales.SetArchiveOrders(false);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Order Confirmation" report with "Archive Document" = TRUE
-        RunOrderConfirmationReport(SalesHeader."No.", true, true);
-
-        // [THEN] Sales Order has been archived
-        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmationWithArchiveAndEnabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Order Confirmation" report in case of "Archive Document" = TRUE and "Sales & Receivables Setup"."Archive Orders" = TRUE
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
-        LibrarySales.SetArchiveOrders(true);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Order Confirmation" report with "Archive Document" = TRUE
-        RunOrderConfirmationReport(SalesHeader."No.", true, true);
-
-        // [THEN] Sales Order has been archived
-        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderEmailConfirmationDisabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Email Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Email Confirmation" and "Sales & Receivables Setup"."Archive Orders" = FALSE
-        // this test also refers to tfs id 255792
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = FALSE
-        LibrarySales.SetArchiveOrders(false);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Email Confirmation" action
-        RunOrderConfirmationReport(SalesHeader."No.", true, false);
-
-        // [THEN] Sales Order has not been archived
-        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RH')]
-    [Scope('OnPrem')]
-    procedure SalesOrderEmailConfirmationEnabledArchiveSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        // [FEATURE] [Sales] [Order] [Email Confirmation]
-        // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Email Confirmation" and "Sales & Receivables Setup"."Archive Orders" = TRUE
-        Initialize;
-
-        // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
-        LibrarySales.SetArchiveOrders(true);
-        // [GIVEN] Sales Order
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Run "Email Confirmation" action
-        RunOrderConfirmationReport(SalesHeader."No.", true, false);
-
-        // [THEN] Sales Order has been archived
-        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesQuote_RH,ConfirmHandlerNo')]
+    [HandlerFunctions('SalesQuote_RH')]
     [Scope('OnPrem')]
     procedure SalesQuoteEmailDisabledArchiveSetup()
     var
+        CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -354,6 +202,11 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 0 after "Email" and "Sales & Receivables Setup"."Archive Orders" = FALSE
         // this test also refers to tfs id 255792
         Initialize;
+
+        // [GIVEN] Company Information with "Allow Blank Payment Info."
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
 
         // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = FALSE
         LibrarySales.SetArchiveOrders(false);
@@ -368,10 +221,11 @@ codeunit 137207 "SCM Archive Orders"
     end;
 
     [Test]
-    [HandlerFunctions('SalesQuote_RH,ConfirmHandlerNo')]
+    [HandlerFunctions('SalesQuote_RH')]
     [Scope('OnPrem')]
     procedure SalesQuoteEmailEnabledArchiveSetup()
     var
+        CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -379,6 +233,11 @@ codeunit 137207 "SCM Archive Orders"
         // [FEATURE] [Sales] [Quote] [Email]
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 1 after "Email" and "Sales & Receivables Setup"."Archive Orders" = TRUE
         Initialize;
+
+        // [GIVEN] Company Information with "Allow Blank Payment Info."
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
 
         // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
         LibrarySales.SetArchiveOrders(true);
@@ -1111,23 +970,10 @@ codeunit 137207 "SCM Archive Orders"
         REPORT.RunModal(ReportID, false, false, Rec);
     end;
 
-    local procedure RunOrderConfirmationReport(DocumentNo: Code[20]; Archive: Boolean; UseRequestPage: Boolean)
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-    begin
-        SalesHeader.SetRange("No.", DocumentNo);
-        LibraryVariableStorage.Enqueue(Archive);
-        Commit();
-        OrderConfirmation.SetTableView(SalesHeader);
-        OrderConfirmation.UseRequestPage(UseRequestPage);
-        OrderConfirmation.RunModal;
-    end;
-
     local procedure RunSalesQuoteReport(DocumentNo: Code[20]; Archive: Boolean; UseRequestPage: Boolean)
     var
         SalesHeader: Record "Sales Header";
-        SalesQuote: Report "Sales - Quote";
+        SalesQuote: Report "Standard Sales - Quote";
     begin
         SalesHeader.SetRange("No.", DocumentNo);
         LibraryVariableStorage.Enqueue(Archive);
@@ -1288,24 +1134,9 @@ codeunit 137207 "SCM Archive Orders"
         ArchivedPurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.ArchiveDocument.SetValue(LibraryVariableStorage.DequeueBoolean);
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure OrderConfirmation_RH(var OrderConfirmation: Report "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure SalesQuote_RH(var SalesQuote: Report "Sales - Quote")
+    procedure SalesQuote_RH(var SalesQuote: Report "Standard Sales - Quote")
     begin
         SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName);
     end;

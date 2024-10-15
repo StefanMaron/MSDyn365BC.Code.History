@@ -1,4 +1,5 @@
-﻿codeunit 7000 "Sales Price Calc. Mgt."
+﻿#if not CLEAN19
+codeunit 7000 "Sales Price Calc. Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -1406,7 +1407,7 @@
                         IsHandled := false;
                         OnFindJobJnlLinePriceOnBeforeResourceGetJob(JobJnlLine, IsHandled);
                         if not IsHandled then
-                        Job.Get("Job No.");
+                            Job.Get("Job No.");
                         SetResPrice("No.", "Work Type Code", "Currency Code");
                         OnBeforeFindJobJnlLineResPrice(JobJnlLine, ResPrice);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
@@ -2068,4 +2069,4 @@
     begin
     end;
 }
-
+#endif

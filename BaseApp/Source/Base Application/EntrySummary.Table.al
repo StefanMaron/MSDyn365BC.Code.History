@@ -96,6 +96,8 @@ table 338 "Entry Summary"
                 end else
                     if "Selected Quantity" > "Total Available Quantity" then
                         Error(Text001, "Total Available Quantity");
+
+                "Selected Quantity" := UOMMgt.RoundAndValidateQty("Selected Quantity", "Qty. Rounding Precision (Base)", FieldCaption("Selected Quantity"));
             end;
         }
         field(6506; "Current Pending Quantity"; Decimal)
@@ -139,6 +141,15 @@ table 338 "Entry Summary"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
+        field(6516; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
     }
 
     keys
@@ -162,6 +173,7 @@ table 338 "Entry Summary"
     }
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
         Text001: Label 'You cannot select more than %1 units.';
 
     procedure GetLastEntryNo(): Integer;
@@ -298,6 +310,16 @@ table 338 "Entry Summary"
         OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
 
+    procedure SetTrackingKey()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetTrackingKey(Rec, IsHandled);
+        if not IsHandled then
+            SetCurrentKey("Lot No.", "Serial No.", "Package No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasSameTracking(ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary"; var SameTracking: Boolean)
     begin
@@ -355,6 +377,11 @@ table 338 "Entry Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromSpec(var ToEntrySummary: Record "Entry Summary"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTrackingKey(var EntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
     end;
 

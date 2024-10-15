@@ -556,7 +556,6 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetHidePrintDialog(NewHidePrintDialog: Boolean)
     begin
         HidePrintDialog := NewHidePrintDialog;

@@ -1,4 +1,4 @@
-﻿codeunit 6 "Fiscal Year-Close"
+codeunit 6 "Fiscal Year-Close"
 {
     TableNo = "Accounting Period";
 

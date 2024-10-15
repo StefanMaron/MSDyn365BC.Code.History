@@ -11,9 +11,6 @@ codeunit 6300 "Azure AD Mgt."
         AzureADAppSetup: Record "Azure AD App Setup";
         TypeHelper: Codeunit "Type Helper";
         AzureADNotSetupErr: Label '%1 is not registered in your Azure Active Directory tenant.', Comment = '%1 - product name';
-        AzureAdSetupTitleTxt: Label 'Set up your Azure Active Directory accounts';
-        AzureAdSetupShortTitleTxt: Label 'Set up Azure Active Directory';
-        AzureAdSetupDescriptionTxt: Label 'Register an Azure Active Directory app so that you can use Power BI, Power Automate, Exchange, and other Azure services from on-premises.';
         O365ResourceNameTxt: Label 'Office 365 Services', Locked = true;
         OAuthLandingPageTxt: Label 'OAuthLanding.htm', Locked = true;
 
@@ -253,23 +250,6 @@ codeunit 6300 "Azure AD Mgt."
             exit(false);
 
         exit(true);
-    end;
-
-    [Obsolete('To add the record "Azure AD App Setup Wizard" in the Assisted Setup table use the method Add provided in the Assisted Setup codeunit', '16.0')]
-    procedure CreateAssistedSetup()
-    var
-        GuidedExperience: Codeunit "Guided Experience";
-        Info: ModuleInfo;
-        AssistedSetupGroup: Enum "Assisted Setup Group";
-        VideoCategory: Enum "Video Category";
-    begin
-        if IsSaaS() then
-            exit;
-        NavApp.GetCurrentModuleInfo(Info);
-        GuidedExperience.InsertAssistedSetup(AzureAdSetupTitleTxt, AzureAdSetupShortTitleTxt, AzureAdSetupDescriptionTxt, 5, ObjectType::Page,
-            PAGE::"Azure AD App Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
-        if IsAzureADAppSetupDone then
-            GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Azure AD App Setup Wizard");
     end;
 
     [Scope('OnPrem')]

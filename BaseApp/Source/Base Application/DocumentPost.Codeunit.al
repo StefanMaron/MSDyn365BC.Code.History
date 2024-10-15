@@ -40,7 +40,7 @@ codeunit 7000006 "Document-Post"
         CarteraDoc: Record "Cartera Doc.";
         PaymentMethod: Record "Payment Method";
         SystemCreated: Boolean;
-        CarteraDocType: Option;
+        CarteraDocType: Enum "Cartera Document Type";
     begin
         with GenJnlLine do begin
             if ("Document Type" = "Document Type"::Invoice) and
@@ -518,7 +518,7 @@ codeunit 7000006 "Document-Post"
               CheckDate);
     end;
 
-    local procedure CheckCarteraDocsForBillGroups(CarteraDocType: Option; DocumentNo: Code[20]; BillNo: Code[20])
+    local procedure CheckCarteraDocsForBillGroups(CarteraDocType: Enum "Cartera Document Type"; DocumentNo: Code[20]; BillNo: Code[20])
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
@@ -537,7 +537,7 @@ codeunit 7000006 "Document-Post"
               CarteraDoc."Document No.", CarteraDoc."No.", CarteraDoc."Bill Gr./Pmt. Order No.");
     end;
 
-    local procedure CheckPostedCarteraDocsForBillGroups(CarteraDocType: Option; DocumentNo: Code[20]; BillNo: Code[20])
+    local procedure CheckPostedCarteraDocsForBillGroups(CarteraDocType: Enum "Cartera Document Type"; DocumentNo: Code[20]; BillNo: Code[20])
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
@@ -818,7 +818,7 @@ codeunit 7000006 "Document-Post"
         DtldCVLedgEntryBuf.Init();
         DtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
         DtldCVLedgEntryBuf."Cust. Ledger Entry No." := CustLedgEntry2."Entry No.";
-        DtldCVLedgEntryBuf."Entry Type" := EntryType;
+        DtldCVLedgEntryBuf."Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(EntryType);
         case true of
             EntryType = EntryType::Rejection:
                 DtldCVLedgEntryBuf."Excluded from calculation" := true;
@@ -856,7 +856,7 @@ codeunit 7000006 "Document-Post"
         DtldCVLedgEntryBuf.Init();
         DtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
         DtldCVLedgEntryBuf."Vendor Ledger Entry No." := VendLedgEntry2."Entry No.";
-        DtldCVLedgEntryBuf."Entry Type" := EntryType;
+        DtldCVLedgEntryBuf."Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(EntryType);
         case true of
             EntryType = EntryType::Rejection:
                 DtldCVLedgEntryBuf."Excluded from calculation" := true;
@@ -1165,7 +1165,7 @@ codeunit 7000006 "Document-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(var PostedCarteraDoc : Record "Posted Cartera Doc.")
+    local procedure OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(var PostedCarteraDoc: Record "Posted Cartera Doc.")
     begin
     end;
 }

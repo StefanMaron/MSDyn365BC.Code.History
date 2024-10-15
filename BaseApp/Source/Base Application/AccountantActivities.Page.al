@@ -505,7 +505,7 @@ page 9037 "Accountant Activities"
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)
     begin
-        if O365GettingStartedMgt.IsGettingStartedSupported then
+        if O365GettingStartedMgt.IsGettingStartedSupported() then
             if O365GettingStartedMgt.LaunchWizard(false, hasTourCompleted) then begin
                 HideSatisfactionSurvey := true;
                 exit;

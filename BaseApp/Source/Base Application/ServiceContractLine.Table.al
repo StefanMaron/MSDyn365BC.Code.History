@@ -6,11 +6,9 @@ table 5964 "Service Contract Line"
 
     fields
     {
-        field(1; "Contract Type"; Option)
+        field(1; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(2; "Contract No."; Code[20])
         {
@@ -628,7 +626,8 @@ table 5964 "Service Contract Line"
             if (not ServContractHeader."Allow Unbalanced Amounts") and
                (ServContractHeader.Status = ServContractHeader.Status::Signed)
             then
-                ContractGainLossEntry.AddEntry(1, "Contract Type", "Contract No.", -"Line Amount", '');
+                ContractGainLossEntry.CreateEntry(
+                    "Service Contract Change Type"::"Line Deleted", "Contract Type", "Contract No.", -"Line Amount", '');
         end;
 
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Contract");
@@ -804,13 +803,19 @@ table 5964 "Service Contract Line"
             else begin
                 ServContractHeader."Annual Amount" := LineAmount + "Line Amount";
                 if not "New Line" then
-                    ContractGainLossEntry.AddEntry(4, "Contract Type", "Contract No.", "Line Amount" - xRec."Line Amount", '')
+                    ContractGainLossEntry.CreateEntry(
+                        "Service Contract Change Type"::"Manual Update", "Contract Type", "Contract No.",
+                        "Line Amount" - xRec."Line Amount", '')
                 else
                     if ServContractHeader.Status = ServContractHeader.Status::Signed then begin
                         if ServContractLine2.Get("Contract Type", "Contract No.", "Line No.") then
-                            ContractGainLossEntry.AddEntry(4, "Contract Type", "Contract No.", "Line Amount" - ServContractLine2."Line Amount", '')
+                            ContractGainLossEntry.CreateEntry(
+                                "Service Contract Change Type"::"Manual Update", "Contract Type", "Contract No.",
+                                "Line Amount" - ServContractLine2."Line Amount", '')
                         else
-                            ContractGainLossEntry.AddEntry(0, "Contract Type", "Contract No.", "Line Amount", '')
+                            ContractGainLossEntry.CreateEntry(
+                                "Service Contract Change Type"::"Line Added", "Contract Type", "Contract No.",
+                                "Line Amount", '')
                     end;
             end;
             ServContractHeader.ValidateNextInvoicePeriod;

@@ -16,12 +16,10 @@ table 10750 "SII History"
             NotBlank = true;
             TableRelation = "SII Doc. Upload State".Id;
         }
-        field(3; Status; Option)
+        field(3; Status; Enum "SII Document Status")
         {
             Caption = 'Status';
             NotBlank = true;
-            OptionCaption = 'Pending,Incorrect,Accepted,Accepted With Errors,Communication Error,Failed,Not Supported';
-            OptionMembers = Pending,Incorrect,Accepted,"Accepted With Errors","Communication Error",Failed,"Not Supported";
         }
         field(4; "Request Date"; DateTime)
         {

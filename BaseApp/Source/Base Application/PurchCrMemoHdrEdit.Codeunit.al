@@ -38,8 +38,8 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         then
             exit;
 
-        SIIDocUploadState."Purch. Cr. Memo Type" := PurchCrMemoHdr."Cr. Memo Type" + 1;
-        SIIDocUploadState."Purch. Special Scheme Code" := PurchCrMemoHdr."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignPurchCreditMemoType(PurchCrMemoHdr."Cr. Memo Type");
+        SIIDocUploadState.AssignPurchSchemeCode(PurchCrMemoHdr."Special Scheme Code");
         SIIDocUploadState.IDType := PurchCrMemoHdr."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchCrMemoHdr."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchCrMemoHdr."Succeeded VAT Registration No.";

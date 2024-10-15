@@ -336,7 +336,7 @@ report 36 "Fiscal Year Balance"
                 PageGroupNo := 1;
                 NextPageGroupNo := 1;
 
-                //Indentation Level
+                // Indentation Level
                 case Indent of
                     Indent::"0":
                         begin
@@ -429,7 +429,6 @@ report 36 "Fiscal Year Balance"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies a rounding factor that will be used in the balance.';
                     }
                     field(Indent; Indent)
@@ -489,7 +488,7 @@ report 36 "Fiscal Year Balance"
         GLIndent: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         MatrixMgt: Codeunit "Matrix Management";
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         GLFilter: Text;
         ColumnValuesAsText: array[13] of Text[30];
         ProfitValueAsText: array[10] of Text;
@@ -543,14 +542,14 @@ report 36 "Fiscal Year Balance"
 
     procedure RoundAmount(Value: Decimal): Text[30]
     begin
-        exit(MatrixMgt.FormatValue(Value, RoundingFactor, false));
+        exit(MatrixMgt.FormatAmount(Value, RoundingFactor, false));
     end;
 
     procedure InitializeRequest(NewPeriodStartingDate: Date; NewPeriodEndingDate: Date; NewRoundingFactor: Option; NewIndent: Option; NewShowResults: Boolean)
     begin
         PeriodStartingDate := NewPeriodStartingDate;
         PeriodEndingDate := NewPeriodEndingDate;
-        RoundingFactor := NewRoundingFactor;
+        RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         Indent := NewIndent;
         CheckIndentationLevel;
         ShowResults := NewShowResults;
@@ -584,7 +583,7 @@ report 36 "Fiscal Year Balance"
                 ProfitValueAsText[I] := Format(NonNegative(SummProfit[I]));
             if SummTotals[I] > 0 then
                 SumValueAsText[I] := Format(SummTotals[I]);
-            if (NonNegative(SummProfit[I]) + SummTotals[I] > 0) then
+            if NonNegative(SummProfit[I]) + SummTotals[I] > 0 then
                 FinalTotalAsText[I] := Format(NonNegative(SummProfit[I]) + SummTotals[I]);
         end;
     end;

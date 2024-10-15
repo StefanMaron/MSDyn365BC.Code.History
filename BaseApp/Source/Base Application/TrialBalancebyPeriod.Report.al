@@ -171,7 +171,7 @@ report 38 "Trial Balance by Period"
 
                 trigger OnAfterGetRecord()
                 begin
-                    GLAccountType := "G/L Account"."Account Type";
+                    GLAccountType := "G/L Account"."Account Type".AsInteger();
                     if IsNewPage then begin
                         PageGroupNo := PageGroupNo + 1;
                         IsNewPage := false;
@@ -200,7 +200,7 @@ report 38 "Trial Balance by Period"
 
             trigger OnPreDataItem()
             begin
-                RoundingFactorInt := RoundingFactor;
+                RoundingFactorInt := RoundingFactor.AsInteger();
                 PageGroupNo := 1;
 
                 // Indentation Level
@@ -299,7 +299,6 @@ report 38 "Trial Balance by Period"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies a rounding factor that will be used in the balance.';
                     }
                     field(Indent; Indent)
@@ -345,7 +344,7 @@ report 38 "Trial Balance by Period"
         ColumnValuesAsText: array[13] of Text[30];
         RoundingText: Text[80];
         Header: array[13, 2] of Text[100];
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         i: Integer;
         MaxCount: Integer;
         RoundingFactorInt: Integer;
@@ -380,13 +379,13 @@ report 38 "Trial Balance by Period"
 
     procedure RoundAmount(Value: Decimal): Text[30]
     begin
-        exit(MatrixMgt.FormatValue(Value, RoundingFactor, false));
+        exit(MatrixMgt.FormatAmount(Value, RoundingFactor, false));
     end;
 
     procedure InitializeRequest(NewPeriodStartingDate: Date; NewRoundingFactor: Option; NewIndent: Option)
     begin
         PeriodStartingDate := NewPeriodStartingDate;
-        RoundingFactor := NewRoundingFactor;
+        RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         if NewIndent <> Indent::None then begin
             Indent := NewIndent;
             CheckIndent;

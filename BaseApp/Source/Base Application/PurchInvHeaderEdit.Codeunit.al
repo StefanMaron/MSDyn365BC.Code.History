@@ -44,8 +44,8 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         then
             exit;
 
-        SIIDocUploadState."Purch. Invoice Type" := PurchInvHeader."Invoice Type" + 1;
-        SIIDocUploadState."Purch. Special Scheme Code" := PurchInvHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignPurchInvoiceType(PurchInvHeader."Invoice Type");
+        SIIDocUploadState.AssignPurchSchemeCode(PurchInvHeader."Special Scheme Code");
         SIIDocUploadState.IDType := PurchInvHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchInvHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchInvHeader."Succeeded VAT Registration No.";

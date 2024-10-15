@@ -287,7 +287,7 @@ page 5870 "BOM Structure"
         [InDataSet]
         IsParentExpr: Boolean;
         ItemFilter: Code[250];
-        ShowBy: Option Item,Assembly,Production;
+        ShowBy: Enum "BOM Structure Show By";
         CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
         [InDataSet]
         HasWarning: Boolean;
@@ -327,7 +327,7 @@ page 5870 "BOM Structure"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGenerateBOMTree(Rec, Item, AsmHeader, ProdOrderLine, ShowBy, ItemFilter, IsHandled);
+        OnBeforeGenerateBOMTree(Rec, Item, AsmHeader, ProdOrderLine, ShowBy.AsInteger(), ItemFilter, IsHandled);
         if IsHandled then
             exit;
 

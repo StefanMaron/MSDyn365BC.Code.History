@@ -59,11 +59,9 @@ table 15 "G/L Account"
         {
             Caption = 'Search Name';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Posting,Heading';
-            OptionMembers = Posting,Heading;
 
             trigger OnValidate()
             var
@@ -75,6 +73,12 @@ table 15 "G/L Account"
                         "API Account Type" := "API Account Type"::Posting;
                     "Account Type"::Heading:
                         "API Account Type" := "API Account Type"::Heading;
+                    "Account Type"::Total:
+                        "API Account Type" := "API Account Type"::Total;
+                    "Account Type"::"Begin-Total":
+                        "API Account Type" := "API Account Type"::"Begin-Total";
+                    "Account Type"::"End-Total":
+                        "API Account Type" := "API Account Type"::"End-Total";
                 end;
 
                 if ("Account Type" <> "Account Type"::Posting) and
@@ -917,7 +921,7 @@ table 15 "G/L Account"
             if GLAccountCategory.Get("Account Subcategory Entry No.") then
                 GLAccountCategories.SetRecord(GLAccountCategory);
         GLAccountCategory.SetRange("Income/Balance", "Income/Balance");
-        if "Account Category" <> 0 then
+        if "Account Category" <> "Account Category"::" " then
             GLAccountCategory.SetRange("Account Category", "Account Category");
         GLAccountCategories.SetTableView(GLAccountCategory);
         GLAccountCategories.LookupMode(true);
@@ -978,6 +982,8 @@ table 15 "G/L Account"
 
     procedure CheckGenProdPostingGroup()
     var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -985,8 +991,13 @@ table 15 "G/L Account"
         if IsHandled then
             exit;
 
-        if "Gen. Prod. Posting Group" = '' then
-            Error(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No.");
+        if "Gen. Prod. Posting Group" = '' then 
+            ErrorMessageManagement.LogContextFieldError(
+                0,
+                StrSubstNo(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No."),
+                Rec,
+                FieldNo("Gen. Prod. Posting Group"),
+                ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
     end;
 
     [Scope('OnPrem')]

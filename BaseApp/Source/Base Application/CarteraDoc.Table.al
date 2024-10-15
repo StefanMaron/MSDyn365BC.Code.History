@@ -7,11 +7,9 @@ table 7000002 "Cartera Doc."
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Cartera Document Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Receivable,Payable';
-            OptionMembers = Receivable,Payable;
         }
         field(2; "Entry No."; Integer)
         {
@@ -160,7 +158,7 @@ table 7000002 "Cartera Doc."
         }
         field(45; "On Hold"; Boolean)
         {
-            CalcFormula = Exist ("Vendor Ledger Entry" WHERE("On Hold" = FILTER(<> ''),
+            CalcFormula = Exist("Vendor Ledger Entry" WHERE("On Hold" = FILTER(<> ''),
                                                              "Entry No." = FIELD("Entry No.")));
             Caption = 'On Hold';
             FieldClass = FlowField;

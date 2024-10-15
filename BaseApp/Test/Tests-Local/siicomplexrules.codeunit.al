@@ -776,7 +776,7 @@ codeunit 147559 "SII Complex Rules"
 
         // [GIVEN] Post Purchase Invoice with "ID Type" = "03"
         PostPurchDocWithInvoiceType(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, 0);
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, "SII Purch. Invoice Type"::"F1 Invoice");
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
         SIIDocUploadState.Validate(IDType, SIIDocUploadState.IDType::"03-Passport");
         SIIDocUploadState.Modify(true);
@@ -882,7 +882,8 @@ codeunit 147559 "SII Complex Rules"
 
         // [GIVEN] Purchase invoice with "Invoice Type" = "F2" and amount equals 100
         PostPurchDoc(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0, VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", 0);
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0,
+          VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", "SII Purch. Special Scheme Code"::"01 General");
 
         // [GIVEN] SII version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
@@ -917,7 +918,8 @@ codeunit 147559 "SII Complex Rules"
 
         // [GIVEN] Purchase invoice with "Invoice Type" = "F2" and amount equals 100
         PostPurchDoc(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0, VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", 0);
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, 0,
+          VendorLedgerEntry."Invoice Type"::"F2 Simplified Invoice", "SII Purch. Special Scheme Code"::"01 General");
 
         // [GIVEN] SII version is 1.1bis
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
@@ -941,13 +943,13 @@ codeunit 147559 "SII Complex Rules"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithZeroBaseAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDocWithZeroBaseAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         NegativeSalesLine: Record "Sales Line";
     begin
-        CreateSalesDoc(SalesHeader, DocType, CorrType, 0, SpecialSchemeCode);
+        CreateSalesDoc(SalesHeader, DocType, CorrType, "SII Sales Invoice Type"::"F1 Invoice", SpecialSchemeCode);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
@@ -958,17 +960,17 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithSpecialSchemeCode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostPurchDocWithSpecialSchemeCode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; SpecialSchemeCode: Enum "SII Purch. Special Scheme Code")
     begin
-        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, 0, SpecialSchemeCode);
+        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, "SII Purch. Invoice Type"::"F1 Invoice", SpecialSchemeCode);
     end;
 
-    local procedure PostPurchDocWithInvoiceType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option)
+    local procedure PostPurchDocWithInvoiceType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; InvoiceType: Enum "SII Purch. Invoice Type")
     begin
-        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, InvoiceType, 0);
+        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, InvoiceType, "SII Purch. Special Scheme Code"::"01 General");
     end;
 
-    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
+    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; InvoiceType: Enum "SII Purch. Invoice Type"; SpecialSchemeCode: Enum "SII Purch. Special Scheme Code")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -986,17 +988,17 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostSalesDocWithSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDocWithSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     begin
-        PostSalesDoc(CustLedgerEntry, DocType, CorrType, 0, SpecialSchemeCode);
+        PostSalesDoc(CustLedgerEntry, DocType, CorrType, "SII Sales Invoice Type"::"F1 Invoice", SpecialSchemeCode);
     end;
 
-    local procedure PostSalesDocWithInvoiceType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option)
+    local procedure PostSalesDocWithInvoiceType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type")
     begin
-        PostSalesDoc(CustLedgerEntry, DocType, CorrType, InvoiceType, 0);
+        PostSalesDoc(CustLedgerEntry, DocType, CorrType, InvoiceType, "SII Sales Special Scheme Code"::"01 General");
     end;
 
-    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type"; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1004,7 +1006,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type"; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         SalesLine: Record "Sales Line";
     begin

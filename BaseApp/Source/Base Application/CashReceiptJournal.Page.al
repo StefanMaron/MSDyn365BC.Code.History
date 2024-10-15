@@ -855,7 +855,7 @@ page 255 "Cash Receipt Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -868,6 +868,7 @@ page 255 "Cash Receipt Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -890,7 +891,7 @@ page 255 "Cash Receipt Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1229,7 +1230,6 @@ page 255 "Cash Receipt Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
@@ -1259,6 +1259,7 @@ page 255 "Cash Receipt Journal"
         ShowAllLinesEnabled: Boolean;
 
     protected var
+        ApplyEntriesActionEnabled: Boolean;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

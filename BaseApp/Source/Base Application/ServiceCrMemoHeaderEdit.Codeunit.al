@@ -37,8 +37,8 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         then
             exit;
 
-        SIIDocUploadState."Sales Cr. Memo Type" := ServiceCrMemoHeader."Cr. Memo Type" + 1;
-        SIIDocUploadState."Sales Special Scheme Code" := ServiceCrMemoHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignSalesCreditMemoType(ServiceCrMemoHeader."Cr. Memo Type");
+        SIIDocUploadState.AssignSalesSchemeCode(ServiceCrMemoHeader."Special Scheme Code");
         SIIDocUploadState.Modify();
     end;
 

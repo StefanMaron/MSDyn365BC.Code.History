@@ -44,8 +44,8 @@ codeunit 10768 "Service Invoice Header - Edit"
         then
             exit;
 
-        SIIDocUploadState."Sales Invoice Type" := ServiceInvoiceHeader."Invoice Type" + 1;
-        SIIDocUploadState."Sales Special Scheme Code" := ServiceInvoiceHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignSalesInvoiceType(ServiceInvoiceHeader."Invoice Type");
+        SIIDocUploadState.AssignSalesSchemeCode(ServiceInvoiceHeader."Special Scheme Code");
         SIIDocUploadState.IDType := ServiceInvoiceHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := ServiceInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := ServiceInvoiceHeader."Succeeded VAT Registration No.";

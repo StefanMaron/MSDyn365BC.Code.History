@@ -1778,7 +1778,7 @@ codeunit 137065 "SCM Reservation II"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
         Quantity: array[3] of Decimal;
         SumQuantity: array[2] of Decimal;
-        ActionType: Option ,Take,Place;
+        ActionType: Enum "Warehouse Action Type";
         i: Integer;
         PutAway: Boolean;
         Pick: Boolean;
@@ -3172,7 +3172,7 @@ codeunit 137065 "SCM Reservation II"
         ItemLedgerEntry.FindSet();
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
@@ -3180,7 +3180,7 @@ codeunit 137065 "SCM Reservation II"
         WarehouseActivityLine.FindSet();
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3234,7 +3234,7 @@ codeunit 137065 "SCM Reservation II"
         Zone.FindFirst;
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         with RegisteredWhseActivityLine do begin
             SetRange("Source Document", SourceDocument);
@@ -3288,7 +3288,7 @@ codeunit 137065 "SCM Reservation II"
         ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke;
     end;
 
-    local procedure PostWhsePositiveAdjmtWithLotExpirationDate(LocationCode: Code[10]; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20]; ExpirationDate: Date)
+    local procedure PostWhsePositiveAdjmtWithLotExpirationDate(LocationCode: Code[10]; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50]; ExpirationDate: Date)
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
@@ -3306,7 +3306,7 @@ codeunit 137065 "SCM Reservation II"
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, true);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -3421,7 +3421,7 @@ codeunit 137065 "SCM Reservation II"
         AssignNoSeriesForItemJournalBatch(ItemJournalBatch, '');  // Value required to avoid the Document No mismatch.
     end;
 
-    local procedure UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ActionType: Option; QtyToHandle: Decimal)
+    local procedure UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3680,7 +3680,7 @@ codeunit 137065 "SCM Reservation II"
         SalesLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
 
-    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3691,7 +3691,7 @@ codeunit 137065 "SCM Reservation II"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure VerifyWarehouseActivityLineLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; ExpectedQty: Decimal)
+    local procedure VerifyWarehouseActivityLineLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; ExpectedQty: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3706,7 +3706,7 @@ codeunit 137065 "SCM Reservation II"
         end;
     end;
 
-    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -3888,7 +3888,7 @@ codeunit 137065 "SCM Reservation II"
         until ItemLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyRegisteredWhseActivityLineAndCalcTotalQty(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActionType: Option) SumQuantity: Decimal
+    local procedure VerifyRegisteredWhseActivityLineAndCalcTotalQty(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type") SumQuantity: Decimal
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin

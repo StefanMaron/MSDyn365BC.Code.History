@@ -222,22 +222,24 @@ page 1286 "Payment Rec Match Details"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         TempTextToAccMapping: Record "Text-to-Account Mapping" temporary;
-        NoOfLedgerEntriesWithinAmountTolerance: Integer;
-        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
         AppliedToName: Text;
+        IsMatchedAutomatically: Boolean;
+        IsMapToTextAccount: Boolean;
+        IsAppliedTextToAccountVisible: Boolean;
+        StatusText: Text;
+
+    protected var
         RelatedPartyMatchedText: Text;
         AmountMatchText: Text;
         DocumentMatchedText: Text;
         DirectDebitMatchedText: Text;
         DirectDebitMatched: Boolean;
-        IsMatchedAutomatically: Boolean;
-        IsMapToTextAccount: Boolean;
-        IsAppliedTextToAccountVisible: Boolean;
-        StatusText: Text;
         RelatedPartyMatchInfoText: Text;
         DocumentMatchInfoText: Text;
         RelatedPartyMatchInfoEnabled: Boolean;
         DocumentMatchInfoEnabled: Boolean;
+        NoOfLedgerEntriesWithinAmountTolerance: Integer;
+        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
 
     local procedure ClearGlobals()
     begin
@@ -245,7 +247,6 @@ page 1286 "Payment Rec Match Details"
         Clear(NoOfLedgerEntriesWithinAmountTolerance);
         Clear(NoOfLedgerEntriesOutsideAmountTolerance);
         Clear(AppliedToName);
-        Clear(RelatedPartyMatchedText);
         Clear(StatusText);
         Clear(RelatedPartyMatchedText);
         Clear(AmountMatchText);

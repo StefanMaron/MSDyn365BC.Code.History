@@ -10,7 +10,7 @@ report 99001048 "Planning Availability"
     {
         dataitem("Production Forecast Entry"; "Production Forecast Entry")
         {
-            DataItemTableView = SORTING("Production Forecast Name", "Item No.", "Component Forecast", "Forecast Date", "Location Code");
+            DataItemTableView = SORTING("Production Forecast Name", "Item No.", "Variant Code", "Component Forecast", "Forecast Date", "Location Code");
 
             trigger OnAfterGetRecord()
             begin

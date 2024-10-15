@@ -102,15 +102,6 @@ table 289 "Payment Method"
             ObsoleteState = Pending;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
             ObsoleteTag = '15.0';
-
-            trigger OnValidate()
-            var
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
-            begin
-                if EnvInfoProxy.IsInvoicing then
-                    if not "Use for Invoicing" then
-                        Error(UseForInvoicingErr);
-            end;
         }
         field(11; "Last Modified Date Time"; DateTime)
         {
@@ -195,13 +186,7 @@ table 289 "Payment Method"
     end;
 
     trigger OnInsert()
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if EnvInfoProxy.IsInvoicing then
-            if not "Use for Invoicing" then
-                Validate("Use for Invoicing", true);
-
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
@@ -217,7 +202,6 @@ table 289 "Payment Method"
 
     var
         Text1100000: Label '%1 must be set equal to False';
-        UseForInvoicingErr: Label 'The Use for Invoicing property must be set to true in the Invoicing App.';
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var

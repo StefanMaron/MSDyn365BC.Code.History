@@ -541,13 +541,10 @@ codeunit 134163 "Company Init Unit Test"
     var
         ReportSelections: Record "Report Selections";
     begin
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', REPORT::"Sales - Quote");
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', REPORT::"Standard Sales - Quote");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Blanket", '1', REPORT::"Blanket Sales Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', REPORT::"Order Confirmation");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Work Order", '1', REPORT::"Work Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Sales - Invoice");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', REPORT::"Return Order Confirmation");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', REPORT::"Sales - Shipment");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Receipt");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Test", '1', REPORT::"Sales Document - Test");
@@ -854,7 +851,7 @@ codeunit 134163 "Company Init Unit Test"
         Assert.RecordCount(TempApplicationAreaBuffer, 5);
 
         TempApplicationAreaBuffer.SetRange(Selected, false);
-        Assert.RecordCount(TempApplicationAreaBuffer, 31);
+        Assert.RecordCount(TempApplicationAreaBuffer, 32);
     end;
 }
 

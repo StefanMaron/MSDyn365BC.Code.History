@@ -268,6 +268,7 @@ codeunit 134227 "ERM PostRecurringJournal"
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.", DocumentNo);
 
         // [GIVEN] "Amount <> 0" filter applied to Journal
+        Commit();
         RecurringGeneralJournal.OpenEdit;
         RecurringGeneralJournal.FILTER.SetFilter(Amount, '<>0');
 
@@ -1081,6 +1082,43 @@ codeunit 134227 "ERM PostRecurringJournal"
         Assert.ExpectedError(StrSubstNo('Document No. %1 is out of balance', DocumentNo[1]));
         Assert.ExpectedErrorCode('Dialog');
         VerifyGLEntryNotExists(GenJournalBatch.Name);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostRecurringJnlWithExtDocNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        GLAccNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 395652] "External Document No." transferred to G/L entry of the allocation line
+
+        // [GIVEN] Recurring journal line with "External Document No." = "EXT1" and allocation = "ALLOC1" and "ALLOC2"
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 100);
+        GenJournalLine."External Document No." := LibraryUtility.GenerateRandomText(MaxStrLen(GenJournalLine."External Document No."));
+        GenJournalLine.Modify(true);
+
+        GLAccNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccNo[2] := LibraryERM.CreateGLAccountNo();
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccNo[1], 60);
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccNo[2], 40);
+
+        // [WHEN] Post recurring journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] "ALLOC1" GLEntry."External Document No." = "EXT1"
+        GLEntry.SetRange("G/L Account No.", GLAccNo[1]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(GenJournalLine."External Document No.", GLEntry."External Document No.", 'Wrong External Document No. in allocation G/L entry');
+        // [THEN] "ALLOC2" GLEntry."External Document No." = "EXT1"
+        GLEntry.SetRange("G/L Account No.", GLAccNo[2]);
+        GLEntry.FindFirst();
+        Assert.AreEqual(GenJournalLine."External Document No.", GLEntry."External Document No.", 'Wrong External Document No. in allocation G/L entry');
     end;
 
     local procedure Initialize()

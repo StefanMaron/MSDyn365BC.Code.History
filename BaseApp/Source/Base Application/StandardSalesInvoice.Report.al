@@ -503,7 +503,7 @@ report 1306 "Standard Sales - Invoice"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -1132,16 +1132,11 @@ report 1306 "Standard Sales - Invoice"
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
+#if not CLEAN19
                 O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
+#endif                
             begin
-                if EnvInfoProxy.IsInvoicing then begin
-                    "Language Code" := Language.GetUserLanguageCode;
-                    CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                end;
-
-                if not EnvInfoProxy.IsInvoicing then
-                    CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
@@ -1149,9 +1144,10 @@ report 1306 "Standard Sales - Invoice"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
+#if not CLEAN19
                 Clear(PaymentInstructionsTxt);
                 PaymentInstructionsTxt := O365SalesInvoiceMgmt.GetPaymentInstructionsFromPostedInvoice(Header);
-
+#endif
                 ChecksPayableText := StrSubstNo(ChecksPayableLbl, CompanyInfo.Name);
 
                 FormatAddressFields(Header);
@@ -1419,7 +1415,7 @@ report 1306 "Standard Sales - Invoice"
         DisplayAdditionalFeeNote: Boolean;
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
-        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a 2% payment discount.', Comment = '%1 = Discount Due Date %2 = value of Payment Discount % ';
+        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your invoice is attached to this message.';
         AlreadyPaidLbl: Label 'The invoice has been paid.';
         PartiallyPaidLbl: Label 'The invoice has been partially paid. The remaining amount is %1', Comment = '%1=an amount';
@@ -1666,18 +1662,9 @@ report 1306 "Standard Sales - Invoice"
     end;
 
     local procedure ShowVATClause(VATClauseCode: Code[20]): Boolean
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if VATClauseCode = '' then
             exit(false);
-
-        if EnvInfoProxy.IsInvoicing then begin
-            if not VATClause.Get(VATClauseCode) then
-                exit(false);
-            if VATClause.Description = '' then
-                exit(false);
-        end;
 
         exit(true);
     end;

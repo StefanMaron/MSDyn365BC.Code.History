@@ -57,15 +57,15 @@ codeunit 137120 "Non-inventory Item Costing"
         Item.Validate(Inventory, 10000);
         Item.Modify(true);
 
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, Item."No.", true),
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, Item."No.", true),
           1, 1, '');
         AssemblyLine.Validate(Quantity, 1);
         AssemblyLine.Modify();
 
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLineNonInventory, AssemblyLineNonInventory.Type::Item, ItemNonInventory."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLineNonInventory.Type::Item, ItemNonInventory."No.", true),
+          AssemblyHeader, AssemblyLineNonInventory, "BOM Component Type"::Item, ItemNonInventory."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, ItemNonInventory."No.", true),
           1, 1, '');
         AssemblyLineNonInventory.Validate(Quantity, 1);
         AssemblyLineNonInventory.Modify();

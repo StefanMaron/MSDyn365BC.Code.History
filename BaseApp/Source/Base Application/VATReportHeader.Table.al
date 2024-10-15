@@ -17,12 +17,10 @@
                 end;
             end;
         }
-        field(2; "VAT Report Config. Code"; Option)
+        field(2; "VAT Report Config. Code"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Config. Code';
             Editable = true;
-            OptionCaption = 'EC Sales List,VAT Return';
-            OptionMembers = "EC Sales List","VAT Return";
             TableRelation = "VAT Reports Configuration"."VAT Report Type";
 
             trigger OnValidate()

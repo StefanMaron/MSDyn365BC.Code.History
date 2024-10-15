@@ -84,43 +84,6 @@ codeunit 144097 "ERM Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,OrderConfirmationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PaymentDiscountOnOrderConfirmationReport()
-    var
-        Customer: Record Customer;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // Test to verify Payment Discount Amount on Order Confirmation report.
-
-        // Setup.
-        Initialize;
-        LibrarySales.CreateCustomer(Customer);
-        GeneralLedgerSetup.Get();
-        UpdateGeneralLedgerSetup(
-          GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines",
-          GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
-        CreateSalesOrder(SalesLine, Customer."No.", LibraryRandom.RandDec(10, 2));  // Using random for Payment Discount %.
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesOrder.OpenEdit;
-        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
-        SalesHeader.SetRecFilter;
-        Commit();  // commit requires to run report.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // Verify: Verify Payment Discount Amount on Order Confirmation report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(
-          NNCPmtDiscGivenAmountCap, -Round(SalesLine."Line Amount" * SalesHeader."Payment Discount %" / 100));
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler,OrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PaymentDiscountOnOrderReport()
@@ -357,17 +320,23 @@ codeunit 144097 "ERM Reports"
     end;
 
     [Test]
-    [HandlerFunctions('SalesQuoteRequestPageHandler,ConfirmHandlerNo')]
+    [HandlerFunctions('SalesQuoteRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuotePmtMethodTranslation()
     var
+        CompanyInformation: Record "Company Information";
         PaymentMethod: Record "Payment Method";
         PaymentMethodTranslation: Record "Payment Method Translation";
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales] [Quote] [Payment Method Translation]
-        // [SCENARIO 278606] Payment Method is Translated in report "Sales - Quote"
+        // [SCENARIO 278606] Payment Method is Translated in report "Standard Sales - Quote"
         Initialize;
+
+        // [GIVEN] Company Information with "Allow Blank Payment Info."
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
 
         // [GIVEN] Payment Method "CASH" with Description
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -383,43 +352,8 @@ codeunit 144097 "ERM Reports"
         SalesHeader.SetRecFilter;
         Commit();
 
-        // [WHEN] Run report "Sales - Quote"
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
-
-        // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationPmtMethodTranslation()
-    var
-        PaymentMethod: Record "Payment Method";
-        PaymentMethodTranslation: Record "Payment Method Translation";
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Sales] [Order] [Payment Method Translation]
-        // [SCENARIO 278606] Payment Method is Translated in report "Order Confirmation"
-        Initialize;
-
-        // [GIVEN] Payment Method "CASH" with Description
-        LibraryERM.CreatePaymentMethod(PaymentMethod);
-
-        // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
-        PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
-
-        // [GIVEN] Sales Order with Payment Method "CASH" for Customer with Language Code = "DEU"
-        CreateSalesDocumentWithPaymentMethod(
-          SalesHeader, SalesHeader."Document Type"::Order, PaymentMethod.Code,
-          CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
-        SalesHeader.SetRecFilter;
-        Commit();
-
-        // [WHEN] Run report "Order Confirmation"
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
+        // [WHEN] Run report "Standard Sales - Quote"
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
         LibraryReportDataset.LoadDataSetFile;
@@ -927,13 +861,6 @@ codeunit 144097 "ERM Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure OrderConfirmationRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure AgedAccReceivableRequestPageHandler(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
     var
         AgingBy: Option "Due Date","Posting Date","Document Date";
@@ -985,7 +912,7 @@ codeunit 144097 "ERM Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
+    procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

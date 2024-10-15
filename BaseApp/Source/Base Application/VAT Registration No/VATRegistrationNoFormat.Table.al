@@ -1,4 +1,4 @@
-table 381 "VAT Registration No. Format"
+﻿table 381 "VAT Registration No. Format"
 {
     Caption = 'VAT Registration No. Format';
 
@@ -52,12 +52,10 @@ table 381 "VAT Registration No. Format"
         Text1100004: Label 'The first character (T Element) of the number is invalid.';
         Text1100005: Label 'There should not be any alphabetic characters in the mid part of the number.';
         Text1100006: Label 'The control element is not correct.';
-        InvalidVatNumberErr: Label 'Enter a valid VAT number, for example ''GB123456789''.';
 
     procedure Test(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option): Boolean
     var
         CompanyInfo: Record "Company Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -89,11 +87,8 @@ table 381 "VAT Registration No. Format"
                     ValidationCheck := true;
             until Check or (Next() = 0);
 
-        if not Check then begin
-            if EnvInfoProxy.IsInvoicing then
-                Error(InvalidVatNumberErr);
+        if not Check then
             Error(StrSubstNo('%1%2', StrSubstNo(Text000, "Country/Region Code"), StrSubstNo(Text001, TextString)));
-        end;
 
         if ValidationCheck then
             CheckConfirmVATRegNo(VATRegNo);
@@ -117,7 +112,6 @@ table 381 "VAT Registration No. Format"
     local procedure CheckCust(VATRegNo: Text[20]; Number: Code[20]): Boolean
     var
         Cust: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
@@ -139,11 +133,7 @@ table 381 "VAT Registration No. Format"
             Check := false;
             Finish := false;
             repeat
-                if EnvInfoProxy.IsInvoicing then
-                    CustomerIdentification := Cust.Name
-                else
-                    CustomerIdentification := Cust."No.";
-
+                CustomerIdentification := Cust."No.";
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next() = 0) or Finish;
         end;

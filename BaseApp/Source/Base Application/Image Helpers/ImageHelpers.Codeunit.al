@@ -24,14 +24,10 @@ codeunit 4112 "Image Helpers"
     [TryFunction]
     local procedure TryGetImageFormatAsTxt(InStream: InStream; var ImageFormatAsTxt: Text)
     var
-        DotNet_Image: Codeunit DotNet_Image;
-        DotNet_ImageFormatConverter: Codeunit DotNet_ImageFormatConverter;
-        DotNet_ImageFormat: Codeunit DotNet_ImageFormat;
+        Image: Codeunit Image;
     begin
-        DotNet_Image.FromStream(InStream);
-        DotNet_Image.RawFormat(DotNet_ImageFormat);
-        DotNet_ImageFormatConverter.InitImageFormatConverter;
-        ImageFormatAsTxt := DotNet_ImageFormatConverter.ConvertToString(DotNet_ImageFormat);
+        Image.FromStream(InStream);
+        ImageFormatAsTxt := Image.GetFormatAsText();
     end;
 
     procedure GetImageType(InStream: InStream): Text
@@ -45,4 +41,3 @@ codeunit 4112 "Image Helpers"
         exit(ImageFormatAsTxt);
     end;
 }
-

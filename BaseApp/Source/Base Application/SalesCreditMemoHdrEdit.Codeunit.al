@@ -41,8 +41,8 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         then
             exit;
 
-        SIIDocUploadState."Sales Cr. Memo Type" := SalesCrMemoHeader."Cr. Memo Type" + 1;
-        SIIDocUploadState."Sales Special Scheme Code" := SalesCrMemoHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignSalesCreditMemoType(SalesCrMemoHeader."Cr. Memo Type");
+        SIIDocUploadState.AssignSalesSchemeCode(SalesCrMemoHeader."Special Scheme Code");
         SIIDocUploadState.IDType := SalesCrMemoHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesCrMemoHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesCrMemoHeader."Succeeded VAT Registration No.";

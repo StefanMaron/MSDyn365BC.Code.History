@@ -180,6 +180,8 @@ report 699 "Calculate Plan - Req. Wksh."
             Item.CopyFilter("No.", ProductionForecastEntry."Item No.");
             if MfgSetup."Use Forecast on Locations" then
                 Item.CopyFilter("Location Filter", ProductionForecastEntry."Location Code");
+            if MfgSetup."Use Forecast on Variants" then
+                Item.CopyFilter("Variant Filter", ProductionForecastEntry."Variant Code");
             if not ProductionForecastEntry.IsEmpty() then
                 Error(Text005);
         end;

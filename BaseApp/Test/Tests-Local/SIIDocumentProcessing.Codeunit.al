@@ -1023,7 +1023,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsAccepted_Negative()
     var
         SIIHistory: Record "SII History";
-        StatusCollection: array[2] of Option;
+        StatusCollection: array[2] of Enum "SII Document Status";
         i: Integer;
     begin
         // [FEATURE] [Advanced Mark] [UT]
@@ -1048,7 +1048,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsNotAccepted_Negative()
     var
         SIIHistory: Record "SII History";
-        StatusCollection: array[5] of Option;
+        StatusCollection: array[5] of Enum "SII Document Status";
         i: Integer;
     begin
         // [FEATURE] [Advanced Mark] [UT]
@@ -1655,7 +1655,7 @@ codeunit 147522 "SII Document Processing"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ShipReceive, Invoice);
     end;
 
-    local procedure CreateSalesInvoiceWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Option)
+    local procedure CreateSalesInvoiceWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Enum "SII Sales Invoice Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1666,7 +1666,7 @@ codeunit 147522 "SII Document Processing"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesCrMemoWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Option)
+    local procedure CreateSalesCrMemoWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Enum "SII Sales Credit Memo Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1689,7 +1689,7 @@ codeunit 147522 "SII Document Processing"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchInvoiceWithType(var PurchaseHeader: Record "Purchase Header"; SIIDocType: Option)
+    local procedure CreatePurchInvoiceWithType(var PurchaseHeader: Record "Purchase Header"; SIIDocType: Enum "SII Purch. Invoice Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1700,7 +1700,7 @@ codeunit 147522 "SII Document Processing"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchCrMemoWithType(var PurchaseHeader: Record "Purchase Header"; SIIDocType: Option)
+    local procedure CreatePurchCrMemoWithType(var PurchaseHeader: Record "Purchase Header"; SIIDocType: Enum "SII Purch. Credit Memo Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1893,7 +1893,7 @@ codeunit 147522 "SII Document Processing"
         Assert.AreEqual(0, XMLNodeList.Count, StrSubstNo(TagMustNotExistErr, TagName));
     end;
 
-    local procedure VerifyHistoryAndDocUploadValuesAfterMark(DocumentStateId: Integer; ExpectedStatus: Option; ExpectedErrorMessage: Text[250]; ExpectedUploadType: Option; ExpectedRetryAccepted: Boolean)
+    local procedure VerifyHistoryAndDocUploadValuesAfterMark(DocumentStateId: Integer; ExpectedStatus: Enum "SII Document Status"; ExpectedErrorMessage: Text[250]; ExpectedUploadType: Option; ExpectedRetryAccepted: Boolean)
     var
         SIIHistory: Record "SII History";
         SIIDocUploadState: Record "SII Doc. Upload State";

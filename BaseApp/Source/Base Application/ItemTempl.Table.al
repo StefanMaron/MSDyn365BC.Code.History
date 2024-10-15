@@ -65,11 +65,9 @@ table 1382 "Item Templ."
             Caption = 'Unit Price';
             MinValue = 0;
         }
-        field(19; "Price/Profit Calculation"; Option)
+        field(19; "Price/Profit Calculation"; Enum "Item Price Profit Calculation")
         {
             Caption = 'Price/Profit Calculation';
-            OptionCaption = 'Profit=Price-Cost,Price=Cost+Profit,No Relationship';
-            OptionMembers = "Profit=Price-Cost","Price=Cost+Profit","No Relationship";
         }
         field(20; "Profit %"; Decimal)
         {

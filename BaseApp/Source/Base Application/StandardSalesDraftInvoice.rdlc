@@ -7774,6 +7774,9 @@ End Function
         <Field Name="TransHeaderAmountFormat">
           <DataField>TransHeaderAmountFormat</DataField>
         </Field>
+        <Field Name="Unit_Lbl">
+          <DataField>Unit_Lbl</DataField>
+        </Field>
         <Field Name="Qty_Lbl">
           <DataField>Qty_Lbl</DataField>
         </Field>

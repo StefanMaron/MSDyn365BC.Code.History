@@ -182,14 +182,14 @@ codeunit 10756 "SII Management"
     begin
         if SIIManagement.CountryAndVATRegNoAreLocal(CountryCode, VATRegNo) then begin
             if IsNotInAEAT then
-                exit(SIIDocUploadState.IDType::"07-Not On The Census");
+                exit(SIIDocUploadState.IDType::"07-Not On The Census".AsInteger());
             exit(0);
         end;
         if IsIntraCommunity then
-            exit(SIIDocUploadState.IDType::"02-VAT Registration No.");
+            exit(SIIDocUploadState.IDType::"02-VAT Registration No.".AsInteger());
         if IsNotInAEAT then
-            exit(SIIDocUploadState.IDType::"07-Not On The Census");
-        exit(SIIDocUploadState.IDType::"06-Other Probative Document");
+            exit(SIIDocUploadState.IDType::"07-Not On The Census".AsInteger());
+        exit(SIIDocUploadState.IDType::"06-Other Probative Document".AsInteger());
     end;
 
     procedure GetVendFromLedgEntryByGLSetup(VendorLedgerEntry: Record "Vendor Ledger Entry"): Code[20]
@@ -755,15 +755,15 @@ codeunit 10756 "SII Management"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        exit(InvType in [SalesInvoiceHeader."Invoice Type"::"F1 Invoice",
-                         SalesInvoiceHeader."Invoice Type"::"F2 Simplified Invoice",
-                         SalesInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices",
-                         SalesInvoiceHeader."Invoice Type"::"F4 Invoice summary entry",
-                         SalesInvoiceHeader."Invoice Type"::"R1 Corrected Invoice",
-                         SalesInvoiceHeader."Invoice Type"::"R2 Corrected Invoice (Art. 80.3)",
-                         SalesInvoiceHeader."Invoice Type"::"R3 Corrected Invoice (Art. 80.4)",
-                         SalesInvoiceHeader."Invoice Type"::"R4 Corrected Invoice (Other)",
-                         SalesInvoiceHeader."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices"]);
+        exit(InvType in [SalesInvoiceHeader."Invoice Type"::"F1 Invoice".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"F2 Simplified Invoice".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"F4 Invoice summary entry".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"R1 Corrected Invoice".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"R2 Corrected Invoice (Art. 80.3)".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"R3 Corrected Invoice (Art. 80.4)".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"R4 Corrected Invoice (Other)".AsInteger(),
+                         SalesInvoiceHeader."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices".AsInteger()]);
     end;
 
     [Scope('OnPrem')]
@@ -771,10 +771,10 @@ codeunit 10756 "SII Management"
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        exit(InvType in [ServiceInvoiceHeader."Invoice Type"::"F1 Invoice",
-                         ServiceInvoiceHeader."Invoice Type"::"F2 Simplified Invoice",
-                         ServiceInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices",
-                         ServiceInvoiceHeader."Invoice Type"::"F4 Invoice summary entry"]);
+        exit(InvType in [ServiceInvoiceHeader."Invoice Type"::"F1 Invoice".AsInteger(),
+                         ServiceInvoiceHeader."Invoice Type"::"F2 Simplified Invoice".AsInteger(),
+                         ServiceInvoiceHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices".AsInteger(),
+                         ServiceInvoiceHeader."Invoice Type"::"F4 Invoice summary entry".AsInteger()]);
     end;
 
     [Scope('OnPrem')]
@@ -798,22 +798,21 @@ codeunit 10756 "SII Management"
           GetSalesSpecialSchemeCode(ServiceHeader."Bill-to Customer No.", ServiceHeader."VAT Country/Region Code");
     end;
 
-    local procedure GetSalesSpecialSchemeCode(BillToCustomerNo: Code[20]; VATCountryRegionCode: Code[10]): Integer
+    local procedure GetSalesSpecialSchemeCode(BillToCustomerNo: Code[20]; VATCountryRegionCode: Code[10]): Enum "SII Sales Special Scheme Code"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
     begin
         GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."VAT Cash Regime" then
-            exit(SalesHeader."Special Scheme Code"::"07 Special Cash");
+            exit("SII Sales Special Scheme Code"::"07 Special Cash");
         if BillToCustomerNo <> '' then
             if Customer.Get(BillToCustomerNo) then begin
                 if CountryIsLocal(VATCountryRegionCode) or
                    CustomerIsIntraCommunity(Customer."No.")
                 then
-                    exit(SalesHeader."Special Scheme Code"::"01 General");
-                exit(SalesHeader."Special Scheme Code"::"02 Export");
+                    exit("SII Sales Special Scheme Code"::"01 General");
+                exit("SII Sales Special Scheme Code"::"02 Export");
             end;
     end;
 

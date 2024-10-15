@@ -4,11 +4,14 @@ page 16 "Chart of Accounts"
     Caption = 'Chart of Accounts';
     CardPageID = "G/L Account Card";
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Periodic Activities';
+    PromotedActionCategories = 'New,Process,Report,Periodic Activities,Account,Balance';
     QueryCategory = 'Chart of Accounts';
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
     UsageCategory = Lists;
+
+    AboutTitle = 'About the chart of accounts';
+    AboutText = 'The chart of accounts is the core of the financials used to group income and expenses in the income statement and balance sheet. Define indentation levels for a structured overview of your financials. The chart of accounts should reflect how the business is organized.';
 
     layout
     {
@@ -39,6 +42,8 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
+                    AboutTitle = 'What is behind the numbers';
+                    AboutText = 'Tap or click on amounts to drill down and see the underlying entries to learn what is behind the numbers for insight and troubleshooting.';
                     Visible = AmountVisible;
                 }
                 field(Balance; Balance)
@@ -65,6 +70,8 @@ page 16 "Chart of Accounts"
                     Caption = 'Account Subcategory';
                     DrillDown = false;
                     ToolTip = 'Specifies the subcategory of the account category of the G/L account.';
+                    AboutTitle = 'Structure the chart of accounts';
+                    AboutText = 'Group your accounts into categories and subcategories to provide structure to the financial overview.';
                 }
                 field("Account Type"; "Account Type")
                 {
@@ -216,6 +223,12 @@ page 16 "Chart of Accounts"
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default deferral template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
+                field("No. 2"; "No. 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an alternative account number which can be used internally in the company.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -253,9 +266,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = false;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("No.");
                     RunPageView = SORTING("G/L Account No.");
@@ -267,6 +280,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST("G/L Account"),
                                   "No." = FIELD("No.");
@@ -281,6 +297,9 @@ page 16 "Chart of Accounts"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
+                        Promoted = true;
+                        PromotedCategory = Category5;
+                        PromotedOnly = true;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(15),
                                       "No." = FIELD("No.");
@@ -293,6 +312,9 @@ page 16 "Chart of Accounts"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
+                        Promoted = true;
+                        PromotedCategory = Category5;
+                        PromotedOnly = true;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -311,6 +333,9 @@ page 16 "Chart of Accounts"
                         Caption = 'Set Dimension Filter';
                         Ellipsis = true;
                         Image = "Filter";
+                        Promoted = true;
+                        PromotedCategory = Category5;
+                        PromotedOnly = true;
                         ToolTip = 'Limit the entries according to the dimension filters that you specify. NOTE: If you use a high number of dimension combinations, this function may not work and can result in a message that the SQL server only supports a maximum of 2100 parameters.';
 
                         trigger OnAction()
@@ -324,6 +349,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Suite;
                     Caption = 'E&xtended Texts';
                     Image = Text;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
                     RunObject = Page "Extended Text List";
                     RunPageLink = "Table Name" = CONST("G/L Account"),
                                   "No." = FIELD("No.");
@@ -335,6 +363,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Suite;
                     Caption = 'Receivables-Payables';
                     Image = ReceivablesPayables;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
                     RunObject = Page "Receivables-Payables";
                     ToolTip = 'View a summary of the receivables and payables for the account, including customer and vendor balance due amounts.';
                 }
@@ -343,6 +374,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Where-Used List';
                     Image = Track;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedOnly = true;
                     ToolTip = 'Show setup tables where the current account is used.';
 
                     trigger OnAction()
@@ -360,6 +394,9 @@ page 16 "Chart of Accounts"
                 action("G/L &Account Balance")
                 {
                     ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'G/L &Account Balance';
                     Image = GLAccountBalance;
                     RunObject = Page "G/L Account Balance";
@@ -372,6 +409,9 @@ page 16 "Chart of Accounts"
                 action("G/L &Balance")
                 {
                     ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'G/L &Balance';
                     Image = GLBalance;
                     RunObject = Page "G/L Balance";
@@ -384,6 +424,9 @@ page 16 "Chart of Accounts"
                 action("G/L Balance by &Dimension")
                 {
                     ApplicationArea = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'G/L Balance by &Dimension';
                     Image = GLBalanceDimension;
                     RunObject = Page "G/L Balance by Dimension";
@@ -392,6 +435,9 @@ page 16 "Chart of Accounts"
                 action("G/L Account Balance/Bud&get")
                 {
                     ApplicationArea = Suite;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'G/L Account Balance/Bud&get';
                     Image = Period;
                     RunObject = Page "G/L Account Balance/Budget";
@@ -405,6 +451,9 @@ page 16 "Chart of Accounts"
                 action("G/L Balance/B&udget")
                 {
                     ApplicationArea = Suite;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'G/L Balance/B&udget';
                     Image = ChartOfAccounts;
                     RunObject = Page "G/L Balance/Budget";
@@ -418,6 +467,9 @@ page 16 "Chart of Accounts"
                 action("Chart of Accounts &Overview")
                 {
                     ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedOnly = true;
                     Caption = 'Chart of Accounts &Overview';
                     Image = Accounts;
                     RunObject = Page "Chart of Accounts Overview";
@@ -528,6 +580,8 @@ page 16 "Chart of Accounts"
                 PromotedOnly = true;
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View the chart of accounts that have balances and net changes.';
+                AboutTitle = 'Get the financial overview';
+                AboutText = 'With the Trial Balance reports you get the balance sheet, income statement, or the full trial balance.';
             }
             action("Trial Balance by Period")
             {

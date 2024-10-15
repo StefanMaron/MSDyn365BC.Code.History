@@ -468,7 +468,6 @@ report 7000082 "Settle Docs. in Posted PO"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetHidePrintDialog(NewHidePrintDialog: Boolean)
     begin
         HidePrintDialog := NewHidePrintDialog;

@@ -54,6 +54,7 @@
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
@@ -1044,6 +1045,7 @@
         VendorInvoiceDisc.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchaseLineDiscount(ItemNo: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
@@ -1064,6 +1066,35 @@
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
+#else
+    local procedure CreatePurchaseLineDiscount(ItemNo: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10])
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreatePurchDiscountLine(
+            PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, ItemNo);
+        PriceListLine.Validate("Currency Code", CurrencyCode);
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandDec(10, 2));
+        PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLineDiscount("Code": Code[20]; SalesCode: Code[20]; CurrencyCode: Code[10])
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::Customer, SalesCode, "Price Asset Type"::Item, "Code");
+        PriceListLine.Validate("Currency Code", CurrencyCode);
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandDec(10, 2));
+        PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+    end;
+#endif
 
     local procedure CreateCustomerInvoiceAndSalesLineDiscount(ItemNo: Code[20]; ItemNo2: Code[20]; CustomerNo: Code[20])
     var

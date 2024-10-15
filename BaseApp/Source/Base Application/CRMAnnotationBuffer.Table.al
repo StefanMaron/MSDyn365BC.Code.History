@@ -18,12 +18,12 @@ table 5391 "CRM Annotation Buffer"
         field(3; "Related Record ID"; RecordID)
         {
             Caption = 'Related Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5; "Change Type"; Option)
         {

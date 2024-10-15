@@ -16,10 +16,12 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         BackgroundErrorCheckFeatureEnabled: Boolean;
         DummyErr: Label 'Dummy error';
+        TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
         TestFieldEmptyValueErr: Label '%1 must not be empty.', Comment = '%1 - field caption';
         TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
@@ -33,139 +35,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         DimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - dimension code, %2 - account number';
         DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=JournalErrorBackgroundCheck';
         OnBeforeRunCheckTxt: Label 'OnBeforeRunCheck', Locked = true;
-
-    [Test]
-    procedure BackgroundErrorCheckInvisibleIfFeatureIsOff()
-    var
-        GeneralJournalBatches: TestPage "General Journal Batches";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
-    begin
-        Initialize();
-        // [GIVEN] Feature is off
-        BindSubscription(ERMGenJnlErrorHandling);
-
-        // [WHEN] Run "General Journal Batches" page
-        GeneralJournalBatches.Trap();
-        Page.Run(Page::"General Journal Batches");
-
-        // [THEN] BackgroundErrorCheck control should be invisible
-        Assert.IsFalse(
-            GeneralJournalBatches.BackgroundErrorCheck.Visible(), 'BackgroundErrorCheck should be invisible')
-    end;
-
-    [Test]
-    procedure BackgroundErrorCheckVisibleIfFeatureIsOn()
-    var
-        GeneralJournalBatches: TestPage "General Journal Batches";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
-    begin
-        // [FEATURE] [UI]
-        Initialize();
-        // [GIVEN] Feature is on
-        EnableFeature(ERMGenJnlErrorHandling);
-
-        // [WHEN] Run "General Journal Batches" page
-        GeneralJournalBatches.Trap();
-        Page.Run(Page::"General Journal Batches");
-
-        // [THEN] BackgroundErrorCheck control should be invisible and can be modified
-        Assert.IsTrue(
-            GeneralJournalBatches.BackgroundErrorCheck.Visible(), 'BackgroundErrorCheck should be visible');
-        GeneralJournalBatches.BackgroundErrorCheck.SetValue(Format(true));
-    end;
-
-    [Test]
-    procedure BackgroundErrorCheckCannotBeEnabledIfFeatureIsOff()
-    var
-        GeneralJournalBatch: Record "Gen. Journal Batch";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-        // [GIVEN] Feature is off
-        BindSubscription(ERMGenJnlErrorHandling);
-
-        // [WHEN] Set "Background Error Check" to true
-        asserterror GeneralJournalBatch.Validate("Background Error Check", true);
-
-        // [THEN] Error: "Enabled must be 'All Users' in Feature Key"
-        Assert.ExpectedError(DisabledFeatureErr);
-    end;
-
-    [Test]
-    procedure BackgroundErrorCheckCanBeEnabledIfFeatureIsOn()
-    var
-        GeneralJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-        // [GIVEN] Feature is on
-        EnableFeature(ERMGenJnlErrorHandling);
-        // [GIVEN] GeneralJournalBatch, where "Background Error Check" is false
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
-
-        // [WHEN] Set "Background Error Check" to true
-        GeneralJournalBatch.Validate("Background Error Check", true);
-
-        // [THEN] "Background Error Check" is true
-        GeneralJournalBatch.TestField("Background Error Check", true);
-    end;
-
-    [Test]
-    procedure BackgroundErrorCheckCanBeDisabledIfFeatureIsOn()
-    var
-        GeneralJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-        // [GIVEN] Feature is on
-        EnableFeature(ERMGenJnlErrorHandling);
-        // [GIVEN] GeneralJournalBatch, where "Background Error Check" is true
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
-        GeneralJournalBatch."Background Error Check" := true;
-        GeneralJournalBatch.Modify();
-
-        // [WHEN] Set "Background Error Check" to true
-        GeneralJournalBatch.Validate("Background Error Check", false);
-
-        // [THEN] "Background Error Check" is false
-        GeneralJournalBatch.TestField("Background Error Check", false);
-    end;
-
-    [Test]
-    procedure BackgroundErrorCheckClearedIfFeatureIsDisabling()
-    var
-        GeneralJournalBatch: Record "Gen. Journal Batch";
-        FeatureKey: Record "Feature Key";
-        GenJournalTemplate: Record "Gen. Journal Template";
-        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-        // [GIVEN] Feature is on (mock)
-        FeatureKey.ID := JournalErrorsMgt.GetFeatureKey();
-        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-
-        // [GIVEN] GeneralJournalBatch, where "Background Error Check" is true
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
-        GeneralJournalBatch."Background Error Check" := true;
-        GeneralJournalBatch.Modify();
-
-        // [WHEN] Disable the feature 
-        FeatureKey.ID := JournalErrorsMgt.GetFeatureKey();
-        FeatureKey.Validate(Enabled, FeatureKey.Enabled::None);
-
-        // [THEN] "Background Error Check" is false
-        GeneralJournalBatch.Find('=');
-        GeneralJournalBatch.TestField("Background Error Check", false);
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -1568,9 +1437,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         // [SCENARIO 389104] No error should appear when "Force Doc. Balance" = false and lines are balanced only by Date
         Initialize();
 
-        // [GIVEN] Feature is on
-        EnableFeature(ERMGenJnlErrorHandling);
-
         // [GIVEN] General Journal Template, where "Force Doc. Balance" is false
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate("Force Doc. Balance", false);
@@ -1628,6 +1494,440 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GeneralJournal."Account No.".AssertEquals(GenJournalLine."Account No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure GeneralJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournal: TestPage "General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on General Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open General Journal page
+        GeneralJournal.Trap();
+        Page.Run(Page::"General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        GeneralJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure GeneralJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournal: TestPage "General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on General Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open General Journal page
+        GeneralJournal.Trap();
+        Page.Run(Page::"General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        GeneralJournal.PostAndPrint.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure CashReceiptJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Cash Receipt Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Cash Receipt Journal page
+        CashReceiptJournal.Trap();
+        Page.Run(Page::"Cash Receipt Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        CashReceiptJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure CashReceiptJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Cash Receipt Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Cash Receipt Journal page
+        CashReceiptJournal.Trap();
+        Page.Run(Page::"Cash Receipt Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        CashReceiptJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure FixedAssetGLJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Fixed Asset G/L Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Fixed Asset G/L Journal page
+        FixedAssetGLJournal.Trap();
+        Page.Run(Page::"Fixed Asset G/L Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        FixedAssetGLJournal."P&ost".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure FixedAssetGLJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Fixed Asset G/L Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Fixed Asset G/L Journal page
+        FixedAssetGLJournal.Trap();
+        Page.Run(Page::"Fixed Asset G/L Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        FixedAssetGLJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure JobGLJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        JobGLJournal: TestPage "Job G/L Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Job G/L Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Job G/L Journal page
+        JobGLJournal.Trap();
+        Page.Run(Page::"Job G/L Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        JobGLJournal."P&ost".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure JobGLJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        JobGLJournal: TestPage "Job G/L Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Job G/L Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Job G/L Journal page
+        JobGLJournal.Trap();
+        Page.Run(Page::"Job G/L Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        JobGLJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PaymentJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Payment Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Payment Journal page
+        PaymentJournal.Trap();
+        Page.Run(Page::"Payment Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        PaymentJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PaymentJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Payment Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Payment Journal page
+        PaymentJournal.Trap();
+        Page.Run(Page::"Payment Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        PaymentJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PurchaseJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournal: TestPage "Purchase Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Purchase Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Purchase Journal page
+        PurchaseJournal.Trap();
+        Page.Run(Page::"Purchase Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        PurchaseJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PurchaseJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournal: TestPage "Purchase Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Purchase Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Purchase Journal page
+        PurchaseJournal.Trap();
+        Page.Run(Page::"Purchase Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        PurchaseJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure SalesJournalCatchErrorPost()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesJournal: TestPage "Sales Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on Sales Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Sales Journal page
+        SalesJournal.Trap();
+        Page.Run(Page::"Sales Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        SalesJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure SalesJournalCatchErrorPostPrint()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesJournal: TestPage "Sales Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post and Print on Sales Journal page for customer with empty Receivable Account of customer posting group opens Error Messages page
+        Initialize();
+
+        // [GIVEN] Gen. journal line for Customer with empty Receivables Account of customer posting group
+        CreateCustomerEmptyRecAccGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Open Sales Journal page
+        SalesJournal.Trap();
+        Page.Run(Page::"Sales Journal", GenJournalLine);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post and Print is being selected
+        SalesJournal."Post and &Print".Invoke();
+
+        // [THEN] Error Messages page opened with error "Receivables Account is missing ..."
+        VerifyRecievablesAccountError(ErrorMessages.Description.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure GeneralJournalCatchCheckPostError()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        GeneralJournal: TestPage "General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UI] [Post] [Order]
+        // [SCENARIO 395037] Action Post on General Journal page opens Error Messages page for errors from "Gen. Jnl. Check Line" codeunit
+        Initialize();
+
+        // [GIVEN] Create general journal template "T" and batch "B"
+        CreateGenJournalTemplateBatch(GenJournalBatch, "Gen. Journal Template Type"::General, Page::"General Journal");
+        // [GIVEN] Create journal line 1 with no errors
+        CrateJournalLineWithBalanceAccount(GenJournalBatch, GenJournalLine[1]);
+
+        // [GIVEN] Create journal line 2 with empty "Document No."
+        CrateJournalLineWithBalanceAccount(GenJournalBatch, GenJournalLine[2]);
+        GenJournalLine[2]."Document No." := '';
+        GenJournalLine[2].Modify();
+
+        // [GIVEN] Create journal line 3 with no errors
+        CrateJournalLineWithBalanceAccount(GenJournalBatch, GenJournalLine[3]);
+
+        // [GIVEN] Open General Journal for template "T" and batch "B"
+        GeneralJournal.Trap();
+        Page.Run(Page::"General Journal", GenJournalLine[1]);
+        ErrorMessages.Trap();
+
+        // [WHEN] Action Post is being selected
+        GeneralJournal.Post.Invoke();
+
+        // [THEN] Error Messages page opened with error "Document No. must have a value" and context of gen. journal line 2
+        Assert.ExpectedMessage(
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine[2].FieldCaption("Document No.")),
+            ErrorMessages.Description.Value);
+        Assert.AreEqual(Format(GenJournalLine[2].RecordId), ErrorMessages.Context.Value, 'Invalid context');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1642,17 +1942,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
-    end;
-
-    procedure EnableFeature()
-    begin
-        BackgroundErrorCheckFeatureEnabled := true;
-    end;
-
-    local procedure EnableFeature(var ERMGenJnlErrorHandling: codeunit "ERM Gen. Jnl. Error Handling")
-    begin
-        BindSubscription(ERMGenJnlErrorHandling);
-        ERMGenJnlErrorHandling.EnableFeature();
     end;
 
     local procedure ClearAmountAndDocumentNo(var GenJournalLine: Record "Gen. Journal Line")
@@ -1761,9 +2050,17 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         end;
     end;
 
+    local procedure CrateJournalLineWithBalanceAccount(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            LibraryRandom.RandDec(100, 2));
+    end;
+
     local procedure CreateEmptyDocGenJournalLineForTemplate(var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Enum "Gen. Journal Template Type"; PageId: Integer)
     var
-        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         CreateGenJournalTemplateBatch(GenJournalBatch, TemplateType, PageId);
@@ -1821,6 +2118,35 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         GenJournalBatch."Background Error Check" := true;
         GenJournalBatch.Modify();
+    end;
+
+    local procedure CreateCustomerWithEmptyReceivableAccount(var Customer: Record Customer)
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        CustomerPostingGroup."Receivables Account" := '';
+        CustomerPostingGroup.Modify();
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerEmptyRecAccGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: Record Customer;
+        i: Integer;
+    begin
+        CreateCustomerWithEmptyReceivableAccount(Customer);
+        CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalBatch.Modify();
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure GetNumberOfLines(var GenJournalLine: Record "Gen. Journal Line"): Integer
@@ -1911,6 +2237,13 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         ErrorHandlingParameters."Line Modified" := LineModified;
     end;
 
+    local procedure VerifyRecievablesAccountError(Description: Text)
+    var
+        DummyCustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Assert.ExpectedMessage(DummyCustomerPostingGroup.FieldCaption("Receivables Account"), Description);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure OnAfterCheckGenJnlLineExtendingGenJnlCheckLine(var GenJournalLine: Record "Gen. Journal Line")
     var
@@ -1945,4 +2278,12 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     begin
         Result := BackgroundErrorCheckFeatureEnabled;
     end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
 }

@@ -296,7 +296,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         end;
     end;
 
-    local procedure VerifyCard(Type: Option; No: Code[20])
+    local procedure VerifyCard(Type: Enum "BOM Component Type"; No: Code[20])
     var
         StdCostWorksheet: Record "Standard Cost Worksheet";
         Item: Record Item;
@@ -474,7 +474,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         exit(Round(TreeCost * (1 + Item."Indirect Cost %" / 100) + Item."Overhead Rate", RoundingPrecision));
     end;
 
-    local procedure GetCostInformation(Type: Option; No: Code[20]; var UnitCost: Decimal; var Overhead: Decimal; var IndirectCost: Decimal)
+    local procedure GetCostInformation(Type: Enum "BOM Component Type"; No: Code[20]; var UnitCost: Decimal; var Overhead: Decimal; var IndirectCost: Decimal)
     begin
         LibraryAssembly.GetCostInformation(UnitCost, Overhead, IndirectCost, Type, No, '', '');
         if ((No = GLBDirectResourceNo) and (Type = BOMComponent.Type::Resource)) or

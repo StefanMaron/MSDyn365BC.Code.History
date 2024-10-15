@@ -58,6 +58,7 @@ codeunit 144076 "ERM Payment Discount"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
@@ -776,6 +777,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; LineDiscountPct: Decimal)
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
@@ -785,6 +787,20 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLineDiscount.Validate("Line Discount %", LineDiscountPct);
         PurchaseLineDiscount.Modify(true);
     end;
+#else
+    local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; LineDiscountPct: Decimal)
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreatePurchDiscountLine(
+            PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.Validate("Line Discount %", LineDiscountPct);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+    end;
+#endif
 
     local procedure CreatePurchaseOrderWithItemCharge(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; PaymentDiscountPct: Decimal; DiscountPct: Decimal; LineDiscountPct: Decimal)
     var

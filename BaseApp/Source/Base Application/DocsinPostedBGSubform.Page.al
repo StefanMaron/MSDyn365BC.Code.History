@@ -408,7 +408,7 @@ page 7000005 "Docs. in Posted BG Subform"
             until PostedDoc.Next() = 0;
             SalesInvHeader.MarkedOnly(true);
             CurrPage.Update(false);
-            REPORT.RunModal(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
+            REPORT.RunModal(REPORT::"Standard Sales - Invoice", true, false, SalesInvHeader);
         end;
     end;
 

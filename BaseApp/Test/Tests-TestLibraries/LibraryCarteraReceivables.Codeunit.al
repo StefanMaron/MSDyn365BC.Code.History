@@ -286,7 +286,7 @@ codeunit 143020 "Library - Cartera Receivables"
         GLEntry.FindFirst;
     end;
 
-    procedure FindDetailedCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type")
+    procedure FindDetailedCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);

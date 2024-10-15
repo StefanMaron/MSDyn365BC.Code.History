@@ -2517,7 +2517,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [THEN] No "sii:CuotaSoportada" xml node present in the xml file
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:CuotaSoportada');
     end;
-    
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2657,15 +2657,15 @@ codeunit 147524 "SII Documents No Taxable"
 
     local procedure PostPurchInvWithNoTaxableVAT(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
-        PostCustomPurchInv(VendLedgEntry, 0);
+        PostCustomPurchInv(VendLedgEntry, "SII Purch. Special Scheme Code"::"01 General");
     end;
 
-    local procedure PostPurchInvWithNoTaxableVATAndSpecialSchemeCode(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Option)
+    local procedure PostPurchInvWithNoTaxableVATAndSpecialSchemeCode(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Enum "SII Purch. Special Scheme Code")
     begin
         PostCustomPurchInv(VendLedgEntry, SpecialSchemeCode);
     end;
 
-    local procedure PostCustomPurchInv(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Option)
+    local procedure PostCustomPurchInv(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Enum "SII Purch. Special Scheme Code")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         PurchHeader: Record "Purchase Header";

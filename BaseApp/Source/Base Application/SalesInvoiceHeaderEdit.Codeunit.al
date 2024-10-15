@@ -40,8 +40,8 @@ codeunit 10765 "Sales Invoice Header - Edit"
         then
             exit;
 
-        SIIDocUploadState."Sales Invoice Type" := SalesInvoiceHeader."Invoice Type" + 1;
-        SIIDocUploadState."Sales Special Scheme Code" := SalesInvoiceHeader."Special Scheme Code" + 1;
+        SIIDocUploadState.AssignSalesInvoiceType(SalesInvoiceHeader."Invoice Type");
+        SIIDocUploadState.AssignSalesSchemeCode(SalesInvoiceHeader."Special Scheme Code");
         SIIDocUploadState.IDType := SalesInvoiceHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesInvoiceHeader."Succeeded VAT Registration No.";

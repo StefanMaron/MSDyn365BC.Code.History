@@ -556,6 +556,26 @@ page 5200 "Employee Card"
                     end;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this employee.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Employee, Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(Processing)
         {
@@ -594,13 +614,38 @@ page 5200 "Employee Card"
                     end;
                 }
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this employee.';
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::Employee, Rec.SystemId);
+                    if Rec."Company E-Mail" <> '' then
+                        TempEmailitem."Send to" := Rec."Company E-Mail"
+                    else
+                        TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
     }
 
     trigger OnOpenPage()
+    var
+        EmailFeature: Codeunit "Email Feature";
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -636,6 +681,7 @@ page 5200 "Employee Card"
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

@@ -76,7 +76,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure MockHistoryEntry(var SIIHistory: Record "SII History"; NewStatus: Option)
+    procedure MockHistoryEntry(var SIIHistory: Record "SII History"; NewStatus: Enum "SII Document Status")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         DocumentNo: Code[20];

@@ -49,7 +49,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         AssertError SIISalesDocumentSchemeCode.Insert(True);
         Assert.ExpectedError(CannotInsertMoreThanThreeCodesErr);
     end;
-	
+
     [Test]
     [Scope('OnPrem')]
     procedure UT_NotAllowedToHaveMoreThanThreePurchRegimeCodes()
@@ -71,7 +71,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         AssertError SIIPurchDocSchemeCode.Insert(True);
         Assert.ExpectedError(CannotInsertMoreThanThreeCodesErr);
     end;
-	
+
     [Test]
     [HandlerFunctions('SalesDocSchemeCodesModalPageHandler')]
     [Scope('OnPrem')]
@@ -1606,7 +1606,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SII Special Scheme Code Tests");
     end;
 
-    local procedure PostSalesDocWithMultipleRegimeCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithMultipleRegimeCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesHeader: Record "Sales Header";
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -1624,7 +1624,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithMultipleRegimeCodes(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostPurchDocWithMultipleRegimeCodes(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
@@ -1641,7 +1641,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServiceDocWithMultipleRegimeCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostServiceDocWithMultipleRegimeCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Service Document Type"; CorrType: Option)
     var
         ServiceHeader: Record "Service Header";
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -1660,7 +1660,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         FindPostedCustLedgEntry(CustLedgerEntry, ServiceHeader."Bill-to Customer No.");
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrType: Option)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Correction Type", CorrType);
@@ -1668,7 +1668,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, LibraryInventory.CreateItemNo());
     end;
 
-    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option; CorrType: Option)
+    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Correction Type", CorrType);
@@ -1676,7 +1676,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         LibrarySII.CreatePurchLineWithUnitCost(PurchaseHeader, LibraryInventory.CreateItemNo());
     end;
 
-    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocType: Option)
+    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
@@ -1691,21 +1691,21 @@ codeunit 147562 "SII Special Scheme Code Tests"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetupWithSalesSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Option): Code[20]
+    local procedure CreateVATPostingSetupWithSalesSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Enum "SII Sales Upload Scheme Code"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         exit(CreateVATPostingSetup(VATBusPostGroupCode, SpecialSchemeCode, VATPostingSetup."Purch. Special Scheme Code"::" "));
     end;
 
-    local procedure CreateVATPostingSetupWithPurchSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Option): Code[20]
+    local procedure CreateVATPostingSetupWithPurchSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Enum "SII Purch. Upload Scheme Code"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         exit(CreateVATPostingSetup(VATBusPostGroupCode, VATPostingSetup."Sales Special Scheme Code"::" ", SpecialSchemeCode));
     end;
 
-    local procedure CreateVATPostingSetup(VATBusPostGroupCode: Code[20]; SalesSpecialSchemeCode: Option; PurchSpecialSchemeCode: Option): Code[20]
+    local procedure CreateVATPostingSetup(VATBusPostGroupCode: Code[20]; SalesSpecialSchemeCode: Enum "SII Sales Upload Scheme Code"; PurchSpecialSchemeCode: Enum "SII Purch. Upload Scheme Code"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -1744,7 +1744,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SchemeCode[3] := SIIPurchDocSchemeCode."Special Scheme Code"::"03 Special System";
     end;
 
-    local procedure InsertSIISalesDocSpecialSchemeCode(var SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code"; EntryType: Option; DocType: Option; DocNo: Code[20]; SpecialSchemeCode: Option)
+    local procedure InsertSIISalesDocSpecialSchemeCode(var SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code"; EntryType: Option; DocType: Enum "Sales Document Type"; DocNo: Code[20]; SpecialSchemeCode: Option)
     begin
         SIISalesDocumentSchemeCode.Init();
         SIISalesDocumentSchemeCode.Validate("Entry Type", EntryType);
@@ -1754,7 +1754,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.Insert(true);
     end;
 
-    local procedure InsertSIIPurchDocSpecialSchemeCode(var SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code"; DocType: Option; DocNo: Code[20]; SpecialSchemeCode: Option)
+    local procedure InsertSIIPurchDocSpecialSchemeCode(var SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code"; DocType: Enum "Purchase Document Type"; DocNo: Code[20]; SpecialSchemeCode: Option)
     begin
         SIIPurchDocSchemeCode.Init();
         SIIPurchDocSchemeCode.Validate("Document Type", DocType);

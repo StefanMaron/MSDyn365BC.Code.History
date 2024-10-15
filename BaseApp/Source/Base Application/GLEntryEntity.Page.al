@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5484 "G/L Entry Entity"
 {
     Caption = 'generalLedgerEntries', Locked = true;
@@ -101,4 +102,4 @@ page 5484 "G/L Entry Entity"
         DimensionsJSON := GraphMgtComplexTypes.GetDimensionsJSON("Dimension Set ID");
     end;
 }
-
+#endif

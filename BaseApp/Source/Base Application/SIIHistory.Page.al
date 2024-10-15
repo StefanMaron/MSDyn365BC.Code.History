@@ -451,7 +451,7 @@ page 10752 "SII History"
         SIIManagement: Codeunit "SII Management";
     begin
         RecordsFound := true;
-        StyleText := SIIManagement.GetSIIStyle(Status);
+        StyleText := SIIManagement.GetSIIStyle(Status.AsInteger());
         SIIDocUploadState.Get("Document State Id");
     end;
 

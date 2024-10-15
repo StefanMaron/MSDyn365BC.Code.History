@@ -41,7 +41,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [GIVEN] Customer Ledger Entry Created with Amount = 120
         PostSalesDocWithInvOrCrMemoType(
-          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0, SalesHeader."Invoice Type"::"F2 Simplified Invoice", 0);
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0, SalesHeader."Invoice Type"::"F2 Simplified Invoice",
+          "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -74,7 +75,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0,
-          SalesHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices", 0);
+          SalesHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices",
+          "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -105,7 +107,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
 
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F4 Invoice summary entry"
         PostSalesDocWithInvOrCrMemoType(
-          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0, SalesHeader."Invoice Type"::"F4 Invoice summary entry", 0);
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0,
+          SalesHeader."Invoice Type"::"F4 Invoice summary entry", "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -140,7 +143,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
 
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Difference,
-          0, SalesHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -170,7 +173,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Credit Memo type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Difference,
-          0, SalesHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -199,7 +202,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Credit Memo type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Difference,
-          0, SalesHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -230,7 +233,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Customer Ledger Entry Created with Amount = -120
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement,
-          0, SalesHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -263,7 +266,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Credit Memo type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement,
-          0, SalesHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -292,7 +295,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Sales Credit Memo type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement,
-          0, SalesHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -323,7 +326,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [GIVEN] Vendor Ledger Entry Created with Amount = 120
         PostPurchDocWithInvOrCrMemoType(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F2 Simplified Invoice", 0);
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0,
+          "SII Purch. Invoice Type"::"F2 Simplified Invoice", "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -356,7 +360,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0,
-          PurchaseHeader."Invoice Type"::"F3 Invoice issued to replace simplified invoices", 0);
+          "SII Purch. Invoice Type"::"F3 Invoice issued to replace simplified invoices",
+          "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -387,7 +392,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F4 Invoice summary entry"
         PostPurchDocWithInvOrCrMemoType(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F4 Invoice summary entry", 0);
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F4 Invoice summary entry",
+          "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -417,7 +423,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)"
         PostPurchDocWithInvOrCrMemoType(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F5 Imports (DUA)", 0);
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F5 Imports (DUA)",
+          "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -444,7 +451,8 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)"
         PostPurchDocWithInvOrCrMemoType(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F6 Accounting support material", 0);
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0,
+          PurchaseHeader."Invoice Type"::"F6 Accounting support material", "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -475,7 +483,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Vendor Ledger Entry Created with Amount = -120
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Difference,
-          0, PurchaseHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -508,7 +516,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Credit Memo type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Difference,
-          0, PurchaseHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -537,7 +545,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Credit Memo type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Difference,
-          0, PurchaseHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R4 Corrected Invoice (Other)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -569,7 +577,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Vendor Ledger Entry Created with Amount = -120
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Replacement,
-          0, PurchaseHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R2 Corrected Invoice (Art. 80.3)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -602,7 +610,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Credit Memo type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Replacement,
-          0, PurchaseHeader."Cr. Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R3 Corrected Invoice (Art. 80.4)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -631,7 +639,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Credit Memo type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Replacement,
-          0, PurchaseHeader."Cr. Memo Type"::"R4 Corrected Invoice (Other)");
+          "SII Purch. Invoice Type"::"F1 Invoice", "SII Purch. Credit Memo Type"::"R4 Corrected Invoice (Other)");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -660,7 +668,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "Customs - Complementary Liquidation"
         PostPurchDocWithInvOrCrMemoType(
           VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0,
-          PurchaseHeader."Invoice Type"::"Customs - Complementary Liquidation", 0);
+          PurchaseHeader."Invoice Type"::"Customs - Complementary Liquidation", "SII Purch. Credit Memo Type"::"R1 Corrected Invoice");
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -680,7 +688,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
+    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type"; CrMemoType: Enum "SII Sales Credit Memo Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -697,7 +705,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
+    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; InvoiceType: Enum "SII Purch. Invoice Type"; CrMemoType: Enum "SII Purch. Credit Memo Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

@@ -19,11 +19,13 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTemplates: Codeunit "Library - Templates";
         DocCannotBeMadeOrderErr: Label '%1 %2 must be approved and released before you can perform this action.', Comment = '%1 = PurchHeader."Document Type", %2 = PurchHeader."No."';
         DocCannotBeReleasedErr: Label 'This document can only be released when the approval process is complete.';
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.';
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+
         NoWorkflowEnabledErr: Label 'No approval workflow for this record type is enabled.';
         ApprovalRequestSendMsg: Label 'An approval request has been sent.';
         RecordIsRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1=Record Id';
@@ -808,6 +810,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
+        LibraryTemplates.EnableTemplatesFeature();
     end;
 
     local procedure CreateSalesQuote(var SalesHeader: Record "Sales Header")
@@ -830,24 +833,24 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
     local procedure CreateSalesQuoteWithCustomerTemplateCode(var SalesHeader: Record "Sales Header")
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         CreateVATPostingSetup(VATPostingSetup);
         CreateCustomerTemplate(CustomerTemplate, VATPostingSetup."VAT Bus. Posting Group");
-        CreateSalesHeaderWithContact(SalesHeader, LibraryMarketing.CreateCompanyContactNo, CustomerTemplate.Code);
+        CreateSalesHeaderWithContact2(SalesHeader, LibraryMarketing.CreateCompanyContactNo, CustomerTemplate.Code);
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Modify(true);
         CreateSalesLineWithVATProdPostingGroup(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group", 1);
     end;
 
-    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template"; VATBusinessPostingGroupCode: Code[20])
+    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Templ."; VATBusinessPostingGroupCode: Code[20])
     var
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
@@ -866,12 +869,24 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by CreateSalesHeaderWithContact2()', '19.0')]
     [Scope('OnPrem')]
     procedure CreateSalesHeaderWithContact(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
     begin
         SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
+        SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
+        SalesHeader.Modify(true);
+    end;
+#endif
+
+    local procedure CreateSalesHeaderWithContact2(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[20])
+    begin
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer Templ. Code", SellToCustomerTemplateCode);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
         SalesHeader.Modify(true);
     end;

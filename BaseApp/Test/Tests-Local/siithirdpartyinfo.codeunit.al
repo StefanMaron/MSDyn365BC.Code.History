@@ -434,7 +434,7 @@ codeunit 147561 "SII Third Party Info"
         IsInitialized := true;
     end;
 
-    local procedure SetBillToSellToVATCalcInGenLedgSetup(NewBillToSellToVATCalcType: Option)
+    local procedure SetBillToSellToVATCalcInGenLedgSetup(NewBillToSellToVATCalcType: Enum "G/L Setup VAT Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin

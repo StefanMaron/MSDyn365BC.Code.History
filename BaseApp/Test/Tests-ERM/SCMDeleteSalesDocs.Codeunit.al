@@ -313,7 +313,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesInvReportHandler(var SalesInvoice: Report "Sales - Invoice")
+    procedure SalesInvReportHandler(var SalesInvoice: Report "Standard Sales - Invoice")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         FilePath: Text;
@@ -326,7 +326,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Sales - Credit Memo")
+    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Standard Sales - Credit Memo")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         FilePath: Text;

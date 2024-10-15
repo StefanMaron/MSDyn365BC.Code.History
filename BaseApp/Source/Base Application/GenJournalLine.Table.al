@@ -34,7 +34,8 @@
                     Error(OnlyLocalCurrencyForEmployeeErr);
 
                 Validate("Account No.", '');
-                Validate(Description, '');
+                if not "Keep Description" then
+                    Validate(Description, '');
                 Validate("IC Partner G/L Acc. No.", '');
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account", "Account Type"::Employee] then begin
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
@@ -1741,7 +1742,7 @@
                         "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                         case "Bal. VAT Calculation Type" of
                             "Bal. VAT Calculation Type"::"Normal VAT",
-                            "Bal. VAT Calculation Type"::"No Taxable VAT":
+                          "Bal. VAT Calculation Type"::"No Taxable VAT":
                                 "Bal. VAT %" := VATPostingSetup."VAT+EC %";
                             "Bal. VAT Calculation Type"::"Full VAT":
                                 case "Bal. Gen. Posting Type" of
@@ -2012,6 +2013,11 @@
         field(173; "Applies-to Ext. Doc. No."; Code[35])
         {
             Caption = 'Applies-to Ext. Doc. No.';
+        }
+        field(180; "Keep Description"; Boolean)
+        {
+            Caption = 'Keep Description';
+            Editable = false;
         }
         field(288; "Recipient Bank Account"; Code[20])
         {
@@ -2395,6 +2401,16 @@
         field(1224; "Applied Automatically"; Boolean)
         {
             Caption = 'Applied Automatically';
+        }
+        field(1300; "Linked Table ID"; Integer)
+        {
+            Caption = 'Linked Table ID';
+            Editable = false;
+        }
+        field(1301; "Linked System ID"; Guid)
+        {
+            Caption = 'Linked System ID';
+            Editable = false;
         }
         field(1700; "Deferral Code"; Code[10])
         {
@@ -2806,89 +2822,77 @@
             OptionCaption = 'National,International,Special';
             OptionMembers = National,International,Special;
         }
-        field(10709; "Sales Invoice Type"; Option)
+        field(10709; "Sales Invoice Type"; Enum "SII Sales Invoice Type")
         {
             Caption = 'Sales Invoice Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry";
 
             trigger OnValidate()
             begin
-                if "Sales Invoice Type" <> 0 then begin
+                if "Sales Invoice Type" <> "Sales Invoice Type"::"F1 Invoice" then begin
                     CheckAccAndBalAccType("Account Type"::Customer);
                     TestField("Document Type", "Document Type"::Invoice);
                 end;
             end;
         }
-        field(10710; "Sales Cr. Memo Type"; Option)
+        field(10710; "Sales Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
         {
             Caption = 'Sales Cr. Memo Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice';
-            OptionMembers = "R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice";
 
             trigger OnValidate()
             begin
-                if "Sales Cr. Memo Type" <> 0 then begin
+                if "Sales Cr. Memo Type" <> "Sales Cr. Memo Type"::"R1 Corrected Invoice" then begin
                     CheckAccAndBalAccType("Account Type"::Customer);
                     TestField("Document Type", "Document Type"::"Credit Memo");
                 end;
             end;
         }
-        field(10711; "Sales Special Scheme Code"; Option)
+        field(10711; "Sales Special Scheme Code"; Enum "SII Sales Special Scheme Code")
         {
             Caption = 'Sales Special Scheme Code';
             DataClassification = CustomerContent;
-            OptionCaption = '01 General,02 Export,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Travel Agency Services,10 Third Party,11 Business Withholding,12 Business not Withholding,13 Business Withholding and not Withholding,14 Invoice Work Certification,15 Invoice of Consecutive Nature,16 First Half 2017';
-            OptionMembers = "01 General","02 Export","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Travel Agency Services","10 Third Party","11 Business Withholding","12 Business not Withholding","13 Business Withholding and not Withholding","14 Invoice Work Certification","15 Invoice of Consecutive Nature","16 First Half 2017";
 
             trigger OnValidate()
             begin
-                if "Sales Special Scheme Code" <> 0 then
+                if "Sales Special Scheme Code" <> "Sales Special Scheme Code"::"01 General" then
                     CheckAccAndBalAccType("Account Type"::Customer);
             end;
         }
-        field(10712; "Purch. Invoice Type"; Option)
+        field(10712; "Purch. Invoice Type"; Enum "SII Purch. Invoice Type")
         {
             Caption = 'Purch. Invoice Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation";
 
             trigger OnValidate()
             begin
-                if "Purch. Invoice Type" <> 0 then begin
+                if "Purch. Invoice Type" <> "Purch. Invoice Type"::"F1 Invoice" then begin
                     CheckAccAndBalAccType("Account Type"::Vendor);
                     TestField("Document Type", "Document Type"::Invoice);
                 end;
             end;
         }
-        field(10713; "Purch. Cr. Memo Type"; Option)
+        field(10713; "Purch. Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
         {
             Caption = 'Purch. Cr. Memo Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice';
-            OptionMembers = "R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice";
 
             trigger OnValidate()
             begin
-                if "Purch. Cr. Memo Type" <> 0 then begin
+                if "Purch. Cr. Memo Type" <> "Purch. Cr. Memo Type"::"R1 Corrected Invoice" then begin
                     CheckAccAndBalAccType("Account Type"::Vendor);
                     TestField("Document Type", "Document Type"::"Credit Memo");
                 end;
             end;
         }
-        field(10714; "Purch. Special Scheme Code"; Option)
+        field(10714; "Purch. Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
         {
             Caption = 'Purch. Special Scheme Code';
             DataClassification = CustomerContent;
-            OptionCaption = '01 General,02 Special System Activities,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Intra-Community Acquisition,12 Business Premises Leasing Operations,13 Import (Without DUA),14 First Half 2017';
-            OptionMembers = "01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
 
             trigger OnValidate()
             begin
-                if "Purch. Special Scheme Code" <> 0 then
+                if "Purch. Special Scheme Code" <> "Purch. Special Scheme Code"::"01 General" then
                     CheckAccAndBalAccType("Account Type"::Vendor);
             end;
         }
@@ -2953,11 +2957,9 @@
         {
             Caption = 'Succeeded VAT Registration No.';
         }
-        field(10722; "ID Type"; Option)
+        field(10722; "ID Type"; Enum "SII ID Type")
         {
             Caption = 'ID Type';
-            OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
-            OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
         field(7000000; "Bill No."; Code[20])
         {
@@ -3363,7 +3365,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckAccountTypeOnJobValidation(IsHandled);
+        OnBeforeCheckAccountTypeOnJobValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -3557,6 +3559,7 @@
                 begin
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
+                    OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(GenJnlLine2, AccNo, VendLedgEntry);
                     if VendLedgEntry.FindSet then
                         repeat
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
@@ -5072,6 +5075,30 @@
         exit(PaymentJnlExportErrorText.JnlBatchHasErrors(Rec));
     end;
 
+    local procedure UpdateDescriptionFromBalAccount(Name: Text[100])
+    begin
+        if not IsAdHocBalAccDescription() then
+            Description := Name;
+    end;
+
+    local procedure IsAdHocBalAccDescription() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsAdHocBalAccDescription(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if "Keep Description" then
+            exit(true);
+
+        if "Account No." <> '' then
+            exit(true);
+
+        exit(false);
+    end;
+
     local procedure UpdateDescription(Name: Text[100])
     begin
         if not IsAdHocDescription then
@@ -5097,6 +5124,9 @@
         if Description = '' then
             exit(false);
         if xRec."Account No." = '' then
+            exit(true);
+
+        if "Keep Description" then
             exit(true);
 
         case xRec."Account Type" of
@@ -5698,53 +5728,25 @@
         OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAlloc, Rec);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLine(Rec)', '19.0')]
     procedure CopyFromInvoicePostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account No." := InvoicePostBuffer."G/L Account";
-        "System-Created Entry" := InvoicePostBuffer."System-Created Entry";
-        "Gen. Bus. Posting Group" := InvoicePostBuffer."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := InvoicePostBuffer."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := InvoicePostBuffer."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := InvoicePostBuffer."VAT Prod. Posting Group";
-        "Tax Area Code" := InvoicePostBuffer."Tax Area Code";
-        "Tax Liable" := InvoicePostBuffer."Tax Liable";
-        "Tax Group Code" := InvoicePostBuffer."Tax Group Code";
-        "Use Tax" := InvoicePostBuffer."Use Tax";
-        Quantity := InvoicePostBuffer.Quantity;
-        "VAT %" := InvoicePostBuffer."VAT %";
-        "VAT Calculation Type" := InvoicePostBuffer."VAT Calculation Type";
-        "VAT Posting" := "VAT Posting"::"Manual VAT Entry";
-        "Job No." := InvoicePostBuffer."Job No.";
-        "Deferral Code" := InvoicePostBuffer."Deferral Code";
-        "Deferral Line No." := InvoicePostBuffer."Deferral Line No.";
-        Amount := InvoicePostBuffer.Amount;
-        "Source Currency Amount" := InvoicePostBuffer."Amount (ACY)";
-        "VAT Base Amount" := InvoicePostBuffer."VAT Base Amount";
-        "Source Curr. VAT Base Amount" := InvoicePostBuffer."VAT Base Amount (ACY)";
-        "VAT Amount" := InvoicePostBuffer."VAT Amount";
-        "Source Curr. VAT Amount" := InvoicePostBuffer."VAT Amount (ACY)";
-        "VAT Difference" := InvoicePostBuffer."VAT Difference";
-        "VAT Base Before Pmt. Disc." := InvoicePostBuffer."VAT Base Before Pmt. Disc.";
+        InvoicePostBuffer.CopyToGenJnlLine(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer, Rec);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLineFA(Rec)', '19.0')]
     procedure CopyFromInvoicePostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account Type" := "Account Type"::"Fixed Asset";
-        "FA Posting Date" := InvoicePostBuffer."FA Posting Date";
-        "Depreciation Book Code" := InvoicePostBuffer."Depreciation Book Code";
-        "Salvage Value" := InvoicePostBuffer."Salvage Value";
-        "Depr. until FA Posting Date" := InvoicePostBuffer."Depr. until FA Posting Date";
-        "Depr. Acquisition Cost" := InvoicePostBuffer."Depr. Acquisition Cost";
-        "Maintenance Code" := InvoicePostBuffer."Maintenance Code";
-        "Insurance No." := InvoicePostBuffer."Insurance No.";
-        "Budgeted FA No." := InvoicePostBuffer."Budgeted FA No.";
-        "Duplicate in Depreciation Book" := InvoicePostBuffer."Duplicate in Depreciation Book";
-        "Use Duplication List" := InvoicePostBuffer."Use Duplication List";
+        InvoicePostBuffer.CopyToGenJnlLineFA(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer, Rec);
     end;
+#endif
 
     procedure CopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
@@ -6438,10 +6440,9 @@
     begin
         GLAcc.Get("Bal. Account No.");
         CheckGLAcc(GLAcc);
-        if "Account No." = '' then begin
-            Description := GLAcc.Name;
+        UpdateDescriptionFromBalAccount(GLAcc.Name);
+        if "Account No." = '' then
             "Currency Code" := '';
-        end;
         OnGetGLBalAccountOnAfterSetDescription(Rec, GLAcc);
         if ("Account No." = '') or
            ("Account Type" in
@@ -6528,8 +6529,7 @@
         OnGetCustomerBalAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Cust.Name;
+        UpdateDescriptionFromBalAccount(Cust.Name);
         "Payment Method Code" := Cust."Payment Method Code";
         Validate("Recipient Bank Account", Cust."Preferred Bank Account Code");
         "Posting Group" := Cust."Customer Posting Group";
@@ -6629,8 +6629,7 @@
         Vend.Get("Bal. Account No.");
         Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
         CheckICPartner(Vend."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Vend.Name;
+        UpdateDescriptionFromBalAccount(Vend.Name);
         "Payment Method Code" := Vend."Payment Method Code";
         Validate("Recipient Bank Account", Vend."Preferred Bank Account Code");
         "Posting Group" := Vend."Vendor Posting Group";
@@ -6721,8 +6720,7 @@
     begin
         BankAcc.Get("Bal. Account No.");
         BankAcc.TestField(Blocked, false);
-        if "Account No." = '' then
-            Description := BankAcc.Name;
+        UpdateDescriptionFromBalAccount(BankAcc.Name);
 
         if ("Account No." = '') or
            ("Account Type" in
@@ -6771,8 +6769,7 @@
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         FA.TestField("Budgeted Asset", false);
-        if "Account No." = '' then
-            Description := FA.Description;
+        UpdateDescriptionFromBalAccount(FA.Description);
         GetFADeprBook("Bal. Account No.");
         GetFAVATSetup;
         GetFAAddCurrExchRate;
@@ -6802,8 +6799,7 @@
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get("Bal. Account No.");
-        if "Account No." = '' then
-            Description := ICPartner.Name;
+        UpdateDescriptionFromBalAccount(ICPartner.Name);
 
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := ICPartner."Currency Code";
@@ -7066,12 +7062,12 @@
 
     local procedure ClearInvCrMemoTypeFields()
     begin
-        "Sales Invoice Type" := 0;
-        "Sales Cr. Memo Type" := 0;
-        "Sales Special Scheme Code" := 0;
-        "Purch. Invoice Type" := 0;
-        "Purch. Cr. Memo Type" := 0;
-        "Purch. Special Scheme Code" := 0;
+        "Sales Invoice Type" := "Sales Invoice Type"::"F1 Invoice";
+        "Sales Cr. Memo Type" := "Sales Cr. Memo Type"::"R1 Corrected Invoice";
+        "Sales Special Scheme Code" := "Sales Special Scheme Code"::"01 General";
+        "Purch. Invoice Type" := "Purch. Invoice Type"::"F1 Invoice";
+        "Purch. Cr. Memo Type" := "Purch. Cr. Memo Type"::"R1 Corrected Invoice";
+        "Purch. Special Scheme Code" := "Purch. Special Scheme Code"::"01 General";
         "Correction Type" := 0;
         "Corrected Invoice No." := '';
     end;
@@ -7098,7 +7094,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled);
+        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -7207,15 +7203,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBufferFA().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -7454,7 +7456,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7495,6 +7497,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsAdHocDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsAdHocBalAccDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7690,6 +7697,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -8381,7 +8393,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

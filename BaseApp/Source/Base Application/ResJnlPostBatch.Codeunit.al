@@ -17,7 +17,6 @@ codeunit 213 "Res. Jnl.-Post Batch"
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlBatch: Record "Res. Journal Batch";
@@ -34,10 +33,6 @@ codeunit 213 "Res. Jnl.-Post Batch"
         Window: Dialog;
         ResRegNo: Integer;
         StartLineNo: Integer;
-        Day: Integer;
-        Week: Integer;
-        Month: Integer;
-        MonthText: Text[30];
         LineCount: Integer;
         NoOfRecords: Integer;
         LastDocNo: Code[20];
@@ -255,27 +250,8 @@ codeunit 213 "Res. Jnl.-Post Batch"
     local procedure MakeRecurringTexts(var ResJnlLine2: Record "Res. Journal Line")
     begin
         with ResJnlLine2 do
-            if ("Resource No." <> '') and ("Recurring Method" <> 0) then begin // Not recurring
-                Day := Date2DMY("Posting Date", 1);
-                Week := Date2DWY("Posting Date", 2);
-                Month := Date2DMY("Posting Date", 2);
-                MonthText := Format("Posting Date", 0, Text007);
-                AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")),
-                    '>');
-                Description :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)),
-                    '>');
-            end;
+            if ("Resource No." <> '') and ("Recurring Method" <> 0) then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
     [IntegrationEvent(false, false)]

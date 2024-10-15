@@ -557,7 +557,6 @@
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
         Window: Dialog;
-        ContactNo: Code[250];
         DocType: Text[100];
         SourceType: Text[30];
         SourceNo: Code[20];
@@ -616,6 +615,7 @@
         SCMServHeader: Record "Service Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
+        ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         DocNoFilter: Text;
         PostingDateFilter: Text;
@@ -855,7 +855,7 @@
             CustLedgEntry.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption, CustLedgEntry.Count);
             if CustLedgEntry.FindFirst then
-                FindCarteraDocs(CarteraDoc.Type::Receivable);
+                FindCarteraDocs(CarteraDoc.Type::Receivable.AsInteger());
         end;
         if DtldCustLedgEntry.ReadPermission() then begin
             DtldCustLedgEntry.Reset();
@@ -877,7 +877,7 @@
             VendLedgEntry.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption, VendLedgEntry.Count);
             if VendLedgEntry.FindFirst then
-                FindCarteraDocs(CarteraDoc.Type::Payable);
+                FindCarteraDocs(CarteraDoc.Type::Payable.AsInteger());
         end;
         if DtldVendLedgEntry.ReadPermission() then begin
             DtldVendLedgEntry.Reset();
@@ -1894,14 +1894,14 @@
         PAGE.Run(PAGE::"Detailed Empl. Ledger Entries", DtldEmplLedgEntry);
     end;
 
-    local procedure SetPostingDate(PostingDate: Text)
+    protected procedure SetPostingDate(PostingDate: Text)
     begin
         FilterTokens.MakeDateFilter(PostingDate);
         Rec.SetFilter("Posting Date", PostingDate);
         PostingDateFilter := Rec.GetFilter("Posting Date");
     end;
 
-    local procedure SetDocNo(DocNo: Text)
+    protected procedure SetDocNo(DocNo: Text)
     begin
         Rec.SetFilter("Document No.", DocNo);
         DocNoFilter := Rec.GetFilter("Document No.");

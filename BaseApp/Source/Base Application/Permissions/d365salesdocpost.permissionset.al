@@ -18,7 +18,7 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Currency for Reminder Level" = r,
                   tabledata "Customer Posting Group" = RM,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
-                  tabledata "G/L Account" = IM,
+                  tabledata "G/L Account" = RIM,
                   tabledata "G/L - Item Ledger Relation" = RIMD,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Rimd,
@@ -29,7 +29,9 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Item Register" = Rimd,

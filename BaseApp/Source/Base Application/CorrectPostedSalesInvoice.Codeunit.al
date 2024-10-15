@@ -25,6 +25,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     end;
 
     var
+        PostedInvoiceIsPaidCorrectOrCancelErr: Label 'You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module.';
         AlreadyCorrectedErr: Label 'You cannot correct this posted sales invoice because it has been canceled.';
         AlreadyCancelledErr: Label 'You cannot cancel this posted sales invoice because it has already been canceled.';
         CorrCorrectiveDocErr: Label 'You cannot correct this posted sales invoice because it represents a correction of a credit memo.';
@@ -68,7 +69,6 @@ codeunit 1303 "Correct Posted Sales Invoice"
         CreatingCreditMemoFailedNothingCreatedErr: Label 'Canceling the invoice failed because of the following error: \\%1.';
         ErrorType: Option IsPaid,CustomerBlocked,ItemBlocked,AccountBlocked,IsCorrected,IsCorrective,SerieNumInv,SerieNumCM,SerieNumPostCM,ItemIsReturned,FromOrder,PostingNotAllowed,LineFromOrder,WrongItemType,LineFromJob,DimErr,DimCombErr,DimCombHeaderErr,ExtDocErr,InventoryPostClosed;
         WrongDocumentTypeForCopyDocumentErr: Label 'You cannot correct or cancel this type of document.';
-        PostedInvoiceIsPaidCorrectOrCancelErr: Label 'You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module.';
         CheckPrepaymentErr: Label 'You cannot correct or cancel a posted sales prepayment invoice.\\Open the related sales order and choose the Post Prepayment Credit Memo.';
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
         InvoiceClosedMsg: Label 'Invoice %1 is closed. The corrective credit memo will not be applied to the invoice.', Comment = '%1 - invoice no.';
@@ -511,7 +511,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         IsHandled: Boolean;
     begin
-        if SalesInvoiceLine.IsCancellationSupported then
+        if SalesInvoiceLine.IsCancellationSupported() then
             exit;
 
         if (SalesInvoiceLine."Job No." <> '') and (SalesInvoiceLine.Type = SalesInvoiceLine.Type::Resource) then
@@ -670,7 +670,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         TempItemApplicationEntry.Reset();
         TempItemApplicationEntry.DeleteAll();
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 if ItemApplicationEntry.AppliedInbndEntryExists(ItemLedgEntry."Entry No.", true) then
                     repeat

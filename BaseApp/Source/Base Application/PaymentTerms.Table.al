@@ -1,4 +1,4 @@
-table 3 "Payment Terms"
+﻿table 3 "Payment Terms"
 {
     Caption = 'Payment Terms';
     DataCaptionFields = "Code", Description;
@@ -94,19 +94,11 @@ table 3 "Payment Terms"
     trigger OnDelete()
     var
         PaymentTermsTranslation: Record "Payment Term Translation";
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         Installment: Record Installment;
     begin
-        if EnvInfoProxy.IsInvoicing then
-            if O365SalesInitialSetup.Get and
-               (O365SalesInitialSetup."Default Payment Terms Code" = Code)
-            then
-                Error(CannotRemoveDefaultPaymentTermsErr);
-
         with PaymentTermsTranslation do begin
             SetRange("Payment Term", Code);
-            DeleteAll
+            DeleteAll();
         end;
 
         if Installment.WritePermission then begin
@@ -134,7 +126,6 @@ table 3 "Payment Terms"
     end;
 
     var
-        CannotRemoveDefaultPaymentTermsErr: Label 'You cannot remove the default payment terms.';
         Text10700: Label 'The %1 exceeds the %2 defined on the %3.', Comment = '%1 is fieldcaption,%2 is fieldcaption,%3 is tablecaption';
         Text10701: Label 'The value must be greater than or equal to 0.';
 

@@ -247,20 +247,17 @@ table 325 "VAT Posting Setup"
                     end;
             end;
         }
-        field(10707; "Sales Special Scheme Code"; Option)
+        field(10707; "Sales Special Scheme Code"; Enum "SII Sales Upload Scheme Code")
         {
             Caption = 'Sales Special Scheme Code';
-            OptionMembers = " ","01 General","02 Export","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Travel Agency Services","10 Third Party","11 Business Withholding","12 Business not Withholding","13 Business Withholding and not Withholding","14 Invoice Work Certification","15 Invoice of Consecutive Nature","16 First Half 2017";
-
             trigger OnValidate()
             begin
                 CheckSalesSpecialSchemeCode();
             end;
         }
-        field(10708; "Purch. Special Scheme Code"; Option)
+        field(10708; "Purch. Special Scheme Code"; Enum "SII Purch. Upload Scheme Code")
         {
             Caption = 'Purch. Special Scheme Code';
-            OptionMembers = " ","01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
         }
     }
 
@@ -381,13 +378,13 @@ table 325 "VAT Posting Setup"
 
         if Unrealized then begin
             if "Sales VAT Unreal. Account" = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Sales VAT Unreal. Account"));
-            TestField("Sales VAT Unreal. Account");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Sales VAT Unreal. Account"));
+
             exit("Sales VAT Unreal. Account");
         end;
         if "Sales VAT Account" = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Sales VAT Account"));
-        TestField("Sales VAT Account");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Sales VAT Account"));
+
         exit("Sales VAT Account");
     end;
 
@@ -402,13 +399,13 @@ table 325 "VAT Posting Setup"
 
         if Unrealized then begin
             if "Purch. VAT Unreal. Account" = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Purch. VAT Unreal. Account"));
-            TestField("Purch. VAT Unreal. Account");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Purch. VAT Unreal. Account"));
+
             exit("Purch. VAT Unreal. Account");
         end;
         if "Purchase VAT Account" = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Purchase VAT Account"));
-        TestField("Purchase VAT Account");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Purchase VAT Account"));
+
         exit("Purchase VAT Account");
     end;
 
@@ -416,13 +413,13 @@ table 325 "VAT Posting Setup"
     begin
         if Unrealized then begin
             if "Reverse Chrg. VAT Unreal. Acc." = '' then
-                PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Reverse Chrg. VAT Unreal. Acc."));
-            TestField("Reverse Chrg. VAT Unreal. Acc.");
+                PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Reverse Chrg. VAT Unreal. Acc."));
+
             exit("Reverse Chrg. VAT Unreal. Acc.");
         end;
         if "Reverse Chrg. VAT Acc." = '' then
-            PostingSetupMgt.SendVATPostingSetupNotification(Rec, FieldCaption("Reverse Chrg. VAT Acc."));
-        TestField("Reverse Chrg. VAT Acc.");
+            PostingSetupMgt.LogVATPostingSetupFieldError(Rec, FieldNo("Reverse Chrg. VAT Acc."));
+
         exit("Reverse Chrg. VAT Acc.");
     end;
 

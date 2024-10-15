@@ -617,26 +617,20 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Autodocument No.';
             Editable = false;
         }
-        field(10704; "Invoice Type"; Option)
+        field(10704; "Invoice Type"; Enum "SII Purch. Invoice Type")
         {
             Caption = 'Invoice Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation";
         }
-        field(10705; "Cr. Memo Type"; Option)
+        field(10705; "Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
         {
             Caption = 'Cr. Memo Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice';
-            OptionMembers = "R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice";
         }
-        field(10706; "Special Scheme Code"; Option)
+        field(10706; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
         {
             Caption = 'Special Scheme Code';
             DataClassification = CustomerContent;
-            OptionCaption = '01 General,02 Special System Activities,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Intra-Community Acquisition,12 Business Premises Leasing Operations,13 Import (Without DUA),14 First Half 2017';
-            OptionMembers = "01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
         }
         field(10707; "Correction Type"; Option)
         {
@@ -658,11 +652,9 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'Succeeded VAT Registration No.';
         }
-        field(10722; "ID Type"; Option)
+        field(10722; "ID Type"; Enum "SII ID Type")
         {
             Caption = 'ID Type';
-            OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
-            OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
         field(7000000; "Bill No."; Code[20])
         {

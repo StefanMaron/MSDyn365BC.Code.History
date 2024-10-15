@@ -6,12 +6,14 @@ codeunit 1385 "Vendor Templ. Mgt."
     begin
     end;
 
-    procedure CreateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean): Boolean
+    procedure CreateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean) Result: Boolean
     var
         VendorTempl: Record "Vendor Templ.";
     begin
-        if not IsEnabled() then
-            exit(false);
+        IsHandled := false;
+        OnBeforeCreateVendorFromTemplate(Vendor, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         IsHandled := true;
 
@@ -42,9 +44,6 @@ codeunit 1385 "Vendor Templ. Mgt."
     var
         VendorTempl: Record "Vendor Templ.";
     begin
-        if not IsEnabled() then
-            exit;
-
         VendorTempl.SetRange("Contact Type", Contact.Type);
         if not SelectVendorTemplate(VendorTempl) then
             exit;
@@ -190,6 +189,11 @@ codeunit 1385 "Vendor Templ. Mgt."
     var
         VendorTempl: Record "Vendor Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateFromTemplate(Vendor, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
             exit;
 
@@ -207,6 +211,11 @@ codeunit 1385 "Vendor Templ. Mgt."
     var
         VendorTempl: Record "Vendor Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateMultipleFromTemplate(Vendor, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
             exit;
 
@@ -218,9 +227,6 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     local procedure CanBeUpdatedFromTemplate(var VendorTempl: Record "Vendor Templ."; var IsHandled: Boolean): Boolean
     begin
-        if not IsEnabled() then
-            exit(false);
-
         IsHandled := true;
 
         if not SelectVendorTemplate(VendorTempl) then
@@ -240,7 +246,9 @@ codeunit 1385 "Vendor Templ. Mgt."
     var
         VendorTempl: Record "Vendor Templ.";
     begin
-        if not IsEnabled() then
+        IsHandled := false;
+        OnBeforeCreateTemplateFromVendor(Vendor, IsHandled);
+        if IsHandled then
             exit;
 
         IsHandled := true;
@@ -304,9 +312,6 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     local procedure ShowVendorTemplList(var IsHandled: Boolean)
     begin
-        if not IsEnabled() then
-            exit;
-
         IsHandled := true;
         Page.Run(Page::"Vendor Templ. List");
     end;
@@ -401,6 +406,26 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVendorFromTemplate(var Vendor: Record Vendor; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateMultipleFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTemplateFromVendor(Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

@@ -34,7 +34,7 @@ codeunit 137811 "SCM - Costing UT"
         ValueEntry: Record "Value Entry";
         InventorySetup: Record "Inventory Setup";
         ItemCostManagement: Codeunit ItemCostManagement;
-        OldAvgCostCalcType: Integer;
+        OldAvgCostCalcType: Enum "Average Cost Calculation Type";
     begin
         // Initialize of needed records
         SetupItem(Item);

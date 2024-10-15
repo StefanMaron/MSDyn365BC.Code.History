@@ -159,19 +159,19 @@ codeunit 1901 "Report Selection Mgt."
             "Report Selection Usage"::"S.Invoice Draft":
                 InsertRepSelection("Report Selection Usage"::"S.Invoice Draft", '1', REPORT::"Standard Sales - Draft Invoice");
             "Report Selection Usage"::"S.Quote":
-                InsertRepSelection("Report Selection Usage"::"S.Quote", '1', REPORT::"Sales - Quote");
+                InsertRepSelection("Report Selection Usage"::"S.Quote", '1', REPORT::"Standard Sales - Quote");
             "Report Selection Usage"::"S.Blanket":
                 InsertRepSelection("Report Selection Usage"::"S.Blanket", '1', REPORT::"Blanket Sales Order");
             "Report Selection Usage"::"S.Order":
-                InsertRepSelection("Report Selection Usage"::"S.Order", '1', REPORT::"Order Confirmation");
+                InsertRepSelection("Report Selection Usage"::"S.Order", '1', REPORT::"Standard Sales - Order Conf.");
             "Report Selection Usage"::"S.Work Order":
                 InsertRepSelection("Report Selection Usage"::"S.Work Order", '1', REPORT::"Work Order");
             "Report Selection Usage"::"S.Invoice":
-                InsertRepSelection("Report Selection Usage"::"S.Invoice", '1', REPORT::"Sales - Invoice");
+                InsertRepSelection("Report Selection Usage"::"S.Invoice", '1', REPORT::"Standard Sales - Invoice");
             "Report Selection Usage"::"S.Return":
                 InsertRepSelection("Report Selection Usage"::"S.Return", '1', REPORT::"Return Order Confirmation");
             "Report Selection Usage"::"S.Cr.Memo":
-                InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo");
+                InsertRepSelection("Report Selection Usage"::"S.Cr.Memo", '1', REPORT::"Standard Sales - Credit Memo");
             "Report Selection Usage"::"S.Shipment":
                 InsertRepSelection("Report Selection Usage"::"S.Shipment", '1', REPORT::"Sales - Shipment");
             "Report Selection Usage"::"S.Ret.Rcpt.":

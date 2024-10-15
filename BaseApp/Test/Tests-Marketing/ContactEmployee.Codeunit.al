@@ -384,14 +384,17 @@
     end;
 
     local procedure Initialize()
+    var
+        EmployeeTempl: Record "Employee Templ.";
     begin
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
+        EmployeeTempl.DeleteAll(true);
 
         if IsInitialized then
             exit;
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySetupStorage.Save(Database::"Marketing Setup");
 
         IsInitialized := true;

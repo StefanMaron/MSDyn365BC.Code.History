@@ -225,6 +225,7 @@ page 49 "Purchase Quote"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the code for an alternate address, which you can send the FRQ to is the primary address is not active. ';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -869,10 +870,9 @@ page 49 "Purchase Quote"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -1303,8 +1303,8 @@ page 49 "Purchase Quote"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1330,11 +1330,7 @@ page 49 "Purchase Quote"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 

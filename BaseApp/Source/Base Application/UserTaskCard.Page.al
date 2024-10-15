@@ -10,7 +10,7 @@ page 1171 "User Task Card"
         {
             group(General)
             {
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -25,10 +25,10 @@ page 1171 "User Task Card"
 
                     trigger OnValidate()
                     begin
-                        SetDescription(MultiLineTextControl);
+                        Rec.SetDescription(MultiLineTextControl);
                     end;
                 }
-                field("Created By User Name"; "Created By User Name")
+                field("Created By User Name"; Rec."Created By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -36,7 +36,7 @@ page 1171 "User Task Card"
                     Importance = Additional;
                     ToolTip = 'Specifies who created the task.';
                 }
-                field("Created DateTime"; "Created DateTime")
+                field("Created DateTime"; Rec."Created DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -46,7 +46,7 @@ page 1171 "User Task Card"
             group(Status)
             {
                 Caption = 'Status';
-                field("Assigned To User Name"; "Assigned To User Name")
+                field("Assigned To User Name"; Rec."Assigned To User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -57,18 +57,18 @@ page 1171 "User Task Card"
                         User: Record User;
                         Users: Page Users;
                     begin
-                        if User.Get("Assigned To") then
+                        if User.Get(Rec."Assigned To") then
                             Users.SetRecord(User);
 
                         Users.LookupMode := true;
                         if Users.RunModal = ACTION::LookupOK then begin
                             Users.GetRecord(User);
-                            Validate("Assigned To", User."User Security ID");
+                            Rec.Validate("Assigned To", User."User Security ID");
                             CurrPage.Update(true);
                         end;
                     end;
                 }
-                field("User Task Group Assigned To"; "User Task Group Assigned To")
+                field("User Task Group Assigned To"; Rec."User Task Group Assigned To")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Task Group';
@@ -79,12 +79,12 @@ page 1171 "User Task Card"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Due DateTime"; "Due DateTime")
+                field("Due DateTime"; Rec."Due DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the task must be completed.';
                 }
-                field("Percent Complete"; "Percent Complete")
+                field("Percent Complete"; Rec."Percent Complete")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the progress of the task.';
@@ -94,18 +94,18 @@ page 1171 "User Task Card"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Start DateTime"; "Start DateTime")
+                field("Start DateTime"; Rec."Start DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the task must start.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the priority of the task.';
                 }
-                field("Completed By User Name"; "Completed By User Name")
+                field("Completed By User Name"; Rec."Completed By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -117,18 +117,18 @@ page 1171 "User Task Card"
                         User: Record User;
                         Users: Page Users;
                     begin
-                        if User.Get("Completed By") then
+                        if User.Get(Rec."Completed By") then
                             Users.SetRecord(User);
 
                         Users.LookupMode := true;
                         if Users.RunModal = ACTION::LookupOK then begin
                             Users.GetRecord(User);
-                            Validate("Completed By", User."User Security ID");
+                            Rec.Validate("Completed By", User."User Security ID");
                             CurrPage.Update(true);
                         end;
                     end;
                 }
-                field("Completed DateTime"; "Completed DateTime")
+                field("Completed DateTime"; Rec."Completed DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -143,7 +143,7 @@ page 1171 "User Task Card"
             group("Task Item")
             {
                 Caption = 'Task Item';
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -153,11 +153,11 @@ page 1171 "User Task Card"
                     trigger OnValidate()
                     begin
                         // Clear out the values for object id if it exists.
-                        if "Object ID" <> 0 then
-                            "Object ID" := 0;
+                        if Rec."Object ID" <> 0 then
+                            Rec."Object ID" := 0;
                     end;
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -172,11 +172,11 @@ page 1171 "User Task Card"
                     begin
                         // If object type is empty then show both pages / reports in lookup
                         AllObjWithCaption.FilterGroup(2);
-                        if "Object Type" = 0 then begin
+                        if Rec."Object Type" = 0 then begin
                             AllObjWithCaption.SetFilter("Object Type", 'Page|Report');
                             AllObjWithCaption.SetFilter("Object Subtype", '%1|%2', '', 'List');
                         end else begin
-                            if "Object Type" = AllObjWithCaption."Object Type"::Page then begin
+                            if Rec."Object Type" = AllObjWithCaption."Object Type"::Page then begin
                                 AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
                                 AllObjWithCaption.SetRange("Object Subtype", 'List');
                             end else
@@ -190,8 +190,8 @@ page 1171 "User Task Card"
                         AllObjectsWithCaption.LookupMode := true;
                         if AllObjectsWithCaption.RunModal = ACTION::LookupOK then begin
                             AllObjectsWithCaption.GetRecord(AllObjWithCaption);
-                            "Object ID" := AllObjWithCaption."Object ID";
-                            "Object Type" := AllObjWithCaption."Object Type";
+                            Rec."Object ID" := AllObjWithCaption."Object ID";
+                            Rec."Object Type" := AllObjWithCaption."Object Type";
                         end;
                     end;
 
@@ -199,9 +199,9 @@ page 1171 "User Task Card"
                     var
                         AllObjWithCaption: Record AllObjWithCaption;
                     begin
-                        if "Object Type" = AllObjWithCaption."Object Type"::Page then begin
+                        if Rec."Object Type" = AllObjWithCaption."Object Type"::Page then begin
                             AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
-                            AllObjWithCaption.SetRange("Object ID", "Object ID");
+                            AllObjWithCaption.SetRange("Object ID", Rec."Object ID");
                             if AllObjWithCaption.FindFirst then
                                 if AllObjWithCaption."Object Subtype" <> 'List' then
                                     Error(InvalidPageTypeErr);
@@ -233,8 +233,18 @@ page 1171 "User Task Card"
                 ToolTip = 'Open the page or report that is associated with this task.';
 
                 trigger OnAction()
+#if not CLEAN19                
+                var
+                    IsHandled: Boolean;
+#endif                    
                 begin
-                    RunReportOrPageLink;
+#if not CLEAN19                
+                    IsHandled := false;
+                    OnBeforeRunReportOrPageLink(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+#endif
+                    Rec.RunReportOrPageLink();
                 end;
             }
             action("Mark Completed")
@@ -250,7 +260,7 @@ page 1171 "User Task Card"
                 trigger OnAction()
                 begin
                     // Marks the current task as completed.
-                    SetCompleted;
+                    Rec.SetCompleted();
                     CurrPage.Update(true);
                 end;
             }
@@ -268,7 +278,7 @@ page 1171 "User Task Card"
                     UserTaskRecurrence: Page "User Task Recurrence";
                 begin
                     UserTaskRecurrence.SetInitialData(Rec);
-                    UserTaskRecurrence.RunModal;
+                    UserTaskRecurrence.RunModal();
                 end;
             }
         }
@@ -276,22 +286,22 @@ page 1171 "User Task Card"
 
     trigger OnAfterGetRecord()
     begin
-        MultiLineTextControl := GetDescription;
-        IsMarkCompleteEnabled := not IsCompleted;
+        MultiLineTextControl := Rec.GetDescription();
+        IsMarkCompleteEnabled := not Rec.IsCompleted();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Created By" := UserSecurityId;
-        Validate("Created DateTime", CurrentDateTime);
-        CalcFields("Created By User Name");
+        Rec."Created By" := UserSecurityId();
+        Rec.Validate("Created DateTime", CurrentDateTime());
+        Rec.CalcFields("Created By User Name");
 
         Clear(MultiLineTextControl);
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Rec.Reset();
     end;
 
     var
@@ -305,41 +315,26 @@ page 1171 "User Task Card"
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
-        AllObjWithCaption.SetRange("Object Type", "Object Type");
-        AllObjWithCaption.SetRange("Object ID", "Object ID");
-        if AllObjWithCaption.FindFirst then
+        AllObjWithCaption.SetRange("Object Type", Rec."Object Type");
+        AllObjWithCaption.SetRange("Object ID", Rec."Object ID");
+        if AllObjWithCaption.FindFirst() then
             exit(AllObjWithCaption."Object Name");
-    end;
-
-    local procedure RunReportOrPageLink()
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunReportOrPageLink(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ("Object Type" = 0) or ("Object ID" = 0) then
-            exit;
-        if "Object Type" = AllObjWithCaption."Object Type"::Page then
-            PAGE.Run("Object ID")
-        else
-            REPORT.Run("Object ID");
     end;
 
     local procedure GetObjectTypeCaption(): Text
     begin
-        if "Object Type" = "Object Type"::Page then
+        if Rec."Object Type" = Rec."Object Type"::Page then
             exit(PageTok);
 
         exit(ReportTok);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeRunReportOrPageLink() in table User Task.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReportOrPageLink(var UserTask: Record "User Task"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

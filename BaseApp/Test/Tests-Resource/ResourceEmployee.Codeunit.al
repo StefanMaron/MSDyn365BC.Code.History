@@ -277,7 +277,6 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // Test Employee No. is incremented by AssistEdit automatically as per the setup.
-        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Find Next Employee No.
         HumanResourcesSetup.Get();
@@ -303,7 +302,6 @@ codeunit 136400 "Resource Employee"
         No: Code[20];
     begin
         // Test Employee No. renaming works on a new Employee.
-        LibraryTemplates.DisableTemplatesFeature();
 
         // 1. Setup: Create an Employee and generate No. by jumping on any field
         LibraryLowerPermissions.SetO365HREdit;
@@ -724,17 +722,19 @@ codeunit 136400 "Resource Employee"
     [Normal]
     local procedure Initialize()
     var
+        EmployeeTempl: Record "Employee Templ.";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
         LibraryApplicationArea.EnableBasicHRSetup;
+        EmployeeTempl.DeleteAll(true);
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;

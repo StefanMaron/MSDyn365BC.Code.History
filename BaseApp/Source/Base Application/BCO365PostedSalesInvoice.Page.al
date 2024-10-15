@@ -138,12 +138,18 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ApplicationArea = Basic, Suite, Invoicing;
                     Caption = 'Payment Terms';
                 }
+#if not CLEAN19
                 field("Payment Instructions Name"; "Payment Instructions Name")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     Caption = 'Payment Instructions';
                     ToolTip = 'Specifies how you want your customers to pay you.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;

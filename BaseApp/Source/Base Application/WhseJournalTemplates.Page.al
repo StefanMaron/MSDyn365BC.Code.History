@@ -48,6 +48,11 @@ page 7321 "Whse. Journal Templates"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
+                field("Increment Batch Name"; "Increment Batch Name")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies if batch names using this template are automatically incremented. Example: The posting following BATCH001 is automatically named BATCH002.';
+                }
                 field("Page ID"; "Page ID")
                 {
                     ApplicationArea = Warehouse;

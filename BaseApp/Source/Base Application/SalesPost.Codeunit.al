@@ -3,7 +3,9 @@
     Permissions = TableData "Sales Line" = imd,
                   TableData "Purchase Header" = m,
                   TableData "Purchase Line" = m,
+#if not CLEAN19
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Sales Shipment Header" = imd,
                   TableData "Sales Shipment Line" = imd,
                   TableData "Sales Invoice Header" = imd,
@@ -24,7 +26,6 @@
     trigger OnRun()
     var
         SalesHeader: Record "Sales Header";
-        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
         TempItemLedgEntryNotInvoiced: Record "Item Ledger Entry" temporary;
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempServiceItem2: Record "Service Item" temporary;
@@ -65,9 +66,10 @@
         HideProgressWindow := SavedHideProgressWindow;
 
         GetGLSetup();
-        GetCurrency("Currency Code");
-
         GetSalesSetup();
+        GetInvoicePostingSetup();
+        GetCurrency(Rec."Currency Code");
+
         SalesHeader := Rec;
         FillTempLines(SalesHeader, TempSalesLineGlobal);
         TempServiceItem2.DeleteAll();
@@ -82,9 +84,15 @@
         // Header
         CheckAndUpdate(SalesHeader);
 
-        TempDeferralHeader.DeleteAll();
-        TempDeferralLine.DeleteAll();
-        TempInvoicePostBuffer.DeleteAll();
+#if not CLEAN19
+        if UseLegacyInvoicePosting() then begin
+            TempDeferralHeader.DeleteAll();
+            TempDeferralLine.DeleteAll();
+            TempInvoicePostBuffer.DeleteAll();
+        end else
+#endif
+        InvoicePostingInterface.ClearBuffers();
+
         TempDropShptPostBuffer.DeleteAll();
         EverythingInvoiced := true;
 
@@ -112,7 +120,7 @@
                     Window.Update(2, LineCount);
 
                 PostSalesLine(
-                  SalesHeader, TempSalesLineGlobal, EverythingInvoiced, TempInvoicePostBuffer, TempVATAmountLine, TempVATAmountLineRemainder,
+                  SalesHeader, TempSalesLineGlobal, EverythingInvoiced, TempVATAmountLine, TempVATAmountLineRemainder,
                   TempItemLedgEntryNotInvoiced, HasATOShippedNotInvoiced, TempDropShptPostBuffer, ICGenJnlLineNo,
                   TempServiceItem2, TempServiceItemComp2);
 
@@ -125,11 +133,13 @@
                         InvoiceRounding(SalesHeader, TempSalesLineGlobal, false, BiggestLineNo);
                 end;
                 OnRunOnBeforePostSalesLineEndLoop(SalesHeader, TempSalesLineGlobal, LastLineRetrieved, SalesInvHeader, SalesCrMemoHeader, Rec, xSalesLine);
+                ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
 
         OnAfterPostSalesLines(
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, WhseShip, WhseReceive, SalesLinesProcessed,
           SuppressCommit, EverythingInvoiced, TempSalesLineGlobal);
+        ErrorMessageMgt.PopContext(ErrorContextElementProcessLines);
         ErrorMessageMgt.Finish(ZeroSalesLineRecID);
         if not SalesHeader.IsCreditDocType then begin
             ReverseAmount(TotalSalesLine);
@@ -139,7 +149,7 @@
 
         PostDropOrderShipment(SalesHeader, TempDropShptPostBuffer);
         if SalesHeader.Invoice then
-            PostGLAndCustomer(SalesHeader, TempInvoicePostBuffer, CustLedgEntry);
+            PostInvoice(SalesHeader, CustLedgEntry);
 
         OnRunOnBeforePostICGenJnl(SalesHeader, SalesInvHeader, SalesCrMemoHeader);
 
@@ -190,6 +200,7 @@
           Rec, GenJnlPostLine, SalesShptHeader."No.", ReturnRcptHeader."No.",
           SalesInvHeader."No.", SalesCrMemoHeader."No.", SuppressCommit, InvtPickPutaway,
           CustLedgEntry, WhseShip, WhseReceive);
+
         OnAfterPostSalesDocDropShipment(PurchRcptHeader."No.", SuppressCommit);
     end;
 
@@ -223,6 +234,9 @@
         [SecurityFiltering(SecurityFilter::Ignored)]
         GLEntry: Record "G/L Entry";
         TempSalesLineGlobal: Record "Sales Line" temporary;
+#if not CLEAN19
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         xSalesLine: Record "Sales Line";
         SalesLineACY: Record "Sales Line";
         TotalSalesLine: Record "Sales Line";
@@ -234,6 +248,7 @@
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary;
+        InvoicePostingParameters: Record "Invoice Posting Parameters";
         SourceCodeSetup: Record "Source Code Setup";
         Currency: Record Currency;
         WhseRcptHeader: Record "Warehouse Receipt Header";
@@ -277,8 +292,9 @@
         DeferralUtilities: Codeunit "Deferral Utilities";
         UOMMgt: Codeunit "Unit of Measure Management";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        InvoicePostingInterface: Interface "Invoice Posting";
+        IsInterfaceInitalized: Boolean;
         Window: Dialog;
-        UseDate: Date;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
         SrcCode: Code[10];
@@ -378,6 +394,7 @@
         OnCopyToTempLinesOnAfterSetFilters(SalesLine, SalesHeader);
         if SalesLine.FindSet() then
             repeat
+                UpdateChargeItemSalesLineGenProdPostingGroup(SalesLine);
                 TempSalesLine := SalesLine;
                 TempSalesLine.Insert();
             until SalesLine.Next() = 0;
@@ -629,6 +646,7 @@
             InsertPostedHeaders(SalesHeader);
 
             UpdateIncomingDocument("Incoming Document Entry No.", "Posting Date", GenJnlLineDocNo);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
 
         OnAfterCheckAndUpdate(SalesHeader, SuppressCommit, PreviewMode);
@@ -652,7 +670,7 @@
         end;
     end;
 
-    local procedure PostSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var EverythingInvoiced: Boolean; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var TempItemLedgEntryNotInvoiced: Record "Item Ledger Entry" temporary; HasATOShippedNotInvoiced: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var ICGenJnlLineNo: Integer; var TempServiceItem2: Record "Service Item" temporary; var TempServiceItemComp2: Record "Service Item Component" temporary)
+    local procedure PostSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var EverythingInvoiced: Boolean; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var TempItemLedgEntryNotInvoiced: Record "Item Ledger Entry" temporary; HasATOShippedNotInvoiced: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var ICGenJnlLineNo: Integer; var TempServiceItem2: Record "Service Item" temporary; var TempServiceItemComp2: Record "Service Item Component" temporary)
     var
         SalesShptLine: Record "Sales Shipment Line";
         SalesInvLine: Record "Sales Invoice Line";
@@ -660,7 +678,6 @@
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SearchSalesCrMemoLine: Record "Sales Cr.Memo Line";
         TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary;
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
         CostBaseAmount: Decimal;
         IsHandled: Boolean;
     begin
@@ -701,7 +718,7 @@
             RoundAmount(SalesHeader, SalesLine, "Qty. to Invoice");
             OnPostSalesLineOnAfterRoundAmount(SalesHeader, SalesLine, SalesInvHeader, SalesCrMemoHeader);
 
-            if not IsCreditDocType then begin
+            if not IsCreditDocType() then begin
                 ReverseAmount(SalesLine);
                 ReverseAmount(SalesLineACY);
             end;
@@ -732,8 +749,12 @@
             if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(SalesHeader, SalesLine);
                 OnPostSalesLineOnAfterAdjustPrepmtAmountLCY(SalesLine, xSalesLine, TempTrackingSpecification, SalesHeader);
-                FillInvoicePostingBuffer(SalesHeader, SalesLine, SalesLineACY, TempInvoicePostBuffer, InvoicePostBuffer);
-                InsertPrepmtAdjInvPostingBuf(SalesHeader, SalesLine, TempInvoicePostBuffer, InvoicePostBuffer);
+#if not CLEAN19
+                if UseLegacyInvoicePosting() then
+                    FillInvoicePostingBuffer(SalesHeader, SalesLine, SalesLineACY)
+                else
+#endif
+                InvoicePostingInterface.PrepareLine(SalesHeader, SalesLine, SalesLineACY);
             end;
 
             IsHandled := false;
@@ -795,8 +816,15 @@
                         OnAfterSalesInvLineInsert(
                           SalesInvLine, SalesInvHeader, xSalesLine, ItemLedgShptEntryNo, WhseShip, WhseReceive, SuppressCommit,
                           SalesHeader, TempItemChargeAssgntSales, TempWhseShptHeader, TempWhseRcptHeader, PreviewMode);
-                        CreatePostedDeferralScheduleFromSalesDoc(xSalesLine, SalesInvLine.GetDocumentType,
-                          SalesInvHeader."No.", SalesInvLine."Line No.", SalesInvHeader."Posting Date");
+#if not CLEAN19
+                        if UseLegacyInvoicePosting() then
+                            CreatePostedDeferralScheduleFromSalesDoc(xSalesLine, SalesInvLine.GetDocumentType,
+                                SalesInvHeader."No.", SalesInvLine."Line No.", SalesInvHeader."Posting Date")
+                        else
+#endif
+                        InvoicePostingInterface.CreatePostedDeferralSchedule(
+                            xSalesLine, SalesInvLine.GetDocumentType(),
+                            SalesInvHeader."No.", SalesInvLine."Line No.", SalesInvHeader."Posting Date");
                     end;
                 end else begin
                     OnPostSalesLineOnBeforeInsertCrMemoLine(SalesHeader, SalesLine, IsHandled, xSalesLine, SalesCrMemoHeader);
@@ -826,8 +854,15 @@
                         end;
                         OnAfterSalesCrMemoLineInsert(
                           SalesCrMemoLine, SalesCrMemoHeader, SalesHeader, xSalesLine, TempItemChargeAssgntSales, SuppressCommit, WhseShip, WhseReceive, TempWhseShptHeader, TempWhseRcptHeader);
-                        CreatePostedDeferralScheduleFromSalesDoc(xSalesLine, SalesCrMemoLine.GetDocumentType,
-                          SalesCrMemoHeader."No.", SalesCrMemoLine."Line No.", SalesCrMemoHeader."Posting Date");
+#if not CLEAN19
+                        if UseLegacyInvoicePosting() then
+                            CreatePostedDeferralScheduleFromSalesDoc(xSalesLine, SalesCrMemoLine.GetDocumentType,
+                                SalesCrMemoHeader."No.", SalesCrMemoLine."Line No.", SalesCrMemoHeader."Posting Date")
+                        else
+#endif
+                        InvoicePostingInterface.CreatePostedDeferralSchedule(
+                            xSalesLine, SalesCrMemoLine.GetDocumentType(),
+                            SalesCrMemoHeader."No.", SalesCrMemoLine."Line No.", SalesCrMemoHeader."Posting Date");
                     end;
                 end;
         end;
@@ -835,23 +870,45 @@
         OnAfterPostSalesLine(SalesHeader, SalesLine, SuppressCommit, SalesInvLine, SalesCrMemoLine, xSalesLine);
     end;
 
-    local procedure PostGLAndCustomer(var SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure PostInvoice(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry")
     var
+        TotalAmount: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+#if not CLEAN19
         OnBeforePostGLAndCustomer(SalesHeader, TempInvoicePostBuffer, CustLedgEntry, SuppressCommit, PreviewMode, GenJnlPostLine, IsHandled);
+#endif
+        OnBeforePostInvoice(SalesHeader, CustLedgEntry, SuppressCommit, PreviewMode, GenJnlPostLine, IsHandled);
         if IsHandled then
             exit;
 
         with SalesHeader do begin
             // Post sales and VAT to G/L entries from posting buffer
-            PostInvoicePostBuffer(SalesHeader, TempInvoicePostBuffer);
+#if not CLEAN19
+            if UseLegacyInvoicePosting() then
+                PostInvoicePostBuffer(SalesHeader, TotalAmount)
+            else begin
+#endif
+            GetInvoicePostingParameters();
+            InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+            InvoicePostingInterface.SetTotalLines(TotalSalesLine, TotalSalesLineLCY);
+            InvoicePostingInterface.PostLines(SalesHeader, GenJnlPostLine, Window, TotalAmount);
+#if not CLEAN19
+            end;
+#endif
 
             // Post customer entry
             if GuiAllowed and not HideProgressWindow then
                 Window.Update(4, 1);
-            PostCustomerEntry(
-              SalesHeader, TotalSalesLine, TotalSalesLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode);
+
+#if not CLEAN19
+            if UseLegacyInvoicePosting() then
+                PostCustomerEntry(
+                    SalesHeader, TotalSalesLine, TotalSalesLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode)
+            else
+#endif
+            InvoicePostingInterface.PostLedgerEntry(SalesHeader, GenJnlPostLine);
 
             UpdateSalesHeader(CustLedgEntry);
 
@@ -859,8 +916,14 @@
             if "Bal. Account No." <> '' then begin
                 if GuiAllowed and not HideProgressWindow then
                     Window.Update(5, 1);
-                PostBalancingEntry(
-                  SalesHeader, TotalSalesLine, TotalSalesLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode);
+
+#if not CLEAN19
+                if UseLegacyInvoicePosting() then
+                    PostBalancingEntry(
+                        SalesHeader, TotalSalesLine, TotalSalesLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode)
+                else
+#endif
+                InvoicePostingInterface.PostBalancingEntry(SalesHeader, GenJnlPostLine);
             end;
         end;
 
@@ -1389,14 +1452,15 @@
         if IsHandled then
             exit(Result);
 
-        with SalesLine do begin
-            GetLocation("Location Code");
-            if (("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
-                Location."Directed Put-away and Pick") or
-               (Location."Bin Mandatory" and not (WhseShip or WhseReceive or InvtPickPutaway or "Drop Shipment"))
-            then
-                exit(true);
-        end;
+        with SalesLine do
+            if SalesLine.IsInventoriableItem() then begin
+                GetLocation("Location Code");
+                if (("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
+                    Location."Directed Put-away and Pick") or
+                   (Location."Bin Mandatory" and not (WhseShip or WhseReceive or InvtPickPutaway or "Drop Shipment"))
+                then
+                    exit(true);
+            end;
         exit(false);
     end;
 
@@ -1452,7 +1516,7 @@
             if SalesHeader."Currency Code" <> '' then
                 ItemJnlLine2.Amount :=
                   CurrExchRate.ExchangeAmtFCYToLCY(
-                    UseDate, SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
+                    SalesHeader.GetUseDate(), SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
                   RoundedPrevTotalChargeAmt - TotalSalesLineLCY.Amount
             else
                 ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
@@ -1466,7 +1530,7 @@
             if SalesHeader."Currency Code" <> '' then
                 ItemJnlLine2."Discount Amount" := Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       (ItemChargeSalesLine."Line Discount Amount" +
                        ItemChargeSalesLine."Inv. Discount Amount" + ItemChargeSalesLine."Pmt. Discount Amount") *
                       ItemJnlLine2."Invoiced Qty. (Base)" /
@@ -1959,7 +2023,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateReceiveAndCheckIfInvPutawayExists(IsHandled);
+        OnBeforeUpdateReceiveAndCheckIfInvPutawayExists(IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -1978,7 +2042,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnCheckAndUpdateOnBeforeCheckShip(IsHandled);
+        OnCheckAndUpdateOnBeforeCheckShip(IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -2398,8 +2462,6 @@
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         WarehouseRequest: Record "Warehouse Request";
-        CustInvoiceDisc: Record "Cust. Invoice Disc.";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         SkipDelete: Boolean;
     begin
         OnBeforeDeleteAfterPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, SkipDelete, SuppressCommit, EverythingInvoiced, TempSalesLineGlobal);
@@ -2430,8 +2492,6 @@
             SalesLine.SetRange("Document No.", "No.");
             OnBeforeSalesLineDeleteAll(SalesLine, SuppressCommit, SalesHeader);
             SalesLine.DeleteAll();
-            if EnvInfoProxy.IsInvoicing and CustInvoiceDisc.Get("Invoice Disc. Code") then
-                CustInvoiceDisc.Delete(); // Cleanup of autogenerated cust. invoice discounts
 
             DeleteItemChargeAssgnt(SalesHeader);
             SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
@@ -2539,7 +2599,7 @@
               SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
               GenJnlPostLine, SuppressCommit, PreviewMode);
 
-            ClearPostBuffers;
+            ClearPostBuffers();
         end;
     end;
 
@@ -2555,9 +2615,14 @@
         ApprovalsMgmt.DeleteApprovalEntries(SalesHeader.RecordId());
     end;
 
-    local procedure FillInvoicePostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
+    local procedure FillInvoicePostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line")
     var
         GenPostingSetup: Record "General Posting Setup";
+        InvoicePostBuffer: Record "Invoice Post. Buffer";
+        SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
+        AdjAmount: Decimal;
         TotalVAT: Decimal;
         TotalVATACY: Decimal;
         TotalAmount: Decimal;
@@ -2615,7 +2680,7 @@
                         InvDiscAccount := GenPostingSetup.GetSalesInvDiscAccount;
                     InvoicePostBuffer.SetAccount(InvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                     InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                    UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, true);
+                    UpdateInvoicePostBuffer(InvoicePostBuffer, true);
                     OnFillInvoicePostingBufferOnAfterSetInvDiscAccount(SalesLine, GenPostingSetup, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader);
                 end;
             end;
@@ -2636,7 +2701,7 @@
                         LineDiscAccount := GenPostingSetup.GetSalesLineDiscAccount;
                     InvoicePostBuffer.SetAccount(LineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                     InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                    UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, true);
+                    UpdateInvoicePostBuffer(InvoicePostBuffer, true);
                     OnFillInvoicePostingBufferOnAfterSetLineDiscAccount(SalesLine, GenPostingSetup, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader);
                 end;
             end;
@@ -2653,11 +2718,11 @@
                 InvoicePostBuffer.SetAccount(
                   GenPostingSetup."Sales Pmt. Disc. Debit Acc.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                 InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, true);
+                UpdateInvoicePostBuffer(InvoicePostBuffer, true);
             end;
         end;
 
-        OnFillInvoicePostingBufferOnBeforeDeferrals(SalesLine, TotalAmount, TotalAmountACY, UseDate);
+        OnFillInvoicePostingBufferOnBeforeDeferrals(SalesLine, TotalAmount, TotalAmountACY, SalesHeader.GetUseDate());
         DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
           SalesLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
 
@@ -2678,19 +2743,37 @@
         InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
         InvoicePostBuffer."Deferral Code" := SalesLine."Deferral Code";
         OnAfterFillInvoicePostBuffer(InvoicePostBuffer, SalesLine, TempInvoicePostBuffer, SuppressCommit);
-        UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, false);
+        UpdateInvoicePostBuffer(InvoicePostBuffer, false);
 
         OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader, SalesLine, InvoicePostBuffer, TempInvoicePostBuffer);
 
         if SalesLine."Deferral Code" <> '' then begin
             OnBeforeFillDeferralPostingBuffer(
-              SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, UseDate, InvDefLineNo, DeferralLineNo, SuppressCommit);
+              SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
             FillDeferralPostingBuffer(SalesHeader, SalesLine, InvoicePostBuffer, AmtToDefer, AmtToDeferACY, DeferralAccount, SalesAccount);
             OnAfterFillDeferralPostingBuffer(
-              SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, UseDate, InvDefLineNo, DeferralLineNo, SuppressCommit);
+              SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
         end;
-    end;
 
+        with SalesLine do
+            if "Prepayment Line" then
+                if "Prepmt. Amount Inv. (LCY)" <> 0 then begin
+                    AdjAmount := -"Prepmt. Amount Inv. (LCY)";
+                    TempInvoicePostBuffer.PreparePrepmtAdjBuffer(
+                        InvoicePostBuffer, "No.", AdjAmount, SalesHeader."Currency Code" = '');
+                    TempInvoicePostBuffer.PreparePrepmtAdjBuffer(
+                        InvoicePostBuffer, SalesPostPrepayments.GetCorrBalAccNo(SalesHeader, AdjAmount > 0),
+                        -AdjAmount, SalesHeader."Currency Code" = '');
+                end else
+                    if ("Prepayment %" = 100) and ("Prepmt. VAT Amount Inv. (LCY)" <> 0) then
+                        TempInvoicePostBuffer.PreparePrepmtAdjBuffer(
+                            InvoicePostBuffer, SalesPostPrepayments.GetInvRoundingAccNo(SalesHeader."Customer Posting Group"),
+                            "Prepmt. VAT Amount Inv. (LCY)", SalesHeader."Currency Code" = '');
+    end;
+#endif
+
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure GetSalesAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup") SalesAccountNo: Code[20]
     begin
         if (SalesLine.Type = SalesLine.Type::"G/L Account") or (SalesLine.Type = SalesLine.Type::"Fixed Asset") then
@@ -2702,8 +2785,11 @@
                 SalesAccountNo := GenPostingSetup.GetSalesAccount;
         OnAfterGetSalesAccount(SalesLine, GenPostingSetup, SalesAccountNo);
     end;
+#endif
 
-    local procedure UpdateInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer"; ForceGLAccountType: Boolean)
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
+    local procedure UpdateInvoicePostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; ForceGLAccountType: Boolean)
     var
         RestoreFAType: Boolean;
     begin
@@ -2721,36 +2807,11 @@
         if RestoreFAType then
             TempInvoicePostBuffer.Type := TempInvoicePostBuffer.Type::"Fixed Asset";
     end;
-
-    local procedure InsertPrepmtAdjInvPostingBuf(SalesHeader: Record "Sales Header"; PrepmtSalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer")
-    var
-        SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
-        AdjAmount: Decimal;
-    begin
-        with PrepmtSalesLine do
-            if "Prepayment Line" then
-                if "Prepmt. Amount Inv. (LCY)" <> 0 then begin
-                    AdjAmount := -"Prepmt. Amount Inv. (LCY)";
-                    InvoicePostBuffer.FillPrepmtAdjBuffer(TempInvoicePostBuffer, InvoicePostBuffer,
-                      "No.", AdjAmount, SalesHeader."Currency Code" = '');
-                    InvoicePostBuffer.FillPrepmtAdjBuffer(TempInvoicePostBuffer, InvoicePostBuffer,
-                      SalesPostPrepayments.GetCorrBalAccNo(SalesHeader, AdjAmount > 0),
-                      -AdjAmount, SalesHeader."Currency Code" = '');
-                end else
-                    if ("Prepayment %" = 100) and ("Prepmt. VAT Amount Inv. (LCY)" <> 0) then
-                        InvoicePostBuffer.FillPrepmtAdjBuffer(TempInvoicePostBuffer, InvoicePostBuffer,
-                          SalesPostPrepayments.GetInvRoundingAccNo(SalesHeader."Customer Posting Group"),
-                          "Prepmt. VAT Amount Inv. (LCY)", SalesHeader."Currency Code" = '');
-    end;
+#endif
 
     local procedure GetCurrency(CurrencyCode: Code[10])
     begin
-        if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
-        else begin
-            Currency.Get(CurrencyCode);
-            Currency.TestField("Amount Rounding Precision");
-        end;
+        Currency.Initialize(CurrencyCode, true);
     end;
 
     local procedure DivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
@@ -2879,7 +2940,16 @@
                 OnDivideAmountOnBeforeTempVATAmountLineRemainderModify(SalesHeader, SalesLine, TempVATAmountLine, TempVATAmountLineRemainder);
                 TempVATAmountLineRemainder.Modify();
                 if "Deferral Code" <> '' then
-                    CalcDeferralAmounts(SalesHeader, SalesLine, OriginalDeferralAmount);
+#if not CLEAN19
+                    if UseLegacyInvoicePosting() then
+                        CalcDeferralAmounts(SalesHeader, SalesLine, OriginalDeferralAmount)
+                    else begin
+#endif
+                        GetInvoicePostingSetup();
+                        InvoicePostingInterface.CalcDeferralAmounts(SalesHeader, SalesLine, OriginalDeferralAmount);
+#if not CLEAN19
+                    end;
+#endif
             end;
 
         OnAfterDivideAmount(SalesHeader, SalesLine, QtyType, SalesLineQty, TempVATAmountLine, TempVATAmountLineRemainder);
@@ -2932,16 +3002,11 @@
             OnRoundAmountOnAfterAssignSalesLines(xSalesLine, SalesLineACY, SalesHeader);
 
             if SalesHeader."Currency Code" <> '' then begin
-                if SalesHeader."Posting Date" = 0D then
-                    UseDate := WorkDate
-                else
-                    UseDate := SalesHeader."Posting Date";
-
                 NoVAT := Amount = "Amount Including VAT";
                 "Amount Including VAT" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."Amount Including VAT", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."Amount Including VAT";
                 if NoVAT then
@@ -2950,43 +3015,43 @@
                     Amount :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          UseDate, SalesHeader."Currency Code",
+                          SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                           TotalSalesLine.Amount, SalesHeader."Currency Factor")) -
                       TotalSalesLineLCY.Amount;
                 "Line Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."Line Amount", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."Line Amount";
                 "Line Discount Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."Line Discount Amount", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."Line Discount Amount";
                 "Inv. Discount Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."Inv. Discount Amount", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."Inv. Discount Amount";
                 "Pmt. Discount Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."Pmt. Discount Amount", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."Pmt. Discount Amount";
                 "VAT Difference" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."VAT Difference", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."VAT Difference";
                 "VAT Base Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      UseDate, SalesHeader."Currency Code",
+                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                       TotalSalesLine."VAT Base Amount", SalesHeader."Currency Factor")) -
                   TotalSalesLineLCY."VAT Base Amount";
             end;
@@ -3847,28 +3912,30 @@
             SetRange("Drop Shipment", false);
             if FindSet() then
                 repeat
-                    GetLocation("Location Code");
-                    case "Document Type" of
-                        "Document Type"::Order:
-                            if ((Location."Require Receive" or Location."Require Put-away") and (Quantity < 0)) or
-                               ((Location."Require Shipment" or Location."Require Pick") and (Quantity >= 0))
-                            then
-                                ShowError := GetShowErrorOnWarehouseCheck(TempItemSalesLine, Location);
-                        "Document Type"::"Return Order":
-                            if ((Location."Require Receive" or Location."Require Put-away") and (Quantity >= 0)) or
-                               ((Location."Require Shipment" or Location."Require Pick") and (Quantity < 0))
-                            then
-                                ShowError := GetShowErrorOnWarehouseCheck(TempItemSalesLine, Location);
-                        "Document Type"::Invoice, "Document Type"::"Credit Memo":
-                            if Location."Directed Put-away and Pick" then
-                                Location.TestField("Adjustment Bin Code");
+                    if IsInventoriableItem() then begin
+                        GetLocation("Location Code");
+                        case "Document Type" of
+                            "Document Type"::Order:
+                                if ((Location."Require Receive" or Location."Require Put-away") and (Quantity < 0)) or
+                                   ((Location."Require Shipment" or Location."Require Pick") and (Quantity >= 0))
+                                then
+                                    ShowError := GetShowErrorOnWarehouseCheck(TempItemSalesLine, Location);
+                            "Document Type"::"Return Order":
+                                if ((Location."Require Receive" or Location."Require Put-away") and (Quantity >= 0)) or
+                                   ((Location."Require Shipment" or Location."Require Pick") and (Quantity < 0))
+                                then
+                                    ShowError := GetShowErrorOnWarehouseCheck(TempItemSalesLine, Location);
+                            "Document Type"::Invoice, "Document Type"::"Credit Memo":
+                                if Location."Directed Put-away and Pick" then
+                                    Location.TestField("Adjustment Bin Code");
+                        end;
+                        if ShowError then
+                            Error(
+                              WarehouseRequiredErr,
+                              FieldCaption("Document Type"), "Document Type",
+                              FieldCaption("Document No."), "Document No.",
+                              FieldCaption("Line No."), "Line No.");
                     end;
-                    if ShowError then
-                        Error(
-                          WarehouseRequiredErr,
-                          FieldCaption("Document Type"), "Document Type",
-                          FieldCaption("Document No."), "Document No.",
-                          FieldCaption("Line No."), "Line No.");
                 until Next() = 0;
         end;
     end;
@@ -4161,6 +4228,7 @@
         end;
     end;
 
+#if not CLEAN19
     local procedure SetPaymentInstructions(SalesHeader: Record "Sales Header")
     var
         O365PaymentInstructions: Record "O365 Payment Instructions";
@@ -4174,6 +4242,7 @@
 
         SalesInvHeader."Payment Instructions Name" := O365PaymentInstructions.GetNameInCurrentLanguage;
     end;
+#endif
 
     procedure PostItemCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemLedgEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal)
     var
@@ -4203,7 +4272,7 @@
             if SalesHeader."Currency Code" <> '' then
                 SalesLineToPost.Amount :=
                   CurrExchRate.ExchangeAmtFCYToLCY(
-                    UseDate, SalesHeader."Currency Code", TotalChargeAmt, SalesHeader."Currency Factor");
+                    SalesHeader.GetUseDate(), SalesHeader."Currency Code", TotalChargeAmt, SalesHeader."Currency Factor");
             SalesLineToPost."Inv. Discount Amount" := Round(
                 SalesLine."Inv. Discount Amount" / SalesLine.Quantity * QtyToAssign,
                 GLSetup."Amount Rounding Precision");
@@ -4910,7 +4979,12 @@
         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
             SalesLine."Document No." := SalesCrMemoHeader."No.";
         JobContractLine := true;
-        JobPostLine.PostInvoiceContractLine(SalesHeader, SalesLine);
+#if not CLEAN19
+        if UseLegacyInvoicePosting() then
+            JobPostLine.PostInvoiceContractLine(SalesHeader, SalesLine)
+        else
+#endif
+        InvoicePostingInterface.PrepareJobLine(SalesHeader, SalesLine, SalesLineACY);
     end;
 
     local procedure InsertICGenJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var ICGenJnlLineNo: Integer)
@@ -5007,7 +5081,8 @@
                 ICTransactionNo := ICInOutBoxMgt.CreateOutboxJnlTransaction(TempICGenJnlLine, false);
                 ICInOutBoxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, TempICGenJnlLine);
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
-                GenJnlPostLine.RunWithCheck(TempICGenJnlLine);
+                if TempICGenJnlLine.Amount <> 0 then
+                    GenJnlPostLine.RunWithCheck(TempICGenJnlLine);
             until TempICGenJnlLine.Next() = 0;
     end;
 
@@ -5126,7 +5201,7 @@
         else
             SalesLine.SetFilter("Return Qty. to Receive", '<>0');
         if not SalesLine.IsEmpty and not PreviewMode then begin
-            RoundDeferralsForArchive(SalesHeader, SalesLine);
+            ArchiveManagement.RoundSalesDeferralsForArchive(SalesHeader, SalesLine);
             ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
             OrderArchived := true;
         end;
@@ -5238,6 +5313,40 @@
         OnAfterGetSalesSetup(SalesSetup);
     end;
 
+    local procedure GetInvoicePostingSetup()
+    var
+        IsHandled: Boolean;
+    begin
+        if IsInterfaceInitalized then
+            exit;
+
+#if not CLEAN19
+        if UseLegacyinvoicePosting() then
+            exit;
+#endif
+        IsHandled := false;
+        OnBeforeGetInvoicePostingSetup(InvoicePostingInterface, IsHandled);
+        if not IsHandled then
+            InvoicePostingInterface := SalesSetup."Invoice Posting Setup";
+
+        InvoicePostingInterface.Check(Database::"Sales Header");
+        IsInterfaceInitalized := true;
+
+        InvoicePostingInterface.SetHideProgressWindow(HideProgressWindow);
+        InvoicePostingInterface.SetPreviewMode(PreviewMode);
+        InvoicePostingInterface.SetSuppressCommit(SuppressCommit);
+    end;
+
+    local procedure GetInvoicePostingParameters()
+    begin
+        Clear(InvoicePostingParameters);
+        InvoicePostingParameters."Document Type" := GenJnlLineDocType;
+        InvoicePostingParameters."Document No." := GenJnlLineDocNo;
+        InvoicePostingParameters."External Document No." := GenJnlLineExtDocNo;
+        InvoicePostingParameters."Source Code" := SrcCode;
+        InvoicePostingParameters."Auto Document No." := '';
+    end;
+
     local procedure LockTables(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -5262,6 +5371,8 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure PostCustomerEntry(var SalesHeader: Record "Sales Header"; TotalSalesLine2: Record "Sales Line"; TotalSalesLineLCY2: Record "Sales Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -5311,6 +5422,7 @@
             OnAfterPostCustomerEntry(GenJnlLine, SalesHeader, TotalSalesLine2, TotalSalesLineLCY2, SuppressCommit, GenJnlPostLine);
         end;
     end;
+#endif
 
     local procedure UpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
@@ -5359,6 +5471,8 @@
         exit(number2);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure PostBalancingEntry(SalesHeader: Record "Sales Header"; TotalSalesLine2: Record "Sales Line"; TotalSalesLineLCY2: Record "Sales Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -5438,6 +5552,7 @@
 
         OnAfterSetApplyToDocNo(GenJnlLine, SalesHeader);
     end;
+#endif
 
     local procedure FindCustLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -6184,7 +6299,7 @@
             OnInsertPostedHeadersOnBeforeInsertInvoiceHeader(SalesHeader, IsHandled, SalesInvHeader, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo);
             if not IsHandled then
                 // Insert invoice header or credit memo header
-                if Invoice then
+                if Invoice then begin
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
                         InsertInvoiceHeader(SalesHeader, SalesInvHeader);
                         GenJnlLineDocType := GenJnlLine."Document Type"::Invoice;
@@ -6196,6 +6311,15 @@
                         GenJnlLineDocNo := SalesCrMemoHeader."No.";
                         GenJnlLineExtDocNo := SalesCrMemoHeader."External Document No.";
                     end;
+#if not CLEAN19
+                    if not UseLegacyInvoicePosting() then begin
+#endif
+                    GetInvoicePostingParameters();
+                    InvoicePostingInterface.SetParameters(InvoicePostingParameters);
+#if not CLEAN19
+                    end;
+#endif
+                end;
         end;
 
         OnAfterInsertPostedHeaders(SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader);
@@ -6365,9 +6489,10 @@
             if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
                 SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
 
+#if not CLEAN19
             OnInsertInvoiceHeaderOnBeforeSetPaymentInstructions(SalesHeader, SalesInvHeader, SalesShptHeader);
-
             SetPaymentInstructions(SalesHeader);
+#endif
             SalesInvHeaderInsert(SalesInvHeader, SalesHeader);
 
             UpdateWonOpportunities(SalesHeader);
@@ -6581,7 +6706,7 @@
             exit;
 
         if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine."Return Qty. to Receive" <> 0) then begin
-            if WhseReceive then
+            if WhseReceive and SalesLine.IsInventoriableItem() then
                 if WhseRcptLine.GetWhseRcptLine(
                      WhseRcptHeader."No.", DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.")
                 then begin
@@ -6592,7 +6717,7 @@
                       WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification);
                 end;
 
-            if WhseShip then
+            if WhseShip and SalesLine.IsInventoriableItem() then
                 if WhseShptLine.GetWhseShptLine(
                      WhseShptHeader."No.", DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.")
                 then begin
@@ -6640,7 +6765,9 @@
             if "Send IC Document" and ("IC Status" = "IC Status"::New) and ("IC Direction" = "IC Direction"::Outgoing) and
                ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
             then begin
+                Modify();
                 ICInboxOutboxMgt.SendSalesDoc(SalesHeader, true);
+                Get("Document Type", "No.");
                 IsHandled := false;
                 OnSendICDocumentOnBeforeSetICStatus(SalesHeader, IsHandled);
                 if not IsHandled then
@@ -6813,16 +6940,11 @@
     local procedure MakeInventoryAdjustment()
     var
         InvtSetup: Record "Inventory Setup";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
         InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <>
-           InvtSetup."Automatic Cost Adjustment"::Never
-        then begin
-            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.SetJobUpdateProperties(true);
-            InvtAdjmt.MakeMultiLevelAdjmt;
-        end;
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     local procedure FindNotShippedLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
@@ -6966,6 +7088,8 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     procedure CalcInvoiceDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     var
         IsHandled: Boolean;
@@ -6981,7 +7105,10 @@
             InvoicePostBuffer.CalcDiscount(
               SalesHeader."Prices Including VAT", -SalesLine."Inv. Discount Amount", -SalesLineACY."Inv. Discount Amount");
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     procedure CalcLineDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     var
         IsHandled: Boolean;
@@ -6997,6 +7124,7 @@
             InvoicePostBuffer.CalcDiscount(
               SalesHeader."Prices Including VAT", -SalesLine."Line Discount Amount", -SalesLineACY."Line Discount Amount");
     end;
+#endif
 
     local procedure FindTempItemChargeAssgntSales(SalesLineNo: Integer): Boolean
     begin
@@ -7061,7 +7189,9 @@
             end;
     end;
 
-    local procedure PostInvoicePostBuffer(SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
+    local procedure PostInvoicePostBuffer(SalesHeader: Record "Sales Header"; var TotalAmount: Decimal)
     var
         LineCount: Integer;
         GLEntryNo: Integer;
@@ -7086,11 +7216,17 @@
 
             until TempInvoicePostBuffer.Next(-1) = 0;
 
+        TempInvoicePostBuffer.CalcSums(Amount);
+        TotalAmount := -TempInvoicePostBuffer.Amount;
+
         OnPostInvoicePostBufferOnBeforeTempInvoicePostBufferDeleteAll(
             SalesHeader, GenJnlPostLine, TotalSalesLine, TotalSalesLineLCY, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode);
         TempInvoicePostBuffer.DeleteAll();
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure PostInvoicePostBufferLine(SalesHeader: Record "Sales Header"; var InvoicePostBuffer: Record "Invoice Post. Buffer") GLEntryNo: Integer
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -7101,7 +7237,6 @@
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, '');
 
             CopyFromSalesHeader(SalesHeader);
-
             CopyFromInvoicePostBuffer(InvoicePostBuffer);
             OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer(SalesHeader, InvoicePostBuffer, GenJnlLine);
 
@@ -7117,7 +7252,10 @@
             OnAfterPostInvPostBuffer(GenJnlLine, InvoicePostBuffer, SalesHeader, GLEntryNo, SuppressCommit, GenJnlPostLine, xSalesLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure InitNewLineFromInvoicePostBuffer(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer")
     var
         IsHandled: Boolean;
@@ -7132,6 +7270,7 @@
             InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
             InvoicePostBuffer."Dimension Set ID", SalesHeader."Reason Code");
     end;
+#endif
 
     local procedure PostItemTracking(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; TrackingSpecificationExists: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempItemLedgEntryNotInvoiced: Record "Item Ledger Entry" temporary; HasATOShippedNotInvoiced: Boolean)
     var
@@ -7241,6 +7380,7 @@
                     GetReturnRcptLineFromTrackingOrUpdateItemEntryRelation(
                         SalesHeader, TrackingSpecificationExists, ItemEntryRelation, TempTrackingSpecification, ReturnRcptLine);
 
+                    UpdateChargeItemReturnRcptLineGenProdPostingGroup(ReturnRcptLine);
                     ReturnRcptLine.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
                     ReturnRcptLine.TestField(Type, SalesLine.Type);
                     ReturnRcptLine.TestField("No.", SalesLine."No.");
@@ -7384,7 +7524,7 @@
                       TrackingSpecificationExists, HasATOShippedNotInvoiced);
 
                     UpdateRemainingQtyToBeInvoiced(SalesShptLine, RemQtyToInvoiceCurrLine, RemQtyToInvoiceCurrLineBase);
-
+                    UpdateChargeItemSalesShptLineGenProdPostingGroup(SalesShptLine);
                     SalesShptLine.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
                     SalesShptLine.TestField(Type, SalesLine.Type);
                     SalesShptLine.TestField("No.", SalesLine."No.");
@@ -7676,13 +7816,13 @@
                 DeferralPostBuffer.Description := SalesHeader."Posting Description";
                 DeferralPostBuffer."Period Description" := DeferralTemplate."Period Description";
                 DeferralPostBuffer."Deferral Line No." := InvDefLineNo;
-                DeferralPostBuffer.PrepareInitialPair(
-                  InvoicePostBuffer, RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount);
-                DeferralPostBuffer.Update(DeferralPostBuffer, InvoicePostBuffer);
+                DeferralPostBuffer.PrepareInitialAmounts(
+                  InvoicePostBuffer.Amount, InvoicePostBuffer."Amount (ACY)", RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount);
+                DeferralPostBuffer.Update(DeferralPostBuffer);
                 if (RemainAmtToDefer <> 0) or (RemainAmtToDeferACY <> 0) then begin
                     DeferralPostBuffer.PrepareRemainderSales(
                       SalesLine, RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount, InvDefLineNo);
-                    DeferralPostBuffer.Update(DeferralPostBuffer, InvoicePostBuffer);
+                    DeferralPostBuffer.Update(DeferralPostBuffer);
                 end;
 
                 // Add the deferral lines for each period to the deferral posting buffer merging when they are the same
@@ -7697,7 +7837,7 @@
                             DeferralPostBuffer."Deferral Account" := DeferralAccount;
                             DeferralPostBuffer."Period Description" := DeferralTemplate."Period Description";
                             DeferralPostBuffer."Deferral Line No." := InvDefLineNo;
-                            DeferralPostBuffer.Update(DeferralPostBuffer, InvoicePostBuffer);
+                            DeferralPostBuffer.Update(DeferralPostBuffer);
                         end else
                             Error(ZeroDeferralAmtErr, SalesLine."No.", SalesLine."Deferral Code");
 
@@ -7709,13 +7849,6 @@
                 Error(NoDeferralScheduleErr, SalesLine."No.", SalesLine."Deferral Code")
         end else
             Error(NoDeferralScheduleErr, SalesLine."No.", SalesLine."Deferral Code");
-    end;
-
-    local procedure RoundDeferralsForArchive(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
-    var
-        ArchiveManagement: Codeunit ArchiveManagement;
-    begin
-        ArchiveManagement.RoundSalesDeferralsForArchive(SalesHeader, SalesLine);
     end;
 
     local procedure GetAmountsForDeferral(SalesLine: Record "Sales Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
@@ -7975,6 +8108,12 @@
         exit(true);
     end;
 
+    local procedure UseLegacyInvoicePosting(): Boolean
+    begin
+        GetSalesSetup();
+        exit(SalesSetup."Invoice Posting Setup" = "Sales Invoice Posting"::"Invoice Posting (Default)");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
@@ -8015,10 +8154,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePostedDeferralScheduleFromSalesDoc(var SalesLine: Record "Sales Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseJnlLine(var SalesLine: Record "Sales Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
@@ -8125,20 +8267,29 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; GLEntryNo: Integer; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; xSalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line")
@@ -8335,10 +8486,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitNewLineFromInvoicePostBuffer(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertICGenJnlLine(var ICGenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean)
@@ -8431,7 +8585,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8465,15 +8619,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunPostCustomerEntry(var SalesHeader: Record "Sales Header"; var TotalSalesLine2: Record "Sales Line"; var TotalSalesLineLCY2: Record "Sales Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header")
@@ -8485,20 +8645,26 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostInvPostBuffer(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCarteraBills(SalesHeader: Record "Sales Header"; CustLedgerEntry: Record "Cust. Ledger Entry"; var TotalSalesLine: Record "Sales Line")
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostInvoicePostBuffer(SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobContractLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; var JobContractLine: Boolean)
@@ -8587,10 +8753,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetApplyToDocNo(var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
@@ -8637,15 +8806,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvoiceDiscountPostingProcedure(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineDiscountPostingProcedure(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvoice(SalesHeader: Record "Sales Header"; TempSalesLineGlobal: Record "Sales Line" temporary; var NewInvoice: Boolean; var IsHandled: Boolean)
@@ -8748,6 +8923,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInvoicePostingSetup(var InvoicePostingInterface: Interface "Invoice Posting"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInvoicePostingBufferSetAmounts(SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
     begin
     end;
@@ -8767,8 +8947,15 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostGLAndCustomer(var SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var CustLedgerEntry: Record "Cust. Ledger Entry"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostInvoice(var SalesHeader: Record "Sales Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8837,10 +9024,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountsForBalancingEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var TotalSalesLineLCY2: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetPostingFlags(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
@@ -8877,10 +9067,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempDeferralLineInsert(var TempDeferralLine: Record "Deferral Line" temporary; DeferralLine: Record "Deferral Line"; SalesLine: Record "Sales Line"; var DeferralCount: Integer; var TotalDeferralCount: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempPrepmtSalesLineInsert(var TempPrepmtSalesLine: Record "Sales Line" temporary; var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header"; CompleteFunctionality: Boolean)
@@ -9060,6 +9253,7 @@
         OnAfterUpdateSalesLineDimSetIDFromAppliedEntry(SalesLineToPost, ItemLedgEntry, DimSetID);
     end;
 
+#if not CLEAN19
     local procedure CalcDeferralAmounts(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; OriginalDeferralAmount: Decimal)
     var
         DeferralHeader: Record "Deferral Header";
@@ -9069,14 +9263,8 @@
         TotalAmount: Decimal;
         TotalDeferralCount: Integer;
         DeferralCount: Integer;
-        UseDate: Date;
     begin
         // Populate temp and calculate the LCY amounts for posting
-        if SalesHeader."Posting Date" = 0D then
-            UseDate := WorkDate
-        else
-            UseDate := SalesHeader."Posting Date";
-
         if DeferralHeader.Get(
              "Deferral Document Type"::Sales, '', '', SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.")
         then begin
@@ -9088,7 +9276,7 @@
             TempDeferralHeader."Amount to Defer (LCY)" :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(
-                  UseDate, SalesHeader."Currency Code",
+                  SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", SalesHeader."Currency Factor"));
             TempDeferralHeader.Insert();
 
@@ -9116,7 +9304,7 @@
                             TempDeferralLine."Amount (LCY)" :=
                               Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
-                                  UseDate, SalesHeader."Currency Code",
+                                  SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                                   TempDeferralLine.Amount, SalesHeader."Currency Factor"));
                             TotalAmount := TotalAmount + TempDeferralLine.Amount;
                             TotalAmountLCY := TotalAmountLCY + TempDeferralLine."Amount (LCY)";
@@ -9129,7 +9317,10 @@
             end;
         end;
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     local procedure CreatePostedDeferralScheduleFromSalesDoc(SalesLine: Record "Sales Line"; NewDocumentType: Integer; NewDocumentNo: Code[20]; NewLineNo: Integer; PostingDate: Date)
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
@@ -9160,6 +9351,7 @@
 
         OnAfterCreatePostedDeferralScheduleFromSalesDoc(SalesLine, PostedDeferralHeader);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSendSalesDocument(ShipAndInvoice: Boolean; CommitIsSuppressed: Boolean)
@@ -9299,31 +9491,6 @@
         OnAfterSalesCrMemoHeaderInsert(SalesCrMemoHeader, SalesHeader, SuppressCommit, WhseShip, WhseReceive, TempWhseShptHeader, TempWhseRcptHeader);
     end;
 
-    local procedure CheckCorrectedInvoice(var SalesHeader: Record "Sales Header")
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckCorrectedInvoice(SalesHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") or
-           ((SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order") and SalesHeader.Invoice)
-        then begin
-            if SalesSetup."Correct. Doc. No. Mandatory" then
-                SalesHeader.TestField("Corrected Invoice No.")
-            else begin
-                if SalesHeader."Corrected Invoice No." = '' then
-                    if not ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
-                        Error(Text1100011);
-            end;
-            if (SalesHeader."Corrected Invoice No." <> '') and (SalesHeader."Posting Description" = '') then
-                SalesHeader."Posting Description" := Format(Text1100104) + ' ' + SalesHeader."No."
-        end;
-    end;
-
     procedure UpdateChargeItemReturnRcptLineGenProdPostingGroup(var ReturnReceiptLine: Record "Return Receipt Line");
     var
         ItemCharge: Record "Item Charge";
@@ -9364,6 +9531,31 @@
 
         SalesLine."Gen. Prod. Posting Group" := ItemCharge."Gen. Prod. Posting Group";
         SalesLine.Modify(false);
+    end;
+
+    local procedure CheckCorrectedInvoice(var SalesHeader: Record "Sales Header")
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCorrectedInvoice(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") or
+           ((SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order") and SalesHeader.Invoice)
+        then begin
+            if SalesSetup."Correct. Doc. No. Mandatory" then
+                SalesHeader.TestField("Corrected Invoice No.")
+            else begin
+                if SalesHeader."Corrected Invoice No." = '' then
+                    if not ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
+                        Error(Text1100011);
+            end;
+            if (SalesHeader."Corrected Invoice No." <> '') and (SalesHeader."Posting Description" = '') then
+                SalesHeader."Posting Description" := Format(Text1100104) + ' ' + SalesHeader."No."
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -9546,10 +9738,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Removed as part of Invoicing', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvoiceHeaderOnBeforeSetPaymentInstructions(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesShptHeader: Record "Sales Shipment Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSumSalesLines2OnBeforeDivideAmount(var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; IncludePrepayments: Boolean)
@@ -9746,15 +9941,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostBalancingEntryOnAfterFindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostBalancingEntryOnBeforeFindCustLedgEntry(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35]; var CustLedgerEntry: Record "Cust. Ledger Entry"; var EntryFound: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header")
@@ -9891,6 +10092,8 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostInvoicePostBufferOnAfterPostSalesGLAccounts(var SalesHeader: Record "Sales Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; DocumentNo: Code[20]; GLEntryNo: Integer; SourceCode: Code[10])
     begin
@@ -9900,11 +10103,15 @@
     local procedure OnPostInvoicePostBufferOnBeforeTempInvoicePostBufferDeleteAll(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SrcCode: Code[10])
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Moved to Sales Invoice Posting implementation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostInvoicePostBufferLineOnAfterCopyFromInvoicePostBuffer(var SalesHeader: Record "Sales Header"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesLineOnBeforeInsertCrMemoLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -10222,12 +10429,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckAndUpdateOnBeforeCheckShip(var IsHandled: Boolean)
+    local procedure OnCheckAndUpdateOnBeforeCheckShip(var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateReceiveAndCheckIfInvPutawayExists(var IsHandled: Boolean)
+    local procedure OnBeforeUpdateReceiveAndCheckIfInvPutawayExists(var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

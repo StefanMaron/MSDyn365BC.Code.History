@@ -58,6 +58,37 @@ page 5348 "CRM Product List"
 
     actions
     {
+        area(processing)
+        {
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Products';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled products.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Products';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled products.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -71,13 +102,16 @@ page 5348 "CRM Product List"
             if CurrentlyCoupledCRMProduct.ProductId = ProductId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

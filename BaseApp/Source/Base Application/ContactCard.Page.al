@@ -61,6 +61,13 @@ page 5050 "Contact Card"
                         CurrPage.Update(false);
                     end;
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field(Type; Type)
                 {
                     ApplicationArea = All;
@@ -71,27 +78,38 @@ page 5050 "Contact Card"
                         TypeOnAfterValidate;
                     end;
                 }
-                field("Company No."; "Company No.")
+                group(ParentCompanyInfo)
                 {
-                    ApplicationArea = All;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the number for the contact''s company.';
-                }
-                field("Company Name"; "Company Name")
-                {
-                    ApplicationArea = All;
-                    AssistEdit = true;
-                    Enabled = CompanyNameEnable;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
+                    ShowCaption = false;
+                    field("Company No."; "Company No.")
+                    {
+                        ApplicationArea = All;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the number for the contact''s company.';
+                    }
+                    field("Company Name"; "Company Name")
+                    {
+                        ApplicationArea = All;
+                        AssistEdit = true;
+                        Enabled = CompanyNameEnable;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
 
-                    trigger OnAssistEdit()
-                    begin
-                        CurrPage.SaveRecord();
-                        Commit();
-                        LookupCompany();
-                        CurrPage.Update(false);
-                    end;
+                        trigger OnAssistEdit()
+                        begin
+                            CurrPage.SaveRecord();
+                            Commit();
+                            LookupCompany();
+                            CurrPage.Update(false);
+                        end;
+                    }
+                }
+                field("Job Title"; "Job Title")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the contact''s job title.';
+                    Visible = false;
                 }
                 field("Contact Business Relation"; Rec."Contact Business Relation")
                 {
@@ -342,7 +360,7 @@ page 5050 "Contact Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the preferred type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
+                        ToolTip = 'Specifies the preferred type of correspondence for the interaction.';
                     }
                     field("Language Code"; "Language Code")
                     {
@@ -552,13 +570,17 @@ page 5050 "Contact Card"
                         ToolTip = 'Specify date ranges that apply to the contact''s alternate address.';
                     }
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -567,6 +589,7 @@ page 5050 "Contact Card"
                         Email.OpenSentEmails(Database::Contact, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -971,6 +994,21 @@ page 5050 "Contact Card"
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
+                }
             }
         }
         area(processing)
@@ -1224,7 +1262,7 @@ page 5050 "Contact Card"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the contact.';
                 Image = Word;
 
@@ -1244,13 +1282,18 @@ page 5050 "Contact Card"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this contact.';
+                Promoted = true;
+                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Contact, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Contact, Rec.SystemId);
+                    TempEmailItem.AddRelatedSourceDocuments(Database::Contact, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             action("Create Opportunity")
@@ -1379,7 +1422,6 @@ page 5050 "Contact Card"
         CompanyNameEnable: Boolean;
         [InDataSet]
         OrganizationalLevelCodeEnable: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;
@@ -1394,6 +1436,7 @@ page 5050 "Contact Card"
         ShowMapLbl: Label 'Show Map';
         NoFieldVisible: Boolean;
         ParentalConsentReceivedEnable: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure EnableFields()
     begin

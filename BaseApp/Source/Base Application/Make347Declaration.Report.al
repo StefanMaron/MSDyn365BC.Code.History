@@ -691,7 +691,9 @@ report 10707 "Make 347 Declaration"
         ESCountryCodeTxt: Label 'ES', Locked = true;
         DoYouWantToContinueQst: Label 'At least one %1/%2 does not have any value in the %3 field. \Only customers or vendors with a value for %3 will be included in the file. \\Do you still want to create the 347 Declaration file?', Comment = '%1=Customer,%2=Vendor,%3=VAT Registration No.';
         FileFilterTxt: Label 'Txt Files|*.txt|All Files|*.*''', Comment = 'Please translate only "Txt Files" and "All Files". The rest of the characters should remain unchanged.';
+#if not CLEAN17
         FileSuccessfullyExportedMsg: Label 'The 347 Declaration file has been exported successfully under %1.', Comment = '%1=file location on disk.';
+#endif
         IncorrectFiscalYearErr: Label 'Incorrect Fiscal Year.';
         IntegerTypeTxt: Label '<Integer>', Locked = true;
         LetterATxt: Label 'A', Locked = true;

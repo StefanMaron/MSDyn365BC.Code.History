@@ -72,12 +72,12 @@ page 7000034 "Posted Bill Gr. Maturity Lines"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(PeriodFormManagement.FindDate(Which, Rec, PeriodLength));
+        exit(PeriodPageManagement.FindDate(Which, Rec, PeriodLength));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(PeriodFormManagement.NextDate(Steps, Rec, PeriodLength));
+        exit(PeriodPageManagement.NextDate(Steps, Rec, PeriodLength));
     end;
 
     trigger OnOpenPage()
@@ -88,7 +88,7 @@ page 7000034 "Posted Bill Gr. Maturity Lines"
     var
         PostedBillGr: Record "Posted Bill Group";
         PostedDoc: Record "Posted Cartera Doc.";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         PeriodLength: Option Day,Week,Month,Quarter,Year,Period;
         AmountType: Option "Net Change","Balance at Date";
         DocAmount: Decimal;

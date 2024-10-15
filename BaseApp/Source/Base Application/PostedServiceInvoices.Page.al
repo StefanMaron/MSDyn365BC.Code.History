@@ -373,7 +373,7 @@ page 5977 "Posted Service Invoices"
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
 
-        StyleText := SIIManagement.GetSIIStyle("SII Status");
+        StyleText := SIIManagement.GetSIIStyle("SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()

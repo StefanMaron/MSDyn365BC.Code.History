@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1920 "Container Sandbox Environment"
 {
     ApplicationArea = Basic, Suite;
@@ -149,4 +150,4 @@ page 1920 "Container Sandbox Environment"
         exit(NavTenantSettingsHelper.GetPlatformVersion().ToString())
     end;
 }
-
+#endif

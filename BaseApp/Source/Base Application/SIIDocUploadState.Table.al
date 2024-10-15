@@ -37,12 +37,10 @@ table 10752 "SII Doc. Upload State"
             OptionCaption = 'Regular,Intracommunity,RetryAccepted,Collection In Cash';
             OptionMembers = Regular,Intracommunity,RetryAccepted,"Collection In Cash";
         }
-        field(8; Status; Option)
+        field(8; Status; Enum "SII Document Status")
         {
             Caption = 'Status';
             NotBlank = true;
-            OptionCaption = 'Pending,Incorrect,Accepted,Accepted With Errors,Communication Error,Failed,Not Supported';
-            OptionMembers = Pending,Incorrect,Accepted,"Accepted With Errors","Communication Error",Failed,"Not Supported";
         }
         field(9; "Is Credit Memo Removal"; Boolean)
         {
@@ -66,83 +64,71 @@ table 10752 "SII Doc. Upload State"
             Caption = 'Corr. Posting Date';
             DataClassification = CustomerContent;
         }
-        field(20; "Sales Invoice Type"; Option)
+        field(20; "Sales Invoice Type"; Enum "SII Sales Upload Invoice Type")
         {
             Caption = 'Sales Invoice Type';
-            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
-            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
 
             trigger OnValidate()
             begin
-                if "Sales Invoice Type" <> 0 then begin
+                if "Sales Invoice Type" <> "Sales Invoice Type"::" " then begin
                     TestField("Document Source", "Document Source"::"Customer Ledger");
                     TestField("Document Type", "Document Type"::Invoice);
                 end;
             end;
         }
-        field(21; "Sales Cr. Memo Type"; Option)
+        field(21; "Sales Cr. Memo Type"; Enum "SII Sales Upload Credit Memo Type")
         {
             Caption = 'Sales Cr. Memo Type';
-            OptionCaption = ' ,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice';
-            OptionMembers = " ","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice";
 
             trigger OnValidate()
             begin
-                if "Sales Cr. Memo Type" <> 0 then begin
+                if "Sales Cr. Memo Type" <> "Sales Cr. Memo Type"::" " then begin
                     TestField("Document Source", "Document Source"::"Customer Ledger");
                     TestField("Document Type", "Document Type"::"Credit Memo");
                 end;
             end;
         }
-        field(22; "Sales Special Scheme Code"; Option)
+        field(22; "Sales Special Scheme Code"; Enum "SII Sales Upload Scheme Code")
         {
             Caption = 'Sales Special Scheme Code';
-            OptionCaption = ' ,01 General,02 Export,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Travel Agency Services,10 Third Party,11 Business Withholding,12 Business not Withholding,13 Business Withholding and not Withholding,14 Invoice Work Certification,15 Invoice of Consecutive Nature,16 First Half 2017';
-            OptionMembers = " ","01 General","02 Export","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Travel Agency Services","10 Third Party","11 Business Withholding","12 Business not Withholding","13 Business Withholding and not Withholding","14 Invoice Work Certification","15 Invoice of Consecutive Nature","16 First Half 2017";
 
             trigger OnValidate()
             begin
-                if "Sales Special Scheme Code" <> 0 then
+                if "Sales Special Scheme Code" <> "Sales Special Scheme Code"::"01 General" then
                     TestField("Document Source", "Document Source"::"Customer Ledger");
             end;
         }
-        field(23; "Purch. Invoice Type"; Option)
+        field(23; "Purch. Invoice Type"; Enum "SII Purch. Upload Invoice Type")
         {
             Caption = 'Purch. Invoice Type';
-            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
-            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
 
             trigger OnValidate()
             begin
-                if "Purch. Invoice Type" <> 0 then begin
+                if "Purch. Invoice Type" <> "Purch. Invoice Type"::" " then begin
                     TestField("Document Source", "Document Source"::"Vendor Ledger");
                     TestField("Document Type", "Document Type"::Invoice);
                 end;
             end;
         }
-        field(24; "Purch. Cr. Memo Type"; Option)
+        field(24; "Purch. Cr. Memo Type"; Enum "SII Purch. Upload Cr. Memo Type")
         {
             Caption = 'Purch. Cr. Memo Type';
-            OptionCaption = ' ,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices,F1 Invoice,F2 Simplified Invoice';
-            OptionMembers = " ","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices","F1 Invoice","F2 Simplified Invoice";
 
             trigger OnValidate()
             begin
-                if "Purch. Cr. Memo Type" <> 0 then begin
+                if "Purch. Cr. Memo Type" <> "Purch. Cr. Memo Type"::" " then begin
                     TestField("Document Source", "Document Source"::"Vendor Ledger");
                     TestField("Document Type", "Document Type"::"Credit Memo");
                 end;
             end;
         }
-        field(25; "Purch. Special Scheme Code"; Option)
+        field(25; "Purch. Special Scheme Code"; Enum "SII Purch. Upload Scheme Code")
         {
             Caption = 'Purch. Special Scheme Code';
-            OptionCaption = ' ,01 General,02 Special System Activities,03 Special System,04 Gold,05 Travel Agencies,06 Groups of Entities,07 Special Cash,08  IPSI / IGIC,09 Intra-Community Acquisition,12 Business Premises Leasing Operations,13 Import (Without DUA),14 First Half 2017';
-            OptionMembers = " ","01 General","02 Special System Activities","03 Special System","04 Gold","05 Travel Agencies","06 Groups of Entities","07 Special Cash","08  IPSI / IGIC","09 Intra-Community Acquisition","12 Business Premises Leasing Operations","13 Import (Without DUA)","14 First Half 2017";
 
             trigger OnValidate()
             begin
-                if "Purch. Special Scheme Code" <> 0 then
+                if "Purch. Special Scheme Code" <> "Purch. Special Scheme Code"::" " then
                     TestField("Document Source", "Document Source"::"Vendor Ledger");
             end;
         }
@@ -179,11 +165,9 @@ table 10752 "SII Doc. Upload State"
         {
             Caption = 'Country/Region Code';
         }
-        field(44; IDType; Option)
+        field(44; IDType; Enum "SII ID Type")
         {
             Caption = 'IDType';
-            OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
-            OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
         field(50; "Inv. Entry No"; Integer)
         {
@@ -484,51 +468,55 @@ table 10752 "SII Doc. Upload State"
                     "Document Type"::Invoice:
                         begin
                             if SalesInvoiceHeader.Get(DocumentNo) then
-                                if not SIIManagement.IsAllowedSalesInvType(SalesInvoiceHeader."Invoice Type") then
+                                if not SIIManagement.IsAllowedSalesInvType(SalesInvoiceHeader."Invoice Type".AsInteger()) then
                                     SalesInvoiceHeader.FieldError("Invoice Type");
                             if SalesInvoiceHeader."No." = '' then begin
                                 // Get Service Header instead of Service Invoice Header because it's not inserted yet
                                 ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
                                 ServiceHeader.SetRange("Posting No.", DocumentNo);
                                 if ServiceHeader.FindFirst then begin
-                                    if not SIIManagement.IsAllowedServInvType(ServiceHeader."Invoice Type") then
+                                    if not SIIManagement.IsAllowedServInvType(ServiceHeader."Invoice Type".AsInteger()) then
                                         ServiceHeader.FieldError("Invoice Type");
                                     // Increase Invoice Type and Special Scheme Code because in SII Doc. Upload state there is blank option in the beginning
                                     TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                      ServiceHeader."Bill-to Customer No.", ServiceHeader."Invoice Type" + 1, 0, ServiceHeader."Special Scheme Code" + 1,
+                                      ServiceHeader."Bill-to Customer No.", ServiceHeader."Invoice Type".AsInteger() + 1, 0,
+                                      ServiceHeader."Special Scheme Code".AsInteger() + 1,
                                       ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type");
                                 end else begin
                                     CustLedgerEntry.Get(EntryNo);
                                     TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                      CustLedgerEntry."Customer No.", CustLedgerEntry."Invoice Type" + 1, 0, CustLedgerEntry."Special Scheme Code" + 1,
+                                      CustLedgerEntry."Customer No.", CustLedgerEntry."Invoice Type".AsInteger() + 1, 0,
+                                      CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
                                       CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
-                                      CustLedgerEntry."ID Type");
+                                      CustLedgerEntry."ID Type".AsInteger());
                                 end;
                             end else
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Invoice Type" + 1, 0,
-                                  SalesInvoiceHeader."Special Scheme Code" + 1, SalesInvoiceHeader."Succeeded Company Name",
-                                  SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type");
+                                  SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."Invoice Type".AsInteger() + 1, 0,
+                                  SalesInvoiceHeader."Special Scheme Code".AsInteger() + 1, SalesInvoiceHeader."Succeeded Company Name",
+                                  SalesInvoiceHeader."Succeeded VAT Registration No.", SalesInvoiceHeader."ID Type".AsInteger());
                         end;
                     "Document Type"::"Credit Memo":
                         if SalesCrMemoHeader.Get(DocumentNo) then
                             TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                              SalesCrMemoHeader."Bill-to Customer No.", 0, SalesCrMemoHeader."Cr. Memo Type" + 1,
-                              SalesCrMemoHeader."Special Scheme Code" + 1, SalesCrMemoHeader."Succeeded Company Name",
-                              SalesCrMemoHeader."Succeeded VAT Registration No.", SalesCrMemoHeader."ID Type")
+                              SalesCrMemoHeader."Bill-to Customer No.", 0, SalesCrMemoHeader."Cr. Memo Type".AsInteger() + 1,
+                              SalesCrMemoHeader."Special Scheme Code".AsInteger() + 1, SalesCrMemoHeader."Succeeded Company Name",
+                              SalesCrMemoHeader."Succeeded VAT Registration No.", SalesCrMemoHeader."ID Type".AsInteger())
                         else begin
                             ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
                             ServiceHeader.SetRange("Posting No.", DocumentNo);
                             if ServiceHeader.FindFirst then
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type" + 1, ServiceHeader."Special Scheme Code" + 1,
+                                  ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type".AsInteger() + 1,
+                                  ServiceHeader."Special Scheme Code".AsInteger() + 1,
                                   ServiceHeader."Succeeded Company Name", ServiceHeader."Succeeded VAT Registration No.", ServiceHeader."ID Type")
                             else begin
                                 CustLedgerEntry.Get(EntryNo);
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
-                                  CustLedgerEntry."Customer No.", 0, CustLedgerEntry."Cr. Memo Type" + 1, CustLedgerEntry."Special Scheme Code" + 1,
+                                  CustLedgerEntry."Customer No.", 0, CustLedgerEntry."Cr. Memo Type".AsInteger() + 1,
+                                  CustLedgerEntry."Special Scheme Code".AsInteger() + 1,
                                   CustLedgerEntry."Succeeded Company Name", CustLedgerEntry."Succeeded VAT Registration No.",
-                                  CustLedgerEntry."ID Type");
+                                  CustLedgerEntry."ID Type".AsInteger());
                             end;
                         end;
                 end;
@@ -537,24 +525,32 @@ table 10752 "SII Doc. Upload State"
                     "Document Type"::Invoice:
                         if PurchInvHeader.Get(DocumentNo) then
                             TempSIIDocUploadState.UpdatePurchSIIDocUploadState(
-                              PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Invoice Type" + 1, 0, PurchInvHeader."Special Scheme Code" + 1,
-                              PurchInvHeader."Succeeded Company Name", PurchInvHeader."Succeeded VAT Registration No.", PurchInvHeader."ID Type")
+                              PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Invoice Type".AsInteger() + 1, 0,
+                              PurchInvHeader."Special Scheme Code".AsInteger() + 1,
+                              PurchInvHeader."Succeeded Company Name", PurchInvHeader."Succeeded VAT Registration No.",
+                              PurchInvHeader."ID Type".AsInteger())
                         else begin
                             VendLedgEntry.Get(EntryNo);
                             TempSIIDocUploadState.UpdatePurchSIIDocUploadState(
-                              VendLedgEntry."Vendor No.", VendLedgEntry."Invoice Type" + 1, 0, VendLedgEntry."Special Scheme Code" + 1,
-                              VendLedgEntry."Succeeded Company Name", VendLedgEntry."Succeeded VAT Registration No.", VendLedgEntry."ID Type");
+                              VendLedgEntry."Vendor No.", VendLedgEntry."Invoice Type".AsInteger() + 1, 0,
+                              VendLedgEntry."Special Scheme Code".AsInteger() + 1,
+                              VendLedgEntry."Succeeded Company Name", VendLedgEntry."Succeeded VAT Registration No.",
+                              VendLedgEntry."ID Type".AsInteger());
                         end;
                     "Document Type"::"Credit Memo":
                         if PurchCrMemoHdr.Get(DocumentNo) then
                             TempSIIDocUploadState.UpdatePurchSIIDocUploadState(
-                              PurchCrMemoHdr."Pay-to Vendor No.", 0, PurchCrMemoHdr."Cr. Memo Type" + 1, PurchCrMemoHdr."Special Scheme Code" + 1,
-                              PurchCrMemoHdr."Succeeded Company Name", PurchCrMemoHdr."Succeeded VAT Registration No.", PurchCrMemoHdr."ID Type")
+                              PurchCrMemoHdr."Pay-to Vendor No.", 0, PurchCrMemoHdr."Cr. Memo Type".AsInteger() + 1,
+                              PurchCrMemoHdr."Special Scheme Code".AsInteger() + 1,
+                              PurchCrMemoHdr."Succeeded Company Name", PurchCrMemoHdr."Succeeded VAT Registration No.",
+                              PurchCrMemoHdr."ID Type".AsInteger())
                         else begin
                             VendLedgEntry.Get(EntryNo);
                             TempSIIDocUploadState.UpdatePurchSIIDocUploadState(
-                              VendLedgEntry."Vendor No.", 0, VendLedgEntry."Cr. Memo Type" + 1, VendLedgEntry."Special Scheme Code" + 1,
-                              VendLedgEntry."Succeeded Company Name", VendLedgEntry."Succeeded VAT Registration No.", VendLedgEntry."ID Type");
+                              VendLedgEntry."Vendor No.", 0, VendLedgEntry."Cr. Memo Type".AsInteger() + 1,
+                              VendLedgEntry."Special Scheme Code".AsInteger() + 1,
+                              VendLedgEntry."Succeeded Company Name", VendLedgEntry."Succeeded VAT Registration No.",
+                              VendLedgEntry."ID Type".AsInteger());
                         end;
                 end;
         end;
@@ -735,7 +731,37 @@ table 10752 "SII Doc. Upload State"
                 end;
         end;
     end;
-    	
+
+    procedure AssignPurchSchemeCode(SchemeCode: Enum "SII Purch. Special Scheme Code")
+    begin
+        "Purch. Special Scheme Code" := "SII Purch. Upload Scheme Code".FromInteger(SchemeCode.AsInteger() + 1);
+    end;
+
+    procedure AssignSalesSchemeCode(SchemeCode: Enum "SII Sales Special Scheme Code")
+    begin
+        "Sales Special Scheme Code" := "SII Sales Upload Scheme Code".FromInteger(SchemeCode.AsInteger() + 1);
+    end;
+
+    procedure AssignPurchInvoiceType(InvoiceType: Enum "SII Purch. Invoice Type")
+    begin
+        "Purch. Invoice Type" := "SII Purch. Upload Invoice Type".FromInteger((InvoiceType.AsInteger() + 1));
+    end;
+
+    procedure AssignSalesInvoiceType(InvoiceType: Enum "SII Sales Invoice Type")
+    begin
+        "Sales Invoice Type" := "SII Sales Upload Invoice Type".FromInteger((InvoiceType.AsInteger() + 1));
+    end;
+
+    procedure AssignPurchCreditMemoType(CreditMemoType: Enum "SII Purch. Credit Memo Type")
+    begin
+        "Purch. Cr. Memo Type" := "SII Purch. Upload Cr. Memo Type".FromInteger((CreditMemoType.AsInteger() + 1));
+    end;
+
+    procedure AssignSalesCreditMemoType(CreditMemoType: Enum "SII Sales Credit Memo Type")
+    begin
+        "Sales Cr. Memo Type" := "SII Sales Upload Credit Memo Type".FromInteger((CreditMemoType.AsInteger() + 1));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     begin

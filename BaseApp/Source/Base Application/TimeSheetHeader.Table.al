@@ -43,6 +43,13 @@ table 950 "Time Sheet Header"
                 end;
             end;
         }
+        field(6; "Resource Name"; Text[100])
+        {
+            Caption = 'Resource Name';
+            FieldClass = FlowField;
+            CalcFormula = Lookup(Resource.Name WHERE("No." = FIELD("Resource No.")));
+            Editable = false;
+        }
         field(7; "Owner User ID"; Code[50])
         {
             Caption = 'Owner User ID';
@@ -54,6 +61,18 @@ table 950 "Time Sheet Header"
             Caption = 'Approver User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
+        }
+        field(10; Description; Text[100])
+        {
+            Caption = 'Description';
+            DataClassification = CustomerContent;
+        }
+        field(11; "Unit of Measure"; Code[10])
+        {
+            CalcFormula = Lookup(Resource."Base Unit of Measure" WHERE("No." = FIELD("Resource No.")));
+            Caption = 'Unit of Measure';
+            FieldClass = FlowField;
+            Editable = false;
         }
         field(12; "Open Exists"; Boolean)
         {
@@ -150,6 +169,38 @@ table 950 "Time Sheet Header"
             Caption = 'Type Filter';
             FieldClass = FlowFilter;
         }
+        field(40; "Quantity Open"; Decimal)
+        {
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
+                                                         Status = CONST(Open)));
+            Caption = 'Quantity Open';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(41; "Quantity Submitted"; Decimal)
+        {
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
+                                                         Status = CONST(Submitted)));
+            Caption = 'Quantity Submitted';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(42; "Quantity Approved"; Decimal)
+        {
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
+                                                         Status = CONST(Approved)));
+            Caption = 'Quantity Approved';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(43; "Quantity Rejected"; Decimal)
+        {
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
+                                                         Status = CONST(Rejected)));
+            Caption = 'Quantity Rejected';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys
@@ -172,6 +223,9 @@ table 950 "Time Sheet Header"
     fieldgroups
     {
         fieldgroup(DropDown; "No.", "Starting Date", "Ending Date", "Resource No.")
+        {
+        }
+        fieldgroup(Brick; "No.", "Starting Date", "Ending Date", "Resource No.", Quantity)
         {
         }
     }
@@ -280,13 +334,27 @@ table 950 "Time Sheet Header"
 
         TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
         SetFilter("Starting Date", '%1..', WorkDate);
-        if not FindFirst then begin
-            SetRange("Starting Date");
-            SetRange("Ending Date");
-            if not FindLast then
-                Error(Text002);
-        end;
-        exit("No.");
+        if FindFirst() then
+            exit("No.");
+
+        SetRange("Starting Date");
+        SetRange("Ending Date");
+        if FindLast() then
+            exit("No.");
+
+        Error(Text002);
+    end;
+
+    procedure FindCurrentTimeSheetNo(FilterFieldNo: Integer): Code[20]
+    begin
+        Reset();
+        SetCurrentKey("Resource No.", "Starting Date");
+
+        TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
+        SetFilter("Starting Date", '..%1', WorkDate());
+        if FindLast() then
+            exit("No.");
+        Error(Text002);
     end;
 
     local procedure AddToMyTimeSheets(UserID: Code[50])

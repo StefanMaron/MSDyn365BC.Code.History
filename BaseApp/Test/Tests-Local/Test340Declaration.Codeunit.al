@@ -1068,24 +1068,6 @@ codeunit 147315 "Test 340 Declaration"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATCashRegimeTextPrintedOnOrderConfirmation()
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-    begin
-        Initialize;
-        // VAT Cash Regime text is printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateVATSalesHeader(SalesHeader, true, true);
-
-        // [THEN] The text stating that we use CAC is printed on the invoice
-        Assert.IsTrue(OrderConfirmation.ShowCashAccountingCriteria(SalesHeader) <> '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATCashRegimeTextPrintedOnPurchaseInvoice()
     var
         VATEntry: Record "VAT Entry";
@@ -1184,26 +1166,6 @@ codeunit 147315 "Test 340 Declaration"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATCashRegimeTextPrintedOnSalesInvoice()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-    begin
-        Initialize;
-        // VAT Cash Regime text is printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateAndPostVATSalesInvoiceWithTwoLines(VATEntry, true, true);
-
-        // [THEN] The text stating that we use CAC is printed on the invoice
-        SalesInvoiceHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesInvoice.ShowCashAccountingCriteria(SalesInvoiceHeader) <> '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATCashRegimeTextPrintedOnPurchaseOrder()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1218,26 +1180,6 @@ codeunit 147315 "Test 340 Declaration"
 
         // [THEN] The text stating that we use CAC is printed on the invoice
         Assert.IsTrue(Order.ShowCashAccountingCriteria(PurchaseHeader) <> '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATCashRegimeTextPrintedOnSalesCreditMemo()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemo: Report "Sales - Credit Memo";
-    begin
-        Initialize;
-        // VAT Cash Regime text is printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Credit Memo
-        CreateAndPostVATSalesCreditMemo(VATEntry, true, true);
-
-        // [THEN] The text stating that we use CAC is printed on the invoice
-        SalesCrMemoHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesCreditMemo.ShowCashAccountingCriteria(SalesCrMemoHeader) <> '', CACPrintedOnReportErr);
     end;
 
     [Test]
@@ -1278,24 +1220,6 @@ codeunit 147315 "Test 340 Declaration"
         // [THEN] The text stating that we use CAC is printed on the invoice
         IssuedFinChargeMemoHeader.Get(VATEntry."Document No.");
         Assert.IsTrue(FinanceChargeMemo.ShowCashAccountingCriteria(IssuedFinChargeMemoHeader) <> '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithVATNotPrintedOnOrderConfirmation()
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateVATSalesHeader(SalesHeader, false, true);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        Assert.IsTrue(OrderConfirmation.ShowCashAccountingCriteria(SalesHeader) = '', CACPrintedOnReportErr);
     end;
 
     [Test]
@@ -1398,26 +1322,6 @@ codeunit 147315 "Test 340 Declaration"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithVATNotPrintedOnSalesInvoice()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateAndPostVATSalesInvoiceWithTwoLines(VATEntry, false, true);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        SalesInvoiceHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesInvoice.ShowCashAccountingCriteria(SalesInvoiceHeader) = '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATCashRegimeTextWithVATNotPrintedOnPurchaseOrder()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1432,26 +1336,6 @@ codeunit 147315 "Test 340 Declaration"
 
         // [THEN] The text stating that we use CAC is not printed on the invoice
         Assert.IsTrue(Order.ShowCashAccountingCriteria(PurchaseHeader) = '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithVATNotPrintedOnSalesCreditMemo()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemo: Report "Sales - Credit Memo";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
-        // [WHEN] X is posted where X is Sales Credit Memo
-        CreateAndPostVATSalesCreditMemo(VATEntry, false, true);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        SalesCrMemoHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesCreditMemo.ShowCashAccountingCriteria(SalesCrMemoHeader) = '', CACPrintedOnReportErr);
     end;
 
     [Test]
@@ -1492,24 +1376,6 @@ codeunit 147315 "Test 340 Declaration"
         // [THEN] The text stating that we use CAC is not printed on the invoice
         IssuedFinChargeMemoHeader.Get(VATEntry."Document No.");
         Assert.IsTrue(FinanceChargeMemo.ShowCashAccountingCriteria(IssuedFinChargeMemoHeader) = '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithoutVATNotPrintedOnOrderConfirmation()
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateVATSalesHeader(SalesHeader, false, false);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        Assert.IsTrue(OrderConfirmation.ShowCashAccountingCriteria(SalesHeader) = '', CACPrintedOnReportErr);
     end;
 
     [Test]
@@ -1612,26 +1478,6 @@ codeunit 147315 "Test 340 Declaration"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithoutVATNotPrintedOnSalesInvoice()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
-        // [WHEN] X is posted where X is Sales Invoice
-        CreateAndPostVATSalesInvoiceWithTwoLines(VATEntry, false, false);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        SalesInvoiceHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesInvoice.ShowCashAccountingCriteria(SalesInvoiceHeader) = '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATCashRegimeTextWithoutVATNotPrintedOnPurchaseOrder()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1646,26 +1492,6 @@ codeunit 147315 "Test 340 Declaration"
 
         // [THEN] The text stating that we use CAC is not printed on the invoice
         Assert.IsTrue(Order.ShowCashAccountingCriteria(PurchaseHeader) = '', CACPrintedOnReportErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATCashRegimeTextWithoutVATNotPrintedOnSalesCreditMemo()
-    var
-        VATEntry: Record "VAT Entry";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemo: Report "Sales - Credit Memo";
-    begin
-        Initialize;
-        // VAT Cash Regime text is not printed
-        // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
-        // [WHEN] X is posted where X is Sales Credit Memo
-        CreateAndPostVATSalesCreditMemo(VATEntry, false, false);
-
-        // [THEN] The text stating that we use CAC is not printed on the invoice
-        SalesCrMemoHeader.Get(VATEntry."Document No.");
-        Assert.IsTrue(SalesCreditMemo.ShowCashAccountingCriteria(SalesCrMemoHeader) = '', CACPrintedOnReportErr);
     end;
 
     [Test]

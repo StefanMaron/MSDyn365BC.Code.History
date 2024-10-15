@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5444 "Automation User"
 {
     APIGroup = 'automation';
@@ -10,6 +11,9 @@ page 5444 "Automation User"
     InsertAllowed = false;
     PageType = API;
     SourceTable = User;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -81,4 +85,4 @@ page 5444 "Automation User"
     var
         AutomationAPIManagement: Codeunit "Automation - API Management";
 }
-
+#endif

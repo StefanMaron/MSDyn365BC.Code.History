@@ -1094,7 +1094,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
-          NoTaxableEntry.Type::Sale, CustLedgerEntry."Customer No.",
+          NoTaxableEntry.Type::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", false);
         NoTaxableEntry.FindFirst;
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
@@ -1106,7 +1106,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
-          NoTaxableEntry.Type::Purchase, VendorLedgerEntry."Vendor No.",
+          NoTaxableEntry.Type::Purchase.AsInteger(), VendorLedgerEntry."Vendor No.",
           VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", false);
         NoTaxableEntry.FindFirst;
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
@@ -1118,7 +1118,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
-          NoTaxableEntry.Type::Sale, CustLedgerEntry."Customer No.",
+          NoTaxableEntry.Type::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", true);
 
         Assert.RecordCount(NoTaxableEntry, 2);
@@ -1136,7 +1136,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
-          NoTaxableEntry.Type::Purchase, VendorLedgerEntry."Vendor No.",
+          NoTaxableEntry.Type::Purchase.AsInteger(), VendorLedgerEntry."Vendor No.",
           VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", true);
         VerifyReversedAmounts(NoTaxableEntry, ExpectedAmount, ExpectedAmountLCY);
     end;

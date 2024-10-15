@@ -54,39 +54,6 @@ codeunit 137307 "SCM Assembly Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ReportHandlerOrderConfirmation,MsgHandler')]
-    [Scope('OnPrem')]
-    procedure VerifySalesOrderPrint()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesHeader2: Record "Sales Header";
-        OrderConfirmation: Report "Order Confirmation";
-        Language: Codeunit Language;
-        ActualReportLanguage: Integer;
-        ActualGlobalLanguage: Integer;
-    begin
-        Initialize;
-        // 1. Verify print of sales orders (report 205)
-        CleanSetupData;
-        CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
-        SalesHeader2.Get(SalesHeader2."Document Type"::Order, SalesOrderNo);
-        ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader2."Language Code");
-        ActualGlobalLanguage := GlobalLanguage;
-        SetAssemblyTrackingInfo(SalesOrderNo);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.SetRange("No.", SalesOrderNo);
-        GlobalLanguage(ActualReportLanguage);
-        OrderConfirmation.InitializeRequest(0, false, false, false, false, true);
-        OrderConfirmation.SetTableView(SalesHeader);
-        Commit();
-        OrderConfirmation.Run;
-        VerifyOrderConfirmationLines(OrderConfirmation.BlanksForIndent);
-        GlobalLanguage(ActualGlobalLanguage);
-        CleanSetupData;
-    end;
-
-    [Test]
     [HandlerFunctions('ReportHandlerSalesShipment,MsgHandler')]
     [Scope('OnPrem')]
     procedure VerifyShipmentPrint()
@@ -115,41 +82,6 @@ codeunit 137307 "SCM Assembly Reports"
         Commit();
         SalesShipment.Run;
         VerifySalesShipmentLines(SalesShipment.BlanksForIndent);
-        if ActualReportLanguage <> ActualGlobalLanguage then
-            GlobalLanguage(ActualGlobalLanguage);
-        CleanSetupData;
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerSalesInvoice,MsgHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyInvoicePrint()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesHeader: Record "Sales Header";
-        SalesInvoice: Report "Sales - Invoice";
-        Language: Codeunit Language;
-        ActualReportLanguage: Integer;
-        ActualGlobalLanguage: Integer;
-    begin
-        Initialize;
-        CleanSetupData;
-        CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
-        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
-        ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader."Language Code");
-        ActualGlobalLanguage := GlobalLanguage;
-        SetAssemblyTrackingInfo(SalesOrderNo);
-        ShipmentNo := PostOrderAsShip(SalesOrderNo, 1);
-        InvoiceNo := PostOrderAsInvoice(SalesOrderNo);
-        SalesInvoiceHeader.SetRange("No.", InvoiceNo);
-        if ActualReportLanguage <> ActualGlobalLanguage then
-            GlobalLanguage(ActualReportLanguage);
-        SalesInvoice.InitializeRequest(0, false, false, true);
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        Commit();
-        SalesInvoice.Run;
-        VerifySalesInvoiceLines(SalesInvoice.BlanksForIndent);
         if ActualReportLanguage <> ActualGlobalLanguage then
             GlobalLanguage(ActualGlobalLanguage);
         CleanSetupData;
@@ -704,23 +636,9 @@ codeunit 137307 "SCM Assembly Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ReportHandlerOrderConfirmation(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure ReportHandlerSalesShipment(var SalesShipment: TestRequestPage "Sales - Shipment")
     begin
         SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerSalesInvoice(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [MessageHandler]

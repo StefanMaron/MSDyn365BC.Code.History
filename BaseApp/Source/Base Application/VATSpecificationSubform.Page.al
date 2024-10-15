@@ -235,10 +235,7 @@ page 576 "VAT Specification Subform"
         VATAmountEditable := AllowVATDifference;
         ECAmountEditable := AllowVATDifference;
         InvoiceDiscountAmountEditable := AllowInvDisc;
-        if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get(CurrencyCode);
+        Currency.Initialize(CurrencyCode);
         CurrPage.Update(false);
     end;
 

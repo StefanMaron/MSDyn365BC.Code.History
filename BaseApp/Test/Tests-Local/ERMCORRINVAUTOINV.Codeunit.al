@@ -110,28 +110,6 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
     end;
 
     [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure CorrInvoiceOnPostedSaleCrMemoReport()
-    var
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-    begin
-        // Verify Sales - Credit Memo report title as 'Sales - Corrective invoice ' and Corrective Invoice Number.
-
-        // Setup: Create Customer, create and post Sales Invoice and Sales Credit Memo.
-        Initialize;
-        DocumentNo := CreateAndPostMultipleSalesDocument(SalesLine."Document Type"::"Credit Memo");
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Credit Memo");  // Open SalesCreditMemoRequestPageHandler.
-
-        // Verify: Verify Sales - Credit Memo report title as 'Sales - Corrective invoice ' and Corrective Invoice Number.
-        VerifyDocumentNoAndCorrectiveInvoice(
-          CorrInvNoSalesCrMemoHeaderCap, SalesCorrectiveInvCopyCap, DocumentNo, SalesCorrectiveInvoiceTxt);
-    end;
-
-    [Test]
     [HandlerFunctions('Make340DeclarationRequestPageHandler,Declaration340LinesPageHandler,ExportedSuccessfullyMessageHandler')]
     [Scope('OnPrem')]
     procedure CorrInvoiceWithMake340DeclarationReport()
@@ -656,13 +634,6 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         PurchasesAutoCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

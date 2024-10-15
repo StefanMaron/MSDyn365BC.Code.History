@@ -27,11 +27,9 @@ table 7000008 "BG/PO Comment Line"
         {
             Caption = 'Comment';
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Cartera Document Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Receivable,Payable';
-            OptionMembers = Receivable,Payable;
         }
     }
 

@@ -1,4 +1,4 @@
-page 5900 "Service Order"
+﻿page 5900 "Service Order"
 {
     Caption = 'Service Order';
     PageType = Document;
@@ -1171,12 +1171,9 @@ page 5900 "Service Order"
 
                     trigger OnAction()
                     var
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                         InstructionMgt: Codeunit "Instruction Mgt.";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostYesNo.PostDocument(ServHeader);
-                        DocumentIsPosted := not ServHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage;
                         CurrPage.Update(false);
@@ -1189,6 +1186,7 @@ page 5900 "Service Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category7;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1213,12 +1211,8 @@ page 5900 "Service Order"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostPrint.PostDocument(ServHeader);
-                        DocumentIsPosted := not ServHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action(PostBatch)
@@ -1288,23 +1282,20 @@ page 5900 "Service Order"
     var
         SIIManagement: Codeunit "SII Management";
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        if BillToContact.Get("Bill-to Contact No.") then;
-        if SellToContact.Get("Contact No.") then;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear("Contact No.");
         UpdateDocHasRegimeCode();
     end;
 
@@ -1391,7 +1382,7 @@ page 5900 "Service Order"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         if not OrderServiceHeader.Get("Document Type", "No.") then begin
-            ServiceInvoiceHeader.SetRange("No.", ServHeader."Last Posting No.");
+            ServiceInvoiceHeader.SetRange("No.", "Last Posting No.");
             if ServiceInvoiceHeader.FindFirst then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceOrderQst, ServiceInvoiceHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)

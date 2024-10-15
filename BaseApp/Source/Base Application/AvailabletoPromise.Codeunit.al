@@ -410,6 +410,11 @@ codeunit 5790 "Available to Promise"
             until AvailabilityAtDate.Next() = 0;
     end;
 
+    procedure GetRequiredShipmentDate(): Date
+    begin
+        exit(ReqShipDate);
+    end;
+
     procedure GetLookAheadPeriodEndDate(LookaheadDateFormula: DateFormula; PeriodType: Option; StartDate: Date): Date
     var
         CalendarManagement: Codeunit "Calendar Management";

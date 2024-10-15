@@ -1992,7 +1992,7 @@ codeunit 147305 "Cartera Posting"
         CustLedgEntry.Insert();
     end;
 
-    local procedure MockDtldCustLedgEntry(CustLedgEntryNo: Integer; PostingDate: Date; EntryType: Option): Decimal
+    local procedure MockDtldCustLedgEntry(CustLedgEntryNo: Integer; PostingDate: Date; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

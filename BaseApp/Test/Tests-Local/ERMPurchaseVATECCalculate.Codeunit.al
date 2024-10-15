@@ -68,6 +68,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
@@ -113,7 +114,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         // Exercise: Create and Post General Journal Line with Reverse Charge VAT.
         CreateAndPostGeneralJournalLine(
-          GenJournalLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CurrencyCode);
+              GenJournalLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CurrencyCode);
 
         // Verify: Verify General Ledger Entry - Debit Amount, VAT Amount and VAT Entry - Amount and Additional-Currency Amount.
         VATAmount := -GenJournalLine."VAT Base Amount" * VATPostingSetup."VAT+EC %" / 100;
@@ -121,8 +122,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VerifyGLEntryAmountAndVATAmount(
           GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", -GenJournalLine."Amount (LCY)", 0, VATAmount / CurrencyFactor);  // Credit Amount - 0.
         VerifyVATEntryAmountAndAdditionalCurrencyAmount(
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account No.", Round(VATAmount) / CurrencyFactor,
-          FindAdditionalCurrencyAmount(CurrencyCode, Round(VATAmount)));
+              GenJournalLine."Document Type"::Invoice, GenJournalLine."Account No.", Round(VATAmount) / CurrencyFactor,
+              FindAdditionalCurrencyAmount(CurrencyCode, Round(VATAmount)));
 
         // TearDown.
         UpdateGeneralLedgerSetupAdditionalReportingCurrency(OldAdditionalReportingCurrency);
@@ -164,7 +165,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         // Exercise: Create and Post General Journal Line with Normal VAT.
         CreateAndPostGeneralJournalLine(
-          GenJournalLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CurrencyCode);
+              GenJournalLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CurrencyCode);
 
         // Verify: Verify General Ledger Entry - Debit Amount, VAT Amount and VAT Entry - Amount and Additional-Currency Amount.
         VATAmount := GenJournalLine."Bal. VAT Base Amount" * VATPostingSetup."VAT+EC %" / 100;
@@ -173,8 +174,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", GenJournalLine."Bal. VAT Base Amount" / CurrencyFactor, 0,
           VATAmount / CurrencyFactor);  // Credit Amount - 0.
         VerifyVATEntryAmountAndAdditionalCurrencyAmount(
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account No.", Round(VATAmount) / CurrencyFactor,
-          FindAdditionalCurrencyAmount(CurrencyCode, Round(VATAmount)));
+              GenJournalLine."Document Type"::Invoice, GenJournalLine."Account No.", Round(VATAmount) / CurrencyFactor,
+              FindAdditionalCurrencyAmount(CurrencyCode, Round(VATAmount)));
 
         // TearDown.
         UpdateGeneralLedgerSetupAdditionalReportingCurrency(OldAdditionalReportingCurrency);
@@ -246,9 +247,9 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         // Exercise.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", PurchaseLine.Type::"G/L Account",
-          CreateGLAccountWithPostingGroup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
-          VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
+              PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", PurchaseLine.Type::"G/L Account",
+              CreateGLAccountWithPostingGroup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
+              VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
 
         // Verify: Verify VAT Amount Line - VAT Percentage EC Percentage, Line Amount, VAT Base and VAT Amount.
         VerifyVATAmountLinePurchaseCreditMemo(PurchaseLine."Buy-from Vendor No.", VATPct, ECPct, PurchaseLine.Amount);
@@ -715,7 +716,9 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
+#if not CLEAN19
         CopyPurchPrices();
+#endif
 
         // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreatePurchaseDocumentWithPriceInclVAT(
@@ -762,7 +765,9 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
+#if not CLEAN19
         CopyPurchPrices();
+#endif
 
         // [GIVEN] Purchase Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreatePurchaseDocumentWithPriceInclVAT(
@@ -971,18 +976,33 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure CreateItemWithPurchasePrice(UnitCost: Decimal; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VendorNo: Code[20]): Code[20]
     var
         Item: Record Item;
+#if not CLEAN19
         PurchasePrice: Record "Purchase Price";
+#else
+        PriceListLine: Record "Price List Line";
+#endif
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
+#if not CLEAN19
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitCost);
         PurchasePrice.Modify(true);
+#else
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.Validate("Direct Unit Cost", UnitCost);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+#endif
         exit(Item."No.");
     end;
 
+#if not CLEAN19
     local procedure CopyPurchPrices()
     var
         PurchasePrice: record "Purchase Price";
@@ -992,6 +1012,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PriceListLine.DeleteAll();
         CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
     end;
+#endif
 
     local procedure CreatePurchaseDocWithPostingSetup(var PurchaseHeader: Record "Purchase Header"): Decimal
     var

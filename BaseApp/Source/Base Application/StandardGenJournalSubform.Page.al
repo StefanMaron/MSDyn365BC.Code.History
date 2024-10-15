@@ -302,6 +302,12 @@ page 752 "Standard Gen. Journal Subform"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                    Visible = false;
+                }
             }
         }
     }

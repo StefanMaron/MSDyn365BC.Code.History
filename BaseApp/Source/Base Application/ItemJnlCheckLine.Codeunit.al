@@ -92,7 +92,10 @@ codeunit 21 "Item Jnl.-Check Line"
             if TransportMethod.Get("Transport Method") and TransportMethod."Port/Airport" then
                 TestField("Entry/Exit Point");
 
-            CheckBins(ItemJnlLine);
+            if Item.IsInventoriableType() then
+                CheckBins(ItemJnlLine)
+            else
+                ItemJnlLine.TestField("Bin Code", '');
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."] then
                 TestField("Discount Amount", 0);

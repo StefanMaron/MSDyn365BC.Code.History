@@ -305,6 +305,26 @@ page 5201 "Employee List"
                     end;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this employee.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Employee, Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(processing)
         {
@@ -364,6 +384,50 @@ page 5201 "Employee List"
                     EmployeeTemplMgt.UpdateEmployeesFromTemplate(Employee);
                 end;
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this employee.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::Employee, Rec.SystemId);
+                    if Rec."Company E-Mail" <> '' then
+                        TempEmailitem."Send to" := Rec."Company E-Mail"
+                    else
+                        TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
     }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Employee: Record Employee;
+    begin
+        CurrPage.SetSelectionFilter(Employee);
+        CanSendEmail := Employee.Count() = 1;
+    end;
+
+    trigger OnOpenPage()
+    var
+        EmailFeature: Codeunit "Email Feature";
+    begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
+    end;
+
+    var
+        [InDataSet]
+        CanSendEmail: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
+
 }

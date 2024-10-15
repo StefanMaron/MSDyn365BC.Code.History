@@ -481,7 +481,7 @@ page 147 "Posted Purchase Credit Memos"
     var
         SIIManagement: Codeunit "SII Management";
     begin
-        StyleText := SIIManagement.GetSIIStyle("SII Status");
+        StyleText := SIIManagement.GetSIIStyle("SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()

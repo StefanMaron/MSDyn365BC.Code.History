@@ -461,6 +461,11 @@ table 4 Currency
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -489,6 +494,9 @@ table 4 Currency
             Clustered = true;
         }
         key(Key2; SystemModifiedAt)
+        {
+        }
+        key(Key3; "Coupled to CRM")
         {
         }
     }
@@ -765,10 +773,17 @@ table 4 Currency
 
     procedure Initialize(CurrencyCode: Code[10])
     begin
-        if CurrencyCode <> '' then
-            Get(CurrencyCode)
-        else
-            InitRoundingPrecision;
+        Initialize(CurrencyCode, false);
+    end;
+
+    procedure Initialize(CurrencyCode: Code[10]; CheckAmountRoundingPrecision: Boolean)
+    begin
+        if CurrencyCode <> '' then begin
+            Get(CurrencyCode);
+            if CheckAmountRoundingPrecision then
+                TestField("Amount Rounding Precision");
+        end else
+            InitRoundingPrecision();
     end;
 
     procedure SuggestSetupAccounts()

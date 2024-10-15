@@ -1,4 +1,4 @@
-﻿codeunit 424 "Export Analysis View"
+codeunit 424 "Export Analysis View"
 {
 
     trigger OnRun()
@@ -54,13 +54,6 @@
         SkipDownload: Boolean;
         LastGLAccount: Code[20];
 
-#if not CLEAN16
-    [Obsolete('Replaced by ExportData with AnalysisByDimParameters.', '16.0')]
-    procedure ExportData(var Rec: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
-    begin
-
-    end;
-#endif
 
     procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
@@ -203,7 +196,7 @@
         with AnalysisViewEntry do begin
             StartDate := "Posting Date";
             AnalysisViewEntry2.SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
-            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = 1) then begin
+            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = "Analysis Amount Type"::"Balance at Date") then begin
                 MaxDate := AnalysisViewEntry2.GetRangeMax("Posting Date");
                 SetFilter("Posting Date", '<=%1', MaxDate);
             end;
@@ -285,7 +278,7 @@
         with AnalysisViewBudgetEntry do begin
             SetFilter("Analysis View Code", AnalysisView.Code);
             SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
-            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = 1) then begin
+            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = "Analysis Amount Type"::"Balance at Date") then begin
                 MaxDate := GetRangeMax("Posting Date");
                 SetFilter("Posting Date", '<= %1', MaxDate);
             end;
@@ -472,9 +465,9 @@
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 2, Text012);
             case AnalysisByDimParameters."Amount Type" of
-                0:
+                "Analysis Amount Type"::"Net Change":
                     FillCell(RowNoCount, 3, Text013);
-                1:
+                "Analysis Amount Type"::"Balance at Date":
                     FillCell(RowNoCount, 3, Text014);
             end;
             if AnalysisByDimParameters."Date Filter" <> '' then begin
@@ -985,4 +978,3 @@
     begin
     end;
 }
-

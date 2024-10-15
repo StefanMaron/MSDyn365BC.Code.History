@@ -433,26 +433,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     end;
 
     [Test]
-    [HandlerFunctions('OrderConfirmationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmation()
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        // Test to verify Report ID - 205 Order Confirmation is displaying the correct output without generating any error message.
-
-        // Setup: Create Sales Order.
-        Initialize;
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, '');  // Blank - Currency Code.
-
-        // Exercise: Run Report - Order Confirmation, opens handler - OrderConfirmationRequestPageHandler.
-        RunOrderConfirmationReport(SalesLine."Document Type", SalesLine."Document No.");
-
-        // Exercise: Verify Sales Line - Document Number, VAT Base Amount, VAT Identifier and Sell To Customer Number on generated XML of Report - Order Confirmation.
-        VerifySalesLineDetail(SalesLine);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SalesDiscAccOnPostedSalesInvoice()
     var
@@ -580,7 +560,9 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+#if not CLEAN19
         CopySalesPrices();
+#endif
 
         // [GIVEN] Posted Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -628,7 +610,9 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+#if not CLEAN19
         CopySalesPrices();
+#endif
 
         // [GIVEN] Sales Invoice with Item Quantity = 1, Unit Price = 100, Prices Including VAT = TRUE
         CreateSalesDocumentWithPriceInclVAT(
@@ -805,6 +789,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";
@@ -814,6 +799,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         PriceListLine.DeleteAll();
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
+#endif
 
     local procedure CreateCustomerWithPostingGroup(GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Code[20]
     var
@@ -1106,17 +1092,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         PostedSalesInvoice.Statistics.Invoke;
         PostedSalesInvoice.Close;
     end;
-
-    local procedure RunOrderConfirmationReport(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        SalesHeader.SetRange("Document Type", DocumentType);
-        SalesHeader.SetRange("No.", DocumentNo);
-        Commit();  // COMMIT is required.
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);  // Request window - TRUE and Printer - False.
-    end;
-
+    
     local procedure RunSalesPrepmtDocTestReport(SalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -1248,13 +1224,6 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
           VATAmount, SalesStatistics.SubForm."VAT Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
           ECAmount, SalesStatistics.SubForm."EC Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

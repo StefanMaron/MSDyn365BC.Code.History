@@ -1,4 +1,4 @@
-﻿codeunit 8 AccSchedManagement
+codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
 
@@ -903,7 +903,10 @@
             else
                 SetFilter("G/L Account No.", GLAcc.Totaling);
             GLAcc.CopyFilter("Date Filter", Date);
-            AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
+            if ColumnLayout."Budget Name" <> '' then
+                GLBudgetEntry.SetRange("Budget Name", ColumnLayout."Budget Name")
+            else
+                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
             AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
             AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
             AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
@@ -929,7 +932,10 @@
                 SetFilter("G/L Account No.", GLAcc.Totaling);
             SetRange("Analysis View Code", AccSchedName."Analysis View Name");
             GLAcc.CopyFilter("Date Filter", "Posting Date");
-            AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
+            if ColumnLayout."Budget Name" <> '' then
+                SetRange("Budget Name", ColumnLayout."Budget Name")
+            else
+                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
             AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
             CopyDimFilters(AccSchedLine);
             FilterGroup(2);
@@ -1337,7 +1343,7 @@
 
     procedure FormatCellAsText(var ColumnLayout2: Record "Column Layout"; Value: Decimal; CalcAddCurr: Boolean) ValueAsText: Text[30]
     begin
-        ValueAsText := MatrixMgt.FormatValue(Value, ColumnLayout2."Rounding Factor", CalcAddCurr);
+        ValueAsText := MatrixMgt.FormatAmount(Value, ColumnLayout2."Rounding Factor", CalcAddCurr);
 
         if (ValueAsText <> '') and
            (ColumnLayout2."Column Type" = ColumnLayout2."Column Type"::Formula) and
@@ -1944,6 +1950,12 @@
         EndDate := NewEndDate;
     end;
 
+    procedure GetStartDateEndDate(var OutputStartDate: Date; var OutputEndDate: Date)
+    begin
+        OutputStartDate := StartDate;
+        OutputEndDate := EndDate;
+    end;
+
     local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
@@ -2139,19 +2151,19 @@
         end;
     end;
 
-    procedure FindPeriod(var AccScheduleLine: Record "Acc. Schedule Line"; SearchText: Text[3]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    procedure FindPeriod(var AccScheduleLine: Record "Acc. Schedule Line"; SearchText: Text[3]; PeriodType: Enum "Analysis Period Type")
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         with AccScheduleLine do begin
             if GetFilter("Date Filter") <> '' then begin
                 Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-                if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                    PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+                if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                    PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
-            PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+            PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
             SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
                 SetRange("Date Filter", GetRangeMin("Date Filter"));

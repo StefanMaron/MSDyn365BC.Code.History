@@ -332,7 +332,7 @@ page 5971 "Posted Service Credit Memos"
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
 
-        StyleText := SIIManagement.GetSIIStyle("SII Status");
+        StyleText := SIIManagement.GetSIIStyle("SII Status".AsInteger());
     end;
 
     trigger OnOpenPage()

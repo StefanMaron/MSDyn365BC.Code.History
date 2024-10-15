@@ -121,7 +121,7 @@ table 8616 "Config. Package Field"
         }
         field(15; "Mapping Exists"; Boolean)
         {
-            CalcFormula = Exist("Config. Field Mapping" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Exist("Config. Field Map" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID"),
                                                                "Field ID" = FIELD("Field ID")));
             Caption = 'Mapping Exists';
@@ -169,7 +169,7 @@ table 8616 "Config. Package Field"
 
     trigger OnDelete()
     begin
-        DeleteConfigFieldMapping;
+        DeleteConfigFieldMap();
     end;
 
     var
@@ -189,6 +189,7 @@ table 8616 "Config. Package Field"
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         RecRef: RecordRef;
         FieldRef: FieldRef;
+        ErrorText: Text[250];
         ShouldRunCheck: Boolean;
     begin
         ShouldRunCheck := not Dimension;
@@ -209,7 +210,8 @@ table 8616 "Config. Package Field"
                       ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
                     ConfigPackageMgt.CleanFieldError(ConfigPackageData);
                     if "Include Field" then begin
-                        ConfigPackageMgt.FieldError(ConfigPackageData, ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, false), 0);
+                        ErrorText := CopyStr(ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, false), 1, MaxStrLen(ErrorText));
+                        ConfigPackageMgt.FieldError(ConfigPackageData, ErrorText, 0);
                         if "Validate Field" then begin
                             Clear(TempConfigPackageTable);
                             ConfigPackageField.Init();
@@ -229,14 +231,14 @@ table 8616 "Config. Package Field"
         end;
     end;
 
-    local procedure DeleteConfigFieldMapping()
+    local procedure DeleteConfigFieldMap()
     var
-        ConfigFieldMapping: Record "Config. Field Mapping";
+        ConfigFieldMap: Record "Config. Field Map";
     begin
-        ConfigFieldMapping.SetRange("Package Code", "Package Code");
-        ConfigFieldMapping.SetRange("Table ID", "Table ID");
-        ConfigFieldMapping.SetRange("Field ID", "Field ID");
-        ConfigFieldMapping.DeleteAll();
+        ConfigFieldMap.SetRange("Package Code", "Package Code");
+        ConfigFieldMap.SetRange("Table ID", "Table ID");
+        ConfigFieldMap.SetRange("Field ID", "Field ID");
+        ConfigFieldMap.DeleteAll();
     end;
 
     procedure GetRelationTablesID() Result: Text
@@ -280,7 +282,7 @@ table 8616 "Config. Package Field"
         exit(ConfigXMLExchange.GetElementName("Field Name"));
     end;
 
-    procedure GetValidatedElementName(): Text[250]
+    procedure GetValidatedElementName(): Text
     var
         ConfigValidateMgt: Codeunit "Config. Validate Management";
     begin

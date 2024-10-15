@@ -238,12 +238,10 @@ table 5071 Campaign
             MaxValue = 100;
             MinValue = 0;
         }
-        field(33; "Task Status Filter"; Option)
+        field(33; "Task Status Filter"; Enum "Task Status")
         {
             Caption = 'Task Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
         }
         field(34; "Task Closed Filter"; Boolean)
         {

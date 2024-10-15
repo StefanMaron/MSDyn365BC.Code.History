@@ -10,7 +10,7 @@ codeunit 10758 "SII Scheme Code Mgt."
     begin
         exit(3);
     end;
-	
+
     procedure SalesDocHasRegimeCodes(RecVar: Variant): Boolean
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -91,7 +91,7 @@ codeunit 10758 "SII Scheme Code Mgt."
         end;
     end;
 
-    local procedure MoveSalesRegimeCodesToPostedDoc(DocType: Option; DocNo: Code[20]; EntryType: Option; PostedDocType: Option; PostedDocNo: Code[20])
+    local procedure MoveSalesRegimeCodesToPostedDoc(DocType: Enum "Service Document Type"; DocNo: Code[20]; EntryType: Option; PostedDocType: Option; PostedDocNo: Code[20])
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
         NewSIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";

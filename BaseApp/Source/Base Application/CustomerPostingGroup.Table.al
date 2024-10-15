@@ -20,7 +20,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Receivables Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
 
                 Validate("Receivables Account");
@@ -31,8 +31,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Receivables Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                    CheckGLAccount(
+                      FieldNo("Receivables Account"), "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
             end;
         }
         field(7; "Service Charge Acc."; Code[20])
@@ -45,7 +45,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Service Charge Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
 
                 Validate("Service Charge Acc.");
@@ -56,8 +56,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                    CheckGLAccount(
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -70,7 +70,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Disc. Debit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Payment Disc. Debit Acc.", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Payment Disc. Debit Acc.", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Payment Disc. Debit Acc.")
             end;
@@ -80,7 +80,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Disc. Debit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Payment Disc. Debit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Payment Disc. Debit Acc."), "Payment Disc. Debit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(9; "Invoice Rounding Account"; Code[20])
@@ -93,7 +93,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Invoice Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Invoice Rounding Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Invoice Rounding Account", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Invoice Rounding Account");
             end;
@@ -103,7 +103,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", true, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(10; "Additional Fee Account"; Code[20])
@@ -116,7 +116,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Additional Fee Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Additional Fee Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Additional Fee Account", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Additional Fee Account");
             end;
@@ -126,7 +126,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Additional Fee Account", true, true)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Additional Fee Account", true, true, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Additional Fee Account"), "Additional Fee Account", true, true, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(11; "Interest Account"; Code[20])
@@ -139,7 +139,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Interest Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Interest Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Interest Account", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Interest Account");
             end;
@@ -149,7 +149,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Interest Account", true, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Interest Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Interest Account"), "Interest Account", true, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(12; "Debit Curr. Appln. Rndg. Acc."; Code[20])
@@ -162,7 +162,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Debit Curr. Appln. Rndg. Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Debit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Debit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Debit Curr. Appln. Rndg. Acc.");
             end;
@@ -172,8 +172,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Debit Curr. Appln. Rndg. Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Debit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(
+                      FieldNo("Debit Curr. Appln. Rndg. Acc."), "Debit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(13; "Credit Curr. Appln. Rndg. Acc."; Code[20])
@@ -186,7 +186,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Credit Curr. Appln. Rndg. Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Credit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Credit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Credit Curr. Appln. Rndg. Acc.");
             end;
@@ -196,8 +196,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Credit Curr. Appln. Rndg. Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Credit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(
+                      FieldNo("Credit Curr. Appln. Rndg. Acc."), "Credit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(14; "Debit Rounding Account"; Code[20])
@@ -210,7 +210,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Debit Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Debit Rounding Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Debit Rounding Account", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Debit Rounding Account");
             end;
@@ -220,8 +220,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Debit Rounding Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Debit Rounding Account", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(
+                      FieldNo("Debit Rounding Account"), "Debit Rounding Account", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(15; "Credit Rounding Account"; Code[20])
@@ -234,7 +234,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Credit Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Credit Rounding Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Credit Rounding Account", GLAccountCategory."Account Category"::Income, '');
                 Validate("Credit Rounding Account");
             end;
 
@@ -243,7 +243,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Credit Rounding Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Credit Rounding Account", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Credit Rounding Account"), "Credit Rounding Account", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(16; "Payment Disc. Credit Acc."; Code[20])
@@ -256,7 +256,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Disc. Credit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Payment Disc. Credit Acc.", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Payment Disc. Credit Acc.", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Payment Disc. Credit Acc.");
             end;
@@ -266,7 +266,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Disc. Credit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Payment Disc. Credit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Payment Disc. Credit Acc."), "Payment Disc. Credit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(17; "Payment Tolerance Debit Acc."; Code[20])
@@ -279,7 +279,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Debit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Payment Tolerance Debit Acc.");
             end;
@@ -289,8 +289,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Tolerance Debit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Payment Tolerance Debit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(
+                      FieldNo("Payment Tolerance Debit Acc."), "Payment Tolerance Debit Acc.", false, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(18; "Payment Tolerance Credit Acc."; Code[20])
@@ -303,7 +303,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Credit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
                       "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
 
                 Validate("Payment Tolerance Credit Acc.");
@@ -314,8 +314,8 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Tolerance Credit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Payment Tolerance Credit Acc.", false, false,
+                    CheckGLAccount(
+                      FieldNo("Payment Tolerance Credit Acc."), "Payment Tolerance Credit Acc.", false, false,
                       GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
             end;
         }
@@ -329,7 +329,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Add. Fee per Line Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Add. Fee per Line Account", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Add. Fee per Line Account", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Add. Fee per Line Account");
             end;
@@ -339,7 +339,7 @@ table 92 "Customer Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Add. Fee per Line Account", true, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Add. Fee per Line Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Add. Fee per Line Account"), "Add. Fee per Line Account", true, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(20; Description; Text[100])
@@ -436,8 +436,8 @@ table 92 "Customer Posting Group"
     procedure GetReceivablesAccount() Result: Code[20]
     begin
         if "Receivables Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Receivables Account"));
-        TestField("Receivables Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Receivables Account"));
+
         Result := "Receivables Account";
         OnAfterGetReceivablesAccount(Rec, Result);
     end;
@@ -446,13 +446,13 @@ table 92 "Customer Posting Group"
     begin
         if Debit then begin
             if "Payment Disc. Debit Acc." = '' then
-                PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Payment Disc. Debit Acc."));
-            TestField("Payment Disc. Debit Acc.");
+                PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Payment Disc. Debit Acc."));
+
             exit("Payment Disc. Debit Acc.");
         end;
         if "Payment Disc. Credit Acc." = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Payment Disc. Credit Acc."));
-        TestField("Payment Disc. Credit Acc.");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Payment Disc. Credit Acc."));
+
         exit("Payment Disc. Credit Acc.");
     end;
 
@@ -460,13 +460,13 @@ table 92 "Customer Posting Group"
     begin
         if Debit then begin
             if "Payment Tolerance Debit Acc." = '' then
-                PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Payment Tolerance Debit Acc."));
-            TestField("Payment Tolerance Debit Acc.");
+                PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Payment Tolerance Debit Acc."));
+
             exit("Payment Tolerance Debit Acc.");
         end;
         if "Payment Tolerance Credit Acc." = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Payment Tolerance Credit Acc."));
-        TestField("Payment Tolerance Credit Acc.");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Payment Tolerance Credit Acc."));
+
         exit("Payment Tolerance Credit Acc.");
     end;
 
@@ -474,13 +474,13 @@ table 92 "Customer Posting Group"
     begin
         if Debit then begin
             if "Debit Rounding Account" = '' then
-                PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Debit Rounding Account"));
-            TestField("Debit Rounding Account");
+                PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Debit Rounding Account"));
+
             exit("Debit Rounding Account");
         end;
         if "Credit Rounding Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Credit Rounding Account"));
-        TestField("Credit Rounding Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Credit Rounding Account"));
+
         exit("Credit Rounding Account");
     end;
 
@@ -488,13 +488,13 @@ table 92 "Customer Posting Group"
     begin
         if Debit then begin
             if "Debit Curr. Appln. Rndg. Acc." = '' then
-                PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Debit Curr. Appln. Rndg. Acc."));
-            TestField("Debit Curr. Appln. Rndg. Acc.");
+                PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Debit Curr. Appln. Rndg. Acc."));
+
             exit("Debit Curr. Appln. Rndg. Acc.");
         end;
         if "Credit Curr. Appln. Rndg. Acc." = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Credit Curr. Appln. Rndg. Acc."));
-        TestField("Credit Curr. Appln. Rndg. Acc.");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Credit Curr. Appln. Rndg. Acc."));
+
         exit("Credit Curr. Appln. Rndg. Acc.");
     end;
 
@@ -524,40 +524,40 @@ table 92 "Customer Posting Group"
             GLAccount.Get("Invoice Rounding Account");
             GLAccount.CheckGenProdPostingGroup();
         end else
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Invoice Rounding Account"));
-        TestField("Invoice Rounding Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Invoice Rounding Account"));
+
         exit("Invoice Rounding Account");
     end;
 
     procedure GetServiceChargeAccount(): Code[20]
     begin
         if "Service Charge Acc." = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Service Charge Acc."));
-        TestField("Service Charge Acc.");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Service Charge Acc."));
+
         exit("Service Charge Acc.");
     end;
 
     procedure GetAdditionalFeeAccount(): Code[20]
     begin
         if "Additional Fee Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Additional Fee Account"));
-        TestField("Additional Fee Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Additional Fee Account"));
+
         exit("Additional Fee Account");
     end;
 
     procedure GetAddFeePerLineAccount(): Code[20]
     begin
         if "Add. Fee per Line Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Add. Fee per Line Account"));
-        TestField("Add. Fee per Line Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Add. Fee per Line Account"));
+
         exit("Add. Fee per Line Account");
     end;
 
     procedure GetInterestAccount(): Code[20]
     begin
         if "Interest Account" = '' then
-            PostingSetupMgt.SendCustPostingGroupNotification(Rec, FieldCaption("Interest Account"));
-        TestField("Interest Account");
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Interest Account"));
+
         exit("Interest Account");
     end;
 
@@ -573,6 +573,16 @@ table 92 "Customer Posting Group"
         SalesSetup.Get();
         InvRoundingVisible := SalesSetup."Invoice Rounding";
         ApplnRoundingVisible := SalesSetup."Appln. between Currencies" <> SalesSetup."Appln. between Currencies"::None;
+    end;
+
+    local procedure CheckGLAccount(ChangedFieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
+    begin
+        GLAccountCategoryMgt.CheckGLAccount(Database::"Customer Posting Group", ChangedFieldNo, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory);
+    end;
+
+    local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        GLAccountCategoryMgt.LookupGLAccount(Database::"Customer Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 
     [IntegrationEvent(false, false)]

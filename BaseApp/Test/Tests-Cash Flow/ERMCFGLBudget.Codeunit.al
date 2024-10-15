@@ -68,7 +68,7 @@ codeunit 134556 "ERM CF GL Budget"
         asserterror GLBudgetIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::" ");
     end;
 
-    local procedure GLBudgetIntegration(GLAccountType: Option; Integration: Option)
+    local procedure GLBudgetIntegration(GLAccountType: Enum "G/L Account Type"; Integration: Option)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowAccount: Record "Cash Flow Account";
@@ -159,7 +159,7 @@ codeunit 134556 "ERM CF GL Budget"
         asserterror GLBalanceIntegration(GLAccount."Account Type"::Posting, CashFlowAccount."G/L Integration"::" ");
     end;
 
-    local procedure GLBalanceIntegration(GLAccountType: Option; Integration: Option)
+    local procedure GLBalanceIntegration(GLAccountType: Enum "G/L Account Type"; Integration: Option)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowAccount: Record "Cash Flow Account";
@@ -223,7 +223,7 @@ codeunit 134556 "ERM CF GL Budget"
         end;
     end;
 
-    local procedure FindGLAccount(var GLAccount: Record "G/L Account"; AccountType: Option)
+    local procedure FindGLAccount(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")
     begin
         // Filter G/L Account so that errors are not generated due to mandatory fields.
         GLAccount.SetRange(Blocked, false);
@@ -231,7 +231,7 @@ codeunit 134556 "ERM CF GL Budget"
         GLAccount.FindFirst;
     end;
 
-    local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Option)
+    local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")
     begin
         case AccountType of
             GLAccount."Account Type"::Heading:
@@ -268,7 +268,7 @@ codeunit 134556 "ERM CF GL Budget"
         end;
     end;
 
-    local procedure CreateGLAccWithType(AccountType: Option): Code[20]
+    local procedure CreateGLAccWithType(AccountType: Enum "G/L Account Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 7010 "Purch. Price Calc. Mgt."
 {
     ObsoleteState = Pending;
@@ -1145,4 +1146,4 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     begin
     end;
 }
-
+#endif

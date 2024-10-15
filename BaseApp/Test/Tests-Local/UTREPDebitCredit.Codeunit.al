@@ -739,7 +739,7 @@ codeunit 144040 "UT REP Debit Credit"
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; EntryType: Option; Amount: Decimal; AmountLCY: Decimal)
+    local procedure CreateCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal; AmountLCY: Decimal)
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
@@ -751,7 +751,7 @@ codeunit 144040 "UT REP Debit Credit"
         CreateDetailedCustomerLedgerEntry(EntryType, CustLedgerEntry."Entry No.", Amount, AmountLCY);
     end;
 
-    local procedure CreateDetailedCustomerLedgerEntry(EntryType: Option; CustLedgerEntryNo: Integer; Amount: Decimal; AmountLCY: Decimal)
+    local procedure CreateDetailedCustomerLedgerEntry(EntryType: Enum "Detailed CV Ledger Entry Type"; CustLedgerEntryNo: Integer; Amount: Decimal; AmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
