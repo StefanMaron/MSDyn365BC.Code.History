@@ -5,7 +5,7 @@ page 2672 "Fixed Account Distribution"
     PageType = ListPart;
     SourceTable = "Alloc. Account Distribution";
     AutoSplitKey = true;
-    MultipleNewLines = false;
+    DelayedInsert = true;
 
     layout
     {
@@ -24,7 +24,7 @@ page 2672 "Fixed Account Distribution"
                 {
                     ApplicationArea = All;
                     Caption = 'Destination Account Number';
-                    ToolTip = 'Specifies the account number that the amount will be posted to.';
+                    ToolTip = 'Specifies the account number that the amount will be posted to. You can select Destination Account Number if Destination Account Type field is G/L Account or Bank Account. If Destination Account Type field is Inherit from Parent, Destination Account Number and Destination Account Type will be taken from the line when the Allocation Account No. field is set.';
                 }
                 field("Destination Account Name"; Rec.LookupDistributionAccountName())
                 {

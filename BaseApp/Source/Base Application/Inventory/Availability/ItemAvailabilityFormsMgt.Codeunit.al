@@ -256,6 +256,10 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with Item do begin
             TestField("No.");
+            if IsNullGuid(Item.SystemId) then begin
+                Item.SecurityFiltering(SecurityFilter::Filtered);
+                Item.Get(Item."No.");
+            end;
 
             OnBeforeShowItemAvailFromItem(Item);
             case AvailabilityType of
