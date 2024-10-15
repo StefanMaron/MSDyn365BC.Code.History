@@ -9,6 +9,7 @@ page 7002 "Sales Prices"
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -142,6 +143,12 @@ page 7002 "Sales Prices"
                     begin
                         CurrencyCodeFilterOnAfterValid;
                     end;
+                }
+                field(SystemId; SystemId)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies system id to provide OData capabilities.';
+                    Visible = false;
                 }
             }
             group(Filters)
