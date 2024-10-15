@@ -46,6 +46,7 @@ codeunit 5772 "Whse.-Purch. Release"
                     WhseType := WhseType::Inbound
                 else
                     WhseType := WhseType::Outbound;
+                OnReleaseOnAfterSetWhseType(PurchHeader, PurchLine, WhseType);
                 if First or (PurchLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
                     CreateWarehouseRequest(PurchHeader, PurchLine, WhseType);
 
@@ -183,6 +184,11 @@ codeunit 5772 "Whse.-Purch. Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnReleaseOnAfterCreateWhseRequest(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; WhseType: Option Inbound,Outbound)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseOnAfterSetWhseType(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var WarehouseRequestType: Enum "Warehouse Request Type")
     begin
     end;
 }

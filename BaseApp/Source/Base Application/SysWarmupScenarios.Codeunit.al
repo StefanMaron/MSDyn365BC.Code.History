@@ -20,8 +20,11 @@ codeunit 130411 "Sys. Warmup Scenarios"
         if not Item.FindFirst() then
             exit;
 
+        OnWarmupInvoicePostingBeforeCreateSalesInvoice(SalesHeader);
         CreateSalesInvoice(SalesHeader, Customer, Item);
         PostSalesInvoice(SalesHeader);
+
+        OnAfterWarmupInvoicePosting(SalesHeader);
     end;
 
     local procedure GetRandomString(): Text
@@ -64,6 +67,16 @@ codeunit 130411 "Sys. Warmup Scenarios"
         SalesLine.Validate("No.", Item."No.");
         SalesLine.Validate(Quantity, 1);
         SalesLine.Modify(true);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterWarmupInvoicePosting(SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnWarmupInvoicePostingBeforeCreateSalesInvoice(SalesHeader: Record "Sales Header")
+    begin
     end;
 }
 
